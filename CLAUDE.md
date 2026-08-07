@@ -273,6 +273,11 @@ git config pull.rebase true && git config rebase.autoStash true   # once per clo
 - **Conflicts:** resolve them on your branch during rebase; if the conflict
   is in someone else's active territory or a hot file, talk on the issue
   first rather than guessing. Never "resolve" by reverting their change.
+- **Portable paths:** collaborators are on Windows and macOS — no filenames
+  containing `? : * " < > |` or backslashes, no trailing dots/spaces, no
+  `CON`/`NUL`-style names, keep paths < 240 chars, no case-only twins.
+  `python tools/dev/check_portable_paths.py` checks the tracked tree (CI
+  runs it); scripts that write `<name>.json` must never run with an empty name.
 - **Never:** commit directly to `main`; force-push `main`; rewrite history
   others have pulled; leave generated artifacts or ignored-dir content in
   a commit; let a branch live for more than a few days without rebasing.
