@@ -161,6 +161,13 @@ everyone; never start work someone else is assigned to. If the work you
 want isn't an issue yet, open one first (title = the checkable DONE, body =
 territory + record path), then claim it.
 
+**Don't know what to work on? That's expected.** Read the pinned issue
+**"START HERE"** ([#25](https://github.com/ckaragitz/tekton/issues/25)):
+it explains the labels and how to choose. Rule of thumb: if you are not
+on the owner's machine, pick `ready` issues (doable from a fresh clone —
+no `samples/`, no viewer login), `P0` before `P1`, and `good-first-pick`
+for your first PR here.
+
 **Session start protocol (every session, every time):**
 ```bash
 git switch main && git pull --ff-only          # start from current trunk
