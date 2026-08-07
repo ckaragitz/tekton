@@ -146,6 +146,42 @@ uv pip install --python .venv/bin/python ifcopenshell                   # OPTION
 - Git-ignored on purpose: `samples/ vendor/ extracted/` (third-party),
   `experiments/**/*.rvt|rfa` (5+ GB of probes), caches, zips.
 
+## 3b. This repo is the factory; `plugin/` is the product
+
+The thing being built (and eventually sold) is the **plugin + skills**
+under `plugin/` (zipped as `tekton-plugin.zip`). Keep the two roles apart
+so a development session never confuses itself with an end-user session:
+
+- **Developing (you, in this repo):** drive the engine through the CLIs in
+  §2 (`tools/frontdoor.py`, `tools/route.py`, …) and the tests. The repo
+  intentionally has **no `.claude/skills/`** — the product skills are *not*
+  auto-loaded into your dev session, and you should not install the
+  plugin into the session you're coding in. `skills/` (repo root) and
+  `plugin/skills/*/SKILL.md` are **sources**; `plugin/lib`,
+  `plugin/skills/*/scripts`, `plugin/assets` are **built copies** —
+  regenerate with `tools/sync_plugin.py`, never hand-edit.
+- **Testing the product (as a user would), every time you touch `src/`,
+  `tools/`, `skills/`, or `plugin/`:**
+  ```bash
+  .venv/bin/python tools/sync_plugin.py                    # build: mirror sources -> plugin/, deny-audit, validate, re-zip
+  .venv/bin/python plugin/scripts/validate_plugin.py       # structural checks (manifest, frontmatter, referenced paths)
+  .venv/bin/python -m pytest tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_coldstart.py tests/test_surface_perf.py -q
+  # run it exactly like a skill session on a bare surface (unzipped plugin, no repo on the path):
+  .venv/bin/python tools/surface_bench.py --zip tekton-plugin.zip --json out/bench.json   # cowork-VM / stateless / local simulations, wall time + call counts
+  # or by hand: unzip tekton-plugin.zip to a temp dir, then from that dir:
+  python3 skills/tekton-author/scripts/_bootstrap.py go author --prompt "an electrical room with 6 panels" --out out/j1 --json
+  ```
+  The `go` verb is the one-call dispatch a real skill session uses
+  (preflight + job + one JSON result); if it isn't `READY` from a bare
+  unzip with system Python, the product is broken regardless of what the
+  repo tests say.
+- **Trying the skills interactively:** do it in a *separate* scratch
+  directory/session with the built plugin loaded (`claude --plugin-dir
+  /path/to/tekton/plugin`, or install `tekton-plugin.zip`), never in the
+  repo checkout you're editing.
+- A PR that changes engine or skill behaviour states in its record which of
+  the above ran and their results (the PR template has the checkbox).
+
 ## 4. How work is done here (process) — multiple humans, multiple sessions
 
 Several people work here at once, each driving one or more coding
