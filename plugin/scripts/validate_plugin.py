@@ -187,15 +187,23 @@ def check_marketplace_json() -> None:
 
 
 # ---------------------------------------------------------------- components
+def skill_dirs(d: str) -> list[str]:
+    """Names under skills/ that are actual loadable skills.
+
+    `_shared` is the zero-pip bootstrap package and `__pycache__` is a build
+    artifact; neither carries a SKILL.md. Underscore marks both as not-a-skill.
+    """
+    return sorted(n for n in os.listdir(d)
+                  if not n.startswith("_") and os.path.isdir(os.path.join(d, n)))
+
+
 def check_skills() -> None:
     d = os.path.join(ROOT, "skills")
     if not os.path.isdir(d):
         fail("skills/ directory missing")
         return
-    for name in sorted(os.listdir(d)):
+    for name in skill_dirs(d):
         sd = os.path.join(d, name)
-        if not os.path.isdir(sd):
-            continue
         sm = os.path.join(sd, "SKILL.md")
         if not os.path.isfile(sm):
             fail(f"skills/{name}: SKILL.md missing")
@@ -303,18 +311,16 @@ PLACEHOLDER = re.compile(r"^(out|job|path|samples|extracted|docs|src|tools|vendo
 def check_referenced_paths() -> None:
     """Every plugin-relative path mentioned in backticks must exist."""
     docs: list[tuple[str, str]] = []          # (owner_dir, path)
-    for base, sub in (("skills", None),):
-        for skill in os.listdir(os.path.join(ROOT, "skills")):
-            sd = os.path.join(ROOT, "skills", skill)
-            if os.path.isdir(sd):
-                for f in os.listdir(sd):
-                    if f.endswith(".md"):
-                        docs.append((sd, os.path.join(sd, f)))
-                refdir = os.path.join(sd, "references")
-                if os.path.isdir(refdir):
-                    for f in os.listdir(refdir):
-                        if f.endswith(".md"):
-                            docs.append((sd, os.path.join(refdir, f)))
+    for skill in skill_dirs(os.path.join(ROOT, "skills")):
+        sd = os.path.join(ROOT, "skills", skill)
+        for f in os.listdir(sd):
+            if f.endswith(".md"):
+                docs.append((sd, os.path.join(sd, f)))
+        refdir = os.path.join(sd, "references")
+        if os.path.isdir(refdir):
+            for f in os.listdir(refdir):
+                if f.endswith(".md"):
+                    docs.append((sd, os.path.join(refdir, f)))
     for comp in ("agents", "commands"):
         cd = os.path.join(ROOT, comp)
         if os.path.isdir(cd):
