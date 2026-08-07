@@ -146,20 +146,40 @@ uv pip install --python .venv/bin/python ifcopenshell                   # OPTION
 - Git-ignored on purpose: `samples/ vendor/ extracted/` (third-party),
   `experiments/**/*.rvt|rfa` (5+ GB of probes), caches, zips.
 
-## 3b. This repo is the factory; `plugin/` is the product
+## 3b. The plugin is the product — and this is the primary repo for iterating on it
 
-The thing being built (and eventually sold) is the **plugin + skills**
-under `plugin/` (zipped as `tekton-plugin.zip`). Keep the two roles apart
-so a development session never confuses itself with an end-user session:
+What is being built (and eventually sold) is the **plugin + skill
+architecture** under `plugin/` (shipped as `tekton-plugin.zip`), backed by
+the engine in `src/rvt/`. **You are expected to work on the plugin code
+here** — skills, commands, agents, the bootstrap, the manifest, plugin
+docs — just as much as on the engine. The only thing to know is which
+paths are hand-authored (edit freely) and which are generated mirrors
+that `tools/sync_plugin.py` overwrites:
 
-- **Developing (you, in this repo):** drive the engine through the CLIs in
-  §2 (`tools/frontdoor.py`, `tools/route.py`, …) and the tests. The repo
-  intentionally has **no `.claude/skills/`** — the product skills are *not*
-  auto-loaded into your dev session, and you should not install the
-  plugin into the session you're coding in. `skills/` (repo root) and
-  `plugin/skills/*/SKILL.md` are **sources**; `plugin/lib`,
-  `plugin/skills/*/scripts`, `plugin/assets` are **built copies** —
-  regenerate with `tools/sync_plugin.py`, never hand-edit.
+| Edit here (source of truth) | Generated — don't hand-edit (regenerate with `tools/sync_plugin.py`) |
+|---|---|
+| `plugin/skills/{tekton-author,tekton-edit,tekton-inspect,tekton-native}/SKILL.md` + their `references/` | `plugin/skills/*/scripts/*.py` **except** `_bootstrap.py` (copies of `tools/*.py`) |
+| `plugin/skills/_shared/tekton_env.py`, each skill's `scripts/_bootstrap.py` shim | `plugin/skills/tekton-ifc/**` (mirror of repo-root `skills/tekton-ifc/`) — edit the root copy |
+| `plugin/commands/*.md`, `plugin/agents/*.md` | `plugin/lib/src/rvt/**` (mirror of `src/rvt/`), `plugin/lib/tools/*` |
+| `plugin/.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json` | `plugin/marketplace.json` (byte-identical derived copy) |
+| `plugin/README.md`, `plugin/docs/**`, `plugin/scripts/validate_plugin.py` | `plugin/assets/**` (pinned genesis bases, schema caches), `plugin/skills/*/examples/*` (copied from `spec/`, `inputs/`, `usecases/`) |
+| engine: `src/rvt/**`, CLIs: `tools/*.py`, IFC skill: `skills/tekton-ifc/**` | `tekton-plugin.zip` (git-ignored build artifact) |
+
+Rule of thumb: if `tools/sync_plugin.py --check` reports drift right after
+your edit, you edited a mirror — move the change to its source.
+Engine behaviour a skill needs → change `src/rvt/` or `tools/`, then sync;
+skill wording/flow/UX → change the `SKILL.md` / `_shared` / commands
+directly under `plugin/`.
+
+**Two hygiene notes so a dev session doesn't confuse itself with an
+end-user session:** the repo intentionally has **no `.claude/skills/`** (the
+product skills aren't auto-loaded into the session that is editing them),
+and interactive dogfooding of the skills is best done in a *separate*
+scratch session with the built plugin loaded (`claude --plugin-dir
+/path/to/tekton/plugin` or the installed zip) — so "the skill I'm editing"
+and "the skill I'm running" never blur. That's a recommendation for
+clarity, not a ban.
+
 - **Testing the product (as a user would), every time you touch `src/`,
   `tools/`, `skills/`, or `plugin/`:**
   ```bash
@@ -175,10 +195,6 @@ so a development session never confuses itself with an end-user session:
   (preflight + job + one JSON result); if it isn't `READY` from a bare
   unzip with system Python, the product is broken regardless of what the
   repo tests say.
-- **Trying the skills interactively:** do it in a *separate* scratch
-  directory/session with the built plugin loaded (`claude --plugin-dir
-  /path/to/tekton/plugin`, or install `tekton-plugin.zip`), never in the
-  repo checkout you're editing.
 - A PR that changes engine or skill behaviour states in its record which of
   the above ran and their results (the PR template has the checkbox).
 
