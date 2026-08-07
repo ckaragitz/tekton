@@ -146,12 +146,66 @@ uv pip install --python .venv/bin/python ifcopenshell                   # OPTION
 - Git-ignored on purpose: `samples/ vendor/ extracted/` (third-party),
   `experiments/**/*.rvt|rfa` (5+ GB of probes), caches, zips.
 
-## 4. How work is done here (process)
+## 4. How work is done here (process) — multiple humans, multiple sessions
 
-- **Orchestrator + parallel streams.** Substantial work is chartered as
-  streams with a *territory* (files it may touch), a checkable *DONE*, and
-  a *record*. **Only the orchestrator edits `TRACKER.md`**; streams propose
-  follow-ups in their final report or a `docs/inbox/<slug>.md`.
+Several people work here at once, each driving one or more coding
+sessions. Coordination is **GitHub Issues + trunk-based git**, with this
+repo's record conventions riding on top. A session never freelances on
+`main` and never "claims" work by editing a markdown file.
+
+**The queue is GitHub Issues.** One issue per task/stream, labelled by area
+(`engine`, `frontdoor`, `famgen`, `plugin`, `genesis`, `docs`, …) and state
+(`ready`, `hot-file`, `needs-viewer`, `blocked`). **Claiming = assigning
+yourself** (`gh issue edit <n> --add-assignee @me`) — atomic and visible to
+everyone; never start work someone else is assigned to. If the work you
+want isn't an issue yet, open one first (title = the checkable DONE, body =
+territory + record path), then claim it.
+
+**Session start protocol (every session, every time):**
+```bash
+git switch main && git pull --ff-only          # start from current trunk
+gh issue list --assignee @me --state open      # resume yours, or:
+gh issue list --label ready --search "no:assignee"   # pick one, then self-assign it
+git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR
+```
+Then read the issue, `KNOWLEDGE.md`, and any `docs/inbox/` records it cites
+before writing code.
+
+**Branch → PR → main (standard trunk-based flow):**
+- `main` is protected: no direct commits; merge only via PR with review +
+  green checks; squash-merge; delete the branch.
+- Keep PRs small and short-lived; `git fetch && git rebase origin/main`
+  before pushing; resolve conflicts on *your* branch, never by force-pushing
+  shared branches.
+- The PR **must** include the stream record `docs/inbox/<stream>.md` (with
+  its closing `BRANCH STATE`), the stream-local tests you ran (counts), and
+  `tools/sync_plugin.py --check` clean if you touched `src/`/`tools/`/`skills/`.
+  Link the issue (`Closes #n`). The PR template carries the checklist.
+- CI (as it comes online) runs the targeted tests, `sync_plugin.py --check`,
+  and `plugin/scripts/validate_plugin.py`; red CI blocks merge — fix, don't
+  bypass.
+
+**Hot files — serialize, don't stack.** `tools/frontdoor.py`,
+`plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`,
+`TRACKER.md`, `KNOWLEDGE.md`, `docs/coverage/viewer-certified.json`: changes
+need an issue labelled `hot-file`, a tiny dedicated PR, and a merge the same
+day. Everything else: prefer **new modules in your territory** and deliver
+edits to shared files as a patch in your record if someone else holds them.
+`experiments/<stream>/**` is namespaced per stream, so probes never collide.
+
+**Roles.** The *orchestrator* is a rotating human role, not a bot: they
+triage issues, keep `TRACKER.md` current **via PR** (it is the curated
+roadmap/summary, not the live claim board), fold `docs/inbox/learned-*.md`
+notes into `KNOWLEDGE.md`, and run/record viewer certification rounds.
+Contributors STAGE viewer batches on their branch (`probe_batch.py stage`)
+and stop at READY; whoever uploads records verdicts in
+`docs/coverage/viewer-certified.json` + `docs/inbox/genesis-audit.md` via a
+`hot-file` PR.
+
+- **Streams.** Substantial work is still chartered as a stream with a
+  *territory* (files it may touch), a checkable *DONE*, and a *record* — the
+  issue is the charter. Streams propose follow-ups by opening issues (or in
+  the PR description), never by editing `TRACKER.md` themselves.
 - **Every stream writes `docs/inbox/<stream>.md`**: what was built, the
   evidence (numbers, not adjectives), findings, open questions, and a
   closing **`BRANCH STATE`** block (files written, gates, what's staged vs
@@ -168,10 +222,12 @@ uv pip install --python .venv/bin/python ifcopenshell                   # OPTION
   pass/fail pairs; controls in every batch; an instrument bug voids the
   readings taken with it (re-run, don't reinterpret); "faster" needs a
   measured before/after from a bare environment.
-- **Commits**: plain descriptive messages about what the change does.
-  Regenerate rather than commit build artifacts. Never commit anything from
-  the ignored third-party dirs, and never a presenter cheat sheet
-  (`ANSWER_KEY.md`, `DEMO_RUNBOOK.md`, `demo-talk-track.md`).
+- **Commits**: plain descriptive messages about what the change does; one
+  logical change per commit; reference the issue. Regenerate rather than
+  commit build artifacts. Never commit anything from the ignored third-party
+  dirs, and never a presenter cheat sheet (`ANSWER_KEY.md`,
+  `DEMO_RUNBOOK.md`, `demo-talk-track.md`). Never force-push `main` or a
+  branch someone else has pulled.
 
 ## 5. Where things stand (read `KNOWLEDGE.md` for the full arc)
 
