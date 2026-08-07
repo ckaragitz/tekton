@@ -1,0 +1,1273 @@
+{
+ "rung": "P_pal_struct",
+ "label": "ONLY the 17 STRUCTURAL assets -- residue_b's ORIGINAL (swapped) constructor",
+ "kind": "inplace",
+ "stream": "genesis-residue-B",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; one our-record per residue slot",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+  "md5": "aa5952bceeb5830790f289af0d7cee27",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y9.rvt",
+ "parent_rung": "BASE",
+ "out": "experiments/genesis/subst_k4/palette_fix/P_pal_struct.rvt",
+ "description": "Bisection B: ZB5's exact structural-asset objects (the D1 int-param swap present: m_paramId = 3/0, m_value = -1150464/-1140322) -- predicted FAIL.",
+ "tests": "Whether the structural-asset sub-class carries the defect (predicted YES, D1).",
+ "if_PASS": "The structural sub-class is NOT the killer -- read P_pal_thermal.",
+ "if_FAIL": "The structural assets are convicted; P_pal_struct_v2 proves the fix.",
+ "stages": [],
+ "group_b_classes": {},
+ "parent_context": {
+  "host_elements": 3342,
+  "watermark": 1472524,
+  "protected_slots_from_earlier_rungs": 1333
+ },
+ "candidates_old_by_class": {
+  "PropertySetElement": 17
+ },
+ "our_records_by_class": {
+  "PropertySetElement": 17
+ },
+ "build_notes": [
+  "property sets: 17 structural assets <- residue_b's ORIGINAL constructor (the D1 int-param swap present) -- DIAGNOSTIC bisection probe"
+ ],
+ "build_info": {
+  "structural_original": 17
+ },
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 17,
+  "by_match": {
+   "role": 17
+  },
+  "landed_by_class": {
+   "PropertySetElement": 17
+  },
+  "dropped_ours": 0,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 0,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 17,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 17,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.4
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   174481,
+   174487,
+   174509,
+   174577,
+   174580,
+   174586,
+   174589,
+   174592,
+   174595,
+   174598,
+   194585,
+   600684,
+   1028776,
+   1170095,
+   1177773,
+   1352644,
+   1407838
+  ],
+  "records_changed_count": 17,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 17,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 174481,
+    "len_ours": 541,
+    "len_parent": 1303,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PropertySetElement",
+      "class_parent": "PropertySetElement"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[len]",
+      "ours": 2,
+      "parent": 10
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[0].m_paramId",
+      "ours": "-1150466",
+      "parent": "-1152342"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[0].m_value",
+      "ours": "'GEN Steel S345 (Fy 345 MPa)'",
+      "parent": "'structural:concrete'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[1].m_paramId",
+      "ours": "-1150465",
+      "parent": "-1152341"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[1].m_value",
+      "ours": "'Ferrous'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[len]",
+      "ours": 16,
+      "parent": 43
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_paramId",
+      "ours": "-1140300",
+      "parent": "-1152313"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_value",
+      "ours": "60960000000.0",
+      "parent": "68.16747667436367"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[1].m_paramId",
+      "ours": "-1140301",
+      "parent": "-1152312"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[1].m_value",
+      "ours": "60960000000.0",
+      "parent": "10763.910416709721"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[2].m_paramId",
+      "ours": "-1140302",
+      "parent": "-1152311"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[2].m_value",
+      "ours": "60960000000.0",
+      "parent": "5.2493438320209975"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_paramId",
+      "ours": "-1140303",
+      "parent": "-1152310"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_value",
+      "ours": "0.3",
+      "parent": "5.2493438320209975"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_paramId",
+      "ours": "-1140304",
+      "parent": "-1152309"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_value",
+      "ours": "0.3",
+      "parent": "5.2493438320209975"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_paramId",
+      "ours": "-1140305",
+      "parent": "-1152308"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_value",
+      "ours": "0.3",
+      "parent": "5.2493438320209975"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_paramId",
+      "ours": "-1140306",
+      "parent": "-1152307"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_value",
+      "ours": "23446153846.153847",
+      "parent": "9.999999999999999e-06"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_paramId",
+      "ours": "-1140307",
+      "parent": "-1152306"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_value",
+      "ours": "23446153846.153847",
+      "parent": "9.999999999999999e-06"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_paramId",
+      "ours": "-1140308",
+      "parent": "-1152305"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_value",
+      "ours": "23446153846.153847",
+      "parent": "3037027200.0"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_paramId",
+      "ours": "-1140309",
+      "parent": "-1152304"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_value",
+      "ours": "7153.527567840021",
+      "parent": "0.167"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_paramId",
+      "ours": "-1140310",
+      "parent": "-1152303"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_value",
+      "ours": "1.2e-05",
+      "parent": "0.167"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[11].m_paramId",
+      "ours": "-1140311",
+      "parent": "-1152302"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[11].m_value",
+      "ours": "1.2e-05",
+      "parent": "7086600000.0"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 174487,
+    "len_ours": 611,
+    "len_parent": 1323,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PropertySetElement",
+      "class_parent": "PropertySetElement"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[len]",
+      "ours": 2,
+      "parent": 10
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[0].m_paramId",
+      "ours": "-1150466",
+      "parent": "-1152342"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[0].m_value",
+      "ours": "'GEN Wood, Softwood (D.Fir-Larch No.2)'",
+      "parent": "'Wood:sheathing:structural:generic'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[1].m_paramId",
+      "ours": "-1150465",
+      "parent": "-1152341"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[1].m_value",
+      "ours": "'Softwood'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[len]",
+      "ours": 19,
+      "parent": 43
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_paramId",
+      "ours": "-1140300",
+      "parent": "-1152313"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_value",
+      "ours": "3352800000.0",
+      "parent": "15.630899318784003"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[1].m_paramId",
+      "ours": "-1140301",
+      "parent": "-1152312"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[1].m_value",
+      "ours": "3352800000.0",
+      "parent": "15284.752791727804"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[2].m_paramId",
+      "ours": "-1140302",
+      "parent": "-1152311"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[2].m_value",
+      "ours": "3352800000.0",
+      "parent": "0.34776902887139105"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_paramId",
+      "ours": "-1140303",
+      "parent": "-1152310"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_value",
+      "ours": "0.29",
+      "parent": "0.34776902887139105"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_paramId",
+      "ours": "-1140304",
+      "parent": "-1152309"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_value",
+      "ours": "0.29",
+      "parent": "0.34776902887139105"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_paramId",
+      "ours": "-1140305",
+      "parent": "-1152308"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_value",
+      "ours": "0.29",
+      "parent": "0.34776902887139105"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_paramId",
+      "ours": "-1140306",
+      "parent": "-1152307"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_value",
+      "ours": "1299534883.72093",
+      "parent": "6.099999999999999e-06"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_paramId",
+      "ours": "-1140307",
+      "parent": "-1152306"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_value",
+      "ours": "1299534883.72093",
+      "parent": "6.099999999999999e-06"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_paramId",
+      "ours": "-1140308",
+      "parent": "-1152305"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_value",
+      "ours": "1299534883.72093",
+      "parent": "167640000.0"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_paramId",
+      "ours": "-1140309",
+      "parent": "-1152304"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_value",
+      "ours": "501.6759593030664",
+      "parent": "0.25"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_paramId",
+      "ours": "-1140310",
+      "parent": "-1152303"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_value",
+      "ours": "4.9e-06",
+      "parent": "0.25"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[11].m_paramId",
+      "ours": "-1140311",
+      "parent": "-1152302"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[11].m_value",
+      "ours": "4.9e-06",
+      "parent": "2346960000.0"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 174509,
+    "len_ours": 513,
+    "len_parent": 1005,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PropertySetElement",
+      "class_parent": "PropertySetElement"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[len]",
+      "ours": 2,
+      "parent": 8
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[0].m_paramId",
+      "ours": "-1150466",
+      "parent": "-1152342"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[0].m_value",
+      "ours": "\"GEN Masonry, CMU (f'm 13.8 MPa)\"",
+      "parent": "'soil:structural:basic'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[1].m_paramId",
+      "ours": "-1150465",
+      "parent": "-1152339"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[1].m_value",
+      "ours": "'Basic'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[len]",
+      "ours": 14,
+      "parent": 29
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_paramId",
+      "ours": "-1140300",
+      "parent": "-1152313"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_value",
+      "ours": "3779520000.0",
+      "parent": "36.811900569600006"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[1].m_paramId",
+      "ours": "-1140301",
+      "parent": "-1152312"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[1].m_value",
+      "ours": "3779520000.0",
+      "parent": "11259.050295878369"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[2].m_paramId",
+      "ours": "-1140302",
+      "parent": "-1152308"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[2].m_value",
+      "ours": "3779520000.0",
+      "parent": "2.746062992125984"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_paramId",
+      "ours": "-1140303",
+      "parent": "-1140414"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_value",
+      "ours": "0.2",
+      "parent": "26517600.0"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_paramId",
+      "ours": "-1140304",
+      "parent": "-1140410"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_value",
+      "ours": "0.2",
+      "parent": "731.52"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_paramId",
+      "ours": "-1140305",
+      "parent": "-1140409"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_value",
+      "ours": "0.2",
+      "parent": "2712.7200000000003"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_paramId",
+      "ours": "-1140306",
+      "parent": "-1140408"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_value",
+      "ours": "1574800000.0",
+      "parent": "1584960.0"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_paramId",
+      "ours": "-1140307",
+      "parent": "-1140407"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_value",
+      "ours": "1574800000.0",
+      "parent": "15605760.0"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_paramId",
+      "ours": "-1140308",
+      "parent": "-1140321"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_value",
+      "ours": "1574800000.0",
+      "parent": "105076101.1478858"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_paramId",
+      "ours": "-1140309",
+      "parent": "-1140320"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_value",
+      "ours": "1950.9620639563693",
+      "parent": "1.66"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_paramId",
+      "ours": "-1140310",
+      "parent": "-1140319"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_value",
+      "ours": "8.1e-06",
+      "parent": "136598931.49225155"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[11].m_paramId",
+      "ours": "-1140311",
+      "parent": "-1140318"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[11].m_value",
+      "ours": "8.1e-06",
+      "parent": "105076101.1478858"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 174577,
+    "len_ours": 541,
+    "len_parent": 1275,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PropertySetElement",
+      "class_parent": "PropertySetElement"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[len]",
+      "ours": 2,
+      "parent": 10
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[0].m_paramId",
+      "ours": "-1150466",
+      "parent": "-1152342"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[0].m_value",
+      "ours": "'GEN Steel S345 (Fy 345 MPa)'",
+      "parent": "'Plastic:structural'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[1].m_paramId",
+      "ours": "-1150465",
+      "parent": "-1152341"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[1].m_value",
+      "ours": "'Ferrous'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[len]",
+      "ours": 16,
+      "parent": 43
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_paramId",
+      "ours": "-1140300",
+      "parent": "-1152313"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_value",
+      "ours": "60960000000.0",
+      "parent": "36.52873210368001"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[1].m_paramId",
+      "ours": "-1140301",
+      "parent": "-1152312"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[1].m_value",
+      "ours": "60960000000.0",
+      "parent": "18836.84322924201"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[2].m_paramId",
+      "ours": "-1140302",
+      "parent": "-1152311"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[2].m_value",
+      "ours": "60960000000.0",
+      "parent": "0.8202099737532808"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_paramId",
+      "ours": "-1140303",
+      "parent": "-1152310"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_value",
+      "ours": "0.3",
+      "parent": "0.8202099737532808"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_paramId",
+      "ours": "-1140304",
+      "parent": "-1152309"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_value",
+      "ours": "0.3",
+      "parent": "0.8202099737532808"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_paramId",
+      "ours": "-1140305",
+      "parent": "-1152308"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_value",
+      "ours": "0.3",
+      "parent": "0.8202099737532808"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_paramId",
+      "ours": "-1140306",
+      "parent": "-1152307"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_value",
+      "ours": "23446153846.153847",
+      "parent": "4.1899999999999995e-05"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_paramId",
+      "ours": "-1140307",
+      "parent": "-1152306"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_value",
+      "ours": "23446153846.153847",
+      "parent": "4.1899999999999995e-05"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_paramId",
+      "ours": "-1140308",
+      "parent": "-1152305"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_value",
+      "ours": "23446153846.153847",
+      "parent": "228600000.0"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_paramId",
+      "ours": "-1140309",
+      "parent": "-1152304"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_value",
+      "ours": "7153.527567840021",
+      "parent": "0.4"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_paramId",
+      "ours": "-1140310",
+      "parent": "-1152303"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_value",
+      "ours": "1.2e-05",
+      "parent": "0.4"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[11].m_paramId",
+      "ours": "-1140311",
+      "parent": "-1152302"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[11].m_value",
+      "ours": "1.2e-05",
+      "parent": "216103200.0"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 13,
+    "blocks_out": 13
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 17,
+  "slots_with_registry_surface": 17,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 174481,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174487,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174509,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174577,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174580,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174586,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174589,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174592,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 17,
+  "pairs_ok": 17,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 174481,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174487,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174509,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174577,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174580,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174586,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 50992
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/palette_fix/P_pal_struct.rvt",
+  "elements": 3342,
+  "file_size": 774144,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500000,
+   "slot": 174481,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 174487,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 174509,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 174577,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 174580,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500005,
+   "slot": 174586,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 174589,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500007,
+   "slot": 174592,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500008,
+   "slot": 174595,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500009,
+   "slot": 174598,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500010,
+   "slot": 194585,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500011,
+   "slot": 600684,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500012,
+   "slot": 1028776,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500013,
+   "slot": 1170095,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500014,
+   "slot": 1177773,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500015,
+   "slot": 1352644,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500016,
+   "slot": 1407838,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  }
+ ],
+ "landed_slots": [
+  {
+   "slot": 174481,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 174487,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 174509,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 174577,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 174580,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 174586,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 174589,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 174592,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500007
+  },
+  {
+   "slot": 174595,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500008
+  },
+  {
+   "slot": 174598,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500009
+  },
+  {
+   "slot": 194585,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500010
+  },
+  {
+   "slot": 600684,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500011
+  },
+  {
+   "slot": 1028776,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500012
+  },
+  {
+   "slot": 1170095,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500013
+  },
+  {
+   "slot": 1177773,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500014
+  },
+  {
+   "slot": 1352644,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500015
+  },
+  {
+   "slot": 1407838,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500016
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": []
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {}
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 774144,
+ "seconds": 2.3
+}

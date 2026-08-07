@@ -1,0 +1,184 @@
+{
+ "route": "prompt+rfa->rfa (rvt.convert.modify_family)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "experiments/frontdoor/prompt-electrical-room/families/dp1_eaton_prl2x_400a_42sp_480y_277.rfa",
+  "sha256": "f57009df944a5c78d2e41124f80fea724a4236a46974cff1a43555b72cdded7a",
+  "release": 2026,
+  "family_name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+  "types": [
+   "400A MCB 42ckt"
+  ]
+ },
+ "edit": "{\"ops\": [{\"op\": \"set-param\", \"param\": \"BusRating\", \"value\": \"225\"}, {\"op\": \"set-param\", \"param\": \"PanelName\", \"value\": \"DP-7\"}, {\"op\": \"rename-type\", \"name\": \"225A MCB 42ckt\"}]}",
+ "parsed": {
+  "ops": [
+   {
+    "op": "set-param",
+    "param_id": 1025,
+    "caption": "BusRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1021,
+    "caption": "PanelName",
+    "carrier": "m_str",
+    "spec": "autodesk.spec:spec.string-1.0.0",
+    "value": "DP-7",
+    "raw": "DP-7"
+   },
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "400A MCB 42ckt",
+    "name": "225A MCB 42ckt"
+   }
+  ],
+  "source": "inline-json",
+  "understood": [
+   {
+    "op": "set-param",
+    "param_id": 1025,
+    "caption": "BusRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1021,
+    "caption": "PanelName",
+    "carrier": "m_str",
+    "spec": "autodesk.spec:spec.string-1.0.0",
+    "value": "DP-7",
+    "raw": "DP-7"
+   },
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "400A MCB 42ckt",
+    "name": "225A MCB 42ckt"
+   }
+  ],
+  "notes": [],
+  "vocabulary": "rvt.convert.modify_family (built-in)"
+ },
+ "files": {
+  "rfa": "experiments/convert/edit-family/dp1_edited_225A.rfa"
+ },
+ "stamps": [
+  "PROOF-ONLY, NOT-DELIVERABLE (P0: identity/counsel gates G2-G3 open; every tekton output is an internal proof)"
+ ],
+ "degradations": [],
+ "errors": [],
+ "apply": {
+  "applied": [
+   {
+    "op": "set-param",
+    "param_id": 1025,
+    "caption": "BusRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1021,
+    "caption": "PanelName",
+    "carrier": "m_str",
+    "spec": "autodesk.spec:spec.string-1.0.0",
+    "value": "DP-7",
+    "raw": "DP-7"
+   },
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "400A MCB 42ckt",
+    "name": "225A MCB 42ckt"
+   }
+  ],
+  "record_changes": {
+   "m_pFamilyTypes.value.m_pairs[0].params.m_params[7].m_value": 225.0,
+   "m_familyParams.value.m_params[7].m_value": 225.0,
+   "m_pFamilyTypes.value.m_pairs[0].params.m_params[3].m_str": "DP-7",
+   "m_familyParams.value.m_params[3].m_str": "DP-7",
+   "m_pFamilyTypes.value.m_pairs[0].name": "225A MCB 42ckt"
+  },
+  "commit": {
+   "out": "experiments/convert/edit-family/dp1_edited_225A.rfa",
+   "blocks": null
+  },
+  "structural_verify": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "stamps_ok": true,
+   "elemtable_count": 41,
+   "header_count": 41
+  },
+  "structural_ok": true,
+  "partatom": {
+   "changed": true,
+   "replaced": [
+    {
+     "old": "400A MCB 42ckt",
+     "new": "225A MCB 42ckt",
+     "occurrences": 1
+    }
+   ],
+   "bytes": 881
+  }
+ },
+ "validation": {
+  "rfa": {
+   "family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 0
+   },
+   "release": {
+    "input": 2026,
+    "output": 2026,
+    "preserved": true
+   },
+   "reread": [
+    {
+     "op": "set-param",
+     "caption": "BusRating",
+     "want": 225.0,
+     "got": 225.0,
+     "ok": true
+    },
+    {
+     "op": "set-param",
+     "caption": "PanelName",
+     "want": "DP-7",
+     "got": "DP-7",
+     "ok": true
+    },
+    {
+     "op": "rename-type",
+     "want": "225A MCB 42ckt",
+     "got": "225A MCB 42ckt",
+     "ok": true
+    }
+   ],
+   "self_checks_ok": true
+  }
+ },
+ "seconds": 0.9,
+ "deliverables": {
+  "rfa": {
+   "path": "experiments/convert/edit-family/dp1_edited_225A.rfa",
+   "bytes": 270336,
+   "sha256": "6887e471fef91387f0e6d36b8b76bc4da50a1360f260b407c95ef3a00a71afc2"
+  }
+ }
+}

@@ -1,0 +1,211 @@
+{
+ "rung": "RC_2025",
+ "label": "the lawful straggler deletions (2025): the external-link trio (symbol delete-reachable after the header/link-override fixes), the zero-referrer vendor DataStorage blob, the locked-EQ constraint dimension + its reference planes, the room constellation atomically with its containing plan topology",
+ "kind": "deletion (delete-with-content by maxgc)",
+ "stream": "y2025-views",
+ "mechanism": "rvt_reduce.maxgc over the arbiter's typed reference graph + rvt.reduce.delete_elements (the certified re-blocking deleter); DELETION-WITH-CONTENT only; Global/Latest / ContentDocuments / identity streams untouched; deleted ids' registry entries left dangling and censused",
+ "law": {
+  "statement": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed.",
+  "policy": {
+   "mechanism": "maxgc",
+   "purpose": "reduction-rung",
+   "decision": "ALLOW",
+   "reason": "sanctioned generator: maximal garbage collection over the validator's reference graph (rvt.reduce.delete_elements over an rvt_reduce.maxgc seed): only elements no survivor references are deleted; survivors are byte-identical BY CONSTRUCTION (the certified ladder R5..R10)"
+  }
+ },
+ "base": {
+  "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4_2025/RC_2025_inplace.rvt",
+ "out": "experiments/genesis/subst_k4_2025/RC_2025.rvt",
+ "deletion_set": {
+  "seed": [
+   9744,
+   245433,
+   699327,
+   699381,
+   763366,
+   763420,
+   1004904,
+   1004905,
+   1004906,
+   1004907,
+   1004908,
+   1004909,
+   1004910,
+   1250029,
+   1250030,
+   1250031,
+   1382860
+  ],
+  "seed_by_class": {
+   "RefPlane": 3,
+   "CurveElem": 5,
+   "DataStorage": 1,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "CopyWatchProperties": 1,
+   "LevelRoomPlan": 1,
+   "RoomElem": 1,
+   "AreaSchemePlanTopologies": 1,
+   "SketchPlane": 1,
+   "LinearDimString": 1
+  },
+  "history_protected_removed": [],
+  "deleted": 17,
+  "deleted_by_class": {
+   "DataStorage": 1,
+   "AreaSchemePlanTopologies": 1,
+   "LinearDimString": 1,
+   "RefPlane": 3,
+   "CurveElem": 5,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "CopyWatchProperties": 1,
+   "LevelRoomPlan": 1,
+   "RoomElem": 1,
+   "SketchPlane": 1
+  },
+  "deleted_ids": [
+   9744,
+   245433,
+   699327,
+   699381,
+   763366,
+   763420,
+   1004904,
+   1004905,
+   1004906,
+   1004907,
+   1004908,
+   1004909,
+   1004910,
+   1250029,
+   1250030,
+   1250031,
+   1382860
+  ],
+  "kept_pinned": [],
+  "pin_evidence": null
+ },
+ "emit": {
+  "partition": "Partitions/20",
+  "deleted": 17,
+  "elemtable_count_before": 3333,
+  "elemtable_count_after": 3316,
+  "watermark": 1472448,
+  "records_removed": {
+   "101": 17,
+   "102": 17,
+   "103": 17
+  },
+  "blocks_before": 15,
+  "blocks_after": 15,
+  "logical_before": 229743,
+  "logical_after": 226076,
+  "out_path": "/Users/ck/dev/things/tekton/experiments/genesis/subst_k4_2025/RC_2025.rvt"
+ },
+ "reduce_law": {
+  "verdict": "EDIT-FREE",
+  "ok": true,
+  "removed": 17,
+  "added": 0,
+  "common": 3316,
+  "survivors_edited": 0,
+  "summary": "[EDIT-FREE] RC_2025 vs RC_2025_inplace.rvt: removed 17, added 0, common 3,316, SURVIVORS EDITED 0 (vindicated 0)"
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 15,
+   "records": 9951,
+   "elements_decoded": 3316,
+   "decode_failures": 0,
+   "refs_checked": 50759
+  }
+ },
+ "structural": {
+  "path": "/Users/ck/dev/things/tekton/experiments/genesis/subst_k4_2025/RC_2025.rvt",
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "elemtable_count": 3316,
+  "header_count": 3316,
+  "counts_match": true,
+  "sentinel_last": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "segment_walks": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "deleted_still_present": [],
+  "elemtable_ids_without_record": 0,
+  "units": 1,
+  "blocks_unit0": 15,
+  "ok": true,
+  "isize_identity_ok": true,
+  "unit0_element_records": 3316
+ },
+ "four_registry": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "familymgr_doc_guids": 0,
+  "four_registry_coherent": true
+ },
+ "stream_identity": {
+  "byte_identical_streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "ProjectInformation",
+   "TransmissionData"
+  ],
+  "differing_streams": [
+   "Global/ElemTable",
+   "Partitions/20"
+  ],
+  "only_partition_and_elemtable_differ": true,
+  "latest_byte_identical": true,
+  "contentdocs_byte_identical": true,
+  "partitiontable_byte_identical": true
+ },
+ "adocument_dangling": {
+  "meaning": "deleted ids still referenced from the document registry streams -- LEFT DANGLING by design (viewer-tolerated: the R5/R9 lineage precedent), censused here",
+  "by_stream": {
+   "Global/Latest": {
+    "count": 0,
+    "ids": []
+   },
+   "Global/ContentDocuments": {
+    "count": 0,
+    "ids": []
+   }
+  }
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 598016,
+ "md5": "470087732a98168af313f8a253f65edd",
+ "seconds": 2.3,
+ "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)"
+}

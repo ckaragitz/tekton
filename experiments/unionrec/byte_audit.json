@@ -1,0 +1,162 @@
+{
+ "tool": "tools/union_reconcile.py audit",
+ "instruments": {
+  "T1v_vs_T2a": "same wm (1472524), same shell block (1472525..1474516), same typed rebase -- the record diff IS what template_union_doc did to the born standalone shell (T2a viewer-PASS)",
+  "U16_vs_B7": "same wm, same donor block (1472525..1472941) -- the record diff IS what famdoc_final's union machinery did to the donor shell (B7 viewer-PASS)"
+ },
+ "findings_ranked": [
+  {
+   "rank": 1,
+   "finding": "inline-ADocument flavour is the one separable machinery delta",
+   "detail": "U16 ships the donor's BORN document object (131/239 AppInfo registries populated, donor storedByRevitBuild strings, independent history identity); T1v ships the authored form (0/239 registries -- factory.author_embedded_adocument's own docstring flags empty registries as THE OPEN QUESTION; history identity = unit GUID).  U12345 (PASS) exonerated the authored form on the EMBEDDED shell + rst only.",
+   "probe_that_splits_it": "T1u (born wrapper on the standalone shell) vs T1r (authored, same shell+base)"
+  },
+  {
+   "rank": 2,
+   "finding": "template_union_doc touched 2 shell record(s) (vs T2a): [[1472539, 101, 'ElementHeader'], [1472539, 102, 'Family']]",
+   "detail": "expected: the self-Family registration record only; anything else is a machinery artifact",
+   "unexpected_beyond_self_family": []
+  },
+  {
+   "rank": 3,
+   "finding": "famdoc_final machinery touched 2 shell record(s) (vs B7): [[1472532, 101, 'ElementHeader'], [1472532, 102, 'Family']]",
+   "detail": "expected: the self-Family registration record only",
+   "unexpected_beyond_self_family": []
+  },
+  {
+   "rank": 4,
+   "finding": "carried-35 pairwise: 0 pair(s) with deltas beyond the id correspondence + session hex",
+   "detail": "see carried_pairwise.pairs_with_deltas"
+  },
+  {
+   "rank": 5,
+   "finding": "small-id residue: 0 distinct typed small ids in T1v not in T2a",
+   "detail": "see small_id_residue"
+  }
+ ],
+ "T1v_vs_T2a": {
+  "records_only_in_T1v": 105,
+  "added_element_ids": [
+   1672526,
+   1672564,
+   "n=35"
+  ],
+  "records_only_in_T2a": [],
+  "records_changed": [
+   [
+    1472539,
+    101,
+    "ElementHeader"
+   ],
+   [
+    1472539,
+    102,
+    "Family"
+   ]
+  ]
+ },
+ "U16_vs_B7": {
+  "records_only_in_U16": 105,
+  "added_element_ids": [
+   1474526,
+   1474564,
+   "n=35"
+  ],
+  "records_only_in_B7": [],
+  "records_changed": [
+   [
+    1472532,
+    101,
+    "ElementHeader"
+   ],
+   [
+    1472532,
+    102,
+    "Family"
+   ]
+  ]
+ },
+ "carried_pairwise": {
+  "n_pairs": 35,
+  "id_correspondence": "sorted carried order + self-Family anchor (1472539 <-> 1472532)",
+  "pairs_with_deltas": [],
+  "clean_pairs": 35
+ },
+ "self_family_registration": {
+  "T1v_touched_vs_T2a": {
+   "seq101.m_parents.value.m_deletion": 1,
+   "seq102.m_cellList.value.m_cells": 2,
+   "seq102.m_familyIds.value.m_data": 2,
+   "seq102.m_familyParams.value.m_params": 7,
+   "seq102.m_lockedParameterIdsForDirectManipulation": 1,
+   "seq102.m_pFamilyTypes.value.m_pairs": 7
+  },
+  "U16_touched_vs_B7": {
+   "seq101.m_parents.value.m_deletion": 1,
+   "seq102.m_cellList.value.m_cells": 2,
+   "seq102.m_familyIds.value.m_data": 2,
+   "seq102.m_familyParams.value.m_params": 7,
+   "seq102.m_lockedParameterIdsForDirectManipulation": 1,
+   "seq102.m_pFamilyTypes.value.m_pairs": 7
+  },
+  "surface_only_in_T1v": [],
+  "surface_only_in_U16": [],
+  "reading": "surfaces touched by ONE machinery only are machinery deltas; shared surfaces with different counts reflect the shells' own differing sizes (registration appends scale with the shell's existing rosters)"
+ },
+ "inline_adoc_flavour": {
+  "T1v_authored": {
+   "appinfo_slots": 239,
+   "appinfo_populated": 0,
+   "elem_rows": 2027,
+   "identifier_source_last": 1672564,
+   "stored_by_revit_build": [],
+   "history_identity": {
+    "m_creationGUID": "3b21dfd9-a68c-4ece-a51e-368f55980d13",
+    "m_detachGUID": "3b21dfd9-a68c-4ece-a51e-368f55980d13",
+    "m_upgradeGUID": "3b21dfd9-a68c-4ece-a51e-368f55980d13",
+    "m_saveAsGUID": "3b21dfd9-a68c-4ece-a51e-368f55980d13"
+   },
+   "owner_family_id": 1472539
+  },
+  "U16_donor_swapped": {
+   "appinfo_slots": 239,
+   "appinfo_populated": 131,
+   "elem_rows": 452,
+   "identifier_source_last": 1474564,
+   "stored_by_revit_build": [
+    "Revit 2015 - Preview Pre-Release 2015 (2015.000) : 20140117_1515",
+    "Revit 2015 2015 (2015.000) : 20140905_0730(x64)"
+   ],
+   "history_identity": {
+    "m_creationGUID": "a3a31737-fbbb-4d2c-a8ab-51e089368ba9",
+    "m_detachGUID": "a3a31737-fbbb-4d2c-a8ab-51e089368ba9",
+    "m_upgradeGUID": "a3a31737-fbbb-4d2c-a8ab-51e089368ba9",
+    "m_saveAsGUID": "a3a31737-fbbb-4d2c-a8ab-51e089368ba9"
+   },
+   "owner_family_id": 1472532
+  },
+  "the_separable_machinery_delta": "U16 ships the donor's BORN document object (131/239 AppInfo registries populated, donor storedByRevitBuild strings, independent history identity); T1v ships the authored form (0/239 registries -- factory.author_embedded_adocument's own docstring flags empty registries as THE OPEN QUESTION; history identity = unit GUID).  U12345 (PASS) exonerated the authored form on the EMBEDDED shell + rst only."
+ },
+ "small_id_residue": {
+  "rfa_original_id_range": [
+   3,
+   7674
+  ],
+  "T1v_small_typed_refs": {
+   "distinct": 0,
+   "total": 0
+  },
+  "T2a_small_typed_refs": {
+   "distinct": 0,
+   "total": 0
+  },
+  "in_T1v_not_in_T2a": {},
+  "reading": "identical sets = the residue is BORN state the certified T2a already carries (exonerated); T1v-only entries = candidates the union machinery introduced"
+ },
+ "smoking_gun_verdict": {
+  "unit_content_smoking_gun": false,
+  "t1w_warranted": false,
+  "statement": "NO unit-content smoking gun: the two machineries produced structurally IDENTICAL famdoc mutations (35/35 carried pairs clean through the id correspondence; both registrations touched exactly the same six self-Family surfaces; neither touched any other shell record; zero small-id residue -- no aliased ids escaped the typed rebase).  The ONE separable machinery delta is HOST-SIDE: the inline-ADocument flavour (authored all-null registries vs the born 131-populated document object), which T1u vs T1r splits by design.  No corrected-T1v variant (T1w) is warranted."
+ },
+ "seconds": 1.0
+}

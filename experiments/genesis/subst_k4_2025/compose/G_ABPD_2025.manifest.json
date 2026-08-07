@@ -1,0 +1,358 @@
+{
+ "op": "compose",
+ "base": {
+  "file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.phase1.rvt",
+  "md5": "8c3b5ecb51c4e48b003195ae5ac7748b",
+  "sha256": "6187afe02cd0dbe4529481ac90fbaa39cf3a5479efa76d00cf6ffa623e9c5d42",
+  "bytes": 602112,
+  "certification": {
+   "file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.phase1.rvt",
+   "proves": "NOT CERTIFIED (override)"
+  },
+  "host_elements": 3333,
+  "watermark": 1472448,
+  "partition": "Partitions/20"
+ },
+ "out": {
+  "file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+  "md5": "470087732a98168af313f8a253f65edd",
+  "sha256": "6242c3aaccf86e7187fbd56879d450089c6fd33ad677d5847cb7c56d5e2b1171",
+  "bytes": 598016
+ },
+ "phase_1_inplace": {
+  "merge": {
+   "laws": {
+    "disjoint": true,
+    "collisions": [],
+    "all_slots_exist": true,
+    "missing_slots": [],
+    "same_class": true,
+    "class_mismatch": [],
+    "parent_coherent": true,
+    "incoherent_slots": [],
+    "deletion_overlap": [],
+    "on_overlap": "refuse"
+   },
+   "rungs": [],
+   "resolutions": [],
+   "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.phase1.rvt",
+   "merged_slots": 0,
+   "merged_seqs": [],
+   "merged_by_class": {}
+  },
+  "emit": {
+   "note": "no in-place slots to compose (rung sets empty / all resolved away) -- the base is carried unchanged"
+  }
+ },
+ "phase_2_deletions": {
+  "specs": [
+   {
+    "name": "D_2025_stragglers_full",
+    "policy": "maxgc",
+    "seed": 17,
+    "protected": 0,
+    "latest_pins": false,
+    "purpose": "genesis-base",
+    "mechanism": "maxgc",
+    "source_file": "experiments/genesis/subst_k4_2025/D_2025_stragglers_full.json",
+    "notes": [
+     "the COMPLETE lawful straggler set (union of the three pin-free sets + the RvtLinkSymbol + the room constellation), delete-reachable only after the RC in-place fixes -- proven EDIT-FREE on this chain by RC_2025.rvt; a compose without the fixes pins (fails red), never partially deletes"
+    ],
+    "resolved_ids": 17,
+    "evidence": {
+     "policy": "maxgc",
+     "purpose": "genesis-base",
+     "law": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed.",
+     "mechanism": "maxgc",
+     "policy_meaning": "the SANCTIONED reduction generator: of the seed, delete only the ids that NO surviving element references (maximal dangling-free subset over the validator-exact reference graph); survivors are byte-identical BY CONSTRUCTION",
+     "law_decision": "sanctioned generator: maximal garbage collection over the validator's reference graph (rvt.reduce.delete_elements over an rvt_reduce.maxgc seed): only elements no survivor references are deleted; survivors are byte-identical BY CONSTRUCTION (the certified ladder R5..R10)",
+     "seed_given": 17,
+     "seed_present": 17,
+     "absent_ids": [],
+     "protected_removed": [],
+     "history_protected": [],
+     "maxgc_seed": 17,
+     "maxgc_deleted": 17,
+     "maxgc_kept_pinned": 0,
+     "kept_seed_by_class": [],
+     "top_pinning_pairs": [],
+     "latest_pins_used": false,
+     "pin_ids": 0
+    },
+    "resolved_by_class": {
+     "CurveElem": 5,
+     "RefPlane": 3,
+     "DataStorage": 1,
+     "AreaSchemePlanTopologies": 1,
+     "LinearDimString": 1,
+     "LevelRoomPlan": 1,
+     "RoomElem": 1,
+     "RvtLinkSymbol": 1,
+     "RvtLinkInstance": 1,
+     "CopyWatchProperties": 1,
+     "SketchPlane": 1
+    }
+   }
+  ],
+  "problems": [],
+  "total_deleted": 17,
+  "deleted_by_class": {
+   "CurveElem": 5,
+   "RefPlane": 3,
+   "DataStorage": 1,
+   "AreaSchemePlanTopologies": 1,
+   "LinearDimString": 1,
+   "LevelRoomPlan": 1,
+   "RoomElem": 1,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "CopyWatchProperties": 1,
+   "SketchPlane": 1
+  },
+  "analysis": {
+   "deleted": 17,
+   "deleted_by_class": [
+    [
+     "CurveElem",
+     5
+    ],
+    [
+     "RefPlane",
+     3
+    ],
+    [
+     "DataStorage",
+     1
+    ],
+    [
+     "AreaSchemePlanTopologies",
+     1
+    ],
+    [
+     "LinearDimString",
+     1
+    ],
+    [
+     "LevelRoomPlan",
+     1
+    ],
+    [
+     "RoomElem",
+     1
+    ],
+    [
+     "RvtLinkSymbol",
+     1
+    ],
+    [
+     "RvtLinkInstance",
+     1
+    ],
+    [
+     "CopyWatchProperties",
+     1
+    ],
+    [
+     "SketchPlane",
+     1
+    ]
+   ],
+   "surviving_elements": 1397,
+   "survivors_with_dangling_refs": 0,
+   "dangling_by_survivor_class": [],
+   "external": {
+    "Global/Latest": {
+     "dangling": 9,
+     "by_class": [
+      [
+       "RefPlane",
+       3
+      ],
+      [
+       "DataStorage",
+       1
+      ],
+      [
+       "RvtLinkSymbol",
+       1
+      ],
+      [
+       "RoomElem",
+       1
+      ],
+      [
+       "RvtLinkInstance",
+       1
+      ],
+      [
+       "CopyWatchProperties",
+       1
+      ],
+      [
+       "LinearDimString",
+       1
+      ]
+     ]
+    },
+    "Global/ContentDocuments": {
+     "dangling": 0,
+     "by_class": []
+    }
+   },
+   "history_invariant_at_risk": false
+  },
+  "latest_registry_entries_left_dangling": 9,
+  "latest_dangling_note": "ADocument registry entries of deleted ids are LEFT DANGLING -- tolerated (certified R5 / R9: thousands of dangling Latest refs pass); Global/Latest stays byte-identical unless registry reconciliation is requested",
+  "emission": {
+   "partition": "Partitions/20",
+   "deleted": 17,
+   "elemtable_count_before": 3333,
+   "elemtable_count_after": 3316,
+   "watermark": 1472448,
+   "records_removed": {
+    "101": 17,
+    "102": 17,
+    "103": 17
+   },
+   "blocks_before": 15,
+   "blocks_after": 15,
+   "logical_before": 229743,
+   "logical_after": 226076,
+   "out_path": "/Users/ck/dev/things/tekton/experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt"
+  },
+  "registry_reconciliation": {
+   "performed": false,
+   "note": "Global/Latest byte-identical; deleted ids' registry entries dangling (tolerated)"
+  },
+  "reduce_law": {
+   "verdict": "EDIT-FREE",
+   "ok": true,
+   "removed": 17,
+   "added": 0,
+   "survivors_edited": 0,
+   "clause_counts": {},
+   "summary": "[EDIT-FREE] experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt vs experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.inplace.rvt: removed 17, added 0, common 3,316, SURVIVORS EDITED 0 (vindicated 0)",
+   "law": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed."
+  },
+  "structural": {
+   "ok": true,
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": [],
+   "counts_match": true,
+   "seq_id_sets_equal": true,
+   "stamps_bad": 0,
+   "isize_identity_ok": true,
+   "deleted_still_present": [],
+   "elemtable_ids_without_record": 0
+  },
+  "validator": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 1,
+   "error_messages": [],
+   "stats": {
+    "streams": 12,
+    "partition_blocks": 15,
+    "records": 9951,
+    "elements_decoded": 3316,
+    "decode_failures": 0,
+    "refs_checked": 50759
+   }
+  },
+  "four_registry": {
+   "save_units": 1,
+   "contentdocs_entries": 0,
+   "contenttable_records": 0,
+   "familymgr_entries": 9,
+   "coherent": true,
+   "coherent_counts": true,
+   "coherent_guids": true,
+   "adocument_clean": true
+  },
+  "byte_delta": {
+   "layer": "deletion",
+   "streams_differing": [
+    "Global/ElemTable",
+    "Partitions/20"
+   ],
+   "allowed_to_differ": [
+    "Global/ElemTable",
+    "Partitions/20"
+   ],
+   "strays": [],
+   "records_removed_ids_count": 17,
+   "records_added_ids": [],
+   "records_changed_ids": [],
+   "common_order_preserved": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "adocument_identical": true,
+   "embedded_units_identical": true,
+   "exceptions": [
+    {
+     "stream": "Global/ElemTable",
+     "reason": "the deleted elements' ElemTable rows are removed -- a deletion's registration effect (the count drops; the id watermark is NOT lowered, Revit never re-issues ids)"
+    },
+    {
+     "stream": "Partitions/20",
+     "reason": "the deleted records leave unit 0; the certified re-blocker (rvt.reduce.reblock) re-chunks the seq runs; SURVIVOR RECORD BYTES UNCHANGED (asserted by the reduce law)"
+    }
+   ],
+   "assertion_holds": true
+  },
+  "out": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+  "seconds": 4.5,
+  "intermediate_inplace_file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.inplace.rvt"
+ },
+ "invariants": {
+  "in_place_first_then_deletions": true,
+  "registry_parity": {
+   "statement": "no in-place layer"
+  },
+  "byte_delta_in_place": null,
+  "in_place_law": null,
+  "reduce_law_deletions": {
+   "verdict": "EDIT-FREE",
+   "ok": true,
+   "removed": 17,
+   "added": 0,
+   "survivors_edited": 0,
+   "clause_counts": {},
+   "summary": "[EDIT-FREE] experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt vs experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.inplace.rvt: removed 17, added 0, common 3,316, SURVIVORS EDITED 0 (vindicated 0)",
+   "law": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed."
+  },
+  "four_registry_final": {
+   "save_units": 1,
+   "contentdocs_entries": 0,
+   "contenttable_records": 0,
+   "familymgr_entries": 9,
+   "coherent": true,
+   "coherent_counts": true,
+   "coherent_guids": true,
+   "adocument_clean": true
+  },
+  "validator_final": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 1,
+   "error_messages": [],
+   "stats": {
+    "streams": 12,
+    "partition_blocks": 15,
+    "records": 9951,
+    "elements_decoded": 3316,
+    "decode_failures": 0,
+    "refs_checked": 50759
+   }
+  }
+ },
+ "problems": [],
+ "warnings": [],
+ "verdict": "COMPOSED-VALID",
+ "manifest_file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.manifest.json",
+ "seconds": 5.0,
+ "anchor": null
+}

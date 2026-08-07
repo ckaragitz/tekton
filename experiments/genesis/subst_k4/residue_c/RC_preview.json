@@ -1,0 +1,104 @@
+{
+ "rung": "RC_preview",
+ "label": "the 2 residue type previews with the Autodesk-rendered PNG cache nulled (corpus-normal form)",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "out": "experiments/genesis/subst_k4/residue_c/RC_preview.rvt",
+ "slots": [
+  907404,
+  1201130
+ ],
+ "seqs": [
+  102
+ ],
+ "ours_by_slot": {
+  "907404": [
+   "m_oPreviewImage"
+  ],
+  "1201130": [
+   "m_oPreviewImage"
+  ]
+ },
+ "notes": [
+  "null m_oPreviewImage is corpus-normal (dach 2 / rme 4 measured); the wiring (m_componentType -> OUR types 600634 / 1201129) is untouched"
+ ],
+ "new_object_reference_check": {
+  "mode": "typed",
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 14,
+   "records": 9309,
+   "elements_decoded": 3102,
+   "decode_failures": 1,
+   "refs_checked": 45872
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "byte_delta": {
+  "changed_records": 2,
+  "changed_ids": [
+   907404,
+   1201130
+  ],
+  "expected_slot_ids": [
+   907404,
+   1201130
+  ],
+  "expected_records_max": 2,
+  "unexpected_changed_ids": [],
+  "added_or_removed": false,
+  "landed_but_byte_identical": [],
+  "global_latest_identical": true,
+  "global_elemtable_identical": true,
+  "assertion_holds": true,
+  "diff_streams": [
+   "Partitions/21"
+  ]
+ },
+ "verdict": "VALID",
+ "md5": "f7d3b4ed33b5a3919018ebdfff388946",
+ "seconds": 2.7,
+ "landed_slots": [
+  {
+   "slot": 907404,
+   "class": "LegendComponent"
+  },
+  {
+   "slot": 1201130,
+   "class": "LegendComponent"
+  }
+ ]
+}

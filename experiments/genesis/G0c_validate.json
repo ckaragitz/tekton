@@ -1,0 +1,16 @@
+{
+ "ok": true,
+ "errors": 0,
+ "warnings": 0,
+ "error_messages": [],
+ "warning_messages": [],
+ "stats": {
+  "streams": 12,
+  "partition_blocks": 5,
+  "records": 1200,
+  "elements_decoded": 399,
+  "decode_failures": 0,
+  "refs_checked": 5402
+ },
+ "seconds": 0.1
+}

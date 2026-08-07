@@ -1,0 +1,304 @@
+{
+ "tool": "tekton frontdoor (rvt.frontdoor)",
+ "tool_version": "1.0.0",
+ "product": "tekton (multi-surface front door)",
+ "generated_at": "2026-08-05T04:18:47Z",
+ "route": "rvt",
+ "inputs": {
+  "rvt": "/Users/ck/dev/things/tekton/experiments/routes/demo3-prompt-via-ifc-rvt/prompt_intent.rvt",
+  "edit": "move DP-1 to 3,1,4.66; delete LP-4 with cascade",
+  "ops": [
+   {
+    "op": "move",
+    "id": 1472947,
+    "to": [
+     3.0,
+     1.0,
+     4.66
+    ]
+   },
+   {
+    "op": "delete",
+    "id": 1472952,
+    "cascade": true
+   }
+  ]
+ },
+ "out_dir": "experiments/routes/demo5-prompt-rvt-edit",
+ "base": {
+  "note": "the --rvt route edits the user's own file in place-copy (never an Autodesk sample base test: the input is whatever the user supplies; deliverability of the result is ledgered against that input by the job runner's P0 gate)",
+  "input_file": "/Users/ck/dev/things/tekton/experiments/routes/demo3-prompt-via-ifc-rvt/prompt_intent.rvt",
+  "input_is_autodesk_sample": false
+ },
+ "edit": {
+  "spec": {
+   "source": "text",
+   "ops": [
+    {
+     "op": "move",
+     "id": 1472947,
+     "to": [
+      3.0,
+      1.0,
+      4.66
+     ]
+    },
+    {
+     "op": "delete",
+     "id": 1472952,
+     "cascade": true
+    }
+   ],
+   "understood": [
+    {
+     "clause": "move DP-1 to 3,1,4.66",
+     "op": {
+      "op": "move",
+      "id": 1472947,
+      "to": [
+       3.0,
+       1.0,
+       4.66
+      ]
+     }
+    },
+    {
+     "clause": "delete LP-4 with cascade",
+     "op": {
+      "op": "delete",
+      "id": 1472952,
+      "cascade": true
+     }
+    }
+   ],
+   "unparsed": [],
+   "resolutions": {
+    "DP-1": 1472947,
+    "LP-4": 1472952
+   },
+   "vocabulary": "delete{id,cascade} | rename{id,name} | set-mark{id,mark} | set-level{id,elevation_ft|elevation_m} | set-param{id,param_id,value} | move{id,to|delta,rotation_deg} | retype{id,symbol} | add-instance{symbol,position_ft,rotation_deg,name} | add-circuit{panel,load} -- the SAME ops.json the job runner (tools/rvt_job.py edit) accepts"
+  },
+  "delegated_to": "tools/rvt_job.py edit (rvt.manipulate ONE commit + rvt.mutate adds + structural / validation / identity / provenance gates)",
+  "ops_json": "experiments/routes/demo5-prompt-rvt-edit/ops.json",
+  "job_manifest": "experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt.manifest.json",
+  "job_validation_report": "experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt.validation.json",
+  "job_status": "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)",
+  "hard_gates_passed": true,
+  "gates": {
+   "structural": {
+    "status": "PASS",
+    "kind": "verify_manipulated",
+    "warnings": [],
+    "report": {
+     "crc_failures": 0,
+     "ecc_mismatches": 0,
+     "walker_errors": 0,
+     "isize_identity_mismatches": 0,
+     "stamps_ok": true,
+     "elemtable_count": 3240,
+     "header_count": 3240,
+     "sentinel_last": {
+      "101": true,
+      "102": true,
+      "103": true
+     },
+     "deleted_still_present": {},
+     "deleted_in_elemtable": [],
+     "elemtable_ids_sorted": true,
+     "unit0_ids_equal_elemtable": true
+    }
+   },
+   "validation": {
+    "status": "PASS",
+    "errors": 0,
+    "warnings": 1
+   },
+   "identity": {
+    "status": "PASS",
+    "issues": [],
+    "identity": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "username": "",
+     "last_save_path": "prompt_intent.edited.rvt",
+     "central_model_path": "",
+     "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "format": "2026",
+     "build": "20250227_1515(x64)",
+     "locale": "ENU",
+     "unique_document_increments": "22"
+    }
+   },
+   "base_provenance": {
+    "status": "PROOF-ONLY, NOT-DELIVERABLE",
+    "deliverable": false,
+    "base_is_autodesk_sample": false,
+    "reason": "P0 genesis gate G1 fails (the base carries derived expression that G1 blocks): FAIL \u2014 3,187 Autodesk-derived element(s) in expression-bearing categories. Nothing built on a sample base is a product; ship only from a certified genesis base."
+   }
+  },
+  "log_tail": "[rvt_job] planning 2 op(s) against prompt_intent.rvt...\n  op1 move     id=1472947 to (3.0, 1.0, 4.66) ft\n  op2 delete   id=1472952 cascade=True -> removes 1 element(s)\n[rvt_job] committing 2 manipulate plan(s) (ONE commit)...\n[rvt_job] asserting OUR identity (BasicFileInfo scrub)...\n[rvt_job] structural verification...\n[rvt_job] validating (rvt.validate, all layers)...\n[rvt_job] provenance ledger (P0 gate G1)...\n\n=== rvt_job DELIVERABLE MANIFEST ===\n  mode      : edit\n  output    : /Users/ck/dev/things/tekton/experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt (655360 bytes)\n  gate structural      : PASS\n  gate validation      : PASS (errors=0 warnings=1)\n  gate identity        : PASS\n  gate base_provenance : PROOF-ONLY, NOT-DELIVERABLE\n  STATUS    : PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)\n  reason    : P0 genesis gate G1 fails (the base carries derived expression that G1 blocks): FAIL \u2014 3,187 Autodesk-derived element(s) in expression-bearing categories. Nothing built on a sample base is a product; ship only from a certified genesis base.\n  manifest  : /Users/ck/dev/things/tekton/experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt.manifest.json\n",
+  "rc": 0
+ },
+ "output": {
+  "path": "/Users/ck/dev/things/tekton/experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt",
+  "relpath": "experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt",
+  "bytes": 655360,
+  "sha256": "2e98d49f157e0ae2df519c39b40febbee148e1785b7064ffa95dc848ddc9fe20"
+ },
+ "elements": {
+  "edited": [
+   1472947
+  ],
+  "deleted": [
+   1472952
+  ],
+  "created": [],
+  "created_detail": null
+ },
+ "crud": {
+  "note": "the SAME file remains fully editable: run --rvt --edit again on the output; `info`/`deps` reads what is there",
+  "inspect": "python tools/rvt_edit.py experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt info",
+  "entrypoint": "python tools/frontdoor.py author --rvt experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt --edit \"<sentence | ops.json | inline JSON>\" --out <dir>",
+  "editables_before": {
+   "instances": [
+    {
+     "id": 1472946,
+     "name": "Switchboard MSB 2500A 480Y/277 : 2500A 4-section",
+     "category": -2001040,
+     "class": "FamilyInstance"
+    },
+    {
+     "id": 1472947,
+     "name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp : 400A MCB 42ckt",
+     "category": -2001040,
+     "class": "FamilyInstance"
+    },
+    {
+     "id": 1472948,
+     "name": "Distribution Panelboard DP-2 480Y/277 400A MB 42sp : 400A MCB 42ckt",
+     "category": -2001040,
+     "class": "FamilyInstance"
+    },
+    {
+     "id": 1472949,
+     "name": "Lighting Panelboard LP-1 480Y/277 100A MLO 42sp : 100A MLO 42ckt",
+     "category": -2001040,
+     "class": "FamilyInstance"
+    },
+    {
+     "id": 1472950,
+     "name": "Lighting Panelboard LP-2 480Y/277 100A MLO 42sp : 100A MLO 42ckt",
+     "category": -2001040,
+     "class": "FamilyInstance"
+    },
+    {
+     "id": 1472951,
+     "name": "Lighting Panelboard LP-3 480Y/277 100A MLO 42sp : 100A MLO 42ckt",
+     "category": -2001040,
+     "class": "FamilyInstance"
+    },
+    {
+     "id": 1472952,
+     "name": "Lighting Panelboard LP-4 480Y/277 100A MLO 42sp : 100A MLO 42ckt",
+     "category": -2001040,
+     "class": "FamilyInstance"
+    }
+   ],
+   "walls": [
+    {
+     "id": 1472942,
+     "name": "Wall 1472942",
+     "class": "SWall",
+     "type_id": 600634
+    },
+    {
+     "id": 1472943,
+     "name": "Wall 1472943",
+     "class": "SWall",
+     "type_id": 600634
+    },
+    {
+     "id": 1472944,
+     "name": "Wall 1472944",
+     "class": "SWall",
+     "type_id": 600634
+    },
+    {
+     "id": 1472945,
+     "name": "Wall 1472945",
+     "class": "SWall",
+     "type_id": 600634
+    }
+   ],
+   "levels": [
+    {
+     "id": 1351691,
+     "name": "GEN B1 - Basement",
+     "class": "Level",
+     "elevation_ft": -8.858267716535433
+    },
+    {
+     "id": 511122,
+     "name": "GEN T.O. Footing",
+     "class": "Level",
+     "elevation_ft": -3.937007874015748
+    },
+    {
+     "id": 515270,
+     "name": "GEN T.O. Slab",
+     "class": "Level",
+     "elevation_ft": -1.804461942257218
+    },
+    {
+     "id": 311,
+     "name": "L1 - Ground Floor",
+     "class": "Level",
+     "elevation_ft": 0.0
+    },
+    {
+     "id": 1300863,
+     "name": "GEN Ceiling - L1",
+     "class": "Level",
+     "elevation_ft": 8.001968503937007
+    },
+    {
+     "id": 694,
+     "name": "GEN Mezzanine",
+     "class": "Level",
+     "elevation_ft": 10.826771653543307
+    },
+    {
+     "id": 245423,
+     "name": "L2 - Second Floor",
+     "class": "Level",
+     "elevation_ft": 12.0
+    },
+    {
+     "id": 196629,
+     "name": "GEN Roof Datum",
+     "class": "Level",
+     "elevation_ft": 19.68503937007874
+    },
+    {
+     "id": 417275,
+     "name": "GEN T.O. Parapet",
+     "class": "Level",
+     "elevation_ft": 29.52755905511811
+    }
+   ],
+   "circuits": []
+  }
+ },
+ "honesty": {
+  "tiers": {
+   "self_checks": "rvt.validate (0 errors), four-registry coherence, identity gate -- prove OUR OWN invariants; reported per file below",
+   "autodesk_acceptance": "NOT claimed by this run: only the Autodesk Viewer / Revit prove acceptance (upload -> 'translated' -> open the {3D} view). Report both tiers separately, never conflated.",
+   "load_vs_render": "every certification behind these shapes is a LOAD pass; created walls carry a SerializedDummy rep (desktop Revit regenerates; the cloud viewer does NOT) and our loaded symbols carry real solids -- RENDER (baked geometry) is the render stream's second gate"
+  },
+  "proof_only_stamps": [],
+  "release": "Revit 2026 target (the base and the schema are 2026); Revit cannot open a newer file -- confirm the customer's Revit version before promising a .rvt (`--target-version N` makes the front door check, and degrade honestly, for you)"
+ },
+ "status": "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)",
+ "errors": []
+}

@@ -1,0 +1,2575 @@
+{
+ "tool": "tekton frontdoor (rvt.frontdoor)",
+ "tool_version": "1.0.0",
+ "product": "tekton (multi-surface front door)",
+ "generated_at": "2026-08-05T05:02:26Z",
+ "route": "prompt",
+ "inputs": {
+  "prompt": "an electrical room rated for 250V with 6 panels",
+  "fallback_parser": "rules-first deterministic (no external model call, no API key)"
+ },
+ "out_dir": "experiments/instbug/fix/demo_v2",
+ "target_version": {
+  "requested": null,
+  "status": "unspecified",
+  "output_release": 2026,
+  "note": "no --target-version given: the output targets the certified default release (Revit 2026). Revit cannot open a newer file -- ask the user's Revit version before promising a .rvt (the tekton-author skill asks first)."
+ },
+ "prompt_coverage": {
+  "understood": [
+   {
+    "clause": "panels",
+    "as": "equipment",
+    "kind": "panelboard",
+    "count": 6,
+    "rating_a": null,
+    "kva": null,
+    "voltage": null,
+    "mains": null,
+    "spaces": null
+   }
+  ],
+  "ignored_words": [
+   "250V"
+  ],
+  "not_built": [],
+  "defaults_applied": [
+   "room height: 3.6576 m (12 ft)",
+   "wall thickness: 0.2032 m location-line offset (the built wall uses the base wall type's compound structure)",
+   "service voltage system: 480Y/277 V",
+   "PP-1: 225 A bus (kind default)",
+   "PP-1: voltage 480Y/277 V (service system)",
+   "PP-1: MLO (main lugs only kind default)",
+   "PP-1: 42 spaces (default)",
+   "PP-2: 225 A bus (kind default)",
+   "PP-2: voltage 480Y/277 V (service system)",
+   "PP-2: MLO (main lugs only kind default)",
+   "PP-2: 42 spaces (default)",
+   "PP-3: 225 A bus (kind default)",
+   "PP-3: voltage 480Y/277 V (service system)",
+   "PP-3: MLO (main lugs only kind default)",
+   "PP-3: 42 spaces (default)",
+   "PP-4: 225 A bus (kind default)",
+   "PP-4: voltage 480Y/277 V (service system)",
+   "PP-4: MLO (main lugs only kind default)",
+   "PP-4: 42 spaces (default)",
+   "PP-5: 225 A bus (kind default)",
+   "PP-5: voltage 480Y/277 V (service system)",
+   "PP-5: MLO (main lugs only kind default)",
+   "PP-5: 42 spaces (default)",
+   "PP-6: 225 A bus (kind default)",
+   "PP-6: voltage 480Y/277 V (service system)",
+   "PP-6: MLO (main lugs only kind default)",
+   "PP-6: 42 spaces (default)",
+   "no room shell: equipment laid out in a row along +X (free-standing; wall panels stand upright facing -Y)",
+   "no wall shell built (no room dimensions or 'equipment only')"
+  ],
+  "warnings": [
+   "a room was named but no dimensions were given: no room shell will be built (equipment only)"
+  ],
+  "consumed_ratio": 0.468,
+  "statement": "rules-first deterministic parser (no external model call, no API key): everything under 'understood' was normalised into the intent; 'ignored_words' are prompt words the parser did not use; 'not_built' items were recognised but are outside today's model build path; 'defaults_applied' names every value the parser had to assume."
+ },
+ "base": {
+  "path": "/Users/ck/dev/things/tekton/experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "source": "pinned-repo",
+  "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
+  "pinned": true,
+  "certified_genesis_base": true,
+  "is_autodesk_sample": false,
+  "certification": {
+   "ledger": "docs/coverage/viewer-certified.json",
+   "entry": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "proves": "THE COMPOSED GENESIS PROJECT BASE LOADS: G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the Autodesk viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt)",
+   "verdict": "docs/inbox/genesis-audit.md '***** ORCHESTRATOR VERDICTS #24' (2026-08-04): GENESIS LOADS",
+   "composed_by": "tools/genesis_compose.py (anchor byte-exact against certified ZA_deep)"
+  },
+  "warnings": [],
+  "pin": {
+   "id": "G_ABPD",
+   "relpath": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
+   "bytes": 581632,
+   "revit_release": "2026",
+   "certification": {
+    "ledger": "docs/coverage/viewer-certified.json",
+    "entry": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "proves": "THE COMPOSED GENESIS PROJECT BASE LOADS: G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the Autodesk viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt)",
+    "verdict": "docs/inbox/genesis-audit.md '***** ORCHESTRATOR VERDICTS #24' (2026-08-04): GENESIS LOADS",
+    "composed_by": "tools/genesis_compose.py (anchor byte-exact against certified ZA_deep)"
+   },
+   "residue_disclosure": "Per verdict #24: ~260 Autodesk-authored elements remain + 4 named stragglers, plus the two shipped product corpora present in EVERY Revit file (Formats/Latest schema + ESSchemaStorage unit schemas = counsel question C4). The genesis LINEAGE descends from the rst sample reduced + substituted in place; deliverability of any output is decided by the P0 provenance gate (rvt.provenance), never assumed by this registry.",
+   "specimen_ancestor": {
+    "id": "R5",
+    "relpath": "experiments/genesis/R5.rvt",
+    "sha256": "ae40074bb9379ee01b75f43e5bed23f450e34664d40deabed4a226e0847d4181"
+   }
+  },
+  "policy": "the front door authors ONLY on the certified genesis base (our composed project, no Autodesk-authored base content) or a user-supplied non-sample base; NEVER an Autodesk sample"
+ },
+ "intent": {
+  "summary": {
+   "project": "Electrical Room",
+   "source": "prompt:an electrical room rated for 250V with 6 panels",
+   "schema": "prompt/spec-v2",
+   "levels": [
+    {
+     "id": "L1",
+     "name": "Level 1",
+     "elevation": 0.0
+    }
+   ],
+   "room": null,
+   "equipment_total": 6,
+   "equipment_by_kind": {
+    "panelboard": 6
+   },
+   "equipment": [
+    {
+     "tag": "PP-1",
+     "kind": "panelboard",
+     "disposition": "generated-family",
+     "insertion_m": [
+      0.254,
+      0.0,
+      1.42
+     ],
+     "mounting": "surface",
+     "frame_kind": "upright"
+    },
+    {
+     "tag": "PP-2",
+     "kind": "panelboard",
+     "disposition": "generated-family",
+     "insertion_m": [
+      1.662,
+      0.0,
+      1.42
+     ],
+     "mounting": "surface",
+     "frame_kind": "upright"
+    },
+    {
+     "tag": "PP-3",
+     "kind": "panelboard",
+     "disposition": "generated-family",
+     "insertion_m": [
+      3.07,
+      0.0,
+      1.42
+     ],
+     "mounting": "surface",
+     "frame_kind": "upright"
+    },
+    {
+     "tag": "PP-4",
+     "kind": "panelboard",
+     "disposition": "generated-family",
+     "insertion_m": [
+      4.478,
+      0.0,
+      1.42
+     ],
+     "mounting": "surface",
+     "frame_kind": "upright"
+    },
+    {
+     "tag": "PP-5",
+     "kind": "panelboard",
+     "disposition": "generated-family",
+     "insertion_m": [
+      5.886,
+      0.0,
+      1.42
+     ],
+     "mounting": "surface",
+     "frame_kind": "upright"
+    },
+    {
+     "tag": "PP-6",
+     "kind": "panelboard",
+     "disposition": "generated-family",
+     "insertion_m": [
+      7.294,
+      0.0,
+      1.42
+     ],
+     "mounting": "surface",
+     "frame_kind": "upright"
+    }
+   ],
+   "feeder_edges": [],
+   "family_plans_by_status": {
+    "resolved": 6
+   },
+   "family_plans": [
+    {
+     "tag": "PP-1",
+     "kind": "panelboard",
+     "status": "resolved",
+     "constructor": "make_panelboard",
+     "variant": "PRL2X",
+     "catalog": "eaton/pow-r-line-panelboards",
+     "refusal": null
+    },
+    {
+     "tag": "PP-2",
+     "kind": "panelboard",
+     "status": "resolved",
+     "constructor": "make_panelboard",
+     "variant": "PRL2X",
+     "catalog": "eaton/pow-r-line-panelboards",
+     "refusal": null
+    },
+    {
+     "tag": "PP-3",
+     "kind": "panelboard",
+     "status": "resolved",
+     "constructor": "make_panelboard",
+     "variant": "PRL2X",
+     "catalog": "eaton/pow-r-line-panelboards",
+     "refusal": null
+    },
+    {
+     "tag": "PP-4",
+     "kind": "panelboard",
+     "status": "resolved",
+     "constructor": "make_panelboard",
+     "variant": "PRL2X",
+     "catalog": "eaton/pow-r-line-panelboards",
+     "refusal": null
+    },
+    {
+     "tag": "PP-5",
+     "kind": "panelboard",
+     "status": "resolved",
+     "constructor": "make_panelboard",
+     "variant": "PRL2X",
+     "catalog": "eaton/pow-r-line-panelboards",
+     "refusal": null
+    },
+    {
+     "tag": "PP-6",
+     "kind": "panelboard",
+     "status": "resolved",
+     "constructor": "make_panelboard",
+     "variant": "PRL2X",
+     "catalog": "eaton/pow-r-line-panelboards",
+     "refusal": null
+    }
+   ],
+   "clearances": 0,
+   "audit": {
+    "source": "prompt (built-in rules-first fallback; no external model call)",
+    "equipment_with_positions": 6,
+    "positions_all_zero": false,
+    "feeder_edges": 0,
+    "family_plans": {
+     "PP-1": "resolved",
+     "PP-2": "resolved",
+     "PP-3": "resolved",
+     "PP-4": "resolved",
+     "PP-5": "resolved",
+     "PP-6": "resolved"
+    },
+    "prompt_consumed_ratio": 0.468,
+    "prompt_ignored_words": [
+     "250V"
+    ]
+   }
+  },
+  "json": "experiments/instbug/fix/demo_v2/intent.json"
+ },
+ "build": {
+  "combination_verdict": {
+   "open_bug": null,
+   "open_bug_text": null,
+   "has_walls": false,
+   "n_walls": 0,
+   "has_loaded_families": true,
+   "n_loaded_families": 6,
+   "triggers_open_bug": false,
+   "mode": "single",
+   "stamp": null,
+   "files": [
+    "combined"
+   ],
+   "reason": "no walls+families combination in this intent: loaded families + instances only (viewer-certified shape: family load + placement on the genesis base)",
+   "notes": []
+  },
+  "files": {
+   "combined": {
+    "path": "/Users/ck/dev/things/tekton/experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt",
+    "relpath": "experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt",
+    "bytes": 638976,
+    "sha256": "0b20fd500b63a93eeda903e3ed1a5e3d932fcb4421ca242d30d6610f353b926b"
+   }
+  },
+  "families_dir": "experiments/instbug/fix/demo_v2/families",
+  "stages": null,
+  "load": {
+   "stage": "L",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "loads": [
+    {
+     "tag": "PP-1",
+     "in": "experiments/instbug/fix/demo_v2/_stages/stage_L0_base.rvt",
+     "out": "experiments/instbug/fix/demo_v2/_stages/stage_L1_pp1.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472524,
+     "symbol_id": 1472582,
+     "family_id": 1472566,
+     "surrogate_id": 1472581,
+     "content_guid": "1de5d8d8-303b-4396-a781-57c53d8deb71",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "1de5d8d8-303b-4396-a781-57c53d8deb71",
+       "host_watermark": 1472524,
+       "our_doc_ids": [
+        1472525,
+        1472565
+       ],
+       "host_ids": {
+        "family": 1472566,
+        "surrogate": 1472581,
+        "symbol": 1472582,
+        "symbol_surrogate": 1472583,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 20358,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "1de5d8d8-303b-4396-a781-57c53d8deb71",
+       "records": 41,
+       "bytes": 7404,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 0,
+       "entries_after": 1,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580066,
+       "bytes_after": 1580190
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 2.3,
+     "report": "experiments/instbug/fix/demo_v2/_stages/stage_L1_pp1.rvt.load.json"
+    },
+    {
+     "tag": "PP-2",
+     "in": "experiments/instbug/fix/demo_v2/_stages/stage_L1_pp1.rvt",
+     "out": "experiments/instbug/fix/demo_v2/_stages/stage_L2_pp2.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472583,
+     "symbol_id": 1472641,
+     "family_id": 1472625,
+     "surrogate_id": 1472640,
+     "content_guid": "460644eb-b6a4-45cc-8021-5b71ccf51ab8",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "460644eb-b6a4-45cc-8021-5b71ccf51ab8",
+       "host_watermark": 1472583,
+       "our_doc_ids": [
+        1472584,
+        1472624
+       ],
+       "host_ids": {
+        "family": 1472625,
+        "surrogate": 1472640,
+        "symbol": 1472641,
+        "symbol_surrogate": 1472642,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 20358,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "460644eb-b6a4-45cc-8021-5b71ccf51ab8",
+       "records": 41,
+       "bytes": 7413,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 1,
+       "entries_after": 2,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580190,
+       "bytes_after": 1580302
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 2.4,
+     "report": "experiments/instbug/fix/demo_v2/_stages/stage_L2_pp2.rvt.load.json"
+    },
+    {
+     "tag": "PP-3",
+     "in": "experiments/instbug/fix/demo_v2/_stages/stage_L2_pp2.rvt",
+     "out": "experiments/instbug/fix/demo_v2/_stages/stage_L3_pp3.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472642,
+     "symbol_id": 1472700,
+     "family_id": 1472684,
+     "surrogate_id": 1472699,
+     "content_guid": "018c7972-ba25-4594-82b7-5a91e31105fb",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "018c7972-ba25-4594-82b7-5a91e31105fb",
+       "host_watermark": 1472642,
+       "our_doc_ids": [
+        1472643,
+        1472683
+       ],
+       "host_ids": {
+        "family": 1472684,
+        "surrogate": 1472699,
+        "symbol": 1472700,
+        "symbol_surrogate": 1472701,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 20358,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "018c7972-ba25-4594-82b7-5a91e31105fb",
+       "records": 41,
+       "bytes": 7417,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 2,
+       "entries_after": 3,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580302,
+       "bytes_after": 1580414
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 2.4,
+     "report": "experiments/instbug/fix/demo_v2/_stages/stage_L3_pp3.rvt.load.json"
+    },
+    {
+     "tag": "PP-4",
+     "in": "experiments/instbug/fix/demo_v2/_stages/stage_L3_pp3.rvt",
+     "out": "experiments/instbug/fix/demo_v2/_stages/stage_L4_pp4.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472701,
+     "symbol_id": 1472759,
+     "family_id": 1472743,
+     "surrogate_id": 1472758,
+     "content_guid": "556097fa-1b98-493d-a34f-bee830f6f68e",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "556097fa-1b98-493d-a34f-bee830f6f68e",
+       "host_watermark": 1472701,
+       "our_doc_ids": [
+        1472702,
+        1472742
+       ],
+       "host_ids": {
+        "family": 1472743,
+        "surrogate": 1472758,
+        "symbol": 1472759,
+        "symbol_surrogate": 1472760,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 20358,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "556097fa-1b98-493d-a34f-bee830f6f68e",
+       "records": 41,
+       "bytes": 7414,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 3,
+       "entries_after": 4,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580414,
+       "bytes_after": 1580526
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 2.5,
+     "report": "experiments/instbug/fix/demo_v2/_stages/stage_L4_pp4.rvt.load.json"
+    },
+    {
+     "tag": "PP-5",
+     "in": "experiments/instbug/fix/demo_v2/_stages/stage_L4_pp4.rvt",
+     "out": "experiments/instbug/fix/demo_v2/_stages/stage_L5_pp5.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472760,
+     "symbol_id": 1472818,
+     "family_id": 1472802,
+     "surrogate_id": 1472817,
+     "content_guid": "0589a076-b327-4020-a85f-4d9859eaee35",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "0589a076-b327-4020-a85f-4d9859eaee35",
+       "host_watermark": 1472760,
+       "our_doc_ids": [
+        1472761,
+        1472801
+       ],
+       "host_ids": {
+        "family": 1472802,
+        "surrogate": 1472817,
+        "symbol": 1472818,
+        "symbol_surrogate": 1472819,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 20358,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "0589a076-b327-4020-a85f-4d9859eaee35",
+       "records": 41,
+       "bytes": 7398,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 4,
+       "entries_after": 5,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580526,
+       "bytes_after": 1580638
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 2.5,
+     "report": "experiments/instbug/fix/demo_v2/_stages/stage_L5_pp5.rvt.load.json"
+    },
+    {
+     "tag": "PP-6",
+     "in": "experiments/instbug/fix/demo_v2/_stages/stage_L5_pp5.rvt",
+     "out": "experiments/instbug/fix/demo_v2/_stages/stage_L6_pp6.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472819,
+     "symbol_id": 1472877,
+     "family_id": 1472861,
+     "surrogate_id": 1472876,
+     "content_guid": "c8880931-f566-4369-8ae6-6c8451053402",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "c8880931-f566-4369-8ae6-6c8451053402",
+       "host_watermark": 1472819,
+       "our_doc_ids": [
+        1472820,
+        1472860
+       ],
+       "host_ids": {
+        "family": 1472861,
+        "surrogate": 1472876,
+        "symbol": 1472877,
+        "symbol_surrogate": 1472878,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 20358,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "c8880931-f566-4369-8ae6-6c8451053402",
+       "records": 41,
+       "bytes": 7412,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 5,
+       "entries_after": 6,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580638,
+       "bytes_after": 1580750
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 2.5,
+     "report": "experiments/instbug/fix/demo_v2/_stages/stage_L6_pp6.rvt.load.json"
+    }
+   ],
+   "final": "experiments/instbug/fix/demo_v2/_stages/stage_L6_pp6.rvt",
+   "blocker": null,
+   "order": [
+    "PP-1",
+    "PP-2",
+    "PP-3",
+    "PP-4",
+    "PP-5",
+    "PP-6"
+   ],
+   "loaded": {
+    "PP-1": {
+     "symbol_id": 1472582,
+     "family_id": 1472566,
+     "content_guid": "1de5d8d8-303b-4396-a781-57c53d8deb71"
+    },
+    "PP-2": {
+     "symbol_id": 1472641,
+     "family_id": 1472625,
+     "content_guid": "460644eb-b6a4-45cc-8021-5b71ccf51ab8"
+    },
+    "PP-3": {
+     "symbol_id": 1472700,
+     "family_id": 1472684,
+     "content_guid": "018c7972-ba25-4594-82b7-5a91e31105fb"
+    },
+    "PP-4": {
+     "symbol_id": 1472759,
+     "family_id": 1472743,
+     "content_guid": "556097fa-1b98-493d-a34f-bee830f6f68e"
+    },
+    "PP-5": {
+     "symbol_id": 1472818,
+     "family_id": 1472802,
+     "content_guid": "0589a076-b327-4020-a85f-4d9859eaee35"
+    },
+    "PP-6": {
+     "symbol_id": 1472877,
+     "family_id": 1472861,
+     "content_guid": "c8880931-f566-4369-8ae6-6c8451053402"
+    }
+   },
+   "n_loaded": 6,
+   "n_planned": 6
+  },
+  "families": {
+   "stage": "F",
+   "dir": "experiments/instbug/fix/demo_v2/families",
+   "all_ok": true,
+   "built": 6
+  },
+  "family_files": [
+   {
+    "tag": "PP-1",
+    "path": "experiments/instbug/fix/demo_v2/families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "ok": true,
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "reason": null
+   },
+   {
+    "tag": "PP-2",
+    "path": "experiments/instbug/fix/demo_v2/families/pp2_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "ok": true,
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "reason": null
+   },
+   {
+    "tag": "PP-3",
+    "path": "experiments/instbug/fix/demo_v2/families/pp3_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "ok": true,
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "reason": null
+   },
+   {
+    "tag": "PP-4",
+    "path": "experiments/instbug/fix/demo_v2/families/pp4_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "ok": true,
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "reason": null
+   },
+   {
+    "tag": "PP-5",
+    "path": "experiments/instbug/fix/demo_v2/families/pp5_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "ok": true,
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "reason": null
+   },
+   {
+    "tag": "PP-6",
+    "path": "experiments/instbug/fix/demo_v2/families/pp6_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "ok": true,
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "reason": null
+   }
+  ],
+  "elements_created": [
+   {
+    "kind": "family(.rfa)",
+    "tag": "PP-1",
+    "name": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+    "path": "experiments/instbug/fix/demo_v2/families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true
+   },
+   {
+    "kind": "family(.rfa)",
+    "tag": "PP-2",
+    "name": "Panelboard PP-2 480Y/277 225A MLO 42sp",
+    "path": "experiments/instbug/fix/demo_v2/families/pp2_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true
+   },
+   {
+    "kind": "family(.rfa)",
+    "tag": "PP-3",
+    "name": "Panelboard PP-3 480Y/277 225A MLO 42sp",
+    "path": "experiments/instbug/fix/demo_v2/families/pp3_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true
+   },
+   {
+    "kind": "family(.rfa)",
+    "tag": "PP-4",
+    "name": "Panelboard PP-4 480Y/277 225A MLO 42sp",
+    "path": "experiments/instbug/fix/demo_v2/families/pp4_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true
+   },
+   {
+    "kind": "family(.rfa)",
+    "tag": "PP-5",
+    "name": "Panelboard PP-5 480Y/277 225A MLO 42sp",
+    "path": "experiments/instbug/fix/demo_v2/families/pp5_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true
+   },
+   {
+    "kind": "family(.rfa)",
+    "tag": "PP-6",
+    "name": "Panelboard PP-6 480Y/277 225A MLO 42sp",
+    "path": "experiments/instbug/fix/demo_v2/families/pp6_eaton_prl2x_225a_42sp_480y_277.rfa",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "PP-1",
+    "elem_id": 1472879,
+    "symbol": 1472582,
+    "family": 1472566,
+    "equip_kind": "panelboard",
+    "position_ft": [
+     0.833,
+     0.0,
+     4.659
+    ],
+    "frame_kind": "upright",
+    "connector_slots_panel": 0,
+    "file_role": "E"
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "PP-2",
+    "elem_id": 1472880,
+    "symbol": 1472641,
+    "family": 1472625,
+    "equip_kind": "panelboard",
+    "position_ft": [
+     5.453,
+     0.0,
+     4.659
+    ],
+    "frame_kind": "upright",
+    "connector_slots_panel": 0,
+    "file_role": "E"
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "PP-3",
+    "elem_id": 1472881,
+    "symbol": 1472700,
+    "family": 1472684,
+    "equip_kind": "panelboard",
+    "position_ft": [
+     10.072,
+     0.0,
+     4.659
+    ],
+    "frame_kind": "upright",
+    "connector_slots_panel": 0,
+    "file_role": "E"
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "PP-4",
+    "elem_id": 1472882,
+    "symbol": 1472759,
+    "family": 1472743,
+    "equip_kind": "panelboard",
+    "position_ft": [
+     14.692,
+     0.0,
+     4.659
+    ],
+    "frame_kind": "upright",
+    "connector_slots_panel": 0,
+    "file_role": "E"
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "PP-5",
+    "elem_id": 1472883,
+    "symbol": 1472818,
+    "family": 1472802,
+    "equip_kind": "panelboard",
+    "position_ft": [
+     19.311,
+     0.0,
+     4.659
+    ],
+    "frame_kind": "upright",
+    "connector_slots_panel": 0,
+    "file_role": "E"
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "PP-6",
+    "elem_id": 1472884,
+    "symbol": 1472877,
+    "family": 1472861,
+    "equip_kind": "panelboard",
+    "position_ft": [
+     23.93,
+     0.0,
+     4.659
+    ],
+    "frame_kind": "upright",
+    "connector_slots_panel": 0,
+    "file_role": "E"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "PP-1",
+    "symbol_id": 1472582,
+    "family_id": 1472566,
+    "content_guid": "1de5d8d8-303b-4396-a781-57c53d8deb71"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "PP-2",
+    "symbol_id": 1472641,
+    "family_id": 1472625,
+    "content_guid": "460644eb-b6a4-45cc-8021-5b71ccf51ab8"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "PP-3",
+    "symbol_id": 1472700,
+    "family_id": 1472684,
+    "content_guid": "018c7972-ba25-4594-82b7-5a91e31105fb"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "PP-4",
+    "symbol_id": 1472759,
+    "family_id": 1472743,
+    "content_guid": "556097fa-1b98-493d-a34f-bee830f6f68e"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "PP-5",
+    "symbol_id": 1472818,
+    "family_id": 1472802,
+    "content_guid": "0589a076-b327-4020-a85f-4d9859eaee35"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "PP-6",
+    "symbol_id": 1472877,
+    "family_id": 1472861,
+    "content_guid": "c8880931-f566-4369-8ae6-6c8451053402"
+   }
+  ],
+  "degradations": [],
+  "circuits": {},
+  "validation": {
+   "combined": {
+    "validate": {
+     "path": "experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt",
+     "md5": "af0a370b8ca78ad970bec910e41951e7",
+     "size": 638976,
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "errors": [],
+     "warnings": [
+      {
+       "severity": "warning",
+       "layer": "semantic",
+       "where": "objects",
+       "message": "1/3462 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+      }
+     ],
+     "stats": {
+      "streams": 12,
+      "pages_checked": 15,
+      "gzip_members": 8,
+      "partition_blocks": 32,
+      "records": 10407,
+      "elements_decoded": 3462,
+      "decode_failures": 1,
+      "refs_checked": 52550,
+      "connector_edges": 0,
+      "circuits": 0
+     },
+     "seconds": 0.4
+    },
+    "census": {
+     "save_units": 7,
+     "contentdocs_entries": 6,
+     "contentdocs_guids": [
+      "018c7972-ba25-4594-82b7-5a91e31105fb",
+      "0589a076-b327-4020-a85f-4d9859eaee35",
+      "1de5d8d8-303b-4396-a781-57c53d8deb71",
+      "460644eb-b6a4-45cc-8021-5b71ccf51ab8",
+      "556097fa-1b98-493d-a34f-bee830f6f68e",
+      "c8880931-f566-4369-8ae6-6c8451053402"
+     ],
+     "contenttable_records": 6,
+     "contenttable_guids": [
+      "018c7972-ba25-4594-82b7-5a91e31105fb",
+      "0589a076-b327-4020-a85f-4d9859eaee35",
+      "1de5d8d8-303b-4396-a781-57c53d8deb71",
+      "460644eb-b6a4-45cc-8021-5b71ccf51ab8",
+      "556097fa-1b98-493d-a34f-bee830f6f68e",
+      "c8880931-f566-4369-8ae6-6c8451053402"
+     ],
+     "familymgr_entries": 15,
+     "familymgr_guids": [
+      "018c7972-ba25-4594-82b7-5a91e31105fb",
+      "0589a076-b327-4020-a85f-4d9859eaee35",
+      "1de5d8d8-303b-4396-a781-57c53d8deb71",
+      "460644eb-b6a4-45cc-8021-5b71ccf51ab8",
+      "556097fa-1b98-493d-a34f-bee830f6f68e",
+      "c8880931-f566-4369-8ae6-6c8451053402"
+     ],
+     "coherent": true
+    },
+    "identity": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "DEMO_250v_room_v2.rvt",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "self_checks_ok": true
+   }
+  },
+  "status_gate": {
+   "status": "PROOF-ONLY, NOT-DELIVERABLE",
+   "deliverable": false,
+   "base": "/Users/ck/dev/things/tekton/experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_is_autodesk_sample": false,
+   "g1": {
+    "passes": false,
+    "verdict": "FAIL \u2014 3,054 Autodesk-derived element(s) in expression-bearing categories",
+    "blocking": [
+     {
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "count": 6,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "autodesk-sample",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "count": 6,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "autodesk-sample",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "autodesk-sample",
+      "count": 87,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "autodesk-sample",
+      "count": 1591,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "autodesk-sample",
+      "count": 71,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "autodesk-sample",
+      "count": 17,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "parameter-definitions",
+      "provenance": "autodesk-sample",
+      "count": 822,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "autodesk-sample",
+      "count": 11,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "autodesk-sample",
+      "count": 37,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "mep-electrical-definitions",
+      "provenance": "autodesk-sample",
+      "count": 354,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ]
+   },
+   "provenance_totals": {
+    "autodesk-sample": 3102,
+    "ours-created": 102,
+    "transitive-cloned": 12
+   },
+   "created_elements": [
+    {
+     "id": 1472566,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472567,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472567 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472568,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472568 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472569,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472569 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472570,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472570 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472571,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472571 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472572,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472572 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472573,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472573 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472574,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472574 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472575,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472575 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472576,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472576 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472577,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472577 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472578,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472578 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472579,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472579 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472580,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472580 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472581,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472581 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472582,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472583,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472583 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472625,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472626,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472626 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472627,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472627 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472628,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472628 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472629,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472629 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472630,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472630 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472631,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472631 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472632,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472632 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472633,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472633 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472634,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472634 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472635,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472635 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472636,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472636 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472637,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472637 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472638,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472638 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472639,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472639 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472640,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472640 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472641,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472642,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472642 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472684,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472685,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472685 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472686,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472686 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472687,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472687 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472688,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472688 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472689,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472689 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472690,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472690 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472691,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472691 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472692,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472692 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472693,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472693 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472694,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472694 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472695,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472695 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472696,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472696 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472697,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472697 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472698,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472698 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472699,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472699 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472700,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472701,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472701 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472743,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472744,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472744 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472745,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472745 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472746,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472746 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472747,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472747 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472748,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472748 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472749,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472749 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472750,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472750 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472751,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472751 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472752,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472752 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472753,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472753 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472754,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472754 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472755,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472755 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472756,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472756 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472757,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472757 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472758,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472758 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472759,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472760,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472760 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472802,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472803,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472803 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472804,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472804 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472805,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472805 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472806,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472806 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472807,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472807 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472808,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472808 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472809,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472809 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472810,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472810 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472811,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472811 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472812,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472812 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472813,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472813 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472814,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472814 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472815,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472815 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472816,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472816 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472817,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472817 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472818,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472819,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472819 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472861,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472862,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472862 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472863,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472863 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472864,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472864 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472865,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472865 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472866,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472866 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472867,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472867 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472868,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472868 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472869,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472869 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472870,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472870 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472871,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472871 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472872,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472872 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472873,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472873 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472874,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472874 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472875,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472875 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472876,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472876 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472877,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472878,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472878 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472879,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472879 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472880,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472880 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472881,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472881 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472882,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472882 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472883,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472883 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472884,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472884 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    }
+   ],
+   "reason": "P0 genesis gate G1 fails (the base carries derived expression that G1 blocks): FAIL \u2014 3,054 Autodesk-derived element(s) in expression-bearing categories. Nothing built on a sample base is a product; ship only from a certified genesis base.",
+   "elapsed_s": 0.3
+  },
+  "seconds": 29.4,
+  "errors": []
+ },
+ "crud": {
+  "entrypoint": "python tools/frontdoor.py author --rvt experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt --edit \"<sentence | ops.json | inline JSON>\" --out <dir>",
+  "note": "every element the front door created is EDITABLE and DELETABLE through the same front door (--rvt --edit) or the underlying rvt_edit.py / rvt_job.py ops -- one ops vocabulary for all of them",
+  "elements": [
+   {
+    "tag": "PP-1",
+    "elem_id": 1472879,
+    "kind": "equipment-instance",
+    "file": "experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move PP-1 to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt move --id 1472879 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472879,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype PP-1 to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt retype --id 1472879 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472879,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete PP-1 with cascade",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt delete --id 1472879 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472879,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   },
+   {
+    "tag": "PP-2",
+    "elem_id": 1472880,
+    "kind": "equipment-instance",
+    "file": "experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move PP-2 to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt move --id 1472880 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472880,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype PP-2 to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt retype --id 1472880 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472880,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete PP-2 with cascade",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt delete --id 1472880 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472880,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   },
+   {
+    "tag": "PP-3",
+    "elem_id": 1472881,
+    "kind": "equipment-instance",
+    "file": "experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move PP-3 to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt move --id 1472881 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472881,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype PP-3 to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt retype --id 1472881 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472881,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete PP-3 with cascade",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt delete --id 1472881 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472881,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   },
+   {
+    "tag": "PP-4",
+    "elem_id": 1472882,
+    "kind": "equipment-instance",
+    "file": "experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move PP-4 to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt move --id 1472882 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472882,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype PP-4 to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt retype --id 1472882 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472882,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete PP-4 with cascade",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt delete --id 1472882 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472882,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   },
+   {
+    "tag": "PP-5",
+    "elem_id": 1472883,
+    "kind": "equipment-instance",
+    "file": "experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move PP-5 to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt move --id 1472883 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472883,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype PP-5 to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt retype --id 1472883 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472883,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete PP-5 with cascade",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt delete --id 1472883 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472883,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   },
+   {
+    "tag": "PP-6",
+    "elem_id": 1472884,
+    "kind": "equipment-instance",
+    "file": "experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move PP-6 to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt move --id 1472884 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472884,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype PP-6 to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt retype --id 1472884 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472884,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete PP-6 with cascade",
+      "cli": "python tools/rvt_edit.py experiments/instbug/fix/demo_v2/DEMO_250v_room_v2.rvt delete --id 1472884 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472884,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   }
+  ],
+  "layer_operations": {
+   "recreate": "re-run the same `frontdoor author` command (deterministic for the same inputs) -- outputs are regenerated from the intent",
+   "start_over": "the base is untouched; delete the output directory to discard the whole created layer",
+   "circuits": "feeder circuits are NOT authored on this base yet (named blocker in the manifest); the resolved circuit plan is in the intent's feederTree.circuitPlan -- rvt.mep add_circuit / a Revit-side add-in consume it"
+  }
+ },
+ "coverage_matrix": {
+  "matrix": "docs/coverage/matrix.json (28 categories x 6 verbs; tools/coverage.py)",
+  "cells_exercised": [
+   {
+    "category": "electrical_equipment",
+    "verb": "create"
+   },
+   {
+    "category": "families",
+    "verb": "create"
+   }
+  ],
+  "affordances": "modify / move / retype / delete over every created element are the manipulate stream's certified cells (M2/M3/M4); the front door's --rvt route drives them"
+ },
+ "honesty": {
+  "tiers": {
+   "self_checks": "rvt.validate (0 errors), four-registry coherence, identity gate -- prove OUR OWN invariants; reported per file below",
+   "autodesk_acceptance": "NOT claimed by this run: only the Autodesk Viewer / Revit prove acceptance (upload -> 'translated' -> open the {3D} view). Report both tiers separately, never conflated.",
+   "load_vs_render": "every certification behind these shapes is a LOAD pass; created walls carry a SerializedDummy rep (desktop Revit regenerates; the cloud viewer does NOT) and our loaded symbols carry real solids -- RENDER (baked geometry) is the render stream's second gate"
+  },
+  "proof_only_stamps": [
+   "PROOF-ONLY, NOT-DELIVERABLE"
+  ],
+  "release": "Revit 2026 target (the base and the schema are 2026); Revit cannot open a newer file -- confirm the customer's Revit version before promising a .rvt (`--target-version N` makes the front door check, and degrade honestly, for you)"
+ },
+ "status": "PROOF-ONLY (self-checks PASS; see honesty.proof_only_stamps + status_gate)"
+}

@@ -1,0 +1,1103 @@
+{
+ "rung": "Y4",
+ "label": "Rbs* settings + sizes tables (wire/duct/pipe/conduit/cable-tray) -> ours, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+ "base": {
+  "file": "experiments/genesis/triage/K4.rvt",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  },
+  "lineage": "K4 = K3 minus the ENTIRE loadable-family layer AND all 52 embedded family documents (four-registry coherent removal); K3 = R9 with every family-USAGE field nulled; R9 = the deepest viewer-PASSED reduction of samples/rstbasicsampleproject (R5 -> R9 lineage; thousands of dangling ADocument refs, tolerated).  Every ancestor that matters is itself certified: R5, R9, K3, K4, KD1.  K4 is family-free (52/52 documents removed, ContentDocuments 14-byte empty form, ContentTable + FamilyMgr reconciled), 3,342 host elements, one save unit -- the ideal genesis base: the family/document layer is already gone."
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+  "identical_to": "experiments/genesis/triage/K4.rvt",
+  "md5": "f4863b9559bd28521c77d816da361053",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y3.rvt",
+ "parent_rung": "Y3",
+ "out": "experiments/genesis/subst_k4/Y4.rvt",
+ "description": "Y3 with the eight MEP settings / size-table singletons' OBJECTS replaced in place: RbsWire/Pipe/DuctSettingsElem (our conventions, keeping the base's per-classification type wiring) and RbsWire/Pipe/DuctSizesElem (OUR data: NEC ampacity, ASME B36.10/B36.19 + ASTM B88 pipe dimensions, our SMACNA duct series -- keyed onto the base's still-present catalog symbols), Conduit/CableTraySettingsElem.",
+ "tests": "Whether the reader accepts our MEP settings singletons and OUR size-table DATA at Autodesk's slots.",
+ "if_PASS": "Our MEP settings / sizes constructors + our dimensional data are reader-accepted.",
+ "if_FAIL": "One of the eight is rejected -- bisect settings vs sizes vs the conduit/cable-tray pair.",
+ "stages": [],
+ "parent_context": {
+  "host_elements": 3342,
+  "watermark": 1472524
+ },
+ "candidates_old_by_class": {
+  "RbsDuctSizesElem": 1,
+  "RbsDuctSettingsElem": 1,
+  "RbsPipeSettingsElem": 1,
+  "RbsWireSettingsElem": 1,
+  "RbsPipeSizesElem": 1,
+  "RbsWireSizesElem": 1,
+  "CableTraySettingsElem": 1,
+  "ConduitSettingsElem": 1
+ },
+ "our_records_by_class": {
+  "RbsWireSettingsElem": 1,
+  "RbsWireSizesElem": 1,
+  "RbsPipeSettingsElem": 1,
+  "RbsPipeSizesElem": 1,
+  "RbsDuctSettingsElem": 1,
+  "RbsDuctSizesElem": 1,
+  "ConduitSettingsElem": 1,
+  "CableTraySettingsElem": 1
+ },
+ "build_notes": [
+  "wire sizes keyed onto the parent's catalog: materials {'Copper': 102411, 'Aluminum': 102412} (of ['copper', 'aluminum', 'steel', 'non-magnetic']), ratings {'90': 102443, '75': 102442} (of ['60', '75', '90']), 26 insulation symbols; uncovered by our NEC data: ['non-magnetic', 'steel'] materials, ['60'] ratings",
+  "pipe sizes keyed onto the parent's catalog (5 materials); 376 size rows of OUR dimensional data (ASME B36.10/B36.19, ASTM B88)"
+ ],
+ "build_info": {},
+ "residue_named_by_builder": {
+  "RbsWireMaterialType": "4 kept -- MEP catalog / catalog-keyed size table (later rung)",
+  "RbsWireTemperatureRatingType": "3 kept -- MEP catalog / catalog-keyed size table (later rung)",
+  "RbsWireInsulationType": "26 kept -- MEP catalog / catalog-keyed size table (later rung)",
+  "RbsPipeMaterialType": "5 kept -- MEP catalog / catalog-keyed size table (later rung)",
+  "RbsPipeConnectionType": "8 kept -- MEP catalog / catalog-keyed size table (later rung)",
+  "RbsPipeScheduleType": "13 kept -- MEP catalog / catalog-keyed size table (later rung)",
+  "PipeSegment": "15 kept -- MEP catalog / catalog-keyed size table (later rung)",
+  "ConduitSizesElem": "1 kept -- MEP catalog / catalog-keyed size table (later rung)",
+  "CableTraySizesElem": "1 kept -- MEP catalog / catalog-keyed size table (later rung)"
+ },
+ "plan": {
+  "landed": 8,
+  "by_match": {
+   "role": 8
+  },
+  "landed_by_class": {
+   "RbsWireSettingsElem": 1,
+   "RbsWireSizesElem": 1,
+   "RbsPipeSettingsElem": 1,
+   "RbsPipeSizesElem": 1,
+   "RbsDuctSettingsElem": 1,
+   "RbsDuctSizesElem": 1,
+   "ConduitSettingsElem": 1,
+   "CableTraySettingsElem": 1
+  },
+  "dropped_ours": 0,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "protected_slots_from_earlier_rungs": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 0,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 8,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 8,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.2
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   102126,
+   102127,
+   102128,
+   102129,
+   102379,
+   102410,
+   113173,
+   113174
+  ],
+  "records_changed_count": 8,
+  "records_changed_by_seq": {
+   "102": 8
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 8,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 102126,
+    "len_ours": 2831,
+    "len_parent": 5327,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "RbsDuctSizesElem",
+      "class_parent": "RbsDuctSizesElem"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[len]",
+      "ours": 35,
+      "parent": 74
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[0].m_dSize",
+      "ours": "0.3333333333333333",
+      "parent": "0.24606299212598426"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[1].m_dSize",
+      "ours": "0.4166666666666667",
+      "parent": "0.2952755905511811"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[2].m_dSize",
+      "ours": "0.5",
+      "parent": "0.32808398950131235"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[3].m_dSize",
+      "ours": "0.5833333333333334",
+      "parent": "0.36089238845144356"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[4].m_dSize",
+      "ours": "0.6666666666666666",
+      "parent": "0.41010498687664043"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[5].m_dSize",
+      "ours": "0.75",
+      "parent": "0.45931758530183725"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[6].m_dSize",
+      "ours": "0.8333333333333334",
+      "parent": "0.4921259842519685"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[7].m_dSize",
+      "ours": "1.0",
+      "parent": "0.5249343832020997"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[8].m_dSize",
+      "ours": "1.1666666666666667",
+      "parent": "0.5741469816272966"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[9].m_dSize",
+      "ours": "1.3333333333333333",
+      "parent": "0.6233595800524935"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[10].m_dSize",
+      "ours": "1.5",
+      "parent": "0.6561679790026247"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[11].m_dSize",
+      "ours": "1.6666666666666667",
+      "parent": "0.6889763779527559"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[12].m_dSize",
+      "ours": "1.8333333333333333",
+      "parent": "0.7381889763779528"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[13].m_dSize",
+      "ours": "2.0",
+      "parent": "0.7874015748031495"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[14].m_dSize",
+      "ours": "2.1666666666666665",
+      "parent": "0.8202099737532809"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[15].m_dSize",
+      "ours": "2.3333333333333335",
+      "parent": "0.8530183727034121"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[16].m_dSize",
+      "ours": "2.5",
+      "parent": "0.902230971128609"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[17].m_dSize",
+      "ours": "2.6666666666666665",
+      "parent": "0.9514435695538057"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[18].m_dSize",
+      "ours": "2.8333333333333335",
+      "parent": "0.984251968503937"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[19].m_dSize",
+      "ours": "3.0",
+      "parent": "1.0170603674540681"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[20].m_dSize",
+      "ours": "3.1666666666666665",
+      "parent": "1.0662729658792651"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[21].m_dSize",
+      "ours": "3.3333333333333335",
+      "parent": "1.1154855643044619"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[22].m_dSize",
+      "ours": "3.5",
+      "parent": "1.1482939632545932"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[23].m_dSize",
+      "ours": "3.8333333333333335",
+      "parent": "1.1811023622047243"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[24].m_dSize",
+      "ours": "4.166666666666667",
+      "parent": "1.2303149606299213"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[25].m_dSize",
+      "ours": "4.5",
+      "parent": "1.279527559055118"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[26].m_dSize",
+      "ours": "4.833333333333333",
+      "parent": "1.3123359580052494"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[27].m_dSize",
+      "ours": "5.333333333333333",
+      "parent": "1.3943569553805775"
+     },
+     {
+      "path": ".m_shapeSizes[0].second.m_sizeData[28].m_dSize",
+      "ours": "6.0",
+      "parent": "1.4763779527559056"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 102127,
+    "len_ours": 768,
+    "len_parent": 930,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "RbsDuctSettingsElem",
+      "class_parent": "RbsDuctSettingsElem"
+     },
+     {
+      "path": ".m_airDynamicViscosity",
+      "ours": "5.526024000000001e-06",
+      "parent": "5.52543392433963e-06"
+     },
+     {
+      "path": ".m_bDuctUseAnnoScaleFor1LineFittings",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_dAirDensity",
+      "ours": "0.034096314981427206",
+      "parent": "0.034054354362490005"
+     },
+     {
+      "path": ".m_dDuctElbowIncrementAngle",
+      "ours": "0.017453292519943295",
+      "parent": "0.017453292519943278"
+     },
+     {
+      "path": ".m_dDuctFittingAnnotationSize",
+      "ours": "0.0078125",
+      "parent": "0.010416666666666666"
+     },
+     {
+      "path": ".m_dDuctRiseDropAnnoSize",
+      "ours": "0.0078125",
+      "parent": "0.010416666666666666"
+     },
+     {
+      "path": ".m_mapDuctRiseDropSettings[0].second",
+      "ours": "1",
+      "parent": "2"
+     },
+     {
+      "path": ".m_mapDuctRiseDropSettings[1].second",
+      "ours": "1",
+      "parent": "4"
+     },
+     {
+      "path": ".m_mapDuctRiseDropSettings[2].second",
+      "ours": "1",
+      "parent": "8"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[0].second.m_dBranchMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[0].second.m_dMainMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[0].second.m_dMainOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[0].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "0.75"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[1].second.m_dBranchMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[1].second.m_dMainMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[1].second.m_dMainOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[1].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "4.0"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[2].second.m_dBranchMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[2].second.m_dMainMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[2].second.m_dMainOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[2].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "4.0"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[3].second.m_dBranchMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[3].second.m_dMainMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[3].second.m_dMainOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[3].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "4.0"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[4].second.m_dBranchMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[4].second.m_dMainMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[4].second.m_dMainOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapDuctSystemTypeToSettings[4].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "0.75"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 102128,
+    "len_ours": 1152,
+    "len_parent": 1480,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "RbsPipeSettingsElem",
+      "class_parent": "RbsPipeSettingsElem"
+     },
+     {
+      "path": ".m_bPipeUseAnnoScaleFor1LineFittings",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_dPipeConnectorTolerance",
+      "ours": "0.17453292519943295",
+      "parent": "0.08726646259971639"
+     },
+     {
+      "path": ".m_dPipeElbowIncrementAngle",
+      "ours": "0.017453292519943295",
+      "parent": "0.017453292519943278"
+     },
+     {
+      "path": ".m_dPipeFittingAnnotationSize",
+      "ours": "0.0078125",
+      "parent": "0.010416666666666666"
+     },
+     {
+      "path": ".m_dPipeRiseDropAnnoSize",
+      "ours": "0.0078125",
+      "parent": "0.010416666666666666"
+     },
+     {
+      "path": ".m_eDiping1LineBendDropType",
+      "ours": "3",
+      "parent": "13"
+     },
+     {
+      "path": ".m_eDiping1LineJunctionDropType",
+      "ours": "3",
+      "parent": "15"
+     },
+     {
+      "path": ".m_eDipingContourDropType",
+      "ours": "3",
+      "parent": "11"
+     },
+     {
+      "path": ".m_flowConvertionServerInfo.m_description",
+      "ours": "''",
+      "parent": "'Calculation of flow using the Plumbing Fixture Flow method.'"
+     },
+     {
+      "path": ".m_flowConvertionServerInfo.m_serverId",
+      "ours": "'00000000-0000-0000-0000-000000000000'",
+      "parent": "'56121d7d-e1d7-42a3-bed8-f4d1d32058c8'"
+     },
+     {
+      "path": ".m_flowConvertionServerInfo.m_serverName",
+      "ours": "''",
+      "parent": "'Plumbing Fixture Flow'"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[0].second.m_dMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[0].second.m_dOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[0].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "0.75"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[1].second.m_dMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[1].second.m_dOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[1].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "0.75"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[2].second.m_dMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[2].second.m_dOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[2].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "0.75"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[3].second.m_dMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[3].second.m_dOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[3].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "0.75"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[4].second.m_dMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[4].second.m_dOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[4].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "0.75"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[5].second.m_dMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[5].second.m_dOffset",
+      "ours": "10.0",
+      "parent": "9.0"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[5].second.m_dPerimeterInsetLength",
+      "ours": "1.5",
+      "parent": "0.75"
+     },
+     {
+      "path": ".m_mapSystemTypeToPipeSettings[6].second.m_dMinLength",
+      "ours": "3.0",
+      "parent": "2.0833333333333335"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 102129,
+    "len_ours": 192,
+    "len_parent": 212,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "RbsWireSettingsElem",
+      "class_parent": "RbsWireSettingsElem"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_dWiringCrossingGap",
+      "ours": "0.006561679790026247",
+      "parent": "0.005208333333333333"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 14,
+    "blocks_out": 14
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 8,
+  "slots_with_registry_surface": 8,
+  "positional_uet_slots": [
+   {
+    "slot": 102126,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[48]"
+    ]
+   },
+   {
+    "slot": 102127,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[56]"
+    ]
+   },
+   {
+    "slot": 102128,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[44]"
+    ]
+   },
+   {
+    "slot": 102129,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[53]"
+    ]
+   },
+   {
+    "slot": 102379,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[45]"
+    ]
+   },
+   {
+    "slot": 102410,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[55]"
+    ]
+   },
+   {
+    "slot": 113173,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[71]"
+    ]
+   },
+   {
+    "slot": 113174,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[72]"
+    ]
+   }
+  ],
+  "surface_examples": [
+   {
+    "slot": 102126,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[48]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 102127,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[56]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 102128,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[44]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 102129,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[53]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 102379,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[45]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 102410,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[55]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113173,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[71]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113174,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[72]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 8,
+  "pairs_ok": 8,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 102126,
+   "class": "RbsDuctSizesElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 408,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 102127,
+   "class": "RbsDuctSettingsElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 408,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 102128,
+   "class": "RbsPipeSettingsElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 408,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 102129,
+   "class": "RbsWireSettingsElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 408,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 102379,
+   "class": "RbsPipeSizesElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 410,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 102410,
+   "class": "RbsWireSizesElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 410,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 19,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 52353
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/Y4.rvt",
+  "elements": 3342,
+  "file_size": 790528,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "classes_top": {
+   "GStyleElem": 1458,
+   "ParamElemExternal": 466,
+   "CategoryElem": 209,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "MaterialElem": 23,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 11,
+   "SectionAttributes": 10,
+   "ColorFillSchema": 10,
+   "PenWidthTableElem": 9,
+   "FillPatternElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9
+  }
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500005,
+   "slot": 102126,
+   "class": "RbsDuctSizesElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 102127,
+   "class": "RbsDuctSettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 102128,
+   "class": "RbsPipeSettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500000,
+   "slot": 102129,
+   "class": "RbsWireSettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 102379,
+   "class": "RbsPipeSizesElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 102410,
+   "class": "RbsWireSizesElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500007,
+   "slot": 113173,
+   "class": "CableTraySettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 113174,
+   "class": "ConduitSettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  }
+ ],
+ "correspondence_note": "all pairs stored",
+ "landed_slots": [
+  {
+   "slot": 102129,
+   "class": "RbsWireSettingsElem",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 102410,
+   "class": "RbsWireSizesElem",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 102128,
+   "class": "RbsPipeSettingsElem",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 102379,
+   "class": "RbsPipeSizesElem",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 102127,
+   "class": "RbsDuctSettingsElem",
+   "match": "role",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 102126,
+   "class": "RbsDuctSizesElem",
+   "match": "role",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 113174,
+   "class": "ConduitSettingsElem",
+   "match": "role",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 113173,
+   "class": "CableTraySettingsElem",
+   "match": "role",
+   "ours_tmp": 1500007
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": [],
+  "meaning": "our records that found NO in-place slot in the parent (the parent lacks an element of the class, or fewer than we build); landing them requires the ADD path -- deliberately NOT this ladder's variable"
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {},
+  "meaning": "the parent's candidate elements our set did not land on (surplus sample instances / companions): left EXACTLY as they were -- residue for the census"
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 790528,
+ "seconds": 2.1
+}

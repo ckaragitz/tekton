@@ -1,0 +1,2715 @@
+{
+ "tool": "tools/selfcontained.py hr1",
+ "censuses": {
+  "U16g": {
+   "probe": "experiments/unionrec/U16g.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "host": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "units": [
+    {
+     "unit": 1,
+     "guid": "1e113597-5b31-4426-9469-8d99ebec872f",
+     "n_records_102": 452,
+     "totals": {
+      "seq101_host": 23,
+      "seq102_host": 29,
+      "seq103_host": 51
+     },
+     "host_resident_total": 103,
+     "host_resident_rows": [
+      {
+       "surface": "seq101",
+       "owner": 1472532,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[3]",
+       "target": 1177727
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472537,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472537,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472541,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472541,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472546,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472546,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472550,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472550,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472554,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472554,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472558,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472558,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472573,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472573,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472580,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 16
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472632,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 1177727
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472656,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472656,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472723,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472723,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472743,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 6473
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472758,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 3
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "Family.m_familyParams->FamilyParams.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[0].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[1].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[2].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[3].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[4].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "Family.m_fsdos[0]->MaterialFSDO.m_materialId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472537,
+       "path": "DBViewPlan.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472537,
+       "path": "DBViewPlan.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472541,
+       "path": "DBViewPlan.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472541,
+       "path": "DBViewPlan.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472546,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472546,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472550,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472550,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472554,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472554,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472558,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472558,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472573,
+       "path": "DBViewProject.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472573,
+       "path": "DBViewProject.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472580,
+       "path": "GStyleElem.m_pGStyle->GStyle.m_linePatternId",
+       "target": 16
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472632,
+       "path": "ExtrusionElem.m_materialId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472656,
+       "path": "DBView3d.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472656,
+       "path": "DBView3d.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472723,
+       "path": "DBViewDrafting.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472723,
+       "path": "DBViewDrafting.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472743,
+       "path": "FilledRegionAttributes.m_fillPatternElemId",
+       "target": 6473
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472758,
+       "path": "FilledRegionAttributes.m_fillPatternElemId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 7845
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[0]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[0]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[1]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[1]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[1]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[2]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[2]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[2]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[3]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[3]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[3]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[4]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[4]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[4]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[5]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[5]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[5]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472633,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 69
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472634,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 69
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472635,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 69
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472636,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 69
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472654,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 193
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472772,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 111
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_subNodes[0]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_subNodes[0]/value/m_pEdges[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_subNodes[0]/value/m_pEdges[1]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_subNodes[0]/value/m_pEdges[2]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472782,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472783,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472786,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 111
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_subNodes[0]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_subNodes[0]/value/m_pEdges[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_subNodes[0]/value/m_pEdges[1]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_subNodes[0]/value/m_pEdges[2]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472791,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472792,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472796,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "/m_subNodes[1]/value/m_subNodes[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "ue/m_subNodes[1]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[1]/value/m_pEdges[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[1]/value/m_pEdges[1]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[1]/value/m_pEdges[2]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "ue/m_subNodes[2]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[2]/value/m_pEdges[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[2]/value/m_pEdges[1]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[2]/value/m_pEdges[2]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      }
+     ],
+     "walked_binds": {
+      "solid": [
+       7845,
+       -1
+      ],
+      "faces_render": [
+       1177727,
+       1177727,
+       1177727,
+       1177727,
+       1177727,
+       1177727,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "curves": [
+       69,
+       69,
+       69,
+       69,
+       23795,
+       23795,
+       23795,
+       23795,
+       23795,
+       23795,
+       23795,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "foreign": 18,
+      "unbound_form": 7,
+      "self_contained": false
+     }
+    }
+   ],
+   "host_resident_total": 103,
+   "walked_self_contained": false,
+   "self_contained": false
+  },
+  "T1v": {
+   "probe": "experiments/birthright/T1v.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "host": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "units": [
+    {
+     "unit": 1,
+     "guid": "3b21dfd9-a68c-4ece-a51e-368f55980d13",
+     "n_records_102": 2027,
+     "totals": {
+      "seq103_host": 5,
+      "seq103_other": 40
+     },
+     "host_resident_total": 5,
+     "host_resident_rows": [
+      {
+       "surface": "seq103",
+       "owner": 1472570,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 51
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472581,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 81
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472582,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 82
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472585,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 87
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472586,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 88
+      }
+     ],
+     "walked_binds": {
+      "solid": [
+       1472651,
+       1472651,
+       -1
+      ],
+      "faces_render": [
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "curves": [
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "foreign": 0,
+      "unbound_form": 7,
+      "self_contained": false
+     }
+    }
+   ],
+   "host_resident_total": 5,
+   "walked_self_contained": false,
+   "self_contained": false
+  },
+  "T2a": {
+   "probe": "experiments/rftprobe/T2a.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "host": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "units": [
+    {
+     "unit": 1,
+     "guid": "ed73d8aa-6dcb-4488-aed5-6e2568f2e053",
+     "n_records_102": 1992,
+     "totals": {
+      "seq103_host": 5,
+      "seq103_other": 40
+     },
+     "host_resident_total": 5,
+     "host_resident_rows": [
+      {
+       "surface": "seq103",
+       "owner": 1472570,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 51
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472581,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 81
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472582,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 82
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472585,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 87
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472586,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 88
+      }
+     ],
+     "walked_binds": {
+      "solid": [
+       1472651,
+       1472651
+      ],
+      "faces_render": [
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871
+      ],
+      "curves": [
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651
+      ],
+      "foreign": 0,
+      "unbound_form": 0,
+      "self_contained": true
+     }
+    }
+   ],
+   "host_resident_total": 5,
+   "walked_self_contained": true,
+   "self_contained": false
+  },
+  "T1r": {
+   "probe": "experiments/unionrec/T1r.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "host": "samples/rstbasicsampleproject.rvt",
+   "units": [
+    {
+     "unit": 53,
+     "guid": "7996ce00-0ba1-4c11-99f5-d33407e40f53",
+     "n_records_102": 2027,
+     "totals": {
+      "seq103_host": 6,
+      "seq103_other": 39
+     },
+     "host_resident_total": 6,
+     "host_resident_rows": [
+      {
+       "surface": "seq103",
+       "owner": 1472570,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 51
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472581,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 81
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472582,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 82
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472585,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 87
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472586,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 88
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472604,
+       "path": "/m_elementId",
+       "key": "m_elementId",
+       "target": 3644
+      }
+     ],
+     "walked_binds": {
+      "solid": [
+       1472651,
+       1472651,
+       -1
+      ],
+      "faces_render": [
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472872,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       1472871,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "curves": [
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1472685,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1473022,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       1472651,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "foreign": 0,
+      "unbound_form": 7,
+      "self_contained": false
+     }
+    }
+   ],
+   "host_resident_total": 6,
+   "walked_self_contained": false,
+   "self_contained": false
+  },
+  "B0": {
+   "probe": "experiments/famdoc_blobs/B0.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "host": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "units": [
+    {
+     "unit": 1,
+     "guid": "fb9677ae-0f57-4a60-9d90-07bb2fc1332e",
+     "n_records_102": 41,
+     "totals": {},
+     "host_resident_total": 0,
+     "host_resident_rows": [],
+     "walked_binds": {
+      "solid": [
+       -1
+      ],
+      "faces_render": [
+       -1,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "curves": [
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "foreign": 0,
+      "unbound_form": 7,
+      "self_contained": false
+     }
+    }
+   ],
+   "host_resident_total": 0,
+   "walked_self_contained": false,
+   "self_contained": false
+  },
+  "BX_birth": {
+   "probe": "experiments/birthright/BX_birth.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "host": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "units": [
+    {
+     "unit": 1,
+     "guid": "32da04c1-79e2-4026-9e6d-d7badc727399",
+     "n_records_102": 1724,
+     "totals": {},
+     "host_resident_total": 0,
+     "host_resident_rows": [],
+     "walked_binds": {
+      "solid": [
+       -1
+      ],
+      "faces_render": [
+       -1,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "curves": [
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "foreign": 0,
+      "unbound_form": 7,
+      "self_contained": false
+     }
+    }
+   ],
+   "host_resident_total": 0,
+   "walked_self_contained": false,
+   "self_contained": false
+  },
+  "U16": {
+   "probe": "experiments/famdoc_final/U16.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "host": "samples/rstbasicsampleproject.rvt",
+   "units": [
+    {
+     "unit": 53,
+     "guid": "ffee468e-5c5a-4cde-9030-56dbca68b3e7",
+     "n_records_102": 452,
+     "totals": {
+      "seq101_host": 23,
+      "seq102_host": 29,
+      "seq103_host": 51
+     },
+     "host_resident_total": 103,
+     "host_resident_rows": [
+      {
+       "surface": "seq101",
+       "owner": 1472532,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[3]",
+       "target": 1177727
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472537,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472537,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472541,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472541,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472546,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472546,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472550,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472550,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472554,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472554,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472558,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472558,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472573,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472573,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472580,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 16
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472632,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 1177727
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472656,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472656,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472723,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 201
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472723,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+       "target": 55150
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472743,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 6473
+      },
+      {
+       "surface": "seq101",
+       "owner": 1472758,
+       "path": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 3
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "Family.m_familyParams->FamilyParams.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[0].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[1].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[2].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[3].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "m_pFamilyTypes->FamilyTypeTable.m_pairs[4].params.m_params[1].m_elemId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472532,
+       "path": "Family.m_fsdos[0]->MaterialFSDO.m_materialId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472537,
+       "path": "DBViewPlan.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472537,
+       "path": "DBViewPlan.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472541,
+       "path": "DBViewPlan.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472541,
+       "path": "DBViewPlan.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472546,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472546,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472550,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472550,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472554,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472554,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472558,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472558,
+       "path": "DBViewSection.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472573,
+       "path": "DBViewProject.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472573,
+       "path": "DBViewProject.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472580,
+       "path": "GStyleElem.m_pGStyle->GStyle.m_linePatternId",
+       "target": 16
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472632,
+       "path": "ExtrusionElem.m_materialId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472656,
+       "path": "DBView3d.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472656,
+       "path": "DBView3d.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472723,
+       "path": "DBViewDrafting.m_pRetouchTable->RetouchTable.m_invisibleGStyleId",
+       "target": 201
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472723,
+       "path": "DBViewDrafting.m_pRetouchTable->RetouchTable.m_notSilhouetteGStyleId",
+       "target": 55150
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472743,
+       "path": "FilledRegionAttributes.m_fillPatternElemId",
+       "target": 6473
+      },
+      {
+       "surface": "seq102",
+       "owner": 1472758,
+       "path": "FilledRegionAttributes.m_fillPatternElemId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 7845
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[0]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[0]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[1]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[1]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[1]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[2]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[2]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[2]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[3]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[3]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[3]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[4]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[4]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[4]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "odes[0]/value/m_pFaces[5]/value/m_pGFilling/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 12632
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[5]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 429
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472632,
+       "path": "/m_subNodes[0]/value/m_pFaces[5]/value/m_renderStyleId",
+       "key": "m_renderStyleId",
+       "target": 1177727
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472633,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 69
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472634,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 69
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472635,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 69
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472636,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 69
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472654,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 193
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472772,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 111
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_subNodes[0]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_subNodes[0]/value/m_pEdges[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_subNodes[0]/value/m_pEdges[1]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472781,
+       "path": "/m_subNodes[0]/value/m_pEdges[2]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472782,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472783,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472786,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 111
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_subNodes[0]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_subNodes[0]/value/m_pEdges[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_subNodes[0]/value/m_pEdges[1]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472790,
+       "path": "/m_subNodes[0]/value/m_pEdges[2]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472791,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472792,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472796,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "/m_subNodes[1]/value/m_subNodes[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "ue/m_subNodes[1]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[1]/value/m_pEdges[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[1]/value/m_pEdges[1]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[1]/value/m_pEdges[2]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "ue/m_subNodes[2]/value/m_pFaces[0]/value/m_pGFilling/value/m_patternId",
+       "key": "m_patternId",
+       "target": 3
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[2]/value/m_pEdges[0]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[2]/value/m_pEdges[1]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      },
+      {
+       "surface": "seq103",
+       "owner": 1472803,
+       "path": "es[1]/value/m_subNodes[2]/value/m_pEdges[2]/value/m_GInfo/m_categoryId",
+       "key": "m_categoryId",
+       "target": 23795
+      }
+     ],
+     "walked_binds": {
+      "solid": [
+       7845,
+       -1
+      ],
+      "faces_render": [
+       1177727,
+       1177727,
+       1177727,
+       1177727,
+       1177727,
+       1177727,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "curves": [
+       69,
+       69,
+       69,
+       69,
+       23795,
+       23795,
+       23795,
+       23795,
+       23795,
+       23795,
+       23795,
+       -1,
+       -1,
+       -1,
+       -1
+      ],
+      "foreign": 18,
+      "unbound_form": 7,
+      "self_contained": false
+     }
+    }
+   ],
+   "host_resident_total": 103,
+   "walked_self_contained": false,
+   "self_contained": false
+  }
+ },
+ "ranked_objections": [
+  {
+   "rank": 1,
+   "surface": "instanced-form face m_renderStyleId + ExtrusionElem.m_materialId",
+   "targets": [
+    1177727
+   ],
+   "objection": "substituted MaterialElem: appearance asset stripped (m_appearanceAssetId -1, 0 properties, empty materialPathMap) -- the walk renders faces through an assetless material",
+   "carried_by": [
+    "U16g (host-bound)"
+   ],
+   "ours_analog": "our famdocs bind -1 (no material at all)"
+  },
+  {
+   "rank": 2,
+   "surface": "instanced-form Geometry style + face fillings",
+   "targets": [
+    7845,
+    12632,
+    429
+   ],
+   "objection": "substituted GStyle/FillPattern rows (house colors/pens/pattern geometry; m_cellList None where born rows carry a CellList)",
+   "carried_by": [
+    "U16g"
+   ],
+   "ours_analog": "our famdocs bind -1 -- resolution leaves the unit with no answer"
+  },
+  {
+   "rank": 3,
+   "surface": "OUR unbound (-1) walk binds",
+   "targets": [],
+   "objection": "B0/T0/T1v/BX_birth emit m_categoryId -1 and m_renderStyleId -1 on the walked form; the born law binds in-unit rows (T2a).  SC1 flips exactly this.",
+   "carried_by": [
+    "B0",
+    "T0",
+    "T1v",
+    "BX_birth",
+    "DEMO v5/v7"
+   ]
+  },
+  {
+   "rank": 4,
+   "surface": "host-side loader rows",
+   "targets": [
+    78,
+    124,
+    311,
+    86961
+   ],
+   "objection": "Family -> category GStyle, corpus symbol GElement -> GStyle 124, instance -> Level/Phase -- all substituted on G_ABPD; T2a PASSES with the Family/instance shape (dummy symbol) => ranked low",
+   "carried_by": [
+    "every load; corpus GElement only on B0/BX_birth"
+   ]
+  },
+  {
+   "rank": 5,
+   "surface": "off-walk view/annotation refs + header deletion lists + unremapped born-internal rep ids",
+   "targets": [
+    201,
+    55150,
+    69,
+    111,
+    193,
+    23795,
+    3,
+    16,
+    6473,
+    3644
+   ],
+   "objection": "T2a tolerates aliases onto substituted rows AND one deleted target (3644) => calibrated non-fatal",
+   "carried_by": [
+    "U16g (real refs)",
+    "T2a/T1v/T1r (aliases)"
+   ]
+  }
+ ],
+ "target_diffs_rst_vs_G_ABPD": [
+  {
+   "target": 3,
+   "class": "FillPatternElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 5,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr#len",
+     "left": "0",
+     "right": "2"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_name",
+     "left": "Solid fill",
+     "right": "GEN Diagonal Crosshatch 3mm"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_windowSize",
+     "left": "0.0",
+     "right": "0.008202099737532808"
+    },
+    {
+     "path": "/m_pGeomTable",
+     "left": "None",
+     "right": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_refPntMir"
+    }
+   ]
+  },
+  {
+   "target": 16,
+   "class": "LinePatternElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 5,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pLinePattern/value/m_name",
+     "left": "Dash dot",
+     "right": "GEN Dash Dot 6mm"
+    },
+    {
+     "path": "/m_pLinePattern/value/m_segs[0]/m_data",
+     "left": "0.020833333333333332",
+     "right": "0.01968503937007874"
+    },
+    {
+     "path": "/m_pLinePattern/value/m_segs[1]/m_data",
+     "left": "0.015625",
+     "right": "0.006561679790026247"
+    },
+    {
+     "path": "/m_pLinePattern/value/m_segs[3]/m_data",
+     "left": "0.015625",
+     "right": "0.006561679790026247"
+    }
+   ]
+  },
+  {
+   "target": 51,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    },
+    {
+     "path": "/m_pGStyle/value/m_penNumber",
+     "left": "2",
+     "right": "4"
+    }
+   ]
+  },
+  {
+   "target": 69,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "16711935",
+     "right": "1579032"
+    },
+    {
+     "path": "/m_pGStyle/value/m_penNumber",
+     "left": "3",
+     "right": "1"
+    }
+   ]
+  },
+  {
+   "target": 78,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    }
+   ]
+  },
+  {
+   "target": 81,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    }
+   ]
+  },
+  {
+   "target": 82,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    },
+    {
+     "path": "/m_pGStyle/value/m_penNumber",
+     "left": "1",
+     "right": "4"
+    }
+   ]
+  },
+  {
+   "target": 87,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    }
+   ]
+  },
+  {
+   "target": 88,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 3,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    },
+    {
+     "path": "/m_pGStyle/value/m_penNumber",
+     "left": "1",
+     "right": "4"
+    }
+   ]
+  },
+  {
+   "target": 111,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    }
+   ]
+  },
+  {
+   "target": 124,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "9845760"
+    }
+   ]
+  },
+  {
+   "target": 193,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    }
+   ]
+  },
+  {
+   "target": 201,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 3,
+   "diffs": [
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "8355711",
+     "right": "1579032"
+    },
+    {
+     "path": "/m_pGStyle/value/m_linePatternId",
+     "left": "-1",
+     "right": "-3000010"
+    },
+    {
+     "path": "/m_pGStyle/value/m_penNumber",
+     "left": "2",
+     "right": "1"
+    }
+   ]
+  },
+  {
+   "target": 311,
+   "class": "Level",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 14,
+   "diffs": [
+    {
+     "path": "/m_bubbleEnd[0]",
+     "left": "30.0",
+     "right": "40.0"
+    },
+    {
+     "path": "/m_isBuildingStory",
+     "left": "False",
+     "right": "True"
+    },
+    {
+     "path": "/m_pFace/value/m_pSurf/value/m_Envelope/m_corners[0][0]",
+     "left": "-51.66057056018548",
+     "right": "-50.0"
+    },
+    {
+     "path": "/m_pFace/value/m_pSurf/value/m_Envelope/m_corners[0][1]",
+     "left": "-87.39567025725263",
+     "right": "-50.0"
+    },
+    {
+     "path": "/m_pFace/value/m_pSurf/value/m_Envelope/m_corners[1][0]",
+     "left": "66.52686260879011",
+     "right": "50.0"
+    },
+    {
+     "path": "/m_pFace/value/m_pSurf/value/m_Envelope/m_corners[1][1]",
+     "left": "94.20488384847846",
+     "right": "50.0"
+    },
+    {
+     "path": "/m_pFace/value/m_pSurf/value/m_xVec[1]",
+     "left": "6.3576025574306265e-15",
+     "right": "0.0"
+    },
+    {
+     "path": "/m_pSurface/value/m_Envelope/m_corners[0][0]",
+     "left": "-51.66057056018548",
+     "right": "-50.0"
+    },
+    {
+     "path": "/m_pSurface/value/m_Envelope/m_corners[0][1]",
+     "left": "-87.39567025725263",
+     "right": "-50.0"
+    },
+    {
+     "path": "/m_pSurface/value/m_Envelope/m_corners[1][0]",
+     "left": "66.52686260879011",
+     "right": "50.0"
+    },
+    {
+     "path": "/m_pSurface/value/m_Envelope/m_corners[1][1]",
+     "left": "94.20488384847846",
+     "right": "50.0"
+    },
+    {
+     "path": "/m_pSurface/value/m_xVec[1]",
+     "left": "6.3576025574306265e-15",
+     "right": "0.0"
+    },
+    {
+     "path": "/m_refPointsForNewViews[1][0]",
+     "left": "30.0",
+     "right": "40.0"
+    },
+    {
+     "path": "/m_text",
+     "left": "Level 1",
+     "right": "L1 - Ground Floor"
+    }
+   ]
+  },
+  {
+   "target": 429,
+   "class": "FillPatternElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 11,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr#len",
+     "left": "3",
+     "right": "1"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr[0]/value/m_angle",
+     "left": "0.0",
+     "right": "0.7853981633974483"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr[0]/value/m_deltas[0]",
+     "left": "0.026666666666666665",
+     "right": "0.0"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr[0]/value/m_deltas[1]",
+     "left": "0.006666666666666666",
+     "right": "0.004921259842519685"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr[0]/value/m_segs#len",
+     "left": "12",
+     "right": "2"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr[0]/value/m_segs[0]",
+     "left": "0.0011",
+     "right": "0.0013123359580052493"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr[0]/value/m_segs[1]",
+     "left": "0.018899999999999997",
+     "right": "0.00853018372703412"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_name",
+     "left": "Sand",
+     "right": "GEN Sand Stipple 1.5mm"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_windowSize",
+     "left": "0.01749200062862317",
+     "right": "0.008202099737532808"
+    },
+    {
+     "path": "/m_pGeomTable",
+     "left": "None",
+     "right": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_refPntMir"
+    }
+   ]
+  },
+  {
+   "target": 3644,
+   "class": "GStyleElem",
+   "verdict": "MISSING on experiments/genesis/subst_k4/compose/G_ABPD.rvt"
+  },
+  {
+   "target": 6473,
+   "class": "FillPatternElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 7,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr#len",
+     "left": "2",
+     "right": "1"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr[0]/value/m_angle",
+     "left": "0.7853981633974475",
+     "right": "1.5707963267948966"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_gridsArr[0]/value/m_deltas[1]",
+     "left": "0.03280839895013123",
+     "right": "0.013123359580052493"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_name",
+     "left": "Diagonal crosshatch",
+     "right": "GEN Vertical Lines 4mm"
+    },
+    {
+     "path": "/m_pFillPattern/value/m_windowSize",
+     "left": "0.03280839895013123",
+     "right": "0.008202099737532808"
+    },
+    {
+     "path": "/m_pGeomTable",
+     "left": "None",
+     "right": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_refPntMir"
+    }
+   ]
+  },
+  {
+   "target": 7845,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 3,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "2105440"
+    },
+    {
+     "path": "/m_pGStyle/value/m_penNumber",
+     "left": "1",
+     "right": "2"
+    }
+   ]
+  },
+  {
+   "target": 12632,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    },
+    {
+     "path": "/m_pGStyle/value/m_linePatternId",
+     "left": "-1",
+     "right": "-3000010"
+    }
+   ]
+  },
+  {
+   "target": 23795,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "0",
+     "right": "1579032"
+    }
+   ]
+  },
+  {
+   "target": 55150,
+   "class": "GStyleElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 3,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_pGStyle/value/m_color",
+     "left": "8355711",
+     "right": "1579032"
+    },
+    {
+     "path": "/m_pGStyle/value/m_penNumber",
+     "left": "2",
+     "right": "1"
+    }
+   ]
+  },
+  {
+   "target": 86961,
+   "class": "ProjectPhase",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 2,
+   "diffs": [
+    {
+     "path": "/m_description",
+     "left": "",
+     "right": "Elements constructed under this scope of work"
+    },
+    {
+     "path": "/m_name",
+     "left": "New Construction",
+     "right": "New Work"
+    }
+   ]
+  },
+  {
+   "target": 1177727,
+   "class": "MaterialElem",
+   "bytes_same_102": false,
+   "bytes_same_101": true,
+   "verdict": "SUBSTITUTED (ours)",
+   "n_leaf_diffs": 17,
+   "diffs": [
+    {
+     "path": "/m_cellList",
+     "left": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{",
+     "right": "None"
+    },
+    {
+     "path": "/m_materialPathMap#len",
+     "left": "1",
+     "right": "0"
+    },
+    {
+     "path": "/m_pMaterial/value/m_appearanceAssetId",
+     "left": "1177772",
+     "right": "-1"
+    },
+    {
+     "path": "/m_pMaterial/value/m_asset/m_aAProperties#len",
+     "left": "56",
+     "right": "0"
+    },
+    {
+     "path": "/m_pMaterial/value/m_asset/m_sName",
+     "left": "GenericSchema",
+     "right": "Generic"
+    },
+    {
+     "path": "/m_pMaterial/value/m_assetMap/m_sharedAssetIdMap#len",
+     "left": "2",
+     "right": "0"
+    },
+    {
+     "path": "/m_pMaterial/value/m_color",
+     "left": "12632256",
+     "right": "13486280"
+    },
+    {
+     "path": "/m_pMaterial/value/m_cutPatternId",
+     "left": "442",
+     "right": "-1"
+    },
+    {
+     "path": "/m_pMaterial/value/m_name",
+     "left": "Concrete, Cast-in-Place gray",
+     "right": "GEN Steel, Stainless 304"
+    },
+    {
+     "path": "/m_pMaterial/value/m_oStructuralPropertySetNew",
+     "left": "{'ptr_class': 'ParamSet', 'pid': -1, 'value': {'m_pDoublePar",
+     "right": "None"
+    },
+    {
+     "path": "/m_pMaterial/value/m_sCategory",
+     "left": "Concrete",
+     "right": "Piping"
+    },
+    {
+     "path": "/m_pMaterial/value/m_sMaterialClass",
+     "left": "Concrete",
+     "right": "Metal"
+    },
+    {
+     "path": "/m_pMaterial/value/m_shininess",
+     "left": "128",
+     "right": "64"
+    },
+    {
+     "path": "/m_pMaterial/value/m_structuralPropertySetId",
+     "left": "1177773",
+     "right": "-1"
+    },
+    {
+     "path": "/m_pMaterial/value/m_surfacePatternId",
+     "left": "429",
+     "right": "-1"
+    },
+    {
+     "path": "/m_pParamValueSetAString",
+     "left": "{'ptr_class': 'ParamValueSetAString', 'pid': -1, 'value': {'",
+     "right": "None"
+    }
+   ]
+  }
+ ],
+ "compose_side_alternative": "repair the substituted rows the walk lands on instead of (or in addition to) self-containment: (a) author a real in-file appearance asset for substituted MaterialElem rows (today m_appearanceAssetId=-1 with the asset property list emptied); (b) author m_cellList on substituted style/pattern/material rows (born rows carry it; our writer drops it to None); (c) close deleted-style holes the deletion set left referenced (GStyle 3644; category -2001265's rows).  Compose territory; ranked by the same diff table."
+}

@@ -1,0 +1,469 @@
+{
+ "route": "rvt->ifc (rvt.convert.rvt_to_ifc)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "experiments/frontdoor/prompt-electrical-room/electrical_room_prompt.rvt",
+  "sha256": "3221ddd95ff93f667bf7751510e3379e90906a5bd41313e578a083cd15c48da7",
+  "provenance": {
+   "author": "rvt-writer",
+   "format": "2026",
+   "lineage": "tekton-authored (self-reported BasicFileInfo author)",
+   "foreign": false,
+   "quarantined": false
+  }
+ },
+ "files": {
+  "ifc": "experiments/convert/rvt-to-ifc/electrical_room_prompt.ifc"
+ },
+ "stamps": [],
+ "degradations": [],
+ "errors": [],
+ "extraction": {
+  "cells": {
+   "levels": {
+    "status": "works",
+    "count": 9
+   },
+   "walls": {
+    "status": "works",
+    "count": 4,
+    "detail": [
+     {
+      "elem_id": 1472760,
+      "type_id": 600634,
+      "type_name": "GEN Wall - Interior Partition 121mm",
+      "p0_m": [
+       -4.572,
+       -3.048
+      ],
+      "p1_m": [
+       4.572,
+       -3.048
+      ],
+      "thickness_m": 0.121,
+      "height_m": 3.6576,
+      "base_m": 0.0,
+      "level_id": 311,
+      "notes": []
+     },
+     {
+      "elem_id": 1472761,
+      "type_id": 600634,
+      "type_name": "GEN Wall - Interior Partition 121mm",
+      "p0_m": [
+       4.572,
+       -3.048
+      ],
+      "p1_m": [
+       4.572,
+       3.048
+      ],
+      "thickness_m": 0.121,
+      "height_m": 3.6576,
+      "base_m": 0.0,
+      "level_id": 311,
+      "notes": []
+     },
+     {
+      "elem_id": 1472762,
+      "type_id": 600634,
+      "type_name": "GEN Wall - Interior Partition 121mm",
+      "p0_m": [
+       4.572,
+       3.048
+      ],
+      "p1_m": [
+       -4.572,
+       3.048
+      ],
+      "thickness_m": 0.121,
+      "height_m": 3.6576,
+      "base_m": 0.0,
+      "level_id": 311,
+      "notes": []
+     },
+     {
+      "elem_id": 1472763,
+      "type_id": 600634,
+      "type_name": "GEN Wall - Interior Partition 121mm",
+      "p0_m": [
+       -4.572,
+       3.048
+      ],
+      "p1_m": [
+       -4.572,
+       -3.048
+      ],
+      "thickness_m": 0.121,
+      "height_m": 3.6576,
+      "base_m": 0.0,
+      "level_id": 311,
+      "notes": []
+     }
+    ]
+   },
+   "equipment": {
+    "status": "works",
+    "count": 4,
+    "skipped": []
+   },
+   "feeders": {
+    "status": "missing",
+    "circuits_total": 0,
+    "edges_between_equipment": 0,
+    "circuits_to_other_loads": 0,
+    "circuits_unresolved": 0
+   }
+  },
+  "not_extracted": [
+   "non-electrical-equipment categories (lighting fixtures, mechanical, doors, ...) are inventoried by rvt.inventory but not exported in v1",
+   "curved walls / curtain walls (only straight GLine-driven SWalls export)"
+  ]
+ },
+ "levels": [
+  {
+   "id": "L4",
+   "name": "L1 - Ground Floor",
+   "elevation": 0.0,
+   "elem_id": 311,
+   "is_building_story": true
+  },
+  {
+   "id": "L1",
+   "name": "GEN B1 - Basement",
+   "elevation": -2.7,
+   "elem_id": 1351691,
+   "is_building_story": false
+  },
+  {
+   "id": "L2",
+   "name": "GEN T.O. Footing",
+   "elevation": -1.2,
+   "elem_id": 511122,
+   "is_building_story": false
+  },
+  {
+   "id": "L3",
+   "name": "GEN T.O. Slab",
+   "elevation": -0.55,
+   "elem_id": 515270,
+   "is_building_story": false
+  },
+  {
+   "id": "L5",
+   "name": "GEN Ceiling - L1",
+   "elevation": 2.439,
+   "elem_id": 1300863,
+   "is_building_story": false
+  },
+  {
+   "id": "L6",
+   "name": "GEN Mezzanine",
+   "elevation": 3.3,
+   "elem_id": 694,
+   "is_building_story": false
+  },
+  {
+   "id": "L7",
+   "name": "L2 - Second Floor",
+   "elevation": 3.6576,
+   "elem_id": 245423,
+   "is_building_story": true
+  },
+  {
+   "id": "L8",
+   "name": "GEN Roof Datum",
+   "elevation": 6.0,
+   "elem_id": 196629,
+   "is_building_story": false
+  },
+  {
+   "id": "L9",
+   "name": "GEN T.O. Parapet",
+   "elevation": 9.0,
+   "elem_id": 417275,
+   "is_building_story": false
+  }
+ ],
+ "equipment": [
+  {
+   "elem_id": 1472764,
+   "tag": "MSB",
+   "name": "Switchboard MSB 2500A 480Y/277",
+   "kind": "switchboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -0.5373,
+    2.3892,
+    0.1
+   ],
+   "front_normal": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "frame_kind": "yaw",
+   "dims_m": {
+    "w": 3.9,
+    "d": 0.9144,
+    "h": 2.286
+   },
+   "family": "Switchboard MSB 2500A 480Y/277",
+   "symbol": "2500A 4-section",
+   "family_unit": 1,
+   "contract": {
+    "Width": 3.9,
+    "Height": 2.286,
+    "Depth": 0.9144,
+    "PanelName": "MSB",
+    "Voltage": "480Y/277 V",
+    "Phases": 3,
+    "Wires": 4,
+    "BusRating": 2500.0,
+    "MainsType": "MCB",
+    "MainsRating": 2500.0,
+    "ShortCircuitRatingkA": 65.0,
+    "Mounting": "Floor, on housekeeping pad",
+    "NumberOfCircuits": 0,
+    "NeutralRating": "100%",
+    "Sections": 4,
+    "FeederEntry": "Top",
+    "ModelLabel": "house switchboard",
+    "Manufacturer": "unspecified",
+    "Description": "480Y/277 V, 3-phase 4-wire, 2500 A 2500 A main breaker, 65 kA SCCR, 4-section switchboard lineup (3.9 W x 2.286 H x 0.9144 D m -- OUR IFC-modeled extents; house family, no catalog record)"
+   },
+   "fed_from": null,
+   "contract_source": [
+    "family type table row '2500A 4-section'"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 1472765,
+   "tag": "DP-1",
+   "name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+   "kind": "distribution_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -4.4704,
+    2.0924,
+    1.42
+   ],
+   "front_normal": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.524
+   },
+   "family": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+   "symbol": "400A MCB 42ckt",
+   "family_unit": 2,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.524,
+    "Depth": 0.14605,
+    "PanelName": "DP-1",
+    "Voltage": "480Y/277 V",
+    "Phases": 3,
+    "Wires": 4,
+    "BusRating": 400.0,
+    "MainsType": "MCB",
+    "MainsRating": 400.0,
+    "ShortCircuitRatingkA": 14.0,
+    "Mounting": "surface",
+    "NumberOfCircuits": 42,
+    "NeutralRating": "100%",
+    "ModelLabel": "PRL2X",
+    "Manufacturer": "Eaton",
+    "Description": "480Y/277 V, 3-phase 4-wire, 400 A main-breaker panelboard, 42 circuits, surface mounted (box 20 W x 60 H x 5.75 D in; generated from catalog facts)"
+   },
+   "fed_from": null,
+   "contract_source": [
+    "family type table row '400A MCB 42ckt'"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 1472766,
+   "tag": "LP-1",
+   "name": "Lighting Panelboard LP-1 480Y/277 100A MLO 42sp",
+   "kind": "lighting_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    4.4704,
+    2.0924,
+    1.42
+   ],
+   "front_normal": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.2192
+   },
+   "family": "Lighting Panelboard LP-1 480Y/277 100A MLO 42sp",
+   "symbol": "100A MLO 42ckt",
+   "family_unit": 4,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.2192,
+    "Depth": 0.14605,
+    "PanelName": "LP-1",
+    "Voltage": "480Y/277 V",
+    "Phases": 3,
+    "Wires": 4,
+    "BusRating": 100.0,
+    "MainsType": "MLO",
+    "MainsRating": 100.0,
+    "ShortCircuitRatingkA": 14.0,
+    "Mounting": "surface",
+    "NumberOfCircuits": 42,
+    "NeutralRating": "100%",
+    "ModelLabel": "PRL2X",
+    "Manufacturer": "Eaton",
+    "Description": "480Y/277 V, 3-phase 4-wire, 100 A main-lugs-only panelboard, 42 circuits, surface mounted (box 20 W x 48 H x 5.75 D in; generated from catalog facts)"
+   },
+   "fed_from": null,
+   "contract_source": [
+    "family type table row '100A MLO 42ckt'"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 1472767,
+   "tag": "T1",
+   "name": "Dry Type Transformer T1 75kVA 480-208Y/120",
+   "kind": "transformer",
+   "ifc_class": "IfcTransformer",
+   "insertion_m": [
+    2.1,
+    2.5416,
+    0.1
+   ],
+   "front_normal": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "frame_kind": "yaw",
+   "dims_m": {
+    "w": 0.7747,
+    "d": 0.6096,
+    "h": 1.0922
+   },
+   "family": "Dry Type Transformer T1 75kVA 480-208Y/120",
+   "symbol": "75 kVA 480-208Y/120",
+   "family_unit": 3,
+   "contract": {
+    "Width": 0.7747,
+    "Height": 1.0922,
+    "Depth": 0.6096,
+    "kVA Rating": 807293.281253,
+    "Primary Voltage": 480.0,
+    "Secondary Voltage": 208.0,
+    "Phases": 3,
+    "Temperature Rise": 150.0,
+    "Weight": 570.0,
+    "Frame": "FR942",
+    "Enclosure": "NEMA 2 (indoor)",
+    "ModelLabel": "V48M28T7516",
+    "Manufacturer": "Eaton",
+    "Description": "75 kVA, 3-phase, 480 - 208Y/120 V dry-type transformer, 150 C rise, aluminum windings, frame FR942 (30.5 W x 43 H x 24 D in, 570 lb; generated from catalog facts)",
+    "Voltage": "208Y/120 V"
+   },
+   "fed_from": null,
+   "contract_source": [
+    "family type table row '75 kVA 480-208Y/120'"
+   ],
+   "notes": []
+  }
+ ],
+ "feeder_edges": [],
+ "roundtrip": {
+  "ran": true,
+  "equipment": [
+   {
+    "tag": "MSB",
+    "kind_in": "switchboard",
+    "kind_out": "switchboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "DP-1",
+    "kind_in": "distribution_panelboard",
+    "kind_out": "distribution_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "LP-1",
+    "kind_in": "lighting_panelboard",
+    "kind_out": "lighting_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "T1",
+    "kind_in": "transformer",
+    "kind_out": "transformer",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   }
+  ],
+  "equipment_survived": "4/4",
+  "walls_in": 4,
+  "walls_out": 4,
+  "walls_matched": "4/4",
+  "feeder_edges_in": [],
+  "feeder_edges_out_matched": [],
+  "feeder_edges_ok": true,
+  "all_survived": true
+ },
+ "seconds": 0.2,
+ "deliverables": {
+  "ifc": {
+   "path": "experiments/convert/rvt-to-ifc/electrical_room_prompt.ifc",
+   "bytes": 15040,
+   "sha256": "81348f369d6eb6b05f6ba4d2dd9b24472384b352e2113d4a8fe03c14b6c1c119"
+  }
+ }
+}

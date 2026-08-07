@@ -1,0 +1,1767 @@
+{
+ "fail": [
+  {
+   "file": "experiments/instbug/BX_f1i1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 1,
+    "n_our_symbols": 1,
+    "n_our_instances": 1,
+    "n_walls_total": 0,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": true,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": true,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": true,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472582": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472566,
+     "instances": [
+      1472584
+     ]
+    }
+   },
+   "our_instances": [
+    {
+     "id": 1472584,
+     "ours": true,
+     "master_symbol": 1472582,
+     "info_symbol": 1472582,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    }
+   ],
+   "verdict": "FAIL",
+   "verdict_source": "ledger (staged copy experiments/acceptance/BX_f1i1.rvt)"
+  },
+  {
+   "file": "experiments/instbug/SX_f6i6.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 112,
+    "n_our_symbols": 6,
+    "n_our_instances": 6,
+    "n_walls_total": 9,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": true,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": true,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": true,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472582": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472566,
+     "instances": [
+      1472879
+     ]
+    },
+    "1472641": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472625,
+     "instances": [
+      1472880
+     ]
+    },
+    "1472700": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472684,
+     "instances": [
+      1472881
+     ]
+    },
+    "1472759": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472743,
+     "instances": [
+      1472882
+     ]
+    },
+    "1472818": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472802,
+     "instances": [
+      1472883
+     ]
+    },
+    "1472877": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472861,
+     "instances": [
+      1472884
+     ]
+    }
+   },
+   "our_instances": [
+    {
+     "id": 1472879,
+     "ours": true,
+     "master_symbol": 1472582,
+     "info_symbol": 1472582,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472880,
+     "ours": true,
+     "master_symbol": 1472641,
+     "info_symbol": 1472641,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472881,
+     "ours": true,
+     "master_symbol": 1472700,
+     "info_symbol": 1472700,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472882,
+     "ours": true,
+     "master_symbol": 1472759,
+     "info_symbol": 1472759,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472883,
+     "ours": true,
+     "master_symbol": 1472818,
+     "info_symbol": 1472818,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472884,
+     "ours": true,
+     "master_symbol": 1472877,
+     "info_symbol": 1472877,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    }
+   ],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/instbug/fix/BXfix_f1i1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 1,
+    "n_our_symbols": 1,
+    "n_our_instances": 1,
+    "n_walls_total": 0,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": true,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": true,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": true,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472582": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472566,
+     "instances": [
+      1472584
+     ]
+    }
+   },
+   "our_instances": [
+    {
+     "id": 1472584,
+     "ours": true,
+     "master_symbol": 1472582,
+     "info_symbol": 1472582,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    }
+   ],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/instbug/fix/BXfix_f6i6.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 6,
+    "n_our_symbols": 6,
+    "n_our_instances": 6,
+    "n_walls_total": 0,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": true,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": true,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": true,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472582": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472566,
+     "instances": [
+      1472879
+     ]
+    },
+    "1472641": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472625,
+     "instances": [
+      1472880
+     ]
+    },
+    "1472700": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472684,
+     "instances": [
+      1472881
+     ]
+    },
+    "1472759": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472743,
+     "instances": [
+      1472882
+     ]
+    },
+    "1472818": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472802,
+     "instances": [
+      1472883
+     ]
+    },
+    "1472877": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472861,
+     "instances": [
+      1472884
+     ]
+    }
+   },
+   "our_instances": [
+    {
+     "id": 1472879,
+     "ours": true,
+     "master_symbol": 1472582,
+     "info_symbol": 1472582,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472880,
+     "ours": true,
+     "master_symbol": 1472641,
+     "info_symbol": 1472641,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472881,
+     "ours": true,
+     "master_symbol": 1472700,
+     "info_symbol": 1472700,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472882,
+     "ours": true,
+     "master_symbol": 1472759,
+     "info_symbol": 1472759,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472883,
+     "ours": true,
+     "master_symbol": 1472818,
+     "info_symbol": 1472818,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472884,
+     "ours": true,
+     "master_symbol": 1472877,
+     "info_symbol": 1472877,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    }
+   ],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 6,
+    "n_our_symbols": 6,
+    "n_our_instances": 6,
+    "n_walls_total": 0,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": true,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": true,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": true,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472582": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472566,
+     "instances": [
+      1472879
+     ]
+    },
+    "1472641": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472625,
+     "instances": [
+      1472880
+     ]
+    },
+    "1472700": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472684,
+     "instances": [
+      1472881
+     ]
+    },
+    "1472759": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472743,
+     "instances": [
+      1472882
+     ]
+    },
+    "1472818": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472802,
+     "instances": [
+      1472883
+     ]
+    },
+    "1472877": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472861,
+     "instances": [
+      1472884
+     ]
+    }
+   },
+   "our_instances": [
+    {
+     "id": 1472879,
+     "ours": true,
+     "master_symbol": 1472582,
+     "info_symbol": 1472582,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472880,
+     "ours": true,
+     "master_symbol": 1472641,
+     "info_symbol": 1472641,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472881,
+     "ours": true,
+     "master_symbol": 1472700,
+     "info_symbol": 1472700,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472882,
+     "ours": true,
+     "master_symbol": 1472759,
+     "info_symbol": 1472759,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472883,
+     "ours": true,
+     "master_symbol": 1472818,
+     "info_symbol": 1472818,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    },
+    {
+     "id": 1472884,
+     "ours": true,
+     "master_symbol": 1472877,
+     "info_symbol": 1472877,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "FamilyInstanceConnectorManager"
+    }
+   ],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/acceptance/DEMO_250v_room.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 6,
+    "n_our_symbols": 6,
+    "n_our_instances": 6,
+    "n_walls_total": 0,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": true,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": true,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": true,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472582": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472566,
+     "instances": [
+      1472879
+     ]
+    },
+    "1472641": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472625,
+     "instances": [
+      1472880
+     ]
+    },
+    "1472700": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472684,
+     "instances": [
+      1472881
+     ]
+    },
+    "1472759": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472743,
+     "instances": [
+      1472882
+     ]
+    },
+    "1472818": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472802,
+     "instances": [
+      1472883
+     ]
+    },
+    "1472877": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472861,
+     "instances": [
+      1472884
+     ]
+    }
+   },
+   "our_instances": [
+    {
+     "id": 1472879,
+     "ours": true,
+     "master_symbol": 1472582,
+     "info_symbol": 1472582,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472880,
+     "ours": true,
+     "master_symbol": 1472641,
+     "info_symbol": 1472641,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472881,
+     "ours": true,
+     "master_symbol": 1472700,
+     "info_symbol": 1472700,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472882,
+     "ours": true,
+     "master_symbol": 1472759,
+     "info_symbol": 1472759,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472883,
+     "ours": true,
+     "master_symbol": 1472818,
+     "info_symbol": 1472818,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1472884,
+     "ours": true,
+     "master_symbol": 1472877,
+     "info_symbol": 1472877,
+     "grep_id": 0,
+     "rep_class": "SerializedDummy",
+     "connmgr": "ConnectorManager"
+    }
+   ],
+   "verdict": "FAIL",
+   "verdict_source": "the user's demo failure (stream premise)"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/R_inst_box.rvt",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 1,
+    "n_our_symbols": 1,
+    "n_our_instances": 1,
+    "n_walls_total": 0,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": true,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": true,
+    "our_instance_gelement_rep": true,
+    "our_instance_reaches_our_baked_geometry": true,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472558": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 0,
+     "has_param_def_value": 0,
+     "family": 1472553,
+     "instances": [
+      1472560
+     ]
+    }
+   },
+   "our_instances": [
+    {
+     "id": 1472560,
+     "ours": true,
+     "master_symbol": 1472558,
+     "info_symbol": 1472558,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": null
+    }
+   ],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 1,
+    "n_our_symbols": 1,
+    "n_our_instances": 1,
+    "n_walls_total": 0,
+    "n_our_walls": 0,
+    "our_baked_symbol": false,
+    "our_dummy_symbol": true,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": true,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": true,
+    "our_instance_gelement_rep": true,
+    "our_instance_reaches_our_baked_geometry": true,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472638": {
+     "ours": true,
+     "rep_class": "SerializedDummy",
+     "geom_steps": false,
+     "geom_table": false,
+     "n_geomtag2material": 0,
+     "n_strong_refs": 0,
+     "n_connector_data": 0,
+     "has_param_def_value": 1,
+     "family": 1472615,
+     "instances": [
+      1472639
+     ]
+    }
+   },
+   "our_instances": [
+    {
+     "id": 1472639,
+     "ours": true,
+     "master_symbol": 1472638,
+     "info_symbol": 1472638,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": null
+    }
+   ],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_lp4.rvt",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 1,
+    "n_our_symbols": 1,
+    "n_our_instances": 0,
+    "n_walls_total": 4,
+    "n_our_walls": 4,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": true,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472582": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472566,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_msb.rvt",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 1,
+    "n_our_symbols": 1,
+    "n_our_instances": 0,
+    "n_walls_total": 4,
+    "n_our_walls": 4,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": true,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472586": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472568,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 8,
+    "n_our_symbols": 8,
+    "n_our_instances": 0,
+    "n_walls_total": 4,
+    "n_our_walls": 4,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": true,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472586": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472568,
+     "instances": []
+    },
+    "1472645": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472629,
+     "instances": []
+    },
+    "1472704": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472688,
+     "instances": []
+    },
+    "1472763": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472747,
+     "instances": []
+    },
+    "1472822": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472806,
+     "instances": []
+    },
+    "1472881": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472865,
+     "instances": []
+    },
+    "1472935": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 2,
+     "has_param_def_value": 0,
+     "family": 1472922,
+     "instances": []
+    },
+    "1472994": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472978,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/ifc_room/electrical_room_2500a.rvt",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 8,
+    "n_our_symbols": 8,
+    "n_our_instances": 8,
+    "n_walls_total": 4,
+    "n_our_walls": 4,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": true,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": true,
+    "our_instance_gelement_rep": true,
+    "our_instance_reaches_our_baked_geometry": true,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472586": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472568,
+     "instances": [
+      1473001
+     ]
+    },
+    "1472645": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472629,
+     "instances": [
+      1473002
+     ]
+    },
+    "1472704": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472688,
+     "instances": [
+      1473005
+     ]
+    },
+    "1472763": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472747,
+     "instances": [
+      1473003
+     ]
+    },
+    "1472822": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472806,
+     "instances": [
+      1473004
+     ]
+    },
+    "1472881": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472865,
+     "instances": [
+      1473006
+     ]
+    },
+    "1472935": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 2,
+     "has_param_def_value": 0,
+     "family": 1472922,
+     "instances": [
+      1473000
+     ]
+    },
+    "1472994": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472978,
+     "instances": [
+      1473007
+     ]
+    }
+   },
+   "our_instances": [
+    {
+     "id": 1473000,
+     "ours": true,
+     "master_symbol": 1472935,
+     "info_symbol": 1472935,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1473001,
+     "ours": true,
+     "master_symbol": 1472586,
+     "info_symbol": 1472586,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1473002,
+     "ours": true,
+     "master_symbol": 1472645,
+     "info_symbol": 1472645,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1473003,
+     "ours": true,
+     "master_symbol": 1472763,
+     "info_symbol": 1472763,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1473004,
+     "ours": true,
+     "master_symbol": 1472822,
+     "info_symbol": 1472822,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1473005,
+     "ours": true,
+     "master_symbol": 1472704,
+     "info_symbol": 1472704,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1473006,
+     "ours": true,
+     "master_symbol": 1472881,
+     "info_symbol": 1472881,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "ConnectorManager"
+    },
+    {
+     "id": 1473007,
+     "ours": true,
+     "master_symbol": 1472994,
+     "info_symbol": 1472994,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "ConnectorManager"
+    }
+   ],
+   "verdict": "FAIL",
+   "verdict_source": "ledger"
+  }
+ ],
+ "pass": [
+  {
+   "file": "experiments/instbug/BX_f2.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 2,
+    "n_our_symbols": 2,
+    "n_our_instances": 0,
+    "n_walls_total": 0,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": true,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472582": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472566,
+     "instances": []
+    },
+    "1472641": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472625,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "PASS",
+   "verdict_source": "ledger (weak: no model elements -- empty-design caveat)"
+  },
+  {
+   "file": "experiments/render/g12/WF_fix.rvt",
+   "base": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+   "flags": {
+    "base_watermark": 1472528,
+    "n_symbols": 1,
+    "n_our_symbols": 1,
+    "n_our_instances": 0,
+    "n_walls_total": 4,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": true,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472562": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 0,
+     "has_param_def_value": 0,
+     "family": 1472557,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "PASS",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/render/g12/WF_nofix.rvt",
+   "base": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+   "flags": {
+    "base_watermark": 1472528,
+    "n_symbols": 1,
+    "n_our_symbols": 1,
+    "n_our_instances": 0,
+    "n_walls_total": 4,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": true,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472562": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 0,
+     "has_param_def_value": 0,
+     "family": 1472557,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "PASS",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/ifc_room/stage_L8_lp4.rvt",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 8,
+    "n_our_symbols": 8,
+    "n_our_instances": 0,
+    "n_walls_total": 0,
+    "n_our_walls": 0,
+    "our_baked_symbol": true,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": true,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472586": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472568,
+     "instances": []
+    },
+    "1472645": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472629,
+     "instances": []
+    },
+    "1472704": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472688,
+     "instances": []
+    },
+    "1472763": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472747,
+     "instances": []
+    },
+    "1472822": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472806,
+     "instances": []
+    },
+    "1472881": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472865,
+     "instances": []
+    },
+    "1472935": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 2,
+     "has_param_def_value": 0,
+     "family": 1472922,
+     "instances": []
+    },
+    "1472994": {
+     "ours": true,
+     "rep_class": "GElement",
+     "geom_steps": true,
+     "geom_table": true,
+     "n_geomtag2material": 1,
+     "n_strong_refs": 2,
+     "n_connector_data": 1,
+     "has_param_def_value": 0,
+     "family": 1472978,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "PASS",
+   "verdict_source": "ledger (weak: 'Design is empty' short-circuit)"
+  },
+  {
+   "file": "experiments/families/genesis2/L_v2_panel_loaded.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 107,
+    "n_our_symbols": 1,
+    "n_our_instances": 0,
+    "n_walls_total": 9,
+    "n_our_walls": 0,
+    "our_baked_symbol": false,
+    "our_dummy_symbol": true,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472583": {
+     "ours": true,
+     "rep_class": "SerializedDummy",
+     "geom_steps": false,
+     "geom_table": false,
+     "n_geomtag2material": 0,
+     "n_strong_refs": 0,
+     "n_connector_data": 0,
+     "has_param_def_value": 1,
+     "family": 1472566,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "PASS",
+   "verdict_source": "orchestrator viewer report 2026-08-05 ~01:20 (NOT in the ledger's certified array)"
+  },
+  {
+   "file": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 107,
+    "n_our_symbols": 1,
+    "n_our_instances": 0,
+    "n_walls_total": 9,
+    "n_our_walls": 0,
+    "our_baked_symbol": false,
+    "our_dummy_symbol": true,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472552": {
+     "ours": true,
+     "rep_class": "SerializedDummy",
+     "geom_steps": false,
+     "geom_table": false,
+     "n_geomtag2material": 0,
+     "n_strong_refs": 0,
+     "n_connector_data": 0,
+     "has_param_def_value": 1,
+     "family": 1472546,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "PASS",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/families/ifc/L_downlight_loaded.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 107,
+    "n_our_symbols": 1,
+    "n_our_instances": 0,
+    "n_walls_total": 9,
+    "n_our_walls": 0,
+    "our_baked_symbol": false,
+    "our_dummy_symbol": true,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {
+    "1472638": {
+     "ours": true,
+     "rep_class": "SerializedDummy",
+     "geom_steps": false,
+     "geom_table": false,
+     "n_geomtag2material": 0,
+     "n_strong_refs": 0,
+     "n_connector_data": 0,
+     "has_param_def_value": 1,
+     "family": 1472615,
+     "instances": []
+    }
+   },
+   "our_instances": [],
+   "verdict": "PASS",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/hosting/H1_panel_on_existing_wall.rvt",
+   "base": "samples/rmebasicsampleproject.rvt",
+   "flags": {
+    "base_watermark": 888013,
+    "n_symbols": 632,
+    "n_our_symbols": 0,
+    "n_our_instances": 1,
+    "n_walls_total": 166,
+    "n_our_walls": 0,
+    "our_baked_symbol": false,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": true,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": true
+   },
+   "our_symbols": {},
+   "our_instances": [
+    {
+     "id": 888015,
+     "ours": true,
+     "master_symbol": 619617,
+     "info_symbol": 619617,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "FamilyInstanceConnectorManager"
+    }
+   ],
+   "verdict": "PASS",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/hosting/H2_panel_on_created_wall.rvt",
+   "base": "samples/rmebasicsampleproject.rvt",
+   "flags": {
+    "base_watermark": 888013,
+    "n_symbols": 632,
+    "n_our_symbols": 0,
+    "n_our_instances": 1,
+    "n_walls_total": 167,
+    "n_our_walls": 1,
+    "our_baked_symbol": false,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": true,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": true
+   },
+   "our_symbols": {},
+   "our_instances": [
+    {
+     "id": 888016,
+     "ours": true,
+     "master_symbol": 619617,
+     "info_symbol": 619617,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": "FamilyInstanceConnectorManager"
+    }
+   ],
+   "verdict": "PASS",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/acceptance/V20_first_created_element.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 106,
+    "n_our_symbols": 0,
+    "n_our_instances": 1,
+    "n_walls_total": 9,
+    "n_our_walls": 0,
+    "our_baked_symbol": false,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": true,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": true
+   },
+   "our_symbols": {},
+   "our_instances": [
+    {
+     "id": 1472525,
+     "ours": true,
+     "master_symbol": 1411287,
+     "info_symbol": 1411287,
+     "grep_id": 0,
+     "rep_class": "GElement",
+     "connmgr": null
+    }
+   ],
+   "verdict": "PASS",
+   "verdict_source": "ledger"
+  },
+  {
+   "file": "experiments/render/g12/W1_gabpd_wall_solid.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "flags": {
+    "base_watermark": 1472524,
+    "n_symbols": 0,
+    "n_our_symbols": 0,
+    "n_our_instances": 0,
+    "n_walls_total": 1,
+    "n_our_walls": 1,
+    "our_baked_symbol": false,
+    "our_dummy_symbol": false,
+    "our_instanced_baked_symbol": false,
+    "our_instanced_dummy_symbol": false,
+    "our_uninstanced_baked_symbol": false,
+    "our_instance_of_our_family": false,
+    "our_instance_gelement_rep": false,
+    "our_instance_reaches_our_baked_geometry": false,
+    "sample_symbol_instanced_by_us": false
+   },
+   "our_symbols": {},
+   "our_instances": [],
+   "verdict": "PASS",
+   "verdict_source": "ledger (walls only -- no family layer)"
+  }
+ ]
+}

@@ -1,0 +1,18 @@
+# This is a Revit shared parameter file.
+# Do not edit manually.
+*META	VERSION	MINVERSION
+META	2	1
+*GROUP	ID	NAME
+GROUP	1	Panelboard
+*PARAM	GUID	NAME	DATATYPE	DATACATEGORY	GROUP	VISIBLE	DESCRIPTION	USERMODIFIABLE	HIDEWHENNOVALUE
+PARAM	d2cce9ee-8e62-44ff-b5ab-12ead03922b8	PanelName	TEXT		1	1	Panel schedule name	1	0
+PARAM	002b1533-731c-41b3-b1a5-20f6b1ee035a	Voltage	ELECTRICAL_POTENTIAL		1	1	Rated system voltage	1	0
+PARAM	1816cd3d-3644-40b9-8188-9f9bee361411	Phases	INTEGER		1	1	Number of phases	1	0
+PARAM	c3611f34-2603-40b9-8dc6-08a736656a6f	Wires	INTEGER		1	1	Number of wires	1	0
+PARAM	ea6b58a3-d06a-43c6-82f2-83e88a5348e0	BusRating	ELECTRICAL_CURRENT		1	1	Bus ampacity	1	0
+PARAM	65863827-d986-49c3-b257-4fcc1d7e8337	MainsType	TEXT		1	1	Main breaker or main lugs only	1	0
+PARAM	32a6688e-cda7-4884-b635-10e1ad2da190	MainsRating	ELECTRICAL_CURRENT		1	1	Mains device ampacity	1	0
+PARAM	95713ca1-2c46-40a7-9e6e-ea3a59ca834f	ShortCircuitRatingkA	NUMBER		1	1	Short-circuit current rating, kA	1	0
+PARAM	ea7d916a-5caf-4069-a3f1-5a5f6df75fba	Mounting	TEXT		1	1	Surface or flush	1	0
+PARAM	9aeb45cc-a05e-4cd2-9f5d-fc101a841b3c	NumberOfCircuits	INTEGER		1	1	Branch circuit spaces	1	0
+PARAM	0c2e8d22-6ff6-4049-b265-f93fae7afc64	NeutralRating	TEXT		1	1	Neutral rating	1	0

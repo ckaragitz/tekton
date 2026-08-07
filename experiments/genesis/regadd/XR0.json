@@ -1,0 +1,352 @@
+{
+ "op": "substitute_element",
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR0.rvt",
+ "target_id": 2,
+ "class_name": "PenWidthTableElem",
+ "seqs_replaced": [
+  101,
+  102,
+  103
+ ],
+ "null_mode": false,
+ "row_before": {
+  "original_id": 2,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 2,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "row_after": {
+  "original_id": 2,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 2,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "positions_before": {
+  "101": 2516,
+  "102": 2516,
+  "103": 2516
+ },
+ "positions_after": {
+  "101": 2516,
+  "102": 2516,
+  "103": 2516
+ },
+ "record_len_delta": {
+  "101": 0,
+  "102": 0,
+  "103": 0
+ },
+ "identity_at_original": null,
+ "emit": {
+  "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR0.rvt",
+  "partition": "Partitions/21",
+  "unit0_blocks_after": {
+   "101": 8,
+   "102": 47,
+   "103": 25
+  },
+  "elemtable_count": 6540,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "notes": [
+  "1 element(s) substituted in place: ids [2]"
+ ],
+ "diff_summary": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "streams_identical_count": 11,
+  "partition_logical_identical": false,
+  "records_added": 0,
+  "records_removed": 0,
+  "records_changed": 1,
+  "changed_ids": [
+   2
+  ],
+  "id_order_identical": true,
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "latest_identical": true,
+  "embedded_units_identical": true
+ },
+ "probe": "XR0",
+ "role": "OUR pen-table CONTENT, in place, proven mechanics",
+ "one_change_vs_K1": "element 2's records (our object + our header, same id, same position, same ElemTable row, same Latest)",
+ "content": {
+  "scale_keys": [
+   10,
+   20,
+   50,
+   100,
+   200,
+   500
+  ],
+  "model_pens_mm": {
+   "10": [
+    0.13,
+    0.18,
+    0.25,
+    0.35,
+    0.5,
+    0.7,
+    1.0,
+    1.4,
+    2.0,
+    2.5,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0,
+    8.0
+   ],
+   "20": [
+    0.13,
+    0.13,
+    0.18,
+    0.25,
+    0.35,
+    0.5,
+    0.7,
+    1.0,
+    1.4,
+    2.0,
+    2.5,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0
+   ],
+   "50": [
+    0.13,
+    0.13,
+    0.13,
+    0.18,
+    0.25,
+    0.35,
+    0.5,
+    0.7,
+    1.0,
+    1.4,
+    2.0,
+    2.5,
+    3.0,
+    4.0,
+    5.0,
+    6.0
+   ],
+   "100": [
+    0.13,
+    0.13,
+    0.13,
+    0.13,
+    0.18,
+    0.25,
+    0.35,
+    0.5,
+    0.7,
+    1.0,
+    1.4,
+    2.0,
+    2.5,
+    3.0,
+    4.0,
+    5.0
+   ],
+   "200": [
+    0.13,
+    0.13,
+    0.13,
+    0.13,
+    0.13,
+    0.18,
+    0.25,
+    0.35,
+    0.5,
+    0.7,
+    1.0,
+    1.4,
+    2.0,
+    2.5,
+    3.0,
+    4.0
+   ],
+   "500": [
+    0.13,
+    0.13,
+    0.13,
+    0.13,
+    0.13,
+    0.13,
+    0.18,
+    0.25,
+    0.35,
+    0.5,
+    0.7,
+    1.0,
+    1.4,
+    2.0,
+    2.5,
+    3.0
+   ]
+  },
+  "perspective_mm": [
+   0.13,
+   0.18,
+   0.25,
+   0.35,
+   0.5,
+   0.7,
+   1.0,
+   1.4,
+   2.0,
+   2.5,
+   3.0,
+   4.0,
+   5.0,
+   6.0,
+   7.0,
+   8.0
+  ],
+  "draft_mm": [
+   0.13,
+   0.18,
+   0.25,
+   0.35,
+   0.5,
+   0.7,
+   1.0,
+   1.4,
+   2.0,
+   2.5,
+   3.0,
+   4.0,
+   5.0,
+   6.0,
+   7.0,
+   8.0
+  ],
+  "provenance": "OUR ISO-128-based line-weight series; scale set {10,20,50,100,200,500} = the six-sample format constant (the fixer's P1/G-fix)"
+ },
+ "changed_records": [
+  {
+   "seq": 102,
+   "id": 2,
+   "len_ours": 1223,
+   "len_parent": 1223,
+   "first_diff_byte": 8
+  }
+ ],
+ "field_diff_examples": [
+  {
+   "class_ours": "PenWidthTableElem",
+   "class_parent": "PenWidthTableElem"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[0]",
+   "ours": "0.00042650918635170603",
+   "parent": "0.00032808398950131233"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[2]",
+   "ours": "0.0008202099737532808",
+   "parent": "0.0008202099737532807"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[3]",
+   "ours": "0.0011482939632545932",
+   "parent": "0.001148293963254593"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[4]",
+   "ours": "0.0016404199475065617",
+   "parent": "0.0016404199475065614"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[5]",
+   "ours": "0.0022965879265091863",
+   "parent": "0.002296587926509186"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[6]",
+   "ours": "0.0032808398950131233",
+   "parent": "0.003280839895013123"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[7]",
+   "ours": "0.004593175853018373",
+   "parent": "0.004593175853018372"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[8]",
+   "ours": "0.006561679790026247",
+   "parent": "0.006561679790026246"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[9]",
+   "ours": "0.008202099737532808",
+   "parent": "0.009186351706036744"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[10]",
+   "ours": "0.00984251968503937",
+   "parent": "0.013123359580052492"
+  },
+  {
+   "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[11]",
+   "ours": "0.013123359580052493",
+   "parent": "0.016404199475065617"
+  }
+ ],
+ "sibling_experiment": "X_pen (experiments/genesis/subst_v2/X_pen.rvt) carried the SAME content via manipulate.chunk_segment and FAILED; XR0 removes the re-chunker variable (block partition asserted identical to K1's)",
+ "if_PASS": "our pen-table object is reader-clean; X_pen's failure was the manipulate re-chunk mechanics on K1 or the ~00:25 batch, NOT our content.  The pen constructor + this in-place route are the genesis pen-table path",
+ "if_FAIL": "(with XR_null PASSING) our pen-table VALUES are audited by the reader -- the ONLY difference is the width doubles (see field_diff_examples): our ISO-128 series 0.13..8.0 mm vs Autodesk's 0.1..10.0.  Next: the width-value bisectors (Autodesk's exact widths on our scale set = XR0v is already byte-identical to K1, so bisect the doubles by vector).",
+ "seconds": 9.2
+}

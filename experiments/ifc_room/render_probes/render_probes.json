@@ -1,0 +1,2955 @@
+{
+ "pipeline": "render_probes.run",
+ "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "specimen_source": "experiments/genesis/R5.rvt",
+ "ifc": "inputs/ifc/electrical-room-2500a.ifc",
+ "started": "2026-08-04T11:01:00",
+ "proof_only": "PROOF-ONLY research artefacts: base = certified genesis lineage (sample-derived, in-place substituted); added layer = OUR constructors' families + walls + instances; NOT a deliverable to any third party",
+ "stages": {
+  "forensics": {
+   "composition_matrix": [
+    {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "label": "ZA_deep (base)",
+     "recorded_verdict": "PASS (certified)",
+     "family_documents": 0,
+     "save_units": 1,
+     "walls": 0,
+     "instances": 0,
+     "families_host": 8,
+     "symbols": 0,
+     "host_records": 3342,
+     "four_registry_coherent": true
+    },
+    {
+     "file": "experiments/ifc_room/stage_L8_lp4.rvt",
+     "label": "stage_L8_lp4",
+     "recorded_verdict": "'PASS' recorded -- viewer showed 'Design is empty' (symbol-only file)",
+     "family_documents": 8,
+     "save_units": 9,
+     "walls": 0,
+     "instances": 0,
+     "families_host": 16,
+     "symbols": 8,
+     "host_records": 3485,
+     "four_registry_coherent": true
+    },
+    {
+     "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+     "label": "walls_only",
+     "recorded_verdict": "PASS (real audit; tree shows the level node)",
+     "family_documents": 0,
+     "save_units": 1,
+     "walls": 4,
+     "instances": 0,
+     "families_host": 8,
+     "symbols": 0,
+     "host_records": 3346,
+     "four_registry_coherent": true
+    },
+    {
+     "file": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+     "label": "walls_only_unjoined",
+     "recorded_verdict": "PASS",
+     "family_documents": 0,
+     "save_units": 1,
+     "walls": 4,
+     "instances": 0,
+     "families_host": 8,
+     "symbols": 0,
+     "host_records": 3346,
+     "four_registry_coherent": true
+    },
+    {
+     "file": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+     "label": "stage_W_loaded_walls",
+     "recorded_verdict": "FAIL (Revit-DocumentCorruption audit -1073742517)",
+     "family_documents": 8,
+     "save_units": 9,
+     "walls": 4,
+     "instances": 0,
+     "families_host": 16,
+     "symbols": 8,
+     "host_records": 3489,
+     "four_registry_coherent": true
+    },
+    {
+     "file": "experiments/ifc_room/electrical_room_2500a.rvt",
+     "label": "electrical_room_2500a",
+     "recorded_verdict": "FAIL (audit)",
+     "family_documents": 8,
+     "save_units": 9,
+     "walls": 4,
+     "instances": 8,
+     "families_host": 16,
+     "symbols": 8,
+     "host_records": 3497,
+     "four_registry_coherent": true
+    }
+   ],
+   "diff_stageL8_PASS_vs_stageW_FAIL": {
+    "pass_file": "experiments/ifc_room/stage_L8_lp4.rvt",
+    "fail_file": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+    "walker_errors": {
+     "pass": 0,
+     "fail": 0
+    },
+    "streams_differing": [
+     "BasicFileInfo",
+     "Global/ElemTable",
+     "Partitions/21"
+    ],
+    "streams_identical": [
+     "Contents",
+     "Formats/Latest",
+     "Global/ContentDocuments",
+     "Global/DocumentIncrementTable",
+     "Global/History",
+     "Global/Latest",
+     "Global/PartitionTable",
+     "ProjectInformation",
+     "TransmissionData"
+    ],
+    "record_delta": {
+     "unit0_seq101": {
+      "added": [
+       1472996,
+       1472997,
+       1472998,
+       1472999
+      ],
+      "lost": [],
+      "changed": []
+     },
+     "unit0_seq102": {
+      "added": [
+       1472996,
+       1472997,
+       1472998,
+       1472999
+      ],
+      "lost": [],
+      "changed": []
+     },
+     "unit0_seq103": {
+      "added": [
+       1472996,
+       1472997,
+       1472998,
+       1472999
+      ],
+      "lost": [],
+      "changed": []
+     }
+    },
+    "existing_records_changed": 0,
+    "records_lost": 0,
+    "units_1_to_8_identical": true,
+    "conclusion": "the FAIL file differs from the PASS file by ONLY the added wall records (4 per seq) + ElemTable rows + BasicFileInfo identity; zero existing records changed or lost; embedded family units 1..8 identical"
+   },
+   "wall_layer_comparison": {
+    "walls_pass_ctx": [
+     1472525,
+     1472526,
+     1472527,
+     1472528
+    ],
+    "walls_fail_ctx": [
+     1472996,
+     1472997,
+     1472998,
+     1472999
+    ],
+    "per_wall": [
+     {
+      "wall": "W0",
+      "id_pass_ctx": 1472525,
+      "id_fail_ctx": 1472996,
+      "seq101_identical_modulo_id": true,
+      "seq102_identical_modulo_id": true,
+      "seq103_identical_modulo_id": true
+     },
+     {
+      "wall": "W1",
+      "id_pass_ctx": 1472526,
+      "id_fail_ctx": 1472997,
+      "seq101_identical_modulo_id": true,
+      "seq102_identical_modulo_id": true,
+      "seq103_identical_modulo_id": true
+     },
+     {
+      "wall": "W2",
+      "id_pass_ctx": 1472527,
+      "id_fail_ctx": 1472998,
+      "seq101_identical_modulo_id": true,
+      "seq102_identical_modulo_id": true,
+      "seq103_identical_modulo_id": true
+     },
+     {
+      "wall": "W3",
+      "id_pass_ctx": 1472528,
+      "id_fail_ctx": 1472999,
+      "seq101_identical_modulo_id": true,
+      "seq102_identical_modulo_id": true,
+      "seq103_identical_modulo_id": true
+     }
+    ],
+    "wall_objects_identical_modulo_ids": true,
+    "conclusion": "the wall layer is byte-identical (modulo its own ids) in the PASS context (walls_only) and the FAIL context (stage_W): the walls are NOT the discriminator; the loaded family layer is"
+   },
+   "reading": "stage_L8_lp4 = ZA_deep + ALL 8 room families (incl. the 2500 A house switchboard), 0 walls, 0 instances; its recorded 'PASS' was 'Design is empty' (a symbol-only file the extractor short-circuits -- NOT an audited pass of the family layer).  walls_only (0 families, 4 walls) PASSES a real audit.  stage_W_loaded_walls (8 families + 4 walls) FAILS, and it differs from stage_L8 by EXACTLY the 4 wall records -- which are byte-identical (modulo id) to walls_only's PASSING walls.  =>  no evidence any single family is defective; the loaded family layer has never survived a real audit on the genesis base; the walls merely forced one.  The F_ set (walls as forcer) and the R_inst set (an instance as forcer) name it."
+  },
+  "assay": {
+   "families": [
+    {
+     "tag": "DP-1",
+     "path": "experiments/ifc_room/families/dp1_eaton_prl2x_400a_42sp_480y_277.rfa",
+     "size": 270336,
+     "md5": "82f92e41faa382e02ba58f245696164a",
+     "family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 0,
+      "errors": []
+     },
+     "arbiter_raw": {
+      "verdict": "INVALID",
+      "n_errors": 3
+     },
+     "validate_ok": true,
+     "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse",
+     "provenance": {
+      "ok": false,
+      "verdict": "FINDINGS -- see 'checks'",
+      "n_checks": 11,
+      "checks": {
+       "adocument_decodes_clean": true,
+       "zero_dangling_element_refs": false,
+       "zero_donor_id_byte_hits": false,
+       "zero_donor_name_strings": false,
+       "owner_family_is_ours": false,
+       "identity_is_ours": true,
+       "footer_blob_not_donor": false,
+       "no_donor_end_parity": false,
+       "end_record_is_constant": false,
+       "signature_string_present": true,
+       "formats_latest_is_format_constant": true
+      },
+      "failed_checks": [
+       "zero_dangling_element_refs",
+       "zero_donor_id_byte_hits",
+       "zero_donor_name_strings",
+       "owner_family_is_ours",
+       "footer_blob_not_donor",
+       "no_donor_end_parity",
+       "end_record_is_constant"
+      ],
+      "adocument": {
+       "conclusion": null,
+       "dangling_refs": null,
+       "donor_id_byte_hits": null,
+       "our_refs": null,
+       "decodes_clean": true
+      }
+     },
+     "shape": {
+      "records": 41,
+      "class_histogram_top": {
+       "ParamElemFamily": 14,
+       "CurveElem": 4,
+       "Viewer": 2,
+       "Viewport": 2,
+       "DBDrawing": 2,
+       "SketchPlane": 2,
+       "RefPlane": 2,
+       "Family": 1,
+       "UnitsElem": 1,
+       "LevelAttributes": 1,
+       "Level": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "DBViewPlan": 1
+      },
+      "Family": 1,
+      "FamilySymbol": 0,
+      "ConnectorElem": 1,
+      "ExtrusionElem": 1,
+      "CurveElem": 4,
+      "ParamElemFamily": 14,
+      "RefPlane": 2,
+      "SketchPlane": 2,
+      "VarSketch": 1,
+      "GenSweptSolid": 0,
+      "ElectricalLoadClassification": 1,
+      "UnitsElem": 1,
+      "Level": 1,
+      "family_part_type": 14,
+      "family_category": -2001040,
+      "family_work_plane_based": null,
+      "family_name": null
+     }
+    },
+    {
+     "tag": "DP-2",
+     "path": "experiments/ifc_room/families/dp2_eaton_prl2x_400a_42sp_480y_277.rfa",
+     "size": 270336,
+     "md5": "ec7879ade4ae3ec3c22360b4d535b49b",
+     "family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 0,
+      "errors": []
+     },
+     "arbiter_raw": {
+      "verdict": "INVALID",
+      "n_errors": 3
+     },
+     "validate_ok": true,
+     "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse",
+     "provenance": {
+      "ok": false,
+      "verdict": "FINDINGS -- see 'checks'",
+      "n_checks": 11,
+      "checks": {
+       "adocument_decodes_clean": true,
+       "zero_dangling_element_refs": false,
+       "zero_donor_id_byte_hits": false,
+       "zero_donor_name_strings": false,
+       "owner_family_is_ours": false,
+       "identity_is_ours": true,
+       "footer_blob_not_donor": false,
+       "no_donor_end_parity": false,
+       "end_record_is_constant": false,
+       "signature_string_present": true,
+       "formats_latest_is_format_constant": true
+      },
+      "failed_checks": [
+       "zero_dangling_element_refs",
+       "zero_donor_id_byte_hits",
+       "zero_donor_name_strings",
+       "owner_family_is_ours",
+       "footer_blob_not_donor",
+       "no_donor_end_parity",
+       "end_record_is_constant"
+      ],
+      "adocument": {
+       "conclusion": null,
+       "dangling_refs": null,
+       "donor_id_byte_hits": null,
+       "our_refs": null,
+       "decodes_clean": true
+      }
+     },
+     "shape": {
+      "records": 41,
+      "class_histogram_top": {
+       "ParamElemFamily": 14,
+       "CurveElem": 4,
+       "Viewer": 2,
+       "Viewport": 2,
+       "DBDrawing": 2,
+       "SketchPlane": 2,
+       "RefPlane": 2,
+       "Family": 1,
+       "UnitsElem": 1,
+       "LevelAttributes": 1,
+       "Level": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "DBViewPlan": 1
+      },
+      "Family": 1,
+      "FamilySymbol": 0,
+      "ConnectorElem": 1,
+      "ExtrusionElem": 1,
+      "CurveElem": 4,
+      "ParamElemFamily": 14,
+      "RefPlane": 2,
+      "SketchPlane": 2,
+      "VarSketch": 1,
+      "GenSweptSolid": 0,
+      "ElectricalLoadClassification": 1,
+      "UnitsElem": 1,
+      "Level": 1,
+      "family_part_type": 14,
+      "family_category": -2001040,
+      "family_work_plane_based": null,
+      "family_name": null
+     }
+    },
+    {
+     "tag": "LP-1",
+     "path": "experiments/ifc_room/families/lp1_eaton_prl2x_100a_30sp_480y_277.rfa",
+     "size": 270336,
+     "md5": "add1989ba8f3b6c1edab3329abcf65a3",
+     "family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 0,
+      "errors": []
+     },
+     "arbiter_raw": {
+      "verdict": "INVALID",
+      "n_errors": 3
+     },
+     "validate_ok": true,
+     "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse",
+     "provenance": {
+      "ok": false,
+      "verdict": "FINDINGS -- see 'checks'",
+      "n_checks": 11,
+      "checks": {
+       "adocument_decodes_clean": true,
+       "zero_dangling_element_refs": false,
+       "zero_donor_id_byte_hits": false,
+       "zero_donor_name_strings": false,
+       "owner_family_is_ours": false,
+       "identity_is_ours": true,
+       "footer_blob_not_donor": false,
+       "no_donor_end_parity": false,
+       "end_record_is_constant": false,
+       "signature_string_present": true,
+       "formats_latest_is_format_constant": true
+      },
+      "failed_checks": [
+       "zero_dangling_element_refs",
+       "zero_donor_id_byte_hits",
+       "zero_donor_name_strings",
+       "owner_family_is_ours",
+       "footer_blob_not_donor",
+       "no_donor_end_parity",
+       "end_record_is_constant"
+      ],
+      "adocument": {
+       "conclusion": null,
+       "dangling_refs": null,
+       "donor_id_byte_hits": null,
+       "our_refs": null,
+       "decodes_clean": true
+      }
+     },
+     "shape": {
+      "records": 41,
+      "class_histogram_top": {
+       "ParamElemFamily": 14,
+       "CurveElem": 4,
+       "Viewer": 2,
+       "Viewport": 2,
+       "DBDrawing": 2,
+       "SketchPlane": 2,
+       "RefPlane": 2,
+       "Family": 1,
+       "UnitsElem": 1,
+       "LevelAttributes": 1,
+       "Level": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "DBViewPlan": 1
+      },
+      "Family": 1,
+      "FamilySymbol": 0,
+      "ConnectorElem": 1,
+      "ExtrusionElem": 1,
+      "CurveElem": 4,
+      "ParamElemFamily": 14,
+      "RefPlane": 2,
+      "SketchPlane": 2,
+      "VarSketch": 1,
+      "GenSweptSolid": 0,
+      "ElectricalLoadClassification": 1,
+      "UnitsElem": 1,
+      "Level": 1,
+      "family_part_type": 14,
+      "family_category": -2001040,
+      "family_work_plane_based": null,
+      "family_name": null
+     }
+    },
+    {
+     "tag": "LP-2",
+     "path": "experiments/ifc_room/families/lp2_eaton_prl2x_100a_30sp_480y_277.rfa",
+     "size": 270336,
+     "md5": "7333bb63d46987e28a6e20f9e8249a41",
+     "family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 0,
+      "errors": []
+     },
+     "arbiter_raw": {
+      "verdict": "INVALID",
+      "n_errors": 3
+     },
+     "validate_ok": true,
+     "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse",
+     "provenance": {
+      "ok": false,
+      "verdict": "FINDINGS -- see 'checks'",
+      "n_checks": 11,
+      "checks": {
+       "adocument_decodes_clean": true,
+       "zero_dangling_element_refs": false,
+       "zero_donor_id_byte_hits": false,
+       "zero_donor_name_strings": false,
+       "owner_family_is_ours": false,
+       "identity_is_ours": true,
+       "footer_blob_not_donor": false,
+       "no_donor_end_parity": false,
+       "end_record_is_constant": false,
+       "signature_string_present": true,
+       "formats_latest_is_format_constant": true
+      },
+      "failed_checks": [
+       "zero_dangling_element_refs",
+       "zero_donor_id_byte_hits",
+       "zero_donor_name_strings",
+       "owner_family_is_ours",
+       "footer_blob_not_donor",
+       "no_donor_end_parity",
+       "end_record_is_constant"
+      ],
+      "adocument": {
+       "conclusion": null,
+       "dangling_refs": null,
+       "donor_id_byte_hits": null,
+       "our_refs": null,
+       "decodes_clean": true
+      }
+     },
+     "shape": {
+      "records": 41,
+      "class_histogram_top": {
+       "ParamElemFamily": 14,
+       "CurveElem": 4,
+       "Viewer": 2,
+       "Viewport": 2,
+       "DBDrawing": 2,
+       "SketchPlane": 2,
+       "RefPlane": 2,
+       "Family": 1,
+       "UnitsElem": 1,
+       "LevelAttributes": 1,
+       "Level": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "DBViewPlan": 1
+      },
+      "Family": 1,
+      "FamilySymbol": 0,
+      "ConnectorElem": 1,
+      "ExtrusionElem": 1,
+      "CurveElem": 4,
+      "ParamElemFamily": 14,
+      "RefPlane": 2,
+      "SketchPlane": 2,
+      "VarSketch": 1,
+      "GenSweptSolid": 0,
+      "ElectricalLoadClassification": 1,
+      "UnitsElem": 1,
+      "Level": 1,
+      "family_part_type": 14,
+      "family_category": -2001040,
+      "family_work_plane_based": null,
+      "family_name": null
+     }
+    },
+    {
+     "tag": "LP-3",
+     "path": "experiments/ifc_room/families/lp3_eaton_prl2x_100a_30sp_480y_277.rfa",
+     "size": 270336,
+     "md5": "bede44930b55cc39fa2277d03ef4ffe4",
+     "family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 0,
+      "errors": []
+     },
+     "arbiter_raw": {
+      "verdict": "INVALID",
+      "n_errors": 3
+     },
+     "validate_ok": true,
+     "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse",
+     "provenance": {
+      "ok": false,
+      "verdict": "FINDINGS -- see 'checks'",
+      "n_checks": 11,
+      "checks": {
+       "adocument_decodes_clean": true,
+       "zero_dangling_element_refs": false,
+       "zero_donor_id_byte_hits": false,
+       "zero_donor_name_strings": false,
+       "owner_family_is_ours": false,
+       "identity_is_ours": true,
+       "footer_blob_not_donor": false,
+       "no_donor_end_parity": false,
+       "end_record_is_constant": false,
+       "signature_string_present": true,
+       "formats_latest_is_format_constant": true
+      },
+      "failed_checks": [
+       "zero_dangling_element_refs",
+       "zero_donor_id_byte_hits",
+       "zero_donor_name_strings",
+       "owner_family_is_ours",
+       "footer_blob_not_donor",
+       "no_donor_end_parity",
+       "end_record_is_constant"
+      ],
+      "adocument": {
+       "conclusion": null,
+       "dangling_refs": null,
+       "donor_id_byte_hits": null,
+       "our_refs": null,
+       "decodes_clean": true
+      }
+     },
+     "shape": {
+      "records": 41,
+      "class_histogram_top": {
+       "ParamElemFamily": 14,
+       "CurveElem": 4,
+       "Viewer": 2,
+       "Viewport": 2,
+       "DBDrawing": 2,
+       "SketchPlane": 2,
+       "RefPlane": 2,
+       "Family": 1,
+       "UnitsElem": 1,
+       "LevelAttributes": 1,
+       "Level": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "DBViewPlan": 1
+      },
+      "Family": 1,
+      "FamilySymbol": 0,
+      "ConnectorElem": 1,
+      "ExtrusionElem": 1,
+      "CurveElem": 4,
+      "ParamElemFamily": 14,
+      "RefPlane": 2,
+      "SketchPlane": 2,
+      "VarSketch": 1,
+      "GenSweptSolid": 0,
+      "ElectricalLoadClassification": 1,
+      "UnitsElem": 1,
+      "Level": 1,
+      "family_part_type": 14,
+      "family_category": -2001040,
+      "family_work_plane_based": null,
+      "family_name": null
+     }
+    },
+    {
+     "tag": "LP-4",
+     "path": "experiments/ifc_room/families/lp4_eaton_prl1x_225a_42sp_208y_120.rfa",
+     "size": 270336,
+     "md5": "5e38c45b044f6584902528aaa97a5eb9",
+     "family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 0,
+      "errors": []
+     },
+     "arbiter_raw": {
+      "verdict": "INVALID",
+      "n_errors": 3
+     },
+     "validate_ok": true,
+     "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse",
+     "provenance": {
+      "ok": false,
+      "verdict": "FINDINGS -- see 'checks'",
+      "n_checks": 11,
+      "checks": {
+       "adocument_decodes_clean": true,
+       "zero_dangling_element_refs": false,
+       "zero_donor_id_byte_hits": false,
+       "zero_donor_name_strings": false,
+       "owner_family_is_ours": false,
+       "identity_is_ours": true,
+       "footer_blob_not_donor": false,
+       "no_donor_end_parity": false,
+       "end_record_is_constant": false,
+       "signature_string_present": true,
+       "formats_latest_is_format_constant": true
+      },
+      "failed_checks": [
+       "zero_dangling_element_refs",
+       "zero_donor_id_byte_hits",
+       "zero_donor_name_strings",
+       "owner_family_is_ours",
+       "footer_blob_not_donor",
+       "no_donor_end_parity",
+       "end_record_is_constant"
+      ],
+      "adocument": {
+       "conclusion": null,
+       "dangling_refs": null,
+       "donor_id_byte_hits": null,
+       "our_refs": null,
+       "decodes_clean": true
+      }
+     },
+     "shape": {
+      "records": 41,
+      "class_histogram_top": {
+       "ParamElemFamily": 14,
+       "CurveElem": 4,
+       "Viewer": 2,
+       "Viewport": 2,
+       "DBDrawing": 2,
+       "SketchPlane": 2,
+       "RefPlane": 2,
+       "Family": 1,
+       "UnitsElem": 1,
+       "LevelAttributes": 1,
+       "Level": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "DBViewPlan": 1
+      },
+      "Family": 1,
+      "FamilySymbol": 0,
+      "ConnectorElem": 1,
+      "ExtrusionElem": 1,
+      "CurveElem": 4,
+      "ParamElemFamily": 14,
+      "RefPlane": 2,
+      "SketchPlane": 2,
+      "VarSketch": 1,
+      "GenSweptSolid": 0,
+      "ElectricalLoadClassification": 1,
+      "UnitsElem": 1,
+      "Level": 1,
+      "family_part_type": 14,
+      "family_category": -2001040,
+      "family_work_plane_based": null,
+      "family_name": null
+     }
+    },
+    {
+     "tag": "MSB",
+     "path": "experiments/ifc_room/families/msb_switchboard_msb_2500a_480y_277.rfa",
+     "size": 270336,
+     "md5": "6c228c23714c10d8097e40ada79cc798",
+     "family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 0,
+      "errors": []
+     },
+     "arbiter_raw": {
+      "verdict": "INVALID",
+      "n_errors": 3
+     },
+     "validate_ok": true,
+     "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse",
+     "provenance": {
+      "ok": false,
+      "verdict": "FINDINGS -- see 'checks'",
+      "n_checks": 11,
+      "checks": {
+       "adocument_decodes_clean": true,
+       "zero_dangling_element_refs": false,
+       "zero_donor_id_byte_hits": false,
+       "zero_donor_name_strings": false,
+       "owner_family_is_ours": false,
+       "identity_is_ours": true,
+       "footer_blob_not_donor": false,
+       "no_donor_end_parity": false,
+       "end_record_is_constant": false,
+       "signature_string_present": true,
+       "formats_latest_is_format_constant": true
+      },
+      "failed_checks": [
+       "zero_dangling_element_refs",
+       "zero_donor_id_byte_hits",
+       "zero_donor_name_strings",
+       "owner_family_is_ours",
+       "footer_blob_not_donor",
+       "no_donor_end_parity",
+       "end_record_is_constant"
+      ],
+      "adocument": {
+       "conclusion": null,
+       "dangling_refs": null,
+       "donor_id_byte_hits": null,
+       "our_refs": null,
+       "decodes_clean": true
+      }
+     },
+     "shape": {
+      "records": 43,
+      "class_histogram_top": {
+       "ParamElemFamily": 16,
+       "CurveElem": 4,
+       "Viewer": 2,
+       "Viewport": 2,
+       "DBDrawing": 2,
+       "SketchPlane": 2,
+       "RefPlane": 2,
+       "Family": 1,
+       "UnitsElem": 1,
+       "LevelAttributes": 1,
+       "Level": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "DBViewPlan": 1
+      },
+      "Family": 1,
+      "FamilySymbol": 0,
+      "ConnectorElem": 1,
+      "ExtrusionElem": 1,
+      "CurveElem": 4,
+      "ParamElemFamily": 16,
+      "RefPlane": 2,
+      "SketchPlane": 2,
+      "VarSketch": 1,
+      "GenSweptSolid": 0,
+      "ElectricalLoadClassification": 1,
+      "UnitsElem": 1,
+      "Level": 1,
+      "family_part_type": 16,
+      "family_category": -2001040,
+      "family_work_plane_based": null,
+      "family_name": null
+     }
+    },
+    {
+     "tag": "T1",
+     "path": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.rfa",
+     "size": 270336,
+     "md5": "41ccabc80d82427602bb31aeff95846c",
+     "family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 0,
+      "errors": []
+     },
+     "arbiter_raw": {
+      "verdict": "INVALID",
+      "n_errors": 3
+     },
+     "validate_ok": true,
+     "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse",
+     "provenance": {
+      "ok": false,
+      "verdict": "FINDINGS -- see 'checks'",
+      "n_checks": 11,
+      "checks": {
+       "adocument_decodes_clean": true,
+       "zero_dangling_element_refs": false,
+       "zero_donor_id_byte_hits": false,
+       "zero_donor_name_strings": false,
+       "owner_family_is_ours": false,
+       "identity_is_ours": true,
+       "footer_blob_not_donor": false,
+       "no_donor_end_parity": false,
+       "end_record_is_constant": false,
+       "signature_string_present": true,
+       "formats_latest_is_format_constant": true
+      },
+      "failed_checks": [
+       "zero_dangling_element_refs",
+       "zero_donor_id_byte_hits",
+       "zero_donor_name_strings",
+       "owner_family_is_ours",
+       "footer_blob_not_donor",
+       "no_donor_end_parity",
+       "end_record_is_constant"
+      ],
+      "adocument": {
+       "conclusion": null,
+       "dangling_refs": null,
+       "donor_id_byte_hits": null,
+       "our_refs": null,
+       "decodes_clean": true
+      }
+     },
+     "shape": {
+      "records": 39,
+      "class_histogram_top": {
+       "ParamElemFamily": 11,
+       "CurveElem": 4,
+       "Viewer": 2,
+       "Viewport": 2,
+       "DBDrawing": 2,
+       "SketchPlane": 2,
+       "RefPlane": 2,
+       "ConnectorElem": 2,
+       "Family": 1,
+       "UnitsElem": 1,
+       "LevelAttributes": 1,
+       "Level": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1
+      },
+      "Family": 1,
+      "FamilySymbol": 0,
+      "ConnectorElem": 2,
+      "ExtrusionElem": 1,
+      "CurveElem": 4,
+      "ParamElemFamily": 11,
+      "RefPlane": 2,
+      "SketchPlane": 2,
+      "VarSketch": 1,
+      "GenSweptSolid": 0,
+      "ElectricalLoadClassification": 1,
+      "UnitsElem": 1,
+      "Level": 1,
+      "family_part_type": 15,
+      "family_category": -2001040,
+      "family_work_plane_based": null,
+      "family_name": null
+     }
+    }
+   ],
+   "notes": [],
+   "switchboard_vs_panel": {
+    "products": {
+     "MSB": {
+      "family_name": "Switchboard MSB 2500A 480Y/277",
+      "kind": "switchboard",
+      "category": -2001040,
+      "part_type": 16,
+      "work_plane_based": false,
+      "elements": 43,
+      "class_histogram": {
+       "ConnectorElem": 1,
+       "CurveElem": 4,
+       "DBDrawing": 2,
+       "DBViewPlan": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "ElectricalLoadClassification": 1,
+       "ExtentElem": 1,
+       "ExtrusionElem": 1,
+       "Family": 1,
+       "Level": 1,
+       "LevelAttributes": 1,
+       "ParamElemFamily": 16,
+       "RefPlane": 2,
+       "SketchPlane": 2,
+       "SunAndShadowSettings": 1,
+       "UnitsElem": 1,
+       "VarSketch": 1,
+       "Viewer": 2,
+       "Viewport": 2
+      },
+      "n_parameters": 16,
+      "parameters": [
+       "BusRating",
+       "Depth",
+       "FeederEntry",
+       "Height",
+       "MainsRating",
+       "MainsType",
+       "Mounting",
+       "NeutralRating",
+       "NumberOfCircuits",
+       "PanelName",
+       "Phases",
+       "Sections",
+       "ShortCircuitRatingkA",
+       "Voltage",
+       "Width",
+       "Wires"
+      ],
+      "types": [
+       "2500A 4-section"
+      ],
+      "n_connectors": 1,
+      "connectors": [
+       {
+        "elem_id": 1042,
+        "host_face_note": "hosted on the enclosure's top face (tag 1, edge tags [3, 6, 10, 14])"
+       }
+      ],
+      "forms": [
+       {
+        "kind": "box",
+        "width_ft": 14.009186351706035,
+        "depth_ft": 2.0439632545931747,
+        "height_ft": 7.499999999999999,
+        "base_z_ft": 0.0,
+        "rep": "solid",
+        "role": "switchboard lineup enclosure (our IFC-modeled extents)"
+       }
+      ],
+      "facts_assumed": [],
+      "facts_unverified": [
+       "bus_rating_a",
+       "depth_in",
+       "height_in",
+       "mains_rating_a",
+       "mains_type",
+       "mounting",
+       "panel_name",
+       "phases",
+       "sccr_ka",
+       "sections",
+       "voltage_ll_v",
+       "voltage_system",
+       "width_in",
+       "wires"
+      ]
+     },
+     "LP-4": {
+      "family_name": "Receptacle Panelboard LP-4 208Y/120 225A MB 42sp",
+      "kind": "panelboard",
+      "category": -2001040,
+      "part_type": 14,
+      "work_plane_based": true,
+      "elements": 41,
+      "class_histogram": {
+       "ConnectorElem": 1,
+       "CurveElem": 4,
+       "DBDrawing": 2,
+       "DBViewPlan": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "ElectricalLoadClassification": 1,
+       "ExtentElem": 1,
+       "ExtrusionElem": 1,
+       "Family": 1,
+       "Level": 1,
+       "LevelAttributes": 1,
+       "ParamElemFamily": 14,
+       "RefPlane": 2,
+       "SketchPlane": 2,
+       "SunAndShadowSettings": 1,
+       "UnitsElem": 1,
+       "VarSketch": 1,
+       "Viewer": 2,
+       "Viewport": 2
+      },
+      "n_parameters": 14,
+      "parameters": [
+       "BusRating",
+       "Depth",
+       "Height",
+       "MainsRating",
+       "MainsType",
+       "Mounting",
+       "NeutralRating",
+       "NumberOfCircuits",
+       "PanelName",
+       "Phases",
+       "ShortCircuitRatingkA",
+       "Voltage",
+       "Width",
+       "Wires"
+      ],
+      "types": [
+       "225A MCB 42ckt"
+      ],
+      "n_connectors": 1,
+      "connectors": [
+       {
+        "elem_id": 1040,
+        "host_face_note": "hosted on the enclosure's +y face (tag 2, edge tags [3, 4, 8, 17])"
+       }
+      ],
+      "forms": [
+       {
+        "kind": "box",
+        "width_ft": 1.6666666666666667,
+        "depth_ft": 4.0,
+        "height_ft": 0.4791666666666667,
+        "base_z_ft": 0.0,
+        "rep": "solid",
+        "role": "panelboard enclosure"
+       }
+      ],
+      "facts_assumed": [
+       "sccr_ka"
+      ],
+      "facts_unverified": [
+       "mains_rating_a",
+       "mains_type",
+       "mounting",
+       "neutral_rating",
+       "panel_name",
+       "phases",
+       "sccr_ka",
+       "spaces",
+       "voltage_ll_v",
+       "voltage_system",
+       "wires"
+      ]
+     },
+     "T1": {
+      "family_name": "Dry Type Transformer T1 150kVA 480-208Y/120",
+      "kind": "transformer",
+      "category": -2001040,
+      "part_type": 15,
+      "work_plane_based": false,
+      "elements": 39,
+      "class_histogram": {
+       "ConnectorElem": 2,
+       "CurveElem": 4,
+       "DBDrawing": 2,
+       "DBViewPlan": 1,
+       "DBViewProject": 1,
+       "DBViewType": 1,
+       "ElectricalLoadClassification": 1,
+       "ExtentElem": 1,
+       "ExtrusionElem": 1,
+       "Family": 1,
+       "Level": 1,
+       "LevelAttributes": 1,
+       "ParamElemFamily": 11,
+       "RefPlane": 2,
+       "SketchPlane": 2,
+       "SunAndShadowSettings": 1,
+       "UnitsElem": 1,
+       "VarSketch": 1,
+       "Viewer": 2,
+       "Viewport": 2
+      },
+      "n_parameters": 11,
+      "parameters": [
+       "Depth",
+       "Enclosure",
+       "Frame",
+       "Height",
+       "Phases",
+       "Primary Voltage",
+       "Secondary Voltage",
+       "Temperature Rise",
+       "Weight",
+       "Width",
+       "kVA Rating"
+      ],
+      "types": [
+       "150 kVA 480-208Y/120"
+      ],
+      "n_connectors": 2,
+      "connectors": [
+       {
+        "elem_id": 1037,
+        "host_face_note": "hosted on the enclosure's top face (tag 1, edge tags [3, 6, 10, 14])"
+       },
+       {
+        "elem_id": 1038,
+        "host_face_note": "hosted on the enclosure's top face (tag 1, edge tags [3, 6, 10, 14])"
+       }
+      ],
+      "forms": [
+       {
+        "kind": "box",
+        "width_ft": 2.875,
+        "depth_ft": 2.625,
+        "height_ft": 4.25,
+        "base_z_ft": 0.0,
+        "rep": "solid",
+        "role": "transformer enclosure"
+       }
+      ],
+      "facts_assumed": [],
+      "facts_unverified": [
+       "enclosure",
+       "primary_v",
+       "secondary_v"
+      ]
+     }
+    },
+    "msb_vs_lp4_delta": {
+     "part_type": {
+      "MSB": 16,
+      "LP-4": 14,
+      "note": "16 = switchboard (the class the sample panelboard factory never emitted before this stream) vs 14 = panelboard"
+     },
+     "work_plane_based": {
+      "MSB": false,
+      "LP-4": true,
+      "note": "MSB is floor-standing (like the certified T1); LP-4 is face-hosted-shaped (work-plane-based)"
+     },
+     "parameters_only_in_msb": [
+      "FeederEntry",
+      "Sections"
+     ],
+     "parameters_only_in_lp4": [],
+     "class_histogram_delta": {
+      "ParamElemFamily": {
+       "MSB": 16,
+       "LP-4": 14
+      }
+     },
+     "elements": {
+      "MSB": 43,
+      "LP-4": 41
+     },
+     "n_connectors": {
+      "MSB": 1,
+      "LP-4": 1
+     }
+    },
+    "reading": "The house switchboard is composed from the SAME building blocks as the certified transformer (floor-standing box + top-face connector) and the panelboard (the 11-parameter tagging contract) -- see the deltas.  Nothing structural distinguishes it from families that load: it loads together with the other seven in stage_L8_lp4 (viewer 'Design is empty', i.e. translated), and every static gate passes.  The static assay finds NO defect in the switchboard; the room's failure is NOT attributable to it on any evidence in hand.  The F_msb probe (below) tests it under a REAL audit for the first time."
+   },
+   "emission_path": {
+    "room_rfa_sizes": {
+     "DP-1": 270336,
+     "DP-2": 270336,
+     "LP-1": 270336,
+     "LP-2": 270336,
+     "LP-3": 270336,
+     "LP-4": 270336,
+     "MSB": 270336,
+     "T1": 270336
+    },
+    "old_donor_graft_size": 270336,
+    "v2_clean_size": 278528,
+    "finding": "every room .rfa is 270,336 B = the OLD factory emitter's size (FamilyProduct.write -> skeleton.emit_family_rfa: donor Global/Latest + donor footer + donor end parity, per docs/inbox/asset-assay.md), NOT the assay-clean v2 emitter (rvt.famgen.famdoc_adoc.emit_family_rfa_v2, 278,528 B).  The STANDALONE room .rfa artefacts therefore carry the assay's known provenance debt.  This does NOT bear on the room's LOAD/audit question: the stage-L loader builds each embedded family document from the FamilyDoc OBJECT, never from the .rfa file -- the loaded project files contain our constructed documents, not the donor Latest.",
+    "recommendation": "switch stage_families to the clean emitter (FamilyProduct.write -> emit_family_rfa_v2, the family-genesis stream's standing request) before any standalone .rfa is treated as an artefact of record; the render family (render_probe_box.rfa) is emitted through the clean path here"
+   }
+  },
+  "rinst": [
+   {
+    "probe": "R_inst_box",
+    "kind": "probe",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "family_rfa": "experiments/ifc_room/render_probes/families/render_probe_box.rfa",
+    "family_rfa_report": {
+     "path": "experiments/ifc_room/render_probes/families/render_probe_box.rfa",
+     "emitted": true,
+     "adocument": {
+      "conclusion": "family ADocument CONSTRUCTED (candidate): 1,342,691 B; decodes clean, round-trips; 0 dangling ids (schema census); byte-scan donor ids = 0; our ids present in the payload = 12 (byte scan); slots populated = 131",
+      "registries": {
+       "DatumTracking.m_elemIdSet": "3 of ours (levels + ref planes)",
+       "MaterialTracking.m_elemIdSet": "0 of ours (MaterialElem -- ours has none)",
+       "LinePatternTracking.m_elemIdSet": "0 of ours (LinePatternElem -- ours has none)",
+       "FillPatternTracking.m_elemIdSet": "0 of ours (FillPatternElem -- ours has none)",
+       "AppearanceAssetTracking.m_elemIdSet": "0 of ours (AppearanceAssetElem -- ours has none)",
+       "LoadCaseElemTracking.m_elemIdSet": "0 of ours (LoadCaseElem -- ours has none)",
+       "StructConnectionTypeTracking.m_elemIdSet": "0 of ours (StructConnectionType -- ours has none)",
+       "KeynoteTableTracking.m_elemIdSet": "0 of ours (KeynoteTable -- ours has none)",
+       "TilePatternTracking.m_elemIdSet": "0 of ours (TilePatternElem -- ours has none)",
+       "PhaseFilterTracking.m_elemIdSet": "0 of ours (PhaseFilterElem -- ours has none)",
+       "PropertySetElementTracking.m_elemIdSet": "0 of ours (PropertySetElement -- ours has none)",
+       "ViewTagTracking.m_elemIdSet": "0 of ours (annotation head symbols -- ours has none)",
+       "MoribundElemTracking.m_elemIdSet": "0 of ours (moribund elements -- ours has none)",
+       "ElementTrackingData.m_elems": "3 of ours in 2 category rows {'RefPlane->-2000530': 2, 'Level->-2000240': 1}; the archetype's category SHELL rows kept (144 rows), donor ids purged; m_symbols = 45 rows, none ours",
+       "DBViewInfo": "project view 1004, index of 2 views, 1 sun-settings, 0 templates, no system navigator",
+       "DBDrawingInfo.m_DBDrawingsIndex": "2 drawings of ours",
+       "LevelPlanViewTracking": "1 levels -> 1 plan views",
+       "SketchPlaneInfo.m_curSPRecs": "1 view sketch-planes of ours (m_famId = our self-Family 1000); no sketch grids",
+       "UnitsTracking.m_unitsElemId": "= 1001 (our UnitsElem)",
+       "SiteMgr": "-1 (we author no TrueNorth / contour range)",
+       "PenWidthTableInfo": "-1 (we author no PenWidthTableElem)",
+       "AppearanceInfo.m_previewDBViewID": "-1 (the archetype's preview is its 3D view; our documents carry a plan view only)",
+       "DBViewTypesForNewLevel": "1 plan view type(s) of ours (the genesis-2 rule)",
+       "FamilyMgr.m_arrLoadedFamilyInfo": "1 self entry {surrogate -1, no nested family GUIDs} (a family document with no nested families)",
+       "UniqueElementsTracking.m_elemIds": "0 singletons of ours; the 93-slot table is otherwise all-null -- our documents author NONE of the family-editor settings singletons the archetype registers (73 known positions unfilled)",
+       "CategoryTracking": "EMPTY: our family documents carry no CategoryElem / GStyleElem catalogue rows (the archetype's 1,477 + 70 rows were its built-in category ballast); the family-scale analogue of the project's K6 catalogue requirement",
+       "m_storedByRevitBuild": "1 entry (the Revit-2026 product build constant; was the archetype's 9-entry 2018->2026 save lineage)",
+       "m_ownerFamilyId": "= 1000 (OUR self-Family)"
+      },
+      "residual": [
+       "UniqueElementsTracking is ALL-NULL: our family documents carry none of the settings singletons the archetype registers (AreaSettingsElem, AutoCamSettingsElem, StructSettingsElem, KeynoteTable, ...).  The family-scale analogue of the project's K5 finding (the reader REQUIRED settings singletons at project scale) -- the lead hypothesis if the standalone file is rejected while its ADocument decodes clean.",
+       "CategoryTracking is EMPTY (no built-in category / GStyle catalogue in our family documents) -- the family-scale analogue of the project's K6 finding."
+      ]
+     },
+     "validate": {
+      "family_mode": {
+       "verdict": "VALID",
+       "n_errors": 0,
+       "errors": [],
+       "n_warnings": 0,
+       "warnings": [],
+       "adjustments": [
+        "PartAtom treated as UNFRAMED (plain Atom XML)",
+        "ProjectInformation not required (a family stream set has PartAtom instead)"
+       ]
+      },
+      "ok": true,
+      "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse"
+     },
+     "provenance": {
+      "ok": true,
+      "checks": {
+       "adocument_decodes_clean": true,
+       "zero_dangling_element_refs": true,
+       "zero_donor_id_byte_hits": true,
+       "zero_donor_name_strings": true,
+       "owner_family_is_ours": true,
+       "identity_is_ours": true,
+       "footer_blob_not_donor": true,
+       "no_donor_end_parity": true,
+       "end_record_is_constant": true,
+       "signature_string_present": true,
+       "formats_latest_is_format_constant": true
+      },
+      "failed": null
+     },
+     "ok": true
+    },
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "loader": "rvt.famgen.loader.load_family_into_project(place=False)",
+     "symbol_id": 1472558,
+     "family_id": 1472553,
+     "content_guid": "89003836-0343-4975-b77e-4b352e58003f",
+     "core_ids": [
+      124,
+      113160
+     ]
+    },
+    "instance": {
+     "tag": "BOX",
+     "in": "experiments/ifc_room/render_probes/_build/box_loaded.rvt",
+     "out": "experiments/ifc_room/render_probes/R_inst_box.rvt",
+     "ok": true,
+     "specimens": {
+      "source": "experiments/genesis/R5.rvt",
+      "injected_ids": [
+       1115258,
+       975217
+      ],
+      "wall_specimen": 1115258,
+      "wall_type": 600634,
+      "instance_specimen": 975217,
+      "instance_symbol": 975202,
+      "instance_category": -2000023,
+      "instance_specimen_score": [
+       0,
+       539
+      ]
+     },
+     "level": 311,
+     "elemtable_before": 3349,
+     "elemtable_after": 3350,
+     "new_ids": [
+      1472560
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 1,
+       "102": 1,
+       "103": 1
+      }
+     },
+     "structurally_valid": true,
+     "elem_id": 1472560,
+     "symbol": 1472558,
+     "family": 1472553,
+     "category": -2001040,
+     "position_m": [
+      2.0,
+      -2.0,
+      0.0
+     ],
+     "position_ft": [
+      6.562,
+      -6.562,
+      0.0
+     ],
+     "yaw_deg": 0.0,
+     "frame3x3": [
+      [
+       1.0,
+       -0.0,
+       0.0
+      ],
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "connector_manager": false,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472558 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ],
+     "seconds": 0.5
+    },
+    "file": "experiments/ifc_room/render_probes/R_inst_box.rvt",
+    "family": {
+     "name": "Render Probe Box",
+     "kind": "bare solid box (render probe)",
+     "forms": [
+      {
+       "width_ft": 2.0,
+       "depth_ft": 2.0,
+       "height_ft": 3.0,
+       "base_z_ft": 0.0,
+       "start_ft": 3.0,
+       "end_ft": 0.0,
+       "center": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "rep": "solid",
+       "vertices": [
+        [
+         1.0,
+         1.0,
+         0.0
+        ],
+        [
+         -1.0,
+         1.0,
+         0.0
+        ],
+        [
+         -1.0,
+         -1.0,
+         0.0
+        ],
+        [
+         1.0,
+         -1.0,
+         0.0
+        ]
+       ],
+       "role": "render probe solid box (baked six-face B-rep)",
+       "dims_ft": [
+        2.0,
+        2.0,
+        3.0
+       ]
+      }
+     ],
+     "connectors": 0,
+     "parameters": [
+      "Depth",
+      "Height",
+      "Width"
+     ],
+     "elements": 28
+    },
+    "expected_tree": {
+     "if_RENDER": "model tree: level node 'L1 - Ground Floor [311]' -> a CATEGORY node 'Electrical Equipment' -> family 'Render Probe Box' -> type 'standard' -> ONE instance node with an eye toggle; the 3D view shows one 2 x 2 x 3 ft solid box standing on the floor near (2 m, -2 m) (position (2.0, -2.0, 0.0) m)",
+     "if_LOAD_but_no_render": "the file translates but the tree still holds ONLY the level node ('Design is empty' or datum-only) -> the instance's symbol graphics were NOT drawn: the family document's baked solid does not survive to the extractor, or the FamilySymbol geometry (SerializedDummy) is not regenerated by the viewer",
+     "if_FAIL": "PROCESSING FAILED with Revit-DocumentCorruption (-1073742517) -> the loaded-family layer (or the instance) fails the audit on the genesis base; read together with the F_ set (walls as the audit-forcer)"
+    },
+    "ok": true
+   },
+   {
+    "probe": "R_inst_panel",
+    "kind": "probe",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "loader": "rvt.famgen.loader.load_family_into_project(place=False)",
+     "symbol_id": 1472582,
+     "family_id": 1472566,
+     "content_guid": "f6cdd9b4-edbf-4195-87a9-15a3150bccd6",
+     "core_ids": [
+      124,
+      113944
+     ]
+    },
+    "instance": {
+     "tag": "LP-4",
+     "in": "experiments/ifc_room/render_probes/_build/panel_loaded.rvt",
+     "out": "experiments/ifc_room/render_probes/R_inst_panel.rvt",
+     "ok": true,
+     "specimens": {
+      "source": "experiments/genesis/R5.rvt",
+      "injected_ids": [
+       1115258,
+       975217
+      ],
+      "wall_specimen": 1115258,
+      "wall_type": 600634,
+      "instance_specimen": 975217,
+      "instance_symbol": 975202,
+      "instance_category": -2000023,
+      "instance_specimen_score": [
+       0,
+       539
+      ]
+     },
+     "level": 311,
+     "elemtable_before": 3360,
+     "elemtable_after": 3361,
+     "new_ids": [
+      1472584
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 1,
+       "102": 1,
+       "103": 1
+      }
+     },
+     "structurally_valid": true,
+     "elem_id": 1472584,
+     "symbol": 1472582,
+     "family": 1472566,
+     "category": -2001040,
+     "position_m": [
+      4.455,
+      -0.55,
+      1.543
+     ],
+     "position_ft": [
+      14.616,
+      -1.804,
+      5.062
+     ],
+     "yaw_deg": 0.0,
+     "frame3x3": [
+      [
+       0.0,
+       -1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ],
+      [
+       -1.0,
+       -0.0,
+       0.0
+      ]
+     ],
+     "connector_manager": true,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472582 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ],
+     "seconds": 0.6
+    },
+    "file": "experiments/ifc_room/render_probes/R_inst_panel.rvt",
+    "family": {
+     "name": "Receptacle Panelboard LP-4 208Y/120 225A MB 42sp",
+     "kind": "PRL1X receptacle panelboard (LP-4)",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 225.0,
+      "spaces": 42,
+      "voltage": "208Y/120",
+      "mcb": true,
+      "mounting": "surface",
+      "panel_name": "LP-4",
+      "sccr_ka": null
+     },
+     "connectors": 1,
+     "parameters": 14,
+     "elements": 41
+    },
+    "expected_tree": {
+     "if_RENDER": "model tree: level node 'L1 - Ground Floor [311]' -> a CATEGORY node 'Electrical Equipment' -> family 'Receptacle Panelboard LP-4 208Y/120 225A MB 42sp' -> type '225A MB 42ckt' -> ONE instance node with an eye toggle; the 3D view shows the PRL1X enclosure box (20 x 48 in face, ~5.75 in deep) standing UPRIGHT at LP-4's east-wall spot (4.455, -0.55, 1.543) m -- no wall present, the box floats where the wall would be (position (4.455, -0.55, 1.543) m)",
+     "if_LOAD_but_no_render": "the file translates but the tree still holds ONLY the level node ('Design is empty' or datum-only) -> the instance's symbol graphics were NOT drawn: the family document's baked solid does not survive to the extractor, or the FamilySymbol geometry (SerializedDummy) is not regenerated by the viewer",
+     "if_FAIL": "PROCESSING FAILED with Revit-DocumentCorruption (-1073742517) -> the loaded-family layer (or the instance) fails the audit on the genesis base; read together with the F_ set (walls as the audit-forcer)"
+    },
+    "placement_note": "identical to the room's LP-4 placement (intent frame, upright 3x3) but with NO walls in the file",
+    "ok": true
+   },
+   {
+    "probe": "R_inst_downlight",
+    "kind": "probe",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "error": "",
+     "loader": "rvt.famload.load_family_document (four-registry, L1a mechanism)",
+     "symbol_id": 1472638,
+     "family_id": 1472615,
+     "guid": "1208a822-8b5e-4b6b-967c-db3fc0ee904a",
+     "core_ids": [
+      127
+     ],
+     "validate_project_mode": {
+      "verdict": "VALID",
+      "n_errors": 0,
+      "errors": [],
+      "n_warnings": 1,
+      "warnings": [
+       "semantic objects: 1/3456 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+      ]
+     }
+    },
+    "instance": {
+     "tag": "DOWNLIGHT",
+     "in": "experiments/ifc_room/render_probes/_build/downlight_loaded.rvt",
+     "out": "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+     "ok": true,
+     "specimens": {
+      "source": "experiments/genesis/R5.rvt",
+      "injected_ids": [
+       1115258,
+       975217
+      ],
+      "wall_specimen": 1115258,
+      "wall_type": 600634,
+      "instance_specimen": 975217,
+      "instance_symbol": 975202,
+      "instance_category": -2000023,
+      "instance_specimen_score": [
+       0,
+       539
+      ]
+     },
+     "level": 311,
+     "elemtable_before": 3366,
+     "elemtable_after": 3367,
+     "new_ids": [
+      1472639
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 1,
+       "102": 1,
+       "103": 1
+      }
+     },
+     "structurally_valid": true,
+     "elem_id": 1472639,
+     "symbol": 1472638,
+     "family": 1472615,
+     "category": -2001120,
+     "position_m": [
+      0.0,
+      -2.0,
+      2.4
+     ],
+     "position_ft": [
+      0.0,
+      -6.562,
+      7.874
+     ],
+     "yaw_deg": 0.0,
+     "frame3x3": [
+      [
+       1.0,
+       -0.0,
+       0.0
+      ],
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "connector_manager": false,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472638 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ],
+     "seconds": 0.6
+    },
+    "file": "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+    "family": {
+     "name": "Chicago-plenum recessed downlight (IFC-derived)",
+     "source_rfa": "experiments/families/ifc/chicago_plenum_downlight.rfa",
+     "loader": "rvt.famload.load_family_document (its certified path)"
+    },
+    "expected_tree": {
+     "if_RENDER": "model tree: level node 'L1 - Ground Floor [311]' -> a CATEGORY node 'Lighting Fixtures' -> family 'Chicago plenum recessed downlight (CP-6-LED)' -> type 'CP-6-LED' -> ONE instance node with an eye toggle; the 3D view shows the downlight assembly (can, trim disc, frame plate, J-box, driver box, bar hangers -- 8 solids, ~2.2 ft across) floating at ceiling height (2.4 m) near the origin (position (0.0, -2.0, 2.4) m)",
+     "if_LOAD_but_no_render": "the file translates but the tree still holds ONLY the level node ('Design is empty' or datum-only) -> the instance's symbol graphics were NOT drawn: the family document's baked solid does not survive to the extractor, or the FamilySymbol geometry (SerializedDummy) is not regenerated by the viewer",
+     "if_FAIL": "PROCESSING FAILED with Revit-DocumentCorruption (-1073742517) -> the loaded-family layer (or the instance) fails the audit on the genesis base; read together with the F_ set (walls as the audit-forcer)"
+    },
+    "ok": true
+   },
+   {
+    "probe": "R_inst_panel_wallhost",
+    "kind": "not_built",
+    "face_sketchplane_template_in_base": null,
+    "template_lookup": "LookupError: ZA_deep: no GeomOnPlaneRef SketchPlane specimen to clone (template needs at least one work-plane / face-hosted family instance)",
+    "reason_not_built": "A wall-hosted instance needs (1) walls in the file and (2) a face-SketchPlane specimen for rvt.hosting.add_sketchplane_on_wall / host_instance_on_wall (certified H1/H2 on the MEP sample).  On the family-free genesis base ZA_deep there are no walls and no face-SketchPlane specimen, so hosting would clone R5 templates AND require the wall stage.  Crucially, walls + a loaded family is the very combination this stream shows FAILING (stage_W_loaded_walls) -- a wall-hosted render probe would read on TWO confounded variables (the hosting AND the failing interaction) until the interaction is understood.  The free-standing R_inst probes are therefore PRIMARY; the wall-hosted question is deferred behind the F_-set bisection (and behind emitting baked wall geometry, since an instance hosted to an UN-RENDERED wall has nothing to sit on visually)."
+   }
+  ],
+  "fset": [
+   {
+    "probe": "F_msb",
+    "kind": "probe",
+    "tag": "MSB",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "symbol_id": 1472586,
+     "family_id": 1472568,
+     "content_guid": "56c333ef-c929-4da3-b500-c5202f1aad91",
+     "core_ids": [
+      124,
+      113944
+     ]
+    },
+    "walls": {
+     "ok": true,
+     "n_walls": 4,
+     "new_ids": [
+      1472588,
+      1472589,
+      1472590,
+      1472591
+     ],
+     "elemtable_after": 3366,
+     "n_dangling_per_wall": [
+      11,
+      11,
+      11,
+      11
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 4,
+       "102": 4,
+       "103": 4
+      }
+     },
+     "error": null,
+     "blocker": null
+    },
+    "file": "experiments/ifc_room/render_probes/F_msb.rvt",
+    "family": {
+     "name": "Switchboard MSB 2500A 480Y/277",
+     "constructor": "rvt.ifc.intent.make_house_switchboard",
+     "kwargs": {
+      "tag": "MSB",
+      "name": "Switchboard MSB",
+      "mains_a": 2500.0,
+      "voltage": "480Y/277",
+      "phases": 3,
+      "wires": 4,
+      "sccr_ka": 65.0,
+      "sections": 4,
+      "mains_device": "2500 A, 3-pole insulated-case main breaker, 100% rated",
+      "mounting": "Floor, on 100 mm housekeeping pad, front accessible",
+      "feeder_entry": "Top; overhead EMT on trapeze hangers",
+      "manufacturer": "Eaton",
+      "model_label": "Pow-R-Line C style switchboard",
+      "width_m": 4.27,
+      "depth_m": 0.6229999999999998,
+      "height_m": 2.286
+     },
+     "status": "house",
+     "connectors": 1,
+     "parameters": 16,
+     "elements": 43,
+     "part_type": 16,
+     "work_plane_based": false
+    },
+    "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+    "ok": true,
+    "seconds": 1.9
+   },
+   {
+    "probe": "F_dp1",
+    "kind": "probe",
+    "tag": "DP-1",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "symbol_id": 1472582,
+     "family_id": 1472566,
+     "content_guid": "447f2f71-3d16-44d8-95ec-08e398fa612f",
+     "core_ids": [
+      124,
+      113944
+     ]
+    },
+    "walls": {
+     "ok": true,
+     "n_walls": 4,
+     "new_ids": [
+      1472584,
+      1472585,
+      1472586,
+      1472587
+     ],
+     "elemtable_after": 3364,
+     "n_dangling_per_wall": [
+      11,
+      11,
+      11,
+      11
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 4,
+       "102": 4,
+       "103": 4
+      }
+     },
+     "error": null,
+     "blocker": null
+    },
+    "file": "experiments/ifc_room/render_probes/F_dp1.rvt",
+    "family": {
+     "name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 400.0,
+      "spaces": 42,
+      "voltage": "480Y/277",
+      "mcb": true,
+      "mounting": "surface",
+      "panel_name": "DP-1",
+      "sccr_ka": null
+     },
+     "status": "resolved",
+     "connectors": 1,
+     "parameters": 14,
+     "elements": 41,
+     "part_type": 14,
+     "work_plane_based": true
+    },
+    "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+    "ok": true,
+    "seconds": 1.9
+   },
+   {
+    "probe": "F_dp2",
+    "kind": "probe",
+    "tag": "DP-2",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "symbol_id": 1472582,
+     "family_id": 1472566,
+     "content_guid": "7b4a262a-5c63-43ab-a0ca-c6c1bc589b19",
+     "core_ids": [
+      124,
+      113944
+     ]
+    },
+    "walls": {
+     "ok": true,
+     "n_walls": 4,
+     "new_ids": [
+      1472584,
+      1472585,
+      1472586,
+      1472587
+     ],
+     "elemtable_after": 3364,
+     "n_dangling_per_wall": [
+      11,
+      11,
+      11,
+      11
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 4,
+       "102": 4,
+       "103": 4
+      }
+     },
+     "error": null,
+     "blocker": null
+    },
+    "file": "experiments/ifc_room/render_probes/F_dp2.rvt",
+    "family": {
+     "name": "Distribution Panelboard DP-2 480Y/277 400A MB 42sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 400.0,
+      "spaces": 42,
+      "voltage": "480Y/277",
+      "mcb": true,
+      "mounting": "surface",
+      "panel_name": "DP-2",
+      "sccr_ka": null
+     },
+     "status": "resolved",
+     "connectors": 1,
+     "parameters": 14,
+     "elements": 41,
+     "part_type": 14,
+     "work_plane_based": true
+    },
+    "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+    "ok": true,
+    "seconds": 1.8
+   },
+   {
+    "probe": "F_lp1",
+    "kind": "probe",
+    "tag": "LP-1",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "symbol_id": 1472582,
+     "family_id": 1472566,
+     "content_guid": "f8d2e36f-002b-4627-9405-2a11b858db63",
+     "core_ids": [
+      124,
+      113944
+     ]
+    },
+    "walls": {
+     "ok": true,
+     "n_walls": 4,
+     "new_ids": [
+      1472584,
+      1472585,
+      1472586,
+      1472587
+     ],
+     "elemtable_after": 3364,
+     "n_dangling_per_wall": [
+      11,
+      11,
+      11,
+      11
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 4,
+       "102": 4,
+       "103": 4
+      }
+     },
+     "error": null,
+     "blocker": null
+    },
+    "file": "experiments/ifc_room/render_probes/F_lp1.rvt",
+    "family": {
+     "name": "Lighting Panelboard LP-1 480Y/277 100A MLO 30sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 100.0,
+      "spaces": 30,
+      "voltage": "480Y/277",
+      "mcb": false,
+      "mounting": "surface",
+      "panel_name": "LP-1",
+      "sccr_ka": null
+     },
+     "status": "resolved",
+     "connectors": 1,
+     "parameters": 14,
+     "elements": 41,
+     "part_type": 14,
+     "work_plane_based": true
+    },
+    "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+    "ok": true,
+    "seconds": 1.8
+   },
+   {
+    "probe": "F_lp2",
+    "kind": "probe",
+    "tag": "LP-2",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "symbol_id": 1472582,
+     "family_id": 1472566,
+     "content_guid": "959184d9-37fe-49ec-8070-685f3f4a108b",
+     "core_ids": [
+      124,
+      113944
+     ]
+    },
+    "walls": {
+     "ok": true,
+     "n_walls": 4,
+     "new_ids": [
+      1472584,
+      1472585,
+      1472586,
+      1472587
+     ],
+     "elemtable_after": 3364,
+     "n_dangling_per_wall": [
+      11,
+      11,
+      11,
+      11
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 4,
+       "102": 4,
+       "103": 4
+      }
+     },
+     "error": null,
+     "blocker": null
+    },
+    "file": "experiments/ifc_room/render_probes/F_lp2.rvt",
+    "family": {
+     "name": "Lighting Panelboard LP-2 480Y/277 100A MLO 30sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 100.0,
+      "spaces": 30,
+      "voltage": "480Y/277",
+      "mcb": false,
+      "mounting": "surface",
+      "panel_name": "LP-2",
+      "sccr_ka": null
+     },
+     "status": "resolved",
+     "connectors": 1,
+     "parameters": 14,
+     "elements": 41,
+     "part_type": 14,
+     "work_plane_based": true
+    },
+    "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+    "ok": true,
+    "seconds": 1.8
+   },
+   {
+    "probe": "F_lp3",
+    "kind": "probe",
+    "tag": "LP-3",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "symbol_id": 1472582,
+     "family_id": 1472566,
+     "content_guid": "36874d0a-87e3-4ff9-b26c-61bcde7b8fbf",
+     "core_ids": [
+      124,
+      113944
+     ]
+    },
+    "walls": {
+     "ok": true,
+     "n_walls": 4,
+     "new_ids": [
+      1472584,
+      1472585,
+      1472586,
+      1472587
+     ],
+     "elemtable_after": 3364,
+     "n_dangling_per_wall": [
+      11,
+      11,
+      11,
+      11
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 4,
+       "102": 4,
+       "103": 4
+      }
+     },
+     "error": null,
+     "blocker": null
+    },
+    "file": "experiments/ifc_room/render_probes/F_lp3.rvt",
+    "family": {
+     "name": "Lighting Panelboard LP-3 480Y/277 100A MLO 30sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 100.0,
+      "spaces": 30,
+      "voltage": "480Y/277",
+      "mcb": false,
+      "mounting": "surface",
+      "panel_name": "LP-3",
+      "sccr_ka": null
+     },
+     "status": "resolved",
+     "connectors": 1,
+     "parameters": 14,
+     "elements": 41,
+     "part_type": 14,
+     "work_plane_based": true
+    },
+    "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+    "ok": true,
+    "seconds": 1.8
+   },
+   {
+    "probe": "F_t1",
+    "kind": "probe",
+    "tag": "T1",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "symbol_id": 1472577,
+     "family_id": 1472564,
+     "content_guid": "e431ae1d-4c85-4d7e-b6ea-aa571fba9dde",
+     "core_ids": [
+      124,
+      113944
+     ]
+    },
+    "walls": {
+     "ok": true,
+     "n_walls": 4,
+     "new_ids": [
+      1472579,
+      1472580,
+      1472581,
+      1472582
+     ],
+     "elemtable_after": 3361,
+     "n_dangling_per_wall": [
+      11,
+      11,
+      11,
+      11
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 4,
+       "102": 4,
+       "103": 4
+      }
+     },
+     "error": null,
+     "blocker": null
+    },
+    "file": "experiments/ifc_room/render_probes/F_t1.rvt",
+    "family": {
+     "name": "Dry Type Transformer T1 150kVA 480-208Y/120",
+     "constructor": "rvt.famgen.factory.make_transformer",
+     "kwargs": {
+      "kva": 150.0,
+      "vendor": "eaton",
+      "primary_v": 480,
+      "secondary_v": "208Y/120"
+     },
+     "status": "resolved",
+     "connectors": 2,
+     "parameters": 11,
+     "elements": 39,
+     "part_type": 15,
+     "work_plane_based": false
+    },
+    "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+    "ok": true,
+    "seconds": 1.8
+   },
+   {
+    "probe": "F_lp4",
+    "kind": "probe",
+    "tag": "LP-4",
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "load": {
+     "ok": true,
+     "stop_reason": "",
+     "symbol_id": 1472582,
+     "family_id": 1472566,
+     "content_guid": "a6157605-6c3e-47c6-8807-88188957489a",
+     "core_ids": [
+      124,
+      113944
+     ]
+    },
+    "walls": {
+     "ok": true,
+     "n_walls": 4,
+     "new_ids": [
+      1472584,
+      1472585,
+      1472586,
+      1472587
+     ],
+     "elemtable_after": 3364,
+     "n_dangling_per_wall": [
+      11,
+      11,
+      11,
+      11
+     ],
+     "verify": {
+      "crc_failures": 0,
+      "ecc_mismatches": 0,
+      "walker_errors": 0,
+      "stamps_ok": true,
+      "elemtable_matches_header": true,
+      "sentinels_last": true,
+      "new_elements_clean_per_seq": {
+       "101": 4,
+       "102": 4,
+       "103": 4
+      }
+     },
+     "error": null,
+     "blocker": null
+    },
+    "file": "experiments/ifc_room/render_probes/F_lp4.rvt",
+    "family": {
+     "name": "Receptacle Panelboard LP-4 208Y/120 225A MB 42sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 225.0,
+      "spaces": 42,
+      "voltage": "208Y/120",
+      "mcb": true,
+      "mounting": "surface",
+      "panel_name": "LP-4",
+      "sccr_ka": null
+     },
+     "status": "resolved",
+     "connectors": 1,
+     "parameters": 14,
+     "elements": 41,
+     "part_type": 14,
+     "work_plane_based": true
+    },
+    "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+    "ok": true,
+    "seconds": 1.8
+   }
+  ]
+ },
+ "intent": {
+  "equipment": 12,
+  "walls": 4,
+  "plans": [
+   [
+    "TMGB",
+    "unmapped"
+   ],
+   [
+    "T1",
+    "resolved"
+   ],
+   [
+    "MSB",
+    "house"
+   ],
+   [
+    "DP-1",
+    "resolved"
+   ],
+   [
+    "LP-1",
+    "resolved"
+   ],
+   [
+    "LP-2",
+    "resolved"
+   ],
+   [
+    "DP-2",
+    "resolved"
+   ],
+   [
+    "LP-3",
+    "resolved"
+   ],
+   [
+    "LP-4",
+    "resolved"
+   ],
+   [
+    "CONDUIT",
+    "unmapped"
+   ],
+   [
+    "SERVICE",
+    "unmapped"
+   ],
+   [
+    "HANGERS",
+    "unmapped"
+   ]
+  ]
+ },
+ "specimens": {
+  "source": "experiments/genesis/R5.rvt",
+  "wall": 1115258,
+  "wall_type": 600634,
+  "instance": 975217,
+  "instance_symbol": 975202,
+  "instance_category": -2000023
+ },
+ "gates": {
+  "experiments/ifc_room/render_probes/R_inst_box.rvt": {
+   "path": "experiments/ifc_room/render_probes/R_inst_box.rvt",
+   "md5": "c21f390e4baeb779d69c8335f4a9245b",
+   "size": 638976,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3350,
+    "SWall": 0,
+    "FamilyInstance": 1,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472558": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {
+      "1472560": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 300
+      }
+     },
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 28,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/R_inst_panel.rvt": {
+   "path": "experiments/ifc_room/render_probes/R_inst_panel.rvt",
+   "md5": "6d8a34afdbc849823b0b44ff7e766571",
+   "size": 638976,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3361,
+    "SWall": 0,
+    "FamilyInstance": 1,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {
+      "1472584": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 300
+      }
+     },
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/R_inst_downlight.rvt": {
+   "path": "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+   "md5": "2aefe4cedc98efccc6012b288a70b0de",
+   "size": 647168,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3367,
+    "SWall": 0,
+    "FamilyInstance": 1,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472638": {
+       "rep_class": "SerializedDummy",
+       "rep_body_bytes": 2,
+       "rep_subnodes": 0,
+       "object_has_geom_table": false,
+       "object_has_geom_steps": false
+      }
+     },
+     "instances": {
+      "1472639": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 300
+      }
+     },
+     "embedded_doc_solids": 8,
+     "embedded_doc_records": 90,
+     "symbol_geometry": "DUMMY (SerializedDummy symbol rep -- the rvt.famload loader): symbol graphics exist only if Revit REGENERATES from the family document's solids"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/F_msb.rvt": {
+   "path": "experiments/ifc_room/render_probes/F_msb.rvt",
+   "md5": "10e6ebb3686b3a8c2158decf982f3e97",
+   "size": 643072,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3366,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472586": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 43,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/F_dp1.rvt": {
+   "path": "experiments/ifc_room/render_probes/F_dp1.rvt",
+   "md5": "c20eae0c653f90dc3fdd243731ac7109",
+   "size": 643072,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/F_dp2.rvt": {
+   "path": "experiments/ifc_room/render_probes/F_dp2.rvt",
+   "md5": "ef1457ad78e6fa5f4021a10864c4049d",
+   "size": 643072,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/F_lp1.rvt": {
+   "path": "experiments/ifc_room/render_probes/F_lp1.rvt",
+   "md5": "84d96a248f0f39f110a3c7ef2967b125",
+   "size": 643072,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/F_lp2.rvt": {
+   "path": "experiments/ifc_room/render_probes/F_lp2.rvt",
+   "md5": "40131cdf88ef334231657c0c02bd725f",
+   "size": 643072,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/F_lp3.rvt": {
+   "path": "experiments/ifc_room/render_probes/F_lp3.rvt",
+   "md5": "a37b1deb5ee5c0d24134d74a5f36059b",
+   "size": 643072,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/F_t1.rvt": {
+   "path": "experiments/ifc_room/render_probes/F_t1.rvt",
+   "md5": "5f6f38666d6260480212f23c4c0e1834",
+   "size": 638976,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3361,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472577": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 39,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  },
+  "experiments/ifc_room/render_probes/F_lp4.rvt": {
+   "path": "experiments/ifc_room/render_probes/F_lp4.rvt",
+   "md5": "ad9dc95f543e7a84e046701b970f5df0",
+   "size": 643072,
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "four_registry_coherent": true,
+   "family_documents": 1,
+   "save_units": 2,
+   "identity_gate": "PASS",
+   "identity_issues": [],
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true
+  }
+ },
+ "control": {
+  "file": "experiments/ifc_room/render_probes/CTRL_ZA_deep_render.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "identical_to": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "base_md5": "56308637529a0d0a95976f5701e2615e"
+ },
+ "probes_manifest": "experiments/ifc_room/render_probes/probes.json",
+ "gate_dry_run": {
+  "ran": true,
+  "admissible": true,
+  "violations": [],
+  "resolved": [
+   {
+    "file": "experiments/ifc_room/render_probes/R_inst_box.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x10e47bd10>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/R_inst_panel.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x10c8cbdd0>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x10707ae40>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/F_msb.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x10c8cad80>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/F_dp1.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x10707a9c0>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/F_dp2.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x10c8ca8d0>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/F_lp1.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x107079040>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/F_lp2.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x11a707e30>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/F_lp3.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x10e479760>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/F_t1.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x10e479ca0>",
+    "base_certification": "None"
+   },
+   {
+    "file": "experiments/ifc_room/render_probes/F_lp4.rvt",
+    "kind": "probe",
+    "base": "<probe_batch.BaseResolution object at 0x11a7058b0>",
+    "base_certification": "None"
+   }
+  ]
+ },
+ "seconds": 34.0,
+ "all_ok": true
+}

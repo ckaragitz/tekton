@@ -1,0 +1,4749 @@
+{
+ "class": "RbsElectricalSystem",
+ "cohort": "",
+ "n_specimens": 188,
+ "per_file": {
+  "racbasicsampleproject": 1,
+  "rmebasicsampleproject": 187
+ },
+ "seq103_classes": {
+  "SerializedDummy": 188
+ },
+ "owned_children": {},
+ "rules": [
+  {
+   "path": "m_pParamValueSetDouble.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pParamValueSetInt.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pParamValueSetAString.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pParamValueSetElementId.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_geomSteps.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pGeomTable.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_constrInfo.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList.#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList.#ptr",
+   "rule": "IDENTICAL",
+   "expect": "CellList",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells.#len",
+   "rule": "CONST_LEN",
+   "expect": 1,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[].#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[].#ptr",
+   "rule": "IDENTICAL",
+   "expect": "ElectricalLoadClassificationsData",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_apparentPowerMap.#len",
+   "rule": "LEN_SET",
+   "expect": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_apparentPowerMap[].first",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_apparentPowerMap[].first",
+   "rule": "IDENTICAL",
+   "expect": "@ElectricalLoadClassification",
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_apparentPowerMap[].second",
+   "rule": "ENUM",
+   "expect": [
+    "nonzero",
+    "zero"
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "vec",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_demandPowerMap.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap.#len",
+   "rule": "LEN_SET",
+   "expect": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].first",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].first",
+   "rule": "IDENTICAL",
+   "expect": "@ElectricalLoadClassification",
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_apparentPowerPhaseA",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    713130.5929278524
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_apparentPowerPhaseB",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    713130.5929278524
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_apparentPowerPhaseC",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    713130.5929278524
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_reactivePowerPhaseA",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    427878.35575671145
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_reactivePowerPhaseB",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    427878.35575671145
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_reactivePowerPhaseC",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    427878.35575671145
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_truePowerPhaseA",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    570504.4743422819
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_truePowerPhaseB",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    570504.4743422819
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_truePowerPhaseC",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    570504.4743422819
+   ],
+   "support": 251,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_trueReactivePowerMap.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_docAccess.m_pDoc",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_docAccess.m_pDoc",
+   "rule": "IDENTICAL",
+   "expect": "@weakref",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_assocLevelId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_famId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_unplacedOwnerId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_ownerDBViewId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_createdPhaseId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_demolishedPhaseId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_designOptionId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_locked",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_moribund",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_dummy",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_baseConnectorIdArray.#len",
+   "rule": "LEN_SET",
+   "expect": [
+    0,
+    1
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr.#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr.#ptr",
+   "rule": "IDENTICAL",
+   "expect": "RbsSystemConnectorManager",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_setDeletedConnectors.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray.#len",
+   "rule": "RANGE",
+   "expect": [
+    1,
+    17
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[].#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[].#ptr",
+   "rule": "IDENTICAL",
+   "expect": "Connector",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_arrRefs.#len",
+   "rule": "CONST_LEN",
+   "expect": 1,
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_arrRefs[].m_id",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_arrRefs[].m_id",
+   "rule": "IDENTICAL",
+   "expect": "@FamilyInstance",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_arrRefs[].m_nIndex",
+   "rule": "RANGE",
+   "expect": [
+    1,
+    50021
+   ],
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_arrRefs[].m_connType",
+   "rule": "ENUM",
+   "expect": [
+    1,
+    4
+   ],
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_pElement",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_pElement",
+   "rule": "IDENTICAL",
+   "expect": "@weakref",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_nIndex",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    16
+   ],
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_mode",
+   "rule": "IDENTICAL",
+   "expect": 4,
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_modifiers.#len",
+   "rule": "CONST_LEN",
+   "expect": 1,
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_modifiers[].#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_modifiers[].#ptr",
+   "rule": "IDENTICAL",
+   "expect": "RbsSystemConnectorModifier",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_modifiers[]->RbsSystemConnectorModifier.m_pConnector",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_modifiers[]->RbsSystemConnectorModifier.m_pConnector",
+   "rule": "IDENTICAL",
+   "expect": "@weakref",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_modifiers.#len",
+   "rule": "CONST_LEN",
+   "expect": 1,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_modifiers[].#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_modifiers[].#ptr",
+   "rule": "IDENTICAL",
+   "expect": "MEPConnectionBehaviorModifier",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_modifiers[]->MEPConnectionBehaviorModifier.m_pConnectorManager",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pConnectorMgr->RbsSystemConnectorManager.m_modifiers[]->MEPConnectionBehaviorModifier.m_pConnectorManager",
+   "rule": "IDENTICAL",
+   "expect": "@weakref",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_rgSections.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_strName",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "str",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_typeId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_nextFreeSectionId",
+   "rule": "IDENTICAL",
+   "expect": 1,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_numberOfElements",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_numberOfElementsInNetwork",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_systemState",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_intermediateData.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_apparentPowerAnglePhaseA",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_apparentPowerAnglePhaseB",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_apparentPowerAnglePhaseC",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_apparentPowerPhaseA",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    1163713.489296717
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_apparentPowerPhaseB",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    1171431.9922874728
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_apparentPowerPhaseC",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    1135235.5334427468
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_currentAnglePhaseA",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_currentAnglePhaseB",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_currentAnglePhaseC",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_currentPhaseA",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_currentPhaseB",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_currentPhaseC",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_truePowerPhaseA",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    1031246.1249922499
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_truePowerPhaseB",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    1039162.9811037399
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_apparentPerPhaseData.m_truePowerPhaseC",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    999976.9652317081
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_customizePathNodes.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pathNodes.#len",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    30
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_strDescription",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "str",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_strLoadClassifications",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "str",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_strNotes",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "str",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cableType",
+   "rule": "ENUM",
+   "expect": [
+    null,
+    "@RbsCableType"
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_dApparentLoad",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    3470321.6720965025
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_dFrame",
+   "rule": "IDENTICAL",
+   "expect": 400.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_dLength",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    458.75739571486633
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_dRating",
+   "rule": "ENUM",
+   "expect": [
+    20.0,
+    200.0,
+    30.0
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_dTrueLoad",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    3070386.0713276984
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_dVoltage",
+   "rule": "ENUM",
+   "expect": [
+    -1.0,
+    1291.6692500051665,
+    2238.893366675622,
+    2981.603185428593,
+    5166.677000020666
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_dVoltageDrop",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    143.7238200102029
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_cableSizeElementId",
+   "rule": "ENUM",
+   "expect": [
+    null,
+    "@CustomElement"
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pathOffset",
+   "rule": "IDENTICAL",
+   "expect": 9.0223097,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_pathOffsetAllDevice",
+   "rule": "IDENTICAL",
+   "expect": 30000.0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "float",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_circuitConnType",
+   "rule": "ENUM",
+   "expect": [
+    0,
+    1
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_circuitPathMode",
+   "rule": "IDENTICAL",
+   "expect": 2,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_circuitType",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_nGroupNumber",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_nNamingIndex",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_nNumRuns",
+   "rule": "IDENTICAL",
+   "expect": 1,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_nPhaseInfo",
+   "rule": "ENUM",
+   "expect": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_nPoles",
+   "rule": "ENUM",
+   "expect": [
+    1,
+    3
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_nStartSlot",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    38
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_systemType",
+   "rule": "ENUM",
+   "expect": [
+    14,
+    6
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_bReserved",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "m_bSlotLocked",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_regenHistory.m_historyMap.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_categroryId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_categroryId",
+   "rule": "IDENTICAL",
+   "expect": -2008037,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_familyId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_ownerViewId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_designOptionId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_unplacedOwnerId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_miscId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_viewRules.m_nVisibleViewFlags",
+   "rule": "IDENTICAL",
+   "expect": -4225,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_abFlags4Bytes",
+   "rule": "ENUM",
+   "expect": [
+    4106,
+    4122
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_classDef.m_ref",
+   "rule": "IDENTICAL",
+   "expect": "RbsElectricalSystem",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "classref",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_pBBox.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents.#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents.#ptr",
+   "rule": "IDENTICAL",
+   "expect": "ElementParents",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "ptr",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deletion.#len",
+   "rule": "RANGE",
+   "expect": [
+    3,
+    22
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deletion[]",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 1903,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deletion[]",
+   "rule": "ENUM",
+   "expect": [
+    "@CustomElement",
+    "@ElectricalLoadClassification",
+    "@FamilyInstance",
+    "@RbsCableType",
+    "@RbsElectricalSystem"
+   ],
+   "support": 1903,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_regenOnly.#len",
+   "rule": "LEN_SET",
+   "expect": [
+    0,
+    2,
+    3,
+    4,
+    5
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_regenWildcards.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_nonDetermRegenChildren.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_dependencyParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_appearanceParents.#len",
+   "rule": "RANGE",
+   "expect": [
+    1,
+    17
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_appearanceParents[]",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_appearanceParents[]",
+   "rule": "IDENTICAL",
+   "expect": "@FamilyInstance",
+   "support": 1090,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deferredParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 1,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deferredParents[]",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deferredParents[]",
+   "rule": "IDENTICAL",
+   "expect": "@MEPSystemTracker",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deferredPropagationParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_computedParametersParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_hasNonDetermRegenChildren",
+   "rule": "IDENTICAL",
+   "expect": true,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "header",
+   "present": 188
+  },
+  {
+   "path": "ETR.has_owner",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 188
+  },
+  {
+   "path": "ETR.owner_class",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "elemtable",
+   "present": 188
+  },
+  {
+   "path": "ETR.owned.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "len",
+   "scope": "elemtable",
+   "present": 188
+  },
+  {
+   "path": "ETR.created_at_birth",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 188
+  },
+  {
+   "path": "ETR.id_band",
+   "rule": "ENUM",
+   "expect": [
+    "<500k",
+    "<5M"
+   ],
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "classref",
+   "scope": "elemtable",
+   "present": 188
+  },
+  {
+   "path": "ETR.renumbered",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 188
+  },
+  {
+   "path": "ETR.usermod_never",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 188
+  },
+  {
+   "path": "ETR.partition_id",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "int",
+   "scope": "elemtable",
+   "present": 188
+  },
+  {
+   "path": "REP.seq103_class",
+   "rule": "IDENTICAL",
+   "expect": "SerializedDummy",
+   "support": 188,
+   "files": 2,
+   "total": 188,
+   "ftype": "classref",
+   "scope": "rep",
+   "present": 188
+  },
+  {
+   "path": "m_baseConnectorIdArray[].m_id",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 150,
+   "files": 1,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 150
+  },
+  {
+   "path": "m_baseConnectorIdArray[].m_id",
+   "rule": "IDENTICAL",
+   "expect": "@RbsElectricalSystem",
+   "support": 150,
+   "files": 1,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 150
+  },
+  {
+   "path": "m_baseConnectorIdArray[].m_nIndex",
+   "rule": "RANGE",
+   "expect": [
+    1,
+    16
+   ],
+   "support": 150,
+   "files": 1,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 150
+  },
+  {
+   "path": "m_baseConnectorIdArray[].m_connType",
+   "rule": "IDENTICAL",
+   "expect": 4,
+   "support": 150,
+   "files": 1,
+   "total": 188,
+   "ftype": "int",
+   "scope": "body",
+   "present": 150
+  },
+  {
+   "path": "m_pathNodes[].m_elemId",
+   "rule": "ENUM",
+   "expect": [
+    null,
+    "@FamilyInstance"
+   ],
+   "support": 1507,
+   "files": 1,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 150
+  },
+  {
+   "path": "m_pathNodes[].m_position",
+   "rule": "IDENTICAL",
+   "expect": "nonzero",
+   "support": 1507,
+   "files": 1,
+   "total": 188,
+   "ftype": "vec",
+   "scope": "body",
+   "present": 150
+  },
+  {
+   "path": "m_pathNodes[].m_isVirtualNode",
+   "rule": "ENUM",
+   "expect": [
+    false,
+    true
+   ],
+   "support": 1507,
+   "files": 1,
+   "total": 188,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 150
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_regenOnly[]",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 572,
+   "files": 1,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 187
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_regenOnly[]",
+   "rule": "ENUM",
+   "expect": [
+    "@CircuitNamingTypeSetting",
+    "@ElectricalSetting",
+    "@FamilySymbol"
+   ],
+   "support": 572,
+   "files": 1,
+   "total": 188,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 187
+  }
+ ],
+ "paths": {
+  "ETR.created_at_birth": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "false": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "ETR.has_owner": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "false": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "ETR.id_band": {
+   "ftype": "classref",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"<5M\"": 115,
+    "\"<500k\"": 73
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "ETR.owned.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "ETR.owner_class": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "ETR.partition_id": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "ETR.renumbered": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "false": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "ETR.usermod_never": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "false": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_abFlags4Bytes": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "4106": 32,
+    "4122": 156
+   },
+   "overflow": false,
+   "num_min": 4106,
+   "num_max": 4122,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_categroryId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "-2008037": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_classDef.m_ref": {
+   "ftype": "classref",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"RbsElectricalSystem\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_designOptionId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_familyId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_miscId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_ownerViewId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_pBBox.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_appearanceParents.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 17,
+    "10": 19,
+    "11": 6,
+    "9": 29,
+    "7": 24,
+    "8": 10,
+    "3": 2,
+    "6": 7,
+    "5": 6,
+    "14": 1,
+    "2": 60,
+    "15": 1
+   },
+   "overflow": true,
+   "num_min": 1,
+   "num_max": 17,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_appearanceParents[]": {
+   "ftype": "eid",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "\"@FamilyInstance\"": 1090
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_computedParametersParents.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_deferredParents.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 188
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_deferredParents[]": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"@MEPSystemTracker\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_deferredPropagationParents.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_deletion.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "3": 1,
+    "14": 12,
+    "15": 15,
+    "13": 33,
+    "11": 17,
+    "12": 11,
+    "7": 9,
+    "10": 9,
+    "9": 8,
+    "19": 1,
+    "16": 3,
+    "6": 47
+   },
+   "overflow": true,
+   "num_min": 3,
+   "num_max": 22,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_deletion[]": {
+   "ftype": "eid",
+   "n_seen": 1903,
+   "n_null": 0,
+   "values": {
+    "\"@ElectricalLoadClassification\"": 251,
+    "\"@FamilyInstance\"": 1090,
+    "\"@RbsElectricalSystem\"": 188,
+    "\"@RbsCableType\"": 187,
+    "\"@CustomElement\"": 187
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_dependencyParents.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_hasNonDetermRegenChildren": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "true": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_nonDetermRegenChildren.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_regenOnly.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 1,
+    "3": 135,
+    "4": 21,
+    "5": 7,
+    "2": 24
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 5,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents->ElementParents.m_regenOnly[]": {
+   "ftype": "eid",
+   "n_seen": 572,
+   "n_null": 0,
+   "values": {
+    "\"@FamilySymbol\"": 235,
+    "\"@ElectricalSetting\"": 187,
+    "\"@CircuitNamingTypeSetting\"": 150
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "rmebasicsampleproject"
+   ],
+   "present": 187
+  },
+  "HDR.m_parents->ElementParents.m_regenWildcards.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_parents.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"ElementParents\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_regenHistory.m_historyMap.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_unplacedOwnerId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "HDR.m_viewRules.m_nVisibleViewFlags": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "-4225": 188
+   },
+   "overflow": false,
+   "num_min": -4225,
+   "num_max": -4225,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "REP.seq103_class": {
+   "ftype": "classref",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"SerializedDummy\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_apparentPowerAnglePhaseA": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 188
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_apparentPowerAnglePhaseB": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 188
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_apparentPowerAnglePhaseC": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 188
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_apparentPowerPhaseA": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 72,
+    "17437.53487506975": 3,
+    "19375.0387500775": 1,
+    "15500.031000061997": 9,
+    "11625.023250046499": 5,
+    "7750.015500031": 1,
+    "5532.649954188797": 1,
+    "4606.953658351761": 1,
+    "7427.098187529708": 1,
+    "9687.51937503875": 7,
+    "5381.9552083548615": 1,
+    "6458.346250025834": 2
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 1163713.489296717,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_apparentPowerPhaseB": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 94,
+    "17437.53487506975": 2,
+    "19375.0387500775": 3,
+    "13562.527125054248": 1,
+    "11625.023250046499": 5,
+    "15500.031000061997": 7,
+    "7750.015500031": 1,
+    "7340.98690419603": 1,
+    "5511.122133355378": 1,
+    "8611.128333367778": 2,
+    "2002.0873375080082": 1,
+    "8008.349350032033": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 1171431.9922874728,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_apparentPowerPhaseC": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 95,
+    "17437.53487506975": 2,
+    "19375.0387500775": 2,
+    "3875.0077500155": 3,
+    "11625.023250046499": 4,
+    "9687.51937503875": 3,
+    "15500.031000061997": 5,
+    "13562.527125054248": 2,
+    "5338.899566688022": 2,
+    "6458.346250025834": 1,
+    "8008.349350032033": 1,
+    "6006.262012524025": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 1135235.5334427468,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_currentAnglePhaseA": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 188
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_currentAnglePhaseB": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 188
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_currentAnglePhaseC": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 188
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_currentPhaseA": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 188
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_currentPhaseB": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 188
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_currentPhaseC": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 188
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_intermediateData.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_truePowerPhaseA": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 72,
+    "17437.53487506975": 3,
+    "19375.0387500775": 1,
+    "15500.031000061997": 9,
+    "11625.023250046499": 5,
+    "7750.015500031": 1,
+    "5256.017456479356": 1,
+    "4376.605975434172": 1,
+    "7055.743278153221": 1,
+    "9203.143406286812": 7,
+    "5112.857447937118": 1,
+    "6135.428937524542": 2
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 1031246.1249922499,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_truePowerPhaseB": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 94,
+    "17437.53487506975": 2,
+    "19375.0387500775": 3,
+    "13562.527125054248": 1,
+    "11625.023250046499": 5,
+    "15500.031000061997": 7,
+    "7750.015500031": 1,
+    "6973.9375589862275": 1,
+    "5235.566026687608": 1,
+    "8180.571916699389": 2,
+    "1901.9829706326077": 1,
+    "7607.93188253043": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 1039162.9811037399,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_apparentPerPhaseData.m_truePowerPhaseC": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 95,
+    "17437.53487506975": 2,
+    "19375.0387500775": 2,
+    "3875.0077500155": 2,
+    "11625.023250046499": 4,
+    "9687.51937503875": 2,
+    "15500.031000061997": 5,
+    "13562.527125054248": 2,
+    "9203.143406286812": 1,
+    "5071.95458835362": 2,
+    "6135.428937524542": 1,
+    "7607.93188253043": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 999976.9652317081,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_assocLevelId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_bReserved": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "false": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_bSlotLocked": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "false": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_baseConnectorIdArray.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 38,
+    "1": 150
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_baseConnectorIdArray[].m_connType": {
+   "ftype": "int",
+   "n_seen": 150,
+   "n_null": 0,
+   "values": {
+    "4": 150
+   },
+   "overflow": false,
+   "num_min": 4,
+   "num_max": 4,
+   "files": [
+    "rmebasicsampleproject"
+   ],
+   "present": 150
+  },
+  "m_baseConnectorIdArray[].m_id": {
+   "ftype": "eid",
+   "n_seen": 150,
+   "n_null": 0,
+   "values": {
+    "\"@RbsElectricalSystem\"": 150
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "rmebasicsampleproject"
+   ],
+   "present": 150
+  },
+  "m_baseConnectorIdArray[].m_nIndex": {
+   "ftype": "int",
+   "n_seen": 150,
+   "n_null": 0,
+   "values": {
+    "9": 16,
+    "10": 11,
+    "11": 6,
+    "8": 24,
+    "7": 10,
+    "2": 2,
+    "6": 13,
+    "5": 3,
+    "4": 2,
+    "12": 1,
+    "14": 1,
+    "16": 1
+   },
+   "overflow": true,
+   "num_min": 1,
+   "num_max": 16,
+   "files": [
+    "rmebasicsampleproject"
+   ],
+   "present": 150
+  },
+  "m_cableSizeElementId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 1,
+   "values": {
+    "\"NULL\"": 1,
+    "\"@CustomElement\"": 187
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cableType": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 1,
+   "values": {
+    "\"NULL\"": 1,
+    "\"@RbsCableType\"": 187
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 188
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_apparentPowerMap.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 139,
+    "2": 43,
+    "4": 3,
+    "6": 1,
+    "3": 1,
+    "5": 1
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 6,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_apparentPowerMap[].first": {
+   "ftype": "eid",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "\"@ElectricalLoadClassification\"": 251
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_apparentPowerMap[].second": {
+   "ftype": "vec",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "\"zero\"": 93,
+    "\"nonzero\"": 158
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_demandPowerMap.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 139,
+    "2": 43,
+    "4": 3,
+    "6": 1,
+    "3": 1,
+    "5": 1
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 6,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].first": {
+   "ftype": "eid",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "\"@ElectricalLoadClassification\"": 251
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_apparentPowerPhaseA": {
+   "ftype": "float",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "0.0": 117,
+    "17437.53487506975": 3,
+    "19375.0387500775": 1,
+    "15500.031000061997": 9,
+    "11625.023250046499": 5,
+    "7750.015500031": 1,
+    "5532.649954188796": 1,
+    "4606.95365835176": 1,
+    "7427.098187529707": 1,
+    "9687.51937503875": 7,
+    "5381.9552083548615": 1,
+    "6458.346250025834": 2
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 713130.5929278524,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_apparentPowerPhaseB": {
+   "ftype": "float",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "0.0": 143,
+    "17437.53487506975": 2,
+    "19375.0387500775": 3,
+    "13562.527125054248": 1,
+    "11625.023250046499": 5,
+    "15500.031000061997": 7,
+    "7750.015500031": 1,
+    "7340.986904196029": 1,
+    "5511.122133355378": 1,
+    "8611.128333367778": 2,
+    "2002.0873375080082": 1,
+    "8008.349350032032": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 713130.5929278524,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_apparentPowerPhaseC": {
+   "ftype": "float",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "0.0": 144,
+    "17437.53487506975": 2,
+    "19375.0387500775": 2,
+    "3875.0077500155": 2,
+    "11625.023250046499": 4,
+    "9687.51937503875": 3,
+    "15500.031000061997": 5,
+    "13562.527125054248": 2,
+    "5338.899566688022": 2,
+    "6458.346250025834": 1,
+    "8008.349350032032": 1,
+    "6006.262012524025": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 713130.5929278524,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_reactivePowerPhaseA": {
+   "ftype": "float",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "0.0": 150,
+    "1727.569394487402": 1,
+    "1438.5208187560468": 1,
+    "2319.110665751571": 1,
+    "3024.9269553281356": 7,
+    "1680.5149751822978": 1,
+    "2016.6179702187574": 2,
+    "3361.0299503645956": 1,
+    "2527.494522674176": 1,
+    "1814.9561731968815": 1,
+    "4537.390432992203": 1,
+    "1008.3089851093786": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 427878.35575671145,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_reactivePowerPhaseB": {
+   "ftype": "float",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "0.0": 174,
+    "2292.2224261486544": 1,
+    "1720.847334586673": 1,
+    "2688.8239602916765": 2,
+    "625.1515707678147": 1,
+    "2500.6062830712594": 1,
+    "1667.0708553808395": 3,
+    "1250.3031415356295": 1,
+    "2218.279767240633": 1,
+    "806.6471880875029": 1,
+    "11373.147746295488": 18,
+    "14595.86252505838": 14
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 427878.35575671145,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_reactivePowerPhaseC": {
+   "ftype": "float",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "0.0": 175,
+    "3024.9269553281356": 1,
+    "1667.0708553808395": 2,
+    "2016.6179702187574": 1,
+    "2500.6062830712594": 1,
+    "1875.4547123034445": 1,
+    "1008.3089851093786": 2,
+    "1250.3031415356295": 1,
+    "1236.8590217341712": 1,
+    "1209.9707821312543": 1,
+    "11373.147746295488": 18,
+    "14595.86252505838": 14
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 427878.35575671145,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_truePowerPhaseA": {
+   "ftype": "float",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "0.0": 117,
+    "17437.53487506975": 3,
+    "19375.0387500775": 1,
+    "15500.031000061997": 9,
+    "11625.023250046499": 5,
+    "7750.015500031": 1,
+    "5256.017456479356": 1,
+    "4376.605975434172": 1,
+    "7055.743278153221": 1,
+    "9203.143406286812": 7,
+    "5112.857447937118": 1,
+    "6135.428937524542": 2
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 570504.4743422819,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_truePowerPhaseB": {
+   "ftype": "float",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "0.0": 143,
+    "17437.53487506975": 2,
+    "19375.0387500775": 3,
+    "13562.527125054248": 1,
+    "11625.023250046499": 5,
+    "15500.031000061997": 7,
+    "7750.015500031": 1,
+    "6973.9375589862275": 1,
+    "5235.566026687608": 1,
+    "8180.571916699389": 2,
+    "1901.9829706326077": 1,
+    "7607.93188253043": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 570504.4743422819,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_perPhasePowerMap[].second.m_truePowerPhaseC": {
+   "ftype": "float",
+   "n_seen": 251,
+   "n_null": 0,
+   "values": {
+    "0.0": 144,
+    "17437.53487506975": 2,
+    "19375.0387500775": 2,
+    "3875.0077500155": 2,
+    "11625.023250046499": 4,
+    "9687.51937503875": 2,
+    "15500.031000061997": 5,
+    "13562.527125054248": 2,
+    "9203.143406286812": 1,
+    "5071.95458835362": 2,
+    "6135.428937524542": 1,
+    "7607.93188253043": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 570504.4743422819,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[]->ElectricalLoadClassificationsData.m_trueReactivePowerMap.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList->CellList.m_cells[].#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"ElectricalLoadClassificationsData\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_cellList.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"CellList\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_circuitConnType": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 42,
+    "1": 146
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_circuitPathMode": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "2": 188
+   },
+   "overflow": false,
+   "num_min": 2,
+   "num_max": 2,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_circuitType": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_constrInfo.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_createdPhaseId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_customizePathNodes.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_dApparentLoad": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 11,
+    "17437.53487506975": 7,
+    "19375.0387500775": 6,
+    "15500.031000061997": 21,
+    "11625.023250046499": 14,
+    "13562.527125054248": 3,
+    "3875.0077500155": 3,
+    "9687.51937503875": 10,
+    "7750.015500031": 2,
+    "5532.649954188797": 1,
+    "4606.953658351761": 1,
+    "7427.098187529708": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 3470321.6720965025,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_dFrame": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "400.0": 188
+   },
+   "overflow": false,
+   "num_min": 400.0,
+   "num_max": 400.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_dLength": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 38,
+    "79.90353413896804": 1,
+    "85.39692280483536": 1,
+    "249.03011952450981": 1,
+    "226.52107398108652": 1,
+    "321.12051760061775": 1,
+    "181.96205176059235": 1,
+    "117.41253843132196": 1,
+    "67.27853002658223": 1,
+    "105.56682892925274": 1,
+    "124.10156506260915": 1,
+    "130.5655167096519": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 458.75739571486633,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_dRating": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "20.0": 146,
+    "30.0": 41,
+    "200.0": 1
+   },
+   "overflow": false,
+   "num_min": 20.0,
+   "num_max": 200.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_dTrueLoad": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 11,
+    "17437.53487506975": 7,
+    "19375.0387500775": 6,
+    "15500.031000061997": 21,
+    "11625.023250046499": 14,
+    "13562.527125054248": 3,
+    "3875.0077500155": 2,
+    "9687.51937503875": 2,
+    "7750.015500031": 2,
+    "5256.017456479356": 1,
+    "4376.605975434172": 1,
+    "7055.743278153221": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 3070386.0713276984,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_dVoltage": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "-1.0": 1,
+    "1291.6692500051665": 59,
+    "2981.603185428593": 55,
+    "2238.893366675622": 54,
+    "5166.677000020666": 19
+   },
+   "overflow": false,
+   "num_min": -1.0,
+   "num_max": 5166.677000020666,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_dVoltageDrop": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0.0": 47,
+    "18.11316862146456": 1,
+    "21.50939295025381": 1,
+    "22.43610220311571": 1,
+    "22.675748694812405": 1,
+    "23.331459269838422": 1,
+    "16.393676388158642": 1,
+    "23.658673811259003": 1,
+    "15.6422895157594": 1,
+    "18.612788751166374": 1,
+    "18.754886529859867": 1,
+    "20.65931422299941": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 143.7238200102029,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_demolishedPhaseId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_designOptionId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_docAccess.m_pDoc": {
+   "ftype": "weak",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"@weakref\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_dummy": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "false": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_famId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_geomSteps.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_locked": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "false": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_moribund": {
+   "ftype": "bool",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "false": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_nGroupNumber": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_nNamingIndex": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_nNumRuns": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 188
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_nPhaseInfo": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 1,
+    "1": 124,
+    "2": 33,
+    "3": 30
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 3,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_nPoles": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 115,
+    "3": 73
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 3,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_nStartSlot": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 4,
+    "1": 21,
+    "2": 15,
+    "3": 7,
+    "4": 7,
+    "5": 5,
+    "6": 6,
+    "7": 14,
+    "8": 13,
+    "9": 6,
+    "10": 6,
+    "11": 6
+   },
+   "overflow": true,
+   "num_min": 0,
+   "num_max": 38,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_nextFreeSectionId": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 188
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_number": {
+   "ftype": "str",
+   "n_seen": 188,
+   "n_null": 38,
+   "values": {
+    "\"NULL\"": 38,
+    "\"1\"": 9,
+    "\"2\"": 5,
+    "\"3\"": 5,
+    "\"4\"": 5,
+    "\"5\"": 4,
+    "\"6\"": 5,
+    "\"7\"": 6,
+    "\"8\"": 5,
+    "\"9\"": 5,
+    "\"10\"": 5,
+    "\"11\"": 5
+   },
+   "overflow": true,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_numberOfElements": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_numberOfElementsInNetwork": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_ownerDBViewId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 17,
+    "10": 19,
+    "11": 6,
+    "9": 29,
+    "7": 24,
+    "8": 10,
+    "3": 2,
+    "6": 7,
+    "5": 6,
+    "14": 1,
+    "2": 60,
+    "15": 1
+   },
+   "overflow": true,
+   "num_min": 1,
+   "num_max": 17,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_arrRefs.#len": {
+   "ftype": "len",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "1": 1090
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_arrRefs[].m_connType": {
+   "ftype": "int",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "1": 940,
+    "4": 150
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 4,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_arrRefs[].m_id": {
+   "ftype": "eid",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "\"@FamilyInstance\"": 1090
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_arrRefs[].m_nIndex": {
+   "ftype": "int",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "1": 894,
+    "50001": 13,
+    "50000": 18,
+    "50016": 5,
+    "50015": 5,
+    "50014": 5,
+    "50003": 11,
+    "50013": 5,
+    "50012": 7,
+    "50011": 7,
+    "50005": 7,
+    "50004": 7
+   },
+   "overflow": true,
+   "num_min": 1,
+   "num_max": 50021,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_mode": {
+   "ftype": "int",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "4": 1090
+   },
+   "overflow": false,
+   "num_min": 4,
+   "num_max": 4,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_modifiers.#len": {
+   "ftype": "len",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "1": 1090
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_modifiers[]->RbsSystemConnectorModifier.m_pConnector": {
+   "ftype": "weak",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "\"@weakref\"": 1090
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_modifiers[].#ptr": {
+   "ftype": "ptr",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "\"RbsSystemConnectorModifier\"": 1090
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_nIndex": {
+   "ftype": "int",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "0": 183,
+    "1": 152,
+    "2": 108,
+    "3": 106,
+    "4": 106,
+    "5": 102,
+    "6": 101,
+    "7": 79,
+    "8": 65,
+    "9": 39,
+    "10": 23,
+    "11": 11
+   },
+   "overflow": true,
+   "num_min": 0,
+   "num_max": 16,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[]->Connector.m_pElement": {
+   "ftype": "weak",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "\"@weakref\"": 1090
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_connPtrArray[].#ptr": {
+   "ftype": "ptr",
+   "n_seen": 1090,
+   "n_null": 0,
+   "values": {
+    "\"Connector\"": 1090
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_modifiers.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "1": 188
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_modifiers[]->MEPConnectionBehaviorModifier.m_pConnectorManager": {
+   "ftype": "weak",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"@weakref\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_modifiers[].#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"MEPConnectionBehaviorModifier\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr->RbsSystemConnectorManager.m_setDeletedConnectors.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pConnectorMgr.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"RbsSystemConnectorManager\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pGeomTable.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pParamValueSetAString.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pParamValueSetDouble.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pParamValueSetElementId.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pParamValueSetInt.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pathNodes.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 38,
+    "19": 6,
+    "21": 1,
+    "16": 6,
+    "17": 5,
+    "14": 25,
+    "12": 16,
+    "13": 5,
+    "5": 2,
+    "15": 6,
+    "8": 1,
+    "10": 5
+   },
+   "overflow": true,
+   "num_min": 0,
+   "num_max": 30,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pathNodes[].m_elemId": {
+   "ftype": "eid",
+   "n_seen": 1507,
+   "n_null": 1357,
+   "values": {
+    "\"@FamilyInstance\"": 150,
+    "\"NULL\"": 1357
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "rmebasicsampleproject"
+   ],
+   "present": 150
+  },
+  "m_pathNodes[].m_isVirtualNode": {
+   "ftype": "bool",
+   "n_seen": 1507,
+   "n_null": 0,
+   "values": {
+    "false": 150,
+    "true": 1357
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "rmebasicsampleproject"
+   ],
+   "present": 150
+  },
+  "m_pathNodes[].m_position": {
+   "ftype": "vec",
+   "n_seen": 1507,
+   "n_null": 0,
+   "values": {
+    "\"nonzero\"": 1507
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "rmebasicsampleproject"
+   ],
+   "present": 150
+  },
+  "m_pathOffset": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "9.0223097": 188
+   },
+   "overflow": false,
+   "num_min": 9.0223097,
+   "num_max": 9.0223097,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_pathOffsetAllDevice": {
+   "ftype": "float",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "30000.0": 188
+   },
+   "overflow": false,
+   "num_min": 30000.0,
+   "num_max": 30000.0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_rgSections.#len": {
+   "ftype": "len",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_strDescription": {
+   "ftype": "str",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"Communication\"": 1,
+    "\"Power Technology 28\"": 1,
+    "\"Power Cleaning 27\"": 1,
+    "\"Power Washing Room 25\"": 1,
+    "\"Power MZR 20\"": 1,
+    "\"Power WF 51\"": 1,
+    "\"Power Cafeteria 50\"": 1,
+    "\"Power Workshop 4\"": 1,
+    "\"Power Stock 3\"": 1,
+    "\"Power CH/PH I 2\"": 1,
+    "\"Power CH/PH Stock 1\"": 1,
+    "\"Power Leader 6\"": 1
+   },
+   "overflow": true,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_strLoadClassifications": {
+   "ftype": "str",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "\"Other\"": 11,
+    "\"Receptacles\"": 60,
+    "\"Lighting; Other\"": 38,
+    "\"Lighting\"": 18,
+    "\"HVAC\"": 47,
+    "\"Cooling\"": 2,
+    "\"HVAC; Receptacles\"": 4,
+    "\"HVAC; Other; Receptacles; Water Heater\"": 2,
+    "\"HVAC; Lighting; Other; Receptacles; Water Heater; Cooling\"": 1,
+    "\"Other; Receptacles\"": 1,
+    "\"Water Heater\"": 1,
+    "\"HVAC; Other; Receptacles\"": 1
+   },
+   "overflow": true,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_strName": {
+   "ftype": "str",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_strNotes": {
+   "ftype": "str",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_systemState": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "0": 188
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_systemType": {
+   "ftype": "int",
+   "n_seen": 188,
+   "n_null": 0,
+   "values": {
+    "14": 1,
+    "6": 187
+   },
+   "overflow": false,
+   "num_min": 6,
+   "num_max": 14,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_typeId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  },
+  "m_unplacedOwnerId": {
+   "ftype": "eid",
+   "n_seen": 188,
+   "n_null": 188,
+   "values": {
+    "\"NULL\"": 188
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rmebasicsampleproject"
+   ],
+   "present": 188
+  }
+ },
+ "notes": []
+}

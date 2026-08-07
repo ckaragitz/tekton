@@ -1,0 +1,755 @@
+{
+ "rung": "Y2",
+ "label": "BrowserOrganization set + system-navigator constellation -> ours, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+ "base": {
+  "file": "experiments/genesis2025/B2025_K4.rvt",
+  "certification": null,
+  "lineage": ""
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+  "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+  "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+  "certification": null
+ },
+ "parent": "experiments/genesis2025/subst/Y1.rvt",
+ "parent_rung": "Y1",
+ "out": "experiments/genesis2025/subst/Y2.rvt",
+ "description": "Y1 with the browser layer's OBJECTS replaced in place: the 4 per-tree DEFAULT BrowserOrganizations -> our defaults (same ids), the MEP system-navigator view + its Viewer / Viewport / DBDrawing -> our navigator constellation by role (same ids, so DBViewInfo / DBDrawingInfo / the navigator's owned rows index them unchanged), ReconcileBrowserSettingsElem + ConstructionSetProject -> ours; our two house schemes land in two of the seven non-default sample scheme slots (slot-fill); the remaining sample schemes STAY (residue).",
+ "tests": "Whether the reader accepts our browser-organization / navigator OBJECTS at Autodesk's own registrations.",
+ "if_PASS": "Our browser / navigator constructors are reader-accepted.",
+ "if_FAIL": "One of our browser / navigator objects is rejected -- bisect the organizations from the navigator (two single-class in-place probes).",
+ "stages": [],
+ "parent_context": {
+  "host_elements": 3333,
+  "watermark": 1472011
+ },
+ "candidates_old_by_class": {
+  "BrowserOrganization": 10,
+  "RbsDbViewSystemNavigator": 1,
+  "Viewer": 1,
+  "Viewport": 1,
+  "DBDrawing": 1,
+  "ConstructionSetProject": 1,
+  "ReconcileBrowserSettingsElem": 1
+ },
+ "our_records_by_class": {
+  "BrowserOrganization": 6,
+  "ReconcileBrowserSettingsElem": 1,
+  "ConstructionSetProject": 1,
+  "RbsDbViewSystemNavigator": 1,
+  "Viewer": 1,
+  "Viewport": 1,
+  "DBDrawing": 1
+ },
+ "build_notes": [
+  "10 old organizations; defaults per tree {0: 24945, 1: 24946, 3: 1468599}; ours [(0, 1500000), (1, 1500001), (3, 1500002), (4, 1500003), (0, 1500004), (1, 1500005)]",
+  "navigator constellation [69851, 69852, 69853, 69854] (['RbsDbViewSystemNavigator', 'Viewer', 'Viewport', 'DBDrawing']) -> ours {'RbsDbViewSystemNavigator': 1500008, 'Viewer': 1500009, 'Viewport': 1500010, 'DBDrawing': 1500011}; wiring {'phase_id': -1, 'phase_filter_id': -1, 'sun_settings_id': -1, 'invisible_style_id': -1, 'not_silhouette_style_id': -1, 'all_phases_id': 1, 'units_id': 19236, 'workset_visibility_id': 113134, 'mep_system_tracker_id': 130510, 'excluded_categories': []}",
+  "[port2025] 12 records adapted to the Revit-2025 schema (2025 class ordinals, confirmed field maps; rvt.genesis.port2025); 0 record(s) of 2026-only classes emit nothing on 2025"
+ ],
+ "build_info": {
+  "old_defaults_by_type": {
+   "0": 24945,
+   "1": 24946,
+   "3": 1468599
+  },
+  "our_defaults_by_type": {
+   "0": 1500000,
+   "1": 1500001,
+   "3": 1500002,
+   "4": 1500003
+  },
+  "house_schemes": [
+   1500004,
+   1500005
+  ],
+  "port2025": {
+   "adapted": 14,
+   "dropped_2026_only": []
+  }
+ },
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 12,
+  "by_match": {
+   "role": 9,
+   "donor": 3
+  },
+  "landed_by_class": {
+   "BrowserOrganization": 6,
+   "ReconcileBrowserSettingsElem": 1,
+   "ConstructionSetProject": 1,
+   "RbsDbViewSystemNavigator": 1,
+   "Viewer": 1,
+   "Viewport": 1,
+   "DBDrawing": 1
+  },
+  "dropped_ours": 0,
+  "residue_olds": 4,
+  "class_mismatch": [],
+  "protected_slots_from_earlier_rungs": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 6,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 12,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 12,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3333,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/20"
+  ],
+  "seconds": 1.9
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/20"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   24945,
+   24946,
+   24947,
+   26012,
+   26013,
+   69851,
+   69853,
+   99928,
+   116120
+  ],
+  "records_changed_count": 9,
+  "records_changed_by_seq": {
+   "102": 9
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 12,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 3,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 24945,
+    "len_ours": 199,
+    "len_parent": 219,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_paramId",
+      "ours": "-1",
+      "parent": "-1012106"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 24946,
+    "len_ours": 187,
+    "len_parent": 207,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 24947,
+    "len_ours": 187,
+    "len_parent": 279,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_bDefault",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_filters[len]",
+      "ours": 0,
+      "parent": 1
+     },
+     {
+      "path": ".m_folderDefinitions[len]",
+      "ours": 0,
+      "parent": 1
+     },
+     {
+      "path": ".m_sortParamId",
+      "ours": "-1",
+      "parent": "-1005112"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'all'",
+      "parent": "'not on sheets'"
+     },
+     {
+      "path": ".m_type",
+      "ours": "4",
+      "parent": "0"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 26012,
+    "len_ours": 249,
+    "len_parent": 235,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_paramId",
+      "ours": "-1",
+      "parent": "-1012102"
+     },
+     {
+      "path": ".m_folderDefinitions[1].m_paramId",
+      "ours": "-1",
+      "parent": "-1012106"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Discipline / Phase'",
+      "parent": "'Phase'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 18,
+    "blocks_out": 18
+   },
+   {
+    "what": "3 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     69852,
+     69854,
+     1468599
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 12,
+  "slots_with_registry_surface": 10,
+  "positional_uet_slots": [
+   {
+    "slot": 116120,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[32]"
+    ]
+   }
+  ],
+  "surface_examples": [
+   {
+    "slot": 24945,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgViews",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 24946,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgSheets",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 24947,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26012,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26013,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 69851,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewSystemNavigatorId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 69854,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 99928,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 2
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 12,
+  "pairs_ok": 12,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 24945,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 247,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 24946,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 247,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 24947,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 247,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 26012,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 219,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 26013,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 219,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 69851,
+   "class": "RbsDbViewSystemNavigator",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 346,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 23,
+   "records": 10002,
+   "elements_decoded": 3333,
+   "decode_failures": 1,
+   "refs_checked": 52257
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis2025/subst/Y2.rvt",
+  "elements": 3333,
+  "file_size": 851968,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "classes_top": {
+   "GStyleElem": 1451,
+   "ParamElemExternal": 466,
+   "CategoryElem": 209,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "MaterialElem": 23,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 10,
+   "SectionAttributes": 10,
+   "PenWidthTableElem": 9,
+   "FillPatternElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "ColorFillSchema": 9
+  }
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500000,
+   "slot": 24945,
+   "class": "BrowserOrganization",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "all"
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 24946,
+   "class": "BrowserOrganization",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "all"
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 24947,
+   "class": "BrowserOrganization",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": "all"
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 26012,
+   "class": "BrowserOrganization",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": "GEN Discipline / Phase"
+  },
+  {
+   "ours_tmp": 1500005,
+   "slot": 26013,
+   "class": "BrowserOrganization",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": "GEN Sheet Series"
+  },
+  {
+   "ours_tmp": 1500008,
+   "slot": 69851,
+   "class": "RbsDbViewSystemNavigator",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "???"
+  },
+  {
+   "ours_tmp": 1500009,
+   "slot": 69852,
+   "class": "Viewer",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500010,
+   "slot": 69853,
+   "class": "Viewport",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500011,
+   "slot": 69854,
+   "class": "DBDrawing",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500007,
+   "slot": 99928,
+   "class": "ConstructionSetProject",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "<Building>"
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 116120,
+   "class": "ReconcileBrowserSettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 1468599,
+   "class": "BrowserOrganization",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "all"
+  }
+ ],
+ "correspondence_note": "all pairs stored",
+ "landed_slots": [
+  {
+   "slot": 24945,
+   "class": "BrowserOrganization",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 24946,
+   "class": "BrowserOrganization",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 1468599,
+   "class": "BrowserOrganization",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 116120,
+   "class": "ReconcileBrowserSettingsElem",
+   "match": "role",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 99928,
+   "class": "ConstructionSetProject",
+   "match": "role",
+   "ours_tmp": 1500007
+  },
+  {
+   "slot": 69851,
+   "class": "RbsDbViewSystemNavigator",
+   "match": "role",
+   "ours_tmp": 1500008
+  },
+  {
+   "slot": 69852,
+   "class": "Viewer",
+   "match": "role",
+   "ours_tmp": 1500009
+  },
+  {
+   "slot": 69853,
+   "class": "Viewport",
+   "match": "role",
+   "ours_tmp": 1500010
+  },
+  {
+   "slot": 69854,
+   "class": "DBDrawing",
+   "match": "role",
+   "ours_tmp": 1500011
+  },
+  {
+   "slot": 24947,
+   "class": "BrowserOrganization",
+   "match": "donor",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 26012,
+   "class": "BrowserOrganization",
+   "match": "donor",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 26013,
+   "class": "BrowserOrganization",
+   "match": "donor",
+   "ours_tmp": 1500005
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": [],
+  "meaning": "our records that found NO in-place slot in the parent (the parent lacks an element of the class, or fewer than we build); landing them requires the ADD path -- deliberately NOT this ladder's variable"
+ },
+ "residue_olds_left_in_place": {
+  "count": 4,
+  "by_class": {
+   "BrowserOrganization": 4
+  },
+  "meaning": "the parent's candidate elements our set did not land on (surplus sample instances / companions): left EXACTLY as they were -- residue for the census"
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 851968,
+ "seconds": 3.1
+}

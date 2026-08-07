@@ -1,0 +1,77 @@
+{
+ "selftest": "T2-path on our own .rfa stand-in",
+ "standin_rfa": "experiments/rftprobe/_build/selftest/standin.rfa",
+ "read_back": {
+  "n_units": 1,
+  "n_elements": 41,
+  "self_family": 1472525,
+  "category": -2001040,
+  "part_type": 14,
+  "type_names": [
+   "225A MLO 42ckt"
+  ]
+ },
+ "roster_roundtrip": "41/41 ids+classes equal",
+ "owner_roundtrip": "OK",
+ "template_doc": {
+  "block": [
+   1472525,
+   1472565
+  ],
+  "types": [
+   [
+    "225A MLO 42ckt",
+    {}
+   ]
+  ]
+ },
+ "load": {
+  "family_id": 1472566,
+  "symbol_id": 1472583,
+  "surrogate": 1472581,
+  "guid": "ca424224-8971-4a37-88e1-4917b8b0a3a9",
+  "doc_id_range": [
+   1472525,
+   1472565
+  ],
+  "type_names": [
+   "225A MLO 42ckt"
+  ],
+  "verify_ok": true,
+  "validate_errors": 0
+ },
+ "instance": {
+  "instance_id": 1472584,
+  "level": 311,
+  "position_ft": [
+   16.0,
+   -8.0,
+   0.0
+  ],
+  "connmgr": null,
+  "scrub": {
+   "category_patched": false,
+   "symbol_refs_repointed": 0,
+   "param_rows_dropped": 0,
+   "structural_fields_reset": []
+  },
+  "n_dangling": 0,
+  "watermark_after": 1472584,
+  "verify": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "stamps_ok": true
+  }
+ },
+ "blob_proof": {
+  "all_units_64B": true,
+  "added_nonce_verified": true,
+  "units_total": 2
+ },
+ "validator": {
+  "n_errors": 0,
+  "first": []
+ },
+ "ok": true
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "tekton.frontdoor.genesis-base/1",
+  "purpose": "The DEFAULT genesis base the front door authors ON. A project base whose settings / style catalog / palette / datum / view / residue layers are ALL our constructors' output, composed by tools/genesis_compose.py with NO Autodesk-authored base content supplied. NEVER an Autodesk sample project.",
+  "default": {
+    "id": "G_ABPD",
+    "relpath": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
+    "md5": "1f1ff65bd68415a05228d6b6ac2bf271",
+    "bytes": 581632,
+    "revit_release": "2026",
+    "certification": {
+      "ledger": "docs/coverage/viewer-certified.json",
+      "entry": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+      "proves": "THE COMPOSED GENESIS PROJECT BASE LOADS: G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the Autodesk viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt)",
+      "verdict": "docs/inbox/genesis-audit.md '***** ORCHESTRATOR VERDICTS #24' (2026-08-04): GENESIS LOADS",
+      "composed_by": "tools/genesis_compose.py (anchor byte-exact against certified ZA_deep)"
+    },
+    "residue_disclosure": "Per verdict #24: ~260 Autodesk-authored elements remain + 4 named stragglers, plus the two shipped product corpora present in EVERY Revit file (Formats/Latest schema + ESSchemaStorage unit schemas = counsel question C4). The genesis LINEAGE descends from the rst sample reduced + substituted in place; deliverability of any output is decided by the P0 provenance gate (rvt.provenance), never assumed by this registry.",
+    "levels_of_note": {
+      "311": "L1 - Ground Floor (building storey, elevation 0) — the default build level",
+      "245423": "L2 - Second Floor (elevation 12 ft)"
+    },
+    "wall_type": {"600634": "the base's own BasicWallType (compound structure ours)"}
+  },
+  "releases": {
+    "note": "One slot per Revit release the front door can be ASKED to target (tools/frontdoor.py author --target-version N). A slot resolves ONLY when status is 'certified' AND sha256 is pinned AND rvt.versions.KNOWN_RELEASES[N].creation_certified is True -- three agreeing sources, never fewer. A pending slot exists so the 2025 product path is visible and honestly refusable, not invisible.",
+    "2026": {
+      "id": "G_ABPD",
+      "status": "certified",
+      "uses": "default"
+    },
+    "2025": {
+      "id": "G_ABPD_2025",
+      "lineage": "B2025: the certified-2026 genesis lineage re-run on the quarantined Revit-2025 rst sample (reduction ladder -> family-free K4-2025 -> in-place substitution -> compose), per docs/writer/genesis-2025-plan.md",
+      "relpath": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+      "sha256": null,
+      "bytes": null,
+      "status": "pending certification",
+      "pending_reason": "the 2025 campaign (G25-0..G25-5) has not certified a 2025 genesis base yet; until the viewer PASSES G_ABPD_2025.rvt and this slot is pinned (sha256 + status 'certified') AND rvt.versions flips KNOWN_RELEASES[2025].creation_certified, a --target-version 2025 request is answered by the 2026 build PLUS the honest fallback line PLUS a version-agnostic IFC addition -- never a silent 2026 file presented as 2025.",
+      "certification": {
+        "ledger": "docs/coverage/viewer-certified.json",
+        "entry": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+        "required": "viewer PASS (3D + sheet, not empty) + ledger entry + sha256 pin here + KNOWN_RELEASES[2025].creation_certified = True (G25-5)"
+      }
+    }
+  },
+  "specimen_ancestor": {
+    "id": "R5",
+    "relpath": "experiments/genesis/R5.rvt",
+    "sha256": "ae40074bb9379ee01b75f43e5bed23f450e34664d40deabed4a226e0847d4181",
+    "role": "CLONE-TEMPLATE source only (never emitted): the family-free genesis base carries no wall / instance specimen, and rvt.mutate clones a real specimen of the target class. R5 is the SAME certified lineage (ids continuous; wall type 600634 and level 311 present in both), certified in docs/coverage/viewer-certified.json ('Latest-DANGLING variant accepted').",
+    "used_by": "the ifc-room stream (tools/ifc_intent.py SpecimenSet) and this front door's build step"
+  },
+  "resolution_order": [
+    "the explicit --base PATH argument (user-supplied; refused if it is an Autodesk sample; hash NOT pinned, provenance ledgered instead)",
+    "$RVT_GENESIS_BASE environment variable (a firm's own certified base)",
+    "the pinned repo path experiments/genesis/subst_k4/compose/G_ABPD.rvt (sha256 must match the pin)",
+    "<plugin-root>/lib/genesis/G_ABPD.rvt if a packager bundles it (sha256 must match the pin)"
+  ],
+  "policy": {
+    "autodesk_sample_refused": true,
+    "pin_mismatch_refused": true,
+    "note": "A base that fails the hash pin is refused as the DEFAULT (the pin is what makes 'certified genesis base' true). An explicit --base is accepted on the user's authority but recorded, provenance-ledgered and never asserted certified."
+  }
+}

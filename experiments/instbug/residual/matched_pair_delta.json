@@ -1,0 +1,657 @@
+{
+ "law": "A = famload / no-solid (viewer-PASS side); B = famgen baked (viewer-FAIL side). only_in_B + differing = the suspect list; features already covered by D1..D5 are annotated (BXfix still failed carrying the fixes, so they are NOT the residual).",
+ "P1": {
+  "pair": "P1_symbol",
+  "A": {
+   "file": "experiments/families/genesis2/L_v2_panel_loaded.rvt",
+   "symbol": 1472583,
+   "path": "rvt.famload"
+  },
+  "B": {
+   "file": "experiments/instbug/_build/rst/stage_L1_pp1.rvt",
+   "symbol": 1472582,
+   "path": "rvt.famgen.loader (SX_f6i6's first load hop)"
+  },
+  "rep_class": {
+   "A": "SerializedDummy",
+   "B": "GElement"
+  },
+  "rep_stats_B": {
+   "present": true,
+   "n_gfilters": 1,
+   "n_geometry_nodes": 1,
+   "n_faces": 6,
+   "n_edges": 12,
+   "tag_range": [
+    2,
+    19
+   ],
+   "root_ginfo": {
+    "m_categoryId": 124,
+    "m_tag": 1472582,
+    "m_controlCommand": 0,
+    "m_flags": 557060
+   },
+   "bbox": [
+    [
+     -0.8333333333333334,
+     -2.0,
+     0.0
+    ],
+    [
+     0.8333333333333334,
+     2.0,
+     0.4791666666666667
+    ]
+   ],
+   "gelem_type": 3,
+   "flags": 0
+  },
+  "geom_steps_stats": {
+   "A": null,
+   "B": {
+    "n_bRepFormGList": 1,
+    "face_hist": 8,
+    "edge_hist": 12,
+    "curve_hist": 1,
+    "version": 4,
+    "flags": 761725
+   }
+  },
+  "geom_table_rows": {
+   "A": null,
+   "B": 21
+  },
+  "obj_diff": {
+   "only_in_A": {},
+   "only_in_B": {},
+   "differing": {
+    "m_arrConnectorData": {
+     "A": [],
+     "B": [
+      {
+       "m_trf": "dict(2)",
+       "m_index": 1
+      }
+     ]
+    },
+    "m_geomSteps": {
+     "A": null,
+     "B": {
+      "ptr": "GeomStepList",
+      "value": {
+       "m_nonBRepGList": "list(0)",
+       "m_bRepFormGList": "list(1)",
+       "m_bRepAdjustGList": "list(0)",
+       "m_bRepCutOutGList": "list(0)",
+       "m_bRepPostCutOutGList": "list(0)",
+       "m_bRepTweakGList": "list(0)",
+       "m_bRepFormSnapshot": null,
+       "m_bRepAdjustSnapshot": null,
+       "m_bRepCutOutSnapshot": null,
+       "m_bRepPostCutOutSnapshot": null,
+       "m_pElem": "dict(1)",
+       "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+       "m_idCounter": 2,
+       "m_flags": 9
+      }
+     }
+    },
+    "m_geomTag2MaterialId": {
+     "A": [],
+     "B": [
+      {
+       "first": 20,
+       "second": -1
+      }
+     ]
+    },
+    "m_hasParamDefValue": {
+     "A": 1,
+     "B": 0
+    },
+    "m_id": {
+     "A": 1472583,
+     "B": 1472582
+    },
+    "m_outline": {
+     "A": {
+      "m_minmax": [
+       "list(3)",
+       "list(3)"
+      ]
+     },
+     "B": {
+      "m_minmax": [
+       "list(3)",
+       "list(3)"
+      ]
+     }
+    },
+    "m_pGeomTable": {
+     "A": null,
+     "B": {
+      "ptr": "GeomTable",
+      "value": {
+       "m_refPntMirrored": false,
+       "m_table": "list(21)",
+       "m_bigTableOwner": null,
+       "m_materialMarkers": "list(0)",
+       "m_faceTypeMarkers": "list(0)"
+      }
+     }
+    },
+    "m_pMoveRestrictions": {
+     "A": {
+      "ptr": "Matrix",
+      "value": {
+       "m_nRows": 0,
+       "m_ncols": 3,
+       "m_bUseSingleArray": true,
+       "m_arr": "list(0)",
+       "m_rows": "list(0)"
+      }
+     },
+     "B": null
+    },
+    "m_pParams": {
+     "A": {
+      "ptr": "FamilyParams",
+      "value": {
+       "m_params": "list(17)",
+       "m_geomRefHandles": "dict(1)"
+      }
+     },
+     "B": {
+      "ptr": "FamilyParams",
+      "value": {
+       "m_params": "list(17)",
+       "m_geomRefHandles": "dict(1)"
+      }
+     }
+    },
+    "m_partitionSurrogateId": {
+     "A": 1472582,
+     "B": 1472583
+    },
+    "m_strongRefs": {
+     "A": [],
+     "B": [
+      {
+       "m_intermediateTags": "list(0)",
+       "m_oNextRef": null,
+       "m_elemId": 1472582,
+       "m_ownerDBViewId": -1,
+       "m_foreignElemIdRef": "dict(1)",
+       "m_geomTag": 4,
+       "m_subTag": -1,
+       "m_famMemberIdx": -1,
+       "m_flags": 0,
+       "m_isLazyRef": false
+      },
+      {
+       "m_intermediateTags": "list(0)",
+       "m_oNextRef": null,
+       "m_elemId": 1472582,
+       "m_ownerDBViewId": -1,
+       "m_foreignElemIdRef": "dict(1)",
+       "m_geomTag": 1,
+       "m_subTag": -1,
+       "m_famMemberIdx": -1,
+       "m_flags": 0,
+       "m_isLazyRef": false
+      }
+     ]
+    },
+    "m_symbolInfo": {
+     "A": {
+      "ptr": "SymbolInfo",
+      "value": {
+       "m_name": "400A MCB 42ckt"
+      }
+     },
+     "B": {
+      "ptr": "SymbolInfo",
+      "value": {
+       "m_name": "225A MLO 42ckt"
+      }
+     }
+    }
+   },
+   "n_equal": 75
+  },
+  "header_diff": {
+   "only_in_A": {},
+   "only_in_B": {},
+   "differing": {
+    "m_abFlags4Bytes": {
+     "A": 2218,
+     "B": 2488
+    },
+    "m_pBBox": {
+     "A": {
+      "ptr": "Outline",
+      "value": {
+       "m_minmax": "list(2)"
+      }
+     },
+     "B": {
+      "ptr": "Outline",
+      "value": {
+       "m_minmax": "list(2)"
+      }
+     }
+    },
+    "m_parents": {
+     "A": {
+      "ptr": "ElementParents",
+      "value": {
+       "m_deletion": "list(17)",
+       "m_regenOnly": "list(0)",
+       "m_regenWildcards": "list(0)",
+       "m_nonDetermRegenChildren": "list(0)",
+       "m_dependencyParents": "list(0)",
+       "m_appearanceParents": "list(0)",
+       "m_deferredParents": "list(0)",
+       "m_deferredPropagationParents": "list(0)",
+       "m_computedParametersParents": "list(0)",
+       "m_hasNonDetermRegenChildren": false
+      }
+     },
+     "B": {
+      "ptr": "ElementParents",
+      "value": {
+       "m_deletion": "list(20)",
+       "m_regenOnly": "list(1)",
+       "m_regenWildcards": "list(0)",
+       "m_nonDetermRegenChildren": "list(0)",
+       "m_dependencyParents": "list(0)",
+       "m_appearanceParents": "list(0)",
+       "m_deferredParents": "list(0)",
+       "m_deferredPropagationParents": "list(0)",
+       "m_computedParametersParents": "list(0)",
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    }
+   },
+   "n_equal": 9
+  },
+  "family_diff": {
+   "A": {
+    "family_id": 1472566,
+    "n_type_rows": 1,
+    "n_family_ids": 3,
+    "n_big2small": 14,
+    "core_ids": [],
+    "fam_dim_constr_mgr": "present",
+    "part_type": 14
+   },
+   "B": {
+    "family_id": 1472566,
+    "n_type_rows": 2,
+    "n_family_ids": 3,
+    "n_big2small": 14,
+    "core_ids": [
+     124,
+     113944
+    ],
+    "fam_dim_constr_mgr": "null",
+    "part_type": 14
+   },
+   "obj_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_cellList": {
+      "A": {
+       "ptr": "CellList",
+       "value": {
+        "m_cells": "list(1)"
+       }
+      },
+      "B": {
+       "ptr": "CellList",
+       "value": {
+        "m_cells": "list(2)"
+       }
+      }
+     },
+     "m_dbviewInfos": {
+      "A": [
+       {
+        "ptr": "DBViewInfoForPreview",
+        "value": "dict(8)"
+       }
+      ],
+      "B": [
+       {
+        "ptr": "DBViewInfoForPreview",
+        "value": "dict(8)"
+       }
+      ]
+     },
+     "m_famDocGUID": {
+      "A": "997f0347-01fd-44eb-932d-14c890c222a8",
+      "B": "51965cb7-63ef-4d2c-a319-4e4ccf3f6207"
+     },
+     "m_familyParams": {
+      "A": {
+       "ptr": "FamilyParams",
+       "value": {
+        "m_params": "list(17)",
+        "m_geomRefHandles": "dict(1)"
+       }
+      },
+      "B": {
+       "ptr": "FamilyParams",
+       "value": {
+        "m_params": "list(17)",
+        "m_geomRefHandles": "dict(1)"
+       }
+      }
+     },
+     "m_name": {
+      "A": "Panelboard 480Y/277 400A MCB 42ckt Surface",
+      "B": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+     },
+     "m_oFamDimConstrMgr": {
+      "A": {
+       "ptr": "FamDimConstrMgrImpl",
+       "value": {
+        "m_pFam": "dict(1)",
+        "m_paramExprs": "list(0)",
+        "m_drivenDimSegs": "list(0)",
+        "m_ignoredDimValueExprs": "list(0)",
+        "m_overconstrDimSegs": "list(0)",
+        "m_fixedRefs": "list(0)",
+        "m_redundantConstrs": "list(0)",
+        "m_propagatedDrivers": "list(0)",
+        "m_dimSegDataMap": "list(0)",
+        "m_additionalParamExprs": "list(0)",
+        "m_additionalFixedRefs": "list(0)"
+       }
+      },
+      "B": null
+     },
+     "m_oFamDoc": {
+      "A": {
+       "ptr": "FamilyDocument",
+       "value": {
+        "m_contentDocGUID": "1adeea71-f4ad-40ee-b4a3-8ee4d6c03f24",
+        "m_big2SmallMap2": "list(14)",
+        "m_coreIds": "list(0)"
+       }
+      },
+      "B": {
+       "ptr": "FamilyDocument",
+       "value": {
+        "m_contentDocGUID": "543b1042-30de-4d42-b04f-4e3c06213d34",
+        "m_big2SmallMap2": "list(14)",
+        "m_coreIds": "list(2)"
+       }
+      }
+     },
+     "m_oFamilyReferenceIdxMgr": {
+      "A": {
+       "ptr": "FamilyReferenceIdxMgr",
+       "value": {
+        "m_idxToRefMap": "list(2)"
+       }
+      },
+      "B": {
+       "ptr": "FamilyReferenceIdxMgr",
+       "value": {
+        "m_idxToRefMap": "list(2)"
+       }
+      }
+     },
+     "m_pFamilyTypes": {
+      "A": {
+       "ptr": "FamilyTypeTable",
+       "value": {
+        "m_idx": 0,
+        "m_pairs": "list(1)"
+       }
+      },
+      "B": {
+       "ptr": "FamilyTypeTable",
+       "value": {
+        "m_idx": 1,
+        "m_pairs": "list(2)"
+       }
+      }
+     }
+    },
+    "n_equal": 118
+   }
+  }
+ },
+ "P2": {
+  "pair": "P2_instance_reference",
+  "note": "L_v2 carries NO FamilyInstance (famload loads only): its PASS never exercised the instance->symbol walk; SL rungs close exactly that gap",
+  "SX_instance": {
+   "file": "experiments/instbug/SX_f6i6.rvt",
+   "id": 1472879,
+   "master_symbol": 1472582,
+   "info_symbol": 1472582,
+   "grep_id": 0,
+   "rep_class": "SerializedDummy",
+   "connmgr": "ConnectorManager",
+   "host_id": -1,
+   "header_parents": {
+    "ptr": "ElementParents",
+    "value": {
+     "m_deletion": "list(3)",
+     "m_regenOnly": "list(1)",
+     "m_regenWildcards": "list(0)",
+     "m_nonDetermRegenChildren": "list(0)",
+     "m_dependencyParents": "list(0)",
+     "m_appearanceParents": "list(1)",
+     "m_deferredParents": "list(0)",
+     "m_deferredPropagationParents": "list(0)",
+     "m_computedParametersParents": "list(0)",
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ },
+ "P4": {
+  "pair": "P4_instance_famload_vs_famgen_host",
+  "A": {
+   "file": "experiments/instbug/residual/SL_f6i6.rvt",
+   "instance": 1473060,
+   "symbol": 1472583,
+   "load_path": "rvt.famload",
+   "placement": "demo stage_equipment (current, D-fixed)"
+  },
+  "B": {
+   "file": "experiments/instbug/SX_f6i6.rvt",
+   "instance": 1472879,
+   "symbol": 1472582,
+   "load_path": "rvt.famgen.loader",
+   "placement": "demo stage_equipment (pre-D-fix build)"
+  },
+  "obj_diff": {
+   "only_in_A": {},
+   "only_in_B": {},
+   "differing": {
+    "m_createdPhaseId": {
+     "A": 86961,
+     "B": -1
+    },
+    "m_id": {
+     "A": 1473060,
+     "B": 1472879
+    },
+    "m_masterSymbolId": {
+     "A": 1472583,
+     "B": 1472582
+    },
+    "m_pConnectorManager": {
+     "A": {
+      "ptr": "FamilyInstanceConnectorManager",
+      "value": {
+       "m_setDeletedConnectors": "list(0)",
+       "m_connPtrArray": "list(1)",
+       "m_modifiers": "list(0)"
+      }
+     },
+     "B": {
+      "ptr": "ConnectorManager",
+      "value": {
+       "m_setDeletedConnectors": "list(0)",
+       "m_connPtrArray": "list(1)",
+       "m_modifiers": "list(0)"
+      }
+     }
+    },
+    "m_pInstanceInfo": {
+     "A": {
+      "ptr": "InstanceInfo",
+      "value": {
+       "m_Trf": "dict(2)",
+       "m_symbolId": 1472583,
+       "m_GRepId": 0,
+       "m_cda": "dict(1)"
+      }
+     },
+     "B": {
+      "ptr": "InstanceInfo",
+      "value": {
+       "m_Trf": "dict(2)",
+       "m_symbolId": 1472582,
+       "m_GRepId": 0,
+       "m_cda": "dict(1)"
+      }
+     }
+    }
+   },
+   "n_equal": 59
+  },
+  "symbol_under_instance": {
+   "A": {
+    "symbol_id": 1472583,
+    "rep_class": "SerializedDummy",
+    "rep_stats": {
+     "present": false,
+     "class": "SerializedDummy"
+    },
+    "geom_steps_stats": null,
+    "geom_table_rows": null
+   },
+   "B": {
+    "symbol_id": 1472582,
+    "rep_class": "GElement",
+    "rep_stats": {
+     "present": true,
+     "n_gfilters": 1,
+     "n_geometry_nodes": 1,
+     "n_faces": 6,
+     "n_edges": 12,
+     "tag_range": [
+      2,
+      19
+     ],
+     "root_ginfo": {
+      "m_categoryId": 124,
+      "m_tag": 1472582,
+      "m_controlCommand": 0,
+      "m_flags": 557060
+     },
+     "bbox": [
+      [
+       -0.8333333333333334,
+       -2.0,
+       0.0
+      ],
+      [
+       0.8333333333333334,
+       2.0,
+       0.4791666666666667
+      ]
+     ],
+     "gelem_type": 3,
+     "flags": 0
+    },
+    "geom_steps_stats": {
+     "n_bRepFormGList": 1,
+     "face_hist": 8,
+     "edge_hist": 12,
+     "curve_hist": 1,
+     "version": 4,
+     "flags": 761725
+    },
+    "geom_table_rows": 21
+   }
+  }
+ },
+ "P3": {
+  "pair": "P3_one_change",
+  "A": {
+   "file": "experiments/instbug/residual/BXns_f1i1.rvt",
+   "symbol": 1472582,
+   "path": "famgen symbol_solid=False (this stream)"
+  },
+  "B": {
+   "file": "experiments/instbug/fix/BXfix_f1i1.rvt",
+   "symbol": 1472582,
+   "path": "famgen baked, D-fixed (instbug-fix)"
+  },
+  "rep_class": {
+   "A": "SerializedDummy",
+   "B": "GElement"
+  },
+  "obj_diff": {
+   "only_in_A": {},
+   "only_in_B": {},
+   "differing": {
+    "m_geomSteps": {
+     "A": null,
+     "B": {
+      "ptr": "GeomStepList",
+      "value": {
+       "m_nonBRepGList": "list(0)",
+       "m_bRepFormGList": "list(1)",
+       "m_bRepAdjustGList": "list(0)",
+       "m_bRepCutOutGList": "list(0)",
+       "m_bRepPostCutOutGList": "list(0)",
+       "m_bRepTweakGList": "list(0)",
+       "m_bRepFormSnapshot": null,
+       "m_bRepAdjustSnapshot": null,
+       "m_bRepCutOutSnapshot": null,
+       "m_bRepPostCutOutSnapshot": null,
+       "m_pElem": "dict(1)",
+       "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+       "m_idCounter": 2,
+       "m_flags": 9
+      }
+     }
+    },
+    "m_geomTag2MaterialId": {
+     "A": [],
+     "B": [
+      {
+       "first": 20,
+       "second": -1
+      }
+     ]
+    },
+    "m_pGeomTable": {
+     "A": null,
+     "B": {
+      "ptr": "GeomTable",
+      "value": {
+       "m_refPntMirrored": false,
+       "m_table": "list(21)",
+       "m_bigTableOwner": null,
+       "m_materialMarkers": "list(0)",
+       "m_faceTypeMarkers": "list(0)"
+      }
+     }
+    }
+   },
+   "n_equal": 84
+  }
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "rung": "ZB_deep",
+ "alias_of": "ZB8_content",
+ "chain": [
+  "ZB1_defs",
+  "ZB2_mepcat",
+  "ZB3_pens",
+  "ZB4_annot",
+  "ZB5_palette",
+  "ZB6_filters",
+  "ZB7_machinery",
+  "ZB8_content"
+ ],
+ "file": "experiments/genesis/subst_k4/residue_b/ZB_deep.rvt",
+ "md5": "064593637574bd0b0554122f82d6a62f",
+ "identical_to": "experiments/genesis/subst_k4/residue_b/ZB8_content.rvt",
+ "verdict": "VALID"
+}

@@ -1,0 +1,616 @@
+{
+ "stage": "R5s",
+ "ladder": "v2",
+ "safe_variant": true,
+ "out": "experiments/genesis/R5s.rvt",
+ "file_size": 6012928,
+ "seed": 6050,
+ "seed_kept_pinned": 909,
+ "deleted": 5141,
+ "surviving_elements": 8795,
+ "elemtable_before": 13936,
+ "records_removed": {
+  "101": 5141,
+  "102": 5141,
+  "103": 5141
+ },
+ "blocks_before": 213,
+ "blocks_after": 168,
+ "structural_ok": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 369,
+   "records": 80769,
+   "elements_decoded": 26870,
+   "decode_failures": 7,
+   "refs_checked": 486171
+  }
+ },
+ "latest_dangling": 0,
+ "contentdocs_dangling": 0,
+ "pin_evidence": {
+  "kept_seed": 909,
+  "kept_by_direct_outside_ref": 384,
+  "kept_by_ext_scan": 107,
+  "kept_seed_by_class": [
+   [
+    "CurveElem",
+    216
+   ],
+   [
+    "LinearDimString",
+    202
+   ],
+   [
+    "SketchPlane",
+    79
+   ],
+   [
+    "VarSketch",
+    78
+   ],
+   [
+    "SketchGrid",
+    40
+   ],
+   [
+    "Viewport",
+    39
+   ],
+   [
+    "LegendComponent",
+    36
+   ],
+   [
+    "DBDrawing",
+    29
+   ],
+   [
+    "SunAnnotationElem",
+    28
+   ],
+   [
+    "SunAndShadowSettings",
+    28
+   ],
+   [
+    "FontElem",
+    21
+   ],
+   [
+    "Viewer",
+    16
+   ],
+   [
+    "CategoryElem",
+    13
+   ],
+   [
+    "GStyleElem",
+    13
+   ],
+   [
+    "Viewer3d",
+    12
+   ],
+   [
+    "ModelClipBox",
+    12
+   ],
+   [
+    "DBViewSchedule",
+    10
+   ],
+   [
+    "ScheduleInstance",
+    10
+   ],
+   [
+    "Alignment",
+    8
+   ],
+   [
+    "PanelScheduleTemplate",
+    5
+   ],
+   [
+    "NonPlanarSketch",
+    4
+   ],
+   [
+    "ContourSpacingElem",
+    3
+   ],
+   [
+    "GCSViewport",
+    2
+   ],
+   [
+    "GraphSchedColumnTable",
+    1
+   ],
+   [
+    "DBViewGraphSchedColumn",
+    1
+   ],
+   [
+    "ViewReferencing",
+    1
+   ],
+   [
+    "ScheduleInstanceBaseOnSheetsTracker",
+    1
+   ],
+   [
+    "ExtentElem",
+    1
+   ]
+  ],
+  "top_pinning_pairs": [
+   "CurveElem <- JoistSystem x65",
+   "VarSketch <- RebarSystem x44",
+   "CurveElem <- RebarSystem x44",
+   "LinearDimString <- Family x20",
+   "CurveElem <- Family x18",
+   "LegendComponent <- FamilySurrogate x17",
+   "VarSketch <- JoistSystem x16",
+   "Viewport <- DBViewDrafting x15",
+   "SunAndShadowSettings <- DBViewSection x12",
+   "ModelClipBox <- DBView3d x12",
+   "Viewer3d <- DBView3d x12",
+   "DBDrawing <- DBView3d x12",
+   "SunAndShadowSettings <- DBViewPlan x8",
+   "SunAndShadowSettings <- DBView3d x8",
+   "LegendComponent <- FloorAttributes x5",
+   "CurveElem <- Floor x5",
+   "VarSketch <- Floor x5",
+   "CurveElem <- AreaSchemePlanTopologies x5",
+   "CurveElem <- LevelRoomPlan x5",
+   "VarSketch <- AreaLoad x5",
+   "SketchPlane <- AreaLoad x5",
+   "Viewport <- DBView3d x5",
+   "NonPlanarSketch <- FormElem x4",
+   "NonPlanarSketch <- Family x4",
+   "NonPlanarSketch <- ReferencePoint x4",
+   "SketchPlane <- Family x4",
+   "VarSketch <- FormElem x4",
+   "VarSketch <- Family x4",
+   "VarSketch <- PartMaker x4",
+   "Viewer <- DBViewDrafting x4"
+  ],
+  "pinners_of_kept_class": {
+   "CurveElem": [
+    [
+     "JoistSystem",
+     65
+    ],
+    [
+     "RebarSystem",
+     44
+    ],
+    [
+     "Family",
+     18
+    ],
+    [
+     "Floor",
+     5
+    ],
+    [
+     "AreaSchemePlanTopologies",
+     5
+    ],
+    [
+     "LevelRoomPlan",
+     5
+    ]
+   ],
+   "VarSketch": [
+    [
+     "RebarSystem",
+     44
+    ],
+    [
+     "JoistSystem",
+     16
+    ],
+    [
+     "Floor",
+     5
+    ],
+    [
+     "AreaLoad",
+     5
+    ],
+    [
+     "FormElem",
+     4
+    ],
+    [
+     "Family",
+     4
+    ]
+   ],
+   "LinearDimString": [
+    [
+     "Family",
+     20
+    ],
+    [
+     "RefPlane",
+     3
+    ]
+   ],
+   "LegendComponent": [
+    [
+     "FamilySurrogate",
+     17
+    ],
+    [
+     "FloorAttributes",
+     5
+    ],
+    [
+     "BasicWallType",
+     3
+    ],
+    [
+     "RbsCableTrayType",
+     2
+    ],
+    [
+     "RbsConduitType",
+     2
+    ],
+    [
+     "CompoundCeilingType",
+     2
+    ]
+   ],
+   "Viewport": [
+    [
+     "DBViewDrafting",
+     15
+    ],
+    [
+     "DBView3d",
+     5
+    ],
+    [
+     "Section",
+     4
+    ],
+    [
+     "DBViewSection",
+     4
+    ],
+    [
+     "DBViewAnonDrafting",
+     2
+    ]
+   ],
+   "SunAndShadowSettings": [
+    [
+     "DBViewSection",
+     12
+    ],
+    [
+     "DBViewPlan",
+     8
+    ],
+    [
+     "DBView3d",
+     8
+    ]
+   ],
+   "ModelClipBox": [
+    [
+     "DBView3d",
+     12
+    ]
+   ],
+   "Viewer3d": [
+    [
+     "DBView3d",
+     12
+    ]
+   ],
+   "DBDrawing": [
+    [
+     "DBView3d",
+     12
+    ],
+    [
+     "DBViewDrafting",
+     4
+    ],
+    [
+     "DBViewAnonDrafting",
+     2
+    ]
+   ],
+   "SketchPlane": [
+    [
+     "AreaLoad",
+     5
+    ],
+    [
+     "Family",
+     4
+    ]
+   ],
+   "NonPlanarSketch": [
+    [
+     "FormElem",
+     4
+    ],
+    [
+     "Family",
+     4
+    ],
+    [
+     "ReferencePoint",
+     4
+    ]
+   ],
+   "Viewer": [
+    [
+     "DBViewDrafting",
+     4
+    ],
+    [
+     "DBViewAnonDrafting",
+     2
+    ]
+   ],
+   "Alignment": [
+    [
+     "FamilyInstance",
+     2
+    ],
+    [
+     "SWall",
+     2
+    ],
+    [
+     "StairsRun",
+     1
+    ],
+    [
+     "StairsElement",
+     1
+    ],
+    [
+     "Floor",
+     1
+    ]
+   ],
+   "DBViewGraphSchedColumn": [
+    [
+     "DBViewDrafting",
+     1
+    ]
+   ],
+   "GCSViewport": [
+    [
+     "DBViewDrafting",
+     1
+    ]
+   ]
+  }
+ },
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4135
+  ],
+  [
+   "LinearDimString",
+   508
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "LegendComponent",
+   60
+  ],
+  [
+   "VarSketch",
+   56
+  ],
+  [
+   "SketchPlane",
+   56
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "SunAnnotationElem",
+   3
+  ],
+  [
+   "SpotElevation",
+   1
+  ]
+ ],
+ "top_survivor_classes": [
+  [
+   "GStyleElem",
+   2183
+  ],
+  [
+   "CategoryElem",
+   616
+  ],
+  [
+   "FamilyInstance",
+   497
+  ],
+  [
+   "ParamElemExternal",
+   466
+  ],
+  [
+   "FontElem",
+   263
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "CurveElem",
+   216
+  ],
+  [
+   "ParamBinding",
+   209
+  ],
+  [
+   "LinearDimString",
+   202
+  ],
+  [
+   "SketchPlane",
+   153
+  ],
+  [
+   "LinePatternElem",
+   150
+  ],
+  [
+   "AppearanceAssetElem",
+   131
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "HVACLoadSpaceTypeElem",
+   125
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "ParamElemFamily",
+   120
+  ],
+  [
+   "FillPatternElem",
+   116
+  ],
+  [
+   "ParamElemElectricalLoadClassification",
+   108
+  ],
+  [
+   "FamilySymbol",
+   106
+  ],
+  [
+   "MaterialElem",
+   93
+  ],
+  [
+   "DBViewType",
+   91
+  ],
+  [
+   "TextNoteAttributes",
+   90
+  ],
+  [
+   "SunAndShadowSettings",
+   90
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "VarSketch",
+   84
+  ],
+  [
+   "Viewport",
+   79
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "LeaderStyle",
+   61
+  ],
+  [
+   "CustomElement",
+   61
+  ],
+  [
+   "TagNoteAttributes",
+   60
+  ],
+  [
+   "DBDrawing",
+   59
+  ],
+  [
+   "PropertySetElement",
+   56
+  ],
+  [
+   "FamilySurrogate",
+   50
+  ],
+  [
+   "FamSymSurrogate",
+   50
+  ],
+  [
+   "Family",
+   50
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "SketchGrid",
+   40
+  ],
+  [
+   "ExtentElem",
+   39
+  ]
+ ],
+ "keep_views": {
+  "1064656": "Level 1",
+  "1454508": "{3D}"
+ },
+ "seconds": 12.9
+}

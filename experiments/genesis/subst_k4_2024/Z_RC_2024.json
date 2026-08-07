@@ -1,0 +1,135 @@
+{
+ "rung": "Z_RC_2024",
+ "label": "residue-C compose-consumable slice (2024): stale preview caches nulled + the drafting view's link pin removed (no year-schedule layer: the class is absent from the 2024 schema)",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [101, 102], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+   "when": "2026-08-05 ~02:25",
+   "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4_2024/RB_2024.rvt",
+ "out": "experiments/genesis/subst_k4_2024/Z_RC_2024.rvt",
+ "slots": [
+  907404,
+  1201130,
+  1457028
+ ],
+ "seqs": [
+  101,
+  102
+ ],
+ "ours_by_slot": {
+  "907404": [
+   "m_oPreviewImage"
+  ],
+  "1201130": [
+   "m_oPreviewImage"
+  ],
+  "1457028": [
+   "m_pRvtLinkOverrides.m_displaySettingsMap (emptied: a genesis file links NO model)",
+   "m_parents.m_deletion (minus the RvtLinkSymbol)"
+  ]
+ },
+ "notes": [
+  "0 operating-year schedules: BuildingOperatingYearSchedule does not exist in the 2024 schema (port2024 MISSING_2024_CONSTRUCTED) -- the 2026/2025 year-naming layer has no 2024 equivalent, by schema",
+  "2 type-preview LegendComponents: the Autodesk-rendered PNG cache NULLED (corpus-normal null form; the m_componentType wiring untouched)",
+  "2 curtain-surrogate previews LEFT ([907423, 907424]): they leave WITH the curtain constellation (a future deletion stream's removal queue)",
+  "the residue drafting view's RvtLinkOverrides display map EMPTIED (the link symbol's seq-102 pin) + its seq-101 header cleaned -- slots untouched by every Y rung, so this rung stays one-call-composable"
+ ],
+ "new_object_reference_check": {
+  "mode": "typed",
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   101,
+   102
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 15,
+   "records": 9888,
+   "elements_decoded": 3295,
+   "decode_failures": 1,
+   "refs_checked": 40880
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "byte_delta": {
+  "changed_records": 4,
+  "changed_ids": [
+   907404,
+   1201130,
+   1457028
+  ],
+  "expected_slot_ids": [
+   907404,
+   1201130,
+   1457028
+  ],
+  "expected_records_max": 4,
+  "unexpected_changed_ids": [],
+  "added_or_removed": false,
+  "landed_but_byte_identical": [],
+  "global_latest_identical": true,
+  "global_elemtable_identical": true,
+  "assertion_holds": true,
+  "diff_streams": [
+   "Partitions/21"
+  ]
+ },
+ "verdict": "VALID",
+ "md5": "a6ff13747c4610b023561725d90e6644",
+ "seconds": 1.1,
+ "landed_slots": [
+  {
+   "slot": 907404,
+   "class": "LegendComponent"
+  },
+  {
+   "slot": 1201130,
+   "class": "LegendComponent"
+  },
+  {
+   "slot": 1457028,
+   "class": "DBViewDrafting"
+  }
+ ],
+ "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+ "stream": "y2024-views",
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+  "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+  "md5": "b953513bf80a963021b7de8e96d1be9d",
+  "certification": {
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+   "when": "2026-08-05 ~02:25",
+   "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  }
+ }
+}

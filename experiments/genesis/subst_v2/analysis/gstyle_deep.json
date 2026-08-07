@@ -1,0 +1,676 @@
+{
+ "n_rows": 8442,
+ "object_dist": {
+  "m_gstyleType": {
+   "1": 6444,
+   "2": 1998
+  },
+  "m_ownerId": {
+   "-1": 8442
+  },
+  "m_famId": {
+   "-1": 8442
+  },
+  "m_designOptionId": {
+   "-1": 8442
+  },
+  "m_assocLevelId": {
+   "-1": 8442
+  },
+  "m_createdPhaseId": {
+   "-1": 8442
+  },
+  "m_demolishedPhaseId": {
+   "-1": 8442
+  },
+  "m_unplacedOwnerId": {
+   "-1": 8442
+  },
+  "m_ownerDBViewId": {
+   "-1": 8442
+  },
+  "m_locked": {
+   "False": 8442
+  },
+  "m_moribund": {
+   "False": 8442
+  },
+  "m_dummy": {
+   "False": 8442
+  },
+  "m_id_matches": {
+   "True": 8442
+  },
+  "m_pParamValueSetDouble": {
+   "None": 8442
+  },
+  "m_pParamValueSetInt": {
+   "None": 8442
+  },
+  "m_pParamValueSetAString": {
+   "None": 8442
+  },
+  "m_pParamValueSetElementId": {
+   "None": 8442
+  },
+  "m_geomSteps": {
+   "None": 8442
+  },
+  "m_pGeomTable": {
+   "None": 8442
+  },
+  "m_constrInfo_len": {
+   "0": 8442
+  },
+  "m_cellList": {
+   "None": 6732,
+   "present": 1710
+  },
+  "m_docAccess": {
+   "{\"m_pDoc\": {\"weakref\": 1}}": 8442
+  },
+  "m_pGStyle.ptr_class": {
+   "GStyle": 8442
+  },
+  "m_pGStyle.pid": {
+   "-1": 8442
+  },
+  "gs.m_penNumber": {
+   "1": 5827,
+   "2": 1158,
+   "5": 334,
+   "3": 324,
+   "4": 274,
+   "0": 244,
+   "6": 233,
+   "8": 21,
+   "7": 20,
+   "-1": 6,
+   "11": 1
+  },
+  "gs.m_isScreenSized": {
+   "False": 8154,
+   "True": 288
+  },
+  "gs.m_linePatternId_kind": {
+   "neg-builtin": 4962,
+   "-1": 2405,
+   "elem>0": 1075
+  },
+  "gs.m_materialElemId_kind": {
+   "-1": 7856,
+   "elem>0": 391,
+   "-4000010": 114,
+   "-4000049": 15,
+   "-4000041": 12,
+   "-4000035": 6,
+   "-4000033": 6,
+   "-4000036": 6,
+   "-4000032": 6,
+   "-4000031": 6,
+   "-4000040": 6,
+   "-4000050": 6,
+   "-4000051": 6,
+   "-4000052": 6
+  },
+  "gs.m_color": {
+   "0": 6772,
+   "32512": 288,
+   "16711680": 108,
+   "13209856": 106,
+   "255": 106,
+   "65280": 100,
+   "16711935": 77,
+   "32768": 73,
+   "8355711": 64,
+   "4227327": 47,
+   "16744448": 36,
+   "8323072": 34,
+   "4626167": 32,
+   "12401408": 24,
+   "16770482": 24,
+   "42496": 21,
+   "16758784": 20,
+   "13459038": 18,
+   "15773184": 18,
+   "33023": 18,
+   "13390181": 18,
+   "2912178": 18,
+   "8729206": 16,
+   "13158400": 14,
+   "11389934": 12,
+   "49407": 12,
+   "4210752": 12,
+   "16512": 12,
+   "16366214": 12,
+   "2213876": 12,
+   "303871": 12,
+   "10066329": 12,
+   "11711231": 12,
+   "8421504": 11,
+   "16777215": 10,
+   "14206405": 9,
+   "200": 9,
+   "53970": 8,
+   "13995347": 8,
+   "2646607": 8
+  },
+  "gs.keys": {
+   "('m_color', 'm_isScreenSized', 'm_linePatternId', 'm_materialElemId', 'm_penNumber')": 8442
+  }
+ },
+ "header_dist": {
+  "m_abFlags4Bytes": {
+   "67117070": 3581,
+   "67117086": 2811,
+   "67110942": 1384,
+   "67110926": 322,
+   "67108878": 193,
+   "67108894": 151
+  },
+  "m_nVisibleViewFlags": {
+   "-32768": 8442
+  },
+  "m_categroryId": {
+   "-1": 8442
+  },
+  "m_familyId": {
+   "-1": 8442
+  },
+  "m_ownerViewId": {
+   "-1": 8442
+  },
+  "m_designOptionId": {
+   "-1": 8442
+  },
+  "m_unplacedOwnerId": {
+   "-1": 8442
+  },
+  "m_miscId": {
+   "-1": 8442
+  },
+  "m_classDef": {
+   "{\"m_ref\": {\"classref\": \"GStyleElem\"}}": 8442
+  },
+  "m_pBBox": {
+   "None": 8442
+  },
+  "m_regenHistory_len": {
+   "0": 7304,
+   "1": 1075,
+   "3": 63
+  },
+  "parents.ptr_class": {
+   "ElementParents": 8442
+  },
+  "parents.m_deletion_len": {
+   "1": 7010,
+   "2": 1398,
+   "3": 34
+  },
+  "parents.m_regenOnly_len": {
+   "0": 8442
+  },
+  "parents.m_regenWildcards_len": {
+   "0": 8442
+  },
+  "parents.m_appearanceParents_len": {
+   "0": 8442
+  },
+  "parents.m_dependencyParents_len": {
+   "0": 8442
+  },
+  "parents.m_deferredParents_len": {
+   "0": 8442
+  },
+  "parents.m_nonDeterm_len": {
+   "0": 8442
+  },
+  "parents.m_computedParams_len": {
+   "0": 8442
+  },
+  "parents.hasNonDeterm": {
+   "False": 8442
+  }
+ },
+ "hdrcat_rule": {
+  "hdr -1": 8442
+ },
+ "deletion_rule": {
+  "[self] only": 7010,
+  "self+pattern": 1041,
+  "self+material": 357,
+  "self+pattern+material": 34
+ },
+ "et_stats": {
+  "('owner', -1)": 8442,
+  "('partition', 0)": 8442
+ },
+ "examples": [
+  {
+   "file": "rstbasicsampleproject",
+   "id": 1472449,
+   "obj": {
+    "m_pParamValueSetDouble": null,
+    "m_pParamValueSetInt": null,
+    "m_pParamValueSetAString": null,
+    "m_pParamValueSetElementId": null,
+    "m_geomSteps": null,
+    "m_pGeomTable": null,
+    "m_constrInfo": [],
+    "m_cellList": null,
+    "m_docAccess": {
+     "m_pDoc": {
+      "weakref": 1
+     }
+    },
+    "m_id": 1472449,
+    "m_assocLevelId": -1,
+    "m_famId": -1,
+    "m_unplacedOwnerId": -1,
+    "m_ownerDBViewId": -1,
+    "m_createdPhaseId": -1,
+    "m_demolishedPhaseId": -1,
+    "m_designOptionId": -1,
+    "m_locked": false,
+    "m_moribund": false,
+    "m_dummy": false,
+    "m_pGStyle": {
+     "ptr_class": "GStyle",
+     "pid": -1,
+     "value": {
+      "m_linePatternId": -1,
+      "m_materialElemId": -1,
+      "m_penNumber": 1,
+      "m_color": 0,
+      "m_isScreenSized": false
+     }
+    },
+    "m_categoryId": -2001119,
+    "m_ownerId": -1,
+    "m_gstyleType": 1
+   }
+  },
+  {
+   "file": "rstbasicsampleproject",
+   "id": 1472450,
+   "obj": {
+    "m_pParamValueSetDouble": null,
+    "m_pParamValueSetInt": null,
+    "m_pParamValueSetAString": null,
+    "m_pParamValueSetElementId": null,
+    "m_geomSteps": null,
+    "m_pGeomTable": null,
+    "m_constrInfo": [],
+    "m_cellList": null,
+    "m_docAccess": {
+     "m_pDoc": {
+      "weakref": 1
+     }
+    },
+    "m_id": 1472450,
+    "m_assocLevelId": -1,
+    "m_famId": -1,
+    "m_unplacedOwnerId": -1,
+    "m_ownerDBViewId": -1,
+    "m_createdPhaseId": -1,
+    "m_demolishedPhaseId": -1,
+    "m_designOptionId": -1,
+    "m_locked": false,
+    "m_moribund": false,
+    "m_dummy": false,
+    "m_pGStyle": {
+     "ptr_class": "GStyle",
+     "pid": -1,
+     "value": {
+      "m_linePatternId": -1,
+      "m_materialElemId": -1,
+      "m_penNumber": 1,
+      "m_color": 0,
+      "m_isScreenSized": false
+     }
+    },
+    "m_categoryId": -2001118,
+    "m_ownerId": -1,
+    "m_gstyleType": 1
+   }
+  },
+  {
+   "file": "rstbasicsampleproject",
+   "id": 1472452,
+   "obj": {
+    "m_pParamValueSetDouble": null,
+    "m_pParamValueSetInt": null,
+    "m_pParamValueSetAString": null,
+    "m_pParamValueSetElementId": null,
+    "m_geomSteps": null,
+    "m_pGeomTable": null,
+    "m_constrInfo": [],
+    "m_cellList": null,
+    "m_docAccess": {
+     "m_pDoc": {
+      "weakref": 1
+     }
+    },
+    "m_id": 1472452,
+    "m_assocLevelId": -1,
+    "m_famId": -1,
+    "m_unplacedOwnerId": -1,
+    "m_ownerDBViewId": -1,
+    "m_createdPhaseId": -1,
+    "m_demolishedPhaseId": -1,
+    "m_designOptionId": -1,
+    "m_locked": false,
+    "m_moribund": false,
+    "m_dummy": false,
+    "m_pGStyle": {
+     "ptr_class": "GStyle",
+     "pid": -1,
+     "value": {
+      "m_linePatternId": -3000010,
+      "m_materialElemId": -1,
+      "m_penNumber": 1,
+      "m_color": 0,
+      "m_isScreenSized": false
+     }
+    },
+    "m_categoryId": -2001117,
+    "m_ownerId": -1,
+    "m_gstyleType": 1
+   }
+  }
+ ],
+ "hdr_examples": [
+  {
+   "file": "rstbasicsampleproject",
+   "id": 1472449,
+   "hdr": {
+    "m_regenHistory": {
+     "m_historyMap": []
+    },
+    "m_categroryId": -1,
+    "m_familyId": -1,
+    "m_ownerViewId": -1,
+    "m_designOptionId": -1,
+    "m_unplacedOwnerId": -1,
+    "m_miscId": -1,
+    "m_viewRules": {
+     "m_nVisibleViewFlags": -32768
+    },
+    "m_abFlags4Bytes": 67117070,
+    "m_classDef": {
+     "m_ref": {
+      "classref": "GStyleElem"
+     }
+    },
+    "m_pBBox": null,
+    "m_parents": {
+     "ptr_class": "ElementParents",
+     "pid": -1,
+     "value": {
+      "m_deletion": [
+       1472449
+      ],
+      "m_regenOnly": [],
+      "m_regenWildcards": [],
+      "m_nonDetermRegenChildren": [],
+      "m_dependencyParents": [],
+      "m_appearanceParents": [],
+      "m_deferredParents": [],
+      "m_deferredPropagationParents": [],
+      "m_computedParametersParents": [],
+      "m_hasNonDetermRegenChildren": false
+     }
+    }
+   }
+  },
+  {
+   "file": "rstbasicsampleproject",
+   "id": 1472450,
+   "hdr": {
+    "m_regenHistory": {
+     "m_historyMap": []
+    },
+    "m_categroryId": -1,
+    "m_familyId": -1,
+    "m_ownerViewId": -1,
+    "m_designOptionId": -1,
+    "m_unplacedOwnerId": -1,
+    "m_miscId": -1,
+    "m_viewRules": {
+     "m_nVisibleViewFlags": -32768
+    },
+    "m_abFlags4Bytes": 67117070,
+    "m_classDef": {
+     "m_ref": {
+      "classref": "GStyleElem"
+     }
+    },
+    "m_pBBox": null,
+    "m_parents": {
+     "ptr_class": "ElementParents",
+     "pid": -1,
+     "value": {
+      "m_deletion": [
+       1472450
+      ],
+      "m_regenOnly": [],
+      "m_regenWildcards": [],
+      "m_nonDetermRegenChildren": [],
+      "m_dependencyParents": [],
+      "m_appearanceParents": [],
+      "m_deferredParents": [],
+      "m_deferredPropagationParents": [],
+      "m_computedParametersParents": [],
+      "m_hasNonDetermRegenChildren": false
+     }
+    }
+   }
+  },
+  {
+   "file": "rstbasicsampleproject",
+   "id": 1472452,
+   "hdr": {
+    "m_regenHistory": {
+     "m_historyMap": []
+    },
+    "m_categroryId": -1,
+    "m_familyId": -1,
+    "m_ownerViewId": -1,
+    "m_designOptionId": -1,
+    "m_unplacedOwnerId": -1,
+    "m_miscId": -1,
+    "m_viewRules": {
+     "m_nVisibleViewFlags": -32768
+    },
+    "m_abFlags4Bytes": 67117070,
+    "m_classDef": {
+     "m_ref": {
+      "classref": "GStyleElem"
+     }
+    },
+    "m_pBBox": null,
+    "m_parents": {
+     "ptr_class": "ElementParents",
+     "pid": -1,
+     "value": {
+      "m_deletion": [
+       1472452
+      ],
+      "m_regenOnly": [],
+      "m_regenWildcards": [],
+      "m_nonDetermRegenChildren": [],
+      "m_dependencyParents": [],
+      "m_appearanceParents": [],
+      "m_deferredParents": [],
+      "m_deferredPropagationParents": [],
+      "m_computedParametersParents": [],
+      "m_hasNonDetermRegenChildren": false
+     }
+    }
+   }
+  }
+ ],
+ "our_projection": {
+  "obj": {
+   "m_pParamValueSetDouble": null,
+   "m_pParamValueSetInt": null,
+   "m_pParamValueSetAString": null,
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": null,
+   "m_pGeomTable": null,
+   "m_constrInfo": [],
+   "m_cellList": null,
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 1700000,
+   "m_assocLevelId": -1,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_pGStyle": {
+    "ptr_class": "GStyle",
+    "pid": -1,
+    "value": {
+     "m_linePatternId": -3000010,
+     "m_materialElemId": -1,
+     "m_penNumber": 1,
+     "m_color": 1579032,
+     "m_isScreenSized": false
+    }
+   },
+   "m_categoryId": -2010001,
+   "m_ownerId": -1,
+   "m_gstyleType": 1
+  },
+  "hdr": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -1,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -32768
+   },
+   "m_abFlags4Bytes": 67108894,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "GStyleElem"
+    }
+   },
+   "m_pBBox": null,
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      1700000
+     ],
+     "m_regenOnly": [],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ },
+ "our_cut": {
+  "obj": {
+   "m_pParamValueSetDouble": null,
+   "m_pParamValueSetInt": null,
+   "m_pParamValueSetAString": null,
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": null,
+   "m_pGeomTable": null,
+   "m_constrInfo": [],
+   "m_cellList": null,
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 1700057,
+   "m_assocLevelId": -1,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_pGStyle": {
+    "ptr_class": "GStyle",
+    "pid": -1,
+    "value": {
+     "m_linePatternId": -3000010,
+     "m_materialElemId": -1,
+     "m_penNumber": 5,
+     "m_color": 2105440,
+     "m_isScreenSized": false
+    }
+   },
+   "m_categoryId": -2009606,
+   "m_ownerId": -1,
+   "m_gstyleType": 2
+  },
+  "hdr": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -1,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -32768
+   },
+   "m_abFlags4Bytes": 67108894,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "GStyleElem"
+    }
+   },
+   "m_pBBox": null,
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      1700057
+     ],
+     "m_regenOnly": [],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,103 @@
+{
+ "batch": 15,
+ "created": "2026-08-04T03:49:56-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "",
+ "reading_order": [
+  "CTRL_R9_recheck_b15.rvt",
+  "Y1.rvt",
+  "Y_cat.rvt",
+  "Y9.rvt",
+  "Y6.rvt",
+  "K1a_editfree.rvt",
+  "K1_suspect.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_R9_recheck_b15.rvt",
+   "staged_as": "experiments/acceptance/CTRL_R9_recheck_b15.rvt",
+   "md5": "d456c11887e6062b8f5fe762baf7398d",
+   "kind": "control",
+   "control": true,
+   "control_source": "experiments/acceptance/CTRL_R9_recheck.rvt",
+   "base": "experiments/acceptance/CTRL_R9_recheck.rvt",
+   "base_certification": "ORACLE-HEALTH CONTROL (second): certified R9 re-passes"
+  },
+  {
+   "order": 1,
+   "file": "experiments/genesis/subst_k4/Y1.rvt",
+   "staged_as": "experiments/acceptance/Y1.rvt",
+   "md5": "ae39d1f3cdb506f0f146b5e475f95288",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/triage/K4.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4/probes.json entry 'Y_pen' field 'base'",
+   "base_status": "certified",
+   "base_certification": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  },
+  {
+   "order": 2,
+   "file": "experiments/genesis/subst_k4/Y_cat.rvt",
+   "staged_as": "experiments/acceptance/Y_cat.rvt",
+   "md5": "30ee16ba686d5011eace1ab206a562f6",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/triage/K4.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4/probes.json entry 'Y_cat' field 'base'",
+   "base_status": "certified",
+   "base_certification": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  },
+  {
+   "order": 3,
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "staged_as": "experiments/acceptance/Y9.rvt",
+   "md5": "aa5952bceeb5830790f289af0d7cee27",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/triage/K4.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4/probes.json entry 'Y9' field 'base'",
+   "base_status": "certified",
+   "base_certification": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  },
+  {
+   "order": 4,
+   "file": "experiments/genesis/subst_k4/Y6.rvt",
+   "staged_as": "experiments/acceptance/Y6.rvt",
+   "md5": "e51d978bd9bfbacffb983e1783212cd0",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/triage/K4.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4/probes.json entry 'Y6' field 'base'",
+   "base_status": "certified",
+   "base_certification": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  },
+  {
+   "order": 5,
+   "file": "experiments/genesis/autopsy/K1a_editfree.rvt",
+   "staged_as": "experiments/acceptance/K1a_editfree.rvt",
+   "md5": "580d63a4ea132401e835abb23d97c9ba",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/R5.rvt",
+   "base_declared_by": "experiments/genesis/autopsy/probes.json entry 'K1a_editfree' field 'base'",
+   "base_status": "certified",
+   "base_certification": "Latest-DANGLING variant accepted \u2014 dangling ADocument refs (~100) are NOT fatal"
+  },
+  {
+   "order": 6,
+   "file": "experiments/genesis/autopsy/K1_suspect.rvt",
+   "staged_as": "experiments/acceptance/K1_suspect.rvt",
+   "md5": "fb851015c9394d72d1533fea2425dd36",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/R5.rvt",
+   "base_declared_by": "experiments/genesis/autopsy/probes.json entry 'K1_suspect' field 'base'",
+   "base_status": "certified",
+   "base_certification": "Latest-DANGLING variant accepted \u2014 dangling ADocument refs (~100) are NOT fatal"
+  }
+ ]
+}

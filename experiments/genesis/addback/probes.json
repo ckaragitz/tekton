@@ -1,0 +1,173 @@
+{
+ "stream": "genesis-addback (the add-back probes + the registry-parity audit)",
+ "situation": "S1..S5 (OUR singletons + OUR complete catalog ON THE FAILING G1 base) all FAIL with the sample skeleton's own message ('Revit-DocumentCorruption' / 'Design is empty').  Testing our content on the SUSPECT base cannot separate (i) our constructors / registry wiring being wrong from (ii) the G1 base carrying an independent defect.  These probes build from the PASSING side instead: our content goes onto Autodesk's own reader-accepted empty-project skeleton (K1's lineage) at EXACTLY the point the sample's content was removed (K5 = minus the singletons, K6 = minus the built-in style catalog; both viewer FAIL), with every removed row our constructors do NOT cover restored VERBATIM from K1 -- so the ONLY difference from a passing file is OUR substitution.  Every file: validator 0 errors, 0 NEW dangling document-object references, four-registry coherent.",
+ "recommended_upload_batch": "R2s + R1 + R2 (one round): R2s certifies the mechanics; R1 and R2 are the two verdicts.  R1s and R3 are the pre-built follow-ups.",
+ "reading_the_results": {
+  "R2s FAIL": "the add-back MECHANICS (byte-preserving transplant / document-object reinstatement / re-block / identity scrub) introduce a defect => R1 and R2 are unreadable until fixed; diff R2s against K1.",
+  "R2s PASS + R1 PASS": "OUR document-settings singleton constellation is an acceptable substitute => S5's failure was the G1 BASE (an independent defect), not our singletons; genesis should build G2 = the KNOWN-GOOD SKELETON with our content substituted class-by-class (the substitution ladder from the passing side).",
+  "R2s PASS + R1 FAIL": "OUR singleton constructors and/or their registry wiring are rejected even on the good skeleton => upload R1s: R1s PASS => the defect is in the MEP / structural / tracker constructors; R1s FAIL => the pen table / browser substitution itself is rejected.",
+  "R2s PASS + R2 PASS": "OUR complete built-in object-styles catalog (the frozen 1,074-category enum, our values) is an acceptable substitute => K6's / S4's failures were the base / the bundled pen table, not our catalog.",
+  "R2s PASS + R2 FAIL": "OUR catalog rows are rejected -- shape / values / enum coverage; see R2's catalog report and the parity audit.",
+  "R3 PASS": "S5's defect was registry INDEXING; adopt the audit's fixes in the assembler / apply_adoc_registry."
+ },
+ "parity_audit": {
+  "report": "docs/writer/registry-parity.md",
+  "json": "experiments/genesis/addback/registry_parity.json",
+  "severity0_mismatches": 11
+ },
+ "known_passing_anchors": {
+  "K1": "experiments/genesis/triage/K1.rvt (empty-project skeleton; K3/K4/KD1 descendants viewer PASS)"
+ },
+ "known_failing_bases": {
+  "K5": "experiments/genesis/triage/K5.rvt (viewer FAIL)",
+  "K6": "experiments/genesis/triage/K6.rvt (viewer FAIL)",
+  "S5": "experiments/genesis/singletons/S5.rvt (viewer FAIL)"
+ },
+ "probes": [
+  {
+   "file": "experiments/genesis/addback/R1.rvt",
+   "order": 1,
+   "order_rationale": "HIGHEST value: our WHOLE singleton constellation (S3/S5's) substituted into the known-good skeleton at the exact point K5 removed the sample's; a PASS exonerates our singletons and pins S5's failure on the G1 base.",
+   "derived_from": "experiments/genesis/triage/K5.rvt",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (parent skeleton; K3/K4/KD1 = its descendants, viewer PASS) / K5.rvt (this base, viewer FAIL)",
+   "the_ONE_thing_it_tests": "Are OUR document-settings singleton constructors + their registry wiring an ACCEPTABLE SUBSTITUTE for the sample's own singletons, tested on the known-good skeleton instead of the suspect G1 base (S3/S5 tested them on G1 and could not separate 'our singletons are wrong' from 'the G1 base has an independent defect')?",
+   "what_it_is": "K5.rvt (Autodesk's empty-project skeleton MINUS every document-settings singleton; viewer FAIL) + OUR constructors for EVERY deleted singleton class the S3/S5 constellation builds (PenWidthTableElem, BrowserOrganization, ReconcileBrowserSettingsElem, ConstructionSetProject, StructSettingsElem, WallJoinDefaultSetting, AutoJoinTracker, KeynotingSystem, InitialViewSettings, RbsWireSettingsElem, RbsWireSizesElem, ConduitSettingsElem, CableTraySettingsElem, RbsDuctSizesElem, LayoutNodesTracker, MEPSystemTracker, RbsDbViewSystemNavigator, Viewer, Viewport, DBDrawing, MEPHiddenLineSettingsElem, RouteAnalysisSettings, FabricationSettings, SSEPointVisibilitySettings, ReinforcementSettings, AutoCamSettingsElem, HalftoneUnderlaySettings, MultipleValuesIndicationSettings, CoordinateSystemDisplayElem, DefaultDivideSettings, ProjectCopySettingsElem, CopyWatchProperties, CircuitNamingTypeSetting, AssemblyTracker, SheetsInSheetCollectionTracker, AnalyticalToPhysicalRelationManager, ReactionsUpToDateElem, ExternalParamLock, DaylightSourceIdSet, Dwg2dExportUserSettingsData, STEPExportSettings, SketchGridAppearanceParentElem, FabricationServiceSettings, CurtaSystemFaceManager, StructuralConnectionSettings, WorksharingViewModeSettings, ModelGraphicsStyle, PrintSettings), wired to K5's OWN companion elements (units, phases, the document sun, workset visibility, the kept MEP component/network trackers, the wire catalog symbols, the surviving keynote table, the 'Title w Line' viewport type); the K5-deleted classes the constellation does NOT build (AllPlanTopologies, AreaReportSettingsElem, AreaSchemePlanTopologies, AssemblyCodeTable, CategoryElem, FontElem, GStyleElem, NumberingSchema, RbsPipeSizesElem, ViewSheetSet) are RESTORED from K1 verbatim, and the document object = K1's, purged of only the substituted ids and repopulated over ours.  R1 differs from the PASSING skeleton ONLY in that the covered singleton classes are OUR constructors' output.",
+   "if_PASS": "OUR singleton constellation cures K5's known failure => our singleton constructors + wiring are acceptable substitutes; S5's failure was the G1 BASE (an independent defect), not our singletons.  Read R2 for the catalog verdict.",
+   "if_FAIL": "OUR singleton constructors and/or their registry wiring are rejected even on the good skeleton => the defect is in OUR content.  R1s (only the pen table + browser organizations ours) bisects: R1s PASS puts the defect in the MEP / structural / tracker constructors; R1s FAIL puts it in the pen table / browser substitution itself.  Compare the parity self-audit in R1.json.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "verdict": "VALID",
+   "elements": 6532,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_entries": 50
+   },
+   "dangling_NEW": 0,
+   "dangling_inherited_tolerated": 1245,
+   "our_elements": 50,
+   "restored_from_sample": 38,
+   "report": "experiments/genesis/addback/R1.json"
+  },
+  {
+   "file": "experiments/genesis/addback/R2s.rvt",
+   "order": 2,
+   "order_rationale": "THE MECHANICS CONTROL: K6 with EVERY deleted row restored from K1 through the same transplant + document-object path (equivalent to K1).  Read it FIRST with R2: R2s PASS makes R2 (and R1) readable; R2s FAIL = the mechanics are the suspect.",
+   "derived_from": "experiments/genesis/triage/K6.rvt",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (should be equivalent) / R2.rvt (the substitution)",
+   "the_ONE_thing_it_tests": "Are the add-back MECHANICS (byte-preserving transplant + document-object reinstatement + re-blocking) themselves reader-clean?  The control that makes R2 (and R1) readable.",
+   "what_it_is": "THE MECHANICS CONTROL: K6.rvt + ALL 2,151 of K6's deleted rows RESTORED from K1 (the built-in style rows too, plus the sub-categories, patterns, materials, assets, the project pen table), transplanted at their original ids through the SAME writer path R1/R2 use, with K1's document object reinstated VERBATIM (nothing left absent => nothing purged).  Content-equivalent to K1; the only differences from K1 are the writer's own (record order of the restored rows at the end of the unit -- the passing sample itself is not id-ordered -- and the proven-benign identity scrub of BasicFileInfo / the increment table, V32 PASS).",
+   "if_PASS": "The transplant + registry machinery is sound => an R2 FAIL is attributable to OUR catalog rows, an R1 FAIL to OUR singletons.",
+   "if_FAIL": "The add-back mechanics introduce a defect (record order? episode metadata? the identity scrub?) => R1/R2 verdicts are void until this passes; diff R2s against K1 stream-by-stream.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "verdict": "VALID",
+   "elements": 6540,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_entries": 50
+   },
+   "dangling_NEW": 0,
+   "dangling_inherited_tolerated": 1245,
+   "our_elements": 0,
+   "restored_from_sample": 2151,
+   "report": "experiments/genesis/addback/R2s.json"
+  },
+  {
+   "file": "experiments/genesis/addback/R2.rvt",
+   "order": 3,
+   "order_rationale": "our COMPLETE built-in-category object-styles catalog re-pointed into the known-good skeleton (the pen table K6 also lost held constant); PASS exonerates our catalog values / enum coverage.",
+   "derived_from": "experiments/genesis/triage/K6.rvt",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (parent) / K6.rvt (this base, viewer FAIL) / R2s.rvt (the mechanics control)",
+   "the_ONE_thing_it_tests": "Is OUR complete built-in-category object-styles catalog (S4/S5's) an acceptable substitute for the sample's, when every registry / in-file reference points at our rows exactly where it pointed at theirs -- tested on the known-good skeleton?",
+   "what_it_is": "K6.rvt (the empty-project skeleton MINUS the built-in category / GStyle catalog; viewer FAIL) + OUR complete built-in-category object-styles table: 1348 OUR GStyleElem rows (our discipline colours / weights over the graphic-category ENUM) for exactly the (built-in category, style type) pairs K6 deleted, each at a NEW id, with EVERY reference in K1's document object RE-POINTED at our rows (CategoryTracking.m_gstyleData + the SymbolIdMgr entries -- a schema-typed id remap, complete by construction).  Every OTHER K6 casualty is RESTORED from K1: the sub-category CategoryElem + their style rows, the line / fill patterns, materials, appearance assets, AND the project pen table (element id 2, which K6 ALSO deleted -- a K-ladder confound R2/R2s remove by holding it constant).  R2 differs from the passing skeleton ONLY in the built-in object-styles table being OURS.",
+   "if_PASS": "OUR catalog (over the frozen graphic-category enum, 0 rows value-identical to Autodesk's) is an acceptable substitute => the K6/S4 failures were the base / the bundled pen table, not our catalog values.",
+   "if_FAIL": "(with R2s PASSING) OUR catalog rows themselves are rejected -- their shape / values / the enum coverage; compare R2's catalog report (pairs our enum lacks) and the parity audit.  If R2s ALSO FAILS the add-back mechanics are the suspect and R2 is unreadable.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "verdict": "VALID",
+   "elements": 6540,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_entries": 50
+   },
+   "dangling_NEW": 0,
+   "dangling_inherited_tolerated": 1245,
+   "our_elements": 1348,
+   "restored_from_sample": 803,
+   "report": "experiments/genesis/addback/R2.json"
+  },
+  {
+   "file": "experiments/genesis/addback/R1s.rvt",
+   "order": 4,
+   "order_rationale": "R1's bisection partner: only the pen table + browser organizations OURS. Upload after R1 (or together to save a round).",
+   "derived_from": "experiments/genesis/triage/K5.rvt",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt / R1.rvt (the full claim)",
+   "the_ONE_thing_it_tests": "Is the pen table + project-browser substitution alone acceptable?  The bisection partner of R1: R1 FAIL & R1s PASS => the defect is in our OTHER constructors (MEP settings / sizes, structural, trackers, navigator, print ...); R1s FAIL => even our pen table / browser organizations are rejected (K5a's population -- the census's #1 suspect).",
+   "what_it_is": "The SMALLER singleton claim: K5.rvt + OUR project pen table (replacing element id 2, our ISO-128-based line-weight standard) + OUR two house project-browser organizations (replacing the sample's 7 named schemes; the 4 'all' defaults survive), with EVERY OTHER K5-deleted element RESTORED from K1 (the MEP / structural / tracker / navigator singletons are the sample's own).  Differs from the passing skeleton ONLY in the pen table + browser organizations being ours.",
+   "if_PASS": "OUR pen table + browser organizations are acceptable substitutes; any R1 failure is in the other constructor classes.",
+   "if_FAIL": "OUR PenWidthTableElem and/or BrowserOrganization records (or their PenWidthTableInfo / BrowserOrganizationTracking wiring) are rejected.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "verdict": "VALID",
+   "elements": 6535,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_entries": 50
+   },
+   "dangling_NEW": 0,
+   "dangling_inherited_tolerated": 1245,
+   "our_elements": 3,
+   "restored_from_sample": 88,
+   "report": "experiments/genesis/addback/R1s.json"
+  },
+  {
+   "file": "experiments/genesis/addback/R3.rvt",
+   "order": 5,
+   "order_rationale": "S5 with the parity audit's registry-indexing mismatches repaired (rows unchanged) -- built only if the audit found registry-fixable defects.",
+   "derived_from": "experiments/genesis/singletons/S5.rvt",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (the registry SHAPE R3 copies) / S5.rvt (this base, viewer FAIL)",
+   "the_ONE_thing_it_tests": "Does repairing S5's registry indexing (as diffed against the accepted skeleton) make S5 open?  If R1/R2 exonerate our content, the registry INDEXING is the residual defect and R3 is the shortest path to a PASS.",
+   "what_it_is": "S5.rvt (our census-complete candidate, viewer FAIL) with the registry-parity mismatches REPAIRED: element rows unchanged; only the document object's registries edited to match K1's shape (set to our PrintSettings 1600077; added 23 missing defaults: group 62=1500209 (DBViewType family 102), group 63=1600080 (DBViewType family 103), group 64=1600081 (DBViewType family 104), group 65=1600082 (DBViewType family 105), group 67=1600083 (DBViewType family 106), group 68=1600084 (DBViewType family 107), group 69=1600085 (DBViewType family 108), group 71=1500210 (DBViewType family 109), group 72=1500211 (DBViewType family 111), group 73=1600086 (DBViewType family 112), group 74=1600087 (DBViewType family 113), group 75=1600088 (DBViewType family 114), group 79=1600090 (DBViewType family 116), group 66=1600091 (DBViewType family 117), group 80=1600092 (DBViewType family 118), group 107=1600093 (DBViewType family 119), group 70=1600094 (DBViewType family 120), group 150=1600095 (DBViewType family 121), group 4=1500025 (FloorAttributes (our floor type)), group 12=1500077 (TextNoteAtt).",
+   "if_PASS": "S5's defect was registry INDEXING (its rows were acceptable); the assembler / settings.ADOC_REGISTRY / apply_adoc_registry must adopt every fix listed here (default-type map, ETD categories, cell-kind sets, print MRU, voltage set, new-level view types, layout maps).",
+   "if_FAIL": "registry indexing was not S5's only defect -- the residual is the inventory / content difference the audit cannot repair (or the G1 base); read R1 / R2 for the content verdicts and the parity report's inventory-gap list.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0
+   },
+   "verdict": "VALID",
+   "elements": 1654,
+   "coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 0
+   },
+   "dangling_NEW": 0,
+   "dangling_inherited_tolerated": 0,
+   "our_elements": null,
+   "restored_from_sample": null,
+   "report": "experiments/genesis/addback/R3.json"
+  }
+ ]
+}

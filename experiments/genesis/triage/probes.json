@@ -1,0 +1,351 @@
+{
+ "stream": "genesis-triage-a (Bug A: skeleton-completeness bisection)",
+ "situation": "The Autodesk reader ACCEPTS deep sample reductions (R5, R9 PASS; R9 = model/views/types/families' host elements gone, 52 embedded documents intact) and REJECTS every constructed genesis base (G0/G1a/G1_candidate/G1b FAIL: 234 own elements, own ADocument, ZERO family documents, 5/72 settings singletons, 101-row style catalog).  Our validator calls all of them VALID.  Each probe below is derived from a viewer-PASSED file (or the previous rung) by removing ONE class of content, is dangling-reference-free by construction and validator-VALID (0 errors); the first rung the viewer REJECTS names the class the reader requires.",
+ "ordering": "Ordered by information value.  Recommended first batch: K4 + KD1 + K3 (the family-document question, with its control and parent) and K5 + K6 (the singleton and catalog questions on the empty-project base); K5a..K5d are the pre-built bisection of a K5 FAIL; K1/K2 are the reference/parent controls (expected PASS).",
+ "known_passing_anchors": {
+  "R5": "experiments/genesis/R5.rvt (viewer PASS)",
+  "R9": "experiments/genesis/R9.rvt (viewer PASS, deepest)"
+ },
+ "known_failing_subject": {
+  "G1_candidate": "experiments/genesis/G1_candidate.rvt (viewer FAIL)"
+ },
+ "reading_the_results": {
+  "K4 PASS": "family documents / loadable families NOT required -> Bug A is a singleton (a K5x FAIL names it) or the style catalog (K6 FAIL) or another census class.",
+  "K4 FAIL & KD1 PASS & K3 PASS": "the reader REQUIRES the loadable-family / embedded-document machinery -> genesis must ship a family-document set (asset-forge L4/L5); K4b splits 'any one document' from 'the specific head families'.",
+  "K3 FAIL": "the head/tag USAGE fields must name real families (a default-head requirement) -> K4 unreadable; genesis must author view types WITH heads.",
+  "KD1 FAIL": "even coherent unit removal is rejected -> a third document-coherence surface exists (Bug B is deeper); K4 unreadable.",
+  "K5 FAIL": "one of K5a..K5d fails too and names the required singleton group (K5a = PenWidthTable id 2 is the prior).",
+  "K6 FAIL": "the un-referenced built-in-category style catalog is required -> genesis must generate the full object-styles table.",
+  "all of K3,K4,K5,K6 PASS": "the required class is one the ladder did not isolate (the 19 project DBViewTypes + annotation-attribute types, the settings CATALOGS, grids/refplanes, or the 8 curtain SYSTEM families' host-scoped editor elements) -> next ladder: R9 minus the view-type layer; R9 minus the settings catalogs; R9 minus the curtain-system-family layer."
+ },
+ "probes": [
+  {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "order": 1,
+   "order_rationale": "THE CRUX -- zero loadable families / zero embedded family documents on the sample's full skeleton (the G1 condition reproduced from the passing side).  Its single verdict halves the hypothesis space: PASS retires the family-document theory of Bug A; FAIL (given KD1+K3 pass) proves the base needs a family-document set.",
+   "derived_from": "experiments/genesis/triage/K3.rvt",
+   "parent_rung": "K3",
+   "the_ONE_thing_it_tests": "Does the reader accept a project with ZERO embedded family documents and ZERO loadable families when the rest of the skeleton is Autodesk's own?  G0/G1a/G1_candidate/G1b (zero documents on a CONSTRUCTED 234-element base) all FAILED; this probe separates the 'zero families/documents' variable from the 'constructed skeleton' variable.  Read WITH KD1 (removal-mechanism control) and K3 (parent).",
+   "what_it_removes": "K3 minus the ENTIRE loadable-family layer AND ALL 52 embedded family documents, removed together and coherently: (1) every save unit 1..52 spliced out of Partitions/21, Global/ContentDocuments emptied to its 14-byte empty form (solved grammar) and the ADocument ContentTable.m_ContentRecSet emptied; then (2) the 13 loadable Family elements + their symbols / surrogates + every m_famId-scoped child (family sub-categories, styles, fonts, family-scoped text/tag/leader/dimension/section attribute types, family params, image symbols) + the depicting legend components deleted by maximal garbage collection (the documents that pinned those rows are gone, so the whole layer is now reference-free).  What remains is the SAMPLE's FULL skeleton -- every settings catalog, every built-in-category style row, every settings singleton, the 8 curtain-wall SYSTEM families and their host-scoped family-editor elements, the 3D + plan views, phases, levels, datums, project info -- with ZERO loadable families and ZERO embedded documents: the G1 condition reproduced from the PASSING side (charter K4).",
+   "if_PASS": "Embedded family documents (and loadable families) are NOT required.  Bug A is pure skeleton-completeness: a settings singleton (a K5x FAIL names it), the built-in-category style catalog (K6 FAIL), or another class in the skeleton census; genesis need NOT carry family documents.",
+   "if_FAIL": "(with KD1 + K3 PASSING) The reader REQUIRES the loadable-family / embedded-document machinery even when nothing places or references those families: the genesis base MUST carry at least a family-document set -> the asset-forge L4/L5 host loader is the critical path.  K4b (one loadable family + its document kept) then splits 'ANY document' from 'these specific annotation-head families'.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 3342,
+   "coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K4.json"
+  },
+  {
+   "file": "experiments/genesis/triage/KD1.rvt",
+   "order": 2,
+   "order_rationale": "The Bug-B control that makes K4 readable: coherent removal of EXACTLY the 38 units R9b removed (ContentTable reconciled this time).  Also settles the R9b/R10b mechanism.  Upload together with K4 + K3.",
+   "derived_from": "experiments/genesis/R9.rvt",
+   "parent_rung": "R9 (viewer PASS)",
+   "the_ONE_thing_it_tests": "BUG-B control: is COHERENT embedded-document removal reader-accepted?  The difference from R9b (FAIL) is the registry reconciliation + the grammar-exact reassembly, so a PASS convicts registry incoherence as Bug B; and it is the prerequisite that makes the K4 (zero-document) verdict interpretable.",
+   "what_it_removes": "R9 minus EXACTLY the 38 orphan embedded family documents the (viewer-FAILED) R9b splice removed (documents whose host Family element R9 had already deleted; the 14 documents of R9's surviving loadable families are KEPT), but removed COHERENTLY: partition save units spliced, their Global/ContentDocuments entries removed with the SOLVED grammar (rvt.famgen parse/assemble, byte-exact on the corpus), their ADocument ContentTable.m_ContentRecSet records dropped, AND the ADocument FamilyMgr.m_arrLoadedFamilyInfo entries whose documents vanished dropped (the second loaded-document registry, AppInfo slot 0, mapped by this stream: a document GUID lives in the unit separator, its ContentDocuments entry, its ContentTable record and its FamilyMgr entry -- all four reconciled here).  R9b removed the same 38 units + entries WITHOUT touching either registry and FAILED.",
+   "if_PASS": "Fully coherent unit removal is accepted: Bug B = the missing registry reconciliation (ContentTable and/or FamilyMgr -- KD1a tells which), and K4's verdict reads cleanly on the family-document question.",
+   "if_FAIL": "Unit removal is rejected even with every known registry reconciled -- a deeper removal defect (a fourth coherence surface); K4 cannot be read as a 'documents are required' verdict until this passes.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 3709,
+   "coherence": {
+    "save_units": 15,
+    "contentdocs_entries": 14,
+    "contenttable_records": 14
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/KD1.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K3.rvt",
+   "order": 3,
+   "order_rationale": "K4's parent: R9 with the head/tag-family USAGE fields nulled, families + documents still present.  A K4 FAIL is only interpretable if K3 PASSES.",
+   "derived_from": "experiments/genesis/R9.rvt",
+   "parent_rung": "R9 (viewer PASS)",
+   "the_ONE_thing_it_tests": "Charter K3: annotation-head / tag-family USAGE released -- the level type, grid type, callout, viewport, section and interior-elevation attributes and StructSettings name NO family (-1 = 'none').  Is a view-type / annotation-type default of NONE reader-legal?  This is also the mandatory parent state of K4 (whose family layer + documents are deleted from THIS file).",
+   "what_it_removes": "R9 (deepest viewer-PASSED file) with every USAGE field that names the LOADABLE-family layer nulled: Family-USAGE fields nulled to -1 (or their map/list entries dropped) so the loadable-family layer becomes deletable: LevelAttributes / GridAttributes / CalloutTag / ViewportAttributes .m_familyTagId, SectionAttributes.m_sectionHead|TailFamilyTagId, InteriorElevAttributes.m_elevationSymbolId, StructSettingsElem.m_bcFixedFamilyId, CopyWatchProperties.m_typeCopyMap[*], AreaReportSettingsElem.m_allSettings[*].m_idFont[*], LegendComponent.m_previewFamilySurrogateId, and any other survivor field naming a family-layer id.  Every one is the M3-certified modify path (record re-encoded byte-exact, stamp recomputed).  The loadable-family layer itself (13 families: annotation heads / tails, level+grid+callout heads, elevation marks, view title, boundary condition, A1-metric title block, M_HSS default column; + symbols / surrogates + every m_famId-scoped child) is still PRESENT, as are all 52 embedded family documents.  A pure record-edit probe (the M3-certified modify path, records re-encoded byte-exact, stamps recomputed).",
+   "if_PASS": "Head/tag defaults of 'none' are legal; K4's verdict (the layer + all documents removed) reads cleanly.",
+   "if_FAIL": "The reader requires the head/tag USAGE fields to name real families (a default-head requirement, not a document requirement) -- K4's verdict is moot until this is split; genesis must author view types WITH head families.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 3709,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K3.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K5.rvt",
+   "order": 4,
+   "order_rationale": "The assembler's own sec.5.2 hypothesis, tested in one file: the empty project minus every settings singleton the constructed base lacks.  PASS refutes it wholesale; FAIL is bisected by K5a..K5d.",
+   "derived_from": "experiments/genesis/triage/K1.rvt",
+   "parent_rung": "K1",
+   "the_ONE_thing_it_tests": "The genesis-2 assembler's own hypothesis (its sec.5.2): the constructed base fills 5 of the sample's 72 populated settings-singleton slots and carries NO PenWidthTable / BrowserOrganization / system-navigator; is any of the removed set REQUIRED by the reader when everything else is present?",
+   "what_it_removes": "K1 (empty project) minus the whole document-settings SINGLETON set G1 lacks (PenWidthTable, BrowserOrganization + system navigator, MEP/structural settings singletons, the remaining UniqueElement singletons), by maximal garbage collection -- what remains of the class is pinned by a named survivor (see pin_evidence); the deleted ids are also removed from the ADocument's registries (positional singleton-table slots nulled, registry rows dropped) so the file matches G1's condition (slot -1, element absent).",
+   "if_PASS": "NONE of the settings singletons G1 lacks is required -- the assembler's sec.5.2 hypothesis is REFUTED; Bug A is the catalog (K6) or the family documents (K4).",
+   "if_FAIL": "this sub-set contains a REQUIRED singleton -- if K5a..K5d were uploaded together the failing sub-rung names it; else upload K5a..K5d next.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 6444,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K5.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K6.rvt",
+   "order": 5,
+   "order_rationale": "The empty project minus the un-referenced built-in-category graphic-style catalog (G1's largest omission by count).",
+   "derived_from": "experiments/genesis/triage/K1.rvt",
+   "parent_rung": "K1",
+   "the_ONE_thing_it_tests": "G1_candidate authors ~101 category/style rows for the categories its content uses and NO built-in-category style catalog (rstbasic carries 1,533 GStyleElem + 284 CategoryElem).  Is the un-referenced part of that catalog required by the reader?",
+   "what_it_removes": "K1 (empty project) minus the built-in-category graphic-style CATALOG beyond the referenced core: every CategoryElem / GStyleElem / fill-pattern / line-pattern / material / appearance-asset / pen-table element that nothing surviving references (the object-styles table's un-referenced rows); the deleted rows are also dropped from the ADocument category / style / material tracking registries.",
+   "if_PASS": "The un-referenced graphic-style catalog is NOT required -- the base only needs the rows its content references (exactly what the house standard emits); retire the catalog from the Bug-A suspect list.",
+   "if_FAIL": "The reader REQUIRES the built-in-category graphic-style catalog even for un-used categories -- the genesis base must generate the full object-styles table (the counsel item B5 / `object_styles.json` question becomes load-bearing).",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 4389,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K6.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K4b.rvt",
+   "order": 6,
+   "order_rationale": "The K4-FAIL splitter: as K4 but ONE loadable family kept with its document (unused).  Upload after K4 fails.",
+   "derived_from": "experiments/genesis/triage/K3.rvt",
+   "parent_rung": "K3",
+   "the_ONE_thing_it_tests": "The K4 splitter: if K4 (zero documents) FAILS, does keeping ANY single loadable family with its document (unused, unreferenced) make the file open?",
+   "what_it_removes": "K3 minus the loadable-family layer and its documents (as K4) EXCEPT ONE loadable family kept together with its embedded document: 'M_View Title' (family 1390229, document 03f26a7f-f129-459a-9416-39e40d1f0b80, 20 family-scoped elements).  Its usage fields were already nulled at K3, so nothing REFERENCES it -- it is present, loaded, indexed by the ContentTable (1 record) and ContentDocuments (1 entry), and unused.  51 of 52 documents and the other 12 loadable families are removed exactly as in K4.",
+   "if_PASS": "(given K4 FAIL) The reader requires AT LEAST ONE embedded family document / loaded family, not any specific annotation-head family: genesis can satisfy the requirement with a single generated family document (asset-forge).",
+   "if_FAIL": "(given K4 FAIL) One unused document is not enough -- the requirement is the specific view-annotation-head / title-block family set the view types default to, or a threshold; next ladder: keep the annotation-head families WITH their usage fields intact and remove everything else.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 3363,
+   "coherence": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K4b.json"
+  },
+  {
+   "file": "experiments/genesis/triage/KD1a.rvt",
+   "order": 7,
+   "order_rationale": "The Bug-B registry splitter: KD1 with ONLY the ContentTable reconciled (FamilyMgr entries still name the removed documents). Upload after KD1 passes.",
+   "derived_from": "experiments/genesis/R9.rvt",
+   "parent_rung": "R9 (viewer PASS)",
+   "the_ONE_thing_it_tests": "BUG-B control: is COHERENT embedded-document removal reader-accepted?  The difference from R9b (FAIL) is the registry reconciliation + the grammar-exact reassembly, so a PASS convicts registry incoherence as Bug B; and it is the prerequisite that makes the K4 (zero-document) verdict interpretable.  KD1a-vs-KD1 splits WHICH registry: KD1 PASS + KD1a FAIL => the FamilyMgr entries were the killer, not the ContentTable.",
+   "what_it_removes": "R9 minus EXACTLY the 38 orphan embedded family documents the (viewer-FAILED) R9b splice removed (documents whose host Family element R9 had already deleted; the 14 documents of R9's surviving loadable families are KEPT), but removed COHERENTLY: partition save units spliced, their Global/ContentDocuments entries removed with the SOLVED grammar (rvt.famgen parse/assemble, byte-exact on the corpus), their ADocument ContentTable.m_ContentRecSet records dropped -- but the FamilyMgr.m_arrLoadedFamilyInfo entries (AppInfo slot 0, the second loaded-document registry) are left naming the removed GUIDs.  = KD1 with only the ContentTable reconciled.  R9b removed the same 38 units + entries WITHOUT touching either registry and FAILED.",
+   "if_PASS": "The FamilyMgr entries may name absent documents -- Bug B was the ContentTable count alone.",
+   "if_FAIL": "(with KD1 PASSING) the FamilyMgr loaded-family registry MUST be reconciled -- naming a vanished document GUID there is fatal (a Bug-B mechanism).",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 3709,
+   "coherence": {
+    "save_units": 15,
+    "contentdocs_entries": 14,
+    "contenttable_records": 14
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/KD1a.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K5a.rvt",
+   "order": 8,
+   "order_rationale": "PenWidthTableElem alone (element id 2 in every sample) -- top singleton suspect.",
+   "derived_from": "experiments/genesis/triage/K1.rvt",
+   "parent_rung": "K1",
+   "the_ONE_thing_it_tests": "The genesis-2 assembler's own hypothesis (its sec.5.2): the constructed base fills 5 of the sample's 72 populated settings-singleton slots and carries NO PenWidthTable / BrowserOrganization / system-navigator; is any of the removed set REQUIRED by the reader when everything else is present?",
+   "what_it_removes": "K1 (empty project) minus PenWidthTableElem ONLY (element id 2 in EVERY sample; the real project pen table + any family-scoped copies), by maximal garbage collection -- what remains of the class is pinned by a named survivor (see pin_evidence); the deleted ids are also removed from the ADocument's registries (positional singleton-table slots nulled, registry rows dropped) so the file matches G1's condition (slot -1, element absent).",
+   "if_PASS": "the removed singleton set is NOT required -- retire this class from the Bug-A suspect list.",
+   "if_FAIL": "THIS class group is required by the reader: the constructed base must build it (constructor backlog for the skeleton / systemtypes streams).",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 6539,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K5a.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K5b.rvt",
+   "order": 9,
+   "order_rationale": "BrowserOrganization + system navigator + browser settings alone.",
+   "derived_from": "experiments/genesis/triage/K1.rvt",
+   "parent_rung": "K1",
+   "the_ONE_thing_it_tests": "The genesis-2 assembler's own hypothesis (its sec.5.2): the constructed base fills 5 of the sample's 72 populated settings-singleton slots and carries NO PenWidthTable / BrowserOrganization / system-navigator; is any of the removed set REQUIRED by the reader when everything else is present?",
+   "what_it_removes": "K1 (empty project) minus the BrowserOrganization elements + the system navigator view + browser settings ONLY, by maximal garbage collection -- what remains of the class is pinned by a named survivor (see pin_evidence); the deleted ids are also removed from the ADocument's registries (positional singleton-table slots nulled, registry rows dropped) so the file matches G1's condition (slot -1, element absent).",
+   "if_PASS": "the removed singleton set is NOT required -- retire this class from the Bug-A suspect list.",
+   "if_FAIL": "THIS class group is required by the reader: the constructed base must build it (constructor backlog for the skeleton / systemtypes streams).",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 6527,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K5b.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K5c.rvt",
+   "order": 10,
+   "order_rationale": "MEP / structural / analysis settings singletons alone.",
+   "derived_from": "experiments/genesis/triage/K1.rvt",
+   "parent_rung": "K1",
+   "the_ONE_thing_it_tests": "The genesis-2 assembler's own hypothesis (its sec.5.2): the constructed base fills 5 of the sample's 72 populated settings-singleton slots and carries NO PenWidthTable / BrowserOrganization / system-navigator; is any of the removed set REQUIRED by the reader when everything else is present?",
+   "what_it_removes": "K1 (empty project) minus the MEP / structural / analysis SETTINGS singletons ONLY (StructSettings, ReinforcementSettings, RbsWire/Pipe/Duct/Conduit/CableTray Settings+Sizes, MEPSystemTracker, area/energy settings), by maximal garbage collection -- what remains of the class is pinned by a named survivor (see pin_evidence); the deleted ids are also removed from the ADocument's registries (positional singleton-table slots nulled, registry rows dropped) so the file matches G1's condition (slot -1, element absent).",
+   "if_PASS": "the removed singleton set is NOT required -- retire this class from the Bug-A suspect list.",
+   "if_FAIL": "THIS class group is required by the reader: the constructed base must build it (constructor backlog for the skeleton / systemtypes streams).",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 6496,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K5c.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K5d.rvt",
+   "order": 11,
+   "order_rationale": "The remaining UniqueElement / project singletons alone.",
+   "derived_from": "experiments/genesis/triage/K1.rvt",
+   "parent_rung": "K1",
+   "the_ONE_thing_it_tests": "The genesis-2 assembler's own hypothesis (its sec.5.2): the constructed base fills 5 of the sample's 72 populated settings-singleton slots and carries NO PenWidthTable / BrowserOrganization / system-navigator; is any of the removed set REQUIRED by the reader when everything else is present?",
+   "what_it_removes": "K1 (empty project) minus the REMAINING UniqueElement / project singletons ONLY (wall-join, auto-join, keynote, revisions, print/export settings, copy-monitor, trackers, plan topologies), by maximal garbage collection -- what remains of the class is pinned by a named survivor (see pin_evidence); the deleted ids are also removed from the ADocument's registries (positional singleton-table slots nulled, registry rows dropped) so the file matches G1's condition (slot -1, element absent).",
+   "if_PASS": "the removed singleton set is NOT required -- retire this class from the Bug-A suspect list.",
+   "if_FAIL": "THIS class group is required by the reader: the constructed base must build it (constructor backlog for the skeleton / systemtypes streams).",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 6492,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K5d.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K1.rvt",
+   "order": 12,
+   "order_rationale": "Reference rung + census base (expected PASS; the K5/K6/K2 parent). Upload only if a K5/K6 FAIL needs its parent confirmed.",
+   "derived_from": "experiments/genesis/R5.rvt",
+   "parent_rung": "R5",
+   "the_ONE_thing_it_tests": "Whether an empty project on the SAMPLE's complete skeleton (the shape of Autodesk's 'new project from template') opens; its class census is the reference the skeleton census diffs against G1_candidate, and it is the parent of K2 / K5x / K6.",
+   "what_it_removes": "R5 (viewer PASS) minus every PLACED model element (walls, instances, rebar, parts, rooms, loads, analytical + sketch content, the in-place family, model lines) plus the annotation residue that only the model pinned -- after neutralising the views' references to that content (hidden-element lists, ad-hoc graphic overrides, schedule column ids, sheet title-block ids, tracker rows) exactly as Revit's own deletion does.  Result: an EMPTY PROJECT on Autodesk's own skeleton -- every settings catalog, category/GStyle row, view type + head family, view, phase, level, datum, family and type intact.",
+   "if_PASS": "An empty project on Autodesk's skeleton is accepted (expected: R9 passed with strictly more removed). K1's census = the required-skeleton reference; the K5x/K6 verdicts (which subtract suspect classes from THIS file) read cleanly.",
+   "if_FAIL": "Unexpected -- the neutralisation edit itself (hidden-element lists / overrides) would be the suspect; K5x/K6 would then need re-derivation from R9 instead.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 6540,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K1.json"
+  },
+  {
+   "file": "experiments/genesis/triage/K2.rvt",
+   "order": 13,
+   "order_rationale": "View-minimality on the full skeleton (expected PASS; R9 already carries only these two views).  Low priority.",
+   "derived_from": "experiments/genesis/triage/K1.rvt",
+   "parent_rung": "K1",
+   "the_ONE_thing_it_tests": "View-minimality on the full skeleton: is one 3D + one plan enough (G1_candidate has 4 views: project, 3D, 2 plans).",
+   "what_it_removes": "K1 minus every view except one 3D view ({3D}) and one floor plan (Level 1), plus their view-owned content, sheets, viewports, schedules and companions.",
+   "if_PASS": "View minimality is not the constructed base's problem (R9, which also keeps only these two views, already suggests this).",
+   "if_FAIL": "The reader needs more of the view constellation than {3D}+plan when the FULL skeleton is present -- compare K2's kept view/companion classes with G1's.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "elements": 6092,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52
+   },
+   "self_check_failed": false,
+   "report": "experiments/genesis/triage/K2.json"
+  }
+ ],
+ "not_uploaded_intermediates": [
+  "experiments/genesis/triage/K1_step1_neutralised.rvt (R5 with the views'/trackers' references to the placed model neutralised, model still present) -- the split file if K1 FAILS."
+ ]
+}

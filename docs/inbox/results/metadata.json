@@ -1,0 +1,40 @@
+{
+  "slug": "metadata",
+  "summary": "Decoded all six metadata streams across the six Revit 2026 samples with a working parser package (src/rvt/meta.py, verified end-to-end: every stream parses to the byte in all files) and a spec doc (docs/streams/02-metadata.md). BasicFileInfo is a packed record of u32-length-prefixed UTF-16 strings plus u8/u16/u32 scalars whose single u8 flags shift the trailing UTF-16 mirror text to an odd offset; Contents and RevitPreview4.0 share a \"62 19 22 05\" class-stream envelope (Preview embeds inline class definitions in the exact Formats/Latest record shape plus an ARasterImage instance carrying a 128x128 PNG); TransmissionData is u32 char-count + UTF-16LE XML of external file refs; ProjectInformation is a ZIP holding the legacy PartAtom Atom XML (Project Information parameters); Global/DocumentIncrementTable is a u16-tag/u32-count table of per-save records (username, Unix timestamp, sequence, counter watermarks) serialized twice, whose count equals BasicFileInfo's \"Unique Document Increments\" and whose newest counter block is mirrored inside Contents.",
+  "key_findings": [
+    "BasicFileInfo: u32 14 [hypothesis: struct version], u16 worksharing state, empty username/central-path ustrs, then ustr fields format/build/path, u32 openWorksetDefault=3, u8 projectSparkFile, GUID strings, locale, u8 flags, u32 central version = increment count, author/appname, then ASCII CRLF + UTF-16LE mirror text + ASCII CRLF; the u8 fields are why the text lands at an odd offset (0x263 in racbasic). All six files parse exactly.",
+    "Class-stream envelope shared by Contents and RevitPreview4.0: 24-byte prologue (u32 magic 0x05221962, u32 28, u32 1, u32 0, magic, u32 class_ref); class_ref bit 0x8000 means an inline class definition follows in the exact Formats/Latest class-record format (verified: ARasterImage v3/7 fields matches the schema); Contents instead references per-document class indexes (178-430, varies per file).",
+    "Contents inflated payload = fixed 240-byte record (+ optional username string): u16 tag 0x053E, optional owner login (\"A\", \"Steven Campbell\"), partition name \"GLOBAL\", binary document creation GUID (e3e052f8-0156-11d5-9301-0000863f27ad, a 2001-era v1 GUID shared by 4 templates, found 80+ times in Partitions element data and in Global/PartitionTable), build string, then the newest DocumentIncrementTable record's counter block (minus index 7) and G value, plus constant (-1,1420),(-1,1426) pairs and zero fill.",
+    "Contents/DIT/ElemTable/History/PartitionTable gzip trailers are VALID (CRC32+ISIZE match); only Formats/Latest, Global/Latest, Global/ContentDocuments have bad trailers \u2014 refines the KNOWLEDGE 'corrupt trailer' gotcha. Post-trailer bytes (zeros + 42-91 B high-entropy blob) never inflate: hypothesized stale slack.",
+    "TransmissionData: u32 UTF-16 char count (stream size = 4 + 2n exactly in all six) + UTF-16LE XML <TransmissionData version=5> listing ExternalFileReferences (ElementId, type, saved/desired paths, load states).",
+    "ProjectInformation: complete ZIP (junk DOS timestamps) with one member '<temp path>\\Revit<guid>.project.xml' = Autodesk PartAtom Atom entry (urn:schemas-autodesk-com:partatom): title, updated (true save time 2025-03-13), product/version, and Project Information parameter groups with per-parameter displayName/system-vs-shared/shared-param GUID/typeOfParameter/value \u2014 this is where the legacy PartAtom stream moved.",
+    "RevitPreview4.0 (5 of 6 files): after the inline FilePreview/ARasterImage class defs, u32 0, u32 PNG length, PNG bytes, then m_dpiX/m_dpiY (95.9866), m_widthInFeet/m_heightInFeet (0), m_width/m_height (128) \u2014 consumes the stream exactly; previews written to extracted/<file>/preview.png.",
+    "Global/DocumentIncrementTable payload: u16 tag 0x053C, u32 count N (= BasicFileInfo increments in all six), N records {u32 npairs, (i32,i32) pairs with first key -1, ustr username, u32 0, two consecutive u32 ids, u32 0, u32 Unix timestamp, u32 sequence, u32 X, i32 counters until -1 (always 10), u32 G, u8 flag}, then the identical table again, then 8 zero bytes. Gives full per-save provenance (users zhangg/xuew/loboarch/hansonje\u2026, dates 2015-2025)."
+  ],
+  "files_written": [
+    "/Users/ck/dev/things/rev-revit/src/rvt/meta.py",
+    "/Users/ck/dev/things/rev-revit/docs/streams/02-metadata.md",
+    "/Users/ck/dev/things/rev-revit/docs/inbox/metadata.md",
+    "/Users/ck/dev/things/rev-revit/extracted/racbasicsampleproject/preview.png",
+    "/Users/ck/dev/things/rev-revit/extracted/racadvancedsampleproject/preview.png",
+    "/Users/ck/dev/things/rev-revit/extracted/rmebasicsampleproject/preview.png",
+    "/Users/ck/dev/things/rev-revit/extracted/rstadvancedsampleproject/preview.png",
+    "/Users/ck/dev/things/rev-revit/extracted/dach-sample-project/preview.png"
+  ],
+  "confidence": "high on all six stream layouts (parsers consume every byte of every sample; BFI fields cross-checked against their mirror text; DIT count cross-checked against BFI increments; Contents counters cross-checked against the DIT); medium-low on the semantics of the numeric fields flagged as unknown (BFI leading u32/worksharing bytes, Contents class_ref/hdr5/1420-1426 pairs, DIT counters/id_pair/flag)",
+  "open_questions": [
+    "Meaning of BasicFileInfo u32 14 and the 2 zero bytes assumed to be worksharing state \u2014 needs a worksharing-enabled sample.",
+    "Contents wrapper class_ref (per-file 178-430) and prologue u32 28 / u32 1: which per-document class table does it index?",
+    "Semantics of the 10 DIT counters, the -1 pair value (ElementId-like, small on flag=0 records), id_pair, X, G and flag; why the DIT is serialized twice; why Contents omits DIT counter index 7.",
+    "Contents unknown_hdr5 (7, a, b, -1, 3) with dach a=76, racbasic b=10, others b=3; constant trailing pairs (-1,1420),(-1,1426).",
+    "Nature of the 42-91 byte high-entropy slack after valid gzip trailers (stale rewrite bytes vs. an undecoded signature/checksum record).",
+    "Payload type-tag space (0x053C DIT, 0x053E Contents): what is 0x053D and how do tags map to schema classes?"
+  ],
+  "next_steps": [
+    "Merge docs/inbox/metadata.md into KNOWLEDGE.md, especially the refined gzip-trailer finding and the shared class-stream envelope.",
+    "Have the schema agent map the class-stream class_ref indexes (Contents 178-430, Preview 12/13) against the per-document class table and Formats/Latest ordering.",
+    "Have the partitions/elemtable agents anchor on the document creation GUID (e3e052f8-0156-11d5-9301-0000863f27ad) found in Partitions/15 and Global/PartitionTable, and resolve TransmissionData ElementIds (86291, 1002459, links) in Global/ElemTable.",
+    "Obtain a worksharing-enabled .rvt to pin down BasicFileInfo worksharing bytes, username/central-path strings and Contents username/0xFFFF marker.",
+    "For the generator track: BasicFileInfo, Contents, TransmissionData, ProjectInformation, RevitPreview4.0 and the DIT are now writable byte-for-byte from meta.py's layouts (only the unknown constants must be copied from a template file)."
+  ]
+}

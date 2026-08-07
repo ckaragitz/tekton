@@ -1,0 +1,1014 @@
+{
+ "stream": "genesis-2025-port (THE Y2025 SUBSTITUTION LADDER -- the certified v3 in-place mechanism on a Revit-2025 base, constructors passed through rvt.genesis.port2025)",
+ "situation": "ORCHESTRATOR VERDICT #15 (2026-08-04): K1 -- the base of the entire X-rung / S / R / C / P program -- FAILS on its own (crash -1073741831, no Revit-DocumentCorruption line, 'Design is empty'); nothing K1-derived ever passed; verdicts #9-#14's conclusions are RETRACTED artefacts of the broken base. This ladder re-points the (sound) substitution engine at a CERTIFIED base (K4: family-free, four-registry coherent, viewer-PASSED) and uses IN-PLACE substitution -- zero registration motion -- so the ONE variable of every rung is the CONTENT of our objects at Autodesk's own registrations.",
+ "the_operation": "In-place substitution (rvt.regadd.substitute_elements): our constructor's OBJECT record (seq-102) replaces the sample's at the SAME element id -- same ElemTable row (episodes / owner / vintage byte-identical), same record position, same registry slots; Global/Latest and Global/ElemTable are BYTE-IDENTICAL to the parent; nothing added, nothing deleted. Our records land on their role correspondent (X-ladder correspondence rules) or, without one, a free same-class donor slot (slot-fill); every rung asserts validator 0 errors, the structural proof, four-registry coherence, registry parity (by construction, asserted), a rvt.regdiff registration-diff sample, and the rvt.regadd byte-delta table (ONLY the landed slots' object records change; exceptions listed).",
+ "base": {
+  "file": "experiments/genesis2025/B2025_K4.rvt",
+  "certification": null,
+  "lineage": ""
+ },
+ "standing_control": {
+  "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+  "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+  "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+  "certification": null
+ },
+ "controls_discipline": "EVERY batch is uploaded with the certified control CTRL_K4_base.rvt (md5-identical to the certified base). If the CONTROL fails, the batch is VOID (oracle / service health) and NOTHING about our constructors is read from it -- re-run the batch. Only with the control PASSING are the probe verdicts read.",
+ "upload_order_bisection_first": [
+  "Y9",
+  "Y6",
+  "Y_pen",
+  "Y_cat",
+  "Y1",
+  "Y2",
+  "Y3",
+  "Y4",
+  "Y5",
+  "Y7",
+  "Y8"
+ ],
+ "reading_the_results": {
+  "how": "Upload in the listed order (control first). Y9 is the deepest CUMULATIVE rung: Y9 PASS proves EVERY constructor of this ladder loads at Autodesk's registrations in one verdict (then only Yn's residue queue + the add path remain). Y9 FAIL -> read Y6 (the biggest single layer, cumulative through the settings), Y_pen and Y_cat (single-change, straight off the base) to bracket the first failing layer; then the intermediates Y1..Y5 / Y7 / Y8 in order -- the first FAIL whose parent PASSED convicts exactly that rung's class layer (named in 'class_layer_substituted'), with every registration variable already eliminated by construction.",
+  "Y_pen FAIL": "even ONE our-object at Autodesk's registration fails: our object CONTENT grammar is the defect (diff the pen record vs the base's id 2); expect the whole ladder to fail until fixed.",
+  "Y_pen PASS + Y_cat FAIL": "our object-styles VALUES are the reader's objection (the catalog question, isolated).",
+  "Y_pen + Y_cat PASS, Y6 FAIL": "a settings-layer constructor (Y2..Y5) is rejected -- the intermediates name it.",
+  "Y6 PASS, Y9 FAIL": "the palette (Y7), the datum/identity layer (Y8) or the view layer (Y9): the intermediates name it.",
+  "ALL PASS": "EVERY constructor this ladder owns loads at Autodesk's registrations. What remains: (1) Yn's residue queue (classes without constructors / removal candidates / product data); (2) the ADD path -- landing our slot-less records (235 catalog rows, filters, house schemes, text types) is a REGISTRATION question, now testable one variable at a time on this certified base; (3) the container layer (History / DIT / Formats / the Forge corpus) -- own-save + counsel territory."
+ },
+ "residue_census": {
+  "subject": "experiments/genesis2025/subst/Y9.rvt",
+  "verdict": "RESIDUE-LISTED",
+  "elements_total": 3333,
+  "landed_ours": 1326,
+  "landed_by_rung": {
+   "Y8": 16,
+   "Y1": 1,
+   "Y7": 22,
+   "Y6": 1165,
+   "Y9": 46,
+   "Y5": 51,
+   "Y2": 12,
+   "Y3": 5,
+   "Y4": 8
+  },
+  "residue_elements": 2007,
+  "residue_by_bucket": {
+   "definitions-removal-candidate": {
+    "elements": 791,
+    "classes": {
+     "ParamElemExternal": 466,
+     "ParamBinding": 209,
+     "ParamElemElectricalLoadClassification": 108,
+     "ParamElemProject": 8
+    }
+   },
+   "gap-X6b+family-scoped": {
+    "elements": 286,
+    "classes": {
+     "GStyleElem": 286
+    }
+   },
+   "gap-X6b": {
+    "elements": 209,
+    "classes": {
+     "CategoryElem": 209
+    }
+   },
+   "product-data": {
+    "elements": 212,
+    "classes": {
+     "HVACLoadSpaceTypeElem": 125,
+     "HVACLoadBuildingTypeElem": 33,
+     "HVACLoadScheduleElem": 27,
+     "BuildingOperatingYearSchedule": 27
+    }
+   },
+   "curtain-systems(no-constructor)": {
+    "elements": 97,
+    "classes": {
+     "DBViewType": 72,
+     "Family": 8,
+     "FamilySurrogate": 8,
+     "PenWidthTableElem": 8,
+     "SlaveSymbolTrackerElem": 1
+    }
+   },
+   "no-constructor": {
+    "elements": 163,
+    "classes": {
+     "FontElem": 35,
+     "PropertySetElement": 28,
+     "DimensionStyle": 12,
+     "SectionAttributes": 10,
+     "InteriorElevAttributes": 9,
+     "CalloutTag": 9,
+     "ColorFillSchema": 9,
+     "AreaTypeElem": 8,
+     "LoadNatureElem": 8,
+     "LoadCaseElem": 8,
+     "ParameterFilterElement": 7,
+     "AreaSchemePlanTopologies": 6,
+     "LeaderStyle": 5,
+     "NumberingSchema": 3,
+     "ViewportAttributes": 1,
+     "GridAttributes": 1,
+     "AreaReportSettingsElem": 1,
+     "LinearDimString": 1,
+     "AssemblyCodeTable": 1,
+     "DataStorage": 1
+    }
+   },
+   "content-removal-candidate": {
+    "elements": 65,
+    "classes": {
+     "SketchPlane": 30,
+     "RefPlane": 21,
+     "CurveElem": 5,
+     "LegendComponent": 4,
+     "Grid": 3,
+     "LevelRoomPlan": 1,
+     "RoomElem": 1
+    }
+   },
+   "constructor-exists": {
+    "elements": 72,
+    "classes": {
+     "RbsWireInsulationType": 26,
+     "ElectricalDemandFactorDefinition": 21,
+     "ElectricalLoadClassification": 18,
+     "RbsWireMaterialType": 4,
+     "RbsWireTemperatureRatingType": 3
+    }
+   },
+   "material-companions": {
+    "elements": 18,
+    "classes": {
+     "AppearanceAssetElem": 18
+    }
+   },
+   "constructor-partial": {
+    "elements": 52,
+    "classes": {
+     "PipeSegment": 15,
+     "RbsPipeScheduleType": 13,
+     "RbsPipeConnectionType": 8,
+     "RbsPipeMaterialType": 5,
+     "ConduitStandardType": 5,
+     "ConduitSizesElem": 1,
+     "CableTraySizesElem": 1,
+     "BasicWallType": 1,
+     "FloorAttributes": 1,
+     "FabricWireType": 1,
+     "FabricSheetType": 1
+    }
+   },
+   "surplus-sample-instances": {
+    "elements": 40,
+    "classes": {
+     "MaterialElem": 10,
+     "Level": 7,
+     "FillPatternElem": 4,
+     "BrowserOrganization": 4,
+     "LinePatternElem": 3,
+     "SunAnnotationElem": 3,
+     "Viewport": 3,
+     "PrintSettings": 2,
+     "WorksharingViewModeSettings": 1,
+     "DBViewDrafting": 1,
+     "Viewer": 1,
+     "DBDrawing": 1
+    }
+   },
+   "external-link-removal-candidate": {
+    "elements": 2,
+    "classes": {
+     "RvtLinkSymbol": 1,
+     "RvtLinkInstance": 1
+    }
+   }
+  },
+  "ours_not_landed_across_ladder": {
+   "Y3": {
+    "count": 1,
+    "by_class": {
+     "InitialViewSettings": 1
+    }
+   },
+   "Y6": {
+    "count": 234,
+    "by_class": {
+     "GStyleElem": 234
+    }
+   },
+   "Y8": {
+    "count": 4,
+    "by_class": {
+     "PhaseFilterElem": 4
+    }
+   },
+   "Y9": {
+    "count": 12,
+    "by_class": {
+     "TextNoteAttributes": 3,
+     "FontElem": 3,
+     "CategoryElem": 3,
+     "GStyleElem": 3
+    }
+   }
+  },
+  "report": "experiments/genesis2025/subst/Yn.json"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "Y9",
+   "file": "experiments/genesis2025/subst/Y9.rvt",
+   "class_layer_substituted": "the 19 project view types + every view constellation (+ document sun) -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/subst/Y8.rvt",
+   "parent_rung": "Y8",
+   "passing_sibling": "Y8.rvt (this rung's parent: PASS-parent + FAIL-here convicts exactly THIS rung's class layer)",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR view / view-type / sun OBJECTS -- the document skeleton G0/G1 were built from -- at Autodesk's own registrations (the deepest cumulative rung: a PASS proves the WHOLE settings + catalog + palette + datum + view chain of our constructors).",
+   "if_PASS": "EVERY constructor this ladder owns loads at Autodesk's registrations: the residue census (Yn) is the honest remaining work, and the next variable is registration (the add path) on a certified base.",
+   "if_FAIL": "Our view-layer objects are rejected while Y8 passed -- the constructed-base defect's most likely home; bisect view types vs the 3D constellation vs the plans (each a single-layer in-place probe), reading the card message.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 46,
+    "by_class": {
+     "DBViewType": 19,
+     "Viewport": 4,
+     "DBDrawing": 4,
+     "SunAndShadowSettings": 4,
+     "Viewer": 3,
+     "ExtentElem": 3,
+     "DBViewPlan": 2,
+     "SketchPlane": 2,
+     "DBViewProject": 1,
+     "DBView3d": 1,
+     "Viewer3d": 1,
+     "ModelClipBox": 1,
+     "LightSchemeElement": 1
+    },
+    "by_match": {
+     "role": 42,
+     "donor": 4
+    }
+   },
+   "ours_not_landed": {
+    "TextNoteAttributes": 3,
+    "FontElem": 3,
+    "CategoryElem": 3,
+    "GStyleElem": 3
+   },
+   "residue_left_in_place": 11,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 36,
+    "expected_slots": 46,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 761856,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y9.json"
+  },
+  {
+   "order": 2,
+   "rung": "Y6",
+   "file": "experiments/genesis2025/subst/Y6.rvt",
+   "class_layer_substituted": "the built-in-category GStyle CATALOG swapped in place, row for row (X6a's 1:1 map)",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/subst/Y5.rvt",
+   "parent_rung": "Y5",
+   "passing_sibling": "Y5.rvt (this rung's parent: PASS-parent + FAIL-here convicts exactly THIS rung's class layer)",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR object-styles VALUES row for row at Autodesk's own catalog registrations -- the C0/X_cat/X6a question, first time on a certified base.",
+   "if_PASS": "Our catalog values are reader-accepted: the catalog counsel item is a pure legal decision.",
+   "if_FAIL": "Our catalog is what the reader rejects -- the FIRST attributable answer to the catalog question: candidates are a validated value (pen index / colour / pattern id) since the (category,type) keys and every registration are Autodesk's own.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1165,
+    "by_class": {
+     "GStyleElem": 1165
+    },
+    "by_match": {
+     "role": 1165
+    }
+   },
+   "ours_not_landed": {
+    "GStyleElem": 234
+   },
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1165,
+    "expected_slots": 1165,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 770048,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y6.json"
+  },
+  {
+   "order": 3,
+   "rung": "Y_pen",
+   "alias_of": "Y1",
+   "file": "experiments/genesis2025/subst/Y1.rvt",
+   "note": "IDENTICAL to Y1 (Y1 is the base + only the pen table in place); upload ONCE, record the verdict for both names",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null
+   },
+   "the_ONE_thing_it_tests": "Y1's question, isolated: our pen-table object at Autodesk's registration.",
+   "if_PASS": "Our pen table object loads (the smallest possible OUR-content probe passes).",
+   "if_FAIL": "Even ONE our-object at Autodesk's registration fails: the object CONTENT layer is the defect (diff our pen record vs the base's id 2), and the whole ladder is expected to fail until it is fixed.",
+   "verdict_of_alias_target": "VALID",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   }
+  },
+  {
+   "order": 4,
+   "rung": "Y_cat",
+   "file": "experiments/genesis2025/subst/Y_cat.rvt",
+   "class_layer_substituted": "the base + ONLY the built-in GStyle catalog in place (single-change probe)",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/B2025_K4.rvt",
+   "parent_rung": "BASE",
+   "passing_sibling": "the certified base itself (staged as the control)",
+   "the_ONE_thing_it_tests": "Whether OUR object-styles values load at Autodesk's own catalog registrations, isolated from every other constructor.",
+   "if_PASS": "Our catalog values are reader-accepted in isolation (the catalog is retired as an engineering question).",
+   "if_FAIL": "Our catalog VALUES are rejected in isolation -- diff a rejected (category, type) row's pen / colour / pattern values against the base's row (report's field diff sample).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1165,
+    "by_class": {
+     "GStyleElem": 1165
+    },
+    "by_match": {
+     "role": 1165
+    }
+   },
+   "ours_not_landed": {
+    "GStyleElem": 234
+   },
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1165,
+    "expected_slots": 1165,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 851968,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y_cat.json"
+  },
+  {
+   "order": 5,
+   "rung": "Y1",
+   "file": "experiments/genesis2025/subst/Y1.rvt",
+   "class_layer_substituted": "the project pen table (PenWidthTableElem id 2) -> OUR pen table, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/B2025_K4.rvt",
+   "parent_rung": "BASE",
+   "passing_sibling": "the certified base itself (staged as the control)",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR pen table CONTENT when nothing but the object bytes at Autodesk's own registration change (X1v/X_pen/XR0 asked this on the BROKEN K1 base; this is the first time it is asked on a CERTIFIED base).",
+   "if_PASS": "Our pen table constructor's values load at Autodesk's registration; the K5a/S1/X_pen line is retired for real.",
+   "if_FAIL": "Our pen-table VALUES are what the reader rejects (the ONLY variable): diff our record vs the base's id 2 field by field (docs/writer/substitution-ladder-v3.md).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1,
+    "by_class": {
+     "PenWidthTableElem": 1
+    },
+    "by_match": {
+     "role": 1
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1,
+    "expected_slots": 1,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 851968,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y1.json"
+  },
+  {
+   "order": 6,
+   "rung": "Y2",
+   "file": "experiments/genesis2025/subst/Y2.rvt",
+   "class_layer_substituted": "BrowserOrganization set + system-navigator constellation -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/subst/Y1.rvt",
+   "parent_rung": "Y1",
+   "passing_sibling": "Y1.rvt (this rung's parent: PASS-parent + FAIL-here convicts exactly THIS rung's class layer)",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our browser-organization / navigator OBJECTS at Autodesk's own registrations.",
+   "if_PASS": "Our browser / navigator constructors are reader-accepted.",
+   "if_FAIL": "One of our browser / navigator objects is rejected -- bisect the organizations from the navigator (two single-class in-place probes).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 12,
+    "by_class": {
+     "BrowserOrganization": 6,
+     "ReconcileBrowserSettingsElem": 1,
+     "ConstructionSetProject": 1,
+     "RbsDbViewSystemNavigator": 1,
+     "Viewer": 1,
+     "Viewport": 1,
+     "DBDrawing": 1
+    },
+    "by_match": {
+     "role": 9,
+     "donor": 3
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 4,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 9,
+    "expected_slots": 12,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 851968,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y2.json"
+  },
+  {
+   "order": 7,
+   "rung": "Y3",
+   "file": "experiments/genesis2025/subst/Y3.rvt",
+   "class_layer_substituted": "StructSettings / wall-join / auto-join / keynote pair -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/subst/Y2.rvt",
+   "parent_rung": "Y2",
+   "passing_sibling": "Y2.rvt (this rung's parent: PASS-parent + FAIL-here convicts exactly THIS rung's class layer)",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our structural / join / keynote singleton OBJECTS (incl. an EMPTY keynote table) at Autodesk's slots.",
+   "if_PASS": "The named singleton constructors are reader-accepted (an empty keynote table is legal).",
+   "if_FAIL": "One of these five objects is rejected -- bisect the keynote pair from the joins pair from StructSettings.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 5,
+    "by_class": {
+     "StructSettingsElem": 1,
+     "WallJoinDefaultSetting": 1,
+     "AutoJoinTracker": 1,
+     "KeynoteTable": 1,
+     "KeynotingSystem": 1
+    },
+    "by_match": {
+     "role": 5
+    }
+   },
+   "ours_not_landed": {
+    "InitialViewSettings": 1
+   },
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 2,
+    "expected_slots": 5,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 778240,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y3.json"
+  },
+  {
+   "order": 8,
+   "rung": "Y4",
+   "file": "experiments/genesis2025/subst/Y4.rvt",
+   "class_layer_substituted": "Rbs* settings + sizes tables (wire/duct/pipe/conduit/cable-tray) -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/subst/Y3.rvt",
+   "parent_rung": "Y3",
+   "passing_sibling": "Y3.rvt (this rung's parent: PASS-parent + FAIL-here convicts exactly THIS rung's class layer)",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our MEP settings singletons and OUR size-table DATA at Autodesk's slots.",
+   "if_PASS": "Our MEP settings / sizes constructors + our dimensional data are reader-accepted.",
+   "if_FAIL": "One of the eight is rejected -- bisect settings vs sizes vs the conduit/cable-tray pair.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 8,
+    "by_class": {
+     "RbsWireSettingsElem": 1,
+     "RbsWireSizesElem": 1,
+     "RbsPipeSettingsElem": 1,
+     "RbsPipeSizesElem": 1,
+     "RbsDuctSettingsElem": 1,
+     "RbsDuctSizesElem": 1,
+     "ConduitSettingsElem": 1,
+     "CableTraySettingsElem": 1
+    },
+    "by_match": {
+     "role": 8
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 8,
+    "expected_slots": 8,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y4.json"
+  },
+  {
+   "order": 9,
+   "rung": "Y5",
+   "file": "experiments/genesis2025/subst/Y5.rvt",
+   "class_layer_substituted": "every remaining settings singleton / tracker with a constructor -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/subst/Y4.rvt",
+   "parent_rung": "Y4",
+   "passing_sibling": "Y4.rvt (this rung's parent: PASS-parent + FAIL-here convicts exactly THIS rung's class layer)",
+   "the_ONE_thing_it_tests": "Whether the reader accepts the WHOLE our-settings constellation OBJECTS at Autodesk's slots.",
+   "if_PASS": "Every settings constructor we own is reader-accepted; the settings layer is retired.",
+   "if_FAIL": "A constructor of the wider settings constellation is rejected -- bisect Y5 by tier (mep / trackers / revisions).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 51,
+    "by_class": {
+     "ModelGraphicsStyle": 2,
+     "RevisionNumberingSequence": 2,
+     "AreaMeasureElem": 2,
+     "MEPComponentTracker": 1,
+     "LayoutNodesTracker": 1,
+     "MEPSystemTracker": 1,
+     "MEPNetworkDataElem": 1,
+     "MEPNetworkTracker": 1,
+     "MEPHiddenLineSettingsElem": 1,
+     "CircuitNamingTypeSetting": 1,
+     "AssemblyTracker": 1,
+     "KeynoteTagsOnSheetsTracker": 1,
+     "RevisionCloudsOnSheetsTracker": 1,
+     "SheetsInSheetCollectionTracker": 1,
+     "AnalyticalToPhysicalRelationManager": 1,
+     "ReactionsUpToDateElem": 1,
+     "GraphicsCache": 1,
+     "ExternalParamLock": 1,
+     "DaylightSourceIdSet": 1,
+     "WorksetVisibilitySettingsElem": 1,
+     "Dwg2dExportUserSettingsData": 1,
+     "STEPExportSettings": 1,
+     "ZoneScheme": 1,
+     "RvtLinkInstanceAppearanceParentElem": 1,
+     "SketchGridAppearanceParentElem": 1,
+     "FabricationServiceSettings": 1,
+     "CurtaSystemFaceManager": 1,
+     "StructuralConnectionSettings": 1,
+     "AutoCamSettingsElem": 1,
+     "HalftoneUnderlaySettings": 1,
+     "MultipleValuesIndicationSettings": 1,
+     "DefaultDivideSettings": 1,
+     "ProjectCopySettingsElem": 1,
+     "AreaSettingsElem": 1,
+     "RouteAnalysisSettings": 1,
+     "FabricationSettings": 1,
+     "FabricationSettingsElement": 1,
+     "SSEPointVisibilitySettings": 1,
+     "ReinforcementSettings": 1,
+     "CoordinateSystemDisplayElem": 1,
+     "ElectricalSetting": 1,
+     "CopyWatchProperties": 1,
+     "ActiveGeoLocationTrackingElement": 1,
+     "EnergyDataSettings": 1,
+     "WorksharingViewModeSettings": 1,
+     "ProjectRevision": 1,
+     "AllProjectRevisions": 1,
+     "PrintSettings": 1
+    },
+    "by_match": {
+     "role": 51
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 3,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 11,
+    "expected_slots": 51,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y5.json"
+  },
+  {
+   "order": 10,
+   "rung": "Y7",
+   "file": "experiments/genesis2025/subst/Y7.rvt",
+   "class_layer_substituted": "line/fill patterns + materials -> our palette, IN PLACE (role + slot-fill)",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/subst/Y6.rvt",
+   "parent_rung": "Y6",
+   "passing_sibling": "Y6.rvt (this rung's parent: PASS-parent + FAIL-here convicts exactly THIS rung's class layer)",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR pattern + material OBJECTS at Autodesk's palette registrations (incl. the two token questions: our solid fill under our own name, no 'Default'-named material).",
+   "if_PASS": "Our patterns / materials are reader-accepted at the sample's slots; no name token is required.",
+   "if_FAIL": "Our palette objects are rejected -- bisect patterns vs materials (two single-layer in-place probes); if a NAME token is the cause it is a REQUIRED TOKEN for the counsel list.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 22,
+    "by_class": {
+     "MaterialElem": 13,
+     "FillPatternElem": 5,
+     "LinePatternElem": 4
+    },
+    "by_match": {
+     "role-primary": 3,
+     "donor": 17,
+     "sibling-donor": 2
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 63,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 22,
+    "expected_slots": 22,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 765952,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y7.json"
+  },
+  {
+   "order": 11,
+   "rung": "Y8",
+   "file": "experiments/genesis2025/subst/Y8.rvt",
+   "class_layer_substituted": "levels + phases (+ set/filter) + units / site / base points / project info -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/B2025_K4.rvt",
+    "certification": null,
+    "lineage": ""
+   },
+   "derived_from": "experiments/genesis2025/subst/Y7.rvt",
+   "parent_rung": "Y7",
+   "passing_sibling": "Y7.rvt (this rung's parent: PASS-parent + FAIL-here convicts exactly THIS rung's class layer)",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our datum + identity OBJECTS (levels, phases, units, site, project info) at Autodesk's own registrations.",
+   "if_PASS": "Our level / phase / units / site / project-info constructors are reader-accepted.",
+   "if_FAIL": "Our datum/identity objects are rejected -- bisect levels+phases vs units vs site/base-points vs project info (single-layer in-place probes).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 16,
+    "by_class": {
+     "GeoSite": 2,
+     "GeoLocation": 2,
+     "BasePoint": 2,
+     "Level": 2,
+     "ProjectPhase": 2,
+     "UnitsElem": 1,
+     "TrueNorth": 1,
+     "LevelAttributes": 1,
+     "AllProjectPhases": 1,
+     "PhaseFilterElem": 1,
+     "ProjectInfo": 1
+    },
+    "by_match": {
+     "role": 13,
+     "role-primary": 1,
+     "donor": 1,
+     "sibling-donor": 1
+    }
+   },
+   "ours_not_landed": {
+    "PhaseFilterElem": 4
+   },
+   "residue_left_in_place": 7,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 16,
+    "expected_slots": 16,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 761856,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": null
+   },
+   "report": "experiments/genesis2025/subst/Y8.json"
+  }
+ ],
+ "derivation_chain": [
+  "Y1 <- BASE",
+  "Y2 <- Y1",
+  "Y3 <- Y2",
+  "Y4 <- Y3",
+  "Y5 <- Y4",
+  "Y6 <- Y5",
+  "Y7 <- Y6",
+  "Y8 <- Y7",
+  "Y9 <- Y8",
+  "Yn <- Y9",
+  "Y_cat <- BASE"
+ ],
+ "release": 2025,
+ "viewer_certification": "PENDING -- the Autodesk viewer session is signed out.  EVERY entry in this manifest (including the base and the control) is STAGED, NOT certified: no Revit-2025 file has ever been uploaded.  Upload when the session returns, control first.",
+ "base_2025": {
+  "file": "experiments/genesis2025/B2025_K4.rvt",
+  "resolved_as": "reduce2025 stream output experiments/genesis2025/B2025_K4.rvt",
+  "certification": "PENDING (built with --allow-uncertified; the batch law still holds: the base itself is the staged control, and if the control fails the whole batch is VOID)"
+ },
+ "round_1_reading": "The control (the untouched 2025 base) answers TWO questions at once: (a) does the Autodesk viewer accept Revit-2025 uploads at all (genesis-2025-plan.md section 7 risk #1), and (b) is this base sound.  Control FAIL with 2026 controls passing = the viewer rejects 2025 uploads -- the campaign needs a different oracle, and NOTHING about the rungs is read from the batch.",
+ "standing_controls_gate": "tools/probe_batch.py check REFUSES these rungs today (declared base experiments/genesis2025/B2025_K4.rvt is not yet viewer-certified) -- the K1 law working as designed.  Sequence: (1) upload the reduce2025 stream's batch_17 (experiments/genesis2025/batch_17.json), which carries B2025_K4 as a candidate-base with the untouched-2025-sample control; (2) once B2025_K4 is ledgered certified, stage this ladder through the gate: tools/probe_batch.py stage experiments/genesis2025/subst/Y*.rvt --manifest experiments/genesis2025/subst/probes.json (the gate adds a certified-2026 control; upload both controls); (3) read verdicts with tools/probe_batch.py verdicts."
+}

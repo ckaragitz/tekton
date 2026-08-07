@@ -1,0 +1,145 @@
+{
+ "stream": "hostpair: the host-pair byte-copy binary.  H7 (verdict #33) proved an unmodified Autodesk famdoc through our famload + one instance FAILS on its own sample base -- famdoc content exonerated.  H9/H10 decide whether the defect is famload's AUTHORED HOST ELEMENTS or the unit/registration rows.",
+ "base": "samples/rstbasicsampleproject.rvt",
+ "note": "H9 = untouched rst + the H7 load recipe with the host family layer replaced by ID-REBASED BYTE-COPIES of the donor's own NATIVE host constellation (22 elements; every field byte-identical except ids, the content GUID, a fresh famDocGUID, the collision-avoiding name, and the twin's id-derived type suffix -- exhaustive machine ledger in copy_report.json) + ONE instance by H7's exact template recipe.  H10 = H9's immediate parent (no instance).  PROOF-ONLY: sample-derived content, quarantined, never shipped.  Fresh GUIDs are minted per rebuild -- re-hash after any rerun.",
+ "upload_order_max_information_first": [
+  "H9",
+  "H10"
+ ],
+ "control": {
+  "source": "samples/rstbasicsampleproject.rvt",
+  "note": "control = byte-identical copy of the UNTOUCHED rst sample (probe_batch stage --control-from)"
+ },
+ "recorded_context": {
+  "H7": "FAIL (famload-authored host pair + instance, batch 37)",
+  "L_v2 / BX_f2": "PASS (famload-authored host pair, no instance)",
+  "V20": "PASS (instance of the NATIVE symbol 1411287, no load)"
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID (oracle/environment) -- interpret nothing",
+  "H9 PASS": "with the recorded H7 FAIL: the defect IS famload's authored host elements -- native byte-copies under the SAME famload registration + the SAME instance recipe pass where famload's authored pair failed.  The fix spec is the famload-vs-native field diff (experiments/hostpair/hostfix_spec.json): the symbol's GElement rep + m_geomSteps + m_pGeomTable head the ranking, then m_refFaces/m_strongRefs/m_hasParamDefValue/outline, then the Family's type-table/familyIds/big2small/preview shapes.  src/rvt/famload_hostfix.py implements the geometry-history authoring (opt-in, default OFF).",
+  "H9 FAIL + H10 PASS": "the copies are lawful uninstanced (H10 = L_v2's cell with native copies) but an instance still kills the load -- with V20 certifying an instance of the NATIVE original on this base, the remaining our-authored surface is the registration itself (the four-registry rows + the re-encoded unit).  Next rung H11: H9 with ContentTable/FamilyMgr/ContentDocuments rows byte-modeled on an Autodesk multi-unit file's own row shapes (field-by-field parity with a native row, fresh GUID only).",
+  "H9 FAIL + H10 FAIL": "the byte-copies themselves are rejected even uninstanced, where famload's authored elements pass uninstanced (L_v2/BX_f2) -- a copy delta is unlawful (duplicate-family shape, the renamed surrogate, the carried LegendComponent preview, or the slave symbol).  Re-examine copy_report.json's declared moves; rebuild minus the preview/slave sub-cluster as H9b.",
+  "H9 PASS + H10 FAIL": "incoherent (the instanced superset of a failing file passed) -- oracle noise; re-run the round."
+ },
+ "companion_evidence": {
+  "accounting": "experiments/hostpair/accounting.json",
+  "copy_ledger": "experiments/hostpair/copy_report.json",
+  "fix_spec": "experiments/hostpair/hostfix_spec.json",
+  "load_report": "experiments/hostpair/_build/load_report.json"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "H9",
+   "file": "experiments/hostpair/H9.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "native host-pair byte-copies + famload registration + ONE instance",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "H7's exact load (same donor famdoc, same rebase, same famload unit build + inline ADocument + four-registry registration) with the host Family/FamilySymbol layer replaced by id-rebased BYTE-COPIES of the donor's own NATIVE 22-element host constellation, + ONE instance by H7's exact template recipe.  The ONE thing vs H7: WHO authored the host elements.",
+   "expected": "the hypothesis-bearing rung: PASS convicts famload's authored host elements; FAIL moves the defect into the registration rows / unit re-encode",
+   "md5": "2eb3a66f9a1826d9e39542a91492d67e",
+   "symbol_id": 1472961,
+   "family_id": 1472942,
+   "instance_ids": [
+    1472964
+   ],
+   "immediate_parent": "experiments/hostpair/_build/H9_load.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   }
+  },
+  {
+   "order": 2,
+   "rung": "H10",
+   "file": "experiments/hostpair/H10.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "H9's immediate parent: same load, NO instance",
+   "n_families": 1,
+   "n_instances": 0,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "H9 minus the instance (byte-identical to H9's immediate parent).  The ONE thing vs L_v2/BX_f2 (famload loads, uninstanced, PASS): the byte-copied host constellation.",
+   "expected": "PASS expected (completes the 2x2; a FAIL here re-frames H9)",
+   "md5": "e28952e7a10dce3f20c1937fa62dd0d4",
+   "symbol_id": 1472961,
+   "family_id": 1472942,
+   "instance_ids": [],
+   "immediate_parent": "samples/rstbasicsampleproject.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   }
+  },
+  {
+   "order": 3,
+   "rung": "BXhf_f1i1",
+   "file": "experiments/hostpair/BXhf_f1i1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "the minimal fixed probe: G_ABPD + ONE famgen family + ONE instance, symbols in the corpus-lawful form (famload_hostfix)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "ONE change vs the FAILED BXfix_f1i1 (batch 33): the loaded symbol carries the corpus-lawful geometry form (ref-face node rows + m_refFaces + the trailing Geometry roster + hasParamDefValue 0) instead of the one-specimen bake.  PASS = the fix; FAIL = the instanced-symbol defect is not (only) the symbol's geometry form.",
+   "expected": "the fix verdict rung",
+   "md5": "1d6d2dd7c2843afe7496d2d5c3139115",
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/hostpair/_build/hf_chain1/stage_L1_pp1.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "symbol_form_ok": true
+   }
+  },
+  {
+   "order": 4,
+   "rung": "DEMO_250v_room_v3",
+   "file": "experiments/hostpair/DEMO_250v_room_v3.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "the user's exact prompt end-to-end through rvt.frontdoor.run with famload_hostfix applied",
+   "n_families": 6,
+   "n_instances": 6,
+   "n_walls": 4,
+   "the_ONE_thing_it_tests": "the user's exact prompt end-to-end under the fix -- the product-scale confirmation of whatever BXhf_f1i1 shows.",
+   "expected": "product-scale confirmation",
+   "md5": "d7798f2b131e1ad3b906ad44321e4ee3",
+   "instance_ids": [
+    1472879,
+    1472880,
+    1472881,
+    1472882,
+    1472883,
+    1472884
+   ],
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "symbol_form_ok": true
+   }
+  }
+ ],
+ "fix_reading": {
+  "BXhf_f1i1 PASS": "the corpus-lawful symbol form IS the fix (the one change vs batch-33's failed BXfix_f1i1); flip famload_hostfix to default ON and re-emit the product path.",
+  "BXhf_f1i1 FAIL": "the symbol geometry form alone does not clear the audit -- read against the SAME round's H9/H10 verdict: the surviving suspect set is the remaining famload/famgen host-element deltas in hostfix_spec.json (family type-table/familyIds/big2small/preview shapes) or the registration rows (H11).",
+  "DEMO PASS + BXhf FAIL (or converse)": "scale-dependent second defect; diff the two accountings."
+ }
+}

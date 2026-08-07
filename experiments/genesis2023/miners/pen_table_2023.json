@@ -1,0 +1,80 @@
+{
+ "generator": "rvt.genesis.port2023.derive_pen_table_2023",
+ "release": 2023,
+ "project_tables": [
+  {
+   "file": "rstbasicsampleproject",
+   "elem_id": 2,
+   "scales": [
+    10,
+    20,
+    50,
+    100,
+    200,
+    500
+   ],
+   "pens_per_vector": [
+    16
+   ],
+   "perspective_scale": -1,
+   "draft_scale": -1,
+   "width_ft_range": [
+    0.00032808398950131233,
+    0.03280839895013123
+   ]
+  },
+  {
+   "file": "rmebasicsampleproject",
+   "elem_id": 2,
+   "scales": [
+    10,
+    20,
+    50,
+    100,
+    200,
+    500
+   ],
+   "pens_per_vector": [
+    16
+   ],
+   "perspective_scale": -1,
+   "draft_scale": -1,
+   "width_ft_range": [
+    0.00032808398950131233,
+    0.03280839895013123
+   ]
+  },
+  {
+   "file": "racbasicsampleproject",
+   "elem_id": 2,
+   "scales": [
+    10,
+    20,
+    50,
+    100,
+    200,
+    500
+   ],
+   "pens_per_vector": [
+    16
+   ],
+   "perspective_scale": -1,
+   "draft_scale": -1,
+   "width_ft_range": [
+    0.00032808398950131233,
+    0.03280839895013123
+   ]
+  }
+ ],
+ "scale_breakpoints": [
+  10,
+  20,
+  50,
+  100,
+  200,
+  500
+ ],
+ "pens_per_vector": 16,
+ "perspective_draft_scale": -1,
+ "matches_2026_constant": true
+}

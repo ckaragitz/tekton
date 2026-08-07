@@ -1,0 +1,129 @@
+{
+ "batch": 32,
+ "created": "2026-08-05T00:00:31-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "instbug bisection ladder: the walls/families/instances product-path bug, axes separated (see experiments/instbug/probes.json reading_the_matrix; accounting.json = per-rung four-registry + byte accounting)",
+ "reading_order": [
+  "CTRL_G_ABPD_b32.rvt",
+  "BX_f2.rvt",
+  "BX_f1i1.rvt",
+  "SX_f6i6.rvt",
+  "BX_f6i6.rvt",
+  "BX_f2i2.rvt",
+  "BX_f6.rvt",
+  "BX_f1.rvt",
+  "BX_w_f1i1.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_G_ABPD_b32.rvt",
+   "staged_as": "experiments/acceptance/CTRL_G_ABPD_b32.rvt",
+   "md5": "1f1ff65bd68415a05228d6b6ac2bf271",
+   "kind": "control",
+   "control": true,
+   "control_source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 1,
+   "file": "experiments/instbug/BX_f2.rvt",
+   "staged_as": "experiments/acceptance/BX_f2.rvt",
+   "md5": "1de0817f748369c8674aa56bcbd585f0",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/instbug/probes.json entry 'BX_f2' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 2,
+   "file": "experiments/instbug/BX_f1i1.rvt",
+   "staged_as": "experiments/acceptance/BX_f1i1.rvt",
+   "md5": "00fce836dd98f7239111603f80d2630a",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/instbug/probes.json entry 'BX_f1i1' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 3,
+   "file": "experiments/instbug/SX_f6i6.rvt",
+   "staged_as": "experiments/acceptance/SX_f6i6.rvt",
+   "md5": "b6598090c3b3c8687e0a392e34f7eed1",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/instbug/probes.json entry 'SX_f6i6' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 4,
+   "file": "experiments/instbug/BX_f6i6.rvt",
+   "staged_as": "experiments/acceptance/BX_f6i6.rvt",
+   "md5": "cba9be7bba9bf0a859f92736a86f3845",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/instbug/probes.json entry 'BX_f6i6' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 5,
+   "file": "experiments/instbug/BX_f2i2.rvt",
+   "staged_as": "experiments/acceptance/BX_f2i2.rvt",
+   "md5": "e1274d67c5d51a3d8b4f8654342ada08",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/instbug/probes.json entry 'BX_f2i2' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 6,
+   "file": "experiments/instbug/BX_f6.rvt",
+   "staged_as": "experiments/acceptance/BX_f6.rvt",
+   "md5": "b2a5f7980aa894ba36b04f1beb2c4b53",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/instbug/probes.json entry 'BX_f6' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 7,
+   "file": "experiments/instbug/BX_f1.rvt",
+   "staged_as": "experiments/acceptance/BX_f1.rvt",
+   "md5": "36a9bc09531946c01c9ba8a115434443",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/instbug/probes.json entry 'BX_f1' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 8,
+   "file": "experiments/instbug/BX_w_f1i1.rvt",
+   "staged_as": "experiments/acceptance/BX_w_f1i1.rvt",
+   "md5": "ae452bfa9c59df0436c4bd4e63b2dbdf",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/instbug/probes.json entry 'BX_w_f1i1' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ ]
+}

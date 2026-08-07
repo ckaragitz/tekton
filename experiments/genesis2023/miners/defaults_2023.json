@@ -1,0 +1,176 @@
+{
+ "generator": "rvt.genesis.port2023.derive_defaults_2023",
+ "release": 2023,
+ "wire_settings": {
+  "rst:102129": {
+   "m_dMaxVoltageBranchSizing": 0.02,
+   "m_dMaxVoltageFeederSizing": 0.03,
+   "m_dAmbientTemperature": 303.15000000000003
+  },
+  "rme:293123": {
+   "m_dMaxVoltageBranchSizing": 0.02,
+   "m_dMaxVoltageFeederSizing": 0.03,
+   "m_dAmbientTemperature": 303.15000000000003
+  }
+ },
+ "geomtable_census_rst": {
+  "(-1, -1)": 6201,
+  "(0, -1)": 529,
+  "(1, -1)": 95,
+  "(3, -1)": 60,
+  "(2, -1)": 45,
+  "(10, -1)": 21,
+  "(9, -1)": 19,
+  "(0, 103)": 19,
+  "(17, -1)": 7,
+  "(4, -1)": 6,
+  "(12, -1)": 6,
+  "(0, 35)": 6,
+  "(8, -1)": 5,
+  "(15, -1)": 5,
+  "(1, 103)": 4,
+  "(13, -1)": 3,
+  "(5, -1)": 3,
+  "(30, -1)": 3,
+  "(6, -1)": 3,
+  "(0, 210)": 2,
+  "(0, 99)": 2,
+  "(7, -1)": 2,
+  "(11, -1)": 2,
+  "(26, -1)": 2,
+  "(2, 103)": 2,
+  "(3, 103)": 2,
+  "(65, -1)": 2,
+  "(0, 98)": 2,
+  "(73, -1)": 2,
+  "(67, 259)": 1,
+  "(14, 259)": 1,
+  "(13, 259)": 1,
+  "(16, -1)": 1,
+  "(40, 99)": 1,
+  "(59, -1)": 1,
+  "(28, -1)": 1,
+  "(33, -1)": 1,
+  "(104, -1)": 1,
+  "(39, 103)": 1,
+  "(19, 103)": 1,
+  "(87, 103)": 1,
+  "(6, 103)": 1,
+  "(9, 103)": 1,
+  "(10, 103)": 1,
+  "(37, -1)": 1,
+  "(49, -1)": 1,
+  "(41, -1)": 1,
+  "(67, -1)": 1,
+  "(40, 98)": 1,
+  "(3, 35)": 1
+ },
+ "geomtable_dominant": [
+  -1,
+  -1
+ ],
+ "use_gdi": {
+  "ModelGraphicsStyle": {
+   "False": 2
+  },
+  "ViewDisplayMgr": {
+   "False": 66
+  }
+ },
+ "reinforcement_number_individually": {
+  "137426": true
+ },
+ "wire_max_size_labels": {
+  "rst:55171": "2000",
+  "rme:261496": "2000",
+  "rme:55171": "2000"
+ },
+ "numbering_schemas": {
+  "1457391": {
+   "scope": [
+    -2009060
+   ],
+   "guid": "396c2ee8-a554-4fed-bf44-c2e648dec011",
+   "minDigits": 1,
+   "matching": true
+  },
+  "1218729": {
+   "scope": [
+    -2009000
+   ],
+   "guid": "e0bc59cf-a1aa-48ae-83a2-637780af923d",
+   "minDigits": 1,
+   "matching": true
+  },
+  "1218730": {
+   "scope": [
+    -2009016
+   ],
+   "guid": "f90085e5-ffbd-4dea-aadc-837c93df2943",
+   "minDigits": 1,
+   "matching": true
+  }
+ },
+ "load_classifications": {
+  "Water Heater": {
+   "motor": false,
+   "spare": false
+  },
+  "Lighting Controls": {
+   "motor": false,
+   "spare": false
+  },
+  "Cooling": {
+   "motor": false,
+   "spare": false
+  },
+  "Receptacles": {
+   "motor": false,
+   "spare": false
+  },
+  "HVAC": {
+   "motor": false,
+   "spare": false
+  },
+  "Lighting": {
+   "motor": false,
+   "spare": false
+  },
+  "Other": {
+   "motor": false,
+   "spare": false
+  },
+  "Power": {
+   "motor": false,
+   "spare": false
+  },
+  "Motor": {
+   "motor": true,
+   "spare": false
+  },
+  "Spare": {
+   "motor": false,
+   "spare": true
+  }
+ },
+ "param_group_witnesses": {
+  "-5000161": 12,
+  "-5000157": 2,
+  "-5000130": 15,
+  "-5000127": 2,
+  "-5000126": 1,
+  "-5000125": 177,
+  "-5000124": 9,
+  "-5000123": 9,
+  "-5000119": 41,
+  "-5000113": 2,
+  "-5000112": 16,
+  "-5000111": 13,
+  "-5000105": 78,
+  "-5000104": 13,
+  "-5000103": 30,
+  "-5000101": 67,
+  "-5000100": 54,
+  "-1": 113
+ }
+}

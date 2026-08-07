@@ -1,0 +1,62 @@
+{
+ "stream": "genesis-assembly (THE COMPOSER: certified base + independent in-place rung sets + a deletion set -> one composed candidate)",
+ "situation": "ZA_deep (Y9 + Group A's residue layers) is viewer-CERTIFIED (VERDICTS #18); Group B's Z_defs bucket is viewer-CERTIFIED (its single probe passed; ZB_deep FAILED partially, one other B bucket carries a subtle defect the singles are naming). The composer merges independent certified rung sets onto ONE certified base in one deterministic pass; its correctness is ANCHORED: compose(Y9, Group-A rungs) reproduces the certified ZA_deep.rvt byte-identically.",
+ "anchor": {
+  "file": "experiments/genesis/subst_k4/compose/G_A.rvt",
+  "BYTE_IDENTICAL_to_ZA_deep": true,
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "viewer": "PASS (byte-identical to the certified ZA_deep.rvt)",
+  "note": "certified by BYTES (md5-identical to a viewer-PASSED file) -- no upload"
+ },
+ "standing_control": {
+  "file": "experiments/genesis/subst_k4/compose/CTRL_ZA_deep_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "controls_discipline": "Upload the batch with the certified CONTROL (a byte-identical copy of the certified deep base ZA_deep). If the CONTROL fails, the batch is VOID (oracle / service health) and nothing about the composition is read from it.",
+ "probes": [
+  {
+   "order": 1,
+   "rung": "G_AB_defs",
+   "file": "experiments/genesis/subst_k4/compose/G_AB_defs.rvt",
+   "class_layer_substituted": "Group A's whole residue layer (already in the base ZA_deep) + Group B's parameter-DEFINITIONS bucket (ParamElemExternal / ParamBinding / ParamElemProject / ParamElemElectricalLoadClassification), composed in place",
+   "base": {
+    "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "composed_from": [
+    "experiments/genesis/subst_k4/residue_b/Z_defs.rvt (certified)"
+   ],
+   "the_ONE_thing_it_tests": "Whether two independently CERTIFIED in-place layers (ZA_deep's Group-A layer + Group B's Z_defs bucket, each viewer-PASSED alone on Y9) COMPOSE: the merged file changes exactly the union of their slots, both global registry streams byte-identical to ZA_deep.",
+   "if_PASS": "Certified in-place layers compose additively: every future certified bucket (the named-good Group-B singles, residue_a2's ZC rungs) can be composed onto the deep base by this tool -- the end-game is one compose_endgame call.",
+   "if_FAIL": "The composition of two individually-passing layers fails: read the control first (round health); if the control passes, the two layers interact -- bisect by composing Z_defs onto Y9 vs onto ZA_deep.",
+   "verdict": "COMPOSED-VALID",
+   "problems": [],
+   "manifest": "experiments/genesis/subst_k4/compose/G_AB_defs.manifest.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/compose/CTRL_ZA_deep_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "md5": "56308637529a0d0a95976f5701e2615e",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   }
+  }
+ ],
+ "not_uploaded": [
+  {
+   "rung": "G_A",
+   "file": "experiments/genesis/subst_k4/compose/G_A.rvt",
+   "why": "byte-identical to the already-certified ZA_deep.rvt (the anchor) -- its verdict IS ZA_deep's PASS"
+  }
+ ]
+}

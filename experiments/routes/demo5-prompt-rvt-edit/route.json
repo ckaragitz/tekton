@@ -1,0 +1,76 @@
+{
+ "router": "rvt.frontdoor.router (perm-matrix stream)",
+ "request": {
+  "inputs": {
+   "prompt": "move DP-1 to 3,1,4.66; delete LP-4 with cascade",
+   "rvt": "experiments/routes/demo3-prompt-via-ifc-rvt/prompt_intent.rvt"
+  },
+  "output": "rvt",
+  "opts": {}
+ },
+ "cell": {
+  "inputs": [
+   "prompt",
+   "rvt"
+  ],
+  "output": "rvt",
+  "status": "works",
+  "route": "rvt_edit",
+  "stages": [
+   "rvt-read",
+   "rvt-edit"
+  ],
+  "evidence": [
+   "certified:experiments/manipulate/M3_modify.rvt",
+   "certified:experiments/manipulate/M4_move_retype.rvt",
+   "certified:experiments/manipulate/M2_delete_cascade.rvt",
+   "certified:experiments/manipulate/M2_delete_cascade_rac.rvt",
+   "worked:experiments/frontdoor/rvt-edit-room/manifest.json",
+   "test:tests/test_manipulate.py",
+   "test:tests/test_frontdoor.py"
+  ],
+  "caveats": [
+   "the prompt is the EDIT (an edit sentence, ops.json path, or inline JSON); certified including on a FOREIGN file (M2_rac)",
+   "a prompt that is NOT edit-shaped but IS authoring-shaped falls back to building the new content with your .rvt as the BASE -- that branch is PARTIAL: the certified stage code + gates run, but no viewer certification exists on arbitrary bases"
+  ],
+  "missing_reason": null,
+  "closest": null,
+  "hint": null
+ },
+ "route": "rvt_edit",
+ "ok": true,
+ "status": "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)",
+ "steps": [
+  {
+   "stage": "rvt-read + rvt-edit",
+   "impl": "rvt.frontdoor:author",
+   "ok": true,
+   "seconds": 1.7
+  }
+ ],
+ "files": {
+  "edited": "experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt"
+ },
+ "releases": {
+  "edited": 2026
+ },
+ "stamps": [
+  "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)"
+ ],
+ "caveats": [
+  "the prompt is the EDIT (an edit sentence, ops.json path, or inline JSON); certified including on a FOREIGN file (M2_rac)",
+  "a prompt that is NOT edit-shaped but IS authoring-shaped falls back to building the new content with your .rvt as the BASE -- that branch is PARTIAL: the certified stage code + gates run, but no viewer certification exists on arbitrary bases"
+ ],
+ "evidence": [
+  "certified:experiments/manipulate/M3_modify.rvt",
+  "certified:experiments/manipulate/M4_move_retype.rvt",
+  "certified:experiments/manipulate/M2_delete_cascade.rvt",
+  "certified:experiments/manipulate/M2_delete_cascade_rac.rvt",
+  "worked:experiments/frontdoor/rvt-edit-room/manifest.json",
+  "test:tests/test_manipulate.py",
+  "test:tests/test_frontdoor.py"
+ ],
+ "errors": [],
+ "seconds": 1.8,
+ "deliverable_rule": "gates are labels: the output files above ARE delivered; every caveat/stamp rides AFTER the delivery, never instead of it"
+}

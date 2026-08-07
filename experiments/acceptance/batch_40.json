@@ -1,0 +1,64 @@
+{
+ "batch": 40,
+ "created": "2026-08-05T03:36:12-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "regcorner: the registration-corner probes (post-verdict-#34). H9 FAIL + H10 PASS + V20 PASS => two suspects: registration row content vs a fifth ADocument surface.  All three probes share one byte-identical H9-recipe parent; H12 = + the donor's POPULATED inline ADocument (H6 swap law); H11 = + the ContentTable row re-authored on the donor's own native row (GUID kept ours); H11x12 = both.  Upload in manifest order (H12 first); read experiments/regcorner/probes/probes.json reading_the_matrix.",
+ "reading_order": [
+  "CTRL_rstbasicsampleproject_b40.rvt",
+  "H12.rvt",
+  "H11.rvt",
+  "H11x12.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_rstbasicsampleproject_b40.rvt",
+   "staged_as": "experiments/acceptance/CTRL_rstbasicsampleproject_b40.rvt",
+   "md5": "b3235ad2743f19bcfff243654fec35dd",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/rstbasicsampleproject.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 1,
+   "file": "experiments/regcorner/probes/H12.rvt",
+   "staged_as": "experiments/acceptance/H12.rvt",
+   "md5": "80321ae42263331fa47e3b26cc5760d0",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/regcorner/probes/probes.json entry 'H12' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 2,
+   "file": "experiments/regcorner/probes/H11.rvt",
+   "staged_as": "experiments/acceptance/H11.rvt",
+   "md5": "b4a8900c1dde07c2cb13637dc683b072",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/regcorner/probes/probes.json entry 'H11' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 3,
+   "file": "experiments/regcorner/probes/H11x12.rvt",
+   "staged_as": "experiments/acceptance/H11x12.rvt",
+   "md5": "231e86d0bd949b20bfcadd4ae3dd4309",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/regcorner/probes/probes.json entry 'H11x12' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  }
+ ]
+}

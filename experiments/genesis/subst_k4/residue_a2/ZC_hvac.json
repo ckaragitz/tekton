@@ -1,0 +1,2060 @@
+{
+ "rung": "ZC_hvac",
+ "label": "the HVAC / energy database web (schedules + space & building types): interface enums kept, OUR schedules and OUR settings values, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+  "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a2/ZC_hvac.rvt",
+ "landed_by_class": {
+  "HVACLoadSpaceTypeElem": 125,
+  "HVACLoadBuildingTypeElem": 33,
+  "HVACLoadScheduleElem": 27,
+  "BuildingOperatingYearSchedule": 27
+ },
+ "notes": [
+  "day schedules 27 -> OUR schedule library (27 named 24-hour profiles: off, on24, half24, occ_office, occ_classroom, occ_assembly, occ_transit24, occ_shop, ...); the sample's schedule NAMES are free content (the German file localizes them) -> ours",
+  "year schedules 27: PURE MACHINERY (365 x one day-slot id, uniform 27/27) -> REPRODUCED byte-identical, each now wrapping OUR day schedule at its day slot (nothing of ours to reject)",
+  "space types 125: identity = m_eSpaceType + canonical name = the reader's fixed space-type LIST (identical in all six samples incl. the German file = the public gbXML / ASHRAE space-type ENUMERATION, an interface constant) KEPT; every settings VALUE (LPD / EPD / occupant density / OA rates / setpoints / heat gains / plenum-lighting / carpet + the three schedule references) = OUR profile (37 of our functional profiles; classification of the enum = ours; use {'assembly': 16, 'lobby': 13, 'dining': 8, 'sales_general': 7, 'gym_court': 6, 'locker_room': 5} ...)",
+  "building types 33: identity (m_eBuildingType + name = the public building-type enum) KEPT; values + equipment operating window + schedules OURS ({'assembly': 4, 'civic': 3, 'dining': 3, 'residential': 3, 'recreation': 3, 'civic_24h': 3, 'shop': 2, 'hospitality': 2, 'institutional': 2, 'healthcare': 1, 'industrial': 1, 'office': 1, 'parking': 1, 'retail': 1, 'school': 1, 'transit': 1, 'warehouse': 1})",
+  "web wiring: space/building types -> OUR year schedules (by role) -> OUR day schedules; the referrers into the web from OUR settings (EnergyDataSettings -> a building type; the room -> a space type) keep pointing at valid, now-ours elements (ids preserved)"
+ ],
+ "info": {
+  "day_schedules": 27,
+  "year_schedules": 27,
+  "space_types": 125,
+  "building_types": 33,
+  "space_profile_use": {
+   "assembly": 16,
+   "lobby": 13,
+   "dining": 8,
+   "sales_general": 7,
+   "gym_court": 6,
+   "locker_room": 5,
+   "storage_active": 4,
+   "transit_terminal": 4,
+   "industrial_low": 4,
+   "healthcare_treat": 4,
+   "corridor": 3,
+   "library_reading": 3,
+   "workshop": 3,
+   "healthcare_patient": 3,
+   "storage_inactive": 3,
+   "residential_living": 3,
+   "healthcare_support": 3,
+   "office_open": 2,
+   "sales_service": 2,
+   "library_stacks": 2,
+   "classroom": 2,
+   "confinement": 2,
+   "conference": 2,
+   "residential_sleep": 2,
+   "mech_elec": 2,
+   "office_enclosed": 2,
+   "laboratory": 2,
+   "laundry": 2,
+   "lounge": 2,
+   "parking": 2,
+   "stair": 2,
+   "kitchen": 1,
+   "industrial_high": 1,
+   "warehouse_bulky": 1,
+   "plenum": 1,
+   "restroom": 1
+  },
+  "building_profile_use": {
+   "assembly": 4,
+   "civic": 3,
+   "dining": 3,
+   "residential": 3,
+   "recreation": 3,
+   "civic_24h": 3,
+   "shop": 2,
+   "hospitality": 2,
+   "institutional": 2,
+   "healthcare": 1,
+   "industrial": 1,
+   "office": 1,
+   "parking": 1,
+   "retail": 1,
+   "school": 1,
+   "transit": 1,
+   "warehouse": 1
+  },
+  "year_of_key": {
+   "off": 1471979,
+   "on24": 1471980,
+   "half24": 1471981,
+   "occ_office": 1471982,
+   "occ_classroom": 1471983,
+   "occ_assembly": 1471984,
+   "occ_transit24": 1471985,
+   "occ_shop": 1471986,
+   "occ_warehouse": 1471987,
+   "occ_retail": 1471988,
+   "occ_dining": 1471989,
+   "occ_health24": 1471990,
+   "occ_residential": 1471991,
+   "occ_recreation": 1471992,
+   "ltg_office": 1471993,
+   "ltg_transit24": 1471994,
+   "ltg_warehouse": 1471995,
+   "ltg_exterior": 1471996,
+   "ltg_egress": 1471997,
+   "ltg_corridor": 1471998,
+   "ltg_retail": 1471999,
+   "plug_office": 1472000,
+   "plug_it24": 1472001,
+   "eq_kitchen": 1472002,
+   "eq_shop": 1472003,
+   "eq_charging": 1472004,
+   "hvac_optimum": 1472005
+  },
+  "day_library_used": [
+   "off",
+   "on24",
+   "half24",
+   "occ_office",
+   "occ_classroom",
+   "occ_assembly",
+   "occ_transit24",
+   "occ_shop",
+   "occ_warehouse",
+   "occ_retail",
+   "occ_dining",
+   "occ_health24",
+   "occ_residential",
+   "occ_recreation",
+   "ltg_office",
+   "ltg_transit24",
+   "ltg_warehouse",
+   "ltg_exterior",
+   "ltg_egress",
+   "ltg_corridor",
+   "ltg_retail",
+   "plug_office",
+   "plug_it24",
+   "eq_kitchen",
+   "eq_shop",
+   "eq_charging",
+   "hvac_optimum"
+  ]
+ },
+ "residue_left_in_place": {},
+ "record_selfcheck": {
+  "objects": 212,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.0
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   105532,
+   105533,
+   105534,
+   105535,
+   105536,
+   105537,
+   105538,
+   105539,
+   105540,
+   105541,
+   105542,
+   105543,
+   105544,
+   105545,
+   105546,
+   105547,
+   105548,
+   105549,
+   105550,
+   105551,
+   105552,
+   105553,
+   105554,
+   105555,
+   105556,
+   105557,
+   105558,
+   105559,
+   105560,
+   105561,
+   105562,
+   105563,
+   105564,
+   105565,
+   105566,
+   105567,
+   105568,
+   105569,
+   105570,
+   105571,
+   105572,
+   105573,
+   105574,
+   105575,
+   105576,
+   105577,
+   105578,
+   105579,
+   105580,
+   105581,
+   105582,
+   105583,
+   105584,
+   105585,
+   105586,
+   105587,
+   105588,
+   105589,
+   105590,
+   105591,
+   105592,
+   105593,
+   105594,
+   105595,
+   105596,
+   105597,
+   105598,
+   105599,
+   105600,
+   105601,
+   105602,
+   105603,
+   105604,
+   105605,
+   105606,
+   105607,
+   105608,
+   105609,
+   105610,
+   105611,
+   105612,
+   105613,
+   105614,
+   105615,
+   105616,
+   105617,
+   105618,
+   105619,
+   105620,
+   105621,
+   105622,
+   105623,
+   105624,
+   105625,
+   105626,
+   105627,
+   105628,
+   105629,
+   105630,
+   105631,
+   105632,
+   105633,
+   105634,
+   105635,
+   105636,
+   105637,
+   105638,
+   105639,
+   105640,
+   105641,
+   105642,
+   105643,
+   105644,
+   105645,
+   105646,
+   105647,
+   105648,
+   105649,
+   105650,
+   105651,
+   105652,
+   105653,
+   105654,
+   105655,
+   105656,
+   105657,
+   105658,
+   105659,
+   105660,
+   105661,
+   105662,
+   105663,
+   105664,
+   105665,
+   105666,
+   105667,
+   105668,
+   105669,
+   105670,
+   105671,
+   105672,
+   105673,
+   105674,
+   105675,
+   105676,
+   105677,
+   105678,
+   105679,
+   105680,
+   105681,
+   105682,
+   105683,
+   105684,
+   105685,
+   105686,
+   105687,
+   105688,
+   105689,
+   105690,
+   105691,
+   105692,
+   105693,
+   105694,
+   105695,
+   105696,
+   105697,
+   105698,
+   105699,
+   105700,
+   105701,
+   105702,
+   105703,
+   105704,
+   105705,
+   105706,
+   105707,
+   105708,
+   105709,
+   105710,
+   105711,
+   105712,
+   105713,
+   105714,
+   713142,
+   713143
+  ],
+  "records_changed_count": 185,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 212,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 27,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 105532,
+    "len_ours": 377,
+    "len_parent": 369,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "HVACLoadScheduleElem",
+      "class_parent": "HVACLoadScheduleElem"
+     },
+     {
+      "path": ".m_strName",
+      "ours": "'GEN Off - 24 Hours'",
+      "parent": "'Off - 24 Hours'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 105533,
+    "len_ours": 375,
+    "len_parent": 367,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "HVACLoadScheduleElem",
+      "class_parent": "HVACLoadScheduleElem"
+     },
+     {
+      "path": ".m_strName",
+      "ours": "'GEN On - 24 Hours'",
+      "parent": "'On - 24 Hours'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 105534,
+    "len_ours": 401,
+    "len_parent": 377,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "HVACLoadScheduleElem",
+      "class_parent": "HVACLoadScheduleElem"
+     },
+     {
+      "path": ".m_24HourSchedules[0]",
+      "ours": "0.5",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_24HourSchedules[1]",
+      "ours": "0.5",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_24HourSchedules[2]",
+      "ours": "0.5",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_24HourSchedules[3]",
+      "ours": "0.5",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_24HourSchedules[4]",
+      "ours": "0.5",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_24HourSchedules[5]",
+      "ours": "0.5",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_24HourSchedules[6]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[7]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[8]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[9]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[10]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[11]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[12]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[13]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[14]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[15]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[16]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[17]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[18]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[19]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[20]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[21]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[22]",
+      "ours": "0.5",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_24HourSchedules[23]",
+      "ours": "0.5",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_strName",
+      "ours": "'GEN On - 24 Hours (50 Percent)'",
+      "parent": "'On - 6 AM to 10 PM'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 105535,
+    "len_ours": 415,
+    "len_parent": 375,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "HVACLoadScheduleElem",
+      "class_parent": "HVACLoadScheduleElem"
+     },
+     {
+      "path": ".m_24HourSchedules[7]",
+      "ours": "0.1",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_24HourSchedules[8]",
+      "ours": "0.7",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[9]",
+      "ours": "0.9",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[10]",
+      "ours": "0.9",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[11]",
+      "ours": "0.9",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[12]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[13]",
+      "ours": "0.9",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[14]",
+      "ours": "0.9",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[15]",
+      "ours": "0.9",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[16]",
+      "ours": "0.9",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[17]",
+      "ours": "0.5",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_24HourSchedules[18]",
+      "ours": "0.1",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_24HourSchedules[19]",
+      "ours": "0.1",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_strName",
+      "ours": "'GEN Occupancy - Office (8 AM to 6 PM)'",
+      "parent": "'On - 8 AM to 6 PM'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 11,
+    "blocks_out": 11
+   },
+   {
+    "what": "27 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     1471979,
+     1471980,
+     1471981,
+     1471982,
+     1471983,
+     1471984,
+     1471985,
+     1471986,
+     1471987,
+     1471988,
+     1471989,
+     1471990,
+     1471991,
+     1471992,
+     1471993,
+     1471994,
+     1471995,
+     1471996,
+     1471997,
+     1471998,
+     1471999,
+     1472000,
+     1472001,
+     1472002,
+     1472003,
+     1472004,
+     1472005
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 212,
+  "slots_with_registry_surface": 212,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 105532,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 105533,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 105534,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 105535,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 105536,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 105537,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 105538,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 105539,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 212,
+  "pairs_ok": 212,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 105532,
+   "class": "HVACLoadScheduleElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 438,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 105533,
+   "class": "HVACLoadScheduleElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 438,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 105534,
+   "class": "HVACLoadScheduleElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 438,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 105535,
+   "class": "HVACLoadScheduleElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 438,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 105536,
+   "class": "HVACLoadScheduleElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 438,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 105537,
+   "class": "HVACLoadScheduleElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 438,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 16,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a2/ZC_hvac.rvt",
+  "elements": 3342,
+  "file_size": 626688,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "HVACLoadScheduleElem": {
+   "slots": 27,
+   "differing_field_paths": {
+    "m_strName": 27,
+    "m_24HourSchedules.[12]": 25,
+    "m_24HourSchedules.[9]": 24,
+    "m_24HourSchedules.[10]": 24,
+    "m_24HourSchedules.[11]": 24,
+    "m_24HourSchedules.[13]": 24,
+    "m_24HourSchedules.[14]": 24,
+    "m_24HourSchedules.[15]": 24,
+    "m_24HourSchedules.[17]": 24,
+    "m_24HourSchedules.[7]": 23,
+    "m_24HourSchedules.[16]": 23,
+    "m_24HourSchedules.[18]": 23,
+    "m_24HourSchedules.[19]": 23,
+    "m_24HourSchedules.[8]": 22,
+    "m_24HourSchedules.[21]": 22,
+    "m_24HourSchedules.[20]": 21,
+    "m_24HourSchedules.[22]": 21,
+    "m_24HourSchedules.[0]": 20,
+    "m_24HourSchedules.[1]": 20,
+    "m_24HourSchedules.[3]": 20,
+    "m_24HourSchedules.[5]": 20,
+    "m_24HourSchedules.[23]": 20,
+    "m_24HourSchedules.[2]": 19,
+    "m_24HourSchedules.[4]": 19
+   },
+   "declared_ours": [
+    "m_24HourSchedules",
+    "m_strName"
+   ]
+  },
+  "HVACLoadSpaceTypeElem": {
+   "slots": 125,
+   "differing_field_paths": {
+    "m_coolingSetPoint": 125,
+    "m_dEquipmentRadiant": 125,
+    "m_dInfiltration": 125,
+    "m_dPlenumLighting": 125,
+    "m_dehumidificationSetPoint": 125,
+    "m_heatingSetPoint": 125,
+    "m_LightingLoadDensity": 124,
+    "m_PowerLoadDensity": 124,
+    "m_dAreaPerPerson": 124,
+    "m_dLatentHeatGainPerPerson": 124,
+    "m_dSensibleHeatGainPerPerson": 124,
+    "m_idLightingSchedule": 124,
+    "m_idOccupancySchedule": 123,
+    "m_idPowerSchedule": 123,
+    "m_dOutdoorAirPerArea": 45,
+    "m_dOutdoorAirPerPerson": 42,
+    "m_bCarpeting": 35,
+    "m_dAirChangesPerHour": 11
+   },
+   "declared_ours": [
+    "m_LightingLoadDensity",
+    "m_PowerLoadDensity",
+    "m_bCarpeting",
+    "m_coolingSetPoint",
+    "m_dAirChangesPerHour",
+    "m_dAreaPerPerson",
+    "m_dEquipmentRadiant",
+    "m_dInfiltration",
+    "m_dLatentHeatGainPerPerson",
+    "m_dOutdoorAirPerArea",
+    "m_dOutdoorAirPerPerson",
+    "m_dPlenumLighting",
+    "m_dSensibleHeatGainPerPerson",
+    "m_dehumidificationSetPoint",
+    "m_heatingSetPoint",
+    "m_humidificationSetPoint",
+    "m_idLightingSchedule",
+    "m_idOccupancySchedule",
+    "m_idPowerSchedule",
+    "m_isPlenum"
+   ]
+  },
+  "HVACLoadBuildingTypeElem": {
+   "slots": 33,
+   "differing_field_paths": {
+    "m_LightingLoadDensity": 33,
+    "m_PowerLoadDensity": 33,
+    "m_coolingSetPoint": 33,
+    "m_dAreaPerPerson": 33,
+    "m_dCoolingSetPoint": 33,
+    "m_dEquipmentRadiant": 33,
+    "m_dInfiltration": 33,
+    "m_dLatentHeatGainPerPerson": 33,
+    "m_dPlenumLighting": 33,
+    "m_dSensibleHeatGainPerPerson": 33,
+    "m_dehumidificationSetPoint": 33,
+    "m_heatingSetPoint": 33,
+    "m_idLightingSchedule": 33,
+    "m_idOccupancySchedule": 33,
+    "m_idPowerSchedule": 33,
+    "m_strEquipmentStartTime": 30,
+    "m_strEquipmentEndTime": 26,
+    "m_bCarpeting": 10,
+    "m_dOutdoorAirPerArea": 8,
+    "m_dOutdoorAirPerPerson": 8,
+    "m_dAirChangesPerHour": 1
+   },
+   "declared_ours": [
+    "m_LightingLoadDensity",
+    "m_PowerLoadDensity",
+    "m_bCarpeting",
+    "m_coolingSetPoint",
+    "m_dAirChangesPerHour",
+    "m_dAreaPerPerson",
+    "m_dCoolingSetPoint",
+    "m_dEquipmentRadiant",
+    "m_dInfiltration",
+    "m_dLatentHeatGainPerPerson",
+    "m_dOutdoorAirPerArea",
+    "m_dOutdoorAirPerPerson",
+    "m_dPlenumLighting",
+    "m_dSensibleHeatGainPerPerson",
+    "m_dehumidificationSetPoint",
+    "m_heatingSetPoint",
+    "m_humidificationSetPoint",
+    "m_idLightingSchedule",
+    "m_idOccupancySchedule",
+    "m_idPowerSchedule",
+    "m_strEquipmentEndTime",
+    "m_strEquipmentStartTime"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 105532,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105533,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105534,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105535,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105536,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105537,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105538,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105539,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105540,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105541,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105542,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105543,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105544,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105545,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105546,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105547,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105548,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105549,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105550,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105551,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105552,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105553,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105554,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105555,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105556,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105557,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105558,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105559,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105560,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105561,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105562,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105563,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105564,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105565,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105566,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105567,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105568,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105569,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105570,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105571,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105572,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105573,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105574,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105575,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105576,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105577,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105578,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105579,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105580,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105581,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105582,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105583,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105584,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105585,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105586,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105587,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105588,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105589,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105590,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105591,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105592,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105593,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105594,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105595,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105596,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105597,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105598,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105599,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105600,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105601,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105602,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105603,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105604,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105605,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105606,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105607,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105608,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105609,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105610,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105611,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105612,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105613,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105614,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105615,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105616,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105617,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105618,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105619,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105620,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105621,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105622,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105623,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105624,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105625,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105626,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105627,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105628,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105629,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105630,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105631,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105632,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105633,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105634,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105635,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105636,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105637,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105638,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105639,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105640,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105641,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105642,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105643,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105644,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105645,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105646,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105647,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105648,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105649,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105650,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105651,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105652,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105653,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105654,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105655,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105656,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105657,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105658,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105659,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105660,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105661,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105662,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105663,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105664,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105665,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105666,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105667,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105668,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105669,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105670,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105671,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105672,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105673,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105674,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105675,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105676,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105677,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105678,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105679,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105680,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105681,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105682,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105683,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105684,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105685,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105686,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105687,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105688,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105689,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105690,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105691,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105692,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105693,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105694,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105695,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105696,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105697,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105698,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105699,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105700,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105701,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105702,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105703,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105704,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105705,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105706,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105707,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105708,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105709,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105710,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105711,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105712,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105713,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105714,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 713142,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 713143,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 1471979,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471980,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471981,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471982,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471983,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471984,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471985,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471986,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471987,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471988,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471989,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471990,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471991,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471992,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471993,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471994,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471995,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471996,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471997,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471998,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471999,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472000,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472001,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472002,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472003,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472004,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472005,
+   "class": "BuildingOperatingYearSchedule"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 105532,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Off - 24 Hours' (0/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105533,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN On - 24 Hours' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105534,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN On - 24 Hours (50 Percent)' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105535,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Office (8 AM to 6 PM)' (13/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105536,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Classroom (7 AM to 4 PM)' (11/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105537,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Assembly (Evening Peak)' (14/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105538,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Transit Facility (24 Hour, Commute Peaks)' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105539,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Maintenance Shop (Two Shifts 6 AM to 10 PM)' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105540,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Warehouse (7 AM to 5 PM)' (10/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105541,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Retail (9 AM to 9 PM)' (12/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105542,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Dining (Lunch and Dinner Peaks)' (15/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105543,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Healthcare (24 Hour, Night Reduced)' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105544,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Residential (Night Peak)' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105545,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Occupancy - Recreation (6 AM to 10 PM)' (16/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105546,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Lighting - Office (6 AM to 11 PM)' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105547,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Lighting - Transit (24 Hour, 30 Percent Night Setback)' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105548,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Lighting - Warehouse (6 AM to 6 PM)' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105549,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Lighting - Exterior (Dusk to Dawn)' (12/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105550,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Lighting - Egress and Emergency (Always On)' (24/24 h non-zero)"
+   ]
+  },
+  {
+   "slot": 105551,
+   "class": "HVACLoadScheduleElem",
+   "notes": [
+    "our day schedule 'GEN Lighting - Corridor (24 Hour, Occupancy Setback)' (24/24 h non-zero)"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 626688,
+ "seconds": 1.6,
+ "reached_by_other_streams_not_reauthored": {
+  "RbsWireInsulationType": "GROUP B ZB2_mepcat (viewer PASS, batch 17) -- our wire catalog",
+  "RbsWireMaterialType": "GROUP B ZB2_mepcat",
+  "RbsWireTemperatureRatingType": "GROUP B ZB2_mepcat",
+  "RbsPipeScheduleType": "GROUP B ZB2_mepcat -- our piping catalog",
+  "RbsPipeConnectionType": "GROUP B ZB2_mepcat",
+  "RbsPipeMaterialType": "GROUP B ZB2_mepcat",
+  "PipeSegment": "GROUP B ZB2_mepcat",
+  "CategoryElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation, D_curtain)",
+  "GStyleElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "FontElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "DimensionStyle": "GROUP A ZA_deep (family-scoped remainder)",
+  "CalloutTag": "GROUP A ZA_deep (family-scoped remainder)",
+  "InteriorElevAttributes": "GROUP A ZA_deep (family-scoped remainder)",
+  "DBViewType": "curtain constellation (deletion stream D_curtain)",
+  "Family": "curtain constellation (D_curtain)",
+  "FamilySurrogate": "curtain constellation (D_curtain)",
+  "CurveElem": "room constellation (deletion stream, blocked -> D_room after the wiring fix)",
+  "LegendComponent": "type previews (2 curtain-owned in D_curtain; 2 owned by our residue types)",
+  "LevelRoomPlan": "room constellation",
+  "LinearDimString": "constraint-dimension group (deletion stream D_content)",
+  "RoomElem": "GROUP B ZB8_content (identity) / room constellation deletion",
+  "MaterialElem": "GROUP B ZB5_palette (surplus materials)",
+  "ParamElemExternal": "GROUP B ZB1_defs",
+  "ParamBinding": "GROUP B ZB1_defs",
+  "ParamElemElectricalLoadClassification": "GROUP B ZB1_defs (the 6-per-class companions of our ZC_elec classifications -- id-wired both sides)",
+  "ParamElemProject": "GROUP B ZB1_defs",
+  "PenWidthTableElem": "GROUP B ZB3_pens",
+  "SectionAttributes": "GROUP B ZB4_annot",
+  "ViewportAttributes": "GROUP B ZB4_annot",
+  "PropertySetElement": "GROUP B ZB5_palette",
+  "ParameterFilterElement": "GROUP B ZB6_filters",
+  "SunAnnotationElem": "GROUP B ZB7_machinery",
+  "NumberingSchema": "GROUP B ZB7_machinery",
+  "SlaveSymbolTrackerElem": "GROUP B ZB7_machinery",
+  "WorksharingViewModeSettings": "GROUP B ZB7_machinery",
+  "PrintSettings": "GROUP B ZB7_machinery",
+  "Viewer": "GROUP B ZB7_machinery (the sheet's viewer 1457029)",
+  "Viewport": "GROUP B ZB7_machinery (the sheet's viewports 1457030/1457043/1457044)",
+  "RefPlane": "GROUP B ZB8_content",
+  "SketchPlane": "GROUP B ZB8_content"
+ },
+ "stream": "genesis-residue-A2 (remaining unsubstituted classes, in place, from ZA_deep)"
+}

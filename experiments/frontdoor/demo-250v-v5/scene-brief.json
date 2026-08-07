@@ -1,0 +1,538 @@
+{
+  "briefVersion": "1.0",
+  "generator": "rvt.frontdoor.prompt_intent.scene_brief",
+  "prompt": "an electrical room rated for 250V with 6 panels",
+  "purpose": "Build this scene in Three.js exactly, tag every product with the userData.ifc block given (OUR tagging contract), export IFC4 with the canonical three-d-stage exporter (tekton-ifc assets/ifc-export.js v2), then run: frontdoor author --ifc <export>.ifc",
+  "instructions": "PROMPT_TO_IFC.md",
+  "ifcMeta": {
+    "projectName": "Electrical Room",
+    "fileName": "electrical-room",
+    "author": {
+      "org": "tekton front door"
+    },
+    "storeys": [
+      {
+        "name": "Level 1",
+        "elevation": 0.0
+      }
+    ],
+    "geometry": "auto",
+    "excludeNames": [
+      "working_clearance",
+      "door_swing_clearance"
+    ],
+    "clearanceAs": "skip",
+    "minFeatureSize": 0.01,
+    "guidSeed": "electrical-room-v1"
+  },
+  "room": null,
+  "products": [
+    {
+      "group_name": "panel_PP-1",
+      "tag": "PP-1",
+      "kind": "panelboard",
+      "position_m": {
+        "x": 0.254,
+        "y": 0.0,
+        "z": 1.42,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        0.0,
+        -1.0
+      ],
+      "yaw_deg": 0.0,
+      "mounting": "surface",
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCELECTRICDISTRIBUTIONBOARD",
+        "predefinedType": "DISTRIBUTIONBOARD",
+        "name": "PP-1",
+        "tag": "PP-1",
+        "storey": "Level 1",
+        "typeName": "PB-480Y/277-225A-MLO-42SP",
+        "psets": [
+          {
+            "name": "PanelSchedule",
+            "props": {
+              "PanelName": "PP-1",
+              "Voltage": {
+                "value": 480,
+                "type": "voltage"
+              },
+              "Phases": {
+                "value": 3,
+                "type": "integer"
+              },
+              "Wires": {
+                "value": 4,
+                "type": "integer"
+              },
+              "BusRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsType": "Main lugs only",
+              "NumberOfCircuits": {
+                "value": 42,
+                "type": "count"
+              },
+              "Mounting": "Surface, wall",
+              "FeederEntry": "Top"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "PB-480Y/277-225A-MLO-42SP"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group_name": "panel_PP-2",
+      "tag": "PP-2",
+      "kind": "panelboard",
+      "position_m": {
+        "x": 1.662,
+        "y": 0.0,
+        "z": 1.42,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        0.0,
+        -1.0
+      ],
+      "yaw_deg": 0.0,
+      "mounting": "surface",
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCELECTRICDISTRIBUTIONBOARD",
+        "predefinedType": "DISTRIBUTIONBOARD",
+        "name": "PP-2",
+        "tag": "PP-2",
+        "storey": "Level 1",
+        "typeName": "PB-480Y/277-225A-MLO-42SP",
+        "psets": [
+          {
+            "name": "PanelSchedule",
+            "props": {
+              "PanelName": "PP-2",
+              "Voltage": {
+                "value": 480,
+                "type": "voltage"
+              },
+              "Phases": {
+                "value": 3,
+                "type": "integer"
+              },
+              "Wires": {
+                "value": 4,
+                "type": "integer"
+              },
+              "BusRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsType": "Main lugs only",
+              "NumberOfCircuits": {
+                "value": 42,
+                "type": "count"
+              },
+              "Mounting": "Surface, wall",
+              "FeederEntry": "Top"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "PB-480Y/277-225A-MLO-42SP"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group_name": "panel_PP-3",
+      "tag": "PP-3",
+      "kind": "panelboard",
+      "position_m": {
+        "x": 3.07,
+        "y": 0.0,
+        "z": 1.42,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        0.0,
+        -1.0
+      ],
+      "yaw_deg": 0.0,
+      "mounting": "surface",
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCELECTRICDISTRIBUTIONBOARD",
+        "predefinedType": "DISTRIBUTIONBOARD",
+        "name": "PP-3",
+        "tag": "PP-3",
+        "storey": "Level 1",
+        "typeName": "PB-480Y/277-225A-MLO-42SP",
+        "psets": [
+          {
+            "name": "PanelSchedule",
+            "props": {
+              "PanelName": "PP-3",
+              "Voltage": {
+                "value": 480,
+                "type": "voltage"
+              },
+              "Phases": {
+                "value": 3,
+                "type": "integer"
+              },
+              "Wires": {
+                "value": 4,
+                "type": "integer"
+              },
+              "BusRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsType": "Main lugs only",
+              "NumberOfCircuits": {
+                "value": 42,
+                "type": "count"
+              },
+              "Mounting": "Surface, wall",
+              "FeederEntry": "Top"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "PB-480Y/277-225A-MLO-42SP"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group_name": "panel_PP-4",
+      "tag": "PP-4",
+      "kind": "panelboard",
+      "position_m": {
+        "x": 4.478,
+        "y": 0.0,
+        "z": 1.42,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        0.0,
+        -1.0
+      ],
+      "yaw_deg": 0.0,
+      "mounting": "surface",
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCELECTRICDISTRIBUTIONBOARD",
+        "predefinedType": "DISTRIBUTIONBOARD",
+        "name": "PP-4",
+        "tag": "PP-4",
+        "storey": "Level 1",
+        "typeName": "PB-480Y/277-225A-MLO-42SP",
+        "psets": [
+          {
+            "name": "PanelSchedule",
+            "props": {
+              "PanelName": "PP-4",
+              "Voltage": {
+                "value": 480,
+                "type": "voltage"
+              },
+              "Phases": {
+                "value": 3,
+                "type": "integer"
+              },
+              "Wires": {
+                "value": 4,
+                "type": "integer"
+              },
+              "BusRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsType": "Main lugs only",
+              "NumberOfCircuits": {
+                "value": 42,
+                "type": "count"
+              },
+              "Mounting": "Surface, wall",
+              "FeederEntry": "Top"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "PB-480Y/277-225A-MLO-42SP"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group_name": "panel_PP-5",
+      "tag": "PP-5",
+      "kind": "panelboard",
+      "position_m": {
+        "x": 5.886,
+        "y": 0.0,
+        "z": 1.42,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        0.0,
+        -1.0
+      ],
+      "yaw_deg": 0.0,
+      "mounting": "surface",
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCELECTRICDISTRIBUTIONBOARD",
+        "predefinedType": "DISTRIBUTIONBOARD",
+        "name": "PP-5",
+        "tag": "PP-5",
+        "storey": "Level 1",
+        "typeName": "PB-480Y/277-225A-MLO-42SP",
+        "psets": [
+          {
+            "name": "PanelSchedule",
+            "props": {
+              "PanelName": "PP-5",
+              "Voltage": {
+                "value": 480,
+                "type": "voltage"
+              },
+              "Phases": {
+                "value": 3,
+                "type": "integer"
+              },
+              "Wires": {
+                "value": 4,
+                "type": "integer"
+              },
+              "BusRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsType": "Main lugs only",
+              "NumberOfCircuits": {
+                "value": 42,
+                "type": "count"
+              },
+              "Mounting": "Surface, wall",
+              "FeederEntry": "Top"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "PB-480Y/277-225A-MLO-42SP"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group_name": "panel_PP-6",
+      "tag": "PP-6",
+      "kind": "panelboard",
+      "position_m": {
+        "x": 7.294,
+        "y": 0.0,
+        "z": 1.42,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        0.0,
+        -1.0
+      ],
+      "yaw_deg": 0.0,
+      "mounting": "surface",
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCELECTRICDISTRIBUTIONBOARD",
+        "predefinedType": "DISTRIBUTIONBOARD",
+        "name": "PP-6",
+        "tag": "PP-6",
+        "storey": "Level 1",
+        "typeName": "PB-480Y/277-225A-MLO-42SP",
+        "psets": [
+          {
+            "name": "PanelSchedule",
+            "props": {
+              "PanelName": "PP-6",
+              "Voltage": {
+                "value": 480,
+                "type": "voltage"
+              },
+              "Phases": {
+                "value": 3,
+                "type": "integer"
+              },
+              "Wires": {
+                "value": 4,
+                "type": "integer"
+              },
+              "BusRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsRating": {
+                "value": 225.0,
+                "type": "current"
+              },
+              "MainsType": "Main lugs only",
+              "NumberOfCircuits": {
+                "value": 42,
+                "type": "count"
+              },
+              "Mounting": "Surface, wall",
+              "FeederEntry": "Top"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "PB-480Y/277-225A-MLO-42SP"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "feederTree": [],
+  "coverage": {
+    "understood": [
+      {
+        "clause": "panels",
+        "as": "equipment",
+        "kind": "panelboard",
+        "count": 6,
+        "rating_a": null,
+        "kva": null,
+        "voltage": null,
+        "mains": null,
+        "spaces": null
+      }
+    ],
+    "ignored_words": [
+      "250V"
+    ],
+    "not_built": [],
+    "defaults_applied": [
+      "room height: 3.6576 m (12 ft)",
+      "wall thickness: 0.2032 m location-line offset (the built wall uses the base wall type's compound structure)",
+      "service voltage system: 480Y/277 V",
+      "PP-1: 225 A bus (kind default)",
+      "PP-1: voltage 480Y/277 V (service system)",
+      "PP-1: MLO (main lugs only kind default)",
+      "PP-1: 42 spaces (default)",
+      "PP-2: 225 A bus (kind default)",
+      "PP-2: voltage 480Y/277 V (service system)",
+      "PP-2: MLO (main lugs only kind default)",
+      "PP-2: 42 spaces (default)",
+      "PP-3: 225 A bus (kind default)",
+      "PP-3: voltage 480Y/277 V (service system)",
+      "PP-3: MLO (main lugs only kind default)",
+      "PP-3: 42 spaces (default)",
+      "PP-4: 225 A bus (kind default)",
+      "PP-4: voltage 480Y/277 V (service system)",
+      "PP-4: MLO (main lugs only kind default)",
+      "PP-4: 42 spaces (default)",
+      "PP-5: 225 A bus (kind default)",
+      "PP-5: voltage 480Y/277 V (service system)",
+      "PP-5: MLO (main lugs only kind default)",
+      "PP-5: 42 spaces (default)",
+      "PP-6: 225 A bus (kind default)",
+      "PP-6: voltage 480Y/277 V (service system)",
+      "PP-6: MLO (main lugs only kind default)",
+      "PP-6: 42 spaces (default)",
+      "no room shell: equipment laid out in a row along +X (free-standing; wall panels stand upright facing -Y)",
+      "no wall shell built (no room dimensions or 'equipment only')"
+    ],
+    "warnings": [
+      "a room was named but no dimensions were given: no room shell will be built (equipment only)"
+    ],
+    "consumed_ratio": 0.468,
+    "statement": "rules-first deterministic parser (no external model call, no API key): everything under 'understood' was normalised into the intent; 'ignored_words' are prompt words the parser did not use; 'not_built' items were recognised but are outside today's model build path; 'defaults_applied' names every value the parser had to assume."
+  },
+  "next_step": "Export the scene (toIfc(THREE, model, stage.ifcMeta)) and hand the .ifc to the front door: `python tools/frontdoor.py author --ifc <file>.ifc --out <dir>` -- the IFC route resolves REAL placements from your geometry, so the built .rvt follows your scene, not this brief."
+}

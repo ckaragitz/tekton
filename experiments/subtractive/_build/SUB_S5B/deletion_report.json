@@ -1,0 +1,60 @@
+{
+ "n_deleted": 16,
+ "detached": [],
+ "detach_law": "LevelAttributes.obj.m_familyTagId -> -1 (our famgen authors -1; the donor binds the nested level-head FamilySymbol)",
+ "deleted_class_census": {
+  "CategoryElem": 3,
+  "FontElem": 4,
+  "GStyleElem": 3,
+  "ReferenceViewerAttributes": 1,
+  "RevisionCloudAttr": 1,
+  "TagNoteAttributes": 1,
+  "Text3dAttrSymbol": 1,
+  "TextNoteAttributes": 2
+ },
+ "survivor_residual_refs": 0,
+ "scrub_census": {
+  "Family.m_familyIds": 16,
+  "Family.m_familyParams": 0,
+  "Family.m_pFamilyTypes.rows": 0,
+  "hdr.m_parents.m_deletion": 16
+ },
+ "n_survivors": 436,
+ "closure_original_ids": [
+  1410868,
+  1410869,
+  1410870,
+  1410871,
+  1410921,
+  1410922,
+  1410929,
+  1410930,
+  1410987,
+  1410988,
+  1411160,
+  1411224,
+  1411261,
+  1411262,
+  1411263,
+  1411264
+ ],
+ "seed_original_ids": [
+  1410868,
+  1410869,
+  1410870,
+  1410871,
+  1410921,
+  1410922,
+  1410929,
+  1410930,
+  1410987,
+  1410988,
+  1411160,
+  1411224,
+  1411261,
+  1411262,
+  1411263,
+  1411264
+ ],
+ "pull_census": {}
+}

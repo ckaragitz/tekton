@@ -1,0 +1,470 @@
+{
+ "ok": true,
+ "out_path": "/Users/ck/dev/things/tekton/experiments/instbug/fix/AB_A_wallsfirst.rvt",
+ "plan": {
+  "guid": "75930822-0a5a-4c34-bb00-d9f1eb6f70e2",
+  "fam_doc_guid": "411b69a3-b5c2-495f-9cb8-85f9121407d2",
+  "session_guid_hex": "9648b61e0f3f40bdbf080d172768f623",
+  "family_name": "Render Probe Box",
+  "type_name": "standard",
+  "host_family_id": 1472557,
+  "surrogate_id": 1472561,
+  "symbol_id": 1472562,
+  "symbol_surrogate_id": 1472563,
+  "instance_id": -1,
+  "twin_of": {
+   "1472547": 1472558,
+   "1472548": 1472559,
+   "1472549": 1472560
+  },
+  "abs_index": {
+   "1472530": 0,
+   "1472531": 1,
+   "1472534": 2,
+   "1472535": 3,
+   "1472536": 4,
+   "1472533": 5,
+   "1472537": 6,
+   "1472539": 7,
+   "1472540": 8,
+   "1472541": 9,
+   "1472542": 10,
+   "1472543": 11,
+   "1472544": 12,
+   "1472538": 13,
+   "1472532": 14,
+   "1472545": 15,
+   "1472546": 16,
+   "1472547": 17,
+   "1472548": 18,
+   "1472549": 19,
+   "1472550": 20,
+   "1472551": 21,
+   "1472552": 22,
+   "1472553": 23,
+   "1472554": 24,
+   "1472555": 25,
+   "1472556": 26
+  },
+  "core_ids": [
+   124,
+   113160
+  ],
+  "load_class_host": 113160,
+  "load_class_name": "",
+  "episode": 1016,
+  "notes": []
+ },
+ "proofs": {
+  "plan": {
+   "content_guid": "75930822-0a5a-4c34-bb00-d9f1eb6f70e2",
+   "fam_doc_guid": "411b69a3-b5c2-495f-9cb8-85f9121407d2",
+   "host_watermark": 1472528,
+   "our_doc_ids": [
+    1472529,
+    1472556
+   ],
+   "host_ids": {
+    "family": 1472557,
+    "surrogate": 1472561,
+    "symbol": 1472562,
+    "symbol_surrogate": 1472563,
+    "instance": -1,
+    "twins": 3
+   },
+   "resolved": {
+    "category_gstyle": 124,
+    "load_classification": {
+     "name": "",
+     "host_id": 113160
+    },
+    "core_ids": [
+     124,
+     113160
+    ],
+    "template_instance": -1,
+    "template_host": -1
+   },
+   "notes": [
+    "no host FamilyInstance of category -2001040: placement scaffolding unavailable (family loads unplaced)"
+   ]
+  },
+  "roundtrip_gate": {
+   "records": 21,
+   "roundtrip_ok": 21,
+   "failed": 0,
+   "encoded_bytes": 9248,
+   "failures": []
+  },
+  "embedded_adocument": {
+   "decodes_clean": true,
+   "roundtrip_equal": true,
+   "bytes": 2497,
+   "elem_recs": 28,
+   "appinfo_slots_null": 239,
+   "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+  },
+  "save_unit": {
+   "guid": "75930822-0a5a-4c34-bb00-d9f1eb6f70e2",
+   "records": 28,
+   "bytes": 5798,
+   "segments": {
+    "101": 4916,
+    "102": 21222,
+    "103": 5094
+   }
+  },
+  "adocument_registrations": {
+   "content_table_records": 1,
+   "family_mgr_entries": 10,
+   "element_tracking": {
+    "m_symbols": 1
+   }
+  },
+  "adocument_reencode": {
+   "clean": true,
+   "bytes_before": 1580066,
+   "bytes_after": 1580190
+  },
+  "content_documents": {
+   "entries_before": 0,
+   "entries_after": 1,
+   "ours_present": true,
+   "end_record_intact": true,
+   "delta_bytes": 2533
+  },
+  "symbol_geometry": {
+   "faces": 6,
+   "edges": 12,
+   "nodes": 2,
+   "geom_table": 21
+  },
+  "pass1_commit": {
+   "new_element_ids": [
+    1472557,
+    1472558,
+    1472559,
+    1472560,
+    1472561,
+    1472562,
+    1472563
+   ],
+   "elemtable_count_before": 3346,
+   "elemtable_count_after": 3353,
+   "watermark_after": 1472563,
+   "per_seq_bytes_added": {
+    "101": 1155,
+    "102": 5280,
+    "103": 3247
+   }
+  },
+  "pass2_partition_splice": {
+   "units_before": 1,
+   "units_after": 2,
+   "walker_errors": [],
+   "our_unit_guid": "75930822-0a5a-4c34-bb00-d9f1eb6f70e2",
+   "our_unit_records": {
+    "101": 29,
+    "102": 29,
+    "103": 29
+   },
+   "id_sets_identical": true
+  },
+  "verify_written": {
+   "path": "/Users/ck/dev/things/tekton/experiments/instbug/fix/AB_A_wallsfirst.rvt",
+   "container": {
+    "crc_failures": 0,
+    "ecc_mismatches_heuristic": 0,
+    "walker_errors": 0,
+    "new_ids_found": {
+     "101": {
+      "1472557": {
+       "class": 1509,
+       "clean": true
+      },
+      "1472558": {
+       "class": 1509,
+       "clean": true
+      },
+      "1472559": {
+       "class": 1509,
+       "clean": true
+      },
+      "1472560": {
+       "class": 1509,
+       "clean": true
+      },
+      "1472561": {
+       "class": 1509,
+       "clean": true
+      },
+      "1472562": {
+       "class": 1509,
+       "clean": true
+      },
+      "1472563": {
+       "class": 1509,
+       "clean": true
+      }
+     },
+     "102": {
+      "1472557": {
+       "class": 1967,
+       "clean": true
+      },
+      "1472558": {
+       "class": 3152,
+       "clean": true
+      },
+      "1472559": {
+       "class": 3152,
+       "clean": true
+      },
+      "1472560": {
+       "class": 3152,
+       "clean": true
+      },
+      "1472561": {
+       "class": 2019,
+       "clean": true
+      },
+      "1472562": {
+       "class": 2022,
+       "clean": true
+      },
+      "1472563": {
+       "class": 1964,
+       "clean": true
+      }
+     },
+     "103": {
+      "1472557": {
+       "class": 3884,
+       "clean": true
+      },
+      "1472558": {
+       "class": 3884,
+       "clean": true
+      },
+      "1472559": {
+       "class": 3884,
+       "clean": true
+      },
+      "1472560": {
+       "class": 3884,
+       "clean": true
+      },
+      "1472561": {
+       "class": 3884,
+       "clean": true
+      },
+      "1472562": {
+       "class": 2206,
+       "clean": true
+      },
+      "1472563": {
+       "class": 3884,
+       "clean": true
+      }
+     }
+    }
+   },
+   "structure_layer": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 0,
+    "pages_checked": 15,
+    "errors": []
+   },
+   "partition": {
+    "units": 2,
+    "walker_errors": [],
+    "our_unit_index": 1
+   },
+   "elemtable": {
+    "records": 3353,
+    "watermark": 1472563,
+    "our_host_ids_present": true
+   },
+   "adocument": {
+    "clean": true,
+    "content_table_record": true,
+    "family_mgr_entry": true,
+    "symbol_tracked": true
+   },
+   "family_documents": {
+    "total_host_families": 9,
+    "ours": [
+     {
+      "family_id": 1472557,
+      "family_name": "Render Probe Box",
+      "category": -2001040,
+      "unit": 1,
+      "n_records": 28,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1472562,
+        "name": "standard"
+       }
+      ],
+      "big2small_count": 3,
+      "n_connectors": 0,
+      "n_family_params": 3
+     }
+    ],
+    "ok": true
+   },
+   "provenance_ours": {
+    "our_unit": {
+     "unit": 1,
+     "elements": 28,
+     "n_distinct_strings": 114
+    },
+    "host_elements": {
+     "count": 7,
+     "n_distinct_strings": 33
+    },
+    "suspects": {
+     "our_unit": [],
+     "host_elements": []
+    },
+    "forge_vocabulary_ids": [
+     "autodesk.parameter.group:dimensions-1.0.0",
+     "autodesk.parameter.group:identityData-1.0.0",
+     "autodesk.spec.aec.electrical:apparentPower-1.0.0",
+     "autodesk.spec.aec.electrical:current-2.0.0",
+     "autodesk.spec.aec.electrical:potential-2.0.0",
+     "autodesk.spec.aec:angle-2.0.0",
+     "autodesk.spec.aec:area-2.0.0",
+     "autodesk.spec.aec:length-1.0.0",
+     "autodesk.spec.aec:length-2.0.0",
+     "autodesk.spec.aec:number-2.0.0",
+     "autodesk.spec.aec:volume-2.0.0",
+     "autodesk.unit.symbol:ampere-1.0.1",
+     "autodesk.unit.symbol:cf-1.0.1",
+     "autodesk.unit.symbol:degreeSymbol-1.0.1",
+     "autodesk.unit.symbol:sf-1.0.1",
+     "autodesk.unit.symbol:vA-1.0.1",
+     "autodesk.unit.symbol:volt-1.0.1",
+     "autodesk.unit.unit:amperes-1.0.1",
+     "autodesk.unit.unit:cubicFeet-1.0.1",
+     "autodesk.unit.unit:degrees-1.0.1",
+     "autodesk.unit.unit:feetFractionalInches-1.0.0",
+     "autodesk.unit.unit:general-1.0.1",
+     "autodesk.unit.unit:squareFeet-1.0.1",
+     "autodesk.unit.unit:voltAmperes-1.0.1",
+     "autodesk.unit.unit:volts-1.0.1",
+     "revit.local.family:3e4cb88ed24a4df589bfbc65810a7e4600167823-1.0.0",
+     "revit.local.family:3e4cb88ed24a4df589bfbc65810a7e4600167824-1.0.0",
+     "revit.local.family:3e4cb88ed24a4df589bfbc65810a7e4600167825-1.0.0",
+     "revit.local.family:9648b61e0f3f40bdbf080d172768f6230016782e-1.0.0",
+     "revit.local.family:9648b61e0f3f40bdbf080d172768f6230016782f-1.0.0",
+     "revit.local.family:9648b61e0f3f40bdbf080d172768f62300167830-1.0.0"
+    ],
+    "sample_strings": [
+     " ",
+     "00000000-0000-0000-0000-000000000000",
+     "411b69a3-b5c2-495f-9cb8-85f9121407d2",
+     "75930822-0a5a-4c34-bb00-d9f1eb6f70e2",
+     "<In-session, Still>",
+     "???",
+     "APropertyDouble1",
+     "APropertyFloat",
+     "APropertyInteger",
+     "AdHocOverrides",
+     "AnnotationCropOffsets",
+     "BaseFamilySymbolGStep",
+     "CellList",
+     "Center (Front/Back)",
+     "Center (Left/Right)",
+     "ColorFillSchemaSetting",
+     "CurveElemData",
+     "CurveElemDriver",
+     "CurveElemGStep",
+     "CurveLoop",
+     "DBViewInfoForPreview",
+     "DatumPlaneGeomStep",
+     "Depth",
+     "DesignOptionDrawFilter",
+     "DesignOptionViewSettings",
+     "DirectContext3DHandleOverrides",
+     "DrawOrderMgr",
+     "ElementIdIndexPairSet",
+     "ExposureValue",
+     "ExtrusionElemExtrusionHelper"
+    ],
+    "ok": true
+   },
+   "ok": true
+  }
+ },
+ "acceptance": [
+  "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+  "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+  "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+  "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+  "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+  "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+ ],
+ "elements": [
+  {
+   "elem_id": 1472557,
+   "class": "Family",
+   "kind": "host_family",
+   "owner_id": -1,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472558,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472557,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472559,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472557,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472560,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472557,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472561,
+   "class": "FamilySurrogate",
+   "kind": "family_surrogate",
+   "owner_id": -1,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472562,
+   "class": "FamilySymbol",
+   "kind": "family_symbol",
+   "owner_id": -1,
+   "rep": "GElement",
+   "notes": []
+  },
+  {
+   "elem_id": 1472563,
+   "class": "FamSymSurrogate",
+   "kind": "famsym_surrogate",
+   "owner_id": -1,
+   "rep": "SerializedDummy",
+   "notes": []
+  }
+ ],
+ "report_path": null,
+ "stop_reason": ""
+}

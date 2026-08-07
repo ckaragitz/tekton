@@ -1,0 +1,1062 @@
+{
+  "candidate": "/Users/ck/dev/things/rev-revit/experiments/genesis/R4.rvt",
+  "baseline": "/Users/ck/dev/things/rev-revit/samples/rstbasicsampleproject.rvt",
+  "baseline_watermark": 1472524,
+  "candidate_watermark": 1472524,
+  "host_elements": 2839,
+  "baseline_host_elements": 13936,
+  "baseline_id_overlap": 1.0,
+  "provenance_totals": {
+    "autodesk-sample": 2839
+  },
+  "embedded_family_documents": {
+    "count": 52,
+    "by_provenance": {
+      "autodesk-sample": 52
+    }
+  },
+  "categories": {
+    "embedded-family-documents": {
+      "label": "Embedded family documents (save units)",
+      "expression_bearing": true,
+      "description": "each embedded save unit 1..k is a complete family DOCUMENT (an .rfa) stored inside the project",
+      "counts": {
+        "autodesk-sample": 52
+      },
+      "classes": {
+        "<family document (save unit)>": {
+          "counts": {
+            "autodesk-sample": 52
+          }
+        }
+      },
+      "units": [
+        {
+          "partition": "Partitions/21",
+          "index": 1,
+          "guid": "78061000-56a3-428c-a5a8-5b1397dbb12d",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 2,
+          "guid": "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 3,
+          "guid": "3563d602-3ba7-4789-a3ee-254c15adc0ce",
+          "blocks": 4,
+          "counter": 346,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 4,
+          "guid": "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+          "blocks": 3,
+          "counter": 225,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 5,
+          "guid": "4d39b104-087e-47c8-885b-300dde8e24e3",
+          "blocks": 3,
+          "counter": 233,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 6,
+          "guid": "a0717c14-e2fc-4b34-9c27-2ff3604705e6",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 7,
+          "guid": "68344216-9c79-4c4e-a832-3ed1233c2489",
+          "blocks": 3,
+          "counter": 247,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 8,
+          "guid": "fb5c6124-6046-4375-9cef-63f740620a8e",
+          "blocks": 7,
+          "counter": 633,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 9,
+          "guid": "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+          "blocks": 4,
+          "counter": 325,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 10,
+          "guid": "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+          "blocks": 5,
+          "counter": 710,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 11,
+          "guid": "c7734839-cb9e-4274-bcad-003788721261",
+          "blocks": 3,
+          "counter": 245,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 12,
+          "guid": "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+          "blocks": 5,
+          "counter": 488,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 13,
+          "guid": "30640a46-4395-44f8-99ee-94759c623a88",
+          "blocks": 4,
+          "counter": 270,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 14,
+          "guid": "652d2246-3c01-4148-8c16-17146f106321",
+          "blocks": 3,
+          "counter": 231,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 15,
+          "guid": "f932d848-0871-4902-ac37-bb38aec05088",
+          "blocks": 4,
+          "counter": 279,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 16,
+          "guid": "2774af49-2b12-4c51-9095-c3af78ae06a8",
+          "blocks": 5,
+          "counter": 511,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 17,
+          "guid": "4f85134f-7e56-4935-9a1d-5c31503c3716",
+          "blocks": 3,
+          "counter": 222,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 18,
+          "guid": "ef6a7555-0579-4d66-a628-a069d646838b",
+          "blocks": 3,
+          "counter": 242,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 19,
+          "guid": "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+          "blocks": 4,
+          "counter": 574,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 20,
+          "guid": "d58b645f-9df5-42f4-b770-a00aea8bb4ba",
+          "blocks": 4,
+          "counter": 258,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 21,
+          "guid": "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+          "blocks": 5,
+          "counter": 449,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 22,
+          "guid": "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+          "blocks": 4,
+          "counter": 429,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 23,
+          "guid": "f8b30e73-e9cf-4d44-b7c8-d85fb9e63cb6",
+          "blocks": 3,
+          "counter": 221,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 24,
+          "guid": "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+          "blocks": 4,
+          "counter": 318,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 25,
+          "guid": "af75f67d-1060-4650-b13a-d467c0872fda",
+          "blocks": 5,
+          "counter": 619,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 26,
+          "guid": "03f26a7f-f129-459a-9416-39e40d1f0b80",
+          "blocks": 3,
+          "counter": 216,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 27,
+          "guid": "bd60da88-04cb-4223-a54c-555ba16b76a3",
+          "blocks": 6,
+          "counter": 563,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 28,
+          "guid": "4231c989-43a9-4cf4-8e57-62173b030da6",
+          "blocks": 3,
+          "counter": 239,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 29,
+          "guid": "d4bdb58b-e63b-44a4-a882-c793b48ce304",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 30,
+          "guid": "d3ecb68c-670d-42af-82df-f684c77b9693",
+          "blocks": 4,
+          "counter": 271,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 31,
+          "guid": "147abf91-ec71-4533-944c-4f2282b39389",
+          "blocks": 4,
+          "counter": 288,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 32,
+          "guid": "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 33,
+          "guid": "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+          "blocks": 5,
+          "counter": 484,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 34,
+          "guid": "9c8df7a4-fbfa-4a9f-97fa-8b8aa5ff3e27",
+          "blocks": 3,
+          "counter": 239,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 35,
+          "guid": "36b75aa9-8fc8-4691-b3a3-bcff9df6471a",
+          "blocks": 3,
+          "counter": 246,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 36,
+          "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+          "blocks": 4,
+          "counter": 417,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 37,
+          "guid": "5478aabb-dc66-4a14-8715-9c0f5812259d",
+          "blocks": 5,
+          "counter": 492,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 38,
+          "guid": "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+          "blocks": 5,
+          "counter": 660,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 39,
+          "guid": "d12022c4-1496-4d94-973a-599c45ef14a8",
+          "blocks": 5,
+          "counter": 476,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 40,
+          "guid": "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+          "blocks": 3,
+          "counter": 271,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 41,
+          "guid": "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+          "blocks": 4,
+          "counter": 414,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 42,
+          "guid": "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+          "blocks": 4,
+          "counter": 339,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 43,
+          "guid": "238471d5-1cda-4554-8458-83bcf331f149",
+          "blocks": 4,
+          "counter": 459,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 44,
+          "guid": "706e2be2-3779-421f-bfa7-57ff3562cd8f",
+          "blocks": 3,
+          "counter": 233,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 45,
+          "guid": "9d3038e2-a69e-40a4-9217-134a4015896a",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 46,
+          "guid": "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+          "blocks": 3,
+          "counter": 228,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 47,
+          "guid": "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+          "blocks": 4,
+          "counter": 443,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 48,
+          "guid": "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+          "blocks": 4,
+          "counter": 278,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 49,
+          "guid": "830890eb-dfe2-4882-81ca-4f8bced826b1",
+          "blocks": 5,
+          "counter": 490,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 50,
+          "guid": "fe0923ee-a917-439a-a945-fae55292b3d1",
+          "blocks": 5,
+          "counter": 420,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 51,
+          "guid": "5e037af6-e747-4731-99e0-ed651d369c9b",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 52,
+          "guid": "b8e18dfa-91c5-4551-a51d-17012a753412",
+          "blocks": 3,
+          "counter": 266,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        }
+      ]
+    },
+    "views-and-templates": {
+      "label": "Views & view templates",
+      "expression_bearing": true,
+      "description": "views, view templates, sheets, viewports, schedules, browser organization",
+      "counts": {
+        "autodesk-sample": 1
+      },
+      "classes": {
+        "DBViewType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49624,
+                "class": "DBViewType",
+                "name": "Drafting View"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "object-styles": {
+      "label": "Object styles (categories / graphics styles)",
+      "expression_bearing": true,
+      "description": "CategoryElem, GStyleElem, ModelGraphicsStyle \u2014 subcategories and their graphics",
+      "counts": {
+        "autodesk-sample": 2801
+      },
+      "classes": {
+        "GStyleElem": {
+          "counts": {
+            "autodesk-sample": 2183
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 30,
+                "class": "GStyleElem",
+                "name": "style:Walls"
+              },
+              {
+                "id": 31,
+                "class": "GStyleElem",
+                "name": "style:Walls"
+              },
+              {
+                "id": 32,
+                "class": "GStyleElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "CategoryElem": {
+          "counts": {
+            "autodesk-sample": 616
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 235,
+                "class": "CategoryElem",
+                "name": null
+              },
+              {
+                "id": 241,
+                "class": "CategoryElem",
+                "name": null
+              },
+              {
+                "id": 278,
+                "class": "CategoryElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ModelGraphicsStyle": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 54523,
+                "class": "ModelGraphicsStyle",
+                "name": "<Shading>"
+              },
+              {
+                "id": 54525,
+                "class": "ModelGraphicsStyle",
+                "name": "<Raytracing>"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "parameter-definitions": {
+      "label": "Shared / project parameter definitions",
+      "expression_bearing": true,
+      "description": "ParamElemExternal (shared), ParamElemProject, ParamElemFamily, ParamBinding, PropertySetElement",
+      "counts": {
+        "autodesk-sample": 1
+      },
+      "classes": {
+        "KeynoteTable": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 86291,
+                "class": "KeynoteTable",
+                "name": "Standard"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "phases-design-options": {
+      "label": "Phases / design options / revisions",
+      "expression_bearing": true,
+      "description": "ProjectPhase, PhaseFilterElem, DesignOption(Set), revision sequences",
+      "counts": {
+        "autodesk-sample": 14
+      },
+      "classes": {
+        "PhaseFilterElem": {
+          "counts": {
+            "autodesk-sample": 7
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 371,
+                "class": "PhaseFilterElem",
+                "name": "Show Previous Phase"
+              },
+              {
+                "id": 372,
+                "class": "PhaseFilterElem",
+                "name": "Show Previous + New"
+              },
+              {
+                "id": 373,
+                "class": "PhaseFilterElem",
+                "name": "Show Previous + Demo"
+              }
+            ]
+          }
+        },
+        "DesignOption": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 875635,
+                "class": "DesignOption",
+                "name": null
+              },
+              {
+                "id": 875638,
+                "class": "DesignOption",
+                "name": null
+              },
+              {
+                "id": 875641,
+                "class": "DesignOption",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ProjectPhase": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 12589,
+                "class": "ProjectPhase",
+                "name": "Existing"
+              },
+              {
+                "id": 86961,
+                "class": "ProjectPhase",
+                "name": "New Construction"
+              }
+            ]
+          }
+        },
+        "AllProjectPhases": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1,
+                "class": "AllProjectPhases",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DesignOptionSet": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 875634,
+                "class": "DesignOptionSet",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "project-info-settings": {
+      "label": "Project info & settings elements",
+      "expression_bearing": true,
+      "description": "ProjectInfo, UnitsElem, keynote table, ElectricalSetting, all *Settings singletons",
+      "counts": {
+        "autodesk-sample": 13
+      },
+      "classes": {
+        "GeoSite": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 21747,
+                "class": "GeoSite",
+                "name": null
+              },
+              {
+                "id": 111427,
+                "class": "GeoSite",
+                "name": null
+              }
+            ]
+          }
+        },
+        "GeoLocation": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 21748,
+                "class": "GeoLocation",
+                "name": "Internal"
+              },
+              {
+                "id": 111428,
+                "class": "GeoLocation",
+                "name": "Project"
+              }
+            ]
+          }
+        },
+        "BasePoint": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 111426,
+                "class": "BasePoint",
+                "name": null
+              },
+              {
+                "id": 111429,
+                "class": "BasePoint",
+                "name": null
+              }
+            ]
+          }
+        },
+        "WorksharingViewModeSettings": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 130813,
+                "class": "WorksharingViewModeSettings",
+                "name": null
+              },
+              {
+                "id": 171476,
+                "class": "WorksharingViewModeSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "TrueNorth": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 7850,
+                "class": "TrueNorth",
+                "name": null
+              }
+            ]
+          }
+        },
+        "UnitsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 19236,
+                "class": "UnitsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ProjectInfo": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49504,
+                "class": "ProjectInfo",
+                "name": null
+              }
+            ]
+          }
+        },
+        "CoordinateSystemDisplayElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 86204,
+                "class": "CoordinateSystemDisplayElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ActiveGeoLocationTrackingElement": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113109,
+                "class": "ActiveGeoLocationTrackingElement",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "datums": {
+      "label": "Datums (levels / grids / reference planes)",
+      "expression_bearing": false,
+      "description": "Level, Grid, RefPlane, extents \u2014 near-trivial numeric definitions (reported, not gated)",
+      "counts": {
+        "autodesk-sample": 9
+      },
+      "classes": {
+        "Level": {
+          "counts": {
+            "autodesk-sample": 9
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 311,
+                "class": "Level",
+                "name": "Level 1"
+              },
+              {
+                "id": 694,
+                "class": "Level",
+                "name": "Ceiling"
+              },
+              {
+                "id": 196629,
+                "class": "Level",
+                "name": "Top of Parapet"
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "created_elements": [],
+  "modified_elements": [],
+  "warnings": [],
+  "gate_G1": {
+    "passes": false,
+    "strict": false,
+    "verdict": "FAIL \u2014 2,882 Autodesk-derived element(s) remain in expression-bearing categories",
+    "blocking": [
+      {
+        "category": "embedded-family-documents",
+        "provenance": "autodesk-sample",
+        "count": 52,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "views-and-templates",
+        "provenance": "autodesk-sample",
+        "count": 1,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "object-styles",
+        "provenance": "autodesk-sample",
+        "count": 2801,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "parameter-definitions",
+        "provenance": "autodesk-sample",
+        "count": 1,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "phases-design-options",
+        "provenance": "autodesk-sample",
+        "count": 14,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "project-info-settings",
+        "provenance": "autodesk-sample",
+        "count": 13,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      }
+    ],
+    "gap_list": [
+      {
+        "category": "embedded-family-documents",
+        "provenance": "autodesk-sample",
+        "count": 52,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "views-and-templates",
+        "provenance": "autodesk-sample",
+        "count": 1,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "object-styles",
+        "provenance": "autodesk-sample",
+        "count": 2801,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "parameter-definitions",
+        "provenance": "autodesk-sample",
+        "count": 1,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "phases-design-options",
+        "provenance": "autodesk-sample",
+        "count": 14,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "project-info-settings",
+        "provenance": "autodesk-sample",
+        "count": 13,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      }
+    ]
+  },
+  "elapsed_s": 0.3
+}

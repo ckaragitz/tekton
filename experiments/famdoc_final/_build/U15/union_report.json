@@ -1,0 +1,151 @@
+{
+ "axes": [
+  1,
+  5
+ ],
+ "donor_block": [
+  1472525,
+  1472941
+ ],
+ "anchors": {
+  "self_family": 1472532,
+  "level": 1472535,
+  "plan_view": 1472537,
+  "extrusion": 1472632
+ },
+ "remap_census": {
+  "m_familyId": 417,
+  "<list>": 2366,
+  "m_id": 417,
+  "m_famId": 416,
+  "m_fontId": 31,
+  "m_categoryId": 111,
+  "m_tickCategoryId": 14,
+  "m_centerlinePatternCatId": 14,
+  "m_arrowHeadStyleId": 10,
+  "m_interiorTickMarkStyleId": 2,
+  "m_ownerId": 99,
+  "m_value": 3,
+  "m_paramId": 20,
+  "m_elementId": 459,
+  "m_elemId": 100,
+  "m_dimId": 6,
+  "m_leaderCategoryId": 1,
+  "m_familyTagId": 1,
+  "m_attrId": 8,
+  "m_dbViewId": 25,
+  "m_dbDrawingId": 18,
+  "m_dbViewTypeId": 8,
+  "m_extentElemId": 7,
+  "m_fixedSketchPlaneId": 6,
+  "m_genElemId": 2,
+  "m_viewerId": 9,
+  "m_genDbViewId": 9,
+  "m_ownerViewId": 46,
+  "m_ownerDBViewId": 46,
+  "m_styleSymbolId": 21,
+  "m_userId": 10,
+  "m_sketchPlaneId": 18,
+  "m_tag": 23,
+  "m_groupId": 69,
+  "m_objId": 11,
+  "first": 52,
+  "m_sketchId": 3,
+  "m_miscId": 11,
+  "m_modelClipBoxId": 1,
+  "m_viewer3dId": 1,
+  "m_datumPlaneId": 11,
+  "m_paramElemId": 2,
+  "m_dbviewId": 7,
+  "m_surrogateId": 1,
+  "m_sheetViewportElemId": 1,
+  "m_partitionSurrogateId": 1,
+  "m_famSurrogateId": 1,
+  "m_calloutAttrId": 12,
+  "m_sectionAttrId": 6,
+  "m_elevatnAttrId": 2,
+  "m_natureId": 8
+ },
+ "carried": [
+  {
+   "id": 1474546,
+   "class": "ParamElemFamily",
+   "kind": "family_param"
+  },
+  {
+   "id": 1474556,
+   "class": "SketchPlane",
+   "kind": "sketch_plane"
+  },
+  {
+   "id": 1474557,
+   "class": "VarSketch",
+   "kind": "sketch"
+  },
+  {
+   "id": 1474558,
+   "class": "CurveElem",
+   "kind": "curve"
+  },
+  {
+   "id": 1474559,
+   "class": "CurveElem",
+   "kind": "curve"
+  },
+  {
+   "id": 1474560,
+   "class": "CurveElem",
+   "kind": "curve"
+  },
+  {
+   "id": 1474561,
+   "class": "CurveElem",
+   "kind": "curve"
+  },
+  {
+   "id": 1474562,
+   "class": "ExtrusionElem",
+   "kind": "extrusion"
+  },
+  {
+   "id": 1474563,
+   "class": "ElectricalLoadClassification",
+   "kind": "load_class"
+  },
+  {
+   "id": 1474564,
+   "class": "ConnectorElem",
+   "kind": "connector"
+  }
+ ],
+ "repointed": {
+  "1474524": 1472532,
+  "1474527": 1472535
+ },
+ "registration": {
+  "membership": {
+   "deletion_len": 319,
+   "family_ids_len": 314,
+   "absorbed_indices": {
+    "1474546": 3165,
+    "1474556": 3166,
+    "1474557": 3167,
+    "1474558": 3168,
+    "1474559": 3169,
+    "1474560": 3170,
+    "1474561": 3171,
+    "1474562": 3172,
+    "1474563": 3173,
+    "1474564": 3174
+   }
+  },
+  "params": {
+   "rows_appended": 1,
+   "type_pairs_extended": 5,
+   "locked_len": 2,
+   "order_ids_merged": 1
+  },
+  "params_with_negatives": false
+ },
+ "dangling_above_watermark": 0
+}

@@ -1,0 +1,692 @@
+{
+ "generator": "rvt.genesis.y2024_b.derive_asset_profile_2024",
+ "derived_from": [
+  "samples/2024/racadvancedsampleproject.rvt",
+  "samples/2024/racbasicsampleproject.rvt",
+  "samples/2024/rmeadvancedsampleproject.rvt",
+  "samples/2024/rmebasicsampleproject.rvt",
+  "samples/2024/rstadvancedsampleproject.rvt",
+  "samples/2024/rstbasicsampleproject.rvt"
+ ],
+ "generic_specimens": 503,
+ "note": "The 2024 Protein GenericSchema appearance-asset property skeleton (per-release library constant, mined from the quarantined 2024 samples). Free properties (name / colour / gloss / description / ...) carry no value: OURS at construction time.",
+ "properties": [
+  {
+   "name": "ShadingModel",
+   "aproperty_class": "APropertyString",
+   "present_in": 12,
+   "of": 503,
+   "modal_ordinal": 0,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Unknown",
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "AdvancedUIDefinition",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 0,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Mats/Generic/GenericAdvancedUI.xml",
+   "corpus_top_share": 0.976
+  },
+  {
+   "name": "MultiLayer",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 12,
+   "of": 503,
+   "modal_ordinal": 1,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": false,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "AssetLibID",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 1,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "314DE259-5443-4621-BFBD-1730C6CC9AE9",
+   "corpus_top_share": 0.932
+  },
+  {
+   "name": "BaseSchema",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 2,
+   "constant": true,
+   "value": "GenericSchema",
+   "corpus_top_value": "GenericSchema",
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "ExchangeGUID",
+   "aproperty_class": "APropertyString",
+   "present_in": 491,
+   "of": 503,
+   "modal_ordinal": 3,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "",
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "Hidden",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 4,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": false,
+   "corpus_top_share": 0.99
+  },
+  {
+   "name": "ImplementationGeneric",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 5,
+   "constant": true,
+   "value": "",
+   "corpus_top_value": "",
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "ImplementationMentalRay",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 6,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Mats/Generic/MentalImage.xml",
+   "corpus_top_share": 0.976
+  },
+  {
+   "name": "ImplementationOGS",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 7,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Mats/Generic/OGS.xml",
+   "corpus_top_share": 0.976
+  },
+  {
+   "name": "ImplementationPreview",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 8,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Mats/Generic/PreviewColor.xml",
+   "corpus_top_share": 0.976
+  },
+  {
+   "name": "SchemaVersion",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 9,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 4,
+   "corpus_top_share": 0.976
+  },
+  {
+   "name": "UIDefinition",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 10,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Mats/Generic/GenericUI.xml",
+   "corpus_top_share": 0.976
+  },
+  {
+   "name": "UIName",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 11,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Generic",
+   "corpus_top_share": 0.012
+  },
+  {
+   "name": "VersionGUID",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 12,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Generic",
+   "corpus_top_share": 0.781
+  },
+  {
+   "name": "assettype",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 13,
+   "constant": true,
+   "value": "materialappearance",
+   "corpus_top_value": "materialappearance",
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "category",
+   "aproperty_class": "APropertyString",
+   "present_in": 500,
+   "of": 503,
+   "modal_ordinal": 14,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Default:Miscellaneous",
+   "corpus_top_share": 0.638
+  },
+  {
+   "name": "color_by_object",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 15,
+   "constant": true,
+   "value": false,
+   "corpus_top_value": false,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "common_Shared_Asset",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 16,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 1,
+   "corpus_top_share": 0.976
+  },
+  {
+   "name": "common_Tint_color",
+   "aproperty_class": "APropertyDouble4",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 17,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": [
+    0.315,
+    0.315,
+    0.315,
+    1.0
+   ],
+   "corpus_top_share": 0.992
+  },
+  {
+   "name": "common_Tint_toggle",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 18,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": false,
+   "corpus_top_share": 0.992
+  },
+  {
+   "name": "description",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 19,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Generic material.",
+   "corpus_top_share": 0.946
+  },
+  {
+   "name": "generic_ao_details",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 20,
+   "constant": true,
+   "value": true,
+   "corpus_top_value": true,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "generic_ao_distance",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 21,
+   "constant": true,
+   "value": 4.0,
+   "corpus_top_value": 4.0,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "generic_ao_on",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 22,
+   "constant": true,
+   "value": false,
+   "corpus_top_value": false,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "generic_ao_samples",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 23,
+   "constant": true,
+   "value": 16,
+   "corpus_top_value": 16,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "generic_backface_cull",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 24,
+   "constant": true,
+   "value": false,
+   "corpus_top_value": false,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "generic_bump_amount",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 25,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 0.3,
+   "corpus_top_share": 0.771
+  },
+  {
+   "name": "generic_bump_map",
+   "aproperty_class": "APropertyDouble4",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 26,
+   "constant": true,
+   "value": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "corpus_top_value": [
+    0.0,
+    0.0,
+    0.0,
+    1.0
+   ],
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "generic_cutout_opacity",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 27,
+   "constant": true,
+   "value": 1.0,
+   "corpus_top_value": 1.0,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "generic_diffuse",
+   "aproperty_class": "APropertyDouble4",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 28,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": [
+    0.315,
+    0.315,
+    0.315,
+    1.0
+   ],
+   "corpus_top_share": 0.757
+  },
+  {
+   "name": "generic_diffuse_image_fade",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 29,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 1.0,
+   "corpus_top_share": 0.966
+  },
+  {
+   "name": "generic_glossiness",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 30,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 0.5,
+   "corpus_top_share": 0.797
+  },
+  {
+   "name": "generic_is_metal",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 31,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": false,
+   "corpus_top_share": 0.976
+  },
+  {
+   "name": "generic_refl_depth",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 32,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 0,
+   "corpus_top_share": 0.841
+  },
+  {
+   "name": "generic_reflection_glossy_samples",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 33,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 12,
+   "corpus_top_share": 0.841
+  },
+  {
+   "name": "generic_reflectivity_at_0deg",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 34,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 0.0,
+   "corpus_top_share": 0.932
+  },
+  {
+   "name": "generic_reflectivity_at_90deg",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 35,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 0.0,
+   "corpus_top_share": 0.954
+  },
+  {
+   "name": "generic_refr_depth",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 36,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": -1,
+   "corpus_top_share": 0.966
+  },
+  {
+   "name": "generic_refraction_glossy_samples",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 37,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 12,
+   "corpus_top_share": 0.861
+  },
+  {
+   "name": "generic_refraction_index",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 38,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 1.52,
+   "corpus_top_share": 0.871
+  },
+  {
+   "name": "generic_refraction_translucency_weight",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 39,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 0.0,
+   "corpus_top_share": 0.998
+  },
+  {
+   "name": "generic_roundcorners_allow_different_materials",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 40,
+   "constant": true,
+   "value": false,
+   "corpus_top_value": false,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "generic_roundcorners_radius",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 41,
+   "constant": true,
+   "value": 0.0,
+   "corpus_top_value": 0.0,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "generic_self_illum_color_temperature",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 42,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 6500.0,
+   "corpus_top_share": 0.974
+  },
+  {
+   "name": "generic_self_illum_filter_map",
+   "aproperty_class": "APropertyDouble4",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 43,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "corpus_top_share": 0.996
+  },
+  {
+   "name": "generic_self_illum_luminance",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 44,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 0.0,
+   "corpus_top_share": 0.986
+  },
+  {
+   "name": "generic_transparency",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 45,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 0.0,
+   "corpus_top_share": 0.95
+  },
+  {
+   "name": "generic_transparency_image_fade",
+   "aproperty_class": "APropertyDouble1",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 46,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 1.0,
+   "corpus_top_share": 0.837
+  },
+  {
+   "name": "keyword",
+   "aproperty_class": "APropertyString",
+   "present_in": 491,
+   "of": 503,
+   "modal_ordinal": 47,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "materials:generic",
+   "corpus_top_share": 0.65
+  },
+  {
+   "name": "localname",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 48,
+   "constant": true,
+   "value": "Generic",
+   "corpus_top_value": "Generic",
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "localtype",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 49,
+   "constant": true,
+   "value": "Appearance",
+   "corpus_top_value": "Appearance",
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "revision",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 51,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 1,
+   "corpus_top_share": 0.996
+  },
+  {
+   "name": "mode",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 50,
+   "constant": true,
+   "value": 4,
+   "corpus_top_value": 4,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "swatch",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 52,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "Swatch-Branded",
+   "corpus_top_share": 0.781
+  },
+  {
+   "name": "thumbnail",
+   "aproperty_class": "APropertyString",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 53,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": "C:/Users/shenj/AppData/Local/Temp/MaterialThumbnails_PID_21dc/5fe34e00.png",
+   "corpus_top_share": 0.002
+  },
+  {
+   "name": "version",
+   "aproperty_class": "APropertyInteger",
+   "present_in": 503,
+   "of": 503,
+   "modal_ordinal": 54,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": 4,
+   "corpus_top_share": 0.835
+  },
+  {
+   "name": "connectionEnabled",
+   "aproperty_class": "APropertyBoolean",
+   "present_in": 12,
+   "of": 503,
+   "modal_ordinal": 54,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": true,
+   "corpus_top_share": 1.0
+  },
+  {
+   "name": "PatternOffset",
+   "aproperty_class": "APropertyDouble2",
+   "present_in": 494,
+   "of": 503,
+   "modal_ordinal": 55,
+   "constant": false,
+   "value": null,
+   "corpus_top_value": [
+    0.0,
+    0.0
+   ],
+   "corpus_top_share": 1.0
+  }
+ ]
+}

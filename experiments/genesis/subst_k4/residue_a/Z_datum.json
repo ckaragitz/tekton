@@ -1,0 +1,989 @@
+{
+ "rung": "Z_datum",
+ "label": "the residue GRIDS -> our gridline bay + the 7 surplus levels -> our datum vocabulary, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+  "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y9.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a/Z_datum.rvt",
+ "landed_by_class": {
+  "Level": 7,
+  "Grid": 3
+ },
+ "notes": [
+  "grids 3 -> our bay ['01', '02', '03'] at our 8.4 m module, 42.0 m long, our elevation 0.0 m; the sample bay's orientation + its GridAttributes type wiring kept (referrers: the plan's ExtentElem only)",
+  "surplus levels 7 -> our datum vocabulary names; our elevation applied to 1 un-referenced level(s), the rest keep the sample elevation (hosted sketch planes / plan clips would move -- honest limit of an in-place probe)",
+  "CurveElem 5: the 5 residue CurveElems are the ROOM/AREA-SEPARATION boundary loop of the ONE placed room (RoomElem 1004910 + LevelRoomPlan 1004909 + AreaSchemePlanTopologies 9744) -- placed CONTENT: a room-removal rung's business (the boundary leaves with the room), no constructor value",
+  "LegendComponent 4: 4 legend graphics displaying TYPES (a wall type, a floor type, two curtain surrogates) in a legend view -- placed CONTENT referencing type layers other streams own; removed with those / with the legend view",
+  "LevelRoomPlan 1: the plan-topology companion of the one placed room (its 5 boundary CurveElems + AreaSchemePlanTopologies) -- placed CONTENT, removed with the room"
+ ],
+ "info": {
+  "levels": [
+   {
+    "slot": 1351691,
+    "old_name": "FOUNDATION-2700",
+    "our_name": "GEN B1 - Basement",
+    "old_z_ft": -8.858267716535433,
+    "our_elevation_applied": false,
+    "referrers": {
+     "SketchPlane": 5,
+     "SunAndShadowSettings": 1
+    }
+   },
+   {
+    "slot": 511122,
+    "old_name": "Foundation",
+    "our_name": "GEN T.O. Footing",
+    "old_z_ft": -3.937007874015748,
+    "our_elevation_applied": false,
+    "referrers": {
+     "SunAndShadowSettings": 1,
+     "SketchPlane": 4
+    }
+   },
+   {
+    "slot": 515270,
+    "old_name": "Level Lower",
+    "our_name": "GEN T.O. Slab",
+    "old_z_ft": -1.804461942257218,
+    "our_elevation_applied": false,
+    "referrers": {
+     "SketchPlane": 1,
+     "DBViewPlan": 1
+    }
+   },
+   {
+    "slot": 1300863,
+    "old_name": "Ref Beam system",
+    "our_name": "GEN Ceiling - L1",
+    "old_z_ft": 8.001968503937007,
+    "our_elevation_applied": false,
+    "referrers": {
+     "SketchPlane": 1
+    }
+   },
+   {
+    "slot": 694,
+    "old_name": "Ceiling",
+    "our_name": "GEN Mezzanine",
+    "old_z_ft": 8.858267716536028,
+    "our_elevation_applied": true,
+    "referrers": {}
+   },
+   {
+    "slot": 196629,
+    "old_name": "Top of Parapet",
+    "our_name": "GEN Roof Datum",
+    "old_z_ft": 19.68503937007874,
+    "our_elevation_applied": false,
+    "referrers": {
+     "SketchPlane": 8
+    }
+   },
+   {
+    "slot": 417275,
+    "old_name": "Roof Level",
+    "our_name": "GEN T.O. Parapet",
+    "old_z_ft": 29.52755905511811,
+    "our_elevation_applied": false,
+    "referrers": {
+     "SketchPlane": 1
+    }
+   }
+  ],
+  "grids": [
+   {
+    "slot": 195338,
+    "old_name": "A",
+    "our_name": "01",
+    "referrers": [
+     [
+      1064657,
+      "ExtentElem"
+     ]
+    ]
+   },
+   {
+    "slot": 195411,
+    "old_name": "B",
+    "our_name": "02",
+    "referrers": [
+     [
+      1064657,
+      "ExtentElem"
+     ]
+    ]
+   },
+   {
+    "slot": 195418,
+    "old_name": "C",
+    "our_name": "03",
+    "referrers": [
+     [
+      1064657,
+      "ExtentElem"
+     ]
+    ]
+   }
+  ]
+ },
+ "residue_left_in_place": {
+  "CurveElem(content)": {
+   "count": 5,
+   "ids": [
+    1004904,
+    1004905,
+    1004906,
+    1004907,
+    1004908
+   ],
+   "reason": "the 5 residue CurveElems are the ROOM/AREA-SEPARATION boundary loop of the ONE placed room (RoomElem 1004910 + LevelRoomPlan 1004909 + AreaSchemePlanTopologies 9744) -- placed CONTENT: a room-removal rung's business (the boundary leaves with the room), no constructor value"
+  },
+  "LegendComponent(content)": {
+   "count": 4,
+   "ids": [
+    907404,
+    907423,
+    907424,
+    1201130
+   ],
+   "reason": "4 legend graphics displaying TYPES (a wall type, a floor type, two curtain surrogates) in a legend view -- placed CONTENT referencing type layers other streams own; removed with those / with the legend view"
+  },
+  "LevelRoomPlan(content)": {
+   "count": 1,
+   "ids": [
+    1004909
+   ],
+   "reason": "the plan-topology companion of the one placed room (its 5 boundary CurveElems + AreaSchemePlanTopologies) -- placed CONTENT, removed with the room"
+  }
+ },
+ "record_selfcheck": {
+  "objects": 10,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.3
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   694,
+   195338,
+   195411,
+   195418,
+   196629,
+   417275,
+   511122,
+   515270,
+   1300863,
+   1351691
+  ],
+  "records_changed_count": 10,
+  "records_changed_by_seq": {
+   "102": 10
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 10,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 694,
+    "len_ours": 913,
+    "len_parent": 901,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "Level",
+      "class_parent": "Level"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[0]",
+      "ours": "0.0",
+      "parent": "2.1316282072803006e-14"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[1]",
+      "ours": "0.0",
+      "parent": "-3.552713678794414e-14"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[2]",
+      "ours": "10.826771653543307",
+      "parent": "8.858267716536028"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_xVec[1]",
+      "ours": "0.0",
+      "parent": "6.3576025574306265e-15"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_xVec[2]",
+      "ours": "0.0",
+      "parent": "6.9886901001628804e-15"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_yVec[2]",
+      "ours": "0.0",
+      "parent": "-6.975532122937103e-15"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[0]",
+      "ours": "0.0",
+      "parent": "2.1316282072803006e-14"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[1]",
+      "ours": "0.0",
+      "parent": "-3.552713678794414e-14"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[2]",
+      "ours": "10.826771653543307",
+      "parent": "8.858267716536028"
+     },
+     {
+      "path": ".m_pSurface.value.m_xVec[1]",
+      "ours": "0.0",
+      "parent": "6.3576025574306265e-15"
+     },
+     {
+      "path": ".m_pSurface.value.m_xVec[2]",
+      "ours": "0.0",
+      "parent": "6.9886901001628804e-15"
+     },
+     {
+      "path": ".m_pSurface.value.m_yVec[2]",
+      "ours": "0.0",
+      "parent": "-6.975532122937103e-15"
+     },
+     {
+      "path": ".m_text",
+      "ours": "'GEN Mezzanine'",
+      "parent": "'Ceiling'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 195338,
+    "len_ours": 742,
+    "len_parent": 740,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "Grid",
+      "class_parent": "Grid"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][0]",
+      "ours": "-68.89763779527559",
+      "parent": "-86.66283402128278"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][1]",
+      "ours": "-20.0",
+      "parent": "-20.80035270175469"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][0]",
+      "ours": "68.89763779527559",
+      "parent": "8.529503692210652"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][1]",
+      "ours": "60.0",
+      "parent": "41.46451031490346"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[2]",
+      "ours": "0.0",
+      "parent": "3.9370078740157473"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_xVec[1]",
+      "ours": "-3.2228188371975977e-15",
+      "parent": "-3.2231853310744253e-15"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][0]",
+      "ours": "-68.89763779527559",
+      "parent": "-86.66283402128278"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][1]",
+      "ours": "-20.0",
+      "parent": "-20.80035270175469"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][0]",
+      "ours": "68.89763779527559",
+      "parent": "8.529503692210652"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][1]",
+      "ours": "60.0",
+      "parent": "41.46451031490346"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[2]",
+      "ours": "0.0",
+      "parent": "3.9370078740157473"
+     },
+     {
+      "path": ".m_pSurface.value.m_xVec[1]",
+      "ours": "-3.2228188371975977e-15",
+      "parent": "-3.2231853310744253e-15"
+     },
+     {
+      "path": ".m_text",
+      "ours": "'01'",
+      "parent": "'A'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 195411,
+    "len_ours": 742,
+    "len_parent": 740,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "Grid",
+      "class_parent": "Grid"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][0]",
+      "ours": "-68.89763779527559",
+      "parent": "-86.66283402128279"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][1]",
+      "ours": "-20.0",
+      "parent": "-20.80035270175469"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][0]",
+      "ours": "68.89763779527559",
+      "parent": "8.529503692210636"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][1]",
+      "ours": "60.0",
+      "parent": "41.46451031490345"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[0]",
+      "ours": "42.854106028338606",
+      "parent": "42.85410602833869"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[1]",
+      "ours": "-18.377070599021334",
+      "parent": "-0.661397567525311"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[2]",
+      "ours": "0.0",
+      "parent": "3.9370078740157473"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_xVec[1]",
+      "ours": "-3.2486013878951784e-15",
+      "parent": "-3.2231853310744253e-15"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][0]",
+      "ours": "-68.89763779527559",
+      "parent": "-86.66283402128279"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][1]",
+      "ours": "-20.0",
+      "parent": "-20.80035270175469"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][0]",
+      "ours": "68.89763779527559",
+      "parent": "8.529503692210636"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][1]",
+      "ours": "60.0",
+      "parent": "41.46451031490345"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[0]",
+      "ours": "42.854106028338606",
+      "parent": "42.85410602833869"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[1]",
+      "ours": "-18.377070599021334",
+      "parent": "-0.661397567525311"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[2]",
+      "ours": "0.0",
+      "parent": "3.9370078740157473"
+     },
+     {
+      "path": ".m_pSurface.value.m_xVec[1]",
+      "ours": "-3.2486013878951784e-15",
+      "parent": "-3.2231853310744253e-15"
+     },
+     {
+      "path": ".m_text",
+      "ours": "'02'",
+      "parent": "'B'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 195418,
+    "len_ours": 742,
+    "len_parent": 740,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "Grid",
+      "class_parent": "Grid"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][0]",
+      "ours": "-68.89763779527559",
+      "parent": "-86.6628340212828"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][1]",
+      "ours": "-20.0",
+      "parent": "-20.80035270175469"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][0]",
+      "ours": "68.89763779527559",
+      "parent": "8.529503692210618"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][1]",
+      "ours": "60.0",
+      "parent": "41.46451031490345"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[0]",
+      "ours": "42.85410602833852",
+      "parent": "42.85410602833868"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[1]",
+      "ours": "-45.93612571713157",
+      "parent": "-10.50391725256468"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[2]",
+      "ours": "0.0",
+      "parent": "3.9370078740157473"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_xVec[1]",
+      "ours": "-3.197036286500017e-15",
+      "parent": "-3.2231853310744253e-15"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][0]",
+      "ours": "-68.89763779527559",
+      "parent": "-86.6628340212828"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][1]",
+      "ours": "-20.0",
+      "parent": "-20.80035270175469"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][0]",
+      "ours": "68.89763779527559",
+      "parent": "8.529503692210618"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][1]",
+      "ours": "60.0",
+      "parent": "41.46451031490345"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[0]",
+      "ours": "42.85410602833852",
+      "parent": "42.85410602833868"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[1]",
+      "ours": "-45.93612571713157",
+      "parent": "-10.50391725256468"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[2]",
+      "ours": "0.0",
+      "parent": "3.9370078740157473"
+     },
+     {
+      "path": ".m_pSurface.value.m_xVec[1]",
+      "ours": "-3.197036286500017e-15",
+      "parent": "-3.2231853310744253e-15"
+     },
+     {
+      "path": ".m_text",
+      "ours": "'03'",
+      "parent": "'C'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 13,
+    "blocks_out": 13
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 10,
+  "slots_with_registry_surface": 10,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 694,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 7
+   },
+   {
+    "slot": 195338,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->OpenLockControlTracking.m_openLockControlIds[*]"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 195411,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->OpenLockControlTracking.m_openLockControlIds[*]"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 195418,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->OpenLockControlTracking.m_openLockControlIds[*]"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 196629,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapCabelTrayLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapConduitLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first"
+    ],
+    "n_paths": 7
+   },
+   {
+    "slot": 417275,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapCabelTrayLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapConduitLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first"
+    ],
+    "n_paths": 7
+   },
+   {
+    "slot": 511122,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapCabelTrayLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapConduitLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first"
+    ],
+    "n_paths": 7
+   },
+   {
+    "slot": 515270,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapCabelTrayLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapConduitLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first"
+    ],
+    "n_paths": 11
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 10,
+  "pairs_ok": 10,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 694,
+   "class": "Level",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 5,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 7
+  },
+  {
+   "slot": 195338,
+   "class": "Grid",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 571,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 195411,
+   "class": "Grid",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 571,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 195418,
+   "class": "Grid",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 571,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 196629,
+   "class": "Level",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 571,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 7
+  },
+  {
+   "slot": 417275,
+   "class": "Level",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 624,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 7
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a/Z_datum.rvt",
+  "elements": 3342,
+  "file_size": 774144,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "Grid": {
+   "slots": 3,
+   "differing_field_paths": {
+    "m_pFace.value.m_pSurf.value.m_Envelope.m_corners.[0].[0]": 3,
+    "m_pFace.value.m_pSurf.value.m_Envelope.m_corners.[0].[1]": 3,
+    "m_pFace.value.m_pSurf.value.m_Envelope.m_corners.[1].[0]": 3,
+    "m_pFace.value.m_pSurf.value.m_Envelope.m_corners.[1].[1]": 3,
+    "m_pFace.value.m_pSurf.value.m_origin.[2]": 3,
+    "m_pFace.value.m_pSurf.value.m_xVec.[1]": 3,
+    "m_pSurface.value.m_Envelope.m_corners.[0].[0]": 3,
+    "m_pSurface.value.m_Envelope.m_corners.[0].[1]": 3,
+    "m_pSurface.value.m_Envelope.m_corners.[1].[0]": 3,
+    "m_pSurface.value.m_Envelope.m_corners.[1].[1]": 3,
+    "m_pSurface.value.m_origin.[2]": 3,
+    "m_pSurface.value.m_xVec.[1]": 3,
+    "m_text": 3,
+    "m_pFace.value.m_pSurf.value.m_origin.[0]": 2,
+    "m_pFace.value.m_pSurf.value.m_origin.[1]": 2,
+    "m_pFace.value.m_pSurf.value.m_xVec.[2]": 2,
+    "m_pSurface.value.m_origin.[0]": 2,
+    "m_pSurface.value.m_origin.[1]": 2,
+    "m_pSurface.value.m_xVec.[2]": 2
+   },
+   "declared_ours": [
+    "envelope (extents)",
+    "m_pSurface / m_pFace plane (line geometry)",
+    "m_text (name)"
+   ]
+  },
+  "Level": {
+   "slots": 7,
+   "differing_field_paths": {
+    "m_text": 7,
+    "m_pFace.value.m_pSurf.value.m_origin.[0]": 1,
+    "m_pFace.value.m_pSurf.value.m_origin.[1]": 1,
+    "m_pFace.value.m_pSurf.value.m_origin.[2]": 1,
+    "m_pFace.value.m_pSurf.value.m_xVec.[1]": 1,
+    "m_pFace.value.m_pSurf.value.m_xVec.[2]": 1,
+    "m_pFace.value.m_pSurf.value.m_yVec.[0]": 1,
+    "m_pFace.value.m_pSurf.value.m_yVec.[2]": 1,
+    "m_pSurface.value.m_origin.[0]": 1,
+    "m_pSurface.value.m_origin.[1]": 1,
+    "m_pSurface.value.m_origin.[2]": 1,
+    "m_pSurface.value.m_xVec.[1]": 1,
+    "m_pSurface.value.m_xVec.[2]": 1,
+    "m_pSurface.value.m_yVec.[0]": 1,
+    "m_pSurface.value.m_yVec.[2]": 1
+   },
+   "declared_ours": [
+    "m_pSurface / m_pFace origin z (elevation)",
+    "m_text (name)"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 694,
+   "class": "Level"
+  },
+  {
+   "slot": 195338,
+   "class": "Grid"
+  },
+  {
+   "slot": 195411,
+   "class": "Grid"
+  },
+  {
+   "slot": 195418,
+   "class": "Grid"
+  },
+  {
+   "slot": 196629,
+   "class": "Level"
+  },
+  {
+   "slot": 417275,
+   "class": "Level"
+  },
+  {
+   "slot": 511122,
+   "class": "Level"
+  },
+  {
+   "slot": 515270,
+   "class": "Level"
+  },
+  {
+   "slot": 1300863,
+   "class": "Level"
+  },
+  {
+   "slot": 1351691,
+   "class": "Level"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 694,
+   "class": "Level",
+   "notes": [
+    "replaces level 'Ceiling' (z 8.858 ft): our name 'GEN Mezzanine', our elevation 3.3 m"
+   ]
+  },
+  {
+   "slot": 195338,
+   "class": "Grid",
+   "notes": [
+    "our grid '01': line (-26.04,9.18) -> (111.75,9.18) ft, length 137.80 ft, elevation 0.0 ft; type 341",
+    "replaces grid 'A'; referrers [(1064657, 'ExtentElem')]"
+   ]
+  },
+  {
+   "slot": 195411,
+   "class": "Grid",
+   "notes": [
+    "our grid '02': line (-26.04,-18.38) -> (111.75,-18.38) ft, length 137.80 ft, elevation 0.0 ft; type 341",
+    "replaces grid 'B'; referrers [(1064657, 'ExtentElem')]"
+   ]
+  },
+  {
+   "slot": 195418,
+   "class": "Grid",
+   "notes": [
+    "our grid '03': line (-26.04,-45.94) -> (111.75,-45.94) ft, length 137.80 ft, elevation 0.0 ft; type 341",
+    "replaces grid 'C'; referrers [(1064657, 'ExtentElem')]"
+   ]
+  },
+  {
+   "slot": 196629,
+   "class": "Level",
+   "notes": [
+    "replaces level 'Top of Parapet' (z 19.685 ft): our name 'GEN Roof Datum', elevation KEPT (referenced by {'SketchPlane': 8})"
+   ]
+  },
+  {
+   "slot": 417275,
+   "class": "Level",
+   "notes": [
+    "replaces level 'Roof Level' (z 29.528 ft): our name 'GEN T.O. Parapet', elevation KEPT (referenced by {'SketchPlane': 1})"
+   ]
+  },
+  {
+   "slot": 511122,
+   "class": "Level",
+   "notes": [
+    "replaces level 'Foundation' (z -3.937 ft): our name 'GEN T.O. Footing', elevation KEPT (referenced by {'SunAndShadowSettings': 1, 'SketchPlane': 4})"
+   ]
+  },
+  {
+   "slot": 515270,
+   "class": "Level",
+   "notes": [
+    "replaces level 'Level Lower' (z -1.804 ft): our name 'GEN T.O. Slab', elevation KEPT (referenced by {'SketchPlane': 1, 'DBViewPlan': 1})"
+   ]
+  },
+  {
+   "slot": 1300863,
+   "class": "Level",
+   "notes": [
+    "replaces level 'Ref Beam system' (z 8.002 ft): our name 'GEN Ceiling - L1', elevation KEPT (referenced by {'SketchPlane': 1})"
+   ]
+  },
+  {
+   "slot": 1351691,
+   "class": "Level",
+   "notes": [
+    "replaces level 'FOUNDATION-2700' (z -8.858 ft): our name 'GEN B1 - Basement', elevation KEPT (referenced by {'SketchPlane': 5, 'SunAndShadowSettings': 1})"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 774144,
+ "seconds": 1.8
+}

@@ -1,0 +1,194 @@
+{
+ "stage": "R3s",
+ "safe_variant": true,
+ "out": "experiments/genesis/R3s.rvt",
+ "file_size": 6533120,
+ "seed": 8750,
+ "deleted": 763,
+ "surviving_elements": 13173,
+ "elemtable_before": 13936,
+ "records_removed": {
+  "101": 763,
+  "102": 763,
+  "103": 763
+ },
+ "blocks_before": 213,
+ "blocks_after": 208,
+ "structural_ok": true,
+ "verify": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "units": 53,
+  "blocks_unit0": 208,
+  "isize_identity_ok": true,
+  "elemtable_ids_without_record": 0
+ },
+ "walker_errors": [],
+ "dangling": {
+  "survivors_with_dangling_refs": 0,
+  "dangling_by_survivor_class": [],
+  "external": {
+   "Global/Latest": {
+    "dangling": 0,
+    "by_class": []
+   },
+   "Global/ContentDocuments": {
+    "dangling": 0,
+    "by_class": []
+   }
+  },
+  "history_invariant_at_risk": false
+ },
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   395
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "LegendComponent",
+   60
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "FamilyInstance",
+   30
+  ],
+  [
+   "LinearDimString",
+   4
+  ],
+  [
+   "SunAnnotationElem",
+   3
+  ],
+  [
+   "InteriorElev",
+   2
+  ],
+  [
+   "CurtainRoofAttributes",
+   1
+  ],
+  [
+   "SpotElevation",
+   1
+  ],
+  [
+   "StairsPathElement",
+   1
+  ]
+ ],
+ "top_survivor_classes": [
+  [
+   "CurveElem",
+   3956
+  ],
+  [
+   "GStyleElem",
+   2183
+  ],
+  [
+   "LinearDimString",
+   706
+  ],
+  [
+   "CategoryElem",
+   616
+  ],
+  [
+   "FamilyInstance",
+   467
+  ],
+  [
+   "ParamElemExternal",
+   466
+  ],
+  [
+   "FontElem",
+   263
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "SketchPlane",
+   209
+  ],
+  [
+   "ParamBinding",
+   209
+  ],
+  [
+   "LinePatternElem",
+   150
+  ],
+  [
+   "VarSketch",
+   140
+  ],
+  [
+   "AppearanceAssetElem",
+   131
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "HVACLoadSpaceTypeElem",
+   125
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "ParamElemFamily",
+   120
+  ],
+  [
+   "FillPatternElem",
+   116
+  ],
+  [
+   "ParamElemElectricalLoadClassification",
+   108
+  ],
+  [
+   "FamilySymbol",
+   106
+  ],
+  [
+   "MaterialElem",
+   93
+  ],
+  [
+   "DBViewType",
+   91
+  ],
+  [
+   "TextNoteAttributes",
+   90
+  ],
+  [
+   "SunAndShadowSettings",
+   90
+  ]
+ ],
+ "seconds": 10.9
+}

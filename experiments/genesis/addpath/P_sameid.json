@@ -1,0 +1,416 @@
+{
+ "probe": "P_sameid",
+ "family": "anchor",
+ "label": "X0k's registration (pen table re-added AT ITS OWN id 2: records at the unit end, fresh episodes, identity scrubbed, ZERO registry motion) reproduced by this assembler -- ASSERTED SEMANTICALLY IDENTICAL to X0k",
+ "order": 92,
+ "upload": "NO (anchor)",
+ "file": "experiments/genesis/addpath/P_sameid.rvt",
+ "template": "K1",
+ "sibling": "X0k.rvt (verdict PENDING -- already in the orchestrator's queue)",
+ "one_change": "none vs X0k semantically",
+ "factors": {
+  "id": "orig",
+  "episodes": "addpath",
+  "position": "end",
+  "identity": "scrub"
+ },
+ "target_id": 2,
+ "tests": "Cross-check of the assembler against the SAME-ID add-path product (X0k).  Verdict = X0k's: NO UPLOAD (X0k is queued; the three P_sameid_* restores are pre-built for its FAIL branch).",
+ "if_PASS": "n/a",
+ "if_FAIL": "n/a",
+ "build_info": {
+  "template": "K1",
+  "template_path": "experiments/genesis/triage/K1.rvt",
+  "template_partition_roundtrip_ok": true,
+  "target_id": 2,
+  "episodes": {
+   "creation": 1016,
+   "modified": 1016,
+   "user_modified": 1016,
+   "source": "addpath"
+  },
+  "position": "end",
+  "identity": {
+   "scrubbed_by": "rvt.identity.own_basic_file_info + own_increment_table_stream (the commit path's identity treatment, document GUID kept)"
+  },
+  "partition": {
+   "records_source": "Autodesk's own element-2 bytes",
+   "rebase_proof": {
+    "element": 2,
+    "verbatim": "K1's own framed records (no rebase)"
+   },
+   "removed_from_index": {
+    "101": 2516,
+    "102": 2516,
+    "103": 2516
+   },
+   "placed_at_index": {
+    "101": 6539,
+    "102": 6539,
+    "103": 6539
+   },
+   "records_per_seq": {
+    "101": 6541,
+    "102": 6541,
+    "103": 6541
+   },
+   "logical_len": 3829583,
+   "template_logical_len": 3829608
+  },
+  "elemtable": {
+   "changes": [
+    {
+     "episodes_row_before": {
+      "original_id": 2,
+      "creation_ep": 0,
+      "modified_ep": 976,
+      "user_modified_ep": 976,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     },
+     "episodes_row_after": {
+      "original_id": 2,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     }
+    }
+   ],
+   "row_after": {
+    "elem_id": 2,
+    "original_id": 2,
+    "creation_ep": 1016,
+    "modified_ep": 1016,
+    "user_modified_ep": 1016,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "count": 6540,
+   "watermark_before": 1472524,
+   "watermark_after": 1472524
+  },
+  "latest": {
+   "copied_verbatim_from_template": true
+  },
+  "streams_written_new": [
+   "BasicFileInfo",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Partitions/21"
+  ],
+  "seconds_build": 3.2
+ },
+ "streams_vs": {
+  "K1": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "DIFFERS",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "identical",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "identical",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0k": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "identical",
+   "Global/ElemTable": "identical",
+   "Global/History": "identical",
+   "Global/Latest": "identical",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  }
+ },
+ "changed_vs_template": [
+  "BasicFileInfo",
+  "Global/DocumentIncrementTable",
+  "Global/ElemTable",
+  "Partitions/21"
+ ],
+ "expected_changed_vs_template": [
+  "Partitions/*",
+  "Global/ElemTable",
+  "BasicFileInfo",
+  "Global/DocumentIncrementTable"
+ ],
+ "changed_set_as_expected": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "verify_written": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": 0,
+  "stamps_ok": true,
+  "elemtable_count": 6540,
+  "header_count": 6540
+ },
+ "target_records": {
+  "id": 2,
+  "found_clean": true,
+  "per_seq": {
+   "101": {
+    "class": 1509,
+    "clean": true
+   },
+   "102": {
+    "class": 3231,
+    "clean": true
+   },
+   "103": {
+    "class": 3884,
+    "clean": true
+   }
+  }
+ },
+ "intended_state": {
+  "elemtable_row": {
+   "elem_id": 2,
+   "original_id": 2,
+   "creation_ep": 1016,
+   "modified_ep": 1016,
+   "user_modified_ep": 1016,
+   "owner_id": -1,
+   "partition_id": 0
+  },
+  "row_ok": true,
+  "record_position": "end",
+  "position_ok": true,
+  "adocument_surface": {
+   "2": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PenWidthTableInfo.m_penWidthTableElemId"
+   ]
+  },
+  "latest_ok": true,
+  "watermark": 1472524,
+  "watermark_ok": true,
+  "counts_6540_coherent": true,
+  "three_seq_orders_equal": true,
+  "elemtable_ids_equal_record_ids": true
+ },
+ "semantic_diff": {
+  "elemtable_vs_K1": {
+   "removed_rows": [],
+   "added_rows": [],
+   "changed_rows": [
+    {
+     "before": {
+      "original_id": 2,
+      "creation_ep": 0,
+      "modified_ep": 976,
+      "user_modified_ep": 976,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     },
+     "after": {
+      "original_id": 2,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     }
+    }
+   ],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1472524
+   ]
+  },
+  "elemtable_vs_template": {
+   "removed_rows": [],
+   "added_rows": [],
+   "changed_rows": [
+    {
+     "before": {
+      "original_id": 2,
+      "creation_ep": 0,
+      "modified_ep": 976,
+      "user_modified_ep": 976,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     },
+     "after": {
+      "original_id": 2,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     }
+    }
+   ],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1472524
+   ]
+  },
+  "record_order_vs_K1": {
+   "K1_len": 6541,
+   "probe_len": 6541,
+   "backbone_order_identical_excluding_target": true,
+   "K1_index_of_2": 2516,
+   "probe_index_of_target": 6539,
+   "probe_target_neighbours": [
+    141731,
+    141733,
+    49026,
+    2,
+    -1
+   ],
+   "record_bytes_at_target_equal_K1_element_2": {
+    "101": {
+     "identical": true,
+     "differing_bytes": 0,
+     "len": [
+      135,
+      135
+     ]
+    },
+    "102": {
+     "identical": true,
+     "differing_bytes": 0,
+     "len": [
+      1223,
+      1223
+     ]
+    },
+    "103": {
+     "identical": true,
+     "differing_bytes": 0,
+     "len": [
+      22,
+      22
+     ]
+    }
+   }
+  },
+  "adocument_leaf_diff_vs_K1": [],
+  "identity_vs_K1": {
+   "BasicFileInfo": {
+    "client_app_name": [
+     "RevitApplication",
+     "rvt-writer"
+    ],
+    "username": [
+     "",
+     "rvt-writer"
+    ],
+    "author": [
+     "Autodesk Revit",
+     "rvt-writer"
+    ],
+    "last_save_path": [
+     "'C:\\\\Users\\\\hansonje\\\\Desktop\\\\Downloadable Files\\\\rstbasics...",
+     "P_sameid.rvt"
+    ]
+   },
+   "DIT_usernames": [
+    "rvt-writer"
+   ],
+   "note": "last_save_path/username/author/client_app are the identity scrub; identical == K1's originals"
+  }
+ },
+ "anchor_proof": {
+  "kind": "semantic identity vs experiments/genesis/controls/X0k.rvt",
+  "elemtable_model_equal": true,
+  "adocument_tree_equal": true,
+  "unit0_record_order_equal": true,
+  "unit0_record_bytes_equal": true,
+  "identity_fields_equal_except_last_save_path": true,
+  "identity_field_delta": {
+   "last_save_path": [
+    ".X0k.added.rvt",
+    "P_sameid.rvt"
+   ]
+  },
+  "dit_usernames_equal": true,
+  "dit_usernames": [
+   "rvt-writer"
+  ],
+  "inflated_payload_equal": {
+   "Global/Latest": true,
+   "Global/ElemTable": true,
+   "Global/DocumentIncrementTable": true
+  },
+  "raw_stream_status": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "identical",
+   "Global/ElemTable": "identical",
+   "Global/History": "identical",
+   "Global/Latest": "identical",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "raw_differences_are_cosmetic": "Partitions tail = one fewer generation of the reader-tolerated end-record junk (this tool adds none); BasicFileInfo differs only in last_save_path; any Latest/DIT/ElemTable raw difference is gzip block-ending with byte-identical inflated payloads",
+  "SEMANTICALLY_IDENTICAL": true
+ },
+ "problems": [],
+ "verdict": "CERTIFIED",
+ "bytes": 4489216,
+ "seconds": 12.2
+}

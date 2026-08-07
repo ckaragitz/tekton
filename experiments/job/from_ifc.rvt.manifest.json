@@ -1,0 +1,785 @@
+{
+ "tool": "rvt_job",
+ "tool_version": "1.0",
+ "mode": "from-ifc",
+ "generated_at": "2026-08-03T18:54:41Z",
+ "inputs": {
+  "spec": "/Users/ck/dev/things/rev-revit/experiments/job/from_ifc.rvt.spec.json",
+  "base": "/Users/ck/dev/things/rev-revit/samples/rmebasicsampleproject.rvt",
+  "template": "rmebasicsampleproject",
+  "offset_m": [
+   10.0,
+   -25.0
+  ],
+  "auto_circuits": false,
+  "wall_type_override": null,
+  "panel_host": null,
+  "hosting_requested": false,
+  "ifc": "/Users/ck/dev/things/rev-revit/usecases/chicago-plenum-electrical-room/hardened.ifc"
+ },
+ "project": {
+  "name": "DDOT Coolidge - Area E bus storage electrical room",
+  "description": "Derived from usecases/chicago-plenum-electrical-room/hardened.ifc by ifc_to_spec.py"
+ },
+ "spec_counts": {
+  "levels": 1,
+  "walls": 4,
+  "equipment": 11,
+  "circuits": 0,
+  "doors": 0,
+  "rooms": 0,
+  "floors": 0
+ },
+ "base": {
+  "path": "/Users/ck/dev/things/rev-revit/samples/rmebasicsampleproject.rvt",
+  "sha256": "37127cf55f7488f16124c6149c0d46e974faf64fe1a87d541149c8715f3ead94",
+  "is_autodesk_sample": true,
+  "history_head_guid": "f71f3b81-bc81-4784-872e-12ad1c080c37"
+ },
+ "gates": {
+  "seed_audit": {
+   "status": "WARN",
+   "verdict": "SEED USABLE WITH GAPS",
+   "proceed": true,
+   "counts": {
+    "missing_or_unsupported": 0,
+    "warnings": 4,
+    "items": 8
+   },
+   "gaps": [
+    {
+     "section": "wall_types",
+     "item": "Room shell (derived from proxy footprint)",
+     "status": "THICKNESS-ONLY",
+     "seed": "STB 20.0",
+     "fix": "no seed wall type is NAMED like 'Room shell (derived from proxy footprint)'; matched by thickness only. Rename 'STB 20.0' or add a 'Room shell (derived from proxy footprint)' type so the job's type name resolves exactly"
+    },
+    {
+     "section": "equipment",
+     "item": "XFMR-LR1..XFMR-B-SLQ1 (x3)",
+     "status": "OK-NO-INSTANCE",
+     "seed": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 2 :: 45 kVA",
+     "fix": "the matched type has NO placed instance in the seed \u2014 place one instance of it (the writer clones a placed specimen; otherwise it falls back to another type's instance)"
+    },
+    {
+     "section": "equipment",
+     "item": "Trapeze hangers \u2014 1-5/8 in strut on 3/8 in rods, rack at 16 ft 6 in AFF",
+     "status": "NEEDS-FAMILY",
+     "seed": null,
+     "fix": "kind 'proxy' has no native family kind in the writer (lightfixture, panelboard, switchboard, transformer are supported); it would be SKIPPED. Load a matching family into the seed (e.g. a Unistrut trapeze / generic model) and register the kind, or accept omission (DirectShape/generic-model placeholder)."
+    },
+    {
+     "section": "equipment",
+     "item": "Bus storage electrical room shell \u2014 Area E",
+     "status": "NEEDS-FAMILY",
+     "seed": null,
+     "fix": "kind 'proxy' has no native family kind in the writer (lightfixture, panelboard, switchboard, transformer are supported); it would be SKIPPED. Load a matching family into the seed (e.g. a Unistrut trapeze / generic model) and register the kind, or accept omission (DirectShape/generic-model placeholder)."
+    }
+   ],
+   "writer_would_use": {
+    "levels": {
+     "L1": 378117
+    },
+    "wall_type": 563416,
+    "wall_type_name": "MW 11.5",
+    "equipment": {
+     "panelboard": {
+      "symbol_id": 619617,
+      "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface :: 400 A"
+     },
+     "switchboard": {
+      "symbol_id": 629946,
+      "name": "M_Circuit Breaker Switchboard :: 762mmx965mm"
+     },
+     "transformer": {
+      "symbol_id": 621228,
+      "name": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 2 :: 45 kVA"
+     },
+     "lightfixture": {
+      "symbol_id": 365612,
+      "name": "M_Plain Recessed Lighting Fixture :: 600x600 - 277"
+     }
+    }
+   },
+   "seed_inventory": {
+    "levels": 4,
+    "wall_types": 11,
+    "symbols": 187
+   },
+   "elapsed_s": 2.9
+  },
+  "structural": {
+   "status": "PASS",
+   "kind": "verify_written",
+   "expected_new": 13,
+   "new_found_clean_per_seq": {
+    "101": 13,
+    "102": 13,
+    "103": 13
+   },
+   "report": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28145,
+    "header_count": 28145,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    }
+   }
+  },
+  "validation": {
+   "status": "PASS",
+   "errors": 0,
+   "warnings": 2,
+   "infos": 2,
+   "layers": [
+    "structure",
+    "consistency",
+    "semantic"
+   ],
+   "strict": false,
+   "elapsed_s": 12.2,
+   "summary_line": "verdict: VALID (no errors); warnings=2 info=2; layers=structure,consistency,semantic",
+   "top_findings": [
+    {
+     "severity": "warning",
+     "layer": "structure",
+     "where": "Partitions/14",
+     "message": "3 block(s) whose header counters A/C violate the corpus identity hdr_len(seq)*A + C + adj(flags) == inflated length (payload CRC-valid; tolerated by Revit's reader \u2014 proven by the accepted V20-V29 \u2014 but a writer counter defect; strict makes it an error)"
+    },
+    {
+     "severity": "warning",
+     "layer": "semantic",
+     "where": "objects",
+     "message": "1171/142187 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+    }
+   ],
+   "stats": {
+    "streams": 13,
+    "pages_checked": 506,
+    "gzip_members": 8,
+    "partition_blocks": 2050,
+    "records": 427479,
+    "elements_decoded": 142187,
+    "decode_failures": 1171,
+    "refs_checked": 2571216,
+    "connector_edges": 15339,
+    "circuits": 187
+   },
+   "report_json": "/Users/ck/dev/things/rev-revit/experiments/job/from_ifc.rvt.validation.json"
+  },
+  "identity": {
+   "status": "PASS",
+   "issues": [],
+   "identity": {
+    "author": "rvt-writer",
+    "client_app_name": "rvt-writer",
+    "username": "",
+    "last_save_path": "from_ifc.rvt",
+    "central_model_path": "",
+    "unique_document_guid": "f71f3b81-bc81-4784-872e-12ad1c080c37",
+    "central_episode_guid": "f71f3b81-bc81-4784-872e-12ad1c080c37",
+    "format": "2026",
+    "build": "20250227_1515(x64)",
+    "locale": "ENU",
+    "unique_document_increments": "15"
+   },
+   "history_head_guid": "f71f3b81-bc81-4784-872e-12ad1c080c37",
+   "our_identity": {
+    "author": "rvt-writer",
+    "client_app_name": "rvt-writer"
+   }
+  },
+  "base_provenance": {
+   "status": "PROOF-ONLY, NOT-DELIVERABLE",
+   "deliverable": false,
+   "base": "/Users/ck/dev/things/rev-revit/samples/rmebasicsampleproject.rvt",
+   "base_is_autodesk_sample": true,
+   "elapsed_s": 1.8,
+   "g1": {
+    "passes": false,
+    "verdict": "FAIL \u2014 27,893 Autodesk-derived element(s) remain in expression-bearing categories",
+    "blocking": [
+     {
+      "category": "embedded-family-documents",
+      "provenance": "autodesk-sample",
+      "count": 305,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "loadable-families",
+      "provenance": "autodesk-sample",
+      "count": 513,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "autodesk-sample",
+      "count": 1067,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "autodesk-sample",
+      "count": 126,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "autodesk-sample",
+      "count": 943,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "autodesk-sample",
+      "count": 3483,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "autodesk-sample",
+      "count": 1429,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "autodesk-sample",
+      "count": 864,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "annotation-symbols-titleblocks",
+      "provenance": "autodesk-sample",
+      "count": 62,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "parameter-definitions",
+      "provenance": "autodesk-sample",
+      "count": 1438,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "autodesk-sample",
+      "count": 18,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "autodesk-sample",
+      "count": 35,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ]
+   },
+   "provenance_totals": {
+    "autodesk-sample": 28132,
+    "transitive-cloned": 13
+   },
+   "created_elements": [
+    {
+     "id": 888014,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 563416 via m_WallAttributesId; structural clone of sample SWall 573764 (85% shingle overlap)",
+     "lineage": [
+      {
+       "id": 563416,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "MW 11.5"
+      },
+      {
+       "id": 30,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Walls"
+      }
+     ],
+     "clone_of": 573764,
+     "clone_similarity": 0.851
+    },
+    {
+     "id": 888015,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 563416 via m_WallAttributesId; structural clone of sample SWall 573764 (84% shingle overlap)",
+     "lineage": [
+      {
+       "id": 563416,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "MW 11.5"
+      },
+      {
+       "id": 30,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Walls"
+      }
+     ],
+     "clone_of": 573764,
+     "clone_similarity": 0.843
+    },
+    {
+     "id": 888016,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 563416 via m_WallAttributesId; structural clone of sample SWall 573764 (86% shingle overlap)",
+     "lineage": [
+      {
+       "id": 563416,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "MW 11.5"
+      },
+      {
+       "id": 30,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Walls"
+      }
+     ],
+     "clone_of": 573764,
+     "clone_similarity": 0.859
+    },
+    {
+     "id": 888017,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 563416 via m_WallAttributesId; structural clone of sample SWall 573735 (84% shingle overlap)",
+     "lineage": [
+      {
+       "id": 563416,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "MW 11.5"
+      },
+      {
+       "id": 30,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Walls"
+      }
+     ],
+     "clone_of": 573735,
+     "clone_similarity": 0.843
+    },
+    {
+     "id": 888018,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample family-types-symbols FamilySymbol 619617 via m_symbolId; structural clone of sample FamilyInstance 742670 (88% shingle overlap)",
+     "lineage": [
+      {
+       "id": 619617,
+       "class": "FamilySymbol",
+       "category": "family-types-symbols",
+       "via": "m_symbolId",
+       "name": "400 A"
+      },
+      {
+       "id": 741874,
+       "class": "Family",
+       "category": "loadable-families",
+       "via": "m_regenOnly[0]",
+       "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface"
+      }
+     ],
+     "clone_of": 742670,
+     "clone_similarity": 0.879
+    },
+    {
+     "id": 888019,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample family-types-symbols FamilySymbol 619617 via m_symbolId; structural clone of sample FamilyInstance 742670 (88% shingle overlap)",
+     "lineage": [
+      {
+       "id": 619617,
+       "class": "FamilySymbol",
+       "category": "family-types-symbols",
+       "via": "m_symbolId",
+       "name": "400 A"
+      },
+      {
+       "id": 741874,
+       "class": "Family",
+       "category": "loadable-families",
+       "via": "m_regenOnly[0]",
+       "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface"
+      }
+     ],
+     "clone_of": 742670,
+     "clone_similarity": 0.879
+    },
+    {
+     "id": 888020,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample family-types-symbols FamilySymbol 619617 via m_symbolId; structural clone of sample FamilyInstance 742670 (88% shingle overlap)",
+     "lineage": [
+      {
+       "id": 619617,
+       "class": "FamilySymbol",
+       "category": "family-types-symbols",
+       "via": "m_symbolId",
+       "name": "400 A"
+      },
+      {
+       "id": 741874,
+       "class": "Family",
+       "category": "loadable-families",
+       "via": "m_regenOnly[0]",
+       "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface"
+      }
+     ],
+     "clone_of": 742670,
+     "clone_similarity": 0.879
+    },
+    {
+     "id": 888021,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample family-types-symbols FamilySymbol 619617 via m_symbolId; structural clone of sample FamilyInstance 742670 (88% shingle overlap)",
+     "lineage": [
+      {
+       "id": 619617,
+       "class": "FamilySymbol",
+       "category": "family-types-symbols",
+       "via": "m_symbolId",
+       "name": "400 A"
+      },
+      {
+       "id": 741874,
+       "class": "Family",
+       "category": "loadable-families",
+       "via": "m_regenOnly[0]",
+       "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface"
+      }
+     ],
+     "clone_of": 742670,
+     "clone_similarity": 0.879
+    },
+    {
+     "id": 888022,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample family-types-symbols FamilySymbol 619617 via m_symbolId; structural clone of sample FamilyInstance 742670 (88% shingle overlap)",
+     "lineage": [
+      {
+       "id": 619617,
+       "class": "FamilySymbol",
+       "category": "family-types-symbols",
+       "via": "m_symbolId",
+       "name": "400 A"
+      },
+      {
+       "id": 741874,
+       "class": "Family",
+       "category": "loadable-families",
+       "via": "m_regenOnly[0]",
+       "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface"
+      }
+     ],
+     "clone_of": 742670,
+     "clone_similarity": 0.879
+    },
+    {
+     "id": 888023,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample family-types-symbols FamilySymbol 619617 via m_symbolId; structural clone of sample FamilyInstance 742670 (88% shingle overlap)",
+     "lineage": [
+      {
+       "id": 619617,
+       "class": "FamilySymbol",
+       "category": "family-types-symbols",
+       "via": "m_symbolId",
+       "name": "400 A"
+      },
+      {
+       "id": 741874,
+       "class": "Family",
+       "category": "loadable-families",
+       "via": "m_regenOnly[0]",
+       "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface"
+      }
+     ],
+     "clone_of": 742670,
+     "clone_similarity": 0.879
+    },
+    {
+     "id": 888024,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample family-types-symbols FamilySymbol 621242 via m_symbolId; structural clone of sample FamilyInstance 624416 (92% shingle overlap)",
+     "lineage": [
+      {
+       "id": 621242,
+       "class": "FamilySymbol",
+       "category": "family-types-symbols",
+       "via": "m_symbolId",
+       "name": "500 kVA"
+      },
+      {
+       "id": 674651,
+       "class": "Family",
+       "category": "loadable-families",
+       "via": "m_regenOnly[0]",
+       "name": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 2"
+      }
+     ],
+     "clone_of": 624416,
+     "clone_similarity": 0.923
+    },
+    {
+     "id": 888025,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample family-types-symbols FamilySymbol 621242 via m_symbolId; structural clone of sample FamilyInstance 624416 (92% shingle overlap)",
+     "lineage": [
+      {
+       "id": 621242,
+       "class": "FamilySymbol",
+       "category": "family-types-symbols",
+       "via": "m_symbolId",
+       "name": "500 kVA"
+      },
+      {
+       "id": 674651,
+       "class": "Family",
+       "category": "loadable-families",
+       "via": "m_regenOnly[0]",
+       "name": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 2"
+      }
+     ],
+     "clone_of": 624416,
+     "clone_similarity": 0.923
+    },
+    {
+     "id": 888026,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample family-types-symbols FamilySymbol 621242 via m_symbolId; structural clone of sample FamilyInstance 624416 (92% shingle overlap)",
+     "lineage": [
+      {
+       "id": 621242,
+       "class": "FamilySymbol",
+       "category": "family-types-symbols",
+       "via": "m_symbolId",
+       "name": "500 kVA"
+      },
+      {
+       "id": 674651,
+       "class": "Family",
+       "category": "loadable-families",
+       "via": "m_regenOnly[0]",
+       "name": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 2"
+      }
+     ],
+     "clone_of": 624416,
+     "clone_similarity": 0.923
+    }
+   ],
+   "modified_elements": [],
+   "reason": "P0 genesis gate G1 fails (the base is an Autodesk sample project): FAIL \u2014 27,893 Autodesk-derived element(s) remain in expression-bearing categories. Nothing built on a sample base is a product; ship only from a certified genesis base."
+  }
+ },
+ "build": {
+  "planned": 13,
+  "log": [
+   "wall  W-S        id=888014 type=563416 (15.152230971068004, -90.020997374968) -> (50.464566928932, -90.020997374968) ft, h=20.49 ft",
+   "wall  W-E        id=888015 type=563416 (50.464566928932, -90.020997374968) -> (50.464566928932, -73.36482939603201) ft, h=20.49 ft",
+   "wall  W-N        id=888016 type=563416 (50.464566928932, -73.36482939603201) -> (15.152230971068004, -73.36482939603201) ft, h=20.49 ft",
+   "wall  W-W        id=888017 type=563416 (15.152230971068004, -73.36482939603201) -> (15.152230971068004, -90.020997374968) ft, h=20.49 ft",
+   "equip B-HG4        panelboard  id=888018 symbol=619617 at (20.4,-74.4,3.50) ft rot=0.0deg free-standing",
+   "equip B-LR1        panelboard  id=888019 symbol=619617 at (23.0,-74.4,3.50) ft rot=0.0deg free-standing",
+   "equip B-HQ1        panelboard  id=888020 symbol=619617 at (31.9,-74.4,3.50) ft rot=0.0deg free-standing",
+   "equip B-LQ1        panelboard  id=888021 symbol=619617 at (34.2,-74.4,3.50) ft rot=0.0deg free-standing",
+   "equip B-SLQ1       panelboard  id=888022 symbol=619617 at (36.5,-74.4,3.50) ft rot=0.0deg free-standing",
+   "equip B-SHQ1       panelboard  id=888023 symbol=619617 at (44.8,-74.4,3.50) ft rot=0.0deg free-standing",
+   "equip XFMR-LR1     transformer id=888024 symbol=621242 at (23.0,-88.7,0.33) ft rot=0.0deg free-standing",
+   "equip XFMR-LQ1     transformer id=888025 symbol=621242 at (31.6,-88.7,0.33) ft rot=0.0deg free-standing",
+   "equip XFMR-B-SLQ1  transformer id=888026 symbol=621242 at (38.4,-88.7,0.33) ft rot=0.0deg free-standing",
+   "SKIP  Trapeze hangers \u2014 1-5/8 in strut on 3/8 in rods, rack at 16 ft 6 in AFF: unsupported kind 'proxy'",
+   "SKIP  Bus storage electrical room shell \u2014 Area E: unsupported kind 'proxy'"
+  ],
+  "template": {
+   "levels": {
+    "L1": 378117,
+    "L2": 378118
+   },
+   "wall_type": 563416,
+   "equipment": {
+    "panelboard": [
+     619617,
+     742670,
+     "free"
+    ],
+    "transformer": [
+     621242,
+     624416,
+     "free"
+    ],
+    "switchboard": [
+     629946,
+     null,
+     "free"
+    ]
+   }
+  }
+ },
+ "commit": {
+  "elemtable_before": 28132,
+  "elemtable_after": 28145,
+  "watermark_after": 888026,
+  "partition": "Partitions/14",
+  "new_ids": [
+   888014,
+   888015,
+   888016,
+   888017,
+   888018,
+   888019,
+   888020,
+   888021,
+   888022,
+   888023,
+   888024,
+   888025,
+   888026
+  ]
+ },
+ "elements": {
+  "created": [
+   {
+    "id": 888014,
+    "class": "SWall",
+    "category": -2000011,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888015,
+    "class": "SWall",
+    "category": -2000011,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888016,
+    "class": "SWall",
+    "category": -2000011,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888017,
+    "class": "SWall",
+    "category": -2000011,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888018,
+    "class": "FamilyInstance",
+    "category": -2001040,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888019,
+    "class": "FamilyInstance",
+    "category": -2001040,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888020,
+    "class": "FamilyInstance",
+    "category": -2001040,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888021,
+    "class": "FamilyInstance",
+    "category": -2001040,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888022,
+    "class": "FamilyInstance",
+    "category": -2001040,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888023,
+    "class": "FamilyInstance",
+    "category": -2001040,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888024,
+    "class": "FamilyInstance",
+    "category": -2001040,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888025,
+    "class": "FamilyInstance",
+    "category": -2001040,
+    "name": null,
+    "in_elemtable": true
+   },
+   {
+    "id": 888026,
+    "class": "FamilyInstance",
+    "category": -2001040,
+    "name": null,
+    "in_elemtable": true
+   }
+  ]
+ },
+ "hard_gates_passed": true,
+ "deliverable": false,
+ "status": "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)",
+ "elapsed_s": 75.2,
+ "output": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/job/from_ifc.rvt",
+  "bytes": 32665600,
+  "sha256": "190ded512506221c0f12e1a24ee4c060a92d5b01cdeeb67de2d768a62219ef91"
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "name": "RC_2025_full_straggler_set",
+ "ids": [
+  9744,
+  245433,
+  699327,
+  699381,
+  763366,
+  763420,
+  1004904,
+  1004905,
+  1004906,
+  1004907,
+  1004908,
+  1004909,
+  1004910,
+  1250029,
+  1250030,
+  1250031,
+  1382860
+ ],
+ "policy": "maxgc",
+ "purpose": "genesis-base",
+ "requires_first": [
+  "Z_RC_2025 (drafting link pin)",
+  "RC_2025_inplace (view headers + area unwiring)"
+ ],
+ "notes": [
+  "the COMPLETE lawful straggler set (union of the three pin-free sets + the RvtLinkSymbol + the room constellation), delete-reachable only after the RC in-place fixes -- proven EDIT-FREE on this chain by RC_2025.rvt; a compose without the fixes pins (fails red), never partially deletes"
+ ],
+ "superseded_by": "D_2025_stragglers_full.json"
+}

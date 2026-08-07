@@ -1,0 +1,453 @@
+{
+ "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis2/troffer_2x4_v2.rfa",
+ "elements": 35,
+ "name": "Recessed Troffer 2x4 38W",
+ "emit": {
+  "size": 278528,
+  "footer_blob_len": 64,
+  "footer_blob_hex": "a89128bb6a898eddec222ee6db3eef38cb29c2b0ee84a97d430b3436fcc3da0badffdf4a444879976ff94a7173aa6e38eea1f57e6f309bf56e3eba23c86c38fa",
+  "end_record_hex": "a30300000000ffffffff",
+  "logical_partition_bytes": 7181,
+  "document_guid": "1704880d-9d16-47a7-9c2d-b4a40e862dd3",
+  "seconds": 0.23
+ },
+ "verify": {
+  "ok": true,
+  "gzip_crc_failures": 0,
+  "ecc_mismatch": 0,
+  "walker_errors": [],
+  "record_counts": {
+   "101": 36,
+   "102": 36,
+   "103": 36
+  }
+ },
+ "validate": {
+  "family_mode": "VALID",
+  "family_mode_errors": 0,
+  "family_mode_warnings": 0,
+  "arbiter_raw": "INVALID",
+  "arbiter_raw_errors": 3,
+  "arbiter_raw_error_kinds": [
+   "structure ProjectInformation: expected stream is missing",
+   "structure PartAtom: final block (770 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+   "structure PartAtom: no gzip member found in framed stream"
+  ],
+  "donor_parity": {
+   "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+   "arbiter_raw_errors": 5,
+   "family_mode_errors": 2,
+   "arbiter_raw_error_kinds": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block (4046 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+    "structure PartAtom: no gzip member found in framed stream",
+    "consistency Global/ElemTable: ElemTable does not decode: ElemTable footer is 600 bytes / graveyard 18 \u2014 GraveyardRec wire layout not observed in corpus",
+    "consistency Global/DocumentIncrementTable: DocumentIncrementTable does not decode: unpack_from requires a buffer of at least 15903 bytes for unpacking 4 bytes at offset 15899 (actual buffer size is 15902)"
+   ]
+  },
+  "ok": true
+ },
+ "provenance": {
+  "ok": true,
+  "verdict": "PROVENANCE-CLEAN: zero donor ADocument content bytes, zero donor element-id references, zero employee paths/usernames; carried = the schema constant only; footer = ours + the universal format tokens",
+  "checks": {
+   "adocument_decodes_clean": true,
+   "zero_dangling_element_refs": true,
+   "zero_donor_id_byte_hits": true,
+   "zero_donor_name_strings": true,
+   "owner_family_is_ours": true,
+   "identity_is_ours": true,
+   "footer_blob_not_donor": true,
+   "no_donor_end_parity": true,
+   "end_record_is_constant": true,
+   "signature_string_present": true,
+   "formats_latest_is_format_constant": true
+  },
+  "adocument": {
+   "inflated_bytes": 1342699,
+   "decodes_clean": true,
+   "references_to_our_elements": 9,
+   "dangling_id_refs_gt99": 0,
+   "byte_scan_donor_ids": {
+    "hits": 0,
+    "distinct": 0,
+    "examples": [],
+    "universe": 1755,
+    "must_be": 0
+   },
+   "donor_name_string_hits": [],
+   "longest_common_run_with_donor_latest": {
+    "longest_common_run_bytes": 1333534,
+    "our_offset": 8284,
+    "donor_offset": 44669,
+    "classification": "Forge unit/spec/parameter JSON corpus (per-release PRODUCT constant, C4-class)",
+    "note": "the residual identity is expected to be the Forge product corpus (candidate mode carries it; purity mode empties it) and short AppInfo shell scaffolding -- never element ids, names or memory"
+   },
+   "owner_family_id": 1000,
+   "stored_by_revit_build": [
+    "Revit 2026 2026 (2026.000) : 20250227_1515(x64)"
+   ]
+  },
+  "identity": {
+   "author": "rvt-writer",
+   "client_app_name": "rvt-writer",
+   "username": "rvt-writer",
+   "last_save_path": "troffer_2x4_v2.rfa",
+   "dit_usernames": [
+    "rvt-writer"
+   ],
+   "no_windows_user_path": true,
+   "no_employee_usernames": true,
+   "employee_hits": [],
+   "no_hansonje_path": true,
+   "no_autodesk_author": true
+  },
+  "partition_footer": {
+   "units": 1,
+   "walker_errors": [],
+   "our_footer_blob_hex": [
+    "a89128bb6a898eddec222ee6db3eef38cb29c2b0ee84a97d430b3436fcc3da0badffdf4a444879976ff94a7173aa6e38eea1f57e6f309bf56e3eba23c86c38fa"
+   ],
+   "our_footer_blob_len": [
+    64
+   ],
+   "signature_string_occurrences": 1,
+   "signature_string_status": "PRESENT (required universal format signature -- counsel C5: an irreducible token, written by us, never copied bytes)",
+   "true_end_record_hex": "a30300000000ffffffff",
+   "end_record_is_decoded_constant": true,
+   "donor_footer_blob_present": false,
+   "donor_end_parity_present": false
+  },
+  "carried_constants": {
+   "Formats/Latest": {
+    "inflated_bytes": 496597,
+    "sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+    "is_corpus_schema_constant": true
+   },
+   "Global/Latest": "OURS (constructed family ADocument -- see 'adocument')",
+   "unit footer / end record": "OURS + universal format tokens (see 'partition_footer')"
+  }
+ },
+ "adocument_summary": {
+  "conclusion": "family ADocument CONSTRUCTED (candidate): 1,342,699 B; decodes clean, round-trips; 0 dangling ids (schema census); byte-scan donor ids = 0; our ids present in the payload = 13 (byte scan); slots populated = 131",
+  "purge_totals": {
+   "leaves": 4123,
+   "live": 0,
+   "invalid": 2238,
+   "dangling": 1886,
+   "nulled": 20,
+   "elements_dropped": 1778,
+   "scalars_nulled": 7
+  },
+  "registries": {
+   "DatumTracking.m_elemIdSet": "3 of ours (levels + ref planes)",
+   "MaterialTracking.m_elemIdSet": "0 of ours (MaterialElem -- ours has none)",
+   "LinePatternTracking.m_elemIdSet": "0 of ours (LinePatternElem -- ours has none)",
+   "FillPatternTracking.m_elemIdSet": "0 of ours (FillPatternElem -- ours has none)",
+   "AppearanceAssetTracking.m_elemIdSet": "0 of ours (AppearanceAssetElem -- ours has none)",
+   "LoadCaseElemTracking.m_elemIdSet": "0 of ours (LoadCaseElem -- ours has none)",
+   "StructConnectionTypeTracking.m_elemIdSet": "0 of ours (StructConnectionType -- ours has none)",
+   "KeynoteTableTracking.m_elemIdSet": "0 of ours (KeynoteTable -- ours has none)",
+   "TilePatternTracking.m_elemIdSet": "0 of ours (TilePatternElem -- ours has none)",
+   "PhaseFilterTracking.m_elemIdSet": "0 of ours (PhaseFilterElem -- ours has none)",
+   "PropertySetElementTracking.m_elemIdSet": "0 of ours (PropertySetElement -- ours has none)",
+   "ViewTagTracking.m_elemIdSet": "0 of ours (annotation head symbols -- ours has none)",
+   "MoribundElemTracking.m_elemIdSet": "0 of ours (moribund elements -- ours has none)",
+   "ElementTrackingData.m_elems": "4 of ours in 3 category rows {'RefPlane->-2000530': 2, 'Level->-2000240': 1, 'ElectricalLoadClassification->-2008143': 1}; the archetype's category SHELL rows kept (144 rows), donor ids purged; m_symbols = 45 rows, none ours",
+   "DBViewInfo": "project view 1004, index of 2 views, 1 sun-settings, 0 templates, no system navigator",
+   "DBDrawingInfo.m_DBDrawingsIndex": "2 drawings of ours",
+   "LevelPlanViewTracking": "1 levels -> 1 plan views",
+   "SketchPlaneInfo.m_curSPRecs": "1 view sketch-planes of ours (m_famId = our self-Family 1000); no sketch grids",
+   "UnitsTracking.m_unitsElemId": "= 1001 (our UnitsElem)",
+   "SiteMgr": "-1 (we author no TrueNorth / contour range)",
+   "PenWidthTableInfo": "-1 (we author no PenWidthTableElem)",
+   "AppearanceInfo.m_previewDBViewID": "-1 (the archetype's preview is its 3D view; our documents carry a plan view only)",
+   "DBViewTypesForNewLevel": "1 plan view type(s) of ours (the genesis-2 rule)",
+   "FamilyMgr.m_arrLoadedFamilyInfo": "1 self entry {surrogate -1, no nested family GUIDs} (a family document with no nested families)",
+   "UniqueElementsTracking.m_elemIds": "0 singletons of ours; the 93-slot table is otherwise all-null -- our documents author NONE of the family-editor settings singletons the archetype registers (73 known positions unfilled)",
+   "CategoryTracking": "EMPTY: our family documents carry no CategoryElem / GStyleElem catalogue rows (the archetype's 1,477 + 70 rows were its built-in category ballast); the family-scale analogue of the project's K6 catalogue requirement",
+   "m_storedByRevitBuild": "1 entry (the Revit-2026 product build constant; was the archetype's 9-entry 2018->2026 save lineage)",
+   "m_ownerFamilyId": "= 1000 (OUR self-Family)"
+  },
+  "residual": [
+   "UniqueElementsTracking is ALL-NULL: our family documents carry none of the settings singletons the archetype registers (AreaSettingsElem, AutoCamSettingsElem, StructSettingsElem, KeynoteTable, ...).  The family-scale analogue of the project's K5 finding (the reader REQUIRED settings singletons at project scale) -- the lead hypothesis if the standalone file is rejected while its ADocument decodes clean.",
+   "CategoryTracking is EMPTY (no built-in category / GStyle catalogue in our family documents) -- the family-scale analogue of the project's K6 finding."
+  ],
+  "forge_corpus": {
+   "action": "CARRIED",
+   "documents": 1315,
+   "bytes": 1333338,
+   "why": "a per-release PRODUCT constant: the SAME 893 unit-schema + 422 parameter-schema pairs, byte-identical in the family archetype AND in all six project samples (verified by content hash) -- not sample or donor EXPRESSION; the Revit install's Forge unit corpus.  Carried and FLAGGED, the counsel C4-class residual beside Formats/Latest -- the same posture genesis-2's candidate takes; purity mode empties it"
+  }
+ },
+ "seconds": 1.2,
+ "provenance_full": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis2/troffer_2x4_v2.rfa",
+  "checks": {
+   "adocument_decodes_clean": true,
+   "zero_dangling_element_refs": true,
+   "zero_donor_id_byte_hits": true,
+   "zero_donor_name_strings": true,
+   "owner_family_is_ours": true,
+   "identity_is_ours": true,
+   "footer_blob_not_donor": true,
+   "no_donor_end_parity": true,
+   "end_record_is_constant": true,
+   "signature_string_present": true,
+   "formats_latest_is_format_constant": true
+  },
+  "findings": [],
+  "family_document": {
+   "n_elements": 35,
+   "id_range": [
+    1000,
+    1034
+   ]
+  },
+  "streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "PartAtom",
+   "Partitions/0",
+   "TransmissionData"
+  ],
+  "adocument": {
+   "inflated_bytes": 1342699,
+   "decodes_clean": true,
+   "coverage": {
+    "consumed": 1342693,
+    "total": 1342697,
+    "fraction": 0.9999970209213248,
+    "errors": 0,
+    "deferred_bodies": 149
+   },
+   "distinct_ids_referenced": 10,
+   "references_to_our_elements": 9,
+   "dangling_id_refs_gt99": 0,
+   "dangling_examples": [],
+   "byte_scan_donor_ids": {
+    "hits": 0,
+    "distinct": 0,
+    "examples": [],
+    "universe": 1755,
+    "must_be": 0
+   },
+   "byte_scan_our_ids": {
+    "hits": 21,
+    "distinct": 13,
+    "examples": [
+     1009,
+     1003,
+     1000,
+     1004,
+     1016,
+     1017,
+     1012,
+     1007,
+     1014,
+     1033,
+     1001,
+     1008
+    ]
+   },
+   "donor_name_string_hits": [],
+   "n_strings": 2795,
+   "longest_common_run_with_donor_latest": {
+    "longest_common_run_bytes": 1333534,
+    "our_offset": 8284,
+    "donor_offset": 44669,
+    "classification": "Forge unit/spec/parameter JSON corpus (per-release PRODUCT constant, C4-class)",
+    "note": "the residual identity is expected to be the Forge product corpus (candidate mode carries it; purity mode empties it) and short AppInfo shell scaffolding -- never element ids, names or memory"
+   },
+   "owner_family_id": 1000,
+   "stored_by_revit_build": [
+    "Revit 2026 2026 (2026.000) : 20250227_1515(x64)"
+   ]
+  },
+  "identity": {
+   "author": "rvt-writer",
+   "client_app_name": "rvt-writer",
+   "username": "rvt-writer",
+   "last_save_path": "troffer_2x4_v2.rfa",
+   "dit_usernames": [
+    "rvt-writer"
+   ],
+   "no_windows_user_path": true,
+   "no_employee_usernames": true,
+   "employee_hits": [],
+   "no_hansonje_path": true,
+   "no_autodesk_author": true
+  },
+  "partition_footer": {
+   "units": 1,
+   "walker_errors": [],
+   "our_footer_blob_hex": [
+    "a89128bb6a898eddec222ee6db3eef38cb29c2b0ee84a97d430b3436fcc3da0badffdf4a444879976ff94a7173aa6e38eea1f57e6f309bf56e3eba23c86c38fa"
+   ],
+   "our_footer_blob_len": [
+    64
+   ],
+   "signature_string_occurrences": 1,
+   "signature_string_status": "PRESENT (required universal format signature -- counsel C5: an irreducible token, written by us, never copied bytes)",
+   "true_end_record_hex": "a30300000000ffffffff",
+   "end_record_is_decoded_constant": true,
+   "donor_footer_blob_present": false,
+   "donor_end_parity_present": false
+  },
+  "carried_constants": {
+   "Formats/Latest": {
+    "inflated_bytes": 496597,
+    "sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+    "is_corpus_schema_constant": true
+   },
+   "Global/Latest": "OURS (constructed family ADocument -- see 'adocument')",
+   "unit footer / end record": "OURS + universal format tokens (see 'partition_footer')"
+  },
+  "ok": true,
+  "verdict": "PROVENANCE-CLEAN: zero donor ADocument content bytes, zero donor element-id references, zero employee paths/usernames; carried = the schema constant only; footer = ours + the universal format tokens"
+ },
+ "validate_full": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis2/troffer_2x4_v2.rfa",
+  "family_mode": {
+   "verdict": "VALID",
+   "n_errors": 0,
+   "errors": [],
+   "n_warnings": 0,
+   "warnings": [],
+   "adjustments": [
+    "PartAtom treated as UNFRAMED (plain Atom XML)",
+    "ProjectInformation not required (a family stream set has PartAtom instead)"
+   ]
+  },
+  "arbiter_raw": {
+   "verdict": "INVALID",
+   "n_errors": 3,
+   "errors": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block (770 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+    "structure PartAtom: no gzip member found in framed stream"
+   ]
+  },
+  "ok": true,
+  "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse",
+  "donor_parity": {
+   "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+   "arbiter_raw_errors": 5,
+   "family_mode_errors": 2,
+   "arbiter_raw_error_kinds": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block (4046 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+    "structure PartAtom: no gzip member found in framed stream",
+    "consistency Global/ElemTable: ElemTable does not decode: ElemTable footer is 600 bytes / graveyard 18 \u2014 GraveyardRec wire layout not observed in corpus",
+    "consistency Global/DocumentIncrementTable: DocumentIncrementTable does not decode: unpack_from requires a buffer of at least 15903 bytes for unpacking 4 bytes at offset 15899 (actual buffer size is 15902)"
+   ]
+  }
+ },
+ "emit_full": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis2/troffer_2x4_v2.rfa",
+  "size": 278528,
+  "mode": "candidate",
+  "footer_mode": "nonce",
+  "elements": 35,
+  "elem_table_count": 35,
+  "partition_stream": "Partitions/0",
+  "logical_partition_bytes": 7181,
+  "footer_blob_hex": "a89128bb6a898eddec222ee6db3eef38cb29c2b0ee84a97d430b3436fcc3da0badffdf4a444879976ff94a7173aa6e38eea1f57e6f309bf56e3eba23c86c38fa",
+  "footer_blob_len": 64,
+  "end_record_hex": "a30300000000ffffffff",
+  "document_guid": "1704880d-9d16-47a7-9c2d-b4a40e862dd3",
+  "episode_guid": "3a7901f3-d877-43bd-b963-8c8accebfbf4",
+  "streams": {
+   "Partitions/0": 7272,
+   "Global/ElemTable": 299,
+   "Global/History": 130,
+   "Global/DocumentIncrementTable": 126,
+   "Global/PartitionTable": 126,
+   "Global/ContentDocuments": 82,
+   "Global/Latest": 75389,
+   "Contents": 204,
+   "BasicFileInfo": 1957,
+   "TransmissionData": 214,
+   "PartAtom": 770,
+   "Formats/Latest": 165553
+  },
+  "ours": [
+   "Global/Latest (OUR authored family ADocument)",
+   "Partitions/0 save unit (every element) + OUR unit footer blob + the universal signature string + the decoded 10-byte end record",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/DocumentIncrementTable",
+   "Global/PartitionTable",
+   "Global/ContentDocuments",
+   "Contents (prologue + payload)",
+   "BasicFileInfo (rvt.identity)",
+   "TransmissionData",
+   "PartAtom",
+   "CFB container / gzip / CRCIO framing"
+  ],
+  "carried": [
+   {
+    "stream": "Formats/Latest",
+    "inflated_bytes": 496597,
+    "sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+    "is_corpus_schema_constant": true,
+    "why": "the per-release archive class map, byte-identical in every Revit-2026 file (.rvt and .rfa) -- FORMAT, not content"
+   }
+  ],
+  "identity": {
+   "author": "rvt-writer",
+   "username": "rvt-writer",
+   "client_app_name": "rvt-writer",
+   "last_save_path": "troffer_2x4_v2.rfa",
+   "unique_document_guid": "3a7901f3-d877-43bd-b963-8c8accebfbf4",
+   "central_episode_guid": "3a7901f3-d877-43bd-b963-8c8accebfbf4",
+   "via": "rvt.identity.own_identity_model + own_increment_table_payload"
+  },
+  "seconds": 0.23,
+  "notes": [
+   "luminaire: work-plane-based (ceiling face); NO ImposterLight light-source element (skeleton exposes no constructor) -- photometrics ride as parameters; IES = URL reference only"
+  ],
+  "verify": {
+   "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis2/troffer_2x4_v2.rfa",
+   "gzip_members": 11,
+   "gzip_crc_failures": 0,
+   "ecc_full_pages": 3,
+   "ecc_mismatch": 0,
+   "streams": [
+    "BasicFileInfo",
+    "Contents",
+    "Formats/Latest",
+    "Global/ContentDocuments",
+    "Global/DocumentIncrementTable",
+    "Global/ElemTable",
+    "Global/History",
+    "Global/Latest",
+    "Global/PartitionTable",
+    "PartAtom",
+    "Partitions/0",
+    "TransmissionData"
+   ],
+   "walker_errors": [],
+   "n_units": 1,
+   "record_counts": {
+    "101": 36,
+    "102": 36,
+    "103": 36
+   },
+   "decode_seq102": {
+    "records": 35,
+    "clean": 35,
+    "error_classes": {}
+   },
+   "id_sets_identical_across_seqs": true,
+   "ok": true
+  }
+ }
+}

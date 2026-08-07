@@ -1,0 +1,1251 @@
+{
+ "rung": "ZC_elec",
+ "label": "the electrical load-classification + demand-factor catalog -> OUR load classes + NEC-cited demand rules, IN PLACE (id-wired web preserved)",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+  "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a2/ZC_elec.rvt",
+ "landed_by_class": {
+  "ElectricalDemandFactorDefinition": 21,
+  "ElectricalLoadClassification": 18
+ },
+ "notes": [
+  "load classifications 18 -> OUR library (3 reserved roles by the slot's m_signitureType: motor 1 / other 2 / spare 3 -- exactly one each per project, 6/6 samples -- + 15 of our regular classes); each keeps its slot's demand-slot id and its six ParamElemElectricalLoadClassification companion ids (Group B's ZB1_defs, id-wired both sides -- the cleanest cross-group web, endgame section 2 row 6)",
+  "demand factors 21 -> OUR NEC-cited demand rules: each REFERENCED demand slot gets the rule of the classification(s) it serves (rule codes verified on the corpus: 0 constant / 3 count ranges / 4 load ranges); 9 unreferenced demand slots get our extra demand definitions (welder_group, lighting_dwelling, noncoincident, fire_pump, sign_outlet, track_lighting)",
+  "role slots: {'other': 113160, 'motor': 113162, 'spare': 121664}; shared-demand groups: [(298001, 4), (113943, 3), (1053901, 2)]; mixed groups resolved to no_diversity: 0",
+  "our label templates ('%1!s! - Actual Load', ...) replace Autodesk's phrasing; %1!s! is the reader's format token (interface)"
+ ],
+ "info": {
+  "roles": {
+   "other": 113160,
+   "motor": 113162,
+   "spare": 121664
+  },
+  "groups": [
+   {
+    "demand_slot": 298001,
+    "class_slots": [
+     298002,
+     298003,
+     298004,
+     298005
+    ],
+    "size": 4
+   },
+   {
+    "demand_slot": 113943,
+    "class_slots": [
+     113944,
+     113945,
+     113946
+    ],
+    "size": 3
+   },
+   {
+    "demand_slot": 1053901,
+    "class_slots": [
+     1053891,
+     1053898
+    ],
+    "size": 2
+   },
+   {
+    "demand_slot": 297988,
+    "class_slots": [
+     297989
+    ],
+    "size": 1
+   },
+   {
+    "demand_slot": 372505,
+    "class_slots": [
+     372504
+    ],
+    "size": 1
+   },
+   {
+    "demand_slot": 967235,
+    "class_slots": [
+     967234
+    ],
+    "size": 1
+   },
+   {
+    "demand_slot": 999055,
+    "class_slots": [
+     999054
+    ],
+    "size": 1
+   },
+   {
+    "demand_slot": 1053903,
+    "class_slots": [
+     1053897
+    ],
+    "size": 1
+   },
+   {
+    "demand_slot": 1053904,
+    "class_slots": [
+     1053896
+    ],
+    "size": 1
+   }
+  ],
+  "assignment": {
+   "113160": {
+    "our_class": "GEN Miscellaneous Loads",
+    "rule": "no_diversity",
+    "role": "other",
+    "demand_slot": 113159
+   },
+   "113162": {
+    "our_class": "GEN Motor Loads",
+    "rule": "motor",
+    "role": "motor",
+    "demand_slot": 113161
+   },
+   "113944": {
+    "our_class": "GEN HVAC - Fans and Ventilation",
+    "rule": "continuous125",
+    "role": null,
+    "demand_slot": 113943
+   },
+   "113945": {
+    "our_class": "GEN EV Charging",
+    "rule": "continuous125",
+    "role": null,
+    "demand_slot": 113943
+   },
+   "113946": {
+    "our_class": "GEN Bus Charging Equipment",
+    "rule": "continuous125",
+    "role": null,
+    "demand_slot": 113943
+   },
+   "121664": {
+    "our_class": "GEN Spare Capacity",
+    "rule": "no_diversity",
+    "role": "spare",
+    "demand_slot": 121663
+   },
+   "297989": {
+    "our_class": "GEN HVAC - Heating",
+    "rule": "no_diversity",
+    "role": null,
+    "demand_slot": 297988
+   },
+   "298002": {
+    "our_class": "GEN Lighting - Interior",
+    "rule": "continuous125",
+    "role": null,
+    "demand_slot": 298001
+   },
+   "298003": {
+    "our_class": "GEN Lighting - Emergency",
+    "rule": "continuous125",
+    "role": null,
+    "demand_slot": 298001
+   },
+   "298004": {
+    "our_class": "GEN Lighting - Exterior",
+    "rule": "continuous125",
+    "role": null,
+    "demand_slot": 298001
+   },
+   "298005": {
+    "our_class": "GEN Data and IT Equipment",
+    "rule": "continuous125",
+    "role": null,
+    "demand_slot": 298001
+   },
+   "372504": {
+    "our_class": "GEN Elevator and Escalator",
+    "rule": "no_diversity",
+    "role": null,
+    "demand_slot": 372505
+   },
+   "967234": {
+    "our_class": "GEN Shop and Maintenance Equipment",
+    "rule": "no_diversity",
+    "role": null,
+    "demand_slot": 967235
+   },
+   "999054": {
+    "our_class": "GEN Life Safety and Signal",
+    "rule": "no_diversity",
+    "role": null,
+    "demand_slot": 999055
+   },
+   "1053891": {
+    "our_class": "GEN Receptacle - Dedicated Equipment",
+    "rule": "no_diversity",
+    "role": null,
+    "demand_slot": 1053901
+   },
+   "1053896": {
+    "our_class": "GEN Kitchen Equipment",
+    "rule": "kitchen",
+    "role": null,
+    "demand_slot": 1053904
+   },
+   "1053897": {
+    "our_class": "GEN Receptacle - General",
+    "rule": "receptacle",
+    "role": null,
+    "demand_slot": 1053903
+   },
+   "1053898": {
+    "our_class": "GEN HVAC - Cooling",
+    "rule": "no_diversity",
+    "role": null,
+    "demand_slot": 1053901
+   }
+  },
+  "demand_rules": {
+   "113159": {
+    "our_rule": "no_diversity",
+    "name": "GEN No Diversity 100%",
+    "referenced_by": [
+     113160
+    ]
+   },
+   "113161": {
+    "our_rule": "motor",
+    "name": "GEN Motor Demand (NEC 430.24)",
+    "referenced_by": [
+     113162
+    ]
+   },
+   "113943": {
+    "our_rule": "continuous125",
+    "name": "GEN Continuous Load 125% (NEC 210.19)",
+    "referenced_by": [
+     113944,
+     113945,
+     113946
+    ]
+   },
+   "121663": {
+    "our_rule": "no_diversity",
+    "name": "GEN No Diversity 100%",
+    "referenced_by": [
+     121664
+    ]
+   },
+   "135866": {
+    "our_rule": "welder_group",
+    "name": "GEN Welder Group Demand (NEC 630.12)",
+    "referenced_by": []
+   },
+   "237138": {
+    "our_rule": "lighting_dwelling",
+    "name": "GEN Dwelling Lighting Demand (NEC 220.42)",
+    "referenced_by": []
+   },
+   "237139": {
+    "our_rule": "noncoincident",
+    "name": "GEN Non-Coincident HVAC (NEC 220.60)",
+    "referenced_by": []
+   },
+   "237140": {
+    "our_rule": "fire_pump",
+    "name": "GEN Fire Pump (NEC 695, No Demand)",
+    "referenced_by": []
+   },
+   "297988": {
+    "our_rule": "no_diversity",
+    "name": "GEN No Diversity 100%",
+    "referenced_by": [
+     297989
+    ]
+   },
+   "298001": {
+    "our_rule": "continuous125",
+    "name": "GEN Continuous Load 125% (NEC 210.19)",
+    "referenced_by": [
+     298002,
+     298003,
+     298004,
+     298005
+    ]
+   },
+   "301084": {
+    "our_rule": "sign_outlet",
+    "name": "GEN Sign and Outline Lighting (NEC 220.14F)",
+    "referenced_by": []
+   },
+   "372505": {
+    "our_rule": "no_diversity",
+    "name": "GEN No Diversity 100%",
+    "referenced_by": [
+     372504
+    ]
+   },
+   "967235": {
+    "our_rule": "no_diversity",
+    "name": "GEN No Diversity 100%",
+    "referenced_by": [
+     967234
+    ]
+   },
+   "999055": {
+    "our_rule": "no_diversity",
+    "name": "GEN No Diversity 100%",
+    "referenced_by": [
+     999054
+    ]
+   },
+   "1053892": {
+    "our_rule": "track_lighting",
+    "name": "GEN Track Lighting (NEC 220.46B)",
+    "referenced_by": []
+   },
+   "1053899": {
+    "our_rule": "crane_group",
+    "name": "GEN Crane and Hoist Group (NEC 610.14E)",
+    "referenced_by": []
+   },
+   "1053900": {
+    "our_rule": "elevator_group",
+    "name": "GEN Elevator Group (NEC 620.14)",
+    "referenced_by": []
+   },
+   "1053901": {
+    "our_rule": "no_diversity",
+    "name": "GEN No Diversity 100%",
+    "referenced_by": [
+     1053891,
+     1053898
+    ]
+   },
+   "1053902": {
+    "our_rule": "existing_recalc",
+    "name": "GEN Existing Load Determination (NEC 220.87)",
+    "referenced_by": []
+   },
+   "1053903": {
+    "our_rule": "receptacle",
+    "name": "GEN Receptacle Demand (NEC 220.44)",
+    "referenced_by": [
+     1053897
+    ]
+   },
+   "1053904": {
+    "our_rule": "kitchen",
+    "name": "GEN Commercial Kitchen Demand (NEC 220.56)",
+    "referenced_by": [
+     1053896
+    ]
+   }
+  },
+  "mixed_groups": [],
+  "unreferenced_demand": [
+   {
+    "demand_slot": 135866,
+    "our_rule": "welder_group"
+   },
+   {
+    "demand_slot": 237138,
+    "our_rule": "lighting_dwelling"
+   },
+   {
+    "demand_slot": 237139,
+    "our_rule": "noncoincident"
+   },
+   {
+    "demand_slot": 237140,
+    "our_rule": "fire_pump"
+   },
+   {
+    "demand_slot": 301084,
+    "our_rule": "sign_outlet"
+   },
+   {
+    "demand_slot": 1053892,
+    "our_rule": "track_lighting"
+   },
+   {
+    "demand_slot": 1053899,
+    "our_rule": "crane_group"
+   },
+   {
+    "demand_slot": 1053900,
+    "our_rule": "elevator_group"
+   },
+   {
+    "demand_slot": 1053902,
+    "our_rule": "existing_recalc"
+   }
+  ]
+ },
+ "residue_left_in_place": {},
+ "record_selfcheck": {
+  "objects": 39,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.0
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   113159,
+   113160,
+   113161,
+   113162,
+   113943,
+   113944,
+   113945,
+   113946,
+   121663,
+   121664,
+   135866,
+   237138,
+   237139,
+   237140,
+   297988,
+   297989,
+   298001,
+   298002,
+   298003,
+   298004,
+   298005,
+   301084,
+   372504,
+   372505,
+   967234,
+   967235,
+   999054,
+   999055,
+   1053891,
+   1053892,
+   1053896,
+   1053897,
+   1053898,
+   1053899,
+   1053900,
+   1053901,
+   1053902,
+   1053903,
+   1053904
+  ],
+  "records_changed_count": 39,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 39,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 113159,
+    "len_ours": 232,
+    "len_parent": 200,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ElectricalDemandFactorDefinition",
+      "class_parent": "ElectricalDemandFactorDefinition"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN No Diversity 100%'",
+      "parent": "'Other'"
+     },
+     {
+      "path": ".m_ruleType",
+      "ours": "0",
+      "parent": "2"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 113160,
+    "len_ours": 551,
+    "len_parent": 543,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ElectricalLoadClassification",
+      "class_parent": "ElectricalLoadClassification"
+     },
+     {
+      "path": ".m_abbreviation",
+      "ours": "'MISC'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_actualElectricalLoadLabel",
+      "ours": "'%1!s! - Actual Load'",
+      "parent": "'Actual %1!s! Load'"
+     },
+     {
+      "path": ".m_loadSummaryDemandFactorLabel",
+      "ours": "'%1!s! - Demand Factor'",
+      "parent": "'%1!s! Demand Factor'"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN Miscellaneous Loads'",
+      "parent": "'Other'"
+     },
+     {
+      "path": ".m_panelConnectedCurrentLabel",
+      "ours": "'%1!s! - Connected Current'",
+      "parent": "'%1!s! Connected Current'"
+     },
+     {
+      "path": ".m_panelConnectedLabel",
+      "ours": "'%1!s! - Connected Load'",
+      "parent": "'%1!s! Connected Apparent Power'"
+     },
+     {
+      "path": ".m_panelEstimatedCurrentLabel",
+      "ours": "'%1!s! - Demand Current'",
+      "parent": "'%1!s! Estimated Demand Current'"
+     },
+     {
+      "path": ".m_panelEstimatedLabel",
+      "ours": "'%1!s! - Demand Load'",
+      "parent": "'%1!s! Demand Apparent Power'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 113161,
+    "len_ours": 272,
+    "len_parent": 200,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ElectricalDemandFactorDefinition",
+      "class_parent": "ElectricalDemandFactorDefinition"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN Motor Demand (NEC 430.24)'",
+      "parent": "'Motor'"
+     },
+     {
+      "path": ".m_ruleType",
+      "ours": "3",
+      "parent": "0"
+     },
+     {
+      "path": ".m_values[len]",
+      "ours": 2,
+      "parent": 1
+     },
+     {
+      "path": ".m_values[0].m_factor",
+      "ours": "1.25",
+      "parent": "1.0"
+     },
+     {
+      "path": ".m_values[0].m_maxRange",
+      "ours": "1.0",
+      "parent": "1e+30"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 113162,
+    "len_ours": 533,
+    "len_parent": 543,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ElectricalLoadClassification",
+      "class_parent": "ElectricalLoadClassification"
+     },
+     {
+      "path": ".m_abbreviation",
+      "ours": "'MTR'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_actualElectricalLoadLabel",
+      "ours": "'%1!s! - Actual Load'",
+      "parent": "'Actual %1!s! Load'"
+     },
+     {
+      "path": ".m_loadSummaryDemandFactorLabel",
+      "ours": "'%1!s! - Demand Factor'",
+      "parent": "'%1!s! Demand Factor'"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN Motor Loads'",
+      "parent": "'Motor'"
+     },
+     {
+      "path": ".m_panelConnectedCurrentLabel",
+      "ours": "'%1!s! - Connected Current'",
+      "parent": "'%1!s! Connected Current'"
+     },
+     {
+      "path": ".m_panelConnectedLabel",
+      "ours": "'%1!s! - Connected Load'",
+      "parent": "'%1!s! Connected Apparent Power'"
+     },
+     {
+      "path": ".m_panelEstimatedCurrentLabel",
+      "ours": "'%1!s! - Demand Current'",
+      "parent": "'%1!s! Estimated Demand Current'"
+     },
+     {
+      "path": ".m_panelEstimatedLabel",
+      "ours": "'%1!s! - Demand Load'",
+      "parent": "'%1!s! Demand Apparent Power'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 11,
+    "blocks_out": 11
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 39,
+  "slots_with_registry_surface": 39,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 113159,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113160,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113161,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113162,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113943,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113944,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113945,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113946,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 39,
+  "pairs_ok": 39,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 113159,
+   "class": "ElectricalDemandFactorDefinition",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 468,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 113160,
+   "class": "ElectricalLoadClassification",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 468,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 113161,
+   "class": "ElectricalDemandFactorDefinition",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 468,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 113162,
+   "class": "ElectricalLoadClassification",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 468,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 113943,
+   "class": "ElectricalDemandFactorDefinition",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 469,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 113944,
+   "class": "ElectricalLoadClassification",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 469,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 16,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a2/ZC_elec.rvt",
+  "elements": 3342,
+  "file_size": 626688,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "ElectricalLoadClassification": {
+   "slots": 18,
+   "differing_field_paths": {
+    "m_abbreviation": 18,
+    "m_actualElectricalLoadLabel": 18,
+    "m_loadSummaryDemandFactorLabel": 18,
+    "m_name": 18,
+    "m_panelConnectedCurrentLabel": 18,
+    "m_panelConnectedLabel": 18,
+    "m_panelEstimatedCurrentLabel": 18,
+    "m_panelEstimatedLabel": 18,
+    "m_spaceLoadClass": 9
+   },
+   "declared_ours": [
+    "m_abbreviation",
+    "m_name",
+    "m_signitureType(role)",
+    "m_spaceLoadClass",
+    "the six label templates"
+   ]
+  },
+  "ElectricalDemandFactorDefinition": {
+   "slots": 21,
+   "differing_field_paths": {
+    "m_name": 21,
+    "m_ruleType": 10,
+    "m_values.#len": 7,
+    "m_values.[0].m_factor": 5,
+    "m_values.[0].m_maxRange": 1,
+    "m_values.[1].m_factor": 1,
+    "m_values.[1].m_minRange": 1
+   },
+   "declared_ours": [
+    "m_additionalLoad",
+    "m_includeAdditionalLoad",
+    "m_name",
+    "m_ruleType",
+    "m_values"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 113159,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 113160,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 113161,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 113162,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 113943,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 113944,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 113945,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 113946,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 121663,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 121664,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 135866,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 237138,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 237139,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 237140,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 297988,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 297989,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 298001,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 298002,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 298003,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 298004,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 298005,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 301084,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 372504,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 372505,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 967234,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 967235,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 999054,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 999055,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053891,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 1053892,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053896,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 1053897,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 1053898,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 1053899,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053900,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053901,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053902,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053903,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053904,
+   "class": "ElectricalDemandFactorDefinition"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 113159,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN No Diversity 100%' (1 row(s), rule 0) -- our policy: no demand diversity applied (base default)"
+   ]
+  },
+  {
+   "slot": 113160,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN Miscellaneous Loads' (rule no_diversity, space class 0, role other); wiring kept: demand slot 113159, 6 companion param ids"
+   ]
+  },
+  {
+   "slot": 113161,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN Motor Demand (NEC 430.24)' (2 row(s), rule 3) -- NEC 430.24: 125 % of the largest motor plus 100 % of the rest"
+   ]
+  },
+  {
+   "slot": 113162,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN Motor Loads' (rule motor, space class 0, role motor); wiring kept: demand slot 113161, 6 companion param ids"
+   ]
+  },
+  {
+   "slot": 113943,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN Continuous Load 125% (NEC 210.19)' (1 row(s), rule 0) -- NEC 210.19(A)/215.2(A): continuous loads at 125 %"
+   ]
+  },
+  {
+   "slot": 113944,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN HVAC - Fans and Ventilation' (rule continuous125, space class 0, role None); wiring kept: demand slot 113943, 6 companion param ids"
+   ]
+  },
+  {
+   "slot": 113945,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN EV Charging' (rule continuous125, space class 0, role None); wiring kept: demand slot 113943, 6 companion param ids"
+   ]
+  },
+  {
+   "slot": 113946,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN Bus Charging Equipment' (rule continuous125, space class 0, role None); wiring kept: demand slot 113943, 6 companion param ids"
+   ]
+  },
+  {
+   "slot": 121663,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN No Diversity 100%' (1 row(s), rule 0) -- our policy: no demand diversity applied (base default)"
+   ]
+  },
+  {
+   "slot": 121664,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN Spare Capacity' (rule no_diversity, space class 0, role spare); wiring kept: demand slot 121663, 6 companion param ids"
+   ]
+  },
+  {
+   "slot": 135866,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN Welder Group Demand (NEC 630.12)' (5 row(s), rule 3) -- NEC 630.12(B): largest welder 100 %, second 100 %, third 85 %, fourth 70 %, all others 60 % [count-range rows, largest-first ordering]"
+   ]
+  },
+  {
+   "slot": 237138,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN Dwelling Lighting Demand (NEC 220.42)' (3 row(s), rule 4) -- NEC Table 220.42 dwelling units: first 3 kVA at 100 %, 3-120 kVA at 35 %, remainder at 25 %"
+   ]
+  },
+  {
+   "slot": 237139,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN Non-Coincident HVAC (NEC 220.60)' (1 row(s), rule 0) -- NEC 220.60: only the larger of the noncoincident heating / cooling loads is carried -- applied by our schedule policy; the factor itself is unity"
+   ]
+  },
+  {
+   "slot": 237140,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN Fire Pump (NEC 695, No Demand)' (1 row(s), rule 0) -- NEC 695: fire-pump supply sized for locked-rotor conditions -- no demand reduction ever applied (our policy: unity, sized separately)"
+   ]
+  },
+  {
+   "slot": 297988,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN No Diversity 100%' (1 row(s), rule 0) -- our policy: no demand diversity applied (base default)"
+   ]
+  },
+  {
+   "slot": 297989,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN HVAC - Heating' (rule no_diversity, space class 0, role None); wiring kept: demand slot 297988, 6 companion param ids"
+   ]
+  },
+  {
+   "slot": 298001,
+   "class": "ElectricalDemandFactorDefinition",
+   "notes": [
+    "our demand rule 'GEN Continuous Load 125% (NEC 210.19)' (1 row(s), rule 0) -- NEC 210.19(A)/215.2(A): continuous loads at 125 %"
+   ]
+  },
+  {
+   "slot": 298002,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN Lighting - Interior' (rule continuous125, space class 1, role None); wiring kept: demand slot 298001, 6 companion param ids"
+   ]
+  },
+  {
+   "slot": 298003,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN Lighting - Emergency' (rule continuous125, space class 1, role None); wiring kept: demand slot 298001, 6 companion param ids"
+   ]
+  },
+  {
+   "slot": 298004,
+   "class": "ElectricalLoadClassification",
+   "notes": [
+    "our classification 'GEN Lighting - Exterior' (rule continuous125, space class 1, role None); wiring kept: demand slot 298001, 6 companion param ids"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 626688,
+ "seconds": 1.5,
+ "reached_by_other_streams_not_reauthored": {
+  "RbsWireInsulationType": "GROUP B ZB2_mepcat (viewer PASS, batch 17) -- our wire catalog",
+  "RbsWireMaterialType": "GROUP B ZB2_mepcat",
+  "RbsWireTemperatureRatingType": "GROUP B ZB2_mepcat",
+  "RbsPipeScheduleType": "GROUP B ZB2_mepcat -- our piping catalog",
+  "RbsPipeConnectionType": "GROUP B ZB2_mepcat",
+  "RbsPipeMaterialType": "GROUP B ZB2_mepcat",
+  "PipeSegment": "GROUP B ZB2_mepcat",
+  "CategoryElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation, D_curtain)",
+  "GStyleElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "FontElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "DimensionStyle": "GROUP A ZA_deep (family-scoped remainder)",
+  "CalloutTag": "GROUP A ZA_deep (family-scoped remainder)",
+  "InteriorElevAttributes": "GROUP A ZA_deep (family-scoped remainder)",
+  "DBViewType": "curtain constellation (deletion stream D_curtain)",
+  "Family": "curtain constellation (D_curtain)",
+  "FamilySurrogate": "curtain constellation (D_curtain)",
+  "CurveElem": "room constellation (deletion stream, blocked -> D_room after the wiring fix)",
+  "LegendComponent": "type previews (2 curtain-owned in D_curtain; 2 owned by our residue types)",
+  "LevelRoomPlan": "room constellation",
+  "LinearDimString": "constraint-dimension group (deletion stream D_content)",
+  "RoomElem": "GROUP B ZB8_content (identity) / room constellation deletion",
+  "MaterialElem": "GROUP B ZB5_palette (surplus materials)",
+  "ParamElemExternal": "GROUP B ZB1_defs",
+  "ParamBinding": "GROUP B ZB1_defs",
+  "ParamElemElectricalLoadClassification": "GROUP B ZB1_defs (the 6-per-class companions of our ZC_elec classifications -- id-wired both sides)",
+  "ParamElemProject": "GROUP B ZB1_defs",
+  "PenWidthTableElem": "GROUP B ZB3_pens",
+  "SectionAttributes": "GROUP B ZB4_annot",
+  "ViewportAttributes": "GROUP B ZB4_annot",
+  "PropertySetElement": "GROUP B ZB5_palette",
+  "ParameterFilterElement": "GROUP B ZB6_filters",
+  "SunAnnotationElem": "GROUP B ZB7_machinery",
+  "NumberingSchema": "GROUP B ZB7_machinery",
+  "SlaveSymbolTrackerElem": "GROUP B ZB7_machinery",
+  "WorksharingViewModeSettings": "GROUP B ZB7_machinery",
+  "PrintSettings": "GROUP B ZB7_machinery",
+  "Viewer": "GROUP B ZB7_machinery (the sheet's viewer 1457029)",
+  "Viewport": "GROUP B ZB7_machinery (the sheet's viewports 1457030/1457043/1457044)",
+  "RefPlane": "GROUP B ZB8_content",
+  "SketchPlane": "GROUP B ZB8_content"
+ },
+ "stream": "genesis-residue-A2 (remaining unsubstituted classes, in place, from ZA_deep)"
+}

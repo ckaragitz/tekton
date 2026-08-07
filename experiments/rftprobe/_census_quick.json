@@ -1,0 +1,342 @@
+{
+ "rstbasicsampleproject": [
+  {
+   "family_id": 1390229,
+   "family_name": "M_View Title",
+   "category": -2000515,
+   "unit": 26,
+   "n_records": 216,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 1388866,
+   "family_name": "M_Grid Head - Circle1",
+   "category": -2006040,
+   "unit": 23,
+   "n_records": 221,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 1388811,
+   "family_name": "M_Section Head - No Arrow",
+   "category": -2000400,
+   "unit": 17,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 1253344,
+   "family_name": "Structural Foundation Tag",
+   "category": -2005019,
+   "unit": 45,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 1252810,
+   "family_name": "Structural Column Tag",
+   "category": -2005018,
+   "unit": 2,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 1389004,
+   "family_name": "M_Callout Head1",
+   "category": -2000538,
+   "unit": 6,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  }
+ ],
+ "rmebasicsampleproject": [
+  {
+   "family_id": 482365,
+   "family_name": "M_Diffuser Tag",
+   "category": -2008014,
+   "unit": 256,
+   "n_records": 199,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 102587,
+   "family_name": "M_Duct Size Tag",
+   "category": -2008003,
+   "unit": 266,
+   "n_records": 202,
+   "n_nested_families": 1,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 353091,
+   "family_name": "M_Wire Tag",
+   "category": -2008057,
+   "unit": 166,
+   "n_records": 204,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 607757,
+   "family_name": "M_Pipe Size Tag",
+   "category": -2008047,
+   "unit": 123,
+   "n_records": 204,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 607411,
+   "family_name": "M_Flex Duct Tag Round",
+   "category": -2008004,
+   "unit": 104,
+   "n_records": 205,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 607215,
+   "family_name": "M_Bottom Elevation Duct Tag",
+   "category": -2008003,
+   "unit": 102,
+   "n_records": 206,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  }
+ ],
+ "racbasicsampleproject": [
+  {
+   "family_id": 151157,
+   "family_name": "M_View Title",
+   "category": -2000515,
+   "unit": 4,
+   "n_records": 215,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 148901,
+   "family_name": "M_Grid Head - Circle",
+   "category": -2006040,
+   "unit": 158,
+   "n_records": 217,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 148318,
+   "family_name": "M_Callout Head",
+   "category": -2000538,
+   "unit": 8,
+   "n_records": 223,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 150954,
+   "family_name": "M_Spot Elevation - Target Filled",
+   "category": -2005100,
+   "unit": 28,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 149922,
+   "family_name": "M_Section Head - No Arrow",
+   "category": -2000400,
+   "unit": 16,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 959151,
+   "family_name": "Planting Tag",
+   "category": -2005021,
+   "unit": 122,
+   "n_records": 227,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  }
+ ],
+ "rstadvancedsampleproject": [
+  {
+   "family_id": 67224,
+   "family_name": "M_Centreline",
+   "category": -2000150,
+   "unit": 152,
+   "n_records": 210,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 65202,
+   "family_name": "M_Level Head - No Bubble",
+   "category": -2006020,
+   "unit": 93,
+   "n_records": 213,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 65011,
+   "family_name": "M_North Arrow-1",
+   "category": -2000150,
+   "unit": 113,
+   "n_records": 213,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 91465,
+   "family_name": "M_Spot Elevation - Crosshair",
+   "category": -2005100,
+   "unit": 124,
+   "n_records": 214,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 62324,
+   "family_name": "M_Structural Foundation Tag",
+   "category": -2005019,
+   "unit": 142,
+   "n_records": 215,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 56708,
+   "family_name": "M_Structural Column Tag-45",
+   "category": -2005018,
+   "unit": 88,
+   "n_records": 215,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  }
+ ],
+ "racadvancedsampleproject": [
+  {
+   "family_id": 87880,
+   "family_name": "M_Door Tag",
+   "category": -2000460,
+   "unit": 94,
+   "n_records": 209,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 87690,
+   "family_name": "M_Centreline",
+   "category": -2000150,
+   "unit": 45,
+   "n_records": 210,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 100195,
+   "family_name": "M_Spot Elevation - Crosshair",
+   "category": -2005100,
+   "unit": 92,
+   "n_records": 211,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 91112,
+   "family_name": "M_Window Tag",
+   "category": -2000450,
+   "unit": 30,
+   "n_records": 211,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 88868,
+   "family_name": "M_North Arrow-2",
+   "category": -2000150,
+   "unit": 29,
+   "n_records": 212,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  },
+  {
+   "family_id": 81254,
+   "family_name": "M_Level Head - No Bubble",
+   "category": -2006020,
+   "unit": 81,
+   "n_records": 213,
+   "n_nested_families": 0,
+   "n_types": 1,
+   "part_type": -1,
+   "in_place": false
+  }
+ ]
+}

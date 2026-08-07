@@ -1,0 +1,12 @@
+{
+ "name": "D_2024_links_pair",
+ "ids": [
+  1250030,
+  1250031
+ ],
+ "policy": "maxgc",
+ "purpose": "genesis-base",
+ "notes": [
+  "the placed RvtLinkInstance + its CopyWatchProperties companion: a genesis file links NO model; PIN-FREE on the one-call composed file (maxgc-proven on this chain). The RvtLinkSymbol is NOT here: it stays pinned by the landed view headers until the RC_2024_inplace fixes land (second-compose stage, 2026/2025 precedent)."
+ ]
+}

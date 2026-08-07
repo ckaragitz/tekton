@@ -1,0 +1,192 @@
+{
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XA2.rvt",
+ "streams": {
+  "identical": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/History",
+   "Global/PartitionTable",
+   "ProjectInformation",
+   "TransmissionData"
+  ],
+  "differing": [
+   "Global/ElemTable",
+   "Global/Latest",
+   "Partitions/21"
+  ]
+ },
+ "partition_logical_identical": false,
+ "records": {
+  "parent_count": 19623,
+  "out_count": 19623,
+  "added": [
+   {
+    "seq": 101,
+    "id": 27,
+    "len": 135
+   },
+   {
+    "seq": 102,
+    "id": 27,
+    "len": 1223
+   },
+   {
+    "seq": 103,
+    "id": 27,
+    "len": 22
+   }
+  ],
+  "removed": [
+   {
+    "seq": 101,
+    "id": 2,
+    "len": 135
+   },
+   {
+    "seq": 102,
+    "id": 2,
+    "len": 1223
+   },
+   {
+    "seq": 103,
+    "id": 2,
+    "len": 22
+   }
+  ],
+  "changed": [],
+  "changed_count": 0,
+  "added_ids": [
+   27
+  ],
+  "removed_ids": [
+   2
+  ],
+  "changed_ids": [],
+  "id_order_identical": false,
+  "id_order_identical_per_seq": {
+   "101": false,
+   "102": false,
+   "103": false
+  },
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "added_positions": {
+   "101/27": {
+    "index": 2298,
+    "of": 6540
+   },
+   "102/27": {
+    "index": 2298,
+    "of": 6540
+   },
+   "103/27": {
+    "index": 2298,
+    "of": 6540
+   }
+  },
+  "removed_positions": {
+   "101/2": {
+    "index": 2516,
+    "of": 6540
+   },
+   "102/2": {
+    "index": 2516,
+    "of": 6540
+   },
+   "103/2": {
+    "index": 2516,
+    "of": 6540
+   }
+  }
+ },
+ "blocks": {
+  "101": {
+   "parent": 8,
+   "out": 8,
+   "identical": true,
+   "differing": []
+  },
+  "102": {
+   "parent": 47,
+   "out": 47,
+   "identical": false,
+   "differing": [
+    24,
+    36,
+    37,
+    38
+   ]
+  },
+  "103": {
+   "parent": 25,
+   "out": 25,
+   "identical": true,
+   "differing": []
+  }
+ },
+ "elemtable": {
+  "rows_parent": 6540,
+  "rows_out": 6540,
+  "added": [
+   {
+    "id": 27,
+    "row": [
+     27,
+     0,
+     976,
+     976,
+     27,
+     18446744073709551615,
+     0
+    ]
+   }
+  ],
+  "removed": [
+   {
+    "id": 2,
+    "row": [
+     2,
+     0,
+     976,
+     976,
+     2,
+     18446744073709551615,
+     0
+    ]
+   }
+  ],
+  "changed": [],
+  "watermark_parent": 1472524,
+  "watermark_out": 1472524,
+  "identical": false
+ },
+ "latest": {
+  "identical": false,
+  "len_parent": 1586246,
+  "len_out": 1586246,
+  "typed_leaf_changes": {
+   "removed": [
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[38]->PenWidthTableInfo.m_penWidthTableElemId",
+     "id": 2
+    }
+   ],
+   "added": [
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[38]->PenWidthTableInfo.m_penWidthTableElemId",
+     "id": 27
+    }
+   ],
+   "removed_n": 1,
+   "added_n": 1
+  }
+ },
+ "embedded_units_identical": true
+}

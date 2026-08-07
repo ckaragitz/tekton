@@ -1,0 +1,109 @@
+{
+ "stream": "genesis-2025-reduce (the Revit-2025 reduction ladder, plan G25-1/G25-2)",
+ "situation": "THE REAL END USER RUNS REVIT 2025.  The certified genesis base G_ABPD is Revit 2026 (unopenable for him); this ladder re-runs the certified 2026 recipe (rstbasic -> R-rungs -> K3 -> K4) on Autodesk's own 2025 rst basic sample under rvt.versions.reading. NOTHING 2025 is viewer-certified yet, so every file here is a candidate-base; the batch control is the UNTOUCHED 2025 sample itself (Autodesk's own bytes -- certified by construction), which simultaneously answers plan risk #1: does the viewer accept 2025 uploads at all?",
+ "ordering": "reading order: control (the 2025 sample) FIRST -- if it fails, the viewer/oracle cannot read 2025 uploads and every other verdict is VOID; then R5_2025, R9_2025, K3_2025, B2025_K4 (certification cascades; a parent FAIL voids its children).",
+ "base": "samples/2025/rstbasicsampleproject.rvt",
+ "known_passing_anchors": {
+  "sample": "samples/2025/rstbasicsampleproject.rvt (Autodesk's own file -- certified by construction)"
+ },
+ "probes": [
+  {
+   "name": "R5_2025",
+   "file": "experiments/genesis2025/reduce/R5_2025.rvt",
+   "kind": "candidate-base",
+   "base": "samples/2025/rstbasicsampleproject.rvt",
+   "the_ONE_thing_it_tests": "Round-1 anchor of the 2025 campaign (plan G25-1): does the viewer accept a 2025 reduction at all?  R5-equivalent of the certified 2026 rung (annotation/schedule content removed by maxgc).",
+   "if_PASS": "certify; the 2025 reduction mechanics (re-blocker, ECC, ordinals) are viewer-proven; R9/K3/K4 verdicts readable.",
+   "if_FAIL": "with the sample control PASSING, the 2025 EMIT path is defective (framing/ordinal bug) -- bisect against the identity re-emit before reading anything else.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "EDIT-FREE",
+   "elements": 8582,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52
+   },
+   "report": "experiments/genesis2025/reduce/R5_2025.json"
+  },
+  {
+   "name": "R9_2025",
+   "file": "experiments/genesis2025/reduce/R9_2025.rvt",
+   "kind": "candidate-base",
+   "base": "samples/2025/rstbasicsampleproject.rvt",
+   "the_ONE_thing_it_tests": "Deepest R-rung: views/types/options/families' host elements gone (the 2026 R9 shape; all 52 embedded docs still present, censused).  K3_2025's parent.",
+   "if_PASS": "certify; K3_2025's verdict is readable.",
+   "if_FAIL": "bisect R6..R8 (viewer rounds); the 2026 precedent says this shape passes.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "EDIT-FREE",
+   "elements": 3697,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52
+   },
+   "report": "experiments/genesis2025/reduce/R9_2025.json"
+  },
+  {
+   "name": "K3_2025",
+   "file": "experiments/genesis2025/reduce/K3_2025.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2025/reduce/R9_2025.rvt",
+   "the_ONE_thing_it_tests": "Loadable-family USAGE nulled (families + documents still present) -- the M3-certified modify path, the mandatory parent state of B2025_K4 (2026 precedent: K3 PASS, round 5).",
+   "if_PASS": "certify; B2025_K4's verdict is readable.",
+   "if_FAIL": "the 2025 reader requires head/tag defaults to name real families -- B2025_K4 unreadable until split.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "SURVIVORS-EDITED",
+   "elements": 3697,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52
+   },
+   "report": "experiments/genesis2025/reduce/K3_2025.json",
+   "parent_rung": "R9_2025"
+  },
+  {
+   "name": "B2025_K4",
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2025/reduce/K3_2025.rvt",
+   "the_ONE_thing_it_tests": "THE 2025 FAMILY-FREE BASE CANDIDATE: zero loadable families, zero embedded family documents, FOUR-registry coherent, on Autodesk's own 2025 skeleton (the certified 2026 K4 recipe).  PASS = the certified 2025 base every G25-3+ substitution rung builds on.",
+   "if_PASS": "certify + ledger; the 2025 campaign proceeds to the constructor retarget + substitution ladder (G25-3/4).",
+   "if_FAIL": "(with K3_2025 passing) the 2025 reader diverges from 2026 on the family-document question -- re-run the KD1-equivalent control before concluding anything.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "EDIT-FREE",
+   "elements": 3333,
+   "coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_doc_guids": 0
+   },
+   "report": "experiments/genesis2025/reduce/B2025_K4.json",
+   "parent_rung": "K3_2025"
+  }
+ ]
+}

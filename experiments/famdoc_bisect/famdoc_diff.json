@@ -1,0 +1,5312 @@
+{
+ "law": "A = the Autodesk famdoc element; B = ours.  only_in_A = what our grammar NEVER AUTHORS (missing surface); only_in_B = what we author that Autodesk does not; differing = shared fields with different shapes.  Rank = deep-walk order from a placed instance: instance -> symbol (geomSteps/GeomTable/type row) -> famdoc geometry -> params/types -> refs/datum -> connector -> views -> registry/inline-ADocument.",
+ "references": {
+  "same_category": {
+   "file": "samples/rmebasicsampleproject.rvt",
+   "unit": 30,
+   "family": "M_Lighting and Appliance Panelboard - 208V MCB - Surface (nested: diff-only, not loadable standalone)"
+  },
+  "hybrid_donor": {
+   "file": "samples/rstbasicsampleproject.rvt",
+   "unit": 36,
+   "family": "M_Concrete-Square-Column"
+  }
+ },
+ "ours": {
+  "name": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+  "n_elements": 41,
+  "class_histogram": {
+   "Family": 1,
+   "UnitsElem": 1,
+   "LevelAttributes": 1,
+   "Viewer": 2,
+   "Viewport": 2,
+   "DBDrawing": 2,
+   "DBViewProject": 1,
+   "DBViewType": 1,
+   "SketchPlane": 2,
+   "SunAndShadowSettings": 1,
+   "ExtentElem": 1,
+   "DBViewPlan": 1,
+   "Level": 1,
+   "RefPlane": 2,
+   "ParamElemFamily": 14,
+   "VarSketch": 1,
+   "CurveElem": 4,
+   "ExtrusionElem": 1,
+   "ElectricalLoadClassification": 1,
+   "ConnectorElem": 1
+  }
+ },
+ "checklist": [],
+ "same_category_panelboard": {
+  "reference": "rme_208V_MCB_panelboard",
+  "n_elements": 549,
+  "class_histogram": {
+   "DimensionStyle": 13,
+   "CategoryElem": 84,
+   "GStyleElem": 84,
+   "FontElem": 41,
+   "LeaderStyle": 13,
+   "Family": 4,
+   "TextNoteAttributes": 5,
+   "TagNoteAttributes": 4,
+   "LevelAttributes": 1,
+   "Level": 1,
+   "Viewer": 9,
+   "DBViewPlan": 2,
+   "DBDrawing": 11,
+   "Viewport": 11,
+   "DBViewSection": 4,
+   "RefPlane": 14,
+   "DBViewProject": 1,
+   "InteriorElevAttributes": 3,
+   "BaseLevelTracker": 3,
+   "RevealAttr": 3,
+   "CorniceAttr": 3,
+   "Text3dAttrSymbol": 3,
+   "TrueNorth": 3,
+   "ExtentElem": 8,
+   "DaylightSourceIdSet": 3,
+   "Viewer3d": 2,
+   "ModelClipBox": 2,
+   "DBView3d": 2,
+   "SketchPlane": 18,
+   "VarSketch": 9,
+   "UnitsElem": 1,
+   "SectionAttributes": 4,
+   "DBViewDrafting": 2,
+   "FilledRegionAttributes": 5,
+   "CurveElem": 18,
+   "LinearDimString": 18,
+   "FamilySurrogate": 3,
+   "FamilySymbol": 4,
+   "FamSymSurrogate": 4,
+   "SpotElevationStyle": 3,
+   "SketchGrid": 18,
+   "PropertyAttr": 2,
+   "TagNote": 2,
+   "ParamElemFamily": 10,
+   "RadialDim": 3,
+   "FilledRegion": 2,
+   "BrowserOrganization": 2,
+   "RevisionCloudAttr": 1,
+   "CalloutTag": 3,
+   "DBViewType": 31,
+   "LoadNatureElem": 8,
+   "LoadCaseElem": 8,
+   "SunAndShadowSettings": 1,
+   "ExtrusionElem": 2,
+   "Alignment": 10,
+   "ConnectorElem": 1,
+   "CoverType": 3,
+   "ReferenceViewerAttributes": 1,
+   "PostedWarningElem": 3,
+   "LegendComponent": 1,
+   "PenWidthTableElem": 3,
+   "AutoCamSettingsElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "DefaultDivideSettings": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "AreaSettingsElem": 1,
+   "DrawOrder3dElem": 1,
+   "STEPExportSettings": 1
+  },
+  "classes_only_in_A": [
+   "Alignment",
+   "AreaSettingsElem",
+   "AutoCamSettingsElem",
+   "BaseLevelTracker",
+   "BrowserOrganization",
+   "CalloutTag",
+   "CategoryElem",
+   "CorniceAttr",
+   "CoverType",
+   "DBView3d",
+   "DBViewDrafting",
+   "DBViewSection",
+   "DaylightSourceIdSet",
+   "DefaultDivideSettings",
+   "DimensionStyle",
+   "DrawOrder3dElem",
+   "Dwg2dExportUserSettingsData",
+   "FamSymSurrogate",
+   "FamilySurrogate",
+   "FamilySymbol",
+   "FilledRegion",
+   "FilledRegionAttributes",
+   "FontElem",
+   "GStyleElem",
+   "InteriorElevAttributes",
+   "LeaderStyle",
+   "LegendComponent",
+   "LinearDimString",
+   "LoadCaseElem",
+   "LoadNatureElem",
+   "ModelClipBox",
+   "PenWidthTableElem",
+   "PostedWarningElem",
+   "PropertyAttr",
+   "RadialDim",
+   "ReferenceViewerAttributes",
+   "RevealAttr",
+   "RevisionCloudAttr",
+   "RvtLinkInstanceAppearanceParentElem",
+   "STEPExportSettings",
+   "SectionAttributes",
+   "SketchGrid",
+   "SketchGridAppearanceParentElem",
+   "SpotElevationStyle",
+   "TagNote",
+   "TagNoteAttributes",
+   "Text3dAttrSymbol",
+   "TextNoteAttributes",
+   "TrueNorth",
+   "Viewer3d"
+  ],
+  "classes_only_in_B": [
+   "ElectricalLoadClassification"
+  ],
+  "rep_histogram": {
+   "SerializedDummy": 511,
+   "GElement": 38
+  },
+  "inline_adocument": {
+   "appinfo_slots": 239,
+   "appinfo_populated": 110,
+   "appinfo_populated_classes": [
+    "ADocWarnings",
+    "APIAppInfo",
+    "APIVSTAMacroElemTracking",
+    "AlignSides",
+    "AllViewFiltersAppInfo",
+    "AllWatchElems",
+    "AnalysisDisplayStyleTracking",
+    "AnalyticalModelEditModeMgr",
+    "AppearanceAssetTracking",
+    "AppearanceInfo",
+    "AssemblyEditModeMgr",
+    "BasedOnTracker",
+    "BrowserOrganizationTracking",
+    "CategoryTracking",
+    "ConstraintDimTracking",
+    "CopyWatchModeMgr",
+    "CustomElementTracking",
+    "DBDrawingInfo",
+    "DBViewInfo",
+    "DBViewTypesForNewLevel",
+    "DatumTracking",
+    "DesignOptionMgr",
+    "DesignOptionSetTracking",
+    "DetailLevelMgr",
+    "DimSides",
+    "DynamicUpdateAppInfo",
+    "ESSchemaStorage",
+    "EStorageTracking",
+    "ElementGroupAppInfo",
+    "ElementTracking",
+    "ElementTrackingData",
+    "ElemsSetWithCellsTracking",
+    "ExportDGNSettingsTracking",
+    "ExportDWGSettingsTracking",
+    "ExportPDFSettingsTracking",
+    "ExternalParamTracking",
+    "ExternalResourceErrorAppInfo",
+    "FamilyMgr",
+    "FamilySymbolTracking",
+    "FillPatternTracking"
+   ],
+   "n_episodes": 0,
+   "note": "OUR loads author all-null slots + single episode (rvt.famgen.factory.author_embedded_adocument)"
+  },
+  "checklist": [
+   {
+    "rank": 1,
+    "element": "ExtrusionElem",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "the solid the symbol's geomSteps/GeomTable regenerate from -- the instance walk's deepest content",
+    "A_count": 2,
+    "B_present": true,
+    "A_id": 812410,
+    "B_id": 2000038,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_cellList": {
+       "A": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(2)"
+        }
+       },
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(2)"
+        }
+       }
+      },
+      "m_famElemVisibility": {
+       "A": {
+        "m_flags": 57406
+       },
+       "B": {
+        "m_flags": 57398
+       }
+      },
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_geomSteps": {
+       "A": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(0)",
+         "m_bRepFormGList": "list(1)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 9
+        }
+       },
+       "B": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(0)",
+         "m_bRepFormGList": "list(1)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 9
+        }
+       }
+      },
+      "m_id": {
+       "A": 812410,
+       "B": 2000038
+      },
+      "m_pParamValueSetDouble": {
+       "A": {
+        "ptr": "ParamValueSetDouble",
+        "value": {
+         "m_paramSet": "list(2)"
+        }
+       },
+       "B": {
+        "ptr": "ParamValueSetDouble",
+        "value": {
+         "m_paramSet": "list(2)"
+        }
+       }
+      },
+      "m_sideRefPlaneCurveBased": {
+       "A": true,
+       "B": false
+      }
+     },
+     "n_equal": 19
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 3880,
+       "B": 3896
+      },
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(2)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(2)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    },
+    "rep_stats": {
+     "A": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 1,
+      "n_faces": 6,
+      "n_edges": 12,
+      "tag_range": [
+       0,
+       17
+      ],
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 812410,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "bbox": [
+       [
+        -6.071983364251158,
+        -5.000000000000001,
+        -1.0000000000000062
+       ],
+       [
+        6.533795707020576,
+        4.456674310116725,
+        -6.217248937900877e-15
+       ]
+      ],
+      "gelem_type": 3,
+      "flags": 0
+     },
+     "B": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 1,
+      "n_faces": 6,
+      "n_edges": 12,
+      "tag_range": [
+       0,
+       17
+      ],
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 2000038,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "bbox": [
+       [
+        -0.8333333333333334,
+        -2.0,
+        0.0
+       ],
+       [
+        0.8333333333333334,
+        2.0,
+        0.4791666666666667
+       ]
+      ],
+      "gelem_type": 3,
+      "flags": 0
+     }
+    }
+   },
+   {
+    "rank": 1,
+    "element": "VarSketch",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "the extrusion's profile sketch",
+    "A_count": 9,
+    "B_present": true,
+    "A_id": 812106,
+    "B_id": 2000033,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_absorbedCurves": {
+       "A": [],
+       "B": [
+        {
+         "ptr": "GLine",
+         "value": "dict(4)"
+        },
+        {
+         "ptr": "GLine",
+         "value": "dict(4)"
+        },
+        {
+         "ptr": "GLine",
+         "value": "dict(4)"
+        },
+        {
+         "ptr": "GLine",
+         "value": "dict(4)"
+        }
+       ]
+      },
+      "m_absorbedCurvesData": {
+       "A": [],
+       "B": [
+        {
+         "ptr": "CurveElemData",
+         "value": "dict(2)"
+        },
+        {
+         "ptr": "CurveElemData",
+         "value": "dict(2)"
+        },
+        {
+         "ptr": "CurveElemData",
+         "value": "dict(2)"
+        },
+        {
+         "ptr": "CurveElemData",
+         "value": "dict(2)"
+        }
+       ]
+      },
+      "m_curveObjIdxMap": {
+       "A": [],
+       "B": [
+        {
+         "first": 2000034,
+         "second": 0
+        },
+        {
+         "first": 2000035,
+         "second": 1
+        },
+        {
+         "first": 2000036,
+         "second": 2
+        },
+        {
+         "first": 2000037,
+         "second": 3
+        }
+       ]
+      },
+      "m_elemIdsPairSet": {
+       "A": {
+        "ptr": "ElementIdIndexPairSet",
+        "value": {
+         "m_data": "list(0)"
+        }
+       },
+       "B": {
+        "ptr": "ElementIdIndexPairSet",
+        "value": {
+         "m_data": "list(4)"
+        }
+       }
+      },
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_geomSteps": {
+       "A": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(1)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 1
+        }
+       },
+       "B": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(1)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 1
+        }
+       }
+      },
+      "m_highResidualTol": {
+       "A": true,
+       "B": false
+      },
+      "m_id": {
+       "A": 812106,
+       "B": 2000033
+      },
+      "m_nextIndex": {
+       "A": 0,
+       "B": 4
+      },
+      "m_oGuessCache": {
+       "A": {
+        "ptr": "VarSketchGuessCache",
+        "value": {
+         "m_pSketch": "dict(1)",
+         "m_guessArr": "list(1)",
+         "m_nPar": 0
+        }
+       },
+       "B": {
+        "ptr": "VarSketchGuessCache",
+        "value": {
+         "m_pSketch": "dict(1)",
+         "m_guessArr": "list(0)",
+         "m_nPar": 0
+        }
+       }
+      },
+      "m_oParamPlane": {
+       "A": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       }
+      },
+      "m_pGeomTable": {
+       "A": null,
+       "B": {
+        "ptr": "GeomTable",
+        "value": {
+         "m_refPntMirrored": false,
+         "m_table": "list(4)",
+         "m_bigTableOwner": null,
+         "m_materialMarkers": "list(0)",
+         "m_faceTypeMarkers": "list(0)"
+        }
+       }
+      },
+      "m_pPlane": {
+       "A": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       }
+      },
+      "m_sketchPlaneId": {
+       "A": 812105,
+       "B": 2000032
+      },
+      "m_userId": {
+       "A": -1,
+       "B": 2000038
+      },
+      "m_version": {
+       "A": 1,
+       "B": 0
+      }
+     },
+     "n_equal": 39
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 2090,
+       "B": 16779322
+      },
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(8)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    },
+    "rep_stats": {
+     "A": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 0,
+      "n_faces": 0,
+      "n_edges": 0,
+      "tag_range": null,
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 812106,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "bbox": [
+       [
+        1e+30,
+        1e+30,
+        1e+30
+       ],
+       [
+        -1e+30,
+        -1e+30,
+        -1e+30
+       ]
+      ],
+      "gelem_type": 2,
+      "flags": 0
+     },
+     "B": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 0,
+      "n_faces": 0,
+      "n_edges": 0,
+      "tag_range": null,
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 2000033,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "bbox": [
+       [
+        -0.8333333333333334,
+        -2.0,
+        0.0
+       ],
+       [
+        0.8333333333333334,
+        2.0,
+        0.0
+       ]
+      ],
+      "gelem_type": 2,
+      "flags": 0
+     }
+    }
+   },
+   {
+    "rank": 1,
+    "element": "CurveElem",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "profile curves (first of ours vs first of theirs)",
+    "A_count": 18,
+    "B_present": true,
+    "A_id": 812185,
+    "B_id": 2000034,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_categoryId": {
+       "A": 179,
+       "B": -1
+      },
+      "m_cellList": {
+       "A": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(2)"
+        }
+       },
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(2)"
+        }
+       }
+      },
+      "m_detail": {
+       "A": true,
+       "B": false
+      },
+      "m_famElemVisibility": {
+       "A": {
+        "m_flags": 57406
+       },
+       "B": {
+        "m_flags": -1
+       }
+      },
+      "m_famId": {
+       "A": 812122,
+       "B": 2000000
+      },
+      "m_geomSteps": {
+       "A": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(1)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 1
+        }
+       },
+       "B": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(1)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 1
+        }
+       }
+      },
+      "m_id": {
+       "A": 812185,
+       "B": 2000034
+      },
+      "m_ownerDBViewId": {
+       "A": 812131,
+       "B": -1
+      },
+      "m_pCurveDriver": {
+       "A": {
+        "ptr": "CurveElemDriver",
+        "value": {
+         "m_oControlData": null,
+         "m_pCrv": {
+          "ptr": "GLine",
+          "value": "..."
+         },
+         "m_sideJoins": "list(0)",
+         "m_controlJoinsSet": "list(2)",
+         "m_midParams": "list(0)",
+         "m_nextMidParamId": 4,
+         "m_flip": false,
+         "m_sideAlignments": "list(0)"
+        }
+       },
+       "B": {
+        "ptr": "CurveElemDriver",
+        "value": {
+         "m_oControlData": null,
+         "m_pCrv": {
+          "ptr": "GLine",
+          "value": "..."
+         },
+         "m_sideJoins": "list(0)",
+         "m_controlJoinsSet": "list(2)",
+         "m_midParams": "list(0)",
+         "m_nextMidParamId": 4,
+         "m_flip": false,
+         "m_sideAlignments": "list(0)"
+        }
+       }
+      },
+      "m_referenceType": {
+       "A": 1,
+       "B": 0
+      },
+      "m_sketchPlaneId": {
+       "A": 812148,
+       "B": 2000032
+      },
+      "m_useOffsetPos": {
+       "A": true,
+       "B": false
+      }
+     },
+     "n_equal": 25
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 564075,
+       "B": 17340539
+      },
+      "m_categroryId": {
+       "A": -2000051,
+       "B": -2000045
+      },
+      "m_familyId": {
+       "A": 812122,
+       "B": 2000000
+      },
+      "m_miscId": {
+       "A": 812149,
+       "B": 2000033
+      },
+      "m_ownerViewId": {
+       "A": 812131,
+       "B": -1
+      },
+      "m_pBBox": {
+       "A": null,
+       "B": {
+        "ptr": "Outline",
+        "value": {
+         "m_minmax": "list(2)"
+        }
+       }
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(8)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(2)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": true
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(6)",
+         "m_regenOnly": "list(2)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": true
+        }
+       }
+      }
+     },
+     "n_equal": 5
+    },
+    "rep_stats": {
+     "A": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 0,
+      "n_faces": 0,
+      "n_edges": 0,
+      "tag_range": null,
+      "root_ginfo": {
+       "m_categoryId": 179,
+       "m_tag": 812185,
+       "m_controlCommand": 0,
+       "m_flags": 561156
+      },
+      "bbox": [
+       [
+        -0.041666666666666456,
+        -2.630657945645543e-16,
+        0.0
+       ],
+       [
+        1.8735013540549517e-16,
+        -2.630657945645543e-16,
+        0.0
+       ]
+      ],
+      "gelem_type": 3,
+      "flags": 32
+     },
+     "B": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 0,
+      "n_faces": 0,
+      "n_edges": 0,
+      "tag_range": null,
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 2000034,
+       "m_controlCommand": 0,
+       "m_flags": 561156
+      },
+      "bbox": [
+       [
+        -0.8333333333333334,
+        2.0,
+        0.0
+       ],
+       [
+        0.8333333333333334,
+        2.0,
+        0.0
+       ]
+      ],
+      "gelem_type": 2,
+      "flags": 32
+     }
+    }
+   },
+   {
+    "rank": 1,
+    "element": "SketchPlane(sketch)",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "the sketch's plane",
+    "A_count": 18,
+    "B_present": true,
+    "A_id": 812105,
+    "B_id": 2000032,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 812105,
+       "B": 2000032
+      },
+      "m_oPlaneRef": {
+       "A": {
+        "ptr": "OnDatumPlaneRef",
+        "value": {
+         "m_geomRef": "dict(10)",
+         "m_vecInPlane": "list(3)",
+         "m_rotation": 0.0,
+         "m_datumPlaneId": 812022,
+         "m_mirror": false
+        }
+       },
+       "B": {
+        "ptr": "OnDatumPlaneRef",
+        "value": {
+         "m_geomRef": "dict(10)",
+         "m_vecInPlane": "list(3)",
+         "m_rotation": 0.0,
+         "m_datumPlaneId": 2000003,
+         "m_mirror": false
+        }
+       }
+      },
+      "m_oTrf": {
+       "A": {
+        "ptr": "Trf",
+        "value": {
+         "m_3x3": "list(3)",
+         "m_or": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "Trf",
+        "value": {
+         "m_3x3": "list(3)",
+         "m_or": "list(3)"
+        }
+       }
+      },
+      "m_userId": {
+       "A": 812106,
+       "B": 2000033
+      }
+     },
+     "n_equal": 19
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 10,
+       "B": 26
+      },
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(4)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(4)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   },
+   {
+    "rank": 2,
+    "element": "self-Family",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "type table + params + familyIds registry the symbol's type row comes from",
+    "A_count": 4,
+    "B_present": true,
+    "A_id": 812012,
+    "B_id": 2000000,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_appVersionAtInitialLoad": {
+       "A": 2288,
+       "B": -2
+      },
+      "m_appVersionAtLoad": {
+       "A": 2288,
+       "B": -2
+      },
+      "m_cellList": {
+       "A": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(1)"
+        }
+       },
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(1)"
+        }
+       }
+      },
+      "m_deletableElements": {
+       "A": [
+        812047,
+        812049
+       ],
+       "B": []
+      },
+      "m_familyIds": {
+       "A": {
+        "ptr": "ElementIdIndexPairSet",
+        "value": {
+         "m_data": "list(299)"
+        }
+       },
+       "B": {
+        "ptr": "ElementIdIndexPairSet",
+        "value": {
+         "m_data": "list(40)"
+        }
+       }
+      },
+      "m_familyParams": {
+       "A": {
+        "ptr": "FamilyParams",
+        "value": {
+         "m_params": "list(15)",
+         "m_geomRefHandles": "dict(1)"
+        }
+       },
+       "B": {
+        "ptr": "FamilyParams",
+        "value": {
+         "m_params": "list(17)",
+         "m_geomRefHandles": "dict(1)"
+        }
+       }
+      },
+      "m_fsdos": {
+       "A": [
+        {
+         "ptr": "MaterialFSDO",
+         "value": "dict(3)"
+        }
+       ],
+       "B": []
+      },
+      "m_id": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_lockedParameterIdsForDirectManipulation": {
+       "A": "list(11)",
+       "B": [
+        2000018,
+        2000019,
+        2000020
+       ]
+      },
+      "m_nextAbsorbedIndex": {
+       "A": 1472,
+       "B": 40
+      },
+      "m_oFamDimConstrMgr": {
+       "A": {
+        "ptr": "FamDimConstrMgrImpl",
+        "value": {
+         "m_pFam": "dict(1)",
+         "m_paramExprs": "list(2)",
+         "m_drivenDimSegs": "list(2)",
+         "m_ignoredDimValueExprs": "list(0)",
+         "m_overconstrDimSegs": "list(0)",
+         "m_fixedRefs": "list(3)",
+         "m_redundantConstrs": "list(1)",
+         "m_propagatedDrivers": "list(2)",
+         "m_dimSegDataMap": "list(0)",
+         "m_additionalParamExprs": "list(0)",
+         "m_additionalFixedRefs": "list(0)"
+        }
+       },
+       "B": {
+        "ptr": "FamDimConstrMgrImpl",
+        "value": {
+         "m_pFam": "dict(1)",
+         "m_paramExprs": "list(0)",
+         "m_drivenDimSegs": "list(0)",
+         "m_ignoredDimValueExprs": "list(0)",
+         "m_overconstrDimSegs": "list(0)",
+         "m_fixedRefs": "list(0)",
+         "m_redundantConstrs": "list(0)",
+         "m_propagatedDrivers": "list(0)",
+         "m_dimSegDataMap": "list(0)",
+         "m_additionalParamExprs": "list(0)",
+         "m_additionalFixedRefs": "list(0)"
+        }
+       }
+      },
+      "m_omniClassCode": {
+       "A": "23.80.30.11.17",
+       "B": ""
+      },
+      "m_pFamilyTypes": {
+       "A": {
+        "ptr": "FamilyTypeTable",
+        "value": {
+         "m_idx": -1,
+         "m_pairs": "list(0)"
+        }
+       },
+       "B": {
+        "ptr": "FamilyTypeTable",
+        "value": {
+         "m_idx": 0,
+         "m_pairs": "list(1)"
+        }
+       }
+      },
+      "m_path": {
+       "A": "C:\\Documents and Settings\\All Users\\Application Data\\Autodesk\\RME 2010\\Metric Library\\Electrical Components\\Electrical Equipment\\Panelboard\\",
+       "B": ""
+      },
+      "m_predefinedLimitIdx": {
+       "A": 1105,
+       "B": 35
+      },
+      "m_refTypeIds": {
+       "A": [
+        7
+       ],
+       "B": []
+      },
+      "m_refs": {
+       "A": [
+        {
+         "ptr": "FamilyElemRef",
+         "value": "dict(1)"
+        }
+       ],
+       "B": []
+      },
+      "m_seekItemId": {
+       "A": "Lighting and Appliance Panelboard - 208V MCB - Surface-0000-CAN-ENU",
+       "B": ""
+      },
+      "m_trivialParamIds": {
+       "A": [
+        -1140083,
+        -1140082,
+        -1140081,
+        -1001320
+       ],
+       "B": []
+      }
+     },
+     "n_equal": 108
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 10,
+       "B": 26
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(311)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(41)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 10
+    }
+   },
+   {
+    "rank": 2,
+    "element": "ParamElemFamily",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "parameter definition grammar (first of each)",
+    "A_count": 10,
+    "B_present": true,
+    "A_id": 812273,
+    "B_id": 2000018,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_famId": {
+       "A": 812212,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 812273,
+       "B": 2000018
+      },
+      "m_pParamDef": {
+       "A": {
+        "ptr": "ParamDefValue",
+        "value": {
+         "m_dynamicGroupName": "",
+         "m_groupTypeId": "dict(1)",
+         "m_caption": "Radius",
+         "m_typeId": "dict(1)",
+         "m_paramElemId": 812273,
+         "m_allowVaryBetweenGroups": false,
+         "m_readOnly": false,
+         "m_userVisible": true,
+         "m_specTypeId": "dict(1)",
+         "m_restriction": 1,
+         "m_boundless": false
+        }
+       },
+       "B": {
+        "ptr": "ParamDefValue",
+        "value": {
+         "m_dynamicGroupName": "",
+         "m_groupTypeId": "dict(1)",
+         "m_caption": "Width",
+         "m_typeId": "dict(1)",
+         "m_paramElemId": 2000018,
+         "m_allowVaryBetweenGroups": false,
+         "m_readOnly": false,
+         "m_userVisible": true,
+         "m_specTypeId": "dict(1)",
+         "m_restriction": 1,
+         "m_boundless": false
+        }
+       }
+      }
+     },
+     "n_equal": 20
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 8202,
+       "B": 8218
+      },
+      "m_familyId": {
+       "A": 812212,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   },
+   {
+    "rank": 3,
+    "element": "RefPlane",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "reference planes (origin/datum)",
+    "A_count": 14,
+    "B_present": true,
+    "A_id": 812047,
+    "B_id": 2000017,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_bubbleEnd": {
+       "A": [
+        5.0,
+        0.0,
+        0.0
+       ],
+       "B": [
+        0.0,
+        3.0,
+        0.0
+       ]
+      },
+      "m_cutVec": {
+       "A": [
+        0.0,
+        0.0,
+        1.0
+       ],
+       "B": [
+        1.0,
+        0.0,
+        0.0
+       ]
+      },
+      "m_definesOrigin": {
+       "A": false,
+       "B": true
+      },
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_freeEnd": {
+       "A": [
+        -5.0,
+        0.0,
+        0.0
+       ],
+       "B": [
+        0.0,
+        -3.0,
+        0.0
+       ]
+      },
+      "m_genDbViewId": {
+       "A": 812024,
+       "B": 2000009
+      },
+      "m_id": {
+       "A": 812047,
+       "B": 2000017
+      },
+      "m_locked": {
+       "A": false,
+       "B": true
+      },
+      "m_pFace": {
+       "A": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       },
+       "B": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       }
+      },
+      "m_pSurface": {
+       "A": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       }
+      },
+      "m_refName": {
+       "A": 4,
+       "B": 1
+      },
+      "m_refPointsForNewViews": {
+       "A": [
+        [
+         -5.0,
+         0.0,
+         0.0
+        ],
+        [
+         5.0,
+         0.0,
+         0.0
+        ]
+       ],
+       "B": [
+        [
+         0.0,
+         -3.0,
+         0.0
+        ],
+        [
+         0.0,
+         3.0,
+         0.0
+        ]
+       ]
+      },
+      "m_text": {
+       "A": "Centre (Front/Back)",
+       "B": "Center (Left/Right)"
+      }
+     },
+     "n_equal": 25
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 10
+    }
+   },
+   {
+    "rank": 3,
+    "element": "Level",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "the ref level",
+    "A_count": 1,
+    "B_present": true,
+    "A_id": 812022,
+    "B_id": 2000003,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_attrId": {
+       "A": 812020,
+       "B": 2000002
+      },
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 812022,
+       "B": 2000003
+      },
+      "m_pFace": {
+       "A": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       },
+       "B": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       }
+      },
+      "m_pSurface": {
+       "A": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       }
+      }
+     },
+     "n_equal": 30
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(2)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(2)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 10
+    }
+   },
+   {
+    "rank": 3,
+    "element": "LevelAttributes",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "the level type",
+    "A_count": 1,
+    "B_present": true,
+    "A_id": 812020,
+    "B_id": 2000002,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_familyTagId": {
+       "A": 812301,
+       "B": -1
+      },
+      "m_id": {
+       "A": 812020,
+       "B": 2000002
+      },
+      "m_leaderCategoryId": {
+       "A": 812083,
+       "B": -1
+      },
+      "m_lineAndTextAttr": {
+       "A": {
+        "m_fontId": 812068,
+        "m_categoryId": 812021,
+        "m_background": 0,
+        "m_bBold": false,
+        "m_bItalic": false,
+        "m_bUnderline": false
+       },
+       "B": {
+        "m_fontId": -1,
+        "m_categoryId": -1,
+        "m_background": 0,
+        "m_bBold": false,
+        "m_bItalic": false,
+        "m_bUnderline": false
+       }
+      }
+     },
+     "n_equal": 24
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(7)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 10
+    }
+   },
+   {
+    "rank": 4,
+    "element": "ConnectorElem",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "the electrical connector (rme reference only -- the column has none)",
+    "A_count": 1,
+    "B_present": true,
+    "A_id": 812448,
+    "B_id": 2000040,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_cellList": {
+       "A": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(1)"
+        }
+       },
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(2)"
+        }
+       }
+      },
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 812448,
+       "B": 2000040
+      },
+      "m_idPrimaryElem": {
+       "A": 812448,
+       "B": 2000040
+      },
+      "m_oPlaneRef": {
+       "A": {
+        "ptr": "GeomOnPlaneRef",
+        "value": {
+         "m_geomRef": "dict(10)",
+         "m_oRawPlaneInLinkCache": null,
+         "m_oFacePointRef": null,
+         "m_offset": "list(2)",
+         "m_angle": 0.0,
+         "m_flip": false
+        }
+       },
+       "B": {
+        "ptr": "GeomOnPlaneRef",
+        "value": {
+         "m_geomRef": "dict(10)",
+         "m_oRawPlaneInLinkCache": null,
+         "m_oFacePointRef": null,
+         "m_offset": "list(2)",
+         "m_angle": 0.0,
+         "m_flip": false
+        }
+       }
+      },
+      "m_pDomain": {
+       "A": {
+        "ptr": "ConnectorElemDomainElectrical",
+        "value": {
+         "m_pConnElem": "dict(1)",
+         "m_dVoltage": 2238.893367,
+         "m_dApparentLoad": 0.0,
+         "m_dApparentLoadPhase1": 0.0,
+         "m_dApparentLoadPhase2": 0.0,
+         "m_dApparentLoadPhase3": 0.0,
+         "m_dPowerFactor": 1.0,
+         "m_idLoadClassification": 638828,
+         "m_nNumberOfPoles": 3,
+         "m_systemType": 31,
+         "m_powerFactorState": 1,
+         "m_bIsConnectorPrimary": true,
+         "m_bConnectorUtility": false,
+         "m_bSubClassificationMotor": false,
+         "m_strConnectorDescription": ""
+        }
+       },
+       "B": {
+        "ptr": "ConnectorElemDomainElectrical",
+        "value": {
+         "m_pConnElem": "dict(1)",
+         "m_dVoltage": 5166.677,
+         "m_dApparentLoad": 0.0,
+         "m_dApparentLoadPhase1": 0.0,
+         "m_dApparentLoadPhase2": 0.0,
+         "m_dApparentLoadPhase3": 0.0,
+         "m_dPowerFactor": 1.0,
+         "m_idLoadClassification": 2000039,
+         "m_nNumberOfPoles": 3,
+         "m_systemType": 31,
+         "m_powerFactorState": 1,
+         "m_bIsConnectorPrimary": true,
+         "m_bConnectorUtility": false,
+         "m_bSubClassificationMotor": false,
+         "m_strConnectorDescription": "Panel Feed"
+        }
+       }
+      },
+      "m_pFaceU": {
+       "A": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       },
+       "B": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       }
+      },
+      "m_pFaceV": {
+       "A": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       },
+       "B": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       }
+      }
+     },
+     "n_equal": 22
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(4)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(5)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 10
+    }
+   },
+   {
+    "rank": 5,
+    "element": "DBViewPlan",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "the plan view the datum elements generate in",
+    "A_count": 2,
+    "B_present": true,
+    "A_id": 812024,
+    "B_id": 2000009,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_backClipping": {
+       "A": -1,
+       "B": 0
+      },
+      "m_bottomClipElev": {
+       "A": -0.0,
+       "B": -3.937008
+      },
+      "m_cellList": {
+       "A": null,
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(1)"
+        }
+       }
+      },
+      "m_columnSymbolElev": {
+       "A": 0.0,
+       "B": 1.0
+      },
+      "m_cutPlaneElev": {
+       "A": 4.0,
+       "B": 3.937008
+      },
+      "m_dbDrawingId": {
+       "A": 812025,
+       "B": 2000014
+      },
+      "m_dbViewTypeId": {
+       "A": 812342,
+       "B": 2000008
+      },
+      "m_extentElemId": {
+       "A": 812093,
+       "B": 2000015
+      },
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_fixedSketchPlaneId": {
+       "A": 812472,
+       "B": 2000011
+      },
+      "m_genElemId": {
+       "A": 812022,
+       "B": 2000003
+      },
+      "m_geomSteps": {
+       "A": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(2)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 3,
+         "m_flags": 9
+        }
+       },
+       "B": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(1)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 1
+        }
+       }
+      },
+      "m_id": {
+       "A": 812024,
+       "B": 2000009
+      },
+      "m_levelBelowElev": {
+       "A": -1000000000.0,
+       "B": 0.0
+      },
+      "m_oaDrawFilters": {
+       "A": "list(5)",
+       "B": "list(6)"
+      },
+      "m_origin": {
+       "A": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "B": [
+        0.0,
+        0.0,
+        3.937008
+       ]
+      },
+      "m_pCutter": {
+       "A": {
+        "ptr": "GenericPlaneCutter",
+        "value": {
+         "m_pPlane": {
+          "ptr": "Plane",
+          "value": "..."
+         },
+         "m_bAssignCutFaceTag": true,
+         "m_bBackPlaneCut": false
+        }
+       },
+       "B": {
+        "ptr": "GenericPlaneCutter",
+        "value": {
+         "m_pPlane": {
+          "ptr": "Plane",
+          "value": "..."
+         },
+         "m_bAssignCutFaceTag": true,
+         "m_bBackPlaneCut": false
+        }
+       }
+      },
+      "m_pDetailDrawOrderMgr": {
+       "A": {
+        "ptr": "DrawOrderMgr3dFamily",
+        "value": {
+         "m_pADoc": "dict(1)",
+         "m_pDBView": "dict(1)"
+        }
+       },
+       "B": {
+        "ptr": "DrawOrderMgr",
+        "value": {
+         "m_pADoc": "dict(1)",
+         "m_pDBView": "dict(1)",
+         "m_aDrawOrder": "list(0)"
+        }
+       }
+      },
+      "m_pParamValueSetDouble": {
+       "A": {
+        "ptr": "ParamValueSetDouble",
+        "value": {
+         "m_paramSet": "list(0)"
+        }
+       },
+       "B": null
+      },
+      "m_pParamValueSetElementId": {
+       "A": null,
+       "B": {
+        "ptr": "ParamValueSetElementId",
+        "value": {
+         "m_paramSet": "list(2)"
+        }
+       }
+      },
+      "m_pParamValueSetInt": {
+       "A": {
+        "ptr": "ParamValueSetInt",
+        "value": {
+         "m_paramSet": "list(1)"
+        }
+       },
+       "B": {
+        "ptr": "ParamValueSetInt",
+        "value": {
+         "m_paramSet": "list(2)"
+        }
+       }
+      },
+      "m_pPlanViewRange": {
+       "A": {
+        "ptr": "PlanViewRange",
+        "value": {
+         "m_offsets": "list(5)",
+         "m_levelPos": "list(5)"
+        }
+       },
+       "B": {
+        "ptr": "PlanViewRange",
+        "value": {
+         "m_offsets": "list(5)",
+         "m_levelPos": "list(5)"
+        }
+       }
+      },
+      "m_pPlanViewRange2": {
+       "A": {
+        "ptr": "PlanViewRange2",
+        "value": {
+         "m_viewDepthPlaneOffsets": "list(5)",
+         "m_viewDepthPlaneLevelIds": "list(5)"
+        }
+       },
+       "B": {
+        "ptr": "PlanViewRange2",
+        "value": {
+         "m_viewDepthPlaneOffsets": "list(5)",
+         "m_viewDepthPlaneLevelIds": "list(5)"
+        }
+       }
+      },
+      "m_pRetouchTable": {
+       "A": {
+        "ptr": "RetouchTable",
+        "value": {
+         "m_lineworkMap4": "list(0)",
+         "m_invisibleGStyleId": 201,
+         "m_notSilhouetteGStyleId": 55150,
+         "m_bFaceRecsUpgraded": true
+        }
+       },
+       "B": {
+        "ptr": "RetouchTable",
+        "value": {
+         "m_lineworkMap4": "list(0)",
+         "m_invisibleGStyleId": -1,
+         "m_notSilhouetteGStyleId": -1,
+         "m_bFaceRecsUpgraded": true
+        }
+       }
+      },
+      "m_pViewDepthCutter": {
+       "A": null,
+       "B": {
+        "ptr": "GenericPlaneCutter",
+        "value": {
+         "m_pPlane": {
+          "ptr": "Plane",
+          "value": "..."
+         },
+         "m_bAssignCutFaceTag": true,
+         "m_bBackPlaneCut": true
+        }
+       }
+      },
+      "m_pViewDisplayMgr": {
+       "A": {
+        "ptr": "ViewDisplayMgr",
+        "value": {
+         "m_background": "dict(8)",
+         "m_fog": "dict(5)",
+         "m_lights": "dict(4)",
+         "m_model": "dict(7)",
+         "m_oRaytraceSettings": {
+          "ptr": "GRenderSettings",
+          "value": "..."
+         },
+         "m_sketchyLines": "dict(3)",
+         "m_oStaticRRTRenderSettings": {
+          "ptr": "GRenderSettings",
+          "value": "..."
+         },
+         "m_exposure": "dict(10)",
+         "m_waterColorType": 0,
+         "m_hlr": true,
+         "m_lighting": false,
+         "m_shadows": "dict(2)"
+        }
+       },
+       "B": {
+        "ptr": "ViewDisplayMgr",
+        "value": {
+         "m_background": "dict(8)",
+         "m_fog": "dict(5)",
+         "m_lights": "dict(4)",
+         "m_model": "dict(7)",
+         "m_oRaytraceSettings": {
+          "ptr": "GRenderSettings",
+          "value": "..."
+         },
+         "m_sketchyLines": "dict(3)",
+         "m_oStaticRRTRenderSettings": {
+          "ptr": "GRenderSettings",
+          "value": "..."
+         },
+         "m_exposure": "dict(10)",
+         "m_waterColorType": 0,
+         "m_hlr": true,
+         "m_lighting": false,
+         "m_shadows": "dict(2)"
+        }
+       }
+      },
+      "m_scale": {
+       "A": 0.05,
+       "B": 0.01
+      },
+      "m_topClipElev": {
+       "A": 7.5,
+       "B": 7.545932
+      },
+      "m_viewerId": {
+       "A": 812023,
+       "B": 2000010
+      }
+     },
+     "n_equal": 58
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(10)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(8)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 10
+    }
+   },
+   {
+    "rank": 5,
+    "element": "Viewer(plan)",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "the plan view's viewer satellite",
+    "A_count": 9,
+    "B_present": true,
+    "A_id": 812023,
+    "B_id": 2000010,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_axisDir": {
+       "A": [
+        0.0,
+        0.0,
+        1.0
+       ],
+       "B": [
+        0.0,
+        1.0,
+        0.0
+       ]
+      },
+      "m_boundedSpace": {
+       "A": {
+        "m_orig": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "m_basis": [
+         "list(3)",
+         "list(3)",
+         "list(3)"
+        ],
+        "m_boundOffset": [
+         "list(2)",
+         "list(2)",
+         "list(2)"
+        ],
+        "m_boundActive": [
+         "list(2)",
+         "list(2)",
+         "list(2)"
+        ],
+        "m_isOn": true
+       },
+       "B": {
+        "m_orig": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "m_basis": [
+         "list(3)",
+         "list(3)",
+         "list(3)"
+        ],
+        "m_boundOffset": [
+         "list(2)",
+         "list(2)",
+         "list(2)"
+        ],
+        "m_boundActive": [
+         "list(2)",
+         "list(2)",
+         "list(2)"
+        ],
+        "m_isOn": false
+       }
+      },
+      "m_dbViewId": {
+       "A": 812024,
+       "B": 2000009
+      },
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 812023,
+       "B": 2000010
+      },
+      "m_intentionallyPlaced": {
+       "A": false,
+       "B": true
+      },
+      "m_projMethodType": {
+       "A": 1,
+       "B": 2
+      },
+      "m_viewerFlags": {
+       "A": 0,
+       "B": 7
+      }
+     },
+     "n_equal": 28
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 10
+    }
+   },
+   {
+    "rank": 6,
+    "element": "UnitsElem",
+    "reference": "rme_208V_MCB_panelboard",
+    "why_walked": "the units registry singleton",
+    "A_count": 1,
+    "B_present": true,
+    "A_id": 812117,
+    "B_id": 2000001,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_cellList": {
+       "A": null,
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(1)"
+        }
+       }
+      },
+      "m_designOptionId": {
+       "A": -4,
+       "B": -1
+      },
+      "m_famId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 812117,
+       "B": 2000001
+      },
+      "m_units": {
+       "A": {
+        "m_formatOptionsMap": "list(136)",
+        "m_universalUnitSystem": 1,
+        "m_decimalSymbol": 0,
+        "m_digitGroupingSymbol": 1,
+        "m_digitGroupingAmount": 1
+       },
+       "B": {
+        "m_formatOptionsMap": "list(8)",
+        "m_universalUnitSystem": 1,
+        "m_decimalSymbol": 0,
+        "m_digitGroupingSymbol": 1,
+        "m_digitGroupingAmount": 1
+       }
+      }
+     },
+     "n_equal": 16
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 8202,
+       "B": 8222
+      },
+      "m_familyId": {
+       "A": 812012,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(1)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   }
+  ]
+ },
+ "hybrid_donor_column": {
+  "reference": "rst_concrete_square_column",
+  "n_elements": 417,
+  "class_histogram": {
+   "DimensionStyle": 11,
+   "CategoryElem": 68,
+   "TextNoteAttributes": 3,
+   "TagNoteAttributes": 2,
+   "Family": 2,
+   "LevelAttributes": 1,
+   "Level": 2,
+   "Viewer": 8,
+   "DBViewPlan": 2,
+   "DBDrawing": 9,
+   "Viewport": 9,
+   "DBViewSection": 4,
+   "RefPlane": 9,
+   "LinearDimString": 11,
+   "SketchPlane": 15,
+   "VarSketch": 7,
+   "DBViewProject": 1,
+   "InteriorElevAttributes": 2,
+   "GStyleElem": 68,
+   "LeaderStyle": 10,
+   "PenWidthTableElem": 2,
+   "FontElem": 31,
+   "BaseLevelTracker": 2,
+   "ExtrusionElem": 1,
+   "CurveElem": 11,
+   "Alignment": 7,
+   "RevealAttr": 2,
+   "CorniceAttr": 2,
+   "Text3dAttrSymbol": 2,
+   "TrueNorth": 2,
+   "Viewer3d": 1,
+   "ModelClipBox": 1,
+   "DBView3d": 1,
+   "ParamElemFamily": 2,
+   "ExtentElem": 7,
+   "DaylightSourceIdSet": 2,
+   "UnitsElem": 1,
+   "SectionAttributes": 5,
+   "SpotElevationStyle": 3,
+   "PropertyAttr": 2,
+   "SketchGrid": 8,
+   "DBViewDrafting": 1,
+   "FilledRegionAttributes": 2,
+   "TagNote": 2,
+   "RadialDim": 3,
+   "FilledRegion": 2,
+   "FamilySurrogate": 1,
+   "FamilySymbol": 1,
+   "FamSymSurrogate": 1,
+   "BrowserOrganization": 2,
+   "RevisionCloudAttr": 1,
+   "CalloutTag": 2,
+   "DBViewType": 21,
+   "LoadNatureElem": 8,
+   "LoadCaseElem": 8,
+   "StructSettingsElem": 1,
+   "SunAndShadowSettings": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "CoverType": 2,
+   "ReferenceViewerAttributes": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "AutoJoinTracker": 1,
+   "AutoCamSettingsElem": 1,
+   "StructConnectionType": 5,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "ComponentRepeaterSlotSpecialType": 2,
+   "AnalyticalLinkType": 1,
+   "DefaultDivideSettings": 1,
+   "AreaSettingsElem": 1,
+   "DrawOrder3dElem": 1,
+   "STEPExportSettings": 1
+  },
+  "classes_only_in_A": [
+   "Alignment",
+   "AnalyticalLinkType",
+   "AreaSettingsElem",
+   "AutoCamSettingsElem",
+   "AutoJoinTracker",
+   "BaseLevelTracker",
+   "BrowserOrganization",
+   "CalloutTag",
+   "CategoryElem",
+   "ComponentRepeaterSlotSpecialType",
+   "CoordinateSystemDisplayElem",
+   "CorniceAttr",
+   "CoverType",
+   "DBView3d",
+   "DBViewDrafting",
+   "DBViewSection",
+   "DaylightSourceIdSet",
+   "DefaultDivideSettings",
+   "DimensionStyle",
+   "DrawOrder3dElem",
+   "Dwg2dExportUserSettingsData",
+   "FamSymSurrogate",
+   "FamilySurrogate",
+   "FamilySymbol",
+   "FilledRegion",
+   "FilledRegionAttributes",
+   "FontElem",
+   "GStyleElem",
+   "InteriorElevAttributes",
+   "LeaderStyle",
+   "LinearDimString",
+   "LoadCaseElem",
+   "LoadNatureElem",
+   "ModelClipBox",
+   "PenWidthTableElem",
+   "PropertyAttr",
+   "RadialDim",
+   "ReferenceViewerAttributes",
+   "RevealAttr",
+   "RevisionCloudAttr",
+   "RvtLinkInstanceAppearanceParentElem",
+   "STEPExportSettings",
+   "SectionAttributes",
+   "SketchGrid",
+   "SketchGridAppearanceParentElem",
+   "SpotElevationStyle",
+   "StructConnectionType",
+   "StructSettingsElem",
+   "TagNote",
+   "TagNoteAttributes",
+   "Text3dAttrSymbol",
+   "TextNoteAttributes",
+   "TrueNorth",
+   "Viewer3d"
+  ],
+  "classes_only_in_B": [
+   "ConnectorElem",
+   "ElectricalLoadClassification"
+  ],
+  "rep_histogram": {
+   "SerializedDummy": 394,
+   "GElement": 23
+  },
+  "inline_adocument": {
+   "appinfo_slots": 239,
+   "appinfo_populated": 131,
+   "appinfo_populated_classes": [
+    "ADocWarnings",
+    "APIAppInfo",
+    "APIVSTAMacroElemTracking",
+    "AlignSides",
+    "AllViewFiltersAppInfo",
+    "AllWatchElems",
+    "AnalysisDisplayStyleTracking",
+    "AnalyticalModelEditModeMgr",
+    "AppearanceAssetTracking",
+    "AppearanceInfo",
+    "AreaReportSettingsTracking",
+    "AssemblyEditModeMgr",
+    "BasedOnTracker",
+    "BrowserOrganizationTracking",
+    "CategoryTracking",
+    "CircuitGroupAppInfo",
+    "CircuitGroupEditModeMgr",
+    "ConstraintDimTracking",
+    "CopyWatchModeMgr",
+    "CustomElementTracking",
+    "DBDrawingInfo",
+    "DBViewInfo",
+    "DBViewTypesForNewLevel",
+    "DatumTracking",
+    "DesignOptionMgr",
+    "DesignOptionSetTracking",
+    "DetailLevelMgr",
+    "DimSides",
+    "DynamicUpdateAppInfo",
+    "ESSchemaStorage",
+    "EStorageTracking",
+    "ElementGroupAppInfo",
+    "ElementTracking",
+    "ElementTrackingData",
+    "ElemsSetWithCellsTracking",
+    "ExportDGNSettingsTracking",
+    "ExportDWGSettingsTracking",
+    "ExportPDFSettingsTracking",
+    "ExternalParamTracking",
+    "ExternalResourceErrorAppInfo"
+   ],
+   "n_episodes": 0,
+   "note": "OUR loads author all-null slots + single episode (rvt.famgen.factory.author_embedded_adocument)"
+  },
+  "checklist": [
+   {
+    "rank": 1,
+    "element": "ExtrusionElem",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "the solid the symbol's geomSteps/GeomTable regenerate from -- the instance walk's deepest content",
+    "A_count": 1,
+    "B_present": true,
+    "A_id": 1410972,
+    "B_id": 2000038,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_cellList": {
+       "A": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(2)"
+        }
+       }
+      },
+      "m_famElemVisibility": {
+       "A": {
+        "m_flags": 57406
+       },
+       "B": {
+        "m_flags": 57398
+       }
+      },
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_geomSteps": {
+       "A": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(0)",
+         "m_bRepFormGList": "list(1)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 9
+        }
+       },
+       "B": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(0)",
+         "m_bRepFormGList": "list(1)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 9
+        }
+       }
+      },
+      "m_id": {
+       "A": 1410972,
+       "B": 2000038
+      },
+      "m_materialId": {
+       "A": 1177727,
+       "B": -1
+      },
+      "m_pGeomTable": {
+       "A": {
+        "ptr": "GeomTable",
+        "value": {
+         "m_refPntMirrored": false,
+         "m_table": "list(88)",
+         "m_bigTableOwner": null,
+         "m_materialMarkers": "list(0)",
+         "m_faceTypeMarkers": "list(0)"
+        }
+       },
+       "B": {
+        "ptr": "GeomTable",
+        "value": {
+         "m_refPntMirrored": false,
+         "m_table": "list(18)",
+         "m_bigTableOwner": null,
+         "m_materialMarkers": "list(0)",
+         "m_faceTypeMarkers": "list(0)"
+        }
+       }
+      },
+      "m_pParamValueSetDouble": {
+       "A": {
+        "ptr": "ParamValueSetDouble",
+        "value": {
+         "m_paramSet": "list(2)"
+        }
+       },
+       "B": {
+        "ptr": "ParamValueSetDouble",
+        "value": {
+         "m_paramSet": "list(2)"
+        }
+       }
+      }
+     },
+     "n_equal": 18
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_pBBox": {
+       "A": {
+        "ptr": "Outline",
+        "value": {
+         "m_minmax": "list(2)"
+        }
+       },
+       "B": null
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(4)",
+         "m_regenOnly": "list(3)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(2)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(2)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    },
+    "rep_stats": {
+     "A": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 1,
+      "n_faces": 6,
+      "n_edges": 12,
+      "tag_range": [
+       0,
+       51
+      ],
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 1410972,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "bbox": [
+       [
+        -0.49212598425196863,
+        -0.49212598425196785,
+        0.0
+       ],
+       [
+        0.49212598425196796,
+        0.49212598425196874,
+        8.202099737532807
+       ]
+      ],
+      "gelem_type": 3,
+      "flags": 0
+     },
+     "B": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 1,
+      "n_faces": 6,
+      "n_edges": 12,
+      "tag_range": [
+       0,
+       17
+      ],
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 2000038,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "bbox": [
+       [
+        -0.8333333333333334,
+        -2.0,
+        0.0
+       ],
+       [
+        0.8333333333333334,
+        2.0,
+        0.4791666666666667
+       ]
+      ],
+      "gelem_type": 3,
+      "flags": 0
+     }
+    }
+   },
+   {
+    "rank": 1,
+    "element": "VarSketch",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "the extrusion's profile sketch",
+    "A_count": 7,
+    "B_present": true,
+    "A_id": 1410910,
+    "B_id": 2000033,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_absorbedCurves": {
+       "A": [],
+       "B": [
+        {
+         "ptr": "GLine",
+         "value": "dict(4)"
+        },
+        {
+         "ptr": "GLine",
+         "value": "dict(4)"
+        },
+        {
+         "ptr": "GLine",
+         "value": "dict(4)"
+        },
+        {
+         "ptr": "GLine",
+         "value": "dict(4)"
+        }
+       ]
+      },
+      "m_absorbedCurvesData": {
+       "A": [],
+       "B": [
+        {
+         "ptr": "CurveElemData",
+         "value": "dict(2)"
+        },
+        {
+         "ptr": "CurveElemData",
+         "value": "dict(2)"
+        },
+        {
+         "ptr": "CurveElemData",
+         "value": "dict(2)"
+        },
+        {
+         "ptr": "CurveElemData",
+         "value": "dict(2)"
+        }
+       ]
+      },
+      "m_curveObjIdxMap": {
+       "A": [],
+       "B": [
+        {
+         "first": 2000034,
+         "second": 0
+        },
+        {
+         "first": 2000035,
+         "second": 1
+        },
+        {
+         "first": 2000036,
+         "second": 2
+        },
+        {
+         "first": 2000037,
+         "second": 3
+        }
+       ]
+      },
+      "m_elemIdsPairSet": {
+       "A": {
+        "ptr": "ElementIdIndexPairSet",
+        "value": {
+         "m_data": "list(0)"
+        }
+       },
+       "B": {
+        "ptr": "ElementIdIndexPairSet",
+        "value": {
+         "m_data": "list(4)"
+        }
+       }
+      },
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_geomSteps": {
+       "A": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(1)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 1
+        }
+       },
+       "B": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(1)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 1
+        }
+       }
+      },
+      "m_id": {
+       "A": 1410910,
+       "B": 2000033
+      },
+      "m_nextIndex": {
+       "A": 40,
+       "B": 4
+      },
+      "m_oGuessCache": {
+       "A": {
+        "ptr": "VarSketchGuessCache",
+        "value": {
+         "m_pSketch": "dict(1)",
+         "m_guessArr": "list(1)",
+         "m_nPar": 0
+        }
+       },
+       "B": {
+        "ptr": "VarSketchGuessCache",
+        "value": {
+         "m_pSketch": "dict(1)",
+         "m_guessArr": "list(0)",
+         "m_nPar": 0
+        }
+       }
+      },
+      "m_oParamPlane": {
+       "A": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       }
+      },
+      "m_pGeomTable": {
+       "A": {
+        "ptr": "GeomTable",
+        "value": {
+         "m_refPntMirrored": false,
+         "m_table": "list(40)",
+         "m_bigTableOwner": null,
+         "m_materialMarkers": "list(0)",
+         "m_faceTypeMarkers": "list(0)"
+        }
+       },
+       "B": {
+        "ptr": "GeomTable",
+        "value": {
+         "m_refPntMirrored": false,
+         "m_table": "list(4)",
+         "m_bigTableOwner": null,
+         "m_materialMarkers": "list(0)",
+         "m_faceTypeMarkers": "list(0)"
+        }
+       }
+      },
+      "m_pPlane": {
+       "A": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       }
+      },
+      "m_sketchPlaneId": {
+       "A": 1410909,
+       "B": 2000032
+      },
+      "m_userId": {
+       "A": -1,
+       "B": 2000038
+      }
+     },
+     "n_equal": 41
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 2106,
+       "B": 16779322
+      },
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(8)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    },
+    "rep_stats": {
+     "A": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 0,
+      "n_faces": 0,
+      "n_edges": 0,
+      "tag_range": null,
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 1410910,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "bbox": [
+       [
+        1e+30,
+        1e+30,
+        1e+30
+       ],
+       [
+        -1e+30,
+        -1e+30,
+        -1e+30
+       ]
+      ],
+      "gelem_type": 2,
+      "flags": 0
+     },
+     "B": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 0,
+      "n_faces": 0,
+      "n_edges": 0,
+      "tag_range": null,
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 2000033,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "bbox": [
+       [
+        -0.8333333333333334,
+        -2.0,
+        0.0
+       ],
+       [
+        0.8333333333333334,
+        2.0,
+        0.0
+       ]
+      ],
+      "gelem_type": 2,
+      "flags": 0
+     }
+    }
+   },
+   {
+    "rank": 1,
+    "element": "CurveElem",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "profile curves (first of ours vs first of theirs)",
+    "A_count": 11,
+    "B_present": true,
+    "A_id": 1410973,
+    "B_id": 2000034,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_cellList": {
+       "A": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(2)"
+        }
+       },
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(2)"
+        }
+       }
+      },
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 1410973,
+       "B": 2000034
+      },
+      "m_pCurveDriver": {
+       "A": {
+        "ptr": "CurveElemDriver",
+        "value": {
+         "m_oControlData": null,
+         "m_pCrv": {
+          "ptr": "GLine",
+          "value": "..."
+         },
+         "m_sideJoins": "list(0)",
+         "m_controlJoinsSet": "list(2)",
+         "m_midParams": "list(0)",
+         "m_nextMidParamId": 4,
+         "m_flip": false,
+         "m_sideAlignments": "list(0)"
+        }
+       },
+       "B": {
+        "ptr": "CurveElemDriver",
+        "value": {
+         "m_oControlData": null,
+         "m_pCrv": {
+          "ptr": "GLine",
+          "value": "..."
+         },
+         "m_sideJoins": "list(0)",
+         "m_controlJoinsSet": "list(2)",
+         "m_midParams": "list(0)",
+         "m_nextMidParamId": 4,
+         "m_flip": false,
+         "m_sideAlignments": "list(0)"
+        }
+       }
+      },
+      "m_referenceType": {
+       "A": 1,
+       "B": 0
+      },
+      "m_sketchPlaneId": {
+       "A": 1410981,
+       "B": 2000032
+      }
+     },
+     "n_equal": 31
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_miscId": {
+       "A": 1410971,
+       "B": 2000033
+      },
+      "m_pBBox": {
+       "A": null,
+       "B": {
+        "ptr": "Outline",
+        "value": {
+         "m_minmax": "list(2)"
+        }
+       }
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(6)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": true
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(6)",
+         "m_regenOnly": "list(2)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": true
+        }
+       }
+      }
+     },
+     "n_equal": 8
+    },
+    "rep_stats": {
+     "A": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 0,
+      "n_faces": 0,
+      "n_edges": 0,
+      "tag_range": null,
+      "root_ginfo": {
+       "m_categoryId": 69,
+       "m_tag": 1410973,
+       "m_controlCommand": 0,
+       "m_flags": 561156
+      },
+      "bbox": [
+       [
+        -0.49212598425196863,
+        0.49212598425196874,
+        0.0
+       ],
+       [
+        0.49212598425196796,
+        0.49212598425196874,
+        0.0
+       ]
+      ],
+      "gelem_type": 2,
+      "flags": 32
+     },
+     "B": {
+      "present": true,
+      "n_gfilters": 0,
+      "n_geometry_nodes": 0,
+      "n_faces": 0,
+      "n_edges": 0,
+      "tag_range": null,
+      "root_ginfo": {
+       "m_categoryId": -1,
+       "m_tag": 2000034,
+       "m_controlCommand": 0,
+       "m_flags": 561156
+      },
+      "bbox": [
+       [
+        -0.8333333333333334,
+        2.0,
+        0.0
+       ],
+       [
+        0.8333333333333334,
+        2.0,
+        0.0
+       ]
+      ],
+      "gelem_type": 2,
+      "flags": 32
+     }
+    }
+   },
+   {
+    "rank": 1,
+    "element": "SketchPlane(sketch)",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "the sketch's plane",
+    "A_count": 15,
+    "B_present": true,
+    "A_id": 1410909,
+    "B_id": 2000032,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 1410909,
+       "B": 2000032
+      },
+      "m_oPlaneRef": {
+       "A": {
+        "ptr": "DummyPlaneRef",
+        "value": {
+         "m_geomRef": "dict(10)",
+         "m_pPlane": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       },
+       "B": {
+        "ptr": "OnDatumPlaneRef",
+        "value": {
+         "m_geomRef": "dict(10)",
+         "m_vecInPlane": "list(3)",
+         "m_rotation": 0.0,
+         "m_datumPlaneId": 2000003,
+         "m_mirror": false
+        }
+       }
+      },
+      "m_userId": {
+       "A": 1410910,
+       "B": 2000033
+      }
+     },
+     "n_equal": 20
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 8218,
+       "B": 26
+      },
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(4)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   },
+   {
+    "rank": 2,
+    "element": "self-Family",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "type table + params + familyIds registry the symbol's type row comes from",
+    "A_count": 2,
+    "B_present": true,
+    "A_id": 1410872,
+    "B_id": 2000000,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_appVersionAtInitialLoad": {
+       "A": 2659,
+       "B": -2
+      },
+      "m_appVersionAtLoad": {
+       "A": 2660,
+       "B": -2
+      },
+      "m_bHasAnyDummyRefs": {
+       "A": true,
+       "B": false
+      },
+      "m_bIsSavable": {
+       "A": false,
+       "B": true
+      },
+      "m_categoryId": {
+       "A": -2001330,
+       "B": -2001040
+      },
+      "m_cellList": {
+       "A": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(1)"
+        }
+       },
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(1)"
+        }
+       }
+      },
+      "m_defaultColumnHeight": {
+       "A": 8.2021,
+       "B": 0.0
+      },
+      "m_defaultHeightAboveLevel": {
+       "A": -1e+30,
+       "B": 0.0
+      },
+      "m_defaultHostThickness": {
+       "A": -1e+30,
+       "B": 0.0
+      },
+      "m_deletableElements": {
+       "A": "list(9)",
+       "B": []
+      },
+      "m_eStructMaterialType": {
+       "A": 2,
+       "B": 4
+      },
+      "m_familyIds": {
+       "A": {
+        "ptr": "ElementIdIndexPairSet",
+        "value": {
+         "m_data": "list(304)"
+        }
+       },
+       "B": {
+        "ptr": "ElementIdIndexPairSet",
+        "value": {
+         "m_data": "list(40)"
+        }
+       }
+      },
+      "m_familyParams": {
+       "A": {
+        "ptr": "FamilyParams",
+        "value": {
+         "m_params": "list(2)",
+         "m_geomRefHandles": "dict(1)"
+        }
+       },
+       "B": {
+        "ptr": "FamilyParams",
+        "value": {
+         "m_params": "list(17)",
+         "m_geomRefHandles": "dict(1)"
+        }
+       }
+      },
+      "m_fsdos": {
+       "A": [
+        {
+         "ptr": "MaterialFSDO",
+         "value": "dict(3)"
+        }
+       ],
+       "B": []
+      },
+      "m_id": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_isVertical": {
+       "A": true,
+       "B": false
+      },
+      "m_isWorkPlaneBased": {
+       "A": false,
+       "B": true
+      },
+      "m_lockedParameterIdsForDirectManipulation": {
+       "A": [
+        -1001205,
+        1411000
+       ],
+       "B": [
+        2000018,
+        2000019,
+        2000020
+       ]
+      },
+      "m_nextAbsorbedIndex": {
+       "A": 3165,
+       "B": 40
+      },
+      "m_oFamDimConstrMgr": {
+       "A": {
+        "ptr": "FamDimConstrMgrImpl",
+        "value": {
+         "m_pFam": "dict(1)",
+         "m_paramExprs": "list(2)",
+         "m_drivenDimSegs": "list(2)",
+         "m_ignoredDimValueExprs": "list(0)",
+         "m_overconstrDimSegs": "list(0)",
+         "m_fixedRefs": "list(3)",
+         "m_redundantConstrs": "list(0)",
+         "m_propagatedDrivers": "list(2)",
+         "m_dimSegDataMap": "list(0)",
+         "m_additionalParamExprs": "list(0)",
+         "m_additionalFixedRefs": "list(0)"
+        }
+       },
+       "B": {
+        "ptr": "FamDimConstrMgrImpl",
+        "value": {
+         "m_pFam": "dict(1)",
+         "m_paramExprs": "list(0)",
+         "m_drivenDimSegs": "list(0)",
+         "m_ignoredDimValueExprs": "list(0)",
+         "m_overconstrDimSegs": "list(0)",
+         "m_fixedRefs": "list(0)",
+         "m_redundantConstrs": "list(0)",
+         "m_propagatedDrivers": "list(0)",
+         "m_dimSegDataMap": "list(0)",
+         "m_additionalParamExprs": "list(0)",
+         "m_additionalFixedRefs": "list(0)"
+        }
+       }
+      },
+      "m_omniClassCode": {
+       "A": "23.25.30.11.14.11",
+       "B": ""
+      },
+      "m_pFamilyTypes": {
+       "A": {
+        "ptr": "FamilyTypeTable",
+        "value": {
+         "m_idx": 1,
+         "m_pairs": "list(5)"
+        }
+       },
+       "B": {
+        "ptr": "FamilyTypeTable",
+        "value": {
+         "m_idx": 0,
+         "m_pairs": "list(1)"
+        }
+       }
+      },
+      "m_pParamValueSetInt": {
+       "A": {
+        "ptr": "ParamValueSetInt",
+        "value": {
+         "m_paramSet": "list(1)"
+        }
+       },
+       "B": null
+      },
+      "m_partType": {
+       "A": -1,
+       "B": 14
+      },
+      "m_predefinedLimitIdx": {
+       "A": 1963,
+       "B": 35
+      },
+      "m_refTypeIds": {
+       "A": [
+        4
+       ],
+       "B": []
+      },
+      "m_refs": {
+       "A": [
+        {
+         "ptr": "FamilyElemRef",
+         "value": "dict(1)"
+        },
+        {
+         "ptr": "FamilyElemRef",
+         "value": "dict(1)"
+        }
+       ],
+       "B": []
+      },
+      "m_seekItemId": {
+       "A": "Concrete-Square-Column-0000-CAN-ENU",
+       "B": ""
+      },
+      "m_shouldStayParametric": {
+       "A": true,
+       "B": false
+      }
+     },
+     "n_equal": 98
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(309)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(41)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 11
+    }
+   },
+   {
+    "rank": 2,
+    "element": "ParamElemFamily",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "parameter definition grammar (first of each)",
+    "A_count": 2,
+    "B_present": true,
+    "A_id": 1411000,
+    "B_id": 2000018,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 1411000,
+       "B": 2000018
+      },
+      "m_pParamDef": {
+       "A": {
+        "ptr": "ParamDefValue",
+        "value": {
+         "m_dynamicGroupName": "",
+         "m_groupTypeId": "dict(1)",
+         "m_caption": "b",
+         "m_typeId": "dict(1)",
+         "m_paramElemId": 1411000,
+         "m_allowVaryBetweenGroups": false,
+         "m_readOnly": false,
+         "m_userVisible": true,
+         "m_specTypeId": "dict(1)",
+         "m_restriction": 1,
+         "m_boundless": false
+        }
+       },
+       "B": {
+        "ptr": "ParamDefValue",
+        "value": {
+         "m_dynamicGroupName": "",
+         "m_groupTypeId": "dict(1)",
+         "m_caption": "Width",
+         "m_typeId": "dict(1)",
+         "m_paramElemId": 2000018,
+         "m_allowVaryBetweenGroups": false,
+         "m_readOnly": false,
+         "m_userVisible": true,
+         "m_specTypeId": "dict(1)",
+         "m_restriction": 1,
+         "m_boundless": false
+        }
+       }
+      }
+     },
+     "n_equal": 20
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 10
+    }
+   },
+   {
+    "rank": 3,
+    "element": "RefPlane",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "reference planes (origin/datum)",
+    "A_count": 9,
+    "B_present": true,
+    "A_id": 1410901,
+    "B_id": 2000017,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_bubbleEnd": {
+       "A": [
+        0.921906,
+        0.0,
+        0.0
+       ],
+       "B": [
+        0.0,
+        3.0,
+        0.0
+       ]
+      },
+      "m_cutVec": {
+       "A": [
+        0.0,
+        0.0,
+        1.0
+       ],
+       "B": [
+        1.0,
+        0.0,
+        0.0
+       ]
+      },
+      "m_definesOrigin": {
+       "A": false,
+       "B": true
+      },
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_freeEnd": {
+       "A": [
+        -1.231178,
+        0.0,
+        0.0
+       ],
+       "B": [
+        0.0,
+        -3.0,
+        0.0
+       ]
+      },
+      "m_genDbViewId": {
+       "A": 1410877,
+       "B": 2000009
+      },
+      "m_id": {
+       "A": 1410901,
+       "B": 2000017
+      },
+      "m_locked": {
+       "A": false,
+       "B": true
+      },
+      "m_pFace": {
+       "A": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       },
+       "B": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       }
+      },
+      "m_pSurface": {
+       "A": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       }
+      },
+      "m_refName": {
+       "A": 4,
+       "B": 1
+      },
+      "m_refPointsForNewViews": {
+       "A": [
+        [
+         -4.988815,
+         0.0,
+         0.0
+        ],
+        [
+         2.872768,
+         0.0,
+         0.0
+        ]
+       ],
+       "B": [
+        [
+         0.0,
+         -3.0,
+         0.0
+        ],
+        [
+         0.0,
+         3.0,
+         0.0
+        ]
+       ]
+      },
+      "m_text": {
+       "A": "Center (Front/Back)",
+       "B": "Center (Left/Right)"
+      }
+     },
+     "n_equal": 25
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 2074,
+       "B": 2058
+      },
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   },
+   {
+    "rank": 3,
+    "element": "Level",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "the ref level",
+    "A_count": 2,
+    "B_present": true,
+    "A_id": 1410875,
+    "B_id": 2000003,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_attrId": {
+       "A": 1410873,
+       "B": 2000002
+      },
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 1410875,
+       "B": 2000003
+      },
+      "m_pFace": {
+       "A": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       },
+       "B": {
+        "ptr": "Face",
+        "value": {
+         "m_GInfo": "dict(4)",
+         "m_pFirstLoop": null,
+         "m_faceRegions": "list(0)",
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -1,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 0,
+         "m_pSurf": {
+          "ptr": "Plane",
+          "value": "..."
+         }
+        }
+       }
+      },
+      "m_pSurface": {
+       "A": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       },
+       "B": {
+        "ptr": "Plane",
+        "value": {
+         "m_Envelope": "dict(1)",
+         "m_orientFlag": true,
+         "m_origin": "list(3)",
+         "m_xVec": "list(3)",
+         "m_yVec": "list(3)"
+        }
+       }
+      },
+      "m_text": {
+       "A": "Lower Ref. Level",
+       "B": "Ref. Level"
+      }
+     },
+     "n_equal": 29
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 2074,
+       "B": 2058
+      },
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(2)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(2)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   },
+   {
+    "rank": 3,
+    "element": "LevelAttributes",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "the level type",
+    "A_count": 1,
+    "B_present": true,
+    "A_id": 1410873,
+    "B_id": 2000002,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_familyTagId": {
+       "A": 1411143,
+       "B": -1
+      },
+      "m_id": {
+       "A": 1410873,
+       "B": 2000002
+      },
+      "m_leaderCategoryId": {
+       "A": 1410946,
+       "B": -1
+      },
+      "m_lineAndTextAttr": {
+       "A": {
+        "m_fontId": 1410931,
+        "m_categoryId": 1410874,
+        "m_background": 0,
+        "m_bBold": false,
+        "m_bItalic": false,
+        "m_bUnderline": false
+       },
+       "B": {
+        "m_fontId": -1,
+        "m_categoryId": -1,
+        "m_background": 0,
+        "m_bBold": false,
+        "m_bItalic": false,
+        "m_bUnderline": false
+       }
+      }
+     },
+     "n_equal": 24
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 30,
+       "B": 14
+      },
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(7)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   },
+   {
+    "rank": 4,
+    "element": "ConnectorElem",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "the electrical connector (rme reference only -- the column has none)",
+    "A_count": 0,
+    "B_present": true
+   },
+   {
+    "rank": 5,
+    "element": "DBViewPlan",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "the plan view the datum elements generate in",
+    "A_count": 2,
+    "B_present": true,
+    "A_id": 1410877,
+    "B_id": 2000009,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_backClipping": {
+       "A": -1,
+       "B": 0
+      },
+      "m_bottomClipElev": {
+       "A": 0.0,
+       "B": -3.937008
+      },
+      "m_cellList": {
+       "A": null,
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(1)"
+        }
+       }
+      },
+      "m_columnSymbolElev": {
+       "A": 0.0,
+       "B": 1.0
+      },
+      "m_cutPlaneElev": {
+       "A": 4.0,
+       "B": 3.937008
+      },
+      "m_dbDrawingId": {
+       "A": 1410878,
+       "B": 2000014
+      },
+      "m_dbViewTypeId": {
+       "A": 1411162,
+       "B": 2000008
+      },
+      "m_extentElemId": {
+       "A": 1411001,
+       "B": 2000015
+      },
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_fixedSketchPlaneId": {
+       "A": 1411228,
+       "B": 2000011
+      },
+      "m_genElemId": {
+       "A": 1410875,
+       "B": 2000003
+      },
+      "m_geomSteps": {
+       "A": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(2)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 3,
+         "m_flags": 9
+        }
+       },
+       "B": {
+        "ptr": "GeomStepList",
+        "value": {
+         "m_nonBRepGList": "list(1)",
+         "m_bRepFormGList": "list(0)",
+         "m_bRepAdjustGList": "list(0)",
+         "m_bRepCutOutGList": "list(0)",
+         "m_bRepPostCutOutGList": "list(0)",
+         "m_bRepTweakGList": "list(0)",
+         "m_bRepFormSnapshot": null,
+         "m_bRepAdjustSnapshot": null,
+         "m_bRepCutOutSnapshot": null,
+         "m_bRepPostCutOutSnapshot": null,
+         "m_pElem": "dict(1)",
+         "m_latestGStepTypeInPrevRegenCycle": "list(5)",
+         "m_idCounter": 2,
+         "m_flags": 1
+        }
+       }
+      },
+      "m_id": {
+       "A": 1410877,
+       "B": 2000009
+      },
+      "m_oaDrawFilters": {
+       "A": "list(5)",
+       "B": "list(6)"
+      },
+      "m_origin": {
+       "A": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "B": [
+        0.0,
+        0.0,
+        3.937008
+       ]
+      },
+      "m_pCutter": {
+       "A": {
+        "ptr": "GenericPlaneCutter",
+        "value": {
+         "m_pPlane": {
+          "ptr": "Plane",
+          "value": "..."
+         },
+         "m_bAssignCutFaceTag": true,
+         "m_bBackPlaneCut": false
+        }
+       },
+       "B": {
+        "ptr": "GenericPlaneCutter",
+        "value": {
+         "m_pPlane": {
+          "ptr": "Plane",
+          "value": "..."
+         },
+         "m_bAssignCutFaceTag": true,
+         "m_bBackPlaneCut": false
+        }
+       }
+      },
+      "m_pDetailDrawOrderMgr": {
+       "A": {
+        "ptr": "DrawOrderMgr3dFamily",
+        "value": {
+         "m_pADoc": "dict(1)",
+         "m_pDBView": "dict(1)"
+        }
+       },
+       "B": {
+        "ptr": "DrawOrderMgr",
+        "value": {
+         "m_pADoc": "dict(1)",
+         "m_pDBView": "dict(1)",
+         "m_aDrawOrder": "list(0)"
+        }
+       }
+      },
+      "m_pParamValueSetElementId": {
+       "A": null,
+       "B": {
+        "ptr": "ParamValueSetElementId",
+        "value": {
+         "m_paramSet": "list(2)"
+        }
+       }
+      },
+      "m_pParamValueSetInt": {
+       "A": {
+        "ptr": "ParamValueSetInt",
+        "value": {
+         "m_paramSet": "list(1)"
+        }
+       },
+       "B": {
+        "ptr": "ParamValueSetInt",
+        "value": {
+         "m_paramSet": "list(2)"
+        }
+       }
+      },
+      "m_pPlanViewRange": {
+       "A": {
+        "ptr": "PlanViewRange",
+        "value": {
+         "m_offsets": "list(5)",
+         "m_levelPos": "list(5)"
+        }
+       },
+       "B": {
+        "ptr": "PlanViewRange",
+        "value": {
+         "m_offsets": "list(5)",
+         "m_levelPos": "list(5)"
+        }
+       }
+      },
+      "m_pPlanViewRange2": {
+       "A": {
+        "ptr": "PlanViewRange2",
+        "value": {
+         "m_viewDepthPlaneOffsets": "list(5)",
+         "m_viewDepthPlaneLevelIds": "list(5)"
+        }
+       },
+       "B": {
+        "ptr": "PlanViewRange2",
+        "value": {
+         "m_viewDepthPlaneOffsets": "list(5)",
+         "m_viewDepthPlaneLevelIds": "list(5)"
+        }
+       }
+      },
+      "m_pRetouchTable": {
+       "A": {
+        "ptr": "RetouchTable",
+        "value": {
+         "m_lineworkMap4": "list(0)",
+         "m_invisibleGStyleId": 201,
+         "m_notSilhouetteGStyleId": 55150,
+         "m_bFaceRecsUpgraded": true
+        }
+       },
+       "B": {
+        "ptr": "RetouchTable",
+        "value": {
+         "m_lineworkMap4": "list(0)",
+         "m_invisibleGStyleId": -1,
+         "m_notSilhouetteGStyleId": -1,
+         "m_bFaceRecsUpgraded": true
+        }
+       }
+      },
+      "m_pViewDepthCutter": {
+       "A": {
+        "ptr": "GenericPlaneCutter",
+        "value": {
+         "m_pPlane": {
+          "ptr": "Plane",
+          "value": "..."
+         },
+         "m_bAssignCutFaceTag": true,
+         "m_bBackPlaneCut": true
+        }
+       },
+       "B": {
+        "ptr": "GenericPlaneCutter",
+        "value": {
+         "m_pPlane": {
+          "ptr": "Plane",
+          "value": "..."
+         },
+         "m_bAssignCutFaceTag": true,
+         "m_bBackPlaneCut": true
+        }
+       }
+      },
+      "m_pViewDisplayMgr": {
+       "A": {
+        "ptr": "ViewDisplayMgr",
+        "value": {
+         "m_background": "dict(8)",
+         "m_fog": "dict(5)",
+         "m_lights": "dict(4)",
+         "m_model": "dict(7)",
+         "m_oRaytraceSettings": {
+          "ptr": "GRenderSettings",
+          "value": "..."
+         },
+         "m_sketchyLines": "dict(3)",
+         "m_oStaticRRTRenderSettings": {
+          "ptr": "GRenderSettings",
+          "value": "..."
+         },
+         "m_exposure": "dict(10)",
+         "m_waterColorType": 0,
+         "m_hlr": true,
+         "m_lighting": false,
+         "m_shadows": "dict(2)"
+        }
+       },
+       "B": {
+        "ptr": "ViewDisplayMgr",
+        "value": {
+         "m_background": "dict(8)",
+         "m_fog": "dict(5)",
+         "m_lights": "dict(4)",
+         "m_model": "dict(7)",
+         "m_oRaytraceSettings": {
+          "ptr": "GRenderSettings",
+          "value": "..."
+         },
+         "m_sketchyLines": "dict(3)",
+         "m_oStaticRRTRenderSettings": {
+          "ptr": "GRenderSettings",
+          "value": "..."
+         },
+         "m_exposure": "dict(10)",
+         "m_waterColorType": 0,
+         "m_hlr": true,
+         "m_lighting": false,
+         "m_shadows": "dict(2)"
+        }
+       }
+      },
+      "m_scale": {
+       "A": 0.2,
+       "B": 0.01
+      },
+      "m_topClipElev": {
+       "A": 7.5,
+       "B": 7.545932
+      },
+      "m_viewName": {
+       "A": "Lower Ref. Level",
+       "B": "Ref. Level"
+      },
+      "m_viewerId": {
+       "A": 1410876,
+       "B": 2000010
+      }
+     },
+     "n_equal": 59
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 26,
+       "B": 10
+      },
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(10)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(8)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   },
+   {
+    "rank": 5,
+    "element": "Viewer(plan)",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "the plan view's viewer satellite",
+    "A_count": 8,
+    "B_present": true,
+    "A_id": 1410876,
+    "B_id": 2000010,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_axisDir": {
+       "A": [
+        0.0,
+        0.0,
+        1.0
+       ],
+       "B": [
+        0.0,
+        1.0,
+        0.0
+       ]
+      },
+      "m_boundedSpace": {
+       "A": {
+        "m_orig": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "m_basis": [
+         "list(3)",
+         "list(3)",
+         "list(3)"
+        ],
+        "m_boundOffset": [
+         "list(2)",
+         "list(2)",
+         "list(2)"
+        ],
+        "m_boundActive": [
+         "list(2)",
+         "list(2)",
+         "list(2)"
+        ],
+        "m_isOn": true
+       },
+       "B": {
+        "m_orig": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "m_basis": [
+         "list(3)",
+         "list(3)",
+         "list(3)"
+        ],
+        "m_boundOffset": [
+         "list(2)",
+         "list(2)",
+         "list(2)"
+        ],
+        "m_boundActive": [
+         "list(2)",
+         "list(2)",
+         "list(2)"
+        ],
+        "m_isOn": false
+       }
+      },
+      "m_dbViewId": {
+       "A": 1410877,
+       "B": 2000009
+      },
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 1410876,
+       "B": 2000010
+      },
+      "m_intentionallyPlaced": {
+       "A": false,
+       "B": true
+      },
+      "m_projMethodType": {
+       "A": 1,
+       "B": 2
+      },
+      "m_viewerFlags": {
+       "A": 0,
+       "B": 7
+      }
+     },
+     "n_equal": 28
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 26,
+       "B": 10
+      },
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(3)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(1)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(1)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   },
+   {
+    "rank": 6,
+    "element": "UnitsElem",
+    "reference": "rst_concrete_square_column",
+    "why_walked": "the units registry singleton",
+    "A_count": 1,
+    "B_present": true,
+    "A_id": 1411008,
+    "B_id": 2000001,
+    "obj_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_cellList": {
+       "A": null,
+       "B": {
+        "ptr": "CellList",
+        "value": {
+         "m_cells": "list(1)"
+        }
+       }
+      },
+      "m_designOptionId": {
+       "A": -4,
+       "B": -1
+      },
+      "m_famId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_id": {
+       "A": 1411008,
+       "B": 2000001
+      },
+      "m_units": {
+       "A": {
+        "m_formatOptionsMap": "list(136)",
+        "m_universalUnitSystem": 1,
+        "m_decimalSymbol": 0,
+        "m_digitGroupingSymbol": 1,
+        "m_digitGroupingAmount": 1
+       },
+       "B": {
+        "m_formatOptionsMap": "list(8)",
+        "m_universalUnitSystem": 1,
+        "m_decimalSymbol": 0,
+        "m_digitGroupingSymbol": 1,
+        "m_digitGroupingAmount": 1
+       }
+      }
+     },
+     "n_equal": 16
+    },
+    "header_diff": {
+     "only_in_A": {},
+     "only_in_B": {},
+     "differing": {
+      "m_abFlags4Bytes": {
+       "A": 8218,
+       "B": 8222
+      },
+      "m_familyId": {
+       "A": 1410872,
+       "B": 2000000
+      },
+      "m_parents": {
+       "A": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(2)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       },
+       "B": {
+        "ptr": "ElementParents",
+        "value": {
+         "m_deletion": "list(1)",
+         "m_regenOnly": "list(0)",
+         "m_regenWildcards": "list(0)",
+         "m_nonDetermRegenChildren": "list(0)",
+         "m_dependencyParents": "list(0)",
+         "m_appearanceParents": "list(0)",
+         "m_deferredParents": "list(0)",
+         "m_deferredPropagationParents": "list(0)",
+         "m_computedParametersParents": "list(0)",
+         "m_hasNonDetermRegenChildren": false
+        }
+       }
+      }
+     },
+     "n_equal": 9
+    }
+   }
+  ]
+ },
+ "seconds": 0.4
+}

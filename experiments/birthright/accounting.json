@@ -1,0 +1,4859 @@
+{
+ "tool": "tools/birthright_mine.py",
+ "built": {
+  "T1v": {
+   "probe": "T1v",
+   "axis": "SUFFICIENCY: our 35-element content union ADDED alongside the born famdoc shell (vendor .rfa unmodified), famload + ONE instance on G_ABPD -- the ONE thing vs T2a (PASS): our content rides the born body",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "watermark": 1472524,
+   "rfa": "vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+   "variant": "ADD-alongside (born body unmodified; single-variable vs T2a)",
+   "union": {
+    "template": {
+     "template_block": [
+      1472525,
+      1474516
+     ],
+     "self_family": 1472539,
+     "types_authored": [
+      [
+       "0610 x 0160mm",
+       {}
+      ]
+     ],
+     "types_from_template": true
+    },
+    "rfa_facts": {
+     "sha256": "00425e9d0766c3d520df344189375970c5219bd5f48e58b399484132fdb41e8d",
+     "owner_source": "Global/ElemTable",
+     "n_units": 1,
+     "n_elements": 1992,
+     "category": -2000080,
+     "part_type": 0,
+     "type_names": [
+      " ",
+      "0610 x 0160mm",
+      "0762 x 0762mm",
+      "0610 x 0915mm"
+     ]
+    },
+    "carried": [
+     {
+      "id": 1672526,
+      "class": "LevelAttributes",
+      "kind": "level_type"
+     },
+     {
+      "id": 1672527,
+      "class": "Level",
+      "kind": "ref_level"
+     },
+     {
+      "id": 1672532,
+      "class": "DBViewType",
+      "kind": "view_type"
+     },
+     {
+      "id": 1672533,
+      "class": "DBViewPlan",
+      "kind": "view"
+     },
+     {
+      "id": 1672534,
+      "class": "Viewer",
+      "kind": "view_satellite"
+     },
+     {
+      "id": 1672535,
+      "class": "SketchPlane",
+      "kind": "view_satellite"
+     },
+     {
+      "id": 1672536,
+      "class": "SunAndShadowSettings",
+      "kind": "view_satellite"
+     },
+     {
+      "id": 1672537,
+      "class": "Viewport",
+      "kind": "view_satellite"
+     },
+     {
+      "id": 1672538,
+      "class": "DBDrawing",
+      "kind": "view_satellite"
+     },
+     {
+      "id": 1672539,
+      "class": "ExtentElem",
+      "kind": "view_satellite"
+     },
+     {
+      "id": 1672540,
+      "class": "RefPlane",
+      "kind": "ref_plane"
+     },
+     {
+      "id": 1672541,
+      "class": "RefPlane",
+      "kind": "ref_plane"
+     },
+     {
+      "id": 1672542,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672543,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672544,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672545,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672546,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672547,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672548,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672549,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672550,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672551,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672552,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672553,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672554,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672555,
+      "class": "ParamElemFamily",
+      "kind": "family_param"
+     },
+     {
+      "id": 1672556,
+      "class": "SketchPlane",
+      "kind": "sketch_plane"
+     },
+     {
+      "id": 1672557,
+      "class": "VarSketch",
+      "kind": "sketch"
+     },
+     {
+      "id": 1672558,
+      "class": "CurveElem",
+      "kind": "curve"
+     },
+     {
+      "id": 1672559,
+      "class": "CurveElem",
+      "kind": "curve"
+     },
+     {
+      "id": 1672560,
+      "class": "CurveElem",
+      "kind": "curve"
+     },
+     {
+      "id": 1672561,
+      "class": "CurveElem",
+      "kind": "curve"
+     },
+     {
+      "id": 1672562,
+      "class": "ExtrusionElem",
+      "kind": "extrusion"
+     },
+     {
+      "id": 1672563,
+      "class": "ElectricalLoadClassification",
+      "kind": "load_class"
+     },
+     {
+      "id": 1672564,
+      "class": "ConnectorElem",
+      "kind": "connector"
+     }
+    ],
+    "n_carried": 35,
+    "repointed": {
+     "1672524": 1472539
+    },
+    "registration": {
+     "membership": {
+      "deletion_len": 1919,
+      "family_ids_len": 1916,
+      "absorbed_indices": {
+       "1672526": 3170,
+       "1672527": 3171,
+       "1672532": 3172,
+       "1672533": 3173,
+       "1672534": 3174,
+       "1672535": 3175,
+       "1672536": 3176,
+       "1672537": 3177,
+       "1672538": 3178,
+       "1672539": 3179,
+       "1672540": 3180,
+       "1672541": 3181,
+       "1672542": 3182,
+       "1672543": 3183,
+       "1672544": 3184,
+       "1672545": 3185,
+       "1672546": 3186,
+       "1672547": 3187,
+       "1672548": 3188,
+       "1672549": 3189,
+       "1672550": 3190,
+       "1672551": 3191,
+       "1672552": 3192,
+       "1672553": 3193,
+       "1672554": 3194,
+       "1672555": 3195,
+       "1672556": 3196,
+       "1672557": 3197,
+       "1672558": 3198,
+       "1672559": 3199,
+       "1672560": 3200,
+       "1672561": 3201,
+       "1672562": 3202,
+       "1672563": 3203,
+       "1672564": 3204
+      }
+     },
+     "params": {
+      "rows_appended": 17,
+      "type_pairs_extended": 4,
+      "locked_len": 7,
+      "order_ids_merged": 6
+     }
+    }
+   },
+   "document_guid": "3b21dfd9-a68c-4ece-a51e-368f55980d13",
+   "n_elements": 2027,
+   "load": {
+    "family_id": 1672565,
+    "symbol_id": 1672588,
+    "surrogate": 1672586,
+    "guid": "3b21dfd9-a68c-4ece-a51e-368f55980d13",
+    "doc_id_range": [
+     1472525,
+     1672564
+    ],
+    "type_names": [
+     "0610 x 0160mm"
+    ],
+    "verify_ok": true,
+    "validate_errors": 0
+   },
+   "immediate_parent": "experiments/birthright/_build/T1v/T1v_load.rvt",
+   "symbol_id": 1672588,
+   "family_id": 1672565,
+   "instance_category": -2000080,
+   "instance": {
+    "instance_id": 1672589,
+    "level": 311,
+    "position_ft": [
+     16.0,
+     -8.0,
+     0.0
+    ],
+    "connmgr": null,
+    "scrub": {
+     "category_patched": true,
+     "symbol_refs_repointed": 0,
+     "param_rows_dropped": 0,
+     "structural_fields_reset": [],
+     "category_from": -2001040
+    },
+    "n_dangling": 0,
+    "watermark_after": 1672589,
+    "verify": {
+     "crc_failures": 0,
+     "ecc_mismatches": 0,
+     "walker_errors": 0,
+     "stamps_ok": true
+    }
+   },
+   "instance_ids": [
+    1672589
+   ],
+   "blob_proof": {
+    "file": "experiments/birthright/T1v.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "3b21dfd9-a68c-4ece-a51e-368f55980d13",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 779034
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "file": "experiments/birthright/T1v.rvt",
+   "md5": "059286397fba95768bb3846bc7b69cce",
+   "seconds": 4.0
+  },
+  "BX_birth": {
+   "probe": "BX_birth",
+   "axis": "the B0 recipe through birthright: OUR famdoc + OUR authored birth set (zero donor bytes), famgen chain + ONE instance on G_ABPD",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "recipe": "B0 (BXhf_f1i1) through birthright.enabled: bisect_instance_bug chain+place under famload_hostfix.corpus_symbol_form",
+   "birth_spec": {
+    "path": "/Users/ck/dev/things/tekton/experiments/birthright/template_birth.json",
+    "version": 2,
+    "rft": null,
+    "n_records": 1992,
+    "category_id": -2000080,
+    "part_type": 0,
+    "n_classes": 82,
+    "has_self_family_fields": true,
+    "has_layout": false,
+    "n_elements_detailed": 0
+   },
+   "birth_spec_sha256": "00425e9d0766c3d520df344189375970c5219bd5f48e58b399484132fdb41e8d",
+   "birthright": [
+    {
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    }
+   ],
+   "load": {
+    "loads": [
+     {
+      "tag": "PP-1",
+      "out": "experiments/birthright/_build/BX_birth_chain/stage_L1_pp1.rvt",
+      "ok": true,
+      "host_watermark": 1472524,
+      "symbol_id": 1474265,
+      "family_id": 1474249,
+      "elements_added": 18,
+      "seconds": 2.0
+     }
+    ]
+   },
+   "equipment": {
+    "instances": [
+     {
+      "tag": "PP-1",
+      "elem_id": 1474267,
+      "symbol": 1474265,
+      "family": 1474249,
+      "n_dangling": 0
+     }
+    ]
+   },
+   "instance_ids": [
+    1474267
+   ],
+   "symbol_id": 1474265,
+   "family_id": 1474249,
+   "immediate_parent": "experiments/birthright/_build/BX_birth_chain/stage_L1_pp1.rvt",
+   "file": "experiments/birthright/BX_birth.rvt",
+   "md5": "234ee8a59e1da3731fbe2ea0ba6de9a3",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "symbol_form": {
+    "1474265": {
+     "ok": true,
+     "counts": {
+      "subs": 3,
+      "faceHist": 9,
+      "edgeHist": 12,
+      "curveHist": 1,
+      "table": 22,
+      "refFaces": 3
+     }
+    }
+   },
+   "blob_proof": {
+    "file": "experiments/birthright/BX_birth.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "32da04c1-79e2-4026-9e6d-d7badc727399",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "seconds": 3.3
+  },
+  "DEMO_250v_room_v7": {
+   "probe": "DEMO_250v_room_v7",
+   "axis": "the user's exact prompt end-to-end through rvt.frontdoor.run with birthright enabled",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "prompt": "an electrical room rated for 250V with 6 panels",
+   "birth_spec": {
+    "path": "/Users/ck/dev/things/tekton/experiments/birthright/template_birth.json",
+    "version": 2,
+    "rft": null,
+    "n_records": 1992,
+    "category_id": -2000080,
+    "part_type": 0,
+    "n_classes": 82,
+    "has_self_family_fields": true,
+    "has_layout": false,
+    "n_elements_detailed": 0
+   },
+   "birth_spec_sha256": "00425e9d0766c3d520df344189375970c5219bd5f48e58b399484132fdb41e8d",
+   "frontdoor_status": "PROOF-ONLY (self-checks PASS; see honesty.proof_only_stamps + status_gate)",
+   "out_dir": "experiments/birthright/_build/demo_v7",
+   "birthright": [
+    {
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-2 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-3 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-4 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-5 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-6 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-2 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-3 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-4 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-5 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    },
+    {
+     "family": "Panelboard PP-6 480Y/277 225A MLO 42sp",
+     "n_added": 1683,
+     "verify": {
+      "ok": true,
+      "counts": {
+       "equal": 78399,
+       "refs_remapped": 9446,
+       "authored": 336
+      },
+      "n_elements": 1683,
+      "mismatches": []
+     },
+     "topology": {
+      "flip_classes": [
+       "DBViewPlan",
+       "DBViewProject",
+       "DBViewType",
+       "ElectricalLoadClassification",
+       "ExtentElem",
+       "Level",
+       "LevelAttributes",
+       "ParamElemFamily",
+       "RefPlane",
+       "UnitsElem"
+      ],
+      "n_flipped": 24
+     },
+     "types": {
+      "applied": true,
+      "n_pairs": 2,
+      "current_type": 1,
+      "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+     },
+     "fields_set": [
+      "m_eRenderModelType",
+      "m_isVertical",
+      "m_bIsSavable",
+      "m_bShared",
+      "m_enableCuttingInViews",
+      "m_defaultHostThickness",
+      "m_defaultHeightAboveLevel",
+      "m_elevationFixed"
+     ],
+     "deletion_prefix": [
+      -1154647,
+      -1001205
+     ],
+     "indices": {
+      "applied": true,
+      "born_indices": 1683,
+      "our_continuation": 40,
+      "next_absorbed_index": 3210,
+      "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+     },
+     "authored": {
+      "guids": 36,
+      "strings": 300,
+      "bytes": 0
+     }
+    }
+   ],
+   "n_families": 6,
+   "n_birthright_applications": 12,
+   "instance_ids": [
+    1482977,
+    1482978,
+    1482979,
+    1482980,
+    1482981,
+    1482982
+   ],
+   "n_instances": 6,
+   "n_walls": 0,
+   "symbol_form_ok": {
+    "1474265": true,
+    "1476007": true,
+    "1477749": true,
+    "1479491": true,
+    "1481233": true,
+    "1482975": true
+   },
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "file": "experiments/birthright/DEMO_250v_room_v7.rvt",
+   "md5": "5c18cb7db71f7596faae55c838803669",
+   "blob_proof": {
+    "file": "experiments/birthright/DEMO_250v_room_v7.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 7,
+    "blob_len_histogram": {
+     "64": 7
+    },
+    "units_added_vs_base": 6,
+    "added_units": [
+     {
+      "guid": "3768be14-2fec-4f2d-94f4-8a85d064504e",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "4b071966-26bd-4965-a41c-6b99ac14d03f",
+      "stream": "Partitions/21",
+      "index": 2,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "27f18630-de79-49c7-95f3-9492a36218c7",
+      "stream": "Partitions/21",
+      "index": 3,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "f54403a7-d69e-4525-829b-fcd86419a3a0",
+      "stream": "Partitions/21",
+      "index": 4,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "54846341-665e-443f-80df-6ce0d72e53e0",
+      "stream": "Partitions/21",
+      "index": 5,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "e133fa20-6a0b-4027-bebb-352ea3db70c3",
+      "stream": "Partitions/21",
+      "index": 6,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "seconds": 34.8
+  }
+ },
+ "accounting": {
+  "T1v": {
+   "rung": "T1v",
+   "file": "experiments/birthright/T1v.rvt",
+   "immediate_parent": "experiments/birthright/_build/T1v/T1v_load.rvt",
+   "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "md5": "059286397fba95768bb3846bc7b69cce",
+   "validator": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": [],
+    "first_errors": []
+   },
+   "identity_gate": {
+    "status": "PASS",
+    "issues": [],
+    "identity": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "username": "",
+     "last_save_path": "T1v.rvt",
+     "central_model_path": "",
+     "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "format": "2026",
+     "build": "20250227_1515(x64)",
+     "locale": "ENU",
+     "unique_document_increments": "22"
+    },
+    "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+   },
+   "census": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "familymgr_guids": 1,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "coherent": true,
+    "unit_guids": [
+     "3b21dfd9-a68c-4ece-a51e-368f55980d13"
+    ]
+   },
+   "census_delta": {
+    "save_units": 0,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 0,
+    "familymgr_guids": 0
+   },
+   "census_parent": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "familymgr_guids": 1,
+    "coherent": true
+   },
+   "partition_table": {
+    "count": 1,
+    "names": [
+     "Workset1"
+    ],
+    "payload_bytes": 87,
+    "rows_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "storage_index": {
+    "counters": [
+     612,
+     628,
+     628,
+     628,
+     517,
+     628,
+     629,
+     599,
+     517
+    ],
+    "counter_g": 506,
+    "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+    "payload_bytes": 240,
+    "counters_delta": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "counter_g_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "elemtable": {
+    "rows_before": 3126,
+    "rows_after": 3127,
+    "added_ids": [
+     1672589
+    ],
+    "n_added": 1,
+    "removed_ids": [],
+    "watermark_after": 1672589,
+    "added_modified_episodes": [
+     1016
+    ]
+   },
+   "element_diff": {
+    "removed": 0,
+    "added": 1,
+    "common": 5153,
+    "survivors_modified": 0,
+    "modified_seq_hist": {},
+    "added_ids_host": [
+     1672589
+    ]
+   },
+   "survivor_law_ok": true,
+   "streams_changed": [
+    {
+     "stream": "BasicFileInfo",
+     "bytes_before": 1939,
+     "bytes_after": 1879,
+     "delta": -60
+    },
+    {
+     "stream": "Global/ElemTable",
+     "bytes_before": 17144,
+     "bytes_after": 17144,
+     "delta": 0
+    },
+    {
+     "stream": "Partitions/21",
+     "bytes_before": 347995,
+     "bytes_after": 348507,
+     "delta": 512
+    }
+   ],
+   "streams_unchanged": 9,
+   "registrations": {
+    "1672589": {
+     "class": "FamilyInstance",
+     "row": {
+      "index_in_table": 3126,
+      "elem_id": 1672589,
+      "original_id": 1672589,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "owner_id": null,
+      "partition_id": 0,
+      "renumbered": false,
+      "created_at_birth": false,
+      "usermod_never": false,
+      "has_owner": false,
+      "id_band": "<5M",
+      "episodes_all_equal": true
+     },
+     "positions": {
+      "101": {
+       "index": 3126,
+       "total": 3127,
+       "seg_offset": 441460,
+       "block": [
+        4,
+        4
+       ],
+       "is_last_record": true,
+       "prev_id": 1672588,
+       "next_id": null,
+       "class": "ElementHeader",
+       "framed_len": null,
+       "stamp": null,
+       "body_size": 209
+      },
+      "102": {
+       "index": 3126,
+       "total": 3127,
+       "seg_offset": 1116516,
+       "block": [
+        9,
+        9
+       ],
+       "is_last_record": true,
+       "prev_id": 1672588,
+       "next_id": null,
+       "class": "FamilyInstance",
+       "framed_len": null,
+       "stamp": 390369408,
+       "body_size": 525,
+       "run_index": 15,
+       "run_of": 16,
+       "run_span": [
+        3012,
+        3126
+       ],
+       "run_modal_modified_ep": 551,
+       "run_id_range": [
+        24945,
+        1672589
+       ]
+      },
+      "103": {
+       "index": 3126,
+       "total": 3127,
+       "seg_offset": 73822,
+       "block": [
+        1,
+        1
+       ],
+       "is_last_record": true,
+       "prev_id": 1672588,
+       "next_id": null,
+       "class": "SerializedDummy",
+       "framed_len": null,
+       "stamp": 6881340,
+       "body_size": 2
+      }
+     },
+     "registry_surface": [],
+     "owned_rows": []
+    }
+   },
+   "added_ids_registry_surface": {
+    "1672589": {
+     "class": "FamilyInstance",
+     "adocument_paths": []
+    }
+   },
+   "added_ids_unregistered_in_adocument": [
+    1672589
+   ],
+   "run_law": {
+    "file": "T1v",
+    "seq": 102,
+    "host_records": 3127,
+    "runs": 16,
+    "adjacent_id_ascending_fraction": 0.9952,
+    "runs_modal_episode_descending_violations": 0,
+    "runs_modal_episode_descending": true,
+    "first_run_modal_episode": 1015,
+    "last_run_modal_episode": 551,
+    "max_history_episode": 1016,
+    "run_summary": [
+     {
+      "pos": [
+       0,
+       17
+      ],
+      "recs": 18,
+      "ids": [
+       86291,
+       1472524
+      ],
+      "modal_modified_ep": 1015,
+      "modal_share": 0.611,
+      "top_classes": [
+       [
+        "GStyleElem",
+        8
+       ],
+       [
+        "Viewport",
+        3
+       ]
+      ]
+     },
+     {
+      "pos": [
+       18,
+       231
+      ],
+      "recs": 214,
+      "ids": [
+       102467,
+       1472011
+      ],
+      "modal_modified_ep": 1013,
+      "modal_share": 0.85,
+      "top_classes": [
+       [
+        "GStyleElem",
+        143
+       ],
+       [
+        "BuildingOperatingYearSchedule",
+        27
+       ]
+      ]
+     },
+     {
+      "pos": [
+       232,
+       280
+      ],
+      "recs": 49,
+      "ids": [
+       49031,
+       1471495
+      ],
+      "modal_modified_ep": 1011,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        44
+       ],
+       [
+        "RevisionNumberingSequence",
+        2
+       ]
+      ]
+     },
+     {
+      "pos": [
+       281,
+       334
+      ],
+      "recs": 54,
+      "ids": [
+       86204,
+       1471229
+      ],
+      "modal_modified_ep": 1009,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        52
+       ],
+       [
+        "CoordinateSystemDisplayElem",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       335,
+       345
+      ],
+      "recs": 11,
+      "ids": [
+       1470379,
+       1471071
+      ],
+      "modal_modified_ep": 1007,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        7
+       ],
+       [
+        "DBViewType",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       346,
+       367
+      ],
+      "recs": 22,
+      "ids": [
+       1470179,
+       1470294
+      ],
+      "modal_modified_ep": 1004,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        21
+       ],
+       [
+        "ExtentElem",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       368,
+       508
+      ],
+      "recs": 141,
+      "ids": [
+       230,
+       1468599
+      ],
+      "modal_modified_ep": 1003,
+      "modal_share": 0.617,
+      "top_classes": [
+       [
+        "GStyleElem",
+        36
+       ],
+       [
+        "SketchPlane",
+        32
+       ]
+      ]
+     },
+     {
+      "pos": [
+       509,
+       513
+      ],
+      "recs": 5,
+      "ids": [
+       54663,
+       1462680
+      ],
+      "modal_modified_ep": 993,
+      "modal_share": 0.8,
+      "top_classes": [
+       [
+        "MaterialElem",
+        2
+       ],
+       [
+        "AppearanceAssetElem",
+        2
+       ]
+      ]
+     },
+     {
+      "pos": [
+       514,
+       514
+      ],
+      "recs": 1,
+      "ids": [
+       1462521,
+       1462521
+      ],
+      "modal_modified_ep": 992,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "StructuralConnectionSettings",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       515,
+       594
+      ],
+      "recs": 80,
+      "ids": [
+       29,
+       1457391
+      ],
+      "modal_modified_ep": 985,
+      "modal_share": 0.537,
+      "top_classes": [
+       [
+        "GStyleElem",
+        41
+       ],
+       [
+        "MaterialElem",
+        21
+       ]
+      ]
+     },
+     {
+      "pos": [
+       595,
+       595
+      ],
+      "recs": 1,
+      "ids": [
+       1250029,
+       1250029
+      ],
+      "modal_modified_ep": 983,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "RvtLinkSymbol",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       596,
+       597
+      ],
+      "recs": 2,
+      "ids": [
+       49504,
+       132481
+      ],
+      "modal_modified_ep": 981,
+      "modal_share": 0.5,
+      "top_classes": [
+       [
+        "ProjectInfo",
+        1
+       ],
+       [
+        "RvtLinkInstanceAppearanceParentElem",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       598,
+       3004
+      ],
+      "recs": 2407,
+      "ids": [
+       1,
+       1454521
+      ],
+      "modal_modified_ep": 976,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        1066
+       ],
+       [
+        "ParamElemExternal",
+        466
+       ]
+      ]
+     },
+     {
+      "pos": [
+       3005,
+       3010
+      ],
+      "recs": 6,
+      "ids": [
+       21747,
+       1353276
+      ],
+      "modal_modified_ep": 922,
+      "modal_share": 0.667,
+      "top_classes": [
+       [
+        "RbsPipeScheduleType",
+        3
+       ],
+       [
+        "GeoSite",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       3011,
+       3011
+      ],
+      "recs": 1,
+      "ids": [
+       1201129,
+       1201129
+      ],
+      "modal_modified_ep": 890,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "FloorAttributes",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       3012,
+       3126
+      ],
+      "recs": 115,
+      "ids": [
+       24945,
+       1672589
+      ],
+      "modal_modified_ep": 551,
+      "modal_share": 0.783,
+      "top_classes": [
+       [
+        "RbsWireInsulationType",
+        26
+       ],
+       [
+        "ParamElemFamily",
+        20
+       ]
+      ]
+     }
+    ]
+   },
+   "seconds": 0.7,
+   "gates_ok": true
+  },
+  "T1v.hop_load": {
+   "rung": "T1v.hop_load",
+   "file": "experiments/birthright/_build/T1v/T1v_load.rvt",
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "md5": "2360c3b29ed76259325482d9301745ca",
+   "validator": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": [],
+    "first_errors": []
+   },
+   "identity_gate": {
+    "status": "PASS",
+    "issues": [],
+    "identity": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "username": "",
+     "last_save_path": "T1v_load.rvt.pass1.tmp",
+     "central_model_path": "",
+     "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "format": "2026",
+     "build": "20250227_1515(x64)",
+     "locale": "ENU",
+     "unique_document_increments": "22"
+    },
+    "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+   },
+   "census": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "familymgr_guids": 1,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "coherent": true,
+    "unit_guids": [
+     "3b21dfd9-a68c-4ece-a51e-368f55980d13"
+    ]
+   },
+   "census_delta": {
+    "save_units": 1,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 1,
+    "familymgr_guids": 1
+   },
+   "census_parent": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 9,
+    "familymgr_guids": 0,
+    "coherent": true
+   },
+   "partition_table": {
+    "count": 1,
+    "names": [
+     "Workset1"
+    ],
+    "payload_bytes": 87,
+    "rows_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "storage_index": {
+    "counters": [
+     612,
+     628,
+     628,
+     628,
+     517,
+     628,
+     629,
+     599,
+     517
+    ],
+    "counter_g": 506,
+    "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+    "payload_bytes": 240,
+    "counters_delta": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "counter_g_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "elemtable": {
+    "rows_before": 3102,
+    "rows_after": 3126,
+    "added_ids": [
+     1672565,
+     1672566,
+     1672567,
+     1672568,
+     1672569,
+     1672570,
+     1672571,
+     1672572,
+     1672573,
+     1672574,
+     1672575,
+     1672576,
+     1672577,
+     1672578,
+     1672579,
+     1672580,
+     1672581,
+     1672582,
+     1672583,
+     1672584,
+     1672585,
+     1672586,
+     1672587,
+     1672588
+    ],
+    "n_added": 24,
+    "removed_ids": [],
+    "watermark_after": 1672588,
+    "added_modified_episodes": [
+     1016
+    ]
+   },
+   "element_diff": {
+    "removed": 0,
+    "added": 2051,
+    "common": 3102,
+    "survivors_modified": 0,
+    "modified_seq_hist": {},
+    "added_ids_host": [
+     1672565,
+     1672566,
+     1672567,
+     1672568,
+     1672569,
+     1672570,
+     1672571,
+     1672572,
+     1672573,
+     1672574,
+     1672575,
+     1672576,
+     1672577,
+     1672578,
+     1672579,
+     1672580,
+     1672581,
+     1672582,
+     1672583,
+     1672584,
+     1672585,
+     1672586,
+     1672587,
+     1672588
+    ]
+   },
+   "survivor_law_ok": true,
+   "streams_changed": [
+    {
+     "stream": "BasicFileInfo",
+     "bytes_before": 2171,
+     "bytes_after": 1939,
+     "delta": -232
+    },
+    {
+     "stream": "Global/ContentDocuments",
+     "bytes_before": 82,
+     "bytes_after": 9694,
+     "delta": 9612
+    },
+    {
+     "stream": "Global/DocumentIncrementTable",
+     "bytes_before": 1096,
+     "bytes_after": 967,
+     "delta": -129
+    },
+    {
+     "stream": "Global/ElemTable",
+     "bytes_before": 16567,
+     "bytes_after": 17144,
+     "delta": 577
+    },
+    {
+     "stream": "Global/Latest",
+     "bytes_before": 127939,
+     "bytes_after": 127939,
+     "delta": 0
+    },
+    {
+     "stream": "Partitions/21",
+     "bytes_before": 193188,
+     "bytes_after": 347995,
+     "delta": 154807
+    }
+   ],
+   "streams_unchanged": 6,
+   "seconds": 0.6,
+   "gates_ok": true
+  },
+  "BX_birth": {
+   "rung": "BX_birth",
+   "file": "experiments/birthright/BX_birth.rvt",
+   "immediate_parent": "experiments/birthright/_build/BX_birth_chain/stage_L1_pp1.rvt",
+   "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "md5": "234ee8a59e1da3731fbe2ea0ba6de9a3",
+   "validator": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": [],
+    "first_errors": []
+   },
+   "identity_gate": {
+    "status": "PASS",
+    "issues": [],
+    "identity": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "username": "",
+     "last_save_path": "BX_birth.rvt",
+     "central_model_path": "",
+     "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "format": "2026",
+     "build": "20250227_1515(x64)",
+     "locale": "ENU",
+     "unique_document_increments": "22"
+    },
+    "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+   },
+   "census": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "familymgr_guids": 1,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "coherent": true,
+    "unit_guids": [
+     "32da04c1-79e2-4026-9e6d-d7badc727399"
+    ]
+   },
+   "census_delta": {
+    "save_units": 0,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 0,
+    "familymgr_guids": 0
+   },
+   "census_parent": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "familymgr_guids": 1,
+    "coherent": true
+   },
+   "partition_table": {
+    "count": 1,
+    "names": [
+     "Workset1"
+    ],
+    "payload_bytes": 87,
+    "rows_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "storage_index": {
+    "counters": [
+     612,
+     628,
+     628,
+     628,
+     517,
+     628,
+     629,
+     599,
+     517
+    ],
+    "counter_g": 506,
+    "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+    "payload_bytes": 240,
+    "counters_delta": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "counter_g_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "elemtable": {
+    "rows_before": 3120,
+    "rows_after": 3121,
+    "added_ids": [
+     1474267
+    ],
+    "n_added": 1,
+    "removed_ids": [],
+    "watermark_after": 1474267,
+    "added_modified_episodes": [
+     1016
+    ]
+   },
+   "element_diff": {
+    "removed": 0,
+    "added": 1,
+    "common": 4844,
+    "survivors_modified": 0,
+    "modified_seq_hist": {},
+    "added_ids_host": [
+     1474267
+    ]
+   },
+   "survivor_law_ok": true,
+   "streams_changed": [
+    {
+     "stream": "BasicFileInfo",
+     "bytes_before": 1955,
+     "bytes_after": 1899,
+     "delta": -56
+    },
+    {
+     "stream": "Global/ElemTable",
+     "bytes_before": 17144,
+     "bytes_after": 17144,
+     "delta": 0
+    },
+    {
+     "stream": "Partitions/21",
+     "bytes_before": 292469,
+     "bytes_after": 292981,
+     "delta": 512
+    }
+   ],
+   "streams_unchanged": 9,
+   "registrations": {
+    "1474267": {
+     "class": "FamilyInstance",
+     "row": {
+      "index_in_table": 3120,
+      "elem_id": 1474267,
+      "original_id": 1474267,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "owner_id": null,
+      "partition_id": 0,
+      "renumbered": false,
+      "created_at_birth": false,
+      "usermod_never": false,
+      "has_owner": false,
+      "id_band": "<5M",
+      "episodes_all_equal": true
+     },
+     "positions": {
+      "101": {
+       "index": 3120,
+       "total": 3121,
+       "seg_offset": 440674,
+       "block": [
+        4,
+        4
+       ],
+       "is_last_record": true,
+       "prev_id": 1474266,
+       "next_id": null,
+       "class": "ElementHeader",
+       "framed_len": null,
+       "stamp": null,
+       "body_size": 209
+      },
+      "102": {
+       "index": 3120,
+       "total": 3121,
+       "seg_offset": 1115496,
+       "block": [
+        9,
+        9
+       ],
+       "is_last_record": true,
+       "prev_id": 1474266,
+       "next_id": null,
+       "class": "FamilyInstance",
+       "framed_len": null,
+       "stamp": 4275353595,
+       "body_size": 615,
+       "run_index": 15,
+       "run_of": 16,
+       "run_span": [
+        3012,
+        3120
+       ],
+       "run_modal_modified_ep": 551,
+       "run_id_range": [
+        24945,
+        1474267
+       ]
+      },
+      "103": {
+       "index": 3120,
+       "total": 3121,
+       "seg_offset": 76872,
+       "block": [
+        1,
+        1
+       ],
+       "is_last_record": true,
+       "prev_id": 1474266,
+       "next_id": null,
+       "class": "SerializedDummy",
+       "framed_len": null,
+       "stamp": 6881340,
+       "body_size": 2
+      }
+     },
+     "registry_surface": [],
+     "owned_rows": []
+    }
+   },
+   "added_ids_registry_surface": {
+    "1474267": {
+     "class": "FamilyInstance",
+     "adocument_paths": []
+    }
+   },
+   "added_ids_unregistered_in_adocument": [
+    1474267
+   ],
+   "run_law": {
+    "file": "BX_birth",
+    "seq": 102,
+    "host_records": 3121,
+    "runs": 16,
+    "adjacent_id_ascending_fraction": 0.99519,
+    "runs_modal_episode_descending_violations": 0,
+    "runs_modal_episode_descending": true,
+    "first_run_modal_episode": 1015,
+    "last_run_modal_episode": 551,
+    "max_history_episode": 1016,
+    "run_summary": [
+     {
+      "pos": [
+       0,
+       17
+      ],
+      "recs": 18,
+      "ids": [
+       86291,
+       1472524
+      ],
+      "modal_modified_ep": 1015,
+      "modal_share": 0.611,
+      "top_classes": [
+       [
+        "GStyleElem",
+        8
+       ],
+       [
+        "Viewport",
+        3
+       ]
+      ]
+     },
+     {
+      "pos": [
+       18,
+       231
+      ],
+      "recs": 214,
+      "ids": [
+       102467,
+       1472011
+      ],
+      "modal_modified_ep": 1013,
+      "modal_share": 0.85,
+      "top_classes": [
+       [
+        "GStyleElem",
+        143
+       ],
+       [
+        "BuildingOperatingYearSchedule",
+        27
+       ]
+      ]
+     },
+     {
+      "pos": [
+       232,
+       280
+      ],
+      "recs": 49,
+      "ids": [
+       49031,
+       1471495
+      ],
+      "modal_modified_ep": 1011,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        44
+       ],
+       [
+        "RevisionNumberingSequence",
+        2
+       ]
+      ]
+     },
+     {
+      "pos": [
+       281,
+       334
+      ],
+      "recs": 54,
+      "ids": [
+       86204,
+       1471229
+      ],
+      "modal_modified_ep": 1009,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        52
+       ],
+       [
+        "CoordinateSystemDisplayElem",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       335,
+       345
+      ],
+      "recs": 11,
+      "ids": [
+       1470379,
+       1471071
+      ],
+      "modal_modified_ep": 1007,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        7
+       ],
+       [
+        "DBViewType",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       346,
+       367
+      ],
+      "recs": 22,
+      "ids": [
+       1470179,
+       1470294
+      ],
+      "modal_modified_ep": 1004,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        21
+       ],
+       [
+        "ExtentElem",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       368,
+       508
+      ],
+      "recs": 141,
+      "ids": [
+       230,
+       1468599
+      ],
+      "modal_modified_ep": 1003,
+      "modal_share": 0.617,
+      "top_classes": [
+       [
+        "GStyleElem",
+        36
+       ],
+       [
+        "SketchPlane",
+        32
+       ]
+      ]
+     },
+     {
+      "pos": [
+       509,
+       513
+      ],
+      "recs": 5,
+      "ids": [
+       54663,
+       1462680
+      ],
+      "modal_modified_ep": 993,
+      "modal_share": 0.8,
+      "top_classes": [
+       [
+        "MaterialElem",
+        2
+       ],
+       [
+        "AppearanceAssetElem",
+        2
+       ]
+      ]
+     },
+     {
+      "pos": [
+       514,
+       514
+      ],
+      "recs": 1,
+      "ids": [
+       1462521,
+       1462521
+      ],
+      "modal_modified_ep": 992,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "StructuralConnectionSettings",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       515,
+       594
+      ],
+      "recs": 80,
+      "ids": [
+       29,
+       1457391
+      ],
+      "modal_modified_ep": 985,
+      "modal_share": 0.537,
+      "top_classes": [
+       [
+        "GStyleElem",
+        41
+       ],
+       [
+        "MaterialElem",
+        21
+       ]
+      ]
+     },
+     {
+      "pos": [
+       595,
+       595
+      ],
+      "recs": 1,
+      "ids": [
+       1250029,
+       1250029
+      ],
+      "modal_modified_ep": 983,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "RvtLinkSymbol",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       596,
+       597
+      ],
+      "recs": 2,
+      "ids": [
+       49504,
+       132481
+      ],
+      "modal_modified_ep": 981,
+      "modal_share": 0.5,
+      "top_classes": [
+       [
+        "ProjectInfo",
+        1
+       ],
+       [
+        "RvtLinkInstanceAppearanceParentElem",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       598,
+       3004
+      ],
+      "recs": 2407,
+      "ids": [
+       1,
+       1454521
+      ],
+      "modal_modified_ep": 976,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        1066
+       ],
+       [
+        "ParamElemExternal",
+        466
+       ]
+      ]
+     },
+     {
+      "pos": [
+       3005,
+       3010
+      ],
+      "recs": 6,
+      "ids": [
+       21747,
+       1353276
+      ],
+      "modal_modified_ep": 922,
+      "modal_share": 0.667,
+      "top_classes": [
+       [
+        "RbsPipeScheduleType",
+        3
+       ],
+       [
+        "GeoSite",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       3011,
+       3011
+      ],
+      "recs": 1,
+      "ids": [
+       1201129,
+       1201129
+      ],
+      "modal_modified_ep": 890,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "FloorAttributes",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       3012,
+       3120
+      ],
+      "recs": 109,
+      "ids": [
+       24945,
+       1474267
+      ],
+      "modal_modified_ep": 551,
+      "modal_share": 0.826,
+      "top_classes": [
+       [
+        "RbsWireInsulationType",
+        26
+       ],
+       [
+        "DBViewType",
+        18
+       ]
+      ]
+     }
+    ]
+   },
+   "seconds": 0.7,
+   "gates_ok": true
+  },
+  "BX_birth.hop_load": {
+   "rung": "BX_birth.hop_load",
+   "file": "experiments/birthright/_build/BX_birth_chain/stage_L1_pp1.rvt",
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "md5": "d43cd62b3f1af8f0af6d2dcec7041781",
+   "validator": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": [],
+    "first_errors": []
+   },
+   "identity_gate": {
+    "status": "PASS",
+    "issues": [],
+    "identity": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "username": "",
+     "last_save_path": "stage_L1_pp1.rvt.pass1.tmp",
+     "central_model_path": "",
+     "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "format": "2026",
+     "build": "20250227_1515(x64)",
+     "locale": "ENU",
+     "unique_document_increments": "22"
+    },
+    "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+   },
+   "census": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "familymgr_guids": 1,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "coherent": true,
+    "unit_guids": [
+     "32da04c1-79e2-4026-9e6d-d7badc727399"
+    ]
+   },
+   "census_delta": {
+    "save_units": 1,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 1,
+    "familymgr_guids": 1
+   },
+   "census_parent": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 9,
+    "familymgr_guids": 0,
+    "coherent": true
+   },
+   "partition_table": {
+    "count": 1,
+    "names": [
+     "Workset1"
+    ],
+    "payload_bytes": 87,
+    "rows_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "storage_index": {
+    "counters": [
+     612,
+     628,
+     628,
+     628,
+     517,
+     628,
+     629,
+     599,
+     517
+    ],
+    "counter_g": 506,
+    "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+    "payload_bytes": 240,
+    "counters_delta": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "counter_g_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "elemtable": {
+    "rows_before": 3102,
+    "rows_after": 3120,
+    "added_ids": [
+     1474249,
+     1474250,
+     1474251,
+     1474252,
+     1474253,
+     1474254,
+     1474255,
+     1474256,
+     1474257,
+     1474258,
+     1474259,
+     1474260,
+     1474261,
+     1474262,
+     1474263,
+     1474264,
+     1474265,
+     1474266
+    ],
+    "n_added": 18,
+    "removed_ids": [],
+    "watermark_after": 1474266,
+    "added_modified_episodes": [
+     1016
+    ]
+   },
+   "element_diff": {
+    "removed": 0,
+    "added": 1742,
+    "common": 3102,
+    "survivors_modified": 0,
+    "modified_seq_hist": {},
+    "added_ids_host": [
+     1474249,
+     1474250,
+     1474251,
+     1474252,
+     1474253,
+     1474254,
+     1474255,
+     1474256,
+     1474257,
+     1474258,
+     1474259,
+     1474260,
+     1474261,
+     1474262,
+     1474263,
+     1474264,
+     1474265,
+     1474266
+    ]
+   },
+   "survivor_law_ok": true,
+   "streams_changed": [
+    {
+     "stream": "BasicFileInfo",
+     "bytes_before": 2171,
+     "bytes_after": 1955,
+     "delta": -216
+    },
+    {
+     "stream": "Global/ContentDocuments",
+     "bytes_before": 82,
+     "bytes_after": 8101,
+     "delta": 8019
+    },
+    {
+     "stream": "Global/DocumentIncrementTable",
+     "bytes_before": 1096,
+     "bytes_after": 967,
+     "delta": -129
+    },
+    {
+     "stream": "Global/ElemTable",
+     "bytes_before": 16567,
+     "bytes_after": 17144,
+     "delta": 577
+    },
+    {
+     "stream": "Global/Latest",
+     "bytes_before": 127939,
+     "bytes_after": 127939,
+     "delta": 0
+    },
+    {
+     "stream": "Partitions/21",
+     "bytes_before": 193188,
+     "bytes_after": 292469,
+     "delta": 99281
+    }
+   ],
+   "streams_unchanged": 6,
+   "seconds": 0.5,
+   "gates_ok": true
+  },
+  "DEMO_250v_room_v7": {
+   "rung": "DEMO_250v_room_v7",
+   "file": "experiments/birthright/DEMO_250v_room_v7.rvt",
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "md5": "5c18cb7db71f7596faae55c838803669",
+   "validator": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": [],
+    "first_errors": []
+   },
+   "identity_gate": {
+    "status": "PASS",
+    "issues": [],
+    "identity": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "username": "",
+     "last_save_path": "DEMO_250v_room_v7.rvt",
+     "central_model_path": "",
+     "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "format": "2026",
+     "build": "20250227_1515(x64)",
+     "locale": "ENU",
+     "unique_document_increments": "22"
+    },
+    "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+   },
+   "census": {
+    "save_units": 7,
+    "contentdocs_entries": 6,
+    "contenttable_records": 6,
+    "familymgr_entries": 15,
+    "familymgr_guids": 6,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "coherent": true,
+    "unit_guids": [
+     "27f18630-de79-49c7-95f3-9492a36218c7",
+     "3768be14-2fec-4f2d-94f4-8a85d064504e",
+     "4b071966-26bd-4965-a41c-6b99ac14d03f",
+     "54846341-665e-443f-80df-6ce0d72e53e0",
+     "e133fa20-6a0b-4027-bebb-352ea3db70c3",
+     "f54403a7-d69e-4525-829b-fcd86419a3a0"
+    ]
+   },
+   "census_delta": {
+    "save_units": 6,
+    "contentdocs_entries": 6,
+    "contenttable_records": 6,
+    "familymgr_entries": 6,
+    "familymgr_guids": 6
+   },
+   "census_parent": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 9,
+    "familymgr_guids": 0,
+    "coherent": true
+   },
+   "partition_table": {
+    "count": 1,
+    "names": [
+     "Workset1"
+    ],
+    "payload_bytes": 87,
+    "rows_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "storage_index": {
+    "counters": [
+     612,
+     628,
+     628,
+     628,
+     517,
+     628,
+     629,
+     599,
+     517
+    ],
+    "counter_g": 506,
+    "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+    "payload_bytes": 240,
+    "counters_delta": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "counter_g_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "elemtable": {
+    "rows_before": 3102,
+    "rows_after": 3216,
+    "added_ids": [
+     1474249,
+     1474250,
+     1474251,
+     1474252,
+     1474253,
+     1474254,
+     1474255,
+     1474256,
+     1474257,
+     1474258,
+     1474259,
+     1474260,
+     1474261,
+     1474262,
+     1474263,
+     1474264,
+     1474265,
+     1474266,
+     1475991,
+     1475992,
+     1475993,
+     1475994,
+     1475995,
+     1475996,
+     1475997,
+     1475998,
+     1475999,
+     1476000,
+     1476001,
+     1476002,
+     1476003,
+     1476004,
+     1476005,
+     1476006,
+     1476007,
+     1476008,
+     1477733,
+     1477734,
+     1477735,
+     1477736,
+     1477737,
+     1477738,
+     1477739,
+     1477740,
+     1477741,
+     1477742,
+     1477743,
+     1477744,
+     1477745,
+     1477746,
+     1477747,
+     1477748,
+     1477749,
+     1477750,
+     1479475,
+     1479476,
+     1479477,
+     1479478,
+     1479479,
+     1479480,
+     1479481,
+     1479482,
+     1479483,
+     1479484,
+     1479485,
+     1479486,
+     1479487,
+     1479488,
+     1479489,
+     1479490,
+     1479491,
+     1479492,
+     1481217,
+     1481218,
+     1481219,
+     1481220,
+     1481221,
+     1481222,
+     1481223,
+     1481224,
+     1481225,
+     1481226,
+     1481227,
+     1481228,
+     1481229,
+     1481230,
+     1481231,
+     1481232,
+     1481233,
+     1481234,
+     1482959,
+     1482960,
+     1482961,
+     1482962,
+     1482963,
+     1482964,
+     1482965,
+     1482966,
+     1482967,
+     1482968,
+     1482969,
+     1482970,
+     1482971,
+     1482972,
+     1482973,
+     1482974,
+     1482975,
+     1482976,
+     1482977,
+     1482978,
+     1482979,
+     1482980,
+     1482981,
+     1482982
+    ],
+    "n_added": 114,
+    "removed_ids": [],
+    "watermark_after": 1482982,
+    "added_modified_episodes": [
+     1016
+    ]
+   },
+   "element_diff": {
+    "removed": 0,
+    "added": 10458,
+    "common": 3102,
+    "survivors_modified": 0,
+    "modified_seq_hist": {},
+    "added_ids_host": [
+     1474249,
+     1474250,
+     1474251,
+     1474252,
+     1474253,
+     1474254,
+     1474255,
+     1474256,
+     1474257,
+     1474258,
+     1474259,
+     1474260,
+     1474261,
+     1474262,
+     1474263,
+     1474264,
+     1474265,
+     1474266,
+     1475991,
+     1475992,
+     1475993,
+     1475994,
+     1475995,
+     1475996,
+     1475997,
+     1475998,
+     1475999,
+     1476000,
+     1476001,
+     1476002,
+     1476003,
+     1476004,
+     1476005,
+     1476006,
+     1476007,
+     1476008,
+     1477733,
+     1477734,
+     1477735,
+     1477736,
+     1477737,
+     1477738,
+     1477739,
+     1477740,
+     1477741,
+     1477742,
+     1477743,
+     1477744,
+     1477745,
+     1477746,
+     1477747,
+     1477748,
+     1477749,
+     1477750,
+     1479475,
+     1479476,
+     1479477,
+     1479478,
+     1479479,
+     1479480,
+     1479481,
+     1479482,
+     1479483,
+     1479484,
+     1479485,
+     1479486,
+     1479487,
+     1479488,
+     1479489,
+     1479490,
+     1479491,
+     1479492,
+     1481217,
+     1481218,
+     1481219,
+     1481220,
+     1481221,
+     1481222,
+     1481223,
+     1481224,
+     1481225,
+     1481226,
+     1481227,
+     1481228,
+     1481229,
+     1481230,
+     1481231,
+     1481232,
+     1481233,
+     1481234,
+     1482959,
+     1482960,
+     1482961,
+     1482962,
+     1482963,
+     1482964,
+     1482965,
+     1482966,
+     1482967,
+     1482968,
+     1482969,
+     1482970,
+     1482971,
+     1482972,
+     1482973,
+     1482974,
+     1482975,
+     1482976,
+     1482977,
+     1482978,
+     1482979,
+     1482980,
+     1482981,
+     1482982
+    ]
+   },
+   "survivor_law_ok": true,
+   "streams_changed": [
+    {
+     "stream": "BasicFileInfo",
+     "bytes_before": 2171,
+     "bytes_after": 1935,
+     "delta": -236
+    },
+    {
+     "stream": "Global/ContentDocuments",
+     "bytes_before": 82,
+     "bytes_after": 48361,
+     "delta": 48279
+    },
+    {
+     "stream": "Global/DocumentIncrementTable",
+     "bytes_before": 1096,
+     "bytes_after": 967,
+     "delta": -129
+    },
+    {
+     "stream": "Global/ElemTable",
+     "bytes_before": 16567,
+     "bytes_after": 17144,
+     "delta": 577
+    },
+    {
+     "stream": "Global/Latest",
+     "bytes_before": 127939,
+     "bytes_after": 128451,
+     "delta": 512
+    },
+    {
+     "stream": "Partitions/21",
+     "bytes_before": 193188,
+     "bytes_after": 780941,
+     "delta": 587753
+    }
+   ],
+   "streams_unchanged": 6,
+   "registrations": {
+    "1482977": {
+     "class": "FamilyInstance",
+     "row": {
+      "index_in_table": 3210,
+      "elem_id": 1482977,
+      "original_id": 1482977,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "owner_id": null,
+      "partition_id": 0,
+      "renumbered": false,
+      "created_at_birth": false,
+      "usermod_never": false,
+      "has_owner": false,
+      "id_band": "<5M",
+      "episodes_all_equal": true
+     },
+     "positions": {
+      "101": {
+       "index": 3210,
+       "total": 3216,
+       "seg_offset": 455914,
+       "block": [
+        4,
+        4
+       ],
+       "is_last_record": false,
+       "prev_id": 1482976,
+       "next_id": 1482978,
+       "class": "ElementHeader",
+       "framed_len": null,
+       "stamp": null,
+       "body_size": 209
+      },
+      "102": {
+       "index": 3210,
+       "total": 3216,
+       "seg_offset": 1197886,
+       "block": [
+        9,
+        9
+       ],
+       "is_last_record": false,
+       "prev_id": 1482976,
+       "next_id": 1482978,
+       "class": "FamilyInstance",
+       "framed_len": null,
+       "stamp": 1481226275,
+       "body_size": 615,
+       "run_index": 15,
+       "run_of": 16,
+       "run_span": [
+        3012,
+        3215
+       ],
+       "run_modal_modified_ep": 1016,
+       "run_id_range": [
+        24945,
+        1482982
+       ]
+      },
+      "103": {
+       "index": 3210,
+       "total": 3216,
+       "seg_offset": 94762,
+       "block": [
+        1,
+        1
+       ],
+       "is_last_record": false,
+       "prev_id": 1482976,
+       "next_id": 1482978,
+       "class": "SerializedDummy",
+       "framed_len": null,
+       "stamp": 6881340,
+       "body_size": 2
+      }
+     },
+     "registry_surface": [],
+     "owned_rows": []
+    },
+    "1482978": {
+     "class": "FamilyInstance",
+     "row": {
+      "index_in_table": 3211,
+      "elem_id": 1482978,
+      "original_id": 1482978,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "owner_id": null,
+      "partition_id": 0,
+      "renumbered": false,
+      "created_at_birth": false,
+      "usermod_never": false,
+      "has_owner": false,
+      "id_band": "<5M",
+      "episodes_all_equal": true
+     },
+     "positions": {
+      "101": {
+       "index": 3211,
+       "total": 3216,
+       "seg_offset": 456139,
+       "block": [
+        4,
+        4
+       ],
+       "is_last_record": false,
+       "prev_id": 1482977,
+       "next_id": 1482979,
+       "class": "ElementHeader",
+       "framed_len": null,
+       "stamp": null,
+       "body_size": 209
+      },
+      "102": {
+       "index": 3211,
+       "total": 3216,
+       "seg_offset": 1198521,
+       "block": [
+        9,
+        9
+       ],
+       "is_last_record": false,
+       "prev_id": 1482977,
+       "next_id": 1482979,
+       "class": "FamilyInstance",
+       "framed_len": null,
+       "stamp": 2833626898,
+       "body_size": 615,
+       "run_index": 15,
+       "run_of": 16,
+       "run_span": [
+        3012,
+        3215
+       ],
+       "run_modal_modified_ep": 1016,
+       "run_id_range": [
+        24945,
+        1482982
+       ]
+      },
+      "103": {
+       "index": 3211,
+       "total": 3216,
+       "seg_offset": 94784,
+       "block": [
+        1,
+        1
+       ],
+       "is_last_record": false,
+       "prev_id": 1482977,
+       "next_id": 1482979,
+       "class": "SerializedDummy",
+       "framed_len": null,
+       "stamp": 6881340,
+       "body_size": 2
+      }
+     },
+     "registry_surface": [],
+     "owned_rows": []
+    },
+    "1482979": {
+     "class": "FamilyInstance",
+     "row": {
+      "index_in_table": 3212,
+      "elem_id": 1482979,
+      "original_id": 1482979,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "owner_id": null,
+      "partition_id": 0,
+      "renumbered": false,
+      "created_at_birth": false,
+      "usermod_never": false,
+      "has_owner": false,
+      "id_band": "<5M",
+      "episodes_all_equal": true
+     },
+     "positions": {
+      "101": {
+       "index": 3212,
+       "total": 3216,
+       "seg_offset": 456364,
+       "block": [
+        4,
+        4
+       ],
+       "is_last_record": false,
+       "prev_id": 1482978,
+       "next_id": 1482980,
+       "class": "ElementHeader",
+       "framed_len": null,
+       "stamp": null,
+       "body_size": 209
+      },
+      "102": {
+       "index": 3212,
+       "total": 3216,
+       "seg_offset": 1199156,
+       "block": [
+        9,
+        9
+       ],
+       "is_last_record": false,
+       "prev_id": 1482978,
+       "next_id": 1482980,
+       "class": "FamilyInstance",
+       "framed_len": null,
+       "stamp": 3597252044,
+       "body_size": 615,
+       "run_index": 15,
+       "run_of": 16,
+       "run_span": [
+        3012,
+        3215
+       ],
+       "run_modal_modified_ep": 1016,
+       "run_id_range": [
+        24945,
+        1482982
+       ]
+      },
+      "103": {
+       "index": 3212,
+       "total": 3216,
+       "seg_offset": 94806,
+       "block": [
+        1,
+        1
+       ],
+       "is_last_record": false,
+       "prev_id": 1482978,
+       "next_id": 1482980,
+       "class": "SerializedDummy",
+       "framed_len": null,
+       "stamp": 6881340,
+       "body_size": 2
+      }
+     },
+     "registry_surface": [],
+     "owned_rows": []
+    },
+    "1482980": {
+     "class": "FamilyInstance",
+     "row": {
+      "index_in_table": 3213,
+      "elem_id": 1482980,
+      "original_id": 1482980,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "owner_id": null,
+      "partition_id": 0,
+      "renumbered": false,
+      "created_at_birth": false,
+      "usermod_never": false,
+      "has_owner": false,
+      "id_band": "<5M",
+      "episodes_all_equal": true
+     },
+     "positions": {
+      "101": {
+       "index": 3213,
+       "total": 3216,
+       "seg_offset": 456589,
+       "block": [
+        4,
+        4
+       ],
+       "is_last_record": false,
+       "prev_id": 1482979,
+       "next_id": 1482981,
+       "class": "ElementHeader",
+       "framed_len": null,
+       "stamp": null,
+       "body_size": 209
+      },
+      "102": {
+       "index": 3213,
+       "total": 3216,
+       "seg_offset": 1199791,
+       "block": [
+        9,
+        9
+       ],
+       "is_last_record": false,
+       "prev_id": 1482979,
+       "next_id": 1482981,
+       "class": "FamilyInstance",
+       "framed_len": null,
+       "stamp": 175289485,
+       "body_size": 615,
+       "run_index": 15,
+       "run_of": 16,
+       "run_span": [
+        3012,
+        3215
+       ],
+       "run_modal_modified_ep": 1016,
+       "run_id_range": [
+        24945,
+        1482982
+       ]
+      },
+      "103": {
+       "index": 3213,
+       "total": 3216,
+       "seg_offset": 94828,
+       "block": [
+        1,
+        1
+       ],
+       "is_last_record": false,
+       "prev_id": 1482979,
+       "next_id": 1482981,
+       "class": "SerializedDummy",
+       "framed_len": null,
+       "stamp": 6881340,
+       "body_size": 2
+      }
+     },
+     "registry_surface": [],
+     "owned_rows": []
+    },
+    "1482981": {
+     "class": "FamilyInstance",
+     "row": {
+      "index_in_table": 3214,
+      "elem_id": 1482981,
+      "original_id": 1482981,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "owner_id": null,
+      "partition_id": 0,
+      "renumbered": false,
+      "created_at_birth": false,
+      "usermod_never": false,
+      "has_owner": false,
+      "id_band": "<5M",
+      "episodes_all_equal": true
+     },
+     "positions": {
+      "101": {
+       "index": 3214,
+       "total": 3216,
+       "seg_offset": 456814,
+       "block": [
+        4,
+        4
+       ],
+       "is_last_record": false,
+       "prev_id": 1482980,
+       "next_id": 1482982,
+       "class": "ElementHeader",
+       "framed_len": null,
+       "stamp": null,
+       "body_size": 209
+      },
+      "102": {
+       "index": 3214,
+       "total": 3216,
+       "seg_offset": 1200426,
+       "block": [
+        9,
+        9
+       ],
+       "is_last_record": false,
+       "prev_id": 1482980,
+       "next_id": 1482982,
+       "class": "FamilyInstance",
+       "framed_len": null,
+       "stamp": 2472850865,
+       "body_size": 615,
+       "run_index": 15,
+       "run_of": 16,
+       "run_span": [
+        3012,
+        3215
+       ],
+       "run_modal_modified_ep": 1016,
+       "run_id_range": [
+        24945,
+        1482982
+       ]
+      },
+      "103": {
+       "index": 3214,
+       "total": 3216,
+       "seg_offset": 94850,
+       "block": [
+        1,
+        1
+       ],
+       "is_last_record": false,
+       "prev_id": 1482980,
+       "next_id": 1482982,
+       "class": "SerializedDummy",
+       "framed_len": null,
+       "stamp": 6881340,
+       "body_size": 2
+      }
+     },
+     "registry_surface": [],
+     "owned_rows": []
+    },
+    "1482982": {
+     "class": "FamilyInstance",
+     "row": {
+      "index_in_table": 3215,
+      "elem_id": 1482982,
+      "original_id": 1482982,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "owner_id": null,
+      "partition_id": 0,
+      "renumbered": false,
+      "created_at_birth": false,
+      "usermod_never": false,
+      "has_owner": false,
+      "id_band": "<5M",
+      "episodes_all_equal": true
+     },
+     "positions": {
+      "101": {
+       "index": 3215,
+       "total": 3216,
+       "seg_offset": 457039,
+       "block": [
+        4,
+        4
+       ],
+       "is_last_record": true,
+       "prev_id": 1482981,
+       "next_id": null,
+       "class": "ElementHeader",
+       "framed_len": null,
+       "stamp": null,
+       "body_size": 209
+      },
+      "102": {
+       "index": 3215,
+       "total": 3216,
+       "seg_offset": 1201061,
+       "block": [
+        9,
+        9
+       ],
+       "is_last_record": true,
+       "prev_id": 1482981,
+       "next_id": null,
+       "class": "FamilyInstance",
+       "framed_len": null,
+       "stamp": 308983652,
+       "body_size": 615,
+       "run_index": 15,
+       "run_of": 16,
+       "run_span": [
+        3012,
+        3215
+       ],
+       "run_modal_modified_ep": 1016,
+       "run_id_range": [
+        24945,
+        1482982
+       ]
+      },
+      "103": {
+       "index": 3215,
+       "total": 3216,
+       "seg_offset": 94872,
+       "block": [
+        1,
+        1
+       ],
+       "is_last_record": true,
+       "prev_id": 1482981,
+       "next_id": null,
+       "class": "SerializedDummy",
+       "framed_len": null,
+       "stamp": 6881340,
+       "body_size": 2
+      }
+     },
+     "registry_surface": [],
+     "owned_rows": []
+    }
+   },
+   "added_ids_registry_surface": {
+    "1474249": {
+     "class": "Family",
+     "adocument_paths": []
+    },
+    "1474250": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474251": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474252": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474253": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474254": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474255": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474256": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474257": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474258": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474259": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474260": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474261": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474262": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474263": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1474264": {
+     "class": "FamilySurrogate",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[0]->FamilyMgr.m_arrLoadedFamilyInfo[9].m_surrogateId"
+     ]
+    },
+    "1474265": {
+     "class": "FamilySymbol",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[32]->ElementTrackingData.m_symbols[48].m_elemIdSet[0]"
+     ]
+    },
+    "1474266": {
+     "class": "FamSymSurrogate",
+     "adocument_paths": []
+    },
+    "1475991": {
+     "class": "Family",
+     "adocument_paths": []
+    },
+    "1475992": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1475993": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1475994": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1475995": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1475996": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1475997": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1475998": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1475999": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1476000": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1476001": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1476002": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1476003": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1476004": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1476005": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1476006": {
+     "class": "FamilySurrogate",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[0]->FamilyMgr.m_arrLoadedFamilyInfo[10].m_surrogateId"
+     ]
+    },
+    "1476007": {
+     "class": "FamilySymbol",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[32]->ElementTrackingData.m_symbols[48].m_elemIdSet[1]"
+     ]
+    },
+    "1476008": {
+     "class": "FamSymSurrogate",
+     "adocument_paths": []
+    },
+    "1477733": {
+     "class": "Family",
+     "adocument_paths": []
+    },
+    "1477734": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477735": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477736": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477737": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477738": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477739": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477740": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477741": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477742": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477743": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477744": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477745": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477746": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477747": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1477748": {
+     "class": "FamilySurrogate",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[0]->FamilyMgr.m_arrLoadedFamilyInfo[11].m_surrogateId"
+     ]
+    },
+    "1477749": {
+     "class": "FamilySymbol",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[32]->ElementTrackingData.m_symbols[48].m_elemIdSet[2]"
+     ]
+    },
+    "1477750": {
+     "class": "FamSymSurrogate",
+     "adocument_paths": []
+    },
+    "1479475": {
+     "class": "Family",
+     "adocument_paths": []
+    },
+    "1479476": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479477": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479478": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479479": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479480": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479481": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479482": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479483": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479484": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479485": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479486": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479487": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479488": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479489": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1479490": {
+     "class": "FamilySurrogate",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[0]->FamilyMgr.m_arrLoadedFamilyInfo[12].m_surrogateId"
+     ]
+    },
+    "1479491": {
+     "class": "FamilySymbol",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[32]->ElementTrackingData.m_symbols[48].m_elemIdSet[3]"
+     ]
+    },
+    "1479492": {
+     "class": "FamSymSurrogate",
+     "adocument_paths": []
+    },
+    "1481217": {
+     "class": "Family",
+     "adocument_paths": []
+    },
+    "1481218": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481219": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481220": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481221": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481222": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481223": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481224": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481225": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481226": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481227": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481228": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481229": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481230": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481231": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1481232": {
+     "class": "FamilySurrogate",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[0]->FamilyMgr.m_arrLoadedFamilyInfo[13].m_surrogateId"
+     ]
+    },
+    "1481233": {
+     "class": "FamilySymbol",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[32]->ElementTrackingData.m_symbols[48].m_elemIdSet[4]"
+     ]
+    },
+    "1481234": {
+     "class": "FamSymSurrogate",
+     "adocument_paths": []
+    },
+    "1482959": {
+     "class": "Family",
+     "adocument_paths": []
+    },
+    "1482960": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482961": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482962": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482963": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482964": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482965": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482966": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482967": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482968": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482969": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482970": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482971": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482972": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482973": {
+     "class": "ParamElemFamily",
+     "adocument_paths": []
+    },
+    "1482974": {
+     "class": "FamilySurrogate",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[0]->FamilyMgr.m_arrLoadedFamilyInfo[14].m_surrogateId"
+     ]
+    },
+    "1482975": {
+     "class": "FamilySymbol",
+     "adocument_paths": [
+      "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[32]->ElementTrackingData.m_symbols[48].m_elemIdSet[5]"
+     ]
+    },
+    "1482976": {
+     "class": "FamSymSurrogate",
+     "adocument_paths": []
+    },
+    "1482977": {
+     "class": "FamilyInstance",
+     "adocument_paths": []
+    },
+    "1482978": {
+     "class": "FamilyInstance",
+     "adocument_paths": []
+    },
+    "1482979": {
+     "class": "FamilyInstance",
+     "adocument_paths": []
+    },
+    "1482980": {
+     "class": "FamilyInstance",
+     "adocument_paths": []
+    },
+    "1482981": {
+     "class": "FamilyInstance",
+     "adocument_paths": []
+    },
+    "1482982": {
+     "class": "FamilyInstance",
+     "adocument_paths": []
+    }
+   },
+   "added_ids_unregistered_in_adocument": [
+    1474249,
+    1474250,
+    1474251,
+    1474252,
+    1474253,
+    1474254,
+    1474255,
+    1474256,
+    1474257,
+    1474258,
+    1474259,
+    1474260,
+    1474261,
+    1474262,
+    1474263,
+    1474266,
+    1475991,
+    1475992,
+    1475993,
+    1475994,
+    1475995,
+    1475996,
+    1475997,
+    1475998,
+    1475999,
+    1476000,
+    1476001,
+    1476002,
+    1476003,
+    1476004,
+    1476005,
+    1476008,
+    1477733,
+    1477734,
+    1477735,
+    1477736,
+    1477737,
+    1477738,
+    1477739,
+    1477740,
+    1477741,
+    1477742,
+    1477743,
+    1477744,
+    1477745,
+    1477746,
+    1477747,
+    1477750,
+    1479475,
+    1479476,
+    1479477,
+    1479478,
+    1479479,
+    1479480,
+    1479481,
+    1479482,
+    1479483,
+    1479484,
+    1479485,
+    1479486,
+    1479487,
+    1479488,
+    1479489,
+    1479492,
+    1481217,
+    1481218,
+    1481219,
+    1481220,
+    1481221,
+    1481222,
+    1481223,
+    1481224,
+    1481225,
+    1481226,
+    1481227,
+    1481228,
+    1481229,
+    1481230,
+    1481231,
+    1481234,
+    1482959,
+    1482960,
+    1482961,
+    1482962,
+    1482963,
+    1482964,
+    1482965,
+    1482966,
+    1482967,
+    1482968,
+    1482969,
+    1482970,
+    1482971,
+    1482972,
+    1482973,
+    1482976,
+    1482977,
+    1482978,
+    1482979,
+    1482980,
+    1482981,
+    1482982
+   ],
+   "run_law": {
+    "file": "DEMO_250v_room_v7",
+    "seq": 102,
+    "host_records": 3216,
+    "runs": 16,
+    "adjacent_id_ascending_fraction": 0.99533,
+    "runs_modal_episode_descending_violations": 1,
+    "runs_modal_episode_descending": false,
+    "first_run_modal_episode": 1015,
+    "last_run_modal_episode": 1016,
+    "max_history_episode": 1016,
+    "run_summary": [
+     {
+      "pos": [
+       0,
+       17
+      ],
+      "recs": 18,
+      "ids": [
+       86291,
+       1472524
+      ],
+      "modal_modified_ep": 1015,
+      "modal_share": 0.611,
+      "top_classes": [
+       [
+        "GStyleElem",
+        8
+       ],
+       [
+        "Viewport",
+        3
+       ]
+      ]
+     },
+     {
+      "pos": [
+       18,
+       231
+      ],
+      "recs": 214,
+      "ids": [
+       102467,
+       1472011
+      ],
+      "modal_modified_ep": 1013,
+      "modal_share": 0.85,
+      "top_classes": [
+       [
+        "GStyleElem",
+        143
+       ],
+       [
+        "BuildingOperatingYearSchedule",
+        27
+       ]
+      ]
+     },
+     {
+      "pos": [
+       232,
+       280
+      ],
+      "recs": 49,
+      "ids": [
+       49031,
+       1471495
+      ],
+      "modal_modified_ep": 1011,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        44
+       ],
+       [
+        "RevisionNumberingSequence",
+        2
+       ]
+      ]
+     },
+     {
+      "pos": [
+       281,
+       334
+      ],
+      "recs": 54,
+      "ids": [
+       86204,
+       1471229
+      ],
+      "modal_modified_ep": 1009,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        52
+       ],
+       [
+        "CoordinateSystemDisplayElem",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       335,
+       345
+      ],
+      "recs": 11,
+      "ids": [
+       1470379,
+       1471071
+      ],
+      "modal_modified_ep": 1007,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        7
+       ],
+       [
+        "DBViewType",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       346,
+       367
+      ],
+      "recs": 22,
+      "ids": [
+       1470179,
+       1470294
+      ],
+      "modal_modified_ep": 1004,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        21
+       ],
+       [
+        "ExtentElem",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       368,
+       508
+      ],
+      "recs": 141,
+      "ids": [
+       230,
+       1468599
+      ],
+      "modal_modified_ep": 1003,
+      "modal_share": 0.617,
+      "top_classes": [
+       [
+        "GStyleElem",
+        36
+       ],
+       [
+        "SketchPlane",
+        32
+       ]
+      ]
+     },
+     {
+      "pos": [
+       509,
+       513
+      ],
+      "recs": 5,
+      "ids": [
+       54663,
+       1462680
+      ],
+      "modal_modified_ep": 993,
+      "modal_share": 0.8,
+      "top_classes": [
+       [
+        "MaterialElem",
+        2
+       ],
+       [
+        "AppearanceAssetElem",
+        2
+       ]
+      ]
+     },
+     {
+      "pos": [
+       514,
+       514
+      ],
+      "recs": 1,
+      "ids": [
+       1462521,
+       1462521
+      ],
+      "modal_modified_ep": 992,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "StructuralConnectionSettings",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       515,
+       594
+      ],
+      "recs": 80,
+      "ids": [
+       29,
+       1457391
+      ],
+      "modal_modified_ep": 985,
+      "modal_share": 0.537,
+      "top_classes": [
+       [
+        "GStyleElem",
+        41
+       ],
+       [
+        "MaterialElem",
+        21
+       ]
+      ]
+     },
+     {
+      "pos": [
+       595,
+       595
+      ],
+      "recs": 1,
+      "ids": [
+       1250029,
+       1250029
+      ],
+      "modal_modified_ep": 983,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "RvtLinkSymbol",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       596,
+       597
+      ],
+      "recs": 2,
+      "ids": [
+       49504,
+       132481
+      ],
+      "modal_modified_ep": 981,
+      "modal_share": 0.5,
+      "top_classes": [
+       [
+        "ProjectInfo",
+        1
+       ],
+       [
+        "RvtLinkInstanceAppearanceParentElem",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       598,
+       3004
+      ],
+      "recs": 2407,
+      "ids": [
+       1,
+       1454521
+      ],
+      "modal_modified_ep": 976,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "GStyleElem",
+        1066
+       ],
+       [
+        "ParamElemExternal",
+        466
+       ]
+      ]
+     },
+     {
+      "pos": [
+       3005,
+       3010
+      ],
+      "recs": 6,
+      "ids": [
+       21747,
+       1353276
+      ],
+      "modal_modified_ep": 922,
+      "modal_share": 0.667,
+      "top_classes": [
+       [
+        "RbsPipeScheduleType",
+        3
+       ],
+       [
+        "GeoSite",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       3011,
+       3011
+      ],
+      "recs": 1,
+      "ids": [
+       1201129,
+       1201129
+      ],
+      "modal_modified_ep": 890,
+      "modal_share": 1.0,
+      "top_classes": [
+       [
+        "FloorAttributes",
+        1
+       ]
+      ]
+     },
+     {
+      "pos": [
+       3012,
+       3215
+      ],
+      "recs": 204,
+      "ids": [
+       24945,
+       1482982
+      ],
+      "modal_modified_ep": 1016,
+      "modal_share": 0.559,
+      "top_classes": [
+       [
+        "ParamElemFamily",
+        84
+       ],
+       [
+        "RbsWireInsulationType",
+        26
+       ]
+      ]
+     }
+    ]
+   },
+   "seconds": 1.2,
+   "gates_ok": true
+  }
+ },
+ "gates": {
+  "T1v": {
+   "checks": {
+    "validator_zero_unexpected": true,
+    "census_coherent": true,
+    "survivor_law_ok": true,
+    "blob_all_units_64B": true,
+    "blob_added_nonce_ours": true,
+    "instances_zero_dangling": true
+   },
+   "gates_ok": true
+  },
+  "BX_birth": {
+   "checks": {
+    "validator_zero_unexpected": true,
+    "census_coherent": true,
+    "survivor_law_ok": true,
+    "blob_all_units_64B": true,
+    "blob_added_nonce_ours": true,
+    "instances_resolved": true,
+    "birthright_verified": true
+   },
+   "gates_ok": true
+  },
+  "DEMO_250v_room_v7": {
+   "checks": {
+    "validator_zero_unexpected": true,
+    "census_coherent": true,
+    "survivor_law_ok": true,
+    "blob_all_units_64B": true,
+    "blob_added_nonce_ours": true,
+    "instances_resolved": true,
+    "birthright_verified": true
+   },
+   "gates_ok": true
+  }
+ },
+ "errors": {},
+ "seconds": 36.0
+}

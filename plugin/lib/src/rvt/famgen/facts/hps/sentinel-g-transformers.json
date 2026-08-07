@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "vendor": "hps",
+  "line": "sentinel-g-transformers",
+  "product_line": "Hammond Power Solutions (HPS) Sentinel G energy-efficient general-purpose low-voltage distribution transformers (600 V class)",
+  "category": "transformer",
+  "revit_category": "OST_ElectricalEquipment",
+  "purpose": "Second-vendor record to prove the transformer facts model generalises beyond Eaton. Deliberately thin: two model points read from a distributor listing plus the manufacturer's published range statement.",
+  "license_note": "Rating / dimensional FACTS only. No HPS drawings, CAD/BIM files, catalog prose or images stored. See ../LICENSE_NOTES.md.",
+  "collection_posture": {
+    "summary": "HPS terms of use were NOT reviewed this session (the vendor is outside docs/product/content-strategy.md's researched set) - collection posture UNKNOWN, therefore treated as restrictive: no direct crawl of hammondpowersolutions.com beyond an attempted (failed, >10 MB) fetch of the public selection guide PDF. Facts came from an authorized distributor product listing (one page read) and a search-engine summary of the manufacturer's product page. Every field carries its verification level.",
+    "primary_reachable": false,
+    "method": "one distributor product page read directly; manufacturer range statement via search summary only"
+  },
+  "sources": {
+    "S1": {
+      "url": "https://www.standardelectricsupply.com/Hammond-Power-Solutions-SG3A0075KB0C-Hps-Sentinel-G-Distribution-Transformer",
+      "doc": "Standard Electric Supply Co. product listing - HPS Sentinel G SG3A0075KB0C",
+      "publisher": "Standard Electric Supply (distributor)",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "VERIFIED",
+      "note": "Directly read: 75 kVA, 3 ph, 480 Delta primary, 208Y/120 secondary, 60 Hz, enclosure DH3-N3R indoor/outdoor, H 36 in, W 28.3 in, L (depth) 27 in, floor mounting, '98.6 % efficiency'. The listing's '30 deg C' temperature-rise field is implausible for this class and is recorded as UNVERIFIED (not used)."
+    },
+    "S2": {
+      "url": "https://documents.hammondpowersolutions.com/documents/Literature/Catalog_and_HPS_Info/HPS-Sentinel-Energy-Efficient-Low-Voltage-Distribution-Selection-Guide.pdf",
+      "doc": "HPS Sentinel Energy Efficient Low Voltage Distribution - Selection Guide (PDF)",
+      "publisher": "Hammond Power Solutions",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "UNVERIFIED",
+      "note": "PRIMARY - fetch refused (file >10 MB limit). The authoritative kVA / enclosure / dimension / weight tables live here; a human should read it before this vendor's dims drive real families."
+    },
+    "S3": {
+      "url": "https://americas.hammondpowersolutions.com/en/products/low-voltage-distribution/general-purpose-transformers",
+      "doc": "HPS - General purpose transformers product page (via search-engine summary)",
+      "publisher": "Hammond Power Solutions",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "SEARCH-SUMMARY",
+      "note": "Range statement (15-333 kVA single-phase, 15-1500 kVA three-phase, <600 V) came from a search-engine summary, not a direct page read - flagged 'assumed' at the field level."
+    }
+  },
+  "line_facts": {
+    "voltage_class": {"value": "600 V class and below", "provenance": "assumed", "source": "S3", "note": "search-summary only"},
+    "kva_range_single_phase": {"value": [15, 333], "unit": "kVA", "provenance": "assumed", "source": "S3", "note": "search-summary only"},
+    "kva_range_three_phase": {"value": [15, 1500], "unit": "kVA", "provenance": "assumed", "source": "S3", "note": "search-summary only"},
+    "frequency_hz": {"value": 60, "provenance": "fact", "source": "S1", "note": ""},
+    "enclosure_naming": {"value": "DHn-N3R (indoor/outdoor, NEMA 3R) enclosure series, size stepping with kVA (DH2 at 30 kVA, DH3 at 75 kVA)", "provenance": "assumed", "source": "S1,S3", "note": "DH3-N3R read directly for 75 kVA; DH2 for 30 kVA is search-summary only."},
+    "efficiency_75kva_pct": {"value": 98.6, "provenance": "fact", "source": "S1", "note": "Matches the DOE 2016 three-phase 75 kVA minimum efficiency (98.60 %)."},
+    "weights": {"value": null, "provenance": "assumed", "source": null, "note": "NOT SOURCED - weights are in the (unread) selection guide S2."}
+  },
+  "variants": [
+    {
+      "model": "SG3A0075KB",
+      "aliases": ["HPS Sentinel G 75 kVA 480D-208Y/120", "SG3A0075KB0C"],
+      "role": "75 kVA, 3-phase, 480 delta - 208Y/120 V, energy-efficient general purpose",
+      "ratings": {"kva": 75, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "frequency_hz": 60, "efficiency_pct": 98.6, "temp_rise_c": null},
+      "dims_in": {"w": 28.3, "h": 36.0, "d": 27.0},
+      "options": {"enclosure": "DH3-N3R indoor/outdoor (NEMA 3R)", "mounting": ["floor"]},
+      "source": {"url": "https://www.standardelectricsupply.com/Hammond-Power-Solutions-SG3A0075KB0C-Hps-Sentinel-G-Distribution-Transformer", "doc": "Standard Electric Supply distributor listing (republishes HPS spec)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.frequency_hz": "fact", "ratings.efficiency_pct": "fact", "ratings.temp_rise_c": "assumed",
+        "dims_in.w": "fact", "dims_in.h": "fact", "dims_in.d": "fact",
+        "options.enclosure": "fact", "options.mounting": "fact"
+      },
+      "notes": "temp_rise_c left null: the listing shows '30 deg C' which is not a credible LV dry-type rise (150 C is the industry standard for this class) - do not use until the selection guide S2 is read."
+    },
+    {
+      "model": "SG3A0030KB",
+      "aliases": ["HPS Sentinel G 30 kVA 480D-208Y/120"],
+      "role": "30 kVA, 3-phase, 480 delta - 208Y/120 V, energy-efficient general purpose",
+      "ratings": {"kva": 30, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "frequency_hz": 60},
+      "dims_in": {"w": 25.8, "h": 28.8, "d": 23.8},
+      "options": {"enclosure": "DH2-N3R indoor/outdoor (NEMA 3R)", "mounting": ["floor"]},
+      "source": {"url": "https://www.standardelectricsupply.com/Hammond-Power-Solutions-SG3A0030KB-Hps-Sentinel-G-Distribution-Transformer", "doc": "Standard Electric Supply distributor listing - reported via search-engine summary (page not read directly)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "assumed", "ratings.phase": "assumed", "ratings.primary_v": "assumed", "ratings.secondary_v": "assumed", "ratings.frequency_hz": "assumed",
+        "dims_in.w": "assumed", "dims_in.h": "assumed", "dims_in.d": "assumed",
+        "options.enclosure": "assumed", "options.mounting": "assumed"
+      },
+      "notes": "All fields SEARCH-SUMMARY provenance ('23.8 in L x 25.8 in W x 28.8 in H in a DH2-N3R enclosure') - not read directly, hence every field is flagged 'assumed'. Read the listing or the selection guide (S2) to promote to 'fact'."
+    }
+  ]
+}

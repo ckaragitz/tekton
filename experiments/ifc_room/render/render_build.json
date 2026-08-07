@@ -1,0 +1,2430 @@
+{
+ "stream": "render-emit",
+ "started": "2026-08-04T11:32:50",
+ "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "specimen_source": "experiments/genesis/R5.rvt",
+ "files": {
+  "CTRL_ZA_deep_render.rvt": {
+   "kind": "control",
+   "md5": "56308637529a0d0a95976f5701e2615e",
+   "identical_to": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt"
+  },
+  "walls_only_dummy.rvt": {
+   "kind": "probe",
+   "what": "the room's 4 walls, UNBAKED (SerializedDummy reps) = the LOAD-certified wall layer, this session's build",
+   "md5": "9e8d64f07fa36034c9e987c294d4f37f",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "build": {
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "out": "experiments/ifc_room/render/walls_only_dummy.rvt",
+    "specimen_source": "experiments/genesis/R5.rvt",
+    "bake": false,
+    "wall_mode": "unjoin",
+    "normalize": false,
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "p0_ft": [
+       15.091863517060364,
+       10.170603674540681
+      ],
+      "p1_ft": [
+       -15.091863517060364,
+       10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ]
+     },
+     {
+      "elem_id": 1472526,
+      "p0_ft": [
+       -15.091863517060364,
+       10.170603674540681
+      ],
+      "p1_ft": [
+       -15.091863517060364,
+       -10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ]
+     },
+     {
+      "elem_id": 1472527,
+      "p0_ft": [
+       15.091863517060364,
+       -10.170603674540681
+      ],
+      "p1_ft": [
+       15.091863517060364,
+       10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ]
+     },
+     {
+      "elem_id": 1472528,
+      "p0_ft": [
+       -15.091863517060364,
+       -10.170603674540681
+      ],
+      "p1_ft": [
+       15.091863517060364,
+       -10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ]
+     }
+    ],
+    "specimens": {
+     "source": "experiments/genesis/R5.rvt",
+     "injected_ids": [
+      1115258,
+      975217
+     ],
+     "wall_specimen": 1115258,
+     "wall_type": 600634,
+     "instance_specimen": 975217,
+     "instance_symbol": 975202,
+     "instance_category": -2000023,
+     "instance_specimen_score": [
+      0,
+      539
+     ]
+    },
+    "wall_type": 600634,
+    "level": 311,
+    "wall_specimen": 1115258,
+    "new_ids": [
+     1472525,
+     1472526,
+     1472527,
+     1472528
+    ],
+    "commit": {
+     "elemtable_after": 3346,
+     "watermark_after": 1472528,
+     "bytes_added": {
+      "101": 900,
+      "102": 8244,
+      "103": 88
+     }
+    },
+    "verify_written": {
+     "crc_failures": 0,
+     "ecc_mismatches": 0,
+     "walker_errors": 0,
+     "new_ids_found": {
+      "101": {
+       "1472525": {
+        "class": 1509,
+        "clean": true
+       },
+       "1472526": {
+        "class": 1509,
+        "clean": true
+       },
+       "1472527": {
+        "class": 1509,
+        "clean": true
+       },
+       "1472528": {
+        "class": 1509,
+        "clean": true
+       }
+      },
+      "102": {
+       "1472525": {
+        "class": 3842,
+        "clean": true
+       },
+       "1472526": {
+        "class": 3842,
+        "clean": true
+       },
+       "1472527": {
+        "class": 3842,
+        "clean": true
+       },
+       "1472528": {
+        "class": 3842,
+        "clean": true
+       }
+      },
+      "103": {
+       "1472525": {
+        "class": 3884,
+        "clean": true
+       },
+       "1472526": {
+        "class": 3884,
+        "clean": true
+       },
+       "1472527": {
+        "class": 3884,
+        "clean": true
+       },
+       "1472528": {
+        "class": 3884,
+        "clean": true
+       }
+      }
+     },
+     "elemtable_count": 3346,
+     "header_count": 3346,
+     "sentinel_last": {
+      "101": true,
+      "102": true,
+      "103": true
+     },
+     "stamps_ok": true
+    },
+    "structurally_valid": true,
+    "seconds": 0.9,
+    "md5": "9e8d64f07fa36034c9e987c294d4f37f"
+   },
+   "validate": {
+    "verdict": "VALID",
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "first_errors": [],
+    "stats": {
+     "elements_decoded": 3346,
+     "decode_failures": 1,
+     "refs_checked": 51602
+    }
+   },
+   "render_readback": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/ifc_room/render/walls_only_dummy.rvt",
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "rep_class": "SerializedDummy",
+      "rep_bytes": 2,
+      "decode_clean": null,
+      "audit": [
+       "rep is SerializedDummy, not a GElement (nothing baked)"
+      ],
+      "inspect": {
+       "kind": "dummy",
+       "has_baked_geometry": false,
+       "n_faces": 0,
+       "n_edges": 0,
+       "drawable_3d": false
+      },
+      "baked_ok": false
+     },
+     {
+      "elem_id": 1472526,
+      "rep_class": "SerializedDummy",
+      "rep_bytes": 2,
+      "decode_clean": null,
+      "audit": [
+       "rep is SerializedDummy, not a GElement (nothing baked)"
+      ],
+      "inspect": {
+       "kind": "dummy",
+       "has_baked_geometry": false,
+       "n_faces": 0,
+       "n_edges": 0,
+       "drawable_3d": false
+      },
+      "baked_ok": false
+     },
+     {
+      "elem_id": 1472527,
+      "rep_class": "SerializedDummy",
+      "rep_bytes": 2,
+      "decode_clean": null,
+      "audit": [
+       "rep is SerializedDummy, not a GElement (nothing baked)"
+      ],
+      "inspect": {
+       "kind": "dummy",
+       "has_baked_geometry": false,
+       "n_faces": 0,
+       "n_edges": 0,
+       "drawable_3d": false
+      },
+      "baked_ok": false
+     },
+     {
+      "elem_id": 1472528,
+      "rep_class": "SerializedDummy",
+      "rep_bytes": 2,
+      "decode_clean": null,
+      "audit": [
+       "rep is SerializedDummy, not a GElement (nothing baked)"
+      ],
+      "inspect": {
+       "kind": "dummy",
+       "has_baked_geometry": false,
+       "n_faces": 0,
+       "n_edges": 0,
+       "drawable_3d": false
+      },
+      "baked_ok": false
+     }
+    ],
+    "all_baked": false
+   }
+  },
+  "walls_baked.rvt": {
+   "kind": "probe",
+   "what": "the room's 4 walls with BAKED GElement reps (4 ref-plane GGroups + 6-face box) and canonical unjoined geometry bookkeeping",
+   "md5": "1802fe8916cc925f68ce4c36685b85a8",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "build": {
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "out": "experiments/ifc_room/render/walls_baked.rvt",
+    "specimen_source": "experiments/genesis/R5.rvt",
+    "bake": true,
+    "wall_mode": "unjoin",
+    "normalize": true,
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "p0_ft": [
+       15.091863517060364,
+       10.170603674540681
+      ],
+      "p1_ft": [
+       -15.091863517060364,
+       10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472525,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          -15.091863517060364,
+          9.711286089238843,
+          0.0
+         ],
+         [
+          15.091863517060364,
+          10.629921259842519,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {
+        "steps_dropped": [],
+        "snapshots_nulled": [],
+        "idCounter": [
+         8,
+         4
+        ],
+        "gsl_flags": [
+         11,
+         9
+        ],
+        "geom_table": [
+         39,
+         23
+        ],
+        "concealed_faces_cleared": [
+         27,
+         32
+        ]
+       },
+       "warnings": [],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     },
+     {
+      "elem_id": 1472526,
+      "p0_ft": [
+       -15.091863517060364,
+       10.170603674540681
+      ],
+      "p1_ft": [
+       -15.091863517060364,
+       -10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472526,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          -15.551181102362202,
+          -10.170603674540681,
+          0.0
+         ],
+         [
+          -14.632545931758528,
+          10.170603674540681,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {
+        "steps_dropped": [],
+        "snapshots_nulled": [],
+        "idCounter": [
+         8,
+         4
+        ],
+        "gsl_flags": [
+         11,
+         9
+        ],
+        "geom_table": [
+         39,
+         23
+        ],
+        "concealed_faces_cleared": [
+         27,
+         32
+        ]
+       },
+       "warnings": [],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     },
+     {
+      "elem_id": 1472527,
+      "p0_ft": [
+       15.091863517060364,
+       -10.170603674540681
+      ],
+      "p1_ft": [
+       15.091863517060364,
+       10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472527,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          14.632545931758528,
+          -10.170603674540681,
+          0.0
+         ],
+         [
+          15.551181102362202,
+          10.170603674540681,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {
+        "steps_dropped": [],
+        "snapshots_nulled": [],
+        "idCounter": [
+         8,
+         4
+        ],
+        "gsl_flags": [
+         11,
+         9
+        ],
+        "geom_table": [
+         39,
+         23
+        ],
+        "concealed_faces_cleared": [
+         27,
+         32
+        ]
+       },
+       "warnings": [],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     },
+     {
+      "elem_id": 1472528,
+      "p0_ft": [
+       -15.091863517060364,
+       -10.170603674540681
+      ],
+      "p1_ft": [
+       15.091863517060364,
+       -10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472528,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          -15.091863517060364,
+          -10.629921259842519,
+          0.0
+         ],
+         [
+          15.091863517060364,
+          -9.711286089238843,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {
+        "steps_dropped": [],
+        "snapshots_nulled": [],
+        "idCounter": [
+         8,
+         4
+        ],
+        "gsl_flags": [
+         11,
+         9
+        ],
+        "geom_table": [
+         39,
+         23
+        ],
+        "concealed_faces_cleared": [
+         27,
+         32
+        ]
+       },
+       "warnings": [],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     }
+    ],
+    "specimens": {
+     "source": "experiments/genesis/R5.rvt",
+     "injected_ids": [
+      1115258,
+      975217
+     ],
+     "wall_specimen": 1115258,
+     "wall_type": 600634,
+     "instance_specimen": 975217,
+     "instance_symbol": 975202,
+     "instance_category": -2000023,
+     "instance_specimen_score": [
+      0,
+      539
+     ]
+    },
+    "wall_type": 600634,
+    "level": 311,
+    "wall_specimen": 1115258,
+    "new_ids": [
+     1472525,
+     1472526,
+     1472527,
+     1472528
+    ],
+    "commit": {
+     "elemtable_after": 3346,
+     "watermark_after": 1472528,
+     "bytes_added": {
+      "101": 900,
+      "102": 7956,
+      "103": 27616
+     }
+    },
+    "verify_written": {
+     "crc_failures": 0,
+     "ecc_mismatches": 0,
+     "walker_errors": 0,
+     "new_ids_found": {
+      "101": {
+       "1472525": {
+        "class": 1509,
+        "clean": true
+       },
+       "1472526": {
+        "class": 1509,
+        "clean": true
+       },
+       "1472527": {
+        "class": 1509,
+        "clean": true
+       },
+       "1472528": {
+        "class": 1509,
+        "clean": true
+       }
+      },
+      "102": {
+       "1472525": {
+        "class": 3842,
+        "clean": true
+       },
+       "1472526": {
+        "class": 3842,
+        "clean": true
+       },
+       "1472527": {
+        "class": 3842,
+        "clean": true
+       },
+       "1472528": {
+        "class": 3842,
+        "clean": true
+       }
+      },
+      "103": {
+       "1472525": {
+        "class": 2206,
+        "clean": true
+       },
+       "1472526": {
+        "class": 2206,
+        "clean": true
+       },
+       "1472527": {
+        "class": 2206,
+        "clean": true
+       },
+       "1472528": {
+        "class": 2206,
+        "clean": true
+       }
+      }
+     },
+     "elemtable_count": 3346,
+     "header_count": 3346,
+     "sentinel_last": {
+      "101": true,
+      "102": true,
+      "103": true
+     },
+     "stamps_ok": true
+    },
+    "structurally_valid": true,
+    "seconds": 0.9,
+    "md5": "1802fe8916cc925f68ce4c36685b85a8"
+   },
+   "validate": {
+    "verdict": "VALID",
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "first_errors": [],
+    "stats": {
+     "elements_decoded": 3346,
+     "decode_failures": 1,
+     "refs_checked": 51602
+    }
+   },
+   "render_readback": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/ifc_room/render/walls_baked.rvt",
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472525,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         -15.091863517060364,
+         9.711286089238843,
+         0.0
+        ],
+        [
+         15.091863517060364,
+         10.629921259842519,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     },
+     {
+      "elem_id": 1472526,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472526,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         -15.551181102362202,
+         -10.170603674540681,
+         0.0
+        ],
+        [
+         -14.632545931758528,
+         10.170603674540681,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     },
+     {
+      "elem_id": 1472527,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472527,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         14.632545931758528,
+         -10.170603674540681,
+         0.0
+        ],
+        [
+         15.551181102362202,
+         10.170603674540681,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     },
+     {
+      "elem_id": 1472528,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472528,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         -15.091863517060364,
+         -10.629921259842519,
+         0.0
+        ],
+        [
+         15.091863517060364,
+         -9.711286089238843,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     }
+    ],
+    "all_baked": true
+   }
+  },
+  "walls_baked_reponly.rvt": {
+   "kind": "probe",
+   "what": "the room's 4 walls with BAKED reps, cloned geometry-history bookkeeping UNTOUCHED (variable isolation vs walls_baked: only the seq-103 rep differs from walls_only_dummy)",
+   "md5": "b4b7e47986ce0724337b05f63d7a0cc3",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "build": {
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "out": "experiments/ifc_room/render/walls_baked_reponly.rvt",
+    "specimen_source": "experiments/genesis/R5.rvt",
+    "bake": true,
+    "wall_mode": "unjoin",
+    "normalize": false,
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "p0_ft": [
+       15.091863517060364,
+       10.170603674540681
+      ],
+      "p1_ft": [
+       -15.091863517060364,
+       10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472525,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          -15.091863517060364,
+          9.711286089238843,
+          0.0
+         ],
+         [
+          15.091863517060364,
+          10.629921259842519,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {},
+       "warnings": [],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     },
+     {
+      "elem_id": 1472526,
+      "p0_ft": [
+       -15.091863517060364,
+       10.170603674540681
+      ],
+      "p1_ft": [
+       -15.091863517060364,
+       -10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472526,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          -15.551181102362202,
+          -10.170603674540681,
+          0.0
+         ],
+         [
+          -14.632545931758528,
+          10.170603674540681,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {},
+       "warnings": [],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     },
+     {
+      "elem_id": 1472527,
+      "p0_ft": [
+       15.091863517060364,
+       -10.170603674540681
+      ],
+      "p1_ft": [
+       15.091863517060364,
+       10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472527,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          14.632545931758528,
+          -10.170603674540681,
+          0.0
+         ],
+         [
+          15.551181102362202,
+          10.170603674540681,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {},
+       "warnings": [],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     },
+     {
+      "elem_id": 1472528,
+      "p0_ft": [
+       -15.091863517060364,
+       -10.170603674540681
+      ],
+      "p1_ft": [
+       15.091863517060364,
+       -10.170603674540681
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472528,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          -15.091863517060364,
+          -10.629921259842519,
+          0.0
+         ],
+         [
+          15.091863517060364,
+          -9.711286089238843,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {},
+       "warnings": [],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     }
+    ],
+    "specimens": {
+     "source": "experiments/genesis/R5.rvt",
+     "injected_ids": [
+      1115258,
+      975217
+     ],
+     "wall_specimen": 1115258,
+     "wall_type": 600634,
+     "instance_specimen": 975217,
+     "instance_symbol": 975202,
+     "instance_category": -2000023,
+     "instance_specimen_score": [
+      0,
+      539
+     ]
+    },
+    "wall_type": 600634,
+    "level": 311,
+    "wall_specimen": 1115258,
+    "new_ids": [
+     1472525,
+     1472526,
+     1472527,
+     1472528
+    ],
+    "commit": {
+     "elemtable_after": 3346,
+     "watermark_after": 1472528,
+     "bytes_added": {
+      "101": 900,
+      "102": 8244,
+      "103": 27616
+     }
+    },
+    "verify_written": {
+     "crc_failures": 0,
+     "ecc_mismatches": 0,
+     "walker_errors": 0,
+     "new_ids_found": {
+      "101": {
+       "1472525": {
+        "class": 1509,
+        "clean": true
+       },
+       "1472526": {
+        "class": 1509,
+        "clean": true
+       },
+       "1472527": {
+        "class": 1509,
+        "clean": true
+       },
+       "1472528": {
+        "class": 1509,
+        "clean": true
+       }
+      },
+      "102": {
+       "1472525": {
+        "class": 3842,
+        "clean": true
+       },
+       "1472526": {
+        "class": 3842,
+        "clean": true
+       },
+       "1472527": {
+        "class": 3842,
+        "clean": true
+       },
+       "1472528": {
+        "class": 3842,
+        "clean": true
+       }
+      },
+      "103": {
+       "1472525": {
+        "class": 2206,
+        "clean": true
+       },
+       "1472526": {
+        "class": 2206,
+        "clean": true
+       },
+       "1472527": {
+        "class": 2206,
+        "clean": true
+       },
+       "1472528": {
+        "class": 2206,
+        "clean": true
+       }
+      }
+     },
+     "elemtable_count": 3346,
+     "header_count": 3346,
+     "sentinel_last": {
+      "101": true,
+      "102": true,
+      "103": true
+     },
+     "stamps_ok": true
+    },
+    "structurally_valid": true,
+    "seconds": 0.9,
+    "md5": "b4b7e47986ce0724337b05f63d7a0cc3"
+   },
+   "validate": {
+    "verdict": "VALID",
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "first_errors": [],
+    "stats": {
+     "elements_decoded": 3346,
+     "decode_failures": 1,
+     "refs_checked": 51602
+    }
+   },
+   "render_readback": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/ifc_room/render/walls_baked_reponly.rvt",
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472525,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         -15.091863517060364,
+         9.711286089238843,
+         0.0
+        ],
+        [
+         15.091863517060364,
+         10.629921259842519,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     },
+     {
+      "elem_id": 1472526,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472526,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         -15.551181102362202,
+         -10.170603674540681,
+         0.0
+        ],
+        [
+         -14.632545931758528,
+         10.170603674540681,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     },
+     {
+      "elem_id": 1472527,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472527,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         14.632545931758528,
+         -10.170603674540681,
+         0.0
+        ],
+        [
+         15.551181102362202,
+         10.170603674540681,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     },
+     {
+      "elem_id": 1472528,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472528,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         -15.091863517060364,
+         -10.629921259842519,
+         0.0
+        ],
+        [
+         15.091863517060364,
+         -9.711286089238843,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     }
+    ],
+    "all_baked": true
+   }
+  },
+  "wall_baked_min.rvt": {
+   "kind": "probe",
+   "what": "the certified base + ONE baked wall (20 ft x 3.66 m at the origin) = the cleanest render test",
+   "md5": "58cf7111ac024193620d016302e40a9b",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "build": {
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "out": "experiments/ifc_room/render/wall_baked_min.rvt",
+    "specimen_source": "experiments/genesis/R5.rvt",
+    "bake": true,
+    "wall_mode": "unjoin",
+    "normalize": true,
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "p0_ft": [
+       -10.0,
+       0.0
+      ],
+      "p1_ft": [
+       10.0,
+       0.0
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472525,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          -10.0,
+          -0.45931758530183764,
+          0.0
+         ],
+         [
+          10.0,
+          0.45931758530183675,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {
+        "steps_dropped": [],
+        "snapshots_nulled": [],
+        "idCounter": [
+         8,
+         4
+        ],
+        "gsl_flags": [
+         11,
+         9
+        ],
+        "geom_table": [
+         39,
+         23
+        ],
+        "concealed_faces_cleared": [
+         27,
+         32
+        ]
+       },
+       "warnings": [],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     }
+    ],
+    "specimens": {
+     "source": "experiments/genesis/R5.rvt",
+     "injected_ids": [
+      1115258,
+      975217
+     ],
+     "wall_specimen": 1115258,
+     "wall_type": 600634,
+     "instance_specimen": 975217,
+     "instance_symbol": 975202,
+     "instance_category": -2000023,
+     "instance_specimen_score": [
+      0,
+      539
+     ]
+    },
+    "wall_type": 600634,
+    "level": 311,
+    "wall_specimen": 1115258,
+    "new_ids": [
+     1472525
+    ],
+    "commit": {
+     "elemtable_after": 3343,
+     "watermark_after": 1472525,
+     "bytes_added": {
+      "101": 225,
+      "102": 1989,
+      "103": 6904
+     }
+    },
+    "verify_written": {
+     "crc_failures": 0,
+     "ecc_mismatches": 0,
+     "walker_errors": 0,
+     "new_ids_found": {
+      "101": {
+       "1472525": {
+        "class": 1509,
+        "clean": true
+       }
+      },
+      "102": {
+       "1472525": {
+        "class": 3842,
+        "clean": true
+       }
+      },
+      "103": {
+       "1472525": {
+        "class": 2206,
+        "clean": true
+       }
+      }
+     },
+     "elemtable_count": 3343,
+     "header_count": 3343,
+     "sentinel_last": {
+      "101": true,
+      "102": true,
+      "103": true
+     },
+     "stamps_ok": true
+    },
+    "structurally_valid": true,
+    "seconds": 0.9,
+    "md5": "58cf7111ac024193620d016302e40a9b"
+   },
+   "validate": {
+    "verdict": "VALID",
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "first_errors": [],
+    "stats": {
+     "elements_decoded": 3343,
+     "decode_failures": 1,
+     "refs_checked": 51509
+    }
+   },
+   "render_readback": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/ifc_room/render/wall_baked_min.rvt",
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472525,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         -10.0,
+         -0.45931758530183764,
+         0.0
+        ],
+        [
+         10.0,
+         0.45931758530183675,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     }
+    ],
+    "all_baked": true
+   }
+  },
+  "wall_baked_min_catneg.rvt": {
+   "kind": "probe",
+   "what": "the same single baked wall with the rep ROOT category = -1 (no category style) instead of the dangling Walls GStyle id 30 -- the root-category A/B for the extractor",
+   "md5": "cbc832954ae5f7fa4c61e52d747b3a78",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "build": {
+    "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "out": "experiments/ifc_room/render/wall_baked_min_catneg.rvt",
+    "specimen_source": "experiments/genesis/R5.rvt",
+    "bake": true,
+    "wall_mode": "unjoin",
+    "normalize": true,
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "p0_ft": [
+       -10.0,
+       0.0
+      ],
+      "p1_ft": [
+       10.0,
+       0.0
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "header_parents_dropped": {
+        "m_regenOnly": [
+         30
+        ],
+        "m_appearanceParents": [
+         30
+        ]
+       },
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [
+       {
+        "path": "seq102.m_geomSteps.value.m_idCounter",
+        "id": 8
+       }
+      ],
+      "baked": {
+       "summary": {
+        "root_category": -1,
+        "element_id": 1472525,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          -10.0,
+          -0.45931758530183764,
+          0.0
+         ],
+         [
+          10.0,
+          0.45931758530183675,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {
+        "steps_dropped": [],
+        "snapshots_nulled": [],
+        "idCounter": [
+         8,
+         4
+        ],
+        "gsl_flags": [
+         11,
+         9
+        ],
+        "geom_table": [
+         39,
+         23
+        ],
+        "concealed_faces_cleared": [
+         27,
+         32
+        ]
+       },
+       "warnings": [],
+       "notes": [],
+       "root_category_id": -1,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": -1
+      }
+     }
+    ],
+    "specimens": {
+     "source": "experiments/genesis/R5.rvt",
+     "injected_ids": [
+      1115258,
+      975217
+     ],
+     "wall_specimen": 1115258,
+     "wall_type": 600634,
+     "instance_specimen": 975217,
+     "instance_symbol": 975202,
+     "instance_category": -2000023,
+     "instance_specimen_score": [
+      0,
+      539
+     ]
+    },
+    "wall_type": 600634,
+    "level": 311,
+    "wall_specimen": 1115258,
+    "new_ids": [
+     1472525
+    ],
+    "commit": {
+     "elemtable_after": 3343,
+     "watermark_after": 1472525,
+     "bytes_added": {
+      "101": 225,
+      "102": 1989,
+      "103": 6904
+     }
+    },
+    "verify_written": {
+     "crc_failures": 0,
+     "ecc_mismatches": 0,
+     "walker_errors": 0,
+     "new_ids_found": {
+      "101": {
+       "1472525": {
+        "class": 1509,
+        "clean": true
+       }
+      },
+      "102": {
+       "1472525": {
+        "class": 3842,
+        "clean": true
+       }
+      },
+      "103": {
+       "1472525": {
+        "class": 2206,
+        "clean": true
+       }
+      }
+     },
+     "elemtable_count": 3343,
+     "header_count": 3343,
+     "sentinel_last": {
+      "101": true,
+      "102": true,
+      "103": true
+     },
+     "stamps_ok": true
+    },
+    "structurally_valid": true,
+    "seconds": 0.9,
+    "md5": "cbc832954ae5f7fa4c61e52d747b3a78"
+   },
+   "validate": {
+    "verdict": "VALID",
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "first_errors": [],
+    "stats": {
+     "elements_decoded": 3343,
+     "decode_failures": 1,
+     "refs_checked": 51509
+    }
+   },
+   "render_readback": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/ifc_room/render/wall_baked_min_catneg.rvt",
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": -1,
+       "element_id": 1472525,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         -10.0,
+         -0.45931758530183764,
+         0.0
+        ],
+        [
+         10.0,
+         0.45931758530183675,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     }
+    ],
+    "all_baked": true
+   }
+  },
+  "diag_rst_wall_baked.rvt": {
+   "kind": "probe",
+   "what": "DIAGNOSTIC: one baked wall (our constructor, R5-lineage specimen = rst's own wall type 600634) on the untouched rst SAMPLE -- which HAS the Walls-category GStyle row 30, the Default material 24 and native walls; separates 'our baked geometry is wrong' from 'the genesis base lacks the Walls category catalog rows'",
+   "md5": "f473c9015ea4dc0e039995228e1db126",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "build": {
+    "base": "samples/rstbasicsampleproject.rvt",
+    "out": "experiments/ifc_room/render/diag_rst_wall_baked.rvt",
+    "specimen_source": "samples/rstbasicsampleproject.rvt",
+    "bake": true,
+    "wall_mode": "unjoin",
+    "normalize": true,
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "p0_ft": [
+       -10.0,
+       0.0
+      ],
+      "p1_ft": [
+       10.0,
+       0.0
+      ],
+      "height_ft": 12.007874015748031,
+      "clone_cleanup": {
+       "mode": "unjoin",
+       "face_ref_overrides_cleared": 4,
+       "join_edge_tags_cleared": 2,
+       "specimen_self_refs_repointed": 0,
+       "form_steps_removed": [
+        "JoinEndGStep",
+        "JoinEndGStep"
+       ],
+       "tweak_steps_removed": [
+        "WallJoinTweakGStep",
+        "VCWSplitFaceGStep"
+       ],
+       "snapshots_nulled": [
+        "m_bRepFormSnapshot",
+        "m_bRepAdjustSnapshot"
+       ]
+      },
+      "dangling_refs": [],
+      "baked": {
+       "summary": {
+        "root_category": 30,
+        "element_id": 1472525,
+        "gElemType": 3,
+        "ggroups": 4,
+        "solids": 1,
+        "solid_faces": 6,
+        "solid_edges": 12,
+        "materials": [
+         600660
+        ],
+        "bBox": [
+         [
+          -10.0,
+          -0.45931758530183764,
+          0.0
+         ],
+         [
+          10.0,
+          0.45931758530183675,
+          12.007874015748031
+         ]
+        ]
+       },
+       "history_log": {
+        "steps_dropped": [],
+        "snapshots_nulled": [],
+        "idCounter": [
+         8,
+         4
+        ],
+        "gsl_flags": [
+         11,
+         9
+        ],
+        "geom_table": [
+         39,
+         23
+        ],
+        "concealed_faces_cleared": [
+         27,
+         32
+        ]
+       },
+       "warnings": [
+        "material 600660 has surface pattern 448: emitted patternId + colour with m_data null [hypothesis: the extractor tessellates faces regardless of pattern data]"
+       ],
+       "notes": [],
+       "root_category_id": 30,
+       "material_id": 600660,
+       "refplane_category_id": 24925,
+       "refplane_material_id": 24
+      }
+     }
+    ],
+    "specimens": {
+     "source": "samples/rstbasicsampleproject.rvt",
+     "injected_ids": [
+      1115258,
+      975217
+     ],
+     "wall_specimen": 1115258,
+     "wall_type": 600634,
+     "instance_specimen": 975217,
+     "instance_symbol": 975202,
+     "instance_category": -2000023,
+     "instance_specimen_score": [
+      0,
+      539
+     ]
+    },
+    "wall_type": 600634,
+    "level": 311,
+    "wall_specimen": 1115258,
+    "new_ids": [
+     1472525
+    ],
+    "commit": {
+     "elemtable_after": 13937,
+     "watermark_after": 1472525,
+     "bytes_added": {
+      "101": 241,
+      "102": 1989,
+      "103": 6904
+     }
+    },
+    "verify_written": {
+     "crc_failures": 0,
+     "ecc_mismatches": 0,
+     "walker_errors": 0,
+     "new_ids_found": {
+      "101": {
+       "1472525": {
+        "class": 1509,
+        "clean": true
+       }
+      },
+      "102": {
+       "1472525": {
+        "class": 3842,
+        "clean": true
+       }
+      },
+      "103": {
+       "1472525": {
+        "class": 2206,
+        "clean": true
+       }
+      }
+     },
+     "elemtable_count": 13937,
+     "header_count": 13937,
+     "sentinel_last": {
+      "101": true,
+      "102": true,
+      "103": true
+     },
+     "stamps_ok": true
+    },
+    "structurally_valid": true,
+    "seconds": 12.2,
+    "md5": "f473c9015ea4dc0e039995228e1db126"
+   },
+   "validate": {
+    "verdict": "VALID",
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "first_errors": [],
+    "stats": {
+     "elements_decoded": 32012,
+     "decode_failures": 7,
+     "refs_checked": 585071
+    }
+   },
+   "render_readback": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/ifc_room/render/diag_rst_wall_baked.rvt",
+    "walls": [
+     {
+      "elem_id": 1472525,
+      "rep_class": "GElement",
+      "rep_bytes": 6884,
+      "decode_clean": true,
+      "audit": [],
+      "summary": {
+       "root_category": 30,
+       "element_id": 1472525,
+       "gElemType": 3,
+       "ggroups": 4,
+       "solids": 1,
+       "solid_faces": 6,
+       "solid_edges": 12,
+       "materials": [
+        600660
+       ],
+       "bBox": [
+        [
+         -10.0,
+         -0.45931758530183764,
+         0.0
+        ],
+        [
+         10.0,
+         0.45931758530183675,
+         12.007874015748031
+        ]
+       ]
+      },
+      "inspect": {
+       "kind": "brep",
+       "has_baked_geometry": true,
+       "n_faces": 10,
+       "n_edges": 28,
+       "drawable_3d": true
+      },
+      "baked_ok": true
+     }
+    ],
+    "all_baked": true
+   }
+  }
+ },
+ "room_walls": [
+  {
+   "id": "W-N",
+   "p0_ft": [
+    15.091863517060364,
+    10.170603674540681
+   ],
+   "p1_ft": [
+    -15.091863517060364,
+    10.170603674540681
+   ],
+   "height_ft": 12.007874015748031
+  },
+  {
+   "id": "W-W",
+   "p0_ft": [
+    -15.091863517060364,
+    10.170603674540681
+   ],
+   "p1_ft": [
+    -15.091863517060364,
+    -10.170603674540681
+   ],
+   "height_ft": 12.007874015748031
+  },
+  {
+   "id": "W-E",
+   "p0_ft": [
+    15.091863517060364,
+    -10.170603674540681
+   ],
+   "p1_ft": [
+    15.091863517060364,
+    10.170603674540681
+   ],
+   "height_ft": 12.007874015748031
+  },
+  {
+   "id": "W-S",
+   "p0_ft": [
+    -15.091863517060364,
+    -10.170603674540681
+   ],
+   "p1_ft": [
+    15.091863517060364,
+    -10.170603674540681
+   ],
+   "height_ft": 12.007874015748031
+  }
+ ],
+ "root_category_id": 30,
+ "probes_json": "experiments/ifc_room/render/probes.json"
+}

@@ -1,0 +1,923 @@
+{
+ "specVersion": "0.1.0",
+ "project": {
+  "name": "DDOT Coolidge - Area E bus storage electrical room (Chicago-plenum job)",
+  "number": "BS-EP7-00",
+  "buildingName": "Bus Storage Building - Area E",
+  "author": "revit-bridge",
+  "organisation": "C. Karagitz Electric",
+  "issueDate": "2026-08-03",
+  "description": "Parametric regeneration of the SAME Area E electrical room the customer exported from Claude Design (samples/design-ifc/bs-area-e-electrical-room.ifc). Corner-origin frame: x along the 34 ft (10.363 m) clear length, y across the 16 ft (4.877 m) clear width, north (equipment) wall at y = 4.877, 20 ft (6.096 m) to structure, front/south wall left open exactly as in the Design model. Equipment positions are the insertion points recovered from the customer's own export by harden_ifc.py, translated into this corner frame (B-HG4 centreline = 1.399 m from the west wall, matching the CenterlineFromGrid16BS callout). NEC 110.26 working clearances are recorded as PanelSchedule psets, NEVER as solid geometry."
+ },
+ "units": {
+  "length": "m",
+  "angle": "deg"
+ },
+ "defaults": {
+  "storeyHeight": 6.096,
+  "wallThickness": 0.2,
+  "slabThickness": 0.15,
+  "roofForm": "none",
+  "autoOpenings": false
+ },
+ "levels": [
+  {
+   "id": "L1",
+   "name": "Level 1",
+   "elevation": 0.0
+  },
+  {
+   "id": "TOS",
+   "name": "T.O. Structure (20 ft)",
+   "elevation": 6.096,
+   "storey": false
+  }
+ ],
+ "walls": [
+  {
+   "id": "W-north",
+   "start": [
+    0.0,
+    4.877
+   ],
+   "end": [
+    10.363,
+    4.877
+   ],
+   "thickness": 0.2,
+   "height": 6.096,
+   "type": "Painted CMU 8in",
+   "function": "exterior"
+  },
+  {
+   "id": "W-west",
+   "start": [
+    0.0,
+    0.0
+   ],
+   "end": [
+    0.0,
+    4.877
+   ],
+   "thickness": 0.2,
+   "height": 6.096,
+   "type": "Painted CMU 8in",
+   "function": "exterior"
+  },
+  {
+   "id": "W-east",
+   "start": [
+    10.363,
+    4.877
+   ],
+   "end": [
+    10.363,
+    0.0
+   ],
+   "thickness": 0.2,
+   "height": 6.096,
+   "type": "Painted CMU 8in",
+   "function": "exterior"
+  }
+ ],
+ "floors": [
+  {
+   "id": "Slab-E1",
+   "level": "L1",
+   "boundary": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     10.363,
+     0.0
+    ],
+    [
+     10.363,
+     4.877
+    ],
+    [
+     0.0,
+     4.877
+    ]
+   ],
+   "thickness": 0.15
+  }
+ ],
+ "doors": [
+  {
+   "id": "D-E101",
+   "hostWall": "W-west",
+   "level": "L1",
+   "offset": 1.5,
+   "width": 0.9144,
+   "height": 2.134,
+   "operation": "SINGLE_SWING_LEFT"
+  }
+ ],
+ "rooms": [
+  {
+   "id": "RM-E101",
+   "name": "Electrical Room E101",
+   "number": "E101",
+   "level": "L1",
+   "boundary": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     10.363,
+     0.0
+    ],
+    [
+     10.363,
+     4.877
+    ],
+    [
+     0.0,
+     4.877
+    ]
+   ],
+   "height": 6.096,
+   "occupancy": "Electrical",
+   "psets": {
+    "RoomInformation": {
+     "Facility": "DDOT Coolidge - bus storage",
+     "Area": "Area E",
+     "ClearLengthFt": {
+      "value": 34,
+      "type": "real"
+     },
+     "ClearWidthFt": {
+      "value": 16,
+      "type": "real"
+     },
+     "ClearHeightToStructureFt": {
+      "value": 20,
+      "type": "real"
+     },
+     "ConduitRackMinElevationFt": {
+      "value": 16.5,
+      "type": "real"
+     },
+     "PlenumType": "Chicago plenum (recessed lighting above)"
+    }
+   }
+  }
+ ],
+ "equipment": [
+  {
+   "kind": "panelboard",
+   "name": "B-HG4",
+   "level": "L1",
+   "position": [
+    1.399,
+    4.757
+   ],
+   "rotationDeg": 0,
+   "elevation": 1.067,
+   "dims": {
+    "w": 0.508,
+    "d": 0.15,
+    "h": 0.914
+   },
+   "typeName": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+   "description": "Panelboard, 480Y/277 V; fed from MDB via BS-FD1020",
+   "psets": {
+    "PanelSchedule": {
+     "PanelName": "B-HG4",
+     "Voltage": {
+      "value": 480,
+      "type": "voltage"
+     },
+     "Phases": {
+      "value": 3,
+      "type": "integer"
+     },
+     "Wires": {
+      "value": 4,
+      "type": "integer"
+     },
+     "BusRating": {
+      "value": 400,
+      "type": "current"
+     },
+     "MainsType": "Main Breaker",
+     "MainsRating": {
+      "value": 400,
+      "type": "current"
+     },
+     "ShortCircuitRatingkA": {
+      "value": 35,
+      "type": "real"
+     },
+     "Mounting": "Surface",
+     "NumberOfCircuits": {
+      "value": 42,
+      "type": "count"
+     },
+     "NeutralRating": "100%",
+     "FedFrom": "MDB via BS-FD1020",
+     "FeederRun": "BS-FD1020",
+     "TopOfPanelAFF": {
+      "value": 1.981,
+      "type": "length"
+     },
+     "WorkingClearanceDepth": {
+      "value": 1.067,
+      "type": "length"
+     },
+     "WorkingClearanceWidth": {
+      "value": 0.762,
+      "type": "length"
+     },
+     "WorkingClearanceHeight": {
+      "value": 1.981,
+      "type": "length"
+     }
+    }
+   },
+   "typePsets": {
+    "Pset_ManufacturerTypeInformation": {
+     "Manufacturer": "Eaton",
+     "ModelLabel": "Pow-R-Line 4",
+     "ModelReference": "PRL4-400MB-42"
+    }
+   },
+   "hostWall": "W-north"
+  },
+  {
+   "kind": "panelboard",
+   "name": "B-LR1",
+   "level": "L1",
+   "position": [
+    2.195,
+    4.757
+   ],
+   "rotationDeg": 0,
+   "elevation": 1.067,
+   "dims": {
+    "w": 0.508,
+    "d": 0.15,
+    "h": 0.914
+   },
+   "typeName": "Eaton Pow-R-Line 1 (style) - 225A MLO - 42 space",
+   "description": "Panelboard, 208Y/120 V; fed from XFMR-LR1 via BS-FD1011",
+   "psets": {
+    "PanelSchedule": {
+     "PanelName": "B-LR1",
+     "Voltage": {
+      "value": 208,
+      "type": "voltage"
+     },
+     "Phases": {
+      "value": 3,
+      "type": "integer"
+     },
+     "Wires": {
+      "value": 4,
+      "type": "integer"
+     },
+     "BusRating": {
+      "value": 225,
+      "type": "current"
+     },
+     "MainsType": "Main Lugs Only",
+     "MainsRating": {
+      "value": 225,
+      "type": "current"
+     },
+     "ShortCircuitRatingkA": {
+      "value": 10,
+      "type": "real"
+     },
+     "Mounting": "Surface",
+     "NumberOfCircuits": {
+      "value": 42,
+      "type": "count"
+     },
+     "NeutralRating": "100%",
+     "FedFrom": "XFMR-LR1 via BS-FD1011",
+     "FeederRun": "BS-FD1011",
+     "TopOfPanelAFF": {
+      "value": 1.981,
+      "type": "length"
+     },
+     "WorkingClearanceDepth": {
+      "value": 0.914,
+      "type": "length"
+     },
+     "WorkingClearanceWidth": {
+      "value": 0.762,
+      "type": "length"
+     },
+     "WorkingClearanceHeight": {
+      "value": 1.981,
+      "type": "length"
+     }
+    }
+   },
+   "typePsets": {
+    "Pset_ManufacturerTypeInformation": {
+     "Manufacturer": "Eaton",
+     "ModelLabel": "Pow-R-Line 1",
+     "ModelReference": "PRL1-225MLO-42"
+    }
+   },
+   "hostWall": "W-north"
+  },
+  {
+   "kind": "panelboard",
+   "name": "B-HQ1",
+   "level": "L1",
+   "position": [
+    4.907,
+    4.757
+   ],
+   "rotationDeg": 0,
+   "elevation": 1.067,
+   "dims": {
+    "w": 0.508,
+    "d": 0.15,
+    "h": 0.914
+   },
+   "typeName": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+   "description": "Panelboard, 480Y/277 V; fed from B-HD1 via BS-FD1009",
+   "psets": {
+    "PanelSchedule": {
+     "PanelName": "B-HQ1",
+     "Voltage": {
+      "value": 480,
+      "type": "voltage"
+     },
+     "Phases": {
+      "value": 3,
+      "type": "integer"
+     },
+     "Wires": {
+      "value": 4,
+      "type": "integer"
+     },
+     "BusRating": {
+      "value": 400,
+      "type": "current"
+     },
+     "MainsType": "Main Breaker",
+     "MainsRating": {
+      "value": 400,
+      "type": "current"
+     },
+     "ShortCircuitRatingkA": {
+      "value": 35,
+      "type": "real"
+     },
+     "Mounting": "Surface",
+     "NumberOfCircuits": {
+      "value": 42,
+      "type": "count"
+     },
+     "NeutralRating": "100%",
+     "FedFrom": "B-HD1 via BS-FD1009",
+     "FeederRun": "BS-FD1009",
+     "TopOfPanelAFF": {
+      "value": 1.981,
+      "type": "length"
+     },
+     "WorkingClearanceDepth": {
+      "value": 1.067,
+      "type": "length"
+     },
+     "WorkingClearanceWidth": {
+      "value": 0.762,
+      "type": "length"
+     },
+     "WorkingClearanceHeight": {
+      "value": 1.981,
+      "type": "length"
+     }
+    }
+   },
+   "typePsets": {
+    "Pset_ManufacturerTypeInformation": {
+     "Manufacturer": "Eaton",
+     "ModelLabel": "Pow-R-Line 4",
+     "ModelReference": "PRL4-400MB-42"
+    }
+   },
+   "hostWall": "W-north"
+  },
+  {
+   "kind": "panelboard",
+   "name": "B-LQ1",
+   "level": "L1",
+   "position": [
+    5.614,
+    4.757
+   ],
+   "rotationDeg": 0,
+   "elevation": 1.067,
+   "dims": {
+    "w": 0.508,
+    "d": 0.15,
+    "h": 0.914
+   },
+   "typeName": "Eaton Pow-R-Line 1 (style) - 225A MLO - 42 space",
+   "description": "Panelboard, 208Y/120 V; fed from XFMR-LQ1 via BS-FD1013",
+   "psets": {
+    "PanelSchedule": {
+     "PanelName": "B-LQ1",
+     "Voltage": {
+      "value": 208,
+      "type": "voltage"
+     },
+     "Phases": {
+      "value": 3,
+      "type": "integer"
+     },
+     "Wires": {
+      "value": 4,
+      "type": "integer"
+     },
+     "BusRating": {
+      "value": 225,
+      "type": "current"
+     },
+     "MainsType": "Main Lugs Only",
+     "MainsRating": {
+      "value": 225,
+      "type": "current"
+     },
+     "ShortCircuitRatingkA": {
+      "value": 10,
+      "type": "real"
+     },
+     "Mounting": "Surface",
+     "NumberOfCircuits": {
+      "value": 42,
+      "type": "count"
+     },
+     "NeutralRating": "100%",
+     "FedFrom": "XFMR-LQ1 via BS-FD1013",
+     "FeederRun": "BS-FD1013",
+     "TopOfPanelAFF": {
+      "value": 1.981,
+      "type": "length"
+     },
+     "WorkingClearanceDepth": {
+      "value": 0.914,
+      "type": "length"
+     },
+     "WorkingClearanceWidth": {
+      "value": 0.762,
+      "type": "length"
+     },
+     "WorkingClearanceHeight": {
+      "value": 1.981,
+      "type": "length"
+     }
+    }
+   },
+   "typePsets": {
+    "Pset_ManufacturerTypeInformation": {
+     "Manufacturer": "Eaton",
+     "ModelLabel": "Pow-R-Line 1",
+     "ModelReference": "PRL1-225MLO-42"
+    }
+   },
+   "hostWall": "W-north"
+  },
+  {
+   "kind": "panelboard",
+   "name": "B-SLQ1",
+   "level": "L1",
+   "position": [
+    6.309,
+    4.757
+   ],
+   "rotationDeg": 0,
+   "elevation": 1.067,
+   "dims": {
+    "w": 0.508,
+    "d": 0.15,
+    "h": 0.914
+   },
+   "typeName": "Eaton Pow-R-Line 1 (style) - 225A MLO - 42 space",
+   "description": "Panelboard, 208Y/120 V (verify system); fed from XFMR-B-SLQ1 (run not in BS-EP7-00 - verify)",
+   "psets": {
+    "PanelSchedule": {
+     "PanelName": "B-SLQ1",
+     "Voltage": {
+      "value": 208,
+      "type": "voltage"
+     },
+     "Phases": {
+      "value": 3,
+      "type": "integer"
+     },
+     "Wires": {
+      "value": 4,
+      "type": "integer"
+     },
+     "BusRating": {
+      "value": 225,
+      "type": "current"
+     },
+     "MainsType": "Main Lugs Only",
+     "MainsRating": {
+      "value": 225,
+      "type": "current"
+     },
+     "ShortCircuitRatingkA": {
+      "value": 10,
+      "type": "real"
+     },
+     "Mounting": "Surface",
+     "NumberOfCircuits": {
+      "value": 42,
+      "type": "count"
+     },
+     "NeutralRating": "100%",
+     "FedFrom": "XFMR-B-SLQ1 (verify)",
+     "FeederRun": "not in BS-EP7-00 - verify",
+     "TopOfPanelAFF": {
+      "value": 1.981,
+      "type": "length"
+     },
+     "WorkingClearanceDepth": {
+      "value": 0.914,
+      "type": "length"
+     },
+     "WorkingClearanceWidth": {
+      "value": 0.762,
+      "type": "length"
+     },
+     "WorkingClearanceHeight": {
+      "value": 1.981,
+      "type": "length"
+     }
+    }
+   },
+   "typePsets": {
+    "Pset_ManufacturerTypeInformation": {
+     "Manufacturer": "Eaton",
+     "ModelLabel": "Pow-R-Line 1",
+     "ModelReference": "PRL1-225MLO-42"
+    }
+   },
+   "hostWall": "W-north"
+  },
+  {
+   "kind": "panelboard",
+   "name": "B-SHQ1",
+   "level": "L1",
+   "position": [
+    8.833,
+    4.757
+   ],
+   "rotationDeg": 0,
+   "elevation": 1.067,
+   "dims": {
+    "w": 0.508,
+    "d": 0.15,
+    "h": 0.914
+   },
+   "typeName": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+   "description": "Panelboard, 480Y/277 V (verify); fed from MDB (run not in BS-EP7-00 - verify)",
+   "psets": {
+    "PanelSchedule": {
+     "PanelName": "B-SHQ1",
+     "Voltage": {
+      "value": 480,
+      "type": "voltage"
+     },
+     "Phases": {
+      "value": 3,
+      "type": "integer"
+     },
+     "Wires": {
+      "value": 4,
+      "type": "integer"
+     },
+     "BusRating": {
+      "value": 400,
+      "type": "current"
+     },
+     "MainsType": "Main Breaker",
+     "MainsRating": {
+      "value": 400,
+      "type": "current"
+     },
+     "ShortCircuitRatingkA": {
+      "value": 35,
+      "type": "real"
+     },
+     "Mounting": "Surface",
+     "NumberOfCircuits": {
+      "value": 42,
+      "type": "count"
+     },
+     "NeutralRating": "100%",
+     "FedFrom": "MDB (verify)",
+     "FeederRun": "not in BS-EP7-00 - verify",
+     "TopOfPanelAFF": {
+      "value": 1.981,
+      "type": "length"
+     },
+     "WorkingClearanceDepth": {
+      "value": 1.067,
+      "type": "length"
+     },
+     "WorkingClearanceWidth": {
+      "value": 0.762,
+      "type": "length"
+     },
+     "WorkingClearanceHeight": {
+      "value": 1.981,
+      "type": "length"
+     }
+    }
+   },
+   "typePsets": {
+    "Pset_ManufacturerTypeInformation": {
+     "Manufacturer": "Eaton",
+     "ModelLabel": "Pow-R-Line 4",
+     "ModelReference": "PRL4-400MB-42"
+    }
+   },
+   "hostWall": "W-north"
+  },
+  {
+   "kind": "transformer",
+   "name": "XFMR-LR1",
+   "level": "L1",
+   "position": [
+    2.195,
+    0.405
+   ],
+   "rotationDeg": 90,
+   "elevation": 0.1,
+   "dims": {
+    "w": 0.61,
+    "d": 0.51,
+    "h": 0.76
+   },
+   "typeName": "45 kVA dry-type 480D-208Y/120",
+   "description": "45 kVA dry-type, 480 V delta - 208Y/120 V, feeds B-LR1; location assumed pending BS-EQ1-01-E callout geometry",
+   "psets": {
+    "TransformerSchedule": {
+     "Tag": "XFMR-LR1",
+     "RatingkVA": {
+      "value": 45,
+      "type": "real"
+     },
+     "Primary": "480 V delta",
+     "Secondary": "208Y/120 V",
+     "Feeds": "B-LR1",
+     "PrimaryVoltage": {
+      "value": 480,
+      "type": "voltage"
+     },
+     "SecondaryVoltage": {
+      "value": 208,
+      "type": "voltage"
+     },
+     "Mounting": "Floor / housekeeping pad",
+     "WorkingClearanceDepth": {
+      "value": 0.914,
+      "type": "length"
+     }
+    }
+   },
+   "typePsets": {
+    "Pset_ManufacturerTypeInformation": {
+     "Manufacturer": "Eaton",
+     "ModelLabel": "DT-3 45 kVA dry-type"
+    }
+   }
+  },
+  {
+   "kind": "transformer",
+   "name": "XFMR-LQ1",
+   "level": "L1",
+   "position": [
+    4.816,
+    0.405
+   ],
+   "rotationDeg": 90,
+   "elevation": 0.1,
+   "dims": {
+    "w": 0.61,
+    "d": 0.51,
+    "h": 0.76
+   },
+   "typeName": "45 kVA dry-type 480D-208Y/120",
+   "description": "45 kVA dry-type, 480 V delta - 208Y/120 V, feeds B-LQ1; location assumed pending BS-EQ1-01-E callout geometry",
+   "psets": {
+    "TransformerSchedule": {
+     "Tag": "XFMR-LQ1",
+     "RatingkVA": {
+      "value": 45,
+      "type": "real"
+     },
+     "Primary": "480 V delta",
+     "Secondary": "208Y/120 V",
+     "Feeds": "B-LQ1",
+     "PrimaryVoltage": {
+      "value": 480,
+      "type": "voltage"
+     },
+     "SecondaryVoltage": {
+      "value": 208,
+      "type": "voltage"
+     },
+     "Mounting": "Floor / housekeeping pad",
+     "WorkingClearanceDepth": {
+      "value": 0.914,
+      "type": "length"
+     }
+    }
+   },
+   "typePsets": {
+    "Pset_ManufacturerTypeInformation": {
+     "Manufacturer": "Eaton",
+     "ModelLabel": "DT-3 45 kVA dry-type"
+    }
+   }
+  },
+  {
+   "kind": "transformer",
+   "name": "XFMR-B-SLQ1",
+   "level": "L1",
+   "position": [
+    6.888,
+    0.405
+   ],
+   "rotationDeg": 90,
+   "elevation": 0.1,
+   "dims": {
+    "w": 0.61,
+    "d": 0.51,
+    "h": 0.76
+   },
+   "typeName": "45 kVA dry-type 480D-208Y/120",
+   "description": "45 kVA dry-type, 480 V delta - 208Y/120 V, feeds B-SLQ1; location assumed pending BS-EQ1-01-E callout geometry",
+   "psets": {
+    "TransformerSchedule": {
+     "Tag": "XFMR-B-SLQ1",
+     "RatingkVA": {
+      "value": 45,
+      "type": "real"
+     },
+     "Primary": "480 V delta",
+     "Secondary": "208Y/120 V",
+     "Feeds": "B-SLQ1",
+     "PrimaryVoltage": {
+      "value": 480,
+      "type": "voltage"
+     },
+     "SecondaryVoltage": {
+      "value": 208,
+      "type": "voltage"
+     },
+     "Mounting": "Floor / housekeeping pad",
+     "WorkingClearanceDepth": {
+      "value": 0.914,
+      "type": "length"
+     }
+    }
+   },
+   "typePsets": {
+    "Pset_ManufacturerTypeInformation": {
+     "Manufacturer": "Eaton",
+     "ModelLabel": "DT-3 45 kVA dry-type"
+    }
+   }
+  },
+  {
+   "kind": "proxy",
+   "name": "HGR-01",
+   "level": "L1",
+   "ifcClass": "IfcDiscreteAccessory",
+   "predefinedType": "BRACKET",
+   "position": [
+    2.0,
+    2.438
+   ],
+   "rotationDeg": 0,
+   "elevation": 5.029,
+   "dims": {
+    "w": 1.52,
+    "d": 1.076,
+    "h": 0.06
+   },
+   "typeName": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+   "description": "Trapeze hanger rack (strut on threaded rod) at 16 ft 6 in AFF; identical racks share one type and one geometry map (instanced)",
+   "psets": {
+    "SupportSchedule": {
+     "Rack": "HGR-01",
+     "StrutSize": "1-5/8 in",
+     "RodDiameter": "3/8 in",
+     "ElevationAFFft": {
+      "value": 16.5,
+      "type": "real"
+     }
+    }
+   }
+  },
+  {
+   "kind": "proxy",
+   "name": "HGR-02",
+   "level": "L1",
+   "ifcClass": "IfcDiscreteAccessory",
+   "predefinedType": "BRACKET",
+   "position": [
+    4.0,
+    2.438
+   ],
+   "rotationDeg": 0,
+   "elevation": 5.029,
+   "dims": {
+    "w": 1.52,
+    "d": 1.076,
+    "h": 0.06
+   },
+   "typeName": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+   "psets": {
+    "SupportSchedule": {
+     "Rack": "HGR-02",
+     "StrutSize": "1-5/8 in",
+     "RodDiameter": "3/8 in",
+     "ElevationAFFft": {
+      "value": 16.5,
+      "type": "real"
+     }
+    }
+   }
+  },
+  {
+   "kind": "proxy",
+   "name": "HGR-03",
+   "level": "L1",
+   "ifcClass": "IfcDiscreteAccessory",
+   "predefinedType": "BRACKET",
+   "position": [
+    6.0,
+    2.438
+   ],
+   "rotationDeg": 0,
+   "elevation": 5.029,
+   "dims": {
+    "w": 1.52,
+    "d": 1.076,
+    "h": 0.06
+   },
+   "typeName": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+   "psets": {
+    "SupportSchedule": {
+     "Rack": "HGR-03",
+     "StrutSize": "1-5/8 in",
+     "RodDiameter": "3/8 in",
+     "ElevationAFFft": {
+      "value": 16.5,
+      "type": "real"
+     }
+    }
+   }
+  },
+  {
+   "kind": "proxy",
+   "name": "HGR-04",
+   "level": "L1",
+   "ifcClass": "IfcDiscreteAccessory",
+   "predefinedType": "BRACKET",
+   "position": [
+    8.0,
+    2.438
+   ],
+   "rotationDeg": 0,
+   "elevation": 5.029,
+   "dims": {
+    "w": 1.52,
+    "d": 1.076,
+    "h": 0.06
+   },
+   "typeName": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+   "psets": {
+    "SupportSchedule": {
+     "Rack": "HGR-04",
+     "StrutSize": "1-5/8 in",
+     "RodDiameter": "3/8 in",
+     "ElevationAFFft": {
+      "value": 16.5,
+      "type": "real"
+     }
+    }
+   }
+  }
+ ],
+ "notes": [
+  "hosted variant: every panelboard carries hostWall=W-north -> rvt.hosting mounts it on the north wall's room-side face (SketchPlane + face-hosted instance)"
+ ]
+}

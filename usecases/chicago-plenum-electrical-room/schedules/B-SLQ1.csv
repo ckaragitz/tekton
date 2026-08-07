@@ -1,0 +1,6 @@
+panel,ckt,slots,description,load_class,phases,poles,va,amps,breaker_a,wire,continuous,va_A,va_B,va_C
+B-SLQ1,1,1,Site lighting contactor - Area E yard 1,lighting,1,1,2400.0,20.0,25,10 AWG,1,2400.0,0.0,0.0
+B-SLQ1,2,2,SPARE,misc,1,1,0.0,0.0,20.0,12 AWG,0,0.0,0.0,0.0
+B-SLQ1,3,3,Site lighting contactor - Area E yard 2,lighting,1,1,2400.0,20.0,25,10 AWG,1,0.0,2400.0,0.0
+B-SLQ1,4,4,SPARE,misc,1,1,0.0,0.0,20.0,12 AWG,0,0.0,0.0,0.0
+B-SLQ1,5,5,Exterior GFCI receptacles (4 @ 180 VA),receptacle,1,1,720.0,6.0,20,12 AWG,0,0.0,0.0,720.0

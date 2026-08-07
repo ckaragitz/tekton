@@ -1,0 +1,92 @@
+{
+ "rfa:racbasicsamplefamily-2026.rfa": {
+  "101": {
+   "records": 1993,
+   "tested": 1993,
+   "pass": 1993,
+   "fail": 0,
+   "skipped_unclean": 0,
+   "skipped_bad_trailer": 0,
+   "failures": []
+  },
+  "102": {
+   "records": 1993,
+   "tested": 1993,
+   "pass": 1993,
+   "fail": 0,
+   "skipped_unclean": 0,
+   "skipped_bad_trailer": 0,
+   "failures": []
+  },
+  "103": {
+   "records": 1993,
+   "tested": 1993,
+   "pass": 1993,
+   "fail": 0,
+   "skipped_unclean": 0,
+   "skipped_bad_trailer": 0,
+   "failures": []
+  },
+  "all_pass": true
+ },
+ "rme:unit271:M_Plain Recessed Lighting Fixture": {
+  "101": {
+   "records": 606,
+   "tested": 606,
+   "pass": 606,
+   "fail": 0,
+   "skipped_unclean": 0,
+   "skipped_bad_trailer": 0,
+   "failures": []
+  },
+  "102": {
+   "records": 606,
+   "tested": 606,
+   "pass": 606,
+   "fail": 0,
+   "skipped_unclean": 0,
+   "skipped_bad_trailer": 0,
+   "failures": []
+  },
+  "103": {
+   "records": 606,
+   "tested": 606,
+   "pass": 606,
+   "fail": 0,
+   "skipped_unclean": 0,
+   "skipped_bad_trailer": 0,
+   "failures": []
+  },
+  "all_pass": true
+ },
+ "rme:unit243:M_Lighting and Appliance Panelboard - 208V MLO - Surface": {
+  "101": {
+   "records": 552,
+   "tested": 552,
+   "pass": 552,
+   "fail": 0,
+   "skipped_unclean": 0,
+   "skipped_bad_trailer": 0,
+   "failures": []
+  },
+  "102": {
+   "records": 552,
+   "tested": 552,
+   "pass": 552,
+   "fail": 0,
+   "skipped_unclean": 0,
+   "skipped_bad_trailer": 0,
+   "failures": []
+  },
+  "103": {
+   "records": 552,
+   "tested": 552,
+   "pass": 552,
+   "fail": 0,
+   "skipped_unclean": 0,
+   "skipped_bad_trailer": 0,
+   "failures": []
+  },
+  "all_pass": true
+ }
+}

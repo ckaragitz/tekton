@@ -1,0 +1,48 @@
+--- a/frontdoor.py	2026-08-04 23:23:19
++++ b/frontdoor.py	2026-08-04 23:23:25
+@@ -64,7 +64,10 @@
+         description="THE FRONT DOOR: prompt / IFC / (rvt + edit) -> the ONE intent model -> our "
+                     ".rvt on the certified genesis base + a deliverable manifest.",
+         formatter_class=argparse.RawDescriptionHelpFormatter,
+-        epilog="One entrypoint, three inputs -- exactly ONE of --prompt / --ifc / --rvt.")
++        epilog="One entrypoint, three inputs -- exactly ONE of --prompt / --ifc / --rvt.\n"
++               "Any OTHER permutation (rfa/spec inputs, combinations, chains, rfa/ifc\n"
++               "outputs): tools/route.py -- the permutation router over the same stages\n"
++               "(matrix: docs/product/PERMUTATION-MATRIX.md; `route.py matrix` prints it).")
+     sub = ap.add_subparsers(dest="cmd", required=True)
+     pa = sub.add_parser("author", help="author from a prompt, an IFC, or an existing .rvt + edit")
+     src = pa.add_argument_group("input (exactly one)")
+@@ -119,6 +122,9 @@
+                     help="skip the handoff package (fallback build only)")
+     pa.add_argument("--json", action="store_true", help="print the result as JSON")
+     pa.add_argument("--verbose", "-v", action="store_true", help="stream the build log")
++    pm = sub.add_parser("matrix", help="print the permutation matrix (all routable "
++                                       "input/output cells; tools/route.py runs them)")
++    pm.add_argument("--json", action="store_true")
+     return ap
+ 
+ 
+@@ -184,11 +190,23 @@
+     return EX_OK
+ 
+ 
++def cmd_matrix(a) -> int:
++    import importlib.util
++    p = os.path.join(HERE, "route.py")
++    spec = importlib.util.spec_from_file_location("_frontdoor_route", p)
++    mod = importlib.util.module_from_spec(spec)
++    sys.modules[spec.name] = mod
++    spec.loader.exec_module(mod)
++    return mod.cmd_matrix(a)
++
++
+ def main(argv=None) -> int:
+     ap = build_parser()
+     a = ap.parse_args(argv)
+     if a.cmd == "author":
+         return cmd_author(a)
++    if a.cmd == "matrix":
++        return cmd_matrix(a)
+     ap.error("unknown command")
+     return EX_USAGE
+ 

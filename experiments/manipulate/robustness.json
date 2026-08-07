@@ -1,0 +1,1332 @@
+{
+ "generated": "2026-08-03 09:29",
+ "files": [
+  {
+   "file": "rstbasicsampleproject",
+   "size_mb": 6.4,
+   "load_s": 0.1,
+   "elemtable_count": 13936,
+   "watermark": 1472524,
+   "records_per_seq": {
+    "101": 32011,
+    "102": 32011,
+    "103": 32011
+   },
+   "host_records": 13936,
+   "decode": {
+    "101": {
+     "clean": 13936,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    },
+    "102": {
+     "clean": 13929,
+     "stub": 0,
+     "error": 7,
+     "missing": 0,
+     "clean_pct": 99.95,
+     "error_by_class": [
+      [
+       "RebarShape",
+       6
+      ],
+      [
+       "DataStorage",
+       1
+      ]
+     ]
+    },
+    "103": {
+     "clean": 13936,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    }
+   },
+   "decode_bad_examples": {
+    "102": [
+     {
+      "id": 1372292,
+      "class": "RebarShape",
+      "errors": [
+       {
+        "field": "RebarShape.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 2247,
+        "error": "pointer token pid=-1 to unknown class 0x7959"
+       }
+      ],
+      "consumed": "2253/2559"
+     },
+     {
+      "id": 1372482,
+      "class": "RebarShape",
+      "errors": [
+       {
+        "field": "RebarShape.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 2062,
+        "error": "pointer token pid=-1 to unknown class 0x7959"
+       }
+      ],
+      "consumed": "2068/2254"
+     },
+     {
+      "id": 1375817,
+      "class": "RebarShape",
+      "errors": [
+       {
+        "field": "RebarShape.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 2198,
+        "error": "pointer token pid=-1 to unknown class 0x7959"
+       }
+      ],
+      "consumed": "2204/2470"
+     },
+     {
+      "id": 1376990,
+      "class": "RebarShape",
+      "errors": [
+       {
+        "field": "RebarShape.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 2198,
+        "error": "pointer token pid=-1 to unknown class 0x7959"
+       }
+      ],
+      "consumed": "2204/2470"
+     },
+     {
+      "id": 1377250,
+      "class": "RebarShape",
+      "errors": [
+       {
+        "field": "RebarShape.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 2062,
+        "error": "pointer token pid=-1 to unknown class 0x7959"
+       }
+      ],
+      "consumed": "2068/2254"
+     }
+    ]
+   },
+   "decode_s": 2.4,
+   "reencode": {
+    "exact": 12000,
+    "mismatch": 0,
+    "skipped_undecodable": 0,
+    "exact_pct": 100.0,
+    "mismatch_by_class": []
+   },
+   "reencode_s": 0.8,
+   "levels": [
+    [
+     1351691,
+     "FOUNDATION-2700",
+     -8.858
+    ],
+    [
+     511122,
+     "Foundation",
+     -3.937
+    ],
+    [
+     515270,
+     "Level Lower",
+     -1.804
+    ],
+    [
+     311,
+     "Level 1",
+     0.0
+    ],
+    [
+     1300863,
+     "Ref Beam system",
+     8.002
+    ],
+    [
+     694,
+     "Ceiling",
+     8.858
+    ],
+    [
+     245423,
+     "Level 2",
+     9.843
+    ],
+    [
+     196629,
+     "Top of Parapet",
+     19.685
+    ],
+    [
+     417275,
+     "Roof Level",
+     29.528
+    ]
+   ],
+   "symbols": 106,
+   "dependency_reports": [
+    {
+     "id": 512319,
+     "class": "FamilyInstance",
+     "dependents": 8,
+     "referrers": 3,
+     "capped": null
+    },
+    {
+     "id": 512321,
+     "class": "FamilyInstance",
+     "dependents": 1,
+     "referrers": 4,
+     "capped": null
+    },
+    {
+     "id": 512394,
+     "class": "FamilyInstance",
+     "dependents": 8,
+     "referrers": 3,
+     "capped": null
+    }
+   ],
+   "manipulate_s": 1.0
+  },
+  {
+   "file": "racbasicsampleproject",
+   "size_mb": 18.8,
+   "load_s": 0.3,
+   "elemtable_count": 8401,
+   "watermark": 1098947,
+   "records_per_seq": {
+    "101": 85814,
+    "102": 85814,
+    "103": 85814
+   },
+   "host_records": 8401,
+   "decode": {
+    "101": {
+     "clean": 8401,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    },
+    "102": {
+     "clean": 8401,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    },
+    "103": {
+     "clean": 8401,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    }
+   },
+   "decode_bad_examples": {},
+   "decode_s": 3.1,
+   "reencode": {
+    "exact": 12000,
+    "mismatch": 0,
+    "skipped_undecodable": 0,
+    "exact_pct": 100.0,
+    "mismatch_by_class": []
+   },
+   "reencode_s": 1.5,
+   "levels": [
+    [
+     511122,
+     "Foundation",
+     -2.625
+    ],
+    [
+     515270,
+     "Level 1 Living Rm.",
+     -1.804
+    ],
+    [
+     311,
+     "Level 1",
+     0.0
+    ],
+    [
+     694,
+     "Ceiling",
+     8.858
+    ],
+    [
+     245423,
+     "Level 2",
+     9.843
+    ],
+    [
+     196629,
+     "Roof Line",
+     19.685
+    ]
+   ],
+   "symbols": 142,
+   "dependency_reports": [
+    {
+     "id": 211850,
+     "class": "FamilyInstance",
+     "dependents": 2,
+     "referrers": 1,
+     "capped": null
+    },
+    {
+     "id": 213811,
+     "class": "FamilyInstance",
+     "dependents": 0,
+     "referrers": 0,
+     "capped": null
+    },
+    {
+     "id": 414482,
+     "class": "FamilyInstance",
+     "dependents": 0,
+     "referrers": 2,
+     "capped": null
+    }
+   ],
+   "manipulate_s": 0.5
+  },
+  {
+   "file": "rmebasicsampleproject",
+   "size_mb": 31.1,
+   "load_s": 0.6,
+   "elemtable_count": 28132,
+   "watermark": 888013,
+   "records_per_seq": {
+    "101": 142174,
+    "102": 142174,
+    "103": 142174
+   },
+   "host_records": 28132,
+   "decode": {
+    "101": {
+     "clean": 28132,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    },
+    "102": {
+     "clean": 26961,
+     "stub": 0,
+     "error": 1171,
+     "missing": 0,
+     "clean_pct": 95.837,
+     "error_by_class": [
+      [
+       "FamilyInstance",
+       1171
+      ]
+     ]
+    },
+    "103": {
+     "clean": 28132,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    }
+   },
+   "decode_bad_examples": {
+    "102": [
+     {
+      "id": 392203,
+      "class": "FamilyInstance",
+      "errors": [
+       {
+        "field": "FamilyInstance.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 1205,
+        "error": "pointer token pid=-1 to unknown class 0x2314"
+       }
+      ],
+      "consumed": "1211/2672"
+     },
+     {
+      "id": 393086,
+      "class": "FamilyInstance",
+      "errors": [
+       {
+        "field": "FamilyInstance.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 1397,
+        "error": "pointer token pid=-1 to unknown class 0x2314"
+       }
+      ],
+      "consumed": "1403/3111"
+     },
+     {
+      "id": 393092,
+      "class": "FamilyInstance",
+      "errors": [
+       {
+        "field": "FamilyInstance.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 1207,
+        "error": "pointer token pid=-1 to unknown class 0x2314"
+       }
+      ],
+      "consumed": "1213/2674"
+     },
+     {
+      "id": 393174,
+      "class": "FamilyInstance",
+      "errors": [
+       {
+        "field": "FamilyInstance.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 1397,
+        "error": "pointer token pid=-1 to unknown class 0x2314"
+       }
+      ],
+      "consumed": "1403/3115"
+     },
+     {
+      "id": 393414,
+      "class": "FamilyInstance",
+      "errors": [
+       {
+        "field": "FamilyInstance.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 2195,
+        "error": "pointer token pid=-1 to unknown class 0x2314"
+       }
+      ],
+      "consumed": "2201/3662"
+     }
+    ]
+   },
+   "decode_s": 9.0,
+   "reencode": {
+    "exact": 11915,
+    "mismatch": 0,
+    "skipped_undecodable": 85,
+    "exact_pct": 100.0,
+    "mismatch_by_class": []
+   },
+   "reencode_s": 1.6,
+   "levels": [
+    [
+     378117,
+     "Level 1",
+     0.309
+    ],
+    [
+     378118,
+     "Level 2",
+     12.467
+    ],
+    [
+     378119,
+     "Level 3",
+     23.95
+    ],
+    [
+     378120,
+     "Roof Level",
+     35.761
+    ]
+   ],
+   "symbols": 632,
+   "dependency_reports": [
+    {
+     "id": 471580,
+     "class": "FamilyInstance",
+     "dependents": 11,
+     "referrers": 15,
+     "capped": null
+    },
+    {
+     "id": 471596,
+     "class": "FamilyInstance",
+     "dependents": 13,
+     "referrers": 167,
+     "capped": null
+    },
+    {
+     "id": 471705,
+     "class": "FamilyInstance",
+     "dependents": 11,
+     "referrers": 178,
+     "capped": null
+    }
+   ],
+   "manipulate_s": 6.4
+  },
+  {
+   "file": "racadvancedsampleproject",
+   "size_mb": 16.3,
+   "load_s": 0.2,
+   "elemtable_count": 17231,
+   "watermark": 438567,
+   "records_per_seq": {
+    "101": 59453,
+    "102": 59453,
+    "103": 59453
+   },
+   "host_records": 17231,
+   "decode": {
+    "101": {
+     "clean": 17231,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    },
+    "102": {
+     "clean": 17231,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    },
+    "103": {
+     "clean": 17231,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    }
+   },
+   "decode_bad_examples": {},
+   "decode_s": 6.1,
+   "reencode": {
+    "exact": 12000,
+    "mismatch": 0,
+    "skipped_undecodable": 0,
+    "exact_pct": 100.0,
+    "mismatch_by_class": []
+   },
+   "reencode_s": 1.6,
+   "levels": [
+    [
+     311,
+     "01 - Entry Level",
+     0.0
+    ],
+    [
+     3388,
+     "Ground floor",
+     0.0
+    ],
+    [
+     694,
+     "02 - Floor",
+     12.467
+    ],
+    [
+     136342,
+     "03 - Floor",
+     24.934
+    ],
+    [
+     136770,
+     "Roof",
+     37.402
+    ],
+    [
+     137055,
+     "Parapet",
+     39.37
+    ]
+   ],
+   "symbols": 398,
+   "dependency_reports": [
+    {
+     "id": 134036,
+     "class": "FamilyInstance",
+     "dependents": 0,
+     "referrers": 0,
+     "capped": null
+    },
+    {
+     "id": 134052,
+     "class": "FamilyInstance",
+     "dependents": 0,
+     "referrers": 0,
+     "capped": null
+    },
+    {
+     "id": 134062,
+     "class": "FamilyInstance",
+     "dependents": 0,
+     "referrers": 0,
+     "capped": null
+    }
+   ],
+   "manipulate_s": 1.1
+  },
+  {
+   "file": "rstadvancedsampleproject",
+   "size_mb": 14.4,
+   "load_s": 0.2,
+   "elemtable_count": 13855,
+   "watermark": 271237,
+   "records_per_seq": {
+    "101": 64966,
+    "102": 64966,
+    "103": 64966
+   },
+   "host_records": 13855,
+   "decode": {
+    "101": {
+     "clean": 13855,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    },
+    "102": {
+     "clean": 13855,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    },
+    "103": {
+     "clean": 13855,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    }
+   },
+   "decode_bad_examples": {},
+   "decode_s": 4.9,
+   "reencode": {
+    "exact": 12000,
+    "mismatch": 0,
+    "skipped_undecodable": 0,
+    "exact_pct": 100.0,
+    "mismatch_by_class": []
+   },
+   "reencode_s": 0.8,
+   "levels": [
+    [
+     163828,
+     "Sub Level",
+     -8.202
+    ],
+    [
+     118973,
+     "01 - Entry Level",
+     0.0
+    ],
+    [
+     118974,
+     "02 - Floor",
+     12.467
+    ],
+    [
+     118975,
+     "03 - Floor",
+     24.934
+    ],
+    [
+     118976,
+     "Roof",
+     37.402
+    ]
+   ],
+   "symbols": 280,
+   "dependency_reports": [
+    {
+     "id": 124661,
+     "class": "FamilyInstance",
+     "dependents": 3,
+     "referrers": 14,
+     "capped": null
+    },
+    {
+     "id": 124765,
+     "class": "FamilyInstance",
+     "dependents": 10,
+     "referrers": 5,
+     "capped": null
+    },
+    {
+     "id": 175820,
+     "class": "FamilyInstance",
+     "dependents": 0,
+     "referrers": 1,
+     "capped": null
+    }
+   ],
+   "manipulate_s": 1.3
+  },
+  {
+   "file": "dach-sample-project",
+   "size_mb": 132.5,
+   "load_s": 2.4,
+   "elemtable_count": 49776,
+   "watermark": 4294190,
+   "records_per_seq": {
+    "101": 569634,
+    "102": 569634,
+    "103": 569634
+   },
+   "host_records": 49776,
+   "decode": {
+    "101": {
+     "clean": 49776,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    },
+    "102": {
+     "clean": 48035,
+     "stub": 0,
+     "error": 1741,
+     "missing": 0,
+     "clean_pct": 96.502,
+     "error_by_class": [
+      [
+       "FamilyInstance",
+       1284
+      ],
+      [
+       "Rebar",
+       122
+      ],
+      [
+       "AnalyticalMember",
+       81
+      ],
+      [
+       "AnalyticalPanel",
+       40
+      ],
+      [
+       "RebarSystem",
+       30
+      ],
+      [
+       "FabricSheet",
+       27
+      ],
+      [
+       "CurveElem",
+       24
+      ],
+      [
+       "Floor",
+       21
+      ]
+     ]
+    },
+    "103": {
+     "clean": 49776,
+     "stub": 0,
+     "error": 0,
+     "missing": 0,
+     "clean_pct": 100.0,
+     "error_by_class": []
+    }
+   },
+   "decode_bad_examples": {
+    "102": [
+     {
+      "id": 802,
+      "class": "ProjectInfo",
+      "errors": [
+       {
+        "field": "ProjectInfo.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 27297,
+        "error": "pointer token pid=-1 to unknown class 0xb137"
+       }
+      ],
+      "consumed": "27303/370860"
+     },
+     {
+      "id": 1074819,
+      "class": "FamilyInstance",
+      "errors": [
+       {
+        "field": "FamilyInstance.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 626,
+        "error": "pointer token pid=-1 to unknown class 0xe691"
+       }
+      ],
+      "consumed": "632/719"
+     },
+     {
+      "id": 1092126,
+      "class": "FamilyInstance",
+      "errors": [
+       {
+        "field": "FamilyInstance.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 1288,
+        "error": "pointer token pid=-1 to unknown class 0x1548"
+       }
+      ],
+      "consumed": "1294/3270"
+     },
+     {
+      "id": 1093293,
+      "class": "FamilyInstance",
+      "errors": [
+       {
+        "field": "FamilyInstance.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 3288,
+        "error": "pointer token pid=-1 to unknown class 0xe691"
+       }
+      ],
+      "consumed": "3294/5432"
+     },
+     {
+      "id": 1093507,
+      "class": "FamilyInstance",
+      "errors": [
+       {
+        "field": "FamilyInstance.m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob",
+        "offset": 1816,
+        "error": "pointer token pid=-1 to unknown class 0xe691"
+       }
+      ],
+      "consumed": "1822/3960"
+     }
+    ]
+   },
+   "decode_s": 27.7,
+   "reencode": {
+    "exact": 11999,
+    "mismatch": 0,
+    "skipped_undecodable": 1,
+    "exact_pct": 100.0,
+    "mismatch_by_class": []
+   },
+   "reencode_s": 1.0,
+   "levels": [
+    [
+     2202041,
+     "HG_Technik_Pumpensumpf_Bodenplatte UK",
+     -11.739
+    ],
+    [
+     1067966,
+     "GN_UG 1_Lift_ Schachtgrube UK",
+     -11.247
+    ],
+    [
+     2201954,
+     "HG_Technik_Pumpensumpf_Bodenplatte OK",
+     -10.919
+    ],
+    [
+     1067965,
+     "GN_UG 1_Lift_ Schachtgrube OK",
+     -10.427
+    ],
+    [
+     1067624,
+     "HG_UG 1_Fundament UK",
+     -9.056
+    ],
+    [
+     1073967,
+     "GN_UG 1_Bodenplatte_UK",
+     -9.022
+    ],
+    [
+     1090119,
+     "GN_UG 1_Treppenhaus_Bodenplatte_UK",
+     -8.458
+    ],
+    [
+     2201901,
+     "HG_Technik_Bodenplatte UK",
+     -8.458
+    ],
+    [
+     1073966,
+     "GN_UG 1_Bodenplatte_OK",
+     -8.202
+    ],
+    [
+     1431964,
+     "TG_Garage_Bodenplatte_UK",
+     -7.644
+    ],
+    [
+     1090112,
+     "GN_UG 1_Treppenhaus_Bodenplatte_OK",
+     -7.638
+    ],
+    [
+     2201815,
+     "HG_Technik_Bodenplatte OK",
+     -7.638
+    ],
+    [
+     1073965,
+     "GN_UG 1_OK FFB",
+     -7.382
+    ],
+    [
+     1632612,
+     "Kanal",
+     -7.021
+    ],
+    [
+     698013,
+     "HG_UG 1_Bodenplatte_UK",
+     -6.89
+    ],
+    [
+     1075807,
+     "GN_UG 1_Treppenhaus_OK FFB",
+     -6.818
+    ],
+    [
+     1431963,
+     "TG_Garage_Bodenplatte_OK",
+     -6.66
+    ],
+    [
+     1431962,
+     "TG_Garage_UG_OK FFB",
+     -6.398
+    ],
+    [
+     697925,
+     "HG_UG 1_Bodenplatte_OK",
+     -6.398
+    ],
+    [
+     25391,
+     "HG_UG 1_OK FFB",
+     -6.391
+    ],
+    [
+     1065924,
+     "GN_EG_Frostriegel_UK Nord",
+     -3.609
+    ],
+    [
+     1068428,
+     "GN_UG 1_Treppe_Podest",
+     -3.435
+    ],
+    [
+     1067181,
+     "GN_EG_Frostriegel_UK S\u00fcd",
+     -2.625
+    ],
+    [
+     2205449,
+     "HG_Technik_UK RD",
+     -0.42
+    ],
+    [
+     1065657,
+     "GN_EG_Bodenplatte_UK",
+     -0.361
+    ],
+    [
+     1070034,
+     "\u00b10,00 = Zugang Nord",
+     0.0
+    ],
+    [
+     1065656,
+     "GN_EG_Bodenplatte_OK",
+     0.459
+    ],
+    [
+     1431960,
+     "TG_Garage_UK RD",
+     0.492
+    ],
+    [
+     1280656,
+     "GN_EG_Treppenhaus_OK RFB",
+     0.984
+    ],
+    [
+     1065655,
+     "GN_EG_OK FFB",
+     0.984
+    ],
+    [
+     1431959,
+     "TG_Garage_EG_OK RFB",
+     1.312
+    ],
+    [
+     2205450,
+     "HG_Technik_OK RD",
+     1.312
+    ],
+    [
+     696975,
+     "HG_UG 1_UK RD",
+     1.476
+    ],
+    [
+     1087957,
+     "GN_EG_Treppenhaus_OK FFB",
+     1.64
+    ],
+    [
+     1433504,
+     "TG_Garage_EG OK FFB",
+     1.64
+    ],
+    [
+     696961,
+     "HG_EG_OK RFB",
+     2.067
+    ],
+    [
+     1450262,
+     "TG_Garage_EG_Sockel OK",
+     2.297
+    ],
+    [
+     24770,
+     "HG_EG_OK FFB",
+     2.461
+    ],
+    [
+     1068160,
+     "GN_EG_Treppe_Podest",
+     7.07
+    ],
+    [
+     1450333,
+     "TG_Garage_Dach UK",
+     8.53
+    ],
+    [
+     1450394,
+     "TG_Garage_Dach OK",
+     9.186
+    ],
+    [
+     696977,
+     "HG_EG_UK RD",
+     10.335
+    ],
+    [
+     1300034,
+     "GN_EG_UK abgeh\u00e4ngte Decke",
+     10.531
+    ],
+    [
+     696963,
+     "HG_OG 1_OK RFB",
+     10.925
+    ],
+    [
+     3364472,
+     "Dach UK Fu\u00dfpfette",
+     10.925
+    ],
+    [
+     1065761,
+     "GN_EG_UK RD",
+     11.056
+    ],
+    [
+     3364896,
+     "Dach OK Fu\u00dfpfette",
+     11.319
+    ],
+    [
+     2120447,
+     "HG_OG1_OK Stahlb\u00fchne",
+     11.368
+    ],
+    [
+     25474,
+     "HG_OG 1_OK FFB",
+     11.483
+    ],
+    [
+     3364471,
+     "Dach Bezug_OG 1_FBOK",
+     11.483
+    ],
+    [
+     1065760,
+     "GN_OG 1_OK RFB",
+     11.778
+    ],
+    [
+     1280542,
+     "GN_OG 1_Treppenhaus_OK RFB",
+     11.844
+    ],
+    [
+     1065759,
+     "GN_OG 1_OK FFB",
+     12.434
+    ],
+    [
+     1089090,
+     "GN_OG 1_Treppenhaus_OK FFB",
+     12.5
+    ],
+    [
+     3364897,
+     "Dach UK Pfette West",
+     12.695
+    ],
+    [
+     3364717,
+     "Pfette Rechts",
+     13.332
+    ],
+    [
+     3365143,
+     "Dach UK Pfette Ost",
+     13.82
+    ],
+    [
+     1281521,
+     "GN_OG 1_Treppenhaus UK Wand Ost",
+     15.354
+    ],
+    [
+     1068153,
+     "GN_OG 1_Treppe_Podest",
+     17.101
+    ],
+    [
+     3365157,
+     "Dach UK Pfette Stirnwand",
+     17.976
+    ],
+    [
+     696978,
+     "HG_OG 1_UK RD",
+     18.045
+    ],
+    [
+     696964,
+     "HG_OG 1_RDOK",
+     18.636
+    ],
+    [
+     1065772,
+     "GN_OG 1_UK RD",
+     20.899
+    ],
+    [
+     1280394,
+     "GN_OG 2_Treppenhaus_OK RFB",
+     21.621
+    ],
+    [
+     1065771,
+     "GN_OG 2_OK RFB",
+     21.621
+    ],
+    [
+     1065770,
+     "GN_OG 2_OK FFB",
+     22.211
+    ],
+    [
+     1089239,
+     "GN_OG 2_Treppenhaus_OK FFB",
+     22.277
+    ],
+    [
+     2106819,
+     "HG_UK Dachverbau Innen",
+     22.638
+    ],
+    [
+     3364473,
+     "Dach OK Firstpfette",
+     24.195
+    ],
+    [
+     3364966,
+     "Dach OK First",
+     25.101
+    ],
+    [
+     574925,
+     "HG_OK GEB\u00c4UDE",
+     26.129
+    ],
+    [
+     1068167,
+     "GN_OG 2_Treppe_Podest",
+     26.909
+    ],
+    [
+     1065783,
+     "GN_OG 2_UK RD",
+     30.741
+    ],
+    [
+     1283915,
+     "GN_OG 3_Treppenhaus_OK RFB",
+     31.463
+    ],
+    [
+     1065782,
+     "GN_OG 3_OK RFB",
+     31.463
+    ],
+    [
+     1065781,
+     "GN_OG 3_OK FFB",
+     32.054
+    ],
+    [
+     1089351,
+     "GN_OG 3_Treppenhaus_OK FFB",
+     32.119
+    ],
+    [
+     1068174,
+     "GN_OG 3_Treppe_Podest",
+     36.751
+    ],
+    [
+     1065794,
+     "GN_OG 3_UK RD",
+     40.584
+    ],
+    [
+     1284001,
+     "GN_OG 4_Treppenhaus_OK RFB",
+     41.306
+    ],
+    [
+     1065793,
+     "GN_OG 4_OK RFB",
+     41.306
+    ],
+    [
+     1065792,
+     "GN_OG 4_OK FFB",
+     41.896
+    ],
+    [
+     1089432,
+     "GN_OG 4_Treppenhaus_OK FFB",
+     41.962
+    ],
+    [
+     1229608,
+     "GN_Dachtraufe West",
+     44.98
+    ],
+    [
+     1068181,
+     "GN_OG 4_OK Dach",
+     46.462
+    ],
+    [
+     1406195,
+     "GN_Dachtraufe -OK Fenster",
+     47.27
+    ],
+    [
+     1066771,
+     "GN_Dachtraufe",
+     47.343
+    ],
+    [
+     1413488,
+     "GN_OG 4_Autodesk Logo",
+     47.671
+    ],
+    [
+     1065805,
+     "GN_OG 4_UK RD",
+     50.427
+    ],
+    [
+     1065804,
+     "GN_OG 5_OK RFB",
+     51.378
+    ],
+    [
+     1065803,
+     "GN_OG 5_OK FFB",
+     52.001
+    ],
+    [
+     1274719,
+     "GN_OG 4_Lift_ Schachtkopf UK",
+     53.117
+    ],
+    [
+     1274718,
+     "GN_OG 4_Lift_ Schachtkopf OK",
+     53.773
+    ],
+    [
+     1066967,
+     "GN_OG 5_RDOK Nord",
+     59.14
+    ],
+    [
+     1066764,
+     "GN_Kniestock",
+     60.138
+    ],
+    [
+     1066960,
+     "GN_OG 5_RDOK S\u00fcd",
+     63.033
+    ],
+    [
+     1066652,
+     "GN_OK Geb\u00e4ude",
+     64.108
+    ]
+   ],
+   "symbols": 1157,
+   "dependency_reports": [
+    {
+     "id": 1165945,
+     "class": "FamilyInstance",
+     "dependents": 18,
+     "referrers": 19,
+     "capped": null
+    },
+    {
+     "id": 1166004,
+     "class": "FamilyInstance",
+     "dependents": 7,
+     "referrers": 23,
+     "capped": null
+    },
+    {
+     "id": 1166639,
+     "class": "FamilyInstance",
+     "dependents": 6,
+     "referrers": 23,
+     "capped": null
+    }
+   ],
+   "manipulate_s": 13.9
+  }
+ ]
+}

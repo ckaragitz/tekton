@@ -1,0 +1,4874 @@
+{
+ "pipeline": "ifc_intent.build_room",
+ "ifc": "inputs/ifc/electrical-room-2500a.ifc",
+ "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "specimen_source": "experiments/genesis/R5.rvt",
+ "stages_requested": "FLWECV",
+ "stages": [
+  {
+   "stage": "F",
+   "families": [
+    {
+     "tag": "TMGB",
+     "kind": "ground_bus",
+     "built": false,
+     "reason": "no house generator for a ground bus bar (a small generic-model family is the follow-up; the TMGB is a detail component, not equipment) -- recorded only"
+    },
+    {
+     "tag": "T1",
+     "kind": "transformer",
+     "built": true,
+     "path": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.rfa",
+     "size": 270336,
+     "family_name": "Dry Type Transformer T1 150kVA 480-208Y/120",
+     "constructor": "rvt.famgen.factory.make_transformer",
+     "kwargs": {
+      "kva": 150.0,
+      "vendor": "eaton",
+      "primary_v": 480,
+      "secondary_v": "208Y/120"
+     },
+     "catalog": "eaton/dry-type-transformers",
+     "variant": "V48M28T4916",
+     "ok": true,
+     "verify": {
+      "gzip_members": 11,
+      "gzip_crc_failures": 0,
+      "ecc_full_pages": 3,
+      "ecc_mismatch": 0
+     },
+     "validate_family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0
+     },
+     "provenance_ok": true,
+     "provenance_suspects": null,
+     "assumed_fields": [],
+     "unverified_fields": [
+      "enclosure",
+      "primary_v",
+      "secondary_v"
+     ],
+     "notes": [
+      "two connectors (primary / secondary) on the top face; the secondary is bound to the kVA rating (the load it can serve)"
+     ],
+     "report": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.json"
+    },
+    {
+     "tag": "MSB",
+     "kind": "switchboard",
+     "built": true,
+     "path": "experiments/ifc_room/families/msb_switchboard_msb_2500a_480y_277.rfa",
+     "size": 270336,
+     "family_name": "Switchboard MSB 2500A 480Y/277",
+     "constructor": "rvt.ifc.intent.make_house_switchboard",
+     "kwargs": {
+      "tag": "MSB",
+      "name": "Switchboard MSB",
+      "mains_a": 2500.0,
+      "voltage": "480Y/277",
+      "phases": 3,
+      "wires": 4,
+      "sccr_ka": 65.0,
+      "sections": 4,
+      "mains_device": "2500 A, 3-pole insulated-case main breaker, 100% rated",
+      "mounting": "Floor, on 100 mm housekeeping pad, front accessible",
+      "feeder_entry": "Top; overhead EMT on trapeze hangers",
+      "manufacturer": "Eaton",
+      "model_label": "Pow-R-Line C style switchboard",
+      "width_m": 4.27,
+      "depth_m": 0.6229999999999998,
+      "height_m": 2.286
+     },
+     "catalog": null,
+     "variant": null,
+     "ok": true,
+     "verify": {
+      "gzip_members": 11,
+      "gzip_crc_failures": 0,
+      "ecc_full_pages": 3,
+      "ecc_mismatch": 0
+     },
+     "validate_family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0
+     },
+     "provenance_ok": true,
+     "provenance_suspects": null,
+     "assumed_fields": [],
+     "unverified_fields": [
+      "bus_rating_a",
+      "depth_in",
+      "height_in",
+      "mains_rating_a",
+      "mains_type",
+      "mounting",
+      "panel_name",
+      "phases",
+      "sccr_ka",
+      "sections",
+      "voltage_ll_v",
+      "voltage_system",
+      "width_in",
+      "wires"
+     ],
+     "notes": [
+      "house switchboard from OUR IFC-modeled dimensions (no catalog record); ratings are Pset values, identity strings are ifc-declared"
+     ],
+     "report": "experiments/ifc_room/families/msb_switchboard_msb_2500a_480y_277.json"
+    },
+    {
+     "tag": "DP-1",
+     "kind": "distribution_panelboard",
+     "built": true,
+     "path": "experiments/ifc_room/families/dp1_eaton_prl2x_400a_42sp_480y_277.rfa",
+     "size": 270336,
+     "family_name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 400.0,
+      "spaces": 42,
+      "voltage": "480Y/277",
+      "mcb": true,
+      "mounting": "surface",
+      "panel_name": "DP-1",
+      "sccr_ka": null
+     },
+     "catalog": "eaton/pow-r-line-panelboards",
+     "variant": "PRL2X",
+     "ok": true,
+     "verify": {
+      "gzip_members": 11,
+      "gzip_crc_failures": 0,
+      "ecc_full_pages": 3,
+      "ecc_mismatch": 0
+     },
+     "validate_family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0
+     },
+     "provenance_ok": true,
+     "provenance_suspects": null,
+     "assumed_fields": [
+      "height_in",
+      "sccr_ka"
+     ],
+     "unverified_fields": [
+      "height_in",
+      "mains_rating_a",
+      "mains_type",
+      "mounting",
+      "neutral_rating",
+      "panel_name",
+      "phases",
+      "sccr_ka",
+      "spaces",
+      "voltage_ll_v",
+      "voltage_system",
+      "wires"
+     ],
+     "notes": [
+      "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+      "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+     ],
+     "report": "experiments/ifc_room/families/dp1_eaton_prl2x_400a_42sp_480y_277.json"
+    },
+    {
+     "tag": "LP-1",
+     "kind": "lighting_panelboard",
+     "built": true,
+     "path": "experiments/ifc_room/families/lp1_eaton_prl2x_100a_30sp_480y_277.rfa",
+     "size": 270336,
+     "family_name": "Lighting Panelboard LP-1 480Y/277 100A MLO 30sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 100.0,
+      "spaces": 30,
+      "voltage": "480Y/277",
+      "mcb": false,
+      "mounting": "surface",
+      "panel_name": "LP-1",
+      "sccr_ka": null
+     },
+     "catalog": "eaton/pow-r-line-panelboards",
+     "variant": "PRL2X",
+     "ok": true,
+     "verify": {
+      "gzip_members": 11,
+      "gzip_crc_failures": 0,
+      "ecc_full_pages": 3,
+      "ecc_mismatch": 0
+     },
+     "validate_family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0
+     },
+     "provenance_ok": true,
+     "provenance_suspects": null,
+     "assumed_fields": [
+      "height_in",
+      "sccr_ka"
+     ],
+     "unverified_fields": [
+      "height_in",
+      "mains_rating_a",
+      "mains_type",
+      "mounting",
+      "neutral_rating",
+      "panel_name",
+      "phases",
+      "sccr_ka",
+      "spaces",
+      "voltage_ll_v",
+      "voltage_system",
+      "wires"
+     ],
+     "notes": [
+      "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+      "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+     ],
+     "report": "experiments/ifc_room/families/lp1_eaton_prl2x_100a_30sp_480y_277.json"
+    },
+    {
+     "tag": "LP-2",
+     "kind": "lighting_panelboard",
+     "built": true,
+     "path": "experiments/ifc_room/families/lp2_eaton_prl2x_100a_30sp_480y_277.rfa",
+     "size": 270336,
+     "family_name": "Lighting Panelboard LP-2 480Y/277 100A MLO 30sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 100.0,
+      "spaces": 30,
+      "voltage": "480Y/277",
+      "mcb": false,
+      "mounting": "surface",
+      "panel_name": "LP-2",
+      "sccr_ka": null
+     },
+     "catalog": "eaton/pow-r-line-panelboards",
+     "variant": "PRL2X",
+     "ok": true,
+     "verify": {
+      "gzip_members": 11,
+      "gzip_crc_failures": 0,
+      "ecc_full_pages": 3,
+      "ecc_mismatch": 0
+     },
+     "validate_family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0
+     },
+     "provenance_ok": true,
+     "provenance_suspects": null,
+     "assumed_fields": [
+      "height_in",
+      "sccr_ka"
+     ],
+     "unverified_fields": [
+      "height_in",
+      "mains_rating_a",
+      "mains_type",
+      "mounting",
+      "neutral_rating",
+      "panel_name",
+      "phases",
+      "sccr_ka",
+      "spaces",
+      "voltage_ll_v",
+      "voltage_system",
+      "wires"
+     ],
+     "notes": [
+      "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+      "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+     ],
+     "report": "experiments/ifc_room/families/lp2_eaton_prl2x_100a_30sp_480y_277.json"
+    },
+    {
+     "tag": "DP-2",
+     "kind": "distribution_panelboard",
+     "built": true,
+     "path": "experiments/ifc_room/families/dp2_eaton_prl2x_400a_42sp_480y_277.rfa",
+     "size": 270336,
+     "family_name": "Distribution Panelboard DP-2 480Y/277 400A MB 42sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 400.0,
+      "spaces": 42,
+      "voltage": "480Y/277",
+      "mcb": true,
+      "mounting": "surface",
+      "panel_name": "DP-2",
+      "sccr_ka": null
+     },
+     "catalog": "eaton/pow-r-line-panelboards",
+     "variant": "PRL2X",
+     "ok": true,
+     "verify": {
+      "gzip_members": 11,
+      "gzip_crc_failures": 0,
+      "ecc_full_pages": 3,
+      "ecc_mismatch": 0
+     },
+     "validate_family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0
+     },
+     "provenance_ok": true,
+     "provenance_suspects": null,
+     "assumed_fields": [
+      "height_in",
+      "sccr_ka"
+     ],
+     "unverified_fields": [
+      "height_in",
+      "mains_rating_a",
+      "mains_type",
+      "mounting",
+      "neutral_rating",
+      "panel_name",
+      "phases",
+      "sccr_ka",
+      "spaces",
+      "voltage_ll_v",
+      "voltage_system",
+      "wires"
+     ],
+     "notes": [
+      "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+      "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+     ],
+     "report": "experiments/ifc_room/families/dp2_eaton_prl2x_400a_42sp_480y_277.json"
+    },
+    {
+     "tag": "LP-3",
+     "kind": "lighting_panelboard",
+     "built": true,
+     "path": "experiments/ifc_room/families/lp3_eaton_prl2x_100a_30sp_480y_277.rfa",
+     "size": 270336,
+     "family_name": "Lighting Panelboard LP-3 480Y/277 100A MLO 30sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 100.0,
+      "spaces": 30,
+      "voltage": "480Y/277",
+      "mcb": false,
+      "mounting": "surface",
+      "panel_name": "LP-3",
+      "sccr_ka": null
+     },
+     "catalog": "eaton/pow-r-line-panelboards",
+     "variant": "PRL2X",
+     "ok": true,
+     "verify": {
+      "gzip_members": 11,
+      "gzip_crc_failures": 0,
+      "ecc_full_pages": 3,
+      "ecc_mismatch": 0
+     },
+     "validate_family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0
+     },
+     "provenance_ok": true,
+     "provenance_suspects": null,
+     "assumed_fields": [
+      "height_in",
+      "sccr_ka"
+     ],
+     "unverified_fields": [
+      "height_in",
+      "mains_rating_a",
+      "mains_type",
+      "mounting",
+      "neutral_rating",
+      "panel_name",
+      "phases",
+      "sccr_ka",
+      "spaces",
+      "voltage_ll_v",
+      "voltage_system",
+      "wires"
+     ],
+     "notes": [
+      "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+      "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+     ],
+     "report": "experiments/ifc_room/families/lp3_eaton_prl2x_100a_30sp_480y_277.json"
+    },
+    {
+     "tag": "LP-4",
+     "kind": "receptacle_panelboard",
+     "built": true,
+     "path": "experiments/ifc_room/families/lp4_eaton_prl1x_225a_42sp_208y_120.rfa",
+     "size": 270336,
+     "family_name": "Receptacle Panelboard LP-4 208Y/120 225A MB 42sp",
+     "constructor": "rvt.famgen.factory.make_panelboard",
+     "kwargs": {
+      "vendor": "eaton",
+      "line": "pow-r-line",
+      "mains_a": 225.0,
+      "spaces": 42,
+      "voltage": "208Y/120",
+      "mcb": true,
+      "mounting": "surface",
+      "panel_name": "LP-4",
+      "sccr_ka": null
+     },
+     "catalog": "eaton/pow-r-line-panelboards",
+     "variant": "PRL1X",
+     "ok": true,
+     "verify": {
+      "gzip_members": 11,
+      "gzip_crc_failures": 0,
+      "ecc_full_pages": 3,
+      "ecc_mismatch": 0
+     },
+     "validate_family_mode": {
+      "verdict": "VALID",
+      "n_errors": 0
+     },
+     "provenance_ok": true,
+     "provenance_suspects": null,
+     "assumed_fields": [
+      "sccr_ka"
+     ],
+     "unverified_fields": [
+      "mains_rating_a",
+      "mains_type",
+      "mounting",
+      "neutral_rating",
+      "panel_name",
+      "phases",
+      "sccr_ka",
+      "spaces",
+      "voltage_ll_v",
+      "voltage_system",
+      "wires"
+     ],
+     "notes": [
+      "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+      "UNVERIFIED (assumed) values surfaced: sccr_ka"
+     ],
+     "report": "experiments/ifc_room/families/lp4_eaton_prl1x_225a_42sp_208y_120.json"
+    },
+    {
+     "tag": "CONDUIT",
+     "kind": "conduit_run",
+     "built": false,
+     "reason": "conduit RUNS are rvt.mep.conduit territory (add_conduit_path over the recorded polyline); needs conduit types in the base -- recorded as run geometry, omitted from v1"
+    },
+    {
+     "tag": "SERVICE",
+     "kind": "service_entrance",
+     "built": false,
+     "reason": "utility service entrance: external source -- recorded as the SERVICE edge of the feeder tree"
+    },
+    {
+     "tag": "HANGERS",
+     "kind": "support",
+     "built": false,
+     "reason": "trapeze hangers / clevis supports = detailing (supports stream); recorded, omitted from the project file"
+    }
+   ],
+   "dir": "experiments/ifc_room/families",
+   "all_ok": true,
+   "built": 8
+  },
+  {
+   "stage": "L",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "loads": [
+    {
+     "tag": "MSB",
+     "in": "experiments/ifc_room/stage_L0_base.rvt",
+     "out": "experiments/ifc_room/stage_L1_msb.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472524,
+     "symbol_id": 1472586,
+     "family_id": 1472568,
+     "surrogate_id": 1472585,
+     "content_guid": "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+     "twins": 16,
+     "elements_added": 20,
+     "proofs": {
+      "plan": {
+       "content_guid": "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "host_watermark": 1472524,
+       "our_doc_ids": [
+        1472525,
+        1472567
+       ],
+       "host_ids": {
+        "family": 1472568,
+        "surrogate": 1472585,
+        "symbol": 1472586,
+        "symbol_surrogate": 1472587,
+        "instance": -1,
+        "twins": 16
+       }
+      },
+      "roundtrip_gate": {
+       "records": 60,
+       "roundtrip_ok": 60,
+       "failed": 0,
+       "encoded_bytes": 22597,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "records": 43,
+       "bytes": 7742,
+       "segments": {
+        "101": 7197,
+        "102": 31712,
+        "103": 5424
+       }
+      },
+      "content_documents": {
+       "entries_before": 0,
+       "entries_after": 1,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3133
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580066,
+       "bytes_after": 1580190
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.3,
+     "report": "experiments/ifc_room/stage_L1_msb.rvt.load.json"
+    },
+    {
+     "tag": "DP-1",
+     "in": "experiments/ifc_room/stage_L1_msb.rvt",
+     "out": "experiments/ifc_room/stage_L2_dp1.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472587,
+     "symbol_id": 1472645,
+     "family_id": 1472629,
+     "surrogate_id": 1472644,
+     "content_guid": "fcc93665-5787-4e9f-abbb-137beea965a6",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "fcc93665-5787-4e9f-abbb-137beea965a6",
+       "host_watermark": 1472587,
+       "our_doc_ids": [
+        1472588,
+        1472628
+       ],
+       "host_ids": {
+        "family": 1472629,
+        "surrogate": 1472644,
+        "symbol": 1472645,
+        "symbol_surrogate": 1472646,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 19697,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "fcc93665-5787-4e9f-abbb-137beea965a6",
+       "records": 41,
+       "bytes": 7402,
+       "segments": {
+        "101": 6895,
+        "102": 29830,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 1,
+       "entries_after": 2,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580190,
+       "bytes_after": 1580302
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.4,
+     "report": "experiments/ifc_room/stage_L2_dp1.rvt.load.json"
+    },
+    {
+     "tag": "DP-2",
+     "in": "experiments/ifc_room/stage_L2_dp1.rvt",
+     "out": "experiments/ifc_room/stage_L3_dp2.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472646,
+     "symbol_id": 1472704,
+     "family_id": 1472688,
+     "surrogate_id": 1472703,
+     "content_guid": "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "host_watermark": 1472646,
+       "our_doc_ids": [
+        1472647,
+        1472687
+       ],
+       "host_ids": {
+        "family": 1472688,
+        "surrogate": 1472703,
+        "symbol": 1472704,
+        "symbol_surrogate": 1472705,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 19697,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "records": 41,
+       "bytes": 7403,
+       "segments": {
+        "101": 6895,
+        "102": 29830,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 2,
+       "entries_after": 3,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580302,
+       "bytes_after": 1580414
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.4,
+     "report": "experiments/ifc_room/stage_L3_dp2.rvt.load.json"
+    },
+    {
+     "tag": "LP-1",
+     "in": "experiments/ifc_room/stage_L3_dp2.rvt",
+     "out": "experiments/ifc_room/stage_L4_lp1.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472705,
+     "symbol_id": 1472763,
+     "family_id": 1472747,
+     "surrogate_id": 1472762,
+     "content_guid": "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "host_watermark": 1472705,
+       "our_doc_ids": [
+        1472706,
+        1472746
+       ],
+       "host_ids": {
+        "family": 1472747,
+        "surrogate": 1472762,
+        "symbol": 1472763,
+        "symbol_surrogate": 1472764,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 19701,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "records": 41,
+       "bytes": 7411,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 3,
+       "entries_after": 4,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580414,
+       "bytes_after": 1580526
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.4,
+     "report": "experiments/ifc_room/stage_L4_lp1.rvt.load.json"
+    },
+    {
+     "tag": "LP-2",
+     "in": "experiments/ifc_room/stage_L4_lp1.rvt",
+     "out": "experiments/ifc_room/stage_L5_lp2.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472764,
+     "symbol_id": 1472822,
+     "family_id": 1472806,
+     "surrogate_id": 1472821,
+     "content_guid": "3db7f77a-5949-4818-867a-355ac5899989",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "3db7f77a-5949-4818-867a-355ac5899989",
+       "host_watermark": 1472764,
+       "our_doc_ids": [
+        1472765,
+        1472805
+       ],
+       "host_ids": {
+        "family": 1472806,
+        "surrogate": 1472821,
+        "symbol": 1472822,
+        "symbol_surrogate": 1472823,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 19701,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "3db7f77a-5949-4818-867a-355ac5899989",
+       "records": 41,
+       "bytes": 7396,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 4,
+       "entries_after": 5,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580526,
+       "bytes_after": 1580638
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.4,
+     "report": "experiments/ifc_room/stage_L5_lp2.rvt.load.json"
+    },
+    {
+     "tag": "LP-3",
+     "in": "experiments/ifc_room/stage_L5_lp2.rvt",
+     "out": "experiments/ifc_room/stage_L6_lp3.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472823,
+     "symbol_id": 1472881,
+     "family_id": 1472865,
+     "surrogate_id": 1472880,
+     "content_guid": "b4344369-a90c-4d5a-8970-3c94ab84437e",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "host_watermark": 1472823,
+       "our_doc_ids": [
+        1472824,
+        1472864
+       ],
+       "host_ids": {
+        "family": 1472865,
+        "surrogate": 1472880,
+        "symbol": 1472881,
+        "symbol_surrogate": 1472882,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 19701,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "records": 41,
+       "bytes": 7392,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 5,
+       "entries_after": 6,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580638,
+       "bytes_after": 1580750
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.4,
+     "report": "experiments/ifc_room/stage_L6_lp3.rvt.load.json"
+    },
+    {
+     "tag": "T1",
+     "in": "experiments/ifc_room/stage_L6_lp3.rvt",
+     "out": "experiments/ifc_room/stage_L7_t1.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472882,
+     "symbol_id": 1472935,
+     "family_id": 1472922,
+     "surrogate_id": 1472934,
+     "content_guid": "8dd7db67-51d8-404e-ade5-4a606989a318",
+     "twins": 11,
+     "elements_added": 15,
+     "proofs": {
+      "plan": {
+       "content_guid": "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "host_watermark": 1472882,
+       "our_doc_ids": [
+        1472883,
+        1472921
+       ],
+       "host_ids": {
+        "family": 1472922,
+        "surrogate": 1472934,
+        "symbol": 1472935,
+        "symbol_surrogate": 1472936,
+        "instance": -1,
+        "twins": 11
+       }
+      },
+      "roundtrip_gate": {
+       "records": 45,
+       "roundtrip_ok": 45,
+       "failed": 0,
+       "encoded_bytes": 17836,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "records": 39,
+       "bytes": 7273,
+       "segments": {
+        "101": 6625,
+        "102": 29272,
+        "103": 5336
+       }
+      },
+      "content_documents": {
+       "entries_before": 6,
+       "entries_after": 7,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 2973
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580750,
+       "bytes_after": 1580862
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.4,
+     "report": "experiments/ifc_room/stage_L7_t1.rvt.load.json"
+    },
+    {
+     "tag": "LP-4",
+     "in": "experiments/ifc_room/stage_L7_t1.rvt",
+     "out": "experiments/ifc_room/stage_L8_lp4.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472936,
+     "symbol_id": 1472994,
+     "family_id": 1472978,
+     "surrogate_id": 1472993,
+     "content_guid": "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "host_watermark": 1472936,
+       "our_doc_ids": [
+        1472937,
+        1472977
+       ],
+       "host_ids": {
+        "family": 1472978,
+        "surrogate": 1472993,
+        "symbol": 1472994,
+        "symbol_surrogate": 1472995,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 19689,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "records": 41,
+       "bytes": 7409,
+       "segments": {
+        "101": 6895,
+        "102": 29830,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 7,
+       "entries_after": 8,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580862,
+       "bytes_after": 1580974
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.5,
+     "report": "experiments/ifc_room/stage_L8_lp4.rvt.load.json"
+    }
+   ],
+   "final": "experiments/ifc_room/stage_L8_lp4.rvt",
+   "blocker": null,
+   "order": [
+    "MSB",
+    "DP-1",
+    "DP-2",
+    "LP-1",
+    "LP-2",
+    "LP-3",
+    "T1",
+    "LP-4"
+   ],
+   "loaded": {
+    "MSB": {
+     "symbol_id": 1472586,
+     "family_id": 1472568,
+     "content_guid": "7f64f7ef-dcf6-498f-98c1-05d0399b1753"
+    },
+    "DP-1": {
+     "symbol_id": 1472645,
+     "family_id": 1472629,
+     "content_guid": "fcc93665-5787-4e9f-abbb-137beea965a6"
+    },
+    "DP-2": {
+     "symbol_id": 1472704,
+     "family_id": 1472688,
+     "content_guid": "e1e7b380-69d4-4d3f-835f-cf9233844dc7"
+    },
+    "LP-1": {
+     "symbol_id": 1472763,
+     "family_id": 1472747,
+     "content_guid": "ef96943f-a674-493d-bf5e-60e0a03aa72d"
+    },
+    "LP-2": {
+     "symbol_id": 1472822,
+     "family_id": 1472806,
+     "content_guid": "3db7f77a-5949-4818-867a-355ac5899989"
+    },
+    "LP-3": {
+     "symbol_id": 1472881,
+     "family_id": 1472865,
+     "content_guid": "b4344369-a90c-4d5a-8970-3c94ab84437e"
+    },
+    "T1": {
+     "symbol_id": 1472935,
+     "family_id": 1472922,
+     "content_guid": "8dd7db67-51d8-404e-ade5-4a606989a318"
+    },
+    "LP-4": {
+     "symbol_id": 1472994,
+     "family_id": 1472978,
+     "content_guid": "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf"
+    }
+   },
+   "n_loaded": 8,
+   "n_planned": 8
+  },
+  {
+   "stage": "W",
+   "in": "experiments/ifc_room/stage_L8_lp4.rvt",
+   "out": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+   "wall_mode": "min",
+   "walls": [
+    {
+     "id": "W-N",
+     "elem_id": 1472996,
+     "synthesized": false,
+     "p0_ft": [
+      15.092,
+      10.171
+     ],
+     "p1_ft": [
+      -15.092,
+      10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 9.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [],
+     "clone_cleanup": {
+      "mode": "min",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      }
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[1].value.m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[2].value.m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 11,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    },
+    {
+     "id": "W-W",
+     "elem_id": 1472997,
+     "synthesized": false,
+     "p0_ft": [
+      -15.092,
+      10.171
+     ],
+     "p1_ft": [
+      -15.092,
+      -10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 6.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [
+      {
+       "wall": "W-W",
+       "center_along_m": 5.1,
+       "width_m": 1.0,
+       "head_height_m": 2.13,
+       "sill_m": 0.0,
+       "world_center_m": [
+        -4.6,
+        -2.0
+       ],
+       "leaf_width_m": 0.95,
+       "swing": "out",
+       "source": "leaf+header solids",
+       "disposition": "recorded (no door family / wall hosting in v1)"
+      }
+     ],
+     "clone_cleanup": {
+      "mode": "min",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      }
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[1].value.m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[2].value.m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 11,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    },
+    {
+     "id": "W-E",
+     "elem_id": 1472998,
+     "synthesized": false,
+     "p0_ft": [
+      15.092,
+      -10.171
+     ],
+     "p1_ft": [
+      15.092,
+      10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 6.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [
+      {
+       "wall": "W-E",
+       "center_along_m": 1.1,
+       "width_m": 1.0,
+       "head_height_m": 2.13,
+       "sill_m": 0.0,
+       "world_center_m": [
+        4.6,
+        -2.0
+       ],
+       "leaf_width_m": 0.95,
+       "swing": "out",
+       "source": "leaf+header solids",
+       "disposition": "recorded (no door family / wall hosting in v1)"
+      }
+     ],
+     "clone_cleanup": {
+      "mode": "min",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      }
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[1].value.m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[2].value.m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 11,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    },
+    {
+     "id": "W-S",
+     "elem_id": 1472999,
+     "synthesized": true,
+     "p0_ft": [
+      -15.092,
+      -10.171
+     ],
+     "p1_ft": [
+      15.092,
+      -10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 9.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [],
+     "clone_cleanup": {
+      "mode": "min",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      }
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[1].value.m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[2].value.m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 11,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    }
+   ],
+   "ok": true,
+   "specimens": {
+    "source": "experiments/genesis/R5.rvt",
+    "injected_ids": [
+     1115258,
+     975217
+    ],
+    "wall_specimen": 1115258,
+    "wall_type": 600634,
+    "instance_specimen": 975217,
+    "instance_symbol": 975202,
+    "instance_category": -2000023,
+    "instance_specimen_score": [
+     0,
+     539
+    ]
+   },
+   "wall_type": 600634,
+   "level": 311,
+   "wall_type_name": "CL_W1",
+   "elemtable_before": 3485,
+   "elemtable_after": 3489,
+   "new_ids": [
+    1472996,
+    1472997,
+    1472998,
+    1472999
+   ],
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_matches_header": true,
+    "sentinels_last": true,
+    "new_elements_clean_per_seq": {
+     "101": 4,
+     "102": 4,
+     "103": 4
+    }
+   },
+   "structurally_valid": true,
+   "seconds": 0.7,
+   "notes": [
+    "wall geometry rep = SerializedDummy (Revit regenerates the solid from the type + location line; the certified T2/T3/V22/V26 wall path)",
+    "wall LOCATION LINES are the intent's centerline ring (metres -> feet); the built thickness is the base wall type's compound structure, not the IFC's 0.2 m (recorded per wall as ifc_thickness_m)",
+    "door OPENINGS are recorded in the intent but NOT cut (no door family / hosting in v1)",
+    "specimen scaffolding: SWall 1115258 cloned from the base's certified ancestor R5.rvt (same wall type id 600634 in both files; the specimen is a clone TEMPLATE, never emitted)",
+    "EVERY same-type specimen in the lineage is a JOINED, painted wall -> the clone clean-up mode 'min' repairs what the clone leaves behind (per-wall log 'clone_cleanup'): self face-refs repointed, paint face-ref overrides cleared, join partner edge tags cleared, header parents filtered to existing ids (the Walls-category GStyle row 30 is one of the 235 catalog rows the R9 lineage GC'd away -- our headers must not name it); 'unjoin' additionally trims the history to the textbook unjoined form",
+    "OPEN acceptance question this probe answers: placed walls in a file whose Walls-category projection GStyle row is absent (never before tested -- the base lineage has no walls); a FAIL here + a card message points at the ADD-cat rung (the 235 missing built-in category rows)"
+   ]
+  },
+  {
+   "stage": "W-base-min",
+   "in": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "out": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+   "wall_mode": "min",
+   "walls": [
+    {
+     "id": "W-N",
+     "elem_id": 1472525,
+     "synthesized": false,
+     "p0_ft": [
+      15.092,
+      10.171
+     ],
+     "p1_ft": [
+      -15.092,
+      10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 9.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [],
+     "clone_cleanup": {
+      "mode": "min",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      }
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[1].value.m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[2].value.m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 11,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    },
+    {
+     "id": "W-W",
+     "elem_id": 1472526,
+     "synthesized": false,
+     "p0_ft": [
+      -15.092,
+      10.171
+     ],
+     "p1_ft": [
+      -15.092,
+      -10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 6.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [
+      {
+       "wall": "W-W",
+       "center_along_m": 5.1,
+       "width_m": 1.0,
+       "head_height_m": 2.13,
+       "sill_m": 0.0,
+       "world_center_m": [
+        -4.6,
+        -2.0
+       ],
+       "leaf_width_m": 0.95,
+       "swing": "out",
+       "source": "leaf+header solids",
+       "disposition": "recorded (no door family / wall hosting in v1)"
+      }
+     ],
+     "clone_cleanup": {
+      "mode": "min",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      }
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[1].value.m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[2].value.m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 11,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    },
+    {
+     "id": "W-E",
+     "elem_id": 1472527,
+     "synthesized": false,
+     "p0_ft": [
+      15.092,
+      -10.171
+     ],
+     "p1_ft": [
+      15.092,
+      10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 6.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [
+      {
+       "wall": "W-E",
+       "center_along_m": 1.1,
+       "width_m": 1.0,
+       "head_height_m": 2.13,
+       "sill_m": 0.0,
+       "world_center_m": [
+        4.6,
+        -2.0
+       ],
+       "leaf_width_m": 0.95,
+       "swing": "out",
+       "source": "leaf+header solids",
+       "disposition": "recorded (no door family / wall hosting in v1)"
+      }
+     ],
+     "clone_cleanup": {
+      "mode": "min",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      }
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[1].value.m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[2].value.m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 11,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    },
+    {
+     "id": "W-S",
+     "elem_id": 1472528,
+     "synthesized": true,
+     "p0_ft": [
+      -15.092,
+      -10.171
+     ],
+     "p1_ft": [
+      15.092,
+      -10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 9.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [],
+     "clone_cleanup": {
+      "mode": "min",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      }
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[1].value.m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormGList[2].value.m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+       "id": 6
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+       "id": 7
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+       "id": 14
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+       "id": 27
+      },
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 11,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    }
+   ],
+   "ok": true,
+   "specimens": {
+    "source": "experiments/genesis/R5.rvt",
+    "injected_ids": [
+     1115258,
+     975217
+    ],
+    "wall_specimen": 1115258,
+    "wall_type": 600634,
+    "instance_specimen": 975217,
+    "instance_symbol": 975202,
+    "instance_category": -2000023,
+    "instance_specimen_score": [
+     0,
+     539
+    ]
+   },
+   "wall_type": 600634,
+   "level": 311,
+   "wall_type_name": "CL_W1",
+   "elemtable_before": 3342,
+   "elemtable_after": 3346,
+   "new_ids": [
+    1472525,
+    1472526,
+    1472527,
+    1472528
+   ],
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_matches_header": true,
+    "sentinels_last": true,
+    "new_elements_clean_per_seq": {
+     "101": 4,
+     "102": 4,
+     "103": 4
+    }
+   },
+   "structurally_valid": true,
+   "seconds": 0.5,
+   "notes": [
+    "wall geometry rep = SerializedDummy (Revit regenerates the solid from the type + location line; the certified T2/T3/V22/V26 wall path)",
+    "wall LOCATION LINES are the intent's centerline ring (metres -> feet); the built thickness is the base wall type's compound structure, not the IFC's 0.2 m (recorded per wall as ifc_thickness_m)",
+    "door OPENINGS are recorded in the intent but NOT cut (no door family / hosting in v1)",
+    "specimen scaffolding: SWall 1115258 cloned from the base's certified ancestor R5.rvt (same wall type id 600634 in both files; the specimen is a clone TEMPLATE, never emitted)",
+    "EVERY same-type specimen in the lineage is a JOINED, painted wall -> the clone clean-up mode 'min' repairs what the clone leaves behind (per-wall log 'clone_cleanup'): self face-refs repointed, paint face-ref overrides cleared, join partner edge tags cleared, header parents filtered to existing ids (the Walls-category GStyle row 30 is one of the 235 catalog rows the R9 lineage GC'd away -- our headers must not name it); 'unjoin' additionally trims the history to the textbook unjoined form",
+    "OPEN acceptance question this probe answers: placed walls in a file whose Walls-category projection GStyle row is absent (never before tested -- the base lineage has no walls); a FAIL here + a card message points at the ADD-cat rung (the 235 missing built-in category rows)"
+   ]
+  },
+  {
+   "stage": "W-base-unjoin",
+   "in": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "out": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+   "wall_mode": "unjoin",
+   "walls": [
+    {
+     "id": "W-N",
+     "elem_id": 1472525,
+     "synthesized": false,
+     "p0_ft": [
+      15.092,
+      10.171
+     ],
+     "p1_ft": [
+      -15.092,
+      10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 9.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [],
+     "clone_cleanup": {
+      "mode": "unjoin",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      },
+      "form_steps_removed": [
+       "JoinEndGStep",
+       "JoinEndGStep"
+      ],
+      "tweak_steps_removed": [
+       "WallJoinTweakGStep",
+       "VCWSplitFaceGStep"
+      ],
+      "snapshots_nulled": [
+       "m_bRepFormSnapshot",
+       "m_bRepAdjustSnapshot"
+      ]
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 1,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    },
+    {
+     "id": "W-W",
+     "elem_id": 1472526,
+     "synthesized": false,
+     "p0_ft": [
+      -15.092,
+      10.171
+     ],
+     "p1_ft": [
+      -15.092,
+      -10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 6.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [
+      {
+       "wall": "W-W",
+       "center_along_m": 5.1,
+       "width_m": 1.0,
+       "head_height_m": 2.13,
+       "sill_m": 0.0,
+       "world_center_m": [
+        -4.6,
+        -2.0
+       ],
+       "leaf_width_m": 0.95,
+       "swing": "out",
+       "source": "leaf+header solids",
+       "disposition": "recorded (no door family / wall hosting in v1)"
+      }
+     ],
+     "clone_cleanup": {
+      "mode": "unjoin",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      },
+      "form_steps_removed": [
+       "JoinEndGStep",
+       "JoinEndGStep"
+      ],
+      "tweak_steps_removed": [
+       "WallJoinTweakGStep",
+       "VCWSplitFaceGStep"
+      ],
+      "snapshots_nulled": [
+       "m_bRepFormSnapshot",
+       "m_bRepAdjustSnapshot"
+      ]
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 1,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    },
+    {
+     "id": "W-E",
+     "elem_id": 1472527,
+     "synthesized": false,
+     "p0_ft": [
+      15.092,
+      -10.171
+     ],
+     "p1_ft": [
+      15.092,
+      10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 6.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [
+      {
+       "wall": "W-E",
+       "center_along_m": 1.1,
+       "width_m": 1.0,
+       "head_height_m": 2.13,
+       "sill_m": 0.0,
+       "world_center_m": [
+        4.6,
+        -2.0
+       ],
+       "leaf_width_m": 0.95,
+       "swing": "out",
+       "source": "leaf+header solids",
+       "disposition": "recorded (no door family / wall hosting in v1)"
+      }
+     ],
+     "clone_cleanup": {
+      "mode": "unjoin",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      },
+      "form_steps_removed": [
+       "JoinEndGStep",
+       "JoinEndGStep"
+      ],
+      "tweak_steps_removed": [
+       "WallJoinTweakGStep",
+       "VCWSplitFaceGStep"
+      ],
+      "snapshots_nulled": [
+       "m_bRepFormSnapshot",
+       "m_bRepAdjustSnapshot"
+      ]
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 1,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    },
+    {
+     "id": "W-S",
+     "elem_id": 1472528,
+     "synthesized": true,
+     "p0_ft": [
+      -15.092,
+      -10.171
+     ],
+     "p1_ft": [
+      15.092,
+      -10.171
+     ],
+     "height_ft": 12.008,
+     "length_m": 9.2,
+     "ifc_thickness_m": 0.20000000000000018,
+     "openings": [],
+     "clone_cleanup": {
+      "mode": "unjoin",
+      "face_ref_overrides_cleared": 4,
+      "join_edge_tags_cleared": 2,
+      "specimen_self_refs_repointed": 0,
+      "header_parents_dropped": {
+       "m_regenOnly": [
+        30
+       ],
+       "m_appearanceParents": [
+        30
+       ]
+      },
+      "form_steps_removed": [
+       "JoinEndGStep",
+       "JoinEndGStep"
+      ],
+      "tweak_steps_removed": [
+       "WallJoinTweakGStep",
+       "VCWSplitFaceGStep"
+      ],
+      "snapshots_nulled": [
+       "m_bRepFormSnapshot",
+       "m_bRepAdjustSnapshot"
+      ]
+     },
+     "dangling_refs": [
+      {
+       "path": "seq102.m_geomSteps.value.m_idCounter",
+       "id": 8
+      }
+     ],
+     "n_dangling": 1,
+     "notes": [
+      "seq103 = SerializedDummy (no cached geometry): Revit must regenerate the wall solid from m_geomSteps [acceptance test T1]; fallback = clone-and-transform the template wall's GElement.",
+      "cloned from wall 1115258 (type 600634)"
+     ]
+    }
+   ],
+   "ok": true,
+   "specimens": {
+    "source": "experiments/genesis/R5.rvt",
+    "injected_ids": [
+     1115258,
+     975217
+    ],
+    "wall_specimen": 1115258,
+    "wall_type": 600634,
+    "instance_specimen": 975217,
+    "instance_symbol": 975202,
+    "instance_category": -2000023,
+    "instance_specimen_score": [
+     0,
+     539
+    ]
+   },
+   "wall_type": 600634,
+   "level": 311,
+   "wall_type_name": "CL_W1",
+   "elemtable_before": 3342,
+   "elemtable_after": 3346,
+   "new_ids": [
+    1472525,
+    1472526,
+    1472527,
+    1472528
+   ],
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_matches_header": true,
+    "sentinels_last": true,
+    "new_elements_clean_per_seq": {
+     "101": 4,
+     "102": 4,
+     "103": 4
+    }
+   },
+   "structurally_valid": true,
+   "seconds": 0.6,
+   "notes": [
+    "wall geometry rep = SerializedDummy (Revit regenerates the solid from the type + location line; the certified T2/T3/V22/V26 wall path)",
+    "wall LOCATION LINES are the intent's centerline ring (metres -> feet); the built thickness is the base wall type's compound structure, not the IFC's 0.2 m (recorded per wall as ifc_thickness_m)",
+    "door OPENINGS are recorded in the intent but NOT cut (no door family / hosting in v1)",
+    "specimen scaffolding: SWall 1115258 cloned from the base's certified ancestor R5.rvt (same wall type id 600634 in both files; the specimen is a clone TEMPLATE, never emitted)",
+    "EVERY same-type specimen in the lineage is a JOINED, painted wall -> the clone clean-up mode 'unjoin' repairs what the clone leaves behind (per-wall log 'clone_cleanup'): self face-refs repointed, paint face-ref overrides cleared, join partner edge tags cleared, header parents filtered to existing ids (the Walls-category GStyle row 30 is one of the 235 catalog rows the R9 lineage GC'd away -- our headers must not name it); 'unjoin' additionally trims the history to the textbook unjoined form",
+    "OPEN acceptance question this probe answers: placed walls in a file whose Walls-category projection GStyle row is absent (never before tested -- the base lineage has no walls); a FAIL here + a card message points at the ADD-cat rung (the 235 missing built-in category rows)"
+   ]
+  },
+  {
+   "stage": "E",
+   "in": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+   "out": "experiments/ifc_room/electrical_room_2500a.rvt",
+   "instances": [
+    {
+     "tag": "T1",
+     "kind": "transformer",
+     "elem_id": 1473000,
+     "symbol": 1472935,
+     "family": 1472922,
+     "position_ft": [
+      8.858,
+      8.12,
+      0.328
+     ],
+     "position_m": [
+      2.7,
+      2.475,
+      0.1
+     ],
+     "yaw_deg": 0.0,
+     "frame_kind": "yaw",
+     "frame3x3": [
+      [
+       1.0,
+       0.0,
+       0.0
+      ],
+      [
+       -0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "connector_slots_panel": 1,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472935 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ]
+    },
+    {
+     "tag": "MSB",
+     "kind": "switchboard",
+     "elem_id": 1473001,
+     "symbol": 1472586,
+     "family": 1472568,
+     "position_ft": [
+      -6.781,
+      8.492,
+      0.328
+     ],
+     "position_m": [
+      -2.067,
+      2.5885,
+      0.1
+     ],
+     "yaw_deg": 0.0,
+     "frame_kind": "yaw",
+     "frame3x3": [
+      [
+       1.0,
+       0.0,
+       0.0
+      ],
+      [
+       -0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "connector_slots_panel": 6,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472586 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ]
+    },
+    {
+     "tag": "DP-1",
+     "kind": "distribution_panelboard",
+     "elem_id": 1473002,
+     "symbol": 1472645,
+     "family": 1472629,
+     "position_ft": [
+      -14.616,
+      5.577,
+      4.311
+     ],
+     "position_m": [
+      -4.455,
+      1.7,
+      1.314
+     ],
+     "yaw_deg": 90.0,
+     "frame_kind": "upright",
+     "frame3x3": [
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ],
+      [
+       1.0,
+       0.0,
+       0.0
+      ]
+     ],
+     "connector_slots_panel": 0,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472645 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ]
+    },
+    {
+     "tag": "LP-1",
+     "kind": "lighting_panelboard",
+     "elem_id": 1473003,
+     "symbol": 1472763,
+     "family": 1472747,
+     "position_ft": [
+      -14.616,
+      1.804,
+      5.062
+     ],
+     "position_m": [
+      -4.455,
+      0.55,
+      1.543
+     ],
+     "yaw_deg": 90.0,
+     "frame_kind": "upright",
+     "frame3x3": [
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ],
+      [
+       1.0,
+       0.0,
+       0.0
+      ]
+     ],
+     "connector_slots_panel": 0,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472763 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ]
+    },
+    {
+     "tag": "LP-2",
+     "kind": "lighting_panelboard",
+     "elem_id": 1473004,
+     "symbol": 1472822,
+     "family": 1472806,
+     "position_ft": [
+      -14.616,
+      -1.804,
+      5.062
+     ],
+     "position_m": [
+      -4.455,
+      -0.55,
+      1.543
+     ],
+     "yaw_deg": 90.0,
+     "frame_kind": "upright",
+     "frame3x3": [
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ],
+      [
+       1.0,
+       0.0,
+       0.0
+      ]
+     ],
+     "connector_slots_panel": 0,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472822 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ]
+    },
+    {
+     "tag": "DP-2",
+     "kind": "distribution_panelboard",
+     "elem_id": 1473005,
+     "symbol": 1472704,
+     "family": 1472688,
+     "position_ft": [
+      14.616,
+      5.577,
+      4.311
+     ],
+     "position_m": [
+      4.455,
+      1.7,
+      1.314
+     ],
+     "yaw_deg": -90.0,
+     "frame_kind": "upright",
+     "frame3x3": [
+      [
+       0.0,
+       -1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ],
+      [
+       -1.0,
+       -0.0,
+       0.0
+      ]
+     ],
+     "connector_slots_panel": 0,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472704 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ]
+    },
+    {
+     "tag": "LP-3",
+     "kind": "lighting_panelboard",
+     "elem_id": 1473006,
+     "symbol": 1472881,
+     "family": 1472865,
+     "position_ft": [
+      14.616,
+      1.804,
+      5.062
+     ],
+     "position_m": [
+      4.455,
+      0.55,
+      1.543
+     ],
+     "yaw_deg": -90.0,
+     "frame_kind": "upright",
+     "frame3x3": [
+      [
+       0.0,
+       -1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ],
+      [
+       -1.0,
+       -0.0,
+       0.0
+      ]
+     ],
+     "connector_slots_panel": 0,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472881 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ]
+    },
+    {
+     "tag": "LP-4",
+     "kind": "receptacle_panelboard",
+     "elem_id": 1473007,
+     "symbol": 1472994,
+     "family": 1472978,
+     "position_ft": [
+      14.616,
+      -1.804,
+      5.062
+     ],
+     "position_m": [
+      4.455,
+      -0.55,
+      1.543
+     ],
+     "yaw_deg": -90.0,
+     "frame_kind": "upright",
+     "frame3x3": [
+      [
+       0.0,
+       -1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ],
+      [
+       -1.0,
+       -0.0,
+       0.0
+      ]
+     ],
+     "connector_slots_panel": 0,
+     "scrub": {
+      "category_patched": true,
+      "symbol_refs_repointed": 0,
+      "param_rows_dropped": 0,
+      "structural_fields_reset": [],
+      "category_from": -2000023,
+      "faminst_spec_removed": "FamInstDoor"
+     },
+     "dangling_refs": [],
+     "n_dangling": 0,
+     "notes": [
+      "cloned from instance 975217; symbol==masterSymbol==1472994 (free/face pattern, no host-cut clone)",
+      "bounding boxes are estimates (regenerated by Revit)"
+     ]
+    }
+   ],
+   "ok": true,
+   "specimens": {
+    "source": "experiments/genesis/R5.rvt",
+    "injected_ids": [
+     1115258,
+     975217
+    ],
+    "wall_specimen": 1115258,
+    "wall_type": 600634,
+    "instance_specimen": 975217,
+    "instance_symbol": 975202,
+    "instance_category": -2000023,
+    "instance_specimen_score": [
+     0,
+     539
+    ]
+   },
+   "level": 311,
+   "elemtable_before": 3489,
+   "elemtable_after": 3497,
+   "new_ids": [
+    1473000,
+    1473001,
+    1473002,
+    1473003,
+    1473004,
+    1473005,
+    1473006,
+    1473007
+   ],
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_matches_header": true,
+    "sentinels_last": true,
+    "new_elements_clean_per_seq": {
+     "101": 8,
+     "102": 8,
+     "103": 8
+    }
+   },
+   "structurally_valid": true,
+   "seconds": 0.7,
+   "notes": [
+    "placement = FREE-STANDING at the intent's insertion point with the intent's full frame (wall panels stand upright via an explicit 3x3; the free-standing wall-family precedent = the certified V23..V29 clones); FACE-HOSTING on the created walls (rvt.hosting SketchPlane recipe, certified H2) is the fidelity follow-up",
+    "each instance points at OUR loaded symbol (symbol == masterSymbol) with OUR connector set (+ one 50000-series slot per outgoing feeder) -- circuit-ready",
+    "specimen scaffolding: instance 975217 (category -2000023) cloned from the base's certified ancestor R5.rvt; header category patched to Electrical Equipment (-2001040), specimen-symbol refs repointed, param rows keyed by other-document ParamElems dropped, structural-analysis leftovers reset (per-instance scrub log recorded)"
+   ]
+  },
+  {
+   "stage": "C",
+   "in": "experiments/ifc_room/electrical_room_2500a.rvt",
+   "circuits_planned": [
+    {
+     "panel": "MSB",
+     "load": "T1",
+     "rating_a": 180.4,
+     "voltage": "480 V delta",
+     "poles": 3,
+     "description": "T1 feeder from MSB"
+    },
+    {
+     "panel": "MSB",
+     "load": "DP-1",
+     "rating_a": 400.0,
+     "voltage": "480Y/277 V",
+     "poles": 3,
+     "description": "DP-1 feeder from MSB"
+    },
+    {
+     "panel": "MSB",
+     "load": "LP-1",
+     "rating_a": 100.0,
+     "voltage": "480Y/277 V",
+     "poles": 3,
+     "description": "LP-1 feeder from MSB"
+    },
+    {
+     "panel": "MSB",
+     "load": "LP-2",
+     "rating_a": 100.0,
+     "voltage": "480Y/277 V",
+     "poles": 3,
+     "description": "LP-2 feeder from MSB"
+    },
+    {
+     "panel": "MSB",
+     "load": "DP-2",
+     "rating_a": 400.0,
+     "voltage": "480Y/277 V",
+     "poles": 3,
+     "description": "DP-2 feeder from MSB"
+    },
+    {
+     "panel": "MSB",
+     "load": "LP-3",
+     "rating_a": 100.0,
+     "voltage": "480Y/277 V",
+     "poles": 3,
+     "description": "LP-3 feeder from MSB"
+    },
+    {
+     "panel": "T1",
+     "load": "LP-4",
+     "rating_a": 225.0,
+     "voltage": "208Y/120 V",
+     "poles": 3,
+     "description": "LP-4 feeder from T1"
+    }
+   ],
+   "ok": false,
+   "blocker": "NO CIRCUIT SPECIMEN in the base or the loaded file (the family-free structural-lineage base carries no RbsElectricalSystem; rvt.mutate.add_circuit CLONES one) -- an RbsElectricalSystem CONSTRUCTOR is the exact missing piece.  The feeder tree is fully resolved (edges + ratings + poles + voltage, corroborated by the conduit geometry) and every placed board carries an unconnected 50000-series slot per outgoing feeder, so each edge is one add_circuit(panel, load) call once a constructor / same-commit circuit template exists.  (LookupError: electrical_room_2500a: no 2-connector circuit specimen to clone)",
+   "notes": [
+    "MEP HARD LIMIT recorded in KNOWLEDGE.md: circuits are Revit-side connectivity; the intent carries the whole tree so the electrical stream / a Revit-side add-in can build them from the same JSON"
+   ]
+  },
+  {
+   "stage": "V",
+   "files": [
+    {
+     "key": "loaded",
+     "validate": {
+      "path": "experiments/ifc_room/stage_L8_lp4.rvt",
+      "md5": "3d44a17e1df900e8adb118972480a3d2",
+      "size": 708608,
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 1,
+      "errors": [],
+      "warnings": [
+       {
+        "severity": "warning",
+        "layer": "semantic",
+        "where": "objects",
+        "message": "1/3813 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+       }
+      ],
+      "stats": {
+       "streams": 12,
+       "pages_checked": 16,
+       "gzip_members": 8,
+       "partition_blocks": 40,
+       "records": 11466,
+       "elements_decoded": 3813,
+       "decode_failures": 1,
+       "refs_checked": 60015,
+       "connector_edges": 0,
+       "circuits": 0
+      },
+      "seconds": 0.2
+     },
+     "census": {
+      "save_units": 9,
+      "contentdocs_entries": 8,
+      "contentdocs_guids": [
+       "3db7f77a-5949-4818-867a-355ac5899989",
+       "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "fcc93665-5787-4e9f-abbb-137beea965a6"
+      ],
+      "contenttable_records": 8,
+      "contenttable_guids": [
+       "3db7f77a-5949-4818-867a-355ac5899989",
+       "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "fcc93665-5787-4e9f-abbb-137beea965a6"
+      ],
+      "familymgr_entries": 17,
+      "familymgr_guids": [
+       "3db7f77a-5949-4818-867a-355ac5899989",
+       "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "fcc93665-5787-4e9f-abbb-137beea965a6"
+      ],
+      "coherent": true
+     },
+     "identity": {
+      "status": "PASS",
+      "issues": [],
+      "identity": {
+       "author": "rvt-writer",
+       "client_app_name": "rvt-writer",
+       "username": "",
+       "last_save_path": "stage_L8_lp4.rvt.pass1.tmp",
+       "central_model_path": "",
+       "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "format": "2026",
+       "build": "20250227_1515(x64)",
+       "locale": "ENU",
+       "unique_document_increments": "22"
+      },
+      "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+     }
+    },
+    {
+     "key": "walls_only",
+     "validate": {
+      "path": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+      "md5": "144b0ec172eb880c3f9600e1e636cd4d",
+      "size": 630784,
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 1,
+      "errors": [],
+      "warnings": [
+       {
+        "severity": "warning",
+        "layer": "semantic",
+        "where": "objects",
+        "message": "1/3346 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+       }
+      ],
+      "stats": {
+       "streams": 12,
+       "pages_checked": 15,
+       "gzip_members": 8,
+       "partition_blocks": 16,
+       "records": 10041,
+       "elements_decoded": 3346,
+       "decode_failures": 1,
+       "refs_checked": 51626,
+       "connector_edges": 0,
+       "circuits": 0
+      },
+      "seconds": 0.2
+     },
+     "census": {
+      "save_units": 1,
+      "contentdocs_entries": 0,
+      "contentdocs_guids": [],
+      "contenttable_records": 0,
+      "contenttable_guids": [],
+      "familymgr_entries": 9,
+      "familymgr_guids": [],
+      "coherent": true
+     },
+     "identity": {
+      "status": "PASS",
+      "issues": [],
+      "identity": {
+       "author": "rvt-writer",
+       "client_app_name": "rvt-writer",
+       "username": "",
+       "last_save_path": "electrical_room_2500a_walls_only.rvt",
+       "central_model_path": "",
+       "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "format": "2026",
+       "build": "20250227_1515(x64)",
+       "locale": "ENU",
+       "unique_document_increments": "22"
+      },
+      "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+     }
+    },
+    {
+     "key": "walls_only_unjoined",
+     "validate": {
+      "path": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+      "md5": "691eed083894f11d0334962b51f23be0",
+      "size": 630784,
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 1,
+      "errors": [],
+      "warnings": [
+       {
+        "severity": "warning",
+        "layer": "semantic",
+        "where": "objects",
+        "message": "1/3346 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+       }
+      ],
+      "stats": {
+       "streams": 12,
+       "pages_checked": 15,
+       "gzip_members": 8,
+       "partition_blocks": 16,
+       "records": 10041,
+       "elements_decoded": 3346,
+       "decode_failures": 1,
+       "refs_checked": 51602,
+       "connector_edges": 0,
+       "circuits": 0
+      },
+      "seconds": 0.2
+     },
+     "census": {
+      "save_units": 1,
+      "contentdocs_entries": 0,
+      "contentdocs_guids": [],
+      "contenttable_records": 0,
+      "contenttable_guids": [],
+      "familymgr_entries": 9,
+      "familymgr_guids": [],
+      "coherent": true
+     },
+     "identity": {
+      "status": "PASS",
+      "issues": [],
+      "identity": {
+       "author": "rvt-writer",
+       "client_app_name": "rvt-writer",
+       "username": "",
+       "last_save_path": "electrical_room_2500a_walls_only_unjoined.rvt",
+       "central_model_path": "",
+       "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "format": "2026",
+       "build": "20250227_1515(x64)",
+       "locale": "ENU",
+       "unique_document_increments": "22"
+      },
+      "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+     }
+    },
+    {
+     "key": "walls",
+     "validate": {
+      "path": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+      "md5": "dc9647df3926eb9d424f75555429e8a9",
+      "size": 712704,
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 1,
+      "errors": [],
+      "warnings": [
+       {
+        "severity": "warning",
+        "layer": "semantic",
+        "where": "objects",
+        "message": "1/3817 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+       }
+      ],
+      "stats": {
+       "streams": 12,
+       "pages_checked": 16,
+       "gzip_members": 8,
+       "partition_blocks": 40,
+       "records": 11478,
+       "elements_decoded": 3817,
+       "decode_failures": 1,
+       "refs_checked": 60163,
+       "connector_edges": 0,
+       "circuits": 0
+      },
+      "seconds": 0.2
+     },
+     "census": {
+      "save_units": 9,
+      "contentdocs_entries": 8,
+      "contentdocs_guids": [
+       "3db7f77a-5949-4818-867a-355ac5899989",
+       "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "fcc93665-5787-4e9f-abbb-137beea965a6"
+      ],
+      "contenttable_records": 8,
+      "contenttable_guids": [
+       "3db7f77a-5949-4818-867a-355ac5899989",
+       "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "fcc93665-5787-4e9f-abbb-137beea965a6"
+      ],
+      "familymgr_entries": 17,
+      "familymgr_guids": [
+       "3db7f77a-5949-4818-867a-355ac5899989",
+       "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "fcc93665-5787-4e9f-abbb-137beea965a6"
+      ],
+      "coherent": true
+     },
+     "identity": {
+      "status": "PASS",
+      "issues": [],
+      "identity": {
+       "author": "rvt-writer",
+       "client_app_name": "rvt-writer",
+       "username": "",
+       "last_save_path": "stage_W_loaded_walls.rvt",
+       "central_model_path": "",
+       "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "format": "2026",
+       "build": "20250227_1515(x64)",
+       "locale": "ENU",
+       "unique_document_increments": "22"
+      },
+      "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+     }
+    },
+    {
+     "key": "room",
+     "validate": {
+      "path": "experiments/ifc_room/electrical_room_2500a.rvt",
+      "md5": "2e06193facb20ddb6f8e57489553662f",
+      "size": 712704,
+      "verdict": "VALID",
+      "n_errors": 0,
+      "n_warnings": 1,
+      "errors": [],
+      "warnings": [
+       {
+        "severity": "warning",
+        "layer": "semantic",
+        "where": "objects",
+        "message": "1/3825 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+       }
+      ],
+      "stats": {
+       "streams": 12,
+       "pages_checked": 16,
+       "gzip_members": 8,
+       "partition_blocks": 40,
+       "records": 11502,
+       "elements_decoded": 3825,
+       "decode_failures": 1,
+       "refs_checked": 60315,
+       "connector_edges": 0,
+       "circuits": 0
+      },
+      "seconds": 0.2
+     },
+     "census": {
+      "save_units": 9,
+      "contentdocs_entries": 8,
+      "contentdocs_guids": [
+       "3db7f77a-5949-4818-867a-355ac5899989",
+       "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "fcc93665-5787-4e9f-abbb-137beea965a6"
+      ],
+      "contenttable_records": 8,
+      "contenttable_guids": [
+       "3db7f77a-5949-4818-867a-355ac5899989",
+       "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "fcc93665-5787-4e9f-abbb-137beea965a6"
+      ],
+      "familymgr_entries": 17,
+      "familymgr_guids": [
+       "3db7f77a-5949-4818-867a-355ac5899989",
+       "7f64f7ef-dcf6-498f-98c1-05d0399b1753",
+       "8dd7db67-51d8-404e-ade5-4a606989a318",
+       "b4344369-a90c-4d5a-8970-3c94ab84437e",
+       "e1e7b380-69d4-4d3f-835f-cf9233844dc7",
+       "ef96943f-a674-493d-bf5e-60e0a03aa72d",
+       "fa1f7d0b-efa4-4aa9-bd23-40f32ccc72cf",
+       "fcc93665-5787-4e9f-abbb-137beea965a6"
+      ],
+      "coherent": true
+     },
+     "identity": {
+      "status": "PASS",
+      "issues": [],
+      "identity": {
+       "author": "rvt-writer",
+       "client_app_name": "rvt-writer",
+       "username": "",
+       "last_save_path": "electrical_room_2500a.rvt",
+       "central_model_path": "",
+       "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+       "format": "2026",
+       "build": "20250227_1515(x64)",
+       "locale": "ENU",
+       "unique_document_increments": "22"
+      },
+      "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+     }
+    }
+   ],
+   "status_gate": {
+    "status": "PROOF-ONLY, NOT-DELIVERABLE",
+    "deliverable": false,
+    "base": "/Users/ck/dev/things/rev-revit/experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "base_is_autodesk_sample": false,
+    "g1": {
+     "passes": false,
+     "verdict": "FAIL \u2014 3,299 Autodesk-derived element(s) in expression-bearing categories",
+     "blocking": [
+      {
+       "category": "loadable-families",
+       "provenance": "autodesk-sample",
+       "count": 16,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "loadable-families",
+       "provenance": "transitive-cloned",
+       "count": 8,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "family-types-symbols",
+       "provenance": "autodesk-sample",
+       "count": 2,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "family-types-symbols",
+       "provenance": "transitive-cloned",
+       "count": 8,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "system-family-types",
+       "provenance": "autodesk-sample",
+       "count": 4,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "views-and-templates",
+       "provenance": "autodesk-sample",
+       "count": 159,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "object-styles",
+       "provenance": "autodesk-sample",
+       "count": 1671,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "patterns-materials",
+       "provenance": "autodesk-sample",
+       "count": 103,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "text-dimension-types",
+       "provenance": "autodesk-sample",
+       "count": 49,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "parameter-definitions",
+       "provenance": "autodesk-sample",
+       "count": 822,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "phases-design-options",
+       "provenance": "autodesk-sample",
+       "count": 11,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+       "category": "project-info-settings",
+       "provenance": "autodesk-sample",
+       "count": 38,
+       "why": "Autodesk-derived expression in an expression-bearing category"
+      }
+     ]
+    },
+    "provenance_totals": {
+     "autodesk-sample": 3342,
+     "ours-created": 135,
+     "transitive-cloned": 20
+    },
+    "created_elements": [
+     {
+      "id": 1472568,
+      "class": "Family",
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "reason": "references sample mep-electrical-definitions ElectricalLoadClassification 113944 via m_elemId",
+      "lineage": [
+       {
+        "id": 113944,
+        "class": "ElectricalLoadClassification",
+        "category": "mep-electrical-definitions",
+        "via": "m_elemId",
+        "name": "Power"
+       },
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_coreIds[0]",
+        "name": "style:Electrical Equipment"
+       },
+       {
+        "id": 35,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_predefinedLimitIdx",
+        "name": "style:Windows"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472569,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472569 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472570,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472570 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472571,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472571 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472572,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472572 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472573,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472573 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472574,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472574 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472575,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472575 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472576,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472576 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472577,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472577 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472578,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472578 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472579,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472579 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472580,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472580 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472581,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472581 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472582,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472582 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472583,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472583 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472584,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472584 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472585,
+      "class": "FamilySurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472585 > watermark 1472524; no lineage into sample expression (max clone overlap 11%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472586,
+      "class": "FamilySymbol",
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+      "lineage": [
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_regenOnly[0]",
+        "name": "style:Electrical Equipment"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472587,
+      "class": "FamSymSurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472587 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472629,
+      "class": "Family",
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "reason": "references sample mep-electrical-definitions ElectricalLoadClassification 113944 via m_elemId",
+      "lineage": [
+       {
+        "id": 113944,
+        "class": "ElectricalLoadClassification",
+        "category": "mep-electrical-definitions",
+        "via": "m_elemId",
+        "name": "Power"
+       },
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_coreIds[0]",
+        "name": "style:Electrical Equipment"
+       },
+       {
+        "id": 35,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_predefinedLimitIdx",
+        "name": "style:Windows"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472630,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472630 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472631,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472631 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472632,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472632 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472633,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472633 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472634,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472634 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472635,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472635 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472636,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472636 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472637,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472637 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472638,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472638 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472639,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472639 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472640,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472640 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472641,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472641 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472642,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472642 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472643,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472643 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472644,
+      "class": "FamilySurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472644 > watermark 1472524; no lineage into sample expression (max clone overlap 8%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472645,
+      "class": "FamilySymbol",
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+      "lineage": [
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_regenOnly[0]",
+        "name": "style:Electrical Equipment"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472646,
+      "class": "FamSymSurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472646 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472688,
+      "class": "Family",
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "reason": "references sample mep-electrical-definitions ElectricalLoadClassification 113944 via m_elemId",
+      "lineage": [
+       {
+        "id": 113944,
+        "class": "ElectricalLoadClassification",
+        "category": "mep-electrical-definitions",
+        "via": "m_elemId",
+        "name": "Power"
+       },
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_coreIds[0]",
+        "name": "style:Electrical Equipment"
+       },
+       {
+        "id": 35,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_predefinedLimitIdx",
+        "name": "style:Windows"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472689,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472689 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472690,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472690 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472691,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472691 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472692,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472692 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472693,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472693 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472694,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472694 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472695,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472695 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472696,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472696 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472697,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472697 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472698,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472698 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472699,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472699 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472700,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472700 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472701,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472701 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472702,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472702 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472703,
+      "class": "FamilySurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472703 > watermark 1472524; no lineage into sample expression (max clone overlap 8%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472704,
+      "class": "FamilySymbol",
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+      "lineage": [
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_regenOnly[0]",
+        "name": "style:Electrical Equipment"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472705,
+      "class": "FamSymSurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472705 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472747,
+      "class": "Family",
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "reason": "references sample mep-electrical-definitions ElectricalLoadClassification 113944 via m_elemId",
+      "lineage": [
+       {
+        "id": 113944,
+        "class": "ElectricalLoadClassification",
+        "category": "mep-electrical-definitions",
+        "via": "m_elemId",
+        "name": "Power"
+       },
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_coreIds[0]",
+        "name": "style:Electrical Equipment"
+       },
+       {
+        "id": 35,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_predefinedLimitIdx",
+        "name": "style:Windows"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472748,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472748 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472749,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472749 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472750,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472750 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472751,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472751 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472752,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472752 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472753,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472753 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472754,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472754 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472755,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472755 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472756,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472756 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472757,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472757 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472758,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472758 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472759,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472759 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472760,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472760 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472761,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472761 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472762,
+      "class": "FamilySurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472762 > watermark 1472524; no lineage into sample expression (max clone overlap 9%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472763,
+      "class": "FamilySymbol",
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+      "lineage": [
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_regenOnly[0]",
+        "name": "style:Electrical Equipment"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472764,
+      "class": "FamSymSurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472764 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472806,
+      "class": "Family",
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "reason": "references sample mep-electrical-definitions ElectricalLoadClassification 113944 via m_elemId",
+      "lineage": [
+       {
+        "id": 113944,
+        "class": "ElectricalLoadClassification",
+        "category": "mep-electrical-definitions",
+        "via": "m_elemId",
+        "name": "Power"
+       },
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_coreIds[0]",
+        "name": "style:Electrical Equipment"
+       },
+       {
+        "id": 35,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_predefinedLimitIdx",
+        "name": "style:Windows"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472807,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472807 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472808,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472808 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472809,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472809 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472810,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472810 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472811,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472811 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472812,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472812 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472813,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472813 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472814,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472814 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472815,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472815 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472816,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472816 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472817,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472817 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472818,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472818 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472819,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472819 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472820,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472820 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472821,
+      "class": "FamilySurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472821 > watermark 1472524; no lineage into sample expression (max clone overlap 9%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472822,
+      "class": "FamilySymbol",
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+      "lineage": [
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_regenOnly[0]",
+        "name": "style:Electrical Equipment"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472823,
+      "class": "FamSymSurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472823 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472865,
+      "class": "Family",
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "reason": "references sample mep-electrical-definitions ElectricalLoadClassification 113944 via m_elemId",
+      "lineage": [
+       {
+        "id": 113944,
+        "class": "ElectricalLoadClassification",
+        "category": "mep-electrical-definitions",
+        "via": "m_elemId",
+        "name": "Power"
+       },
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_coreIds[0]",
+        "name": "style:Electrical Equipment"
+       },
+       {
+        "id": 35,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_predefinedLimitIdx",
+        "name": "style:Windows"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472866,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472866 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472867,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472867 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472868,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472868 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472869,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472869 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472870,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472870 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472871,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472871 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472872,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472872 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472873,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472873 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472874,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472874 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472875,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472875 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472876,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472876 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472877,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472877 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472878,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472878 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472879,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472879 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472880,
+      "class": "FamilySurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472880 > watermark 1472524; no lineage into sample expression (max clone overlap 9%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472881,
+      "class": "FamilySymbol",
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+      "lineage": [
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_regenOnly[0]",
+        "name": "style:Electrical Equipment"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472882,
+      "class": "FamSymSurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472882 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472922,
+      "class": "Family",
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "reason": "references sample mep-electrical-definitions ElectricalLoadClassification 113944 via m_elemId",
+      "lineage": [
+       {
+        "id": 113944,
+        "class": "ElectricalLoadClassification",
+        "category": "mep-electrical-definitions",
+        "via": "m_elemId",
+        "name": "Power"
+       },
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_coreIds[0]",
+        "name": "style:Electrical Equipment"
+       },
+       {
+        "id": 35,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_predefinedLimitIdx",
+        "name": "style:Windows"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472923,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472923 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472924,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472924 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472925,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472925 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472926,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472926 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472927,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472927 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472928,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472928 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472929,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472929 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472930,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472930 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472931,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472931 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472932,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472932 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472933,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472933 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472934,
+      "class": "FamilySurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472934 > watermark 1472524; no lineage into sample expression (max clone overlap 9%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472935,
+      "class": "FamilySymbol",
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+      "lineage": [
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_regenOnly[0]",
+        "name": "style:Electrical Equipment"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472936,
+      "class": "FamSymSurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472936 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472978,
+      "class": "Family",
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "reason": "references sample mep-electrical-definitions ElectricalLoadClassification 113944 via m_elemId",
+      "lineage": [
+       {
+        "id": 113944,
+        "class": "ElectricalLoadClassification",
+        "category": "mep-electrical-definitions",
+        "via": "m_elemId",
+        "name": "Power"
+       },
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_coreIds[0]",
+        "name": "style:Electrical Equipment"
+       },
+       {
+        "id": 35,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_predefinedLimitIdx",
+        "name": "style:Windows"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472979,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472979 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472980,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472980 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472981,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472981 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472982,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472982 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472983,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472983 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472984,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472984 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472985,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472985 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472986,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472986 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472987,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472987 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472988,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472988 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472989,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472989 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472990,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472990 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472991,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472991 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472992,
+      "class": "ParamElemFamily",
+      "category": "parameter-definitions",
+      "provenance": "ours-created",
+      "reason": "id 1472992 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472993,
+      "class": "FamilySurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472993 > watermark 1472524; no lineage into sample expression (max clone overlap 17%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472994,
+      "class": "FamilySymbol",
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+      "lineage": [
+       {
+        "id": 124,
+        "class": "GStyleElem",
+        "category": "object-styles",
+        "via": "m_regenOnly[0]",
+        "name": "style:Electrical Equipment"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472995,
+      "class": "FamSymSurrogate",
+      "category": "loadable-families",
+      "provenance": "ours-created",
+      "reason": "id 1472995 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472996,
+      "class": "SWall",
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+      "lineage": [
+       {
+        "id": 600634,
+        "class": "BasicWallType",
+        "category": "system-family-types",
+        "via": "m_WallAttributesId",
+        "name": "CL_W1"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472997,
+      "class": "SWall",
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+      "lineage": [
+       {
+        "id": 600634,
+        "class": "BasicWallType",
+        "category": "system-family-types",
+        "via": "m_WallAttributesId",
+        "name": "CL_W1"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472998,
+      "class": "SWall",
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+      "lineage": [
+       {
+        "id": 600634,
+        "class": "BasicWallType",
+        "category": "system-family-types",
+        "via": "m_WallAttributesId",
+        "name": "CL_W1"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1472999,
+      "class": "SWall",
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+      "lineage": [
+       {
+        "id": 600634,
+        "class": "BasicWallType",
+        "category": "system-family-types",
+        "via": "m_WallAttributesId",
+        "name": "CL_W1"
+       }
+      ],
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1473000,
+      "class": "FamilyInstance",
+      "category": "placed-model-content",
+      "provenance": "ours-created",
+      "reason": "id 1473000 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1473001,
+      "class": "FamilyInstance",
+      "category": "placed-model-content",
+      "provenance": "ours-created",
+      "reason": "id 1473001 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1473002,
+      "class": "FamilyInstance",
+      "category": "placed-model-content",
+      "provenance": "ours-created",
+      "reason": "id 1473002 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1473003,
+      "class": "FamilyInstance",
+      "category": "placed-model-content",
+      "provenance": "ours-created",
+      "reason": "id 1473003 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1473004,
+      "class": "FamilyInstance",
+      "category": "placed-model-content",
+      "provenance": "ours-created",
+      "reason": "id 1473004 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1473005,
+      "class": "FamilyInstance",
+      "category": "placed-model-content",
+      "provenance": "ours-created",
+      "reason": "id 1473005 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1473006,
+      "class": "FamilyInstance",
+      "category": "placed-model-content",
+      "provenance": "ours-created",
+      "reason": "id 1473006 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     },
+     {
+      "id": 1473007,
+      "class": "FamilyInstance",
+      "category": "placed-model-content",
+      "provenance": "ours-created",
+      "reason": "id 1473007 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+      "attribution": "ZA_deep"
+     }
+    ],
+    "reason": "P0 genesis gate G1 fails (the base carries derived expression that G1 blocks): FAIL \u2014 3,299 Autodesk-derived element(s) in expression-bearing categories. Nothing built on a sample base is a product; ship only from a certified genesis base.",
+    "elapsed_s": 0.2
+   },
+   "gate_dry_run": {
+    "ran": true,
+    "admissible": true,
+    "violations": [],
+    "resolved": [
+     {
+      "file": "experiments/ifc_room/stage_L8_lp4.rvt",
+      "kind": "probe",
+      "base": "<probe_batch.BaseResolution object at 0x11283c1d0>",
+      "base_certification": null
+     },
+     {
+      "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+      "kind": "probe",
+      "base": "<probe_batch.BaseResolution object at 0x11283c080>",
+      "base_certification": null
+     },
+     {
+      "file": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+      "kind": "probe",
+      "base": "<probe_batch.BaseResolution object at 0x11283f020>",
+      "base_certification": null
+     },
+     {
+      "file": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+      "kind": "probe",
+      "base": "<probe_batch.BaseResolution object at 0x11283ee10>",
+      "base_certification": null
+     },
+     {
+      "file": "experiments/ifc_room/electrical_room_2500a.rvt",
+      "kind": "probe",
+      "base": "<probe_batch.BaseResolution object at 0x11283f5f0>",
+      "base_certification": null
+     }
+    ]
+   }
+  }
+ ],
+ "outputs": {
+  "intent": "inputs/ifc/electrical-room-2500a.intent.json",
+  "loaded": "experiments/ifc_room/stage_L8_lp4.rvt",
+  "n_families_loaded": "8/8",
+  "walls": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+  "walls_only": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+  "walls_only_unjoined": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+  "room": "experiments/ifc_room/electrical_room_2500a.rvt",
+  "control": "experiments/ifc_room/CTRL_ZA_deep_ifcroom.rvt",
+  "status": "PROOF-ONLY, NOT-DELIVERABLE",
+  "probes": "experiments/ifc_room/probes.json"
+ },
+ "started": "2026-08-04T08:59:43",
+ "proof_only": "PROOF-ONLY research artefacts: base = certified genesis lineage (sample-derived, in-place substituted); added layer = OUR constructors' output; NOT a deliverable to any third party",
+ "specimens": {
+  "source": "experiments/genesis/R5.rvt",
+  "wall": 1115258,
+  "wall_type": 600634,
+  "instance": 975217,
+  "instance_symbol": 975202,
+  "instance_category": -2000023
+ },
+ "seconds": 19.0,
+ "deepest_output": "experiments/ifc_room/electrical_room_2500a.rvt"
+}

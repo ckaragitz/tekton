@@ -1,0 +1,67 @@
+{
+ "batch": 51,
+ "created": "2026-08-05T10:01:53-05:00",
+ "tool": "tools/birthright_mine.py (via tools/probe_batch.py primitives)",
+ "law": "every entry's declared base is ITSELF certified; the batch carries the G_ABPD control FIRST; control FAIL voids its probes",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "controls": {
+  "G_ABPD.rvt": "experiments/acceptance/CTRL_G_ABPD_b51.rvt"
+ },
+ "note": "birthright: THE SUFFICIENCY PROBE + THE AUTHORED BIRTH.  Verdict #43 confirmed the birth law (born famdocs PASS our whole pipeline, famgen famdocs FAIL).  Reading order: T1v (is the birth set SUFFICIENT for our content?), BX_birth (our famdoc + OUR authored birth set, zero donors), DEMO_250v_room_v7 (the user's exact prompt through birthright).  Read experiments/birthright/probes.json reading_the_matrix.",
+ "reading_order": [
+  "CTRL_G_ABPD_b51.rvt",
+  "T1v.rvt",
+  "BX_birth.rvt",
+  "DEMO_250v_room_v7.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_G_ABPD_b51.rvt",
+   "staged_as": "experiments/acceptance/CTRL_G_ABPD_b51.rvt",
+   "md5": "1f1ff65bd68415a05228d6b6ac2bf271",
+   "kind": "control",
+   "control": true,
+   "control_source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 1,
+   "file": "experiments/birthright/T1v.rvt",
+   "staged_as": "experiments/acceptance/T1v.rvt",
+   "md5": "059286397fba95768bb3846bc7b69cce",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/birthright/probes.json entry 'T1v' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 2,
+   "file": "experiments/birthright/BX_birth.rvt",
+   "staged_as": "experiments/acceptance/BX_birth.rvt",
+   "md5": "234ee8a59e1da3731fbe2ea0ba6de9a3",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/birthright/probes.json entry 'BX_birth' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 3,
+   "file": "experiments/birthright/DEMO_250v_room_v7.rvt",
+   "staged_as": "experiments/acceptance/DEMO_250v_room_v7.rvt",
+   "md5": "5c18cb7db71f7596faae55c838803669",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/birthright/probes.json entry 'DEMO_250v_room_v7' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ ]
+}

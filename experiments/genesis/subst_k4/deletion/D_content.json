@@ -1,0 +1,249 @@
+{
+ "rung": "D_content",
+ "label": "ZA_deep minus the delete-reachable placed CONTENT (the locked constraint dimension + its 3 reference planes)",
+ "kind": "deletion (delete-with-content by maxgc)",
+ "mechanism": "rvt_reduce.maxgc over the arbiter's typed reference graph (every seq of every record) + rvt.reduce.delete_elements (the certified re-blocking deleter: records cut out of unit 0, ElemTable rows dropped, header count patched, both streams CRCIO re-framed).  DELETION-WITH-CONTENT ONLY: every seed is a closed constellation (referrers of removed content are IN the seed); maxgc must pin NOTHING.  Global/Latest / ContentDocuments / PartitionTable / History / DIT / identity streams are NEVER touched: the deleted ids' ADocument registry entries are LEFT DANGLING (never nulled, never dropped) and censused.",
+ "law": {
+  "statement": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed.",
+  "policy": {
+   "mechanism": "maxgc",
+   "purpose": "reduction-rung",
+   "decision": "ALLOW",
+   "reason": "sanctioned generator: maximal garbage collection over the validator's reference graph (rvt.reduce.delete_elements over an rvt_reduce.maxgc seed): only elements no survivor references are deleted; survivors are byte-identical BY CONSTRUCTION (the certified ladder R5..R10)"
+  }
+ },
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  },
+  "lineage": "ZA_deep = certified Y9 (K4 + the Y-ladder's settings / catalog / palette / datum / view constructors in place) + Group A's residue layers (sub-categories, annotation types + fonts, grids / surplus levels, extra patterns, appearance assets), all IN PLACE -- 1,806 of 3,342 host elements are OUR constructors' output, viewer-PASSED (ORCHESTRATOR VERDICTS #18).  Family-free (K4 lineage): 1 save unit, 0 embedded documents, ContentTable / ContentDocuments empty, four-registry COHERENT.  The certified control CTRL_ZA_deep_base.rvt is md5-identical to it."
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/deletion/CTRL_ZA_deep_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  },
+  "note": "the deletion batch's standing certified control (md5-identical to ZA_deep); upload with EVERY batch -- a failing control VOIDS the round"
+ },
+ "parent": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "out": "experiments/genesis/subst_k4/deletion/D_content.rvt",
+ "description": "Certified ZA_deep MINUS the constraint-dimension constellation: LinearDimString 763420 (a locked EQ constraint, category OST_Constraints, typed by the secret internal LinAng dimension style) + the three reference planes it locks (699327 / 699381 / 763366 -- their EqConstrInfo.m_constrId names the dimension, so they leave WITH it; nothing else references the four).  The ROOM boundary loop (RoomElem + LevelRoomPlan + 5 CurveElems + sketch plane) and the two remaining type-preview legend components are PROVEN blocked (anchored to our own AreaMeasureElem's plan-topology wiring / to residue system types) and are left BYTE-IDENTICAL exactly as the law requires -- the blocked table names each anchor field and its fix.  ConstraintDimTracking + DatumTracking registry entries are LEFT DANGLING.",
+ "tests": "Whether the reader accepts the removal of the locked-constraint content constellation (a constraint dimension + the planes it locks) by maxgc, with its constraint / datum tracking registry entries left dangling.",
+ "if_PASS": "The constraint content is retired; the placed-content residue that remains (room loop, type previews) is exactly the blocked table -- retired by the two constructor fixes it names, not by more deletion attempts.",
+ "if_FAIL": "(with the control PASSING) removing a locked constraint's dimension + planes is rejected -- most likely the ConstraintDimTracking / DatumTracking registry entries must be reconciled (the KD1-style purge, sanctioned): the reconciled variant is the one-change follow-up (D_content_reconciled); read the card message first.",
+ "deletion_set": {
+  "seed": 4,
+  "seed_by_class": {
+   "RefPlane": 3,
+   "LinearDimString": 1
+  },
+  "history_protected_removed": [],
+  "deleted": 4,
+  "deleted_by_class": {
+   "RefPlane": 3,
+   "LinearDimString": 1
+  },
+  "kept_pinned": 0,
+  "kept_pinned_ids": [],
+  "pin_evidence": null,
+  "deleted_ids": [
+   699327,
+   699381,
+   763366,
+   763420
+  ]
+ },
+ "emit": {
+  "partition": "Partitions/21",
+  "deleted": 4,
+  "elemtable_count_before": 3342,
+  "elemtable_count_after": 3338,
+  "watermark": 1472524,
+  "records_removed": {
+   "101": 4,
+   "102": 4,
+   "103": 4
+  },
+  "blocks_before": 16,
+  "blocks_after": 16,
+  "logical_before": 239467,
+  "logical_after": 238672,
+  "out_path": "/Users/ck/dev/things/rev-revit/experiments/genesis/subst_k4/deletion/D_content.rvt",
+  "out": "experiments/genesis/subst_k4/deletion/D_content.rvt",
+  "seconds": 0.2
+ },
+ "reduce_law": {
+  "assert_edit_free": "PASS",
+  "summary": "[EDIT-FREE] D_content vs ZA_deep: removed 4, added 0, common 3,338, SURVIVORS EDITED 0 (vindicated 0)",
+  "report": {
+   "ok": true,
+   "verdict": "EDIT-FREE",
+   "removed": 4,
+   "added": 0,
+   "common": 3338,
+   "survivors_edited": 0,
+   "vindicated": 0,
+   "clause_counts": {},
+   "edits": []
+  },
+  "seconds": 0.1
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true,
+  "deleted_still_present": [],
+  "elemtable_ids_without_record": 0,
+  "units": 1,
+  "blocks_unit0": 16
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "warning_messages": [
+   "[semantic] objects: 1/3338 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 "
+  ],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 16,
+   "records": 10017,
+   "elements_decoded": 3338,
+   "decode_failures": 1,
+   "refs_checked": 51402
+  }
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "familymgr_entries": 9,
+  "coherent_counts": true,
+  "coherent_guids": true,
+  "coherent": true,
+  "familymgr_guids": 0
+ },
+ "stream_identity": {
+  "byte_identical_streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "ProjectInformation",
+   "TransmissionData"
+  ],
+  "differing_streams": [
+   "Global/ElemTable",
+   "Partitions/21"
+  ],
+  "only_partition_and_elemtable_differ": true,
+  "latest_byte_identical": true,
+  "contentdocs_byte_identical": true,
+  "partitiontable_byte_identical": true
+ },
+ "dangling_census": {
+  "adocument_clean": true,
+  "deleted_ids_with_registry_surface": 4,
+  "by_class": {
+   "RefPlane": 3,
+   "LinearDimString": 1
+  },
+  "by_registry_path": {
+   "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]": 3,
+   "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]": 3,
+   "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ConstraintDimTracking.m_elemIdSet[*]": 1
+  },
+  "examples": {
+   "699327": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+   ],
+   "699381": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+   ],
+   "763366": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+   ],
+   "763420": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ConstraintDimTracking.m_elemIdSet[*]"
+   ]
+  },
+  "deleted_ids_still_present_in_file": [],
+  "verdict": "DANGLING ONLY (deleted ids' registry entries left as they were; Latest byte-identical => zero nulled live ids, zero registry edits) -- viewer-tolerated per R5 / R9 and the curtain lineage's own dangling FamilyMgr surrogate 876494"
+ },
+ "registry_parity": {
+  "survivors": "100% by construction: Global/Latest is BYTE-IDENTICAL to ZA_deep, so every registry leaf that indexed a surviving element still indexes it, unchanged",
+  "nulled_live_registry_ids": 0,
+  "deleted_ids_registry_entries": "4 deleted id(s) still named by the ADocument => DANGLING (tolerated per R5/R9); listed in dangling_census"
+ },
+ "census_after": {
+  "elements": 3338,
+  "file_size": 626688,
+  "classes_top": {
+   "GStyleElem": 1458,
+   "ParamElemExternal": 466,
+   "CategoryElem": 209,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "MaterialElem": 23,
+   "ElectricalDemandFactorDefinition": 21,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "RefPlane": 18,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 11,
+   "SectionAttributes": 10
+  }
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 626688,
+ "sha256": "e2061b99e5e6c8d1372c3611ebad9c414e4076c7eb245c4e1a2fa4ebc003e7f2",
+ "seconds": 1.1,
+ "endgame_context": {
+  "deletion_sets": {
+   "D_curtain": 234,
+   "D_links": 2,
+   "D_content": 4,
+   "D_queue": 238,
+   "D_all": 240
+  },
+  "set_relations": {
+   "D_all_equals_union_of_singles": true,
+   "D_queue_equals_curtain_union_content": true,
+   "D_all_minus_D_queue": [
+    1250030,
+    1250031
+   ],
+   "singles_pairwise_disjoint_except_queue": true
+  }
+ }
+}

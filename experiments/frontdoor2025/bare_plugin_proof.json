@@ -1,0 +1,31 @@
+{
+ "zip": "tekton-plugin.zip",
+ "returncode": 0,
+ "stderr_tail": "",
+ "resolved_base": {
+  "path": "/var/folders/z6/dd6cnjys7gv3bf540fnnyqpr0000gp/T/tekton-bare-plugin-20ojaml0/assets/genesis/G_ABPD_2025.rvt",
+  "source": "pinned-bundled",
+  "certified": true,
+  "pinned": true,
+  "detect": 2025
+ },
+ "author": {
+  "ok": true,
+  "errors": [],
+  "output": "/private/var/folders/z6/dd6cnjys7gv3bf540fnnyqpr0000gp/T/tekton-bare-plugin-20ojaml0/out-2025/prompt_room.rvt",
+  "detect_release": 2025,
+  "schema_sha256": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04",
+  "target_version": {
+   "status": "match",
+   "requested": 2025,
+   "output_release": 2025,
+   "line": null
+  },
+  "self_checks": {
+   "combined": true
+  }
+ },
+ "base_resolution_proof": true,
+ "author_proof": true,
+ "pass": true
+}

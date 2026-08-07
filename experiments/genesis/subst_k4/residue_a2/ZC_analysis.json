@@ -1,0 +1,881 @@
+{
+ "rung": "ZC_analysis",
+ "label": "analysis / area / structural settings: area-type + topology machinery reproduced, our area-report settings, our EMPTY assembly-code table, our colour schemes, our load cases / natures, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+  "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a2/ZC_analysis.rvt",
+ "landed_by_class": {
+  "ColorFillSchema": 10,
+  "AreaTypeElem": 8,
+  "LoadCaseElem": 8,
+  "LoadNatureElem": 8,
+  "AreaSchemePlanTopologies": 5,
+  "AreaReportSettingsElem": 1,
+  "AssemblyCodeTable": 1
+ },
+ "notes": [
+  "AreaTypeElem 8: PURE MACHINERY (m_areaSchemeId -> OUR area schemes + the built-in area-type enum m_eSpaceType, no name / no free value) -> REPRODUCED byte-identical",
+  "AreaSchemePlanTopologies: 5 EMPTY holders REPRODUCED; 1 (the placed room's, [9744]) LEFT byte-identical -- it CONTAINS the room's LevelRoomPlan/curves and is pinned by OUR AreaMeasureElem 9490's kept wiring (deletion stream finding 2): it leaves with the room constellation",
+  "AreaReportSettingsElem: our text / prefixes / sizes over the slot's unit-format machinery (its own fonts + internal categories are already ours from ZA_annot / Z_subcat)",
+  "AssemblyCodeTable: OUR EMPTY table -- the slot embeds Autodesk's shipped 795-row UniFormat classification table (byte-identical in all six samples = PRODUCT DATA) AND an Autodesk employee's local OneDrive path (an identity leak); both retired at the slot (KeynoteTable precedent: our empty keynote table)",
+  "ColorFillSchema 10: our schemes -- the (category, key parameter, area scheme, by-range) DEFINITION of each slot is its registration (kept); names / titles / entries / colours ours (department vocabulary on string-keyed room/space schemes, our area-range breakpoints on the by-range scheme, the rest EMPTY = auto-populate, corpus-legal)",
+  "LoadCaseElem 8 + LoadNatureElem 8 -> OUR structural load standard: cases keep their built-in load-case CATEGORY (an interface enum) + nature-slot wiring, names / numbers ours (industry-standard load symbols D/L/Lr/S/W/E/T/Ax); nature NAMES are free content (the German file localizes them) -> ours, each nature slot named for the category of the case(s) referencing it",
+  "DataStorage [1382860]: DELETE (leaf) -- an Extensible-Storage container whose ESEntity blob is a VENDOR schema this project's decoder does not read (the arbiter's one standing warning): there is nothing of ours to express, and reproducing it would keep an undecoded third-party blob -- a zero-referrer leaf for the deletion set (endgame step 24)."
+ ],
+ "info": {},
+ "residue_left_in_place": {
+  "AreaSchemePlanTopologies(room)": {
+   "count": 1,
+   "ids": [
+    9744
+   ],
+   "reason": "DELETE-WITH-CONTENT (with the room constellation) -- topology 9744 CONTAINS the placed room's LevelRoomPlan + boundary curves (deletion stream finding 2: the constellation is held together by 9744 and PINNED by OUR AreaMeasureElem 9490's kept wiring) -- it leaves with the room, atomically; left byte-identical here."
+  },
+  "DataStorage(vendor ES blob)": {
+   "count": 1,
+   "ids": [
+    1382860
+   ],
+   "reason": "DELETE (leaf) -- an Extensible-Storage container whose ESEntity blob is a VENDOR schema this project's decoder does not read (the arbiter's one standing warning): there is nothing of ours to express, and reproducing it would keep an undecoded third-party blob -- a zero-referrer leaf for the deletion set (endgame step 24)."
+  }
+ },
+ "record_selfcheck": {
+  "objects": 41,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 0.9
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   51438,
+   51439,
+   51440,
+   51441,
+   51442,
+   51443,
+   51444,
+   51445,
+   51446,
+   51447,
+   51448,
+   51449,
+   51450,
+   51451,
+   51452,
+   51453,
+   69707,
+   99859,
+   99860,
+   99861,
+   99864,
+   102898,
+   102899,
+   103627,
+   103635,
+   713027,
+   1218726,
+   1472456
+  ],
+  "records_changed_count": 28,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 41,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 13,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 51438,
+    "len_ours": 215,
+    "len_parent": 183,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "LoadNatureElem",
+      "class_parent": "LoadNatureElem"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN Dead (D)'",
+      "parent": "'Dead'"
+     },
+     {
+      "path": ".m_pParamValueSetAString.value.m_paramSet[0].m_value",
+      "ours": "'GEN Dead (D)'",
+      "parent": "'Dead'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 51439,
+    "len_ours": 363,
+    "len_parent": 211,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "LoadCaseElem",
+      "class_parent": "LoadCaseElem"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN D-1 Self Weight and Superimposed Dead'",
+      "parent": "'DL1'"
+     },
+     {
+      "path": ".m_pParamValueSetAString.value.m_paramSet[0].m_value",
+      "ours": "'GEN D-1 Self Weight and Superimposed Dead'",
+      "parent": "'DL1'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 51440,
+    "len_ours": 215,
+    "len_parent": 183,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "LoadNatureElem",
+      "class_parent": "LoadNatureElem"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN Live (L)'",
+      "parent": "'Live'"
+     },
+     {
+      "path": ".m_pParamValueSetAString.value.m_paramSet[0].m_value",
+      "ours": "'GEN Live (L)'",
+      "parent": "'Live'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 51441,
+    "len_ours": 287,
+    "len_parent": 211,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "LoadCaseElem",
+      "class_parent": "LoadCaseElem"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN L-1 Occupancy Live'",
+      "parent": "'LL1'"
+     },
+     {
+      "path": ".m_pParamValueSetAString.value.m_paramSet[0].m_value",
+      "ours": "'GEN L-1 Occupancy Live'",
+      "parent": "'LL1'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 11,
+    "blocks_out": 10
+   },
+   {
+    "what": "13 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     9492,
+     9493,
+     9496,
+     9497,
+     9498,
+     9499,
+     9500,
+     9501,
+     9745,
+     581529,
+     581530,
+     711934,
+     711935
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 41,
+  "slots_with_registry_surface": 21,
+  "positional_uet_slots": [
+   {
+    "slot": 1218726,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[64]"
+    ]
+   }
+  ],
+  "surface_examples": [
+   {
+    "slot": 9492,
+    "paths": [
+     "ADocument.m_oNobleSecondaryData->NOBLE_SecondaryDataStorage.m_data[*].second.m_oData->ColorFillSecondaryData.m_colorFillResults[*].m_paramStorage.m_elemId"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 51439,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LoadCaseElemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 51441,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LoadCaseElemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 51443,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LoadCaseElemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 51445,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LoadCaseElemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 51447,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LoadCaseElemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 51449,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LoadCaseElemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 51451,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LoadCaseElemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 41,
+  "pairs_ok": 41,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 9492,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 9493,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 9496,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 9497,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 9498,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 9499,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 15,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 49639
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a2/ZC_analysis.rvt",
+  "elements": 3342,
+  "file_size": 606208,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "AreaReportSettingsElem": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_allSettings.[0].m_fontSize.[0]": 1,
+    "m_allSettings.[0].m_fontSize.[1]": 1,
+    "m_allSettings.[0].m_prefixArcSector": 1
+   },
+   "declared_ours": [
+    "m_allSettings[*].m_fontAnotName/m_fontTagName",
+    "m_allSettings[*].m_fontSize",
+    "m_allSettings[*].m_prefixArcSector/m_prefixTriangle"
+   ]
+  },
+  "AssemblyCodeTable": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_cellList.value.m_cells.[1].value.m_externalResourceReferences.#len": 1,
+    "m_cellList.value.m_cells.[1].value.m_externalResourceReferencesExpanded.#len": 1,
+    "m_oKeyBasedTreeEntries.value.m_keyBasedTreeEntrySet.#len": 1,
+    "m_oKeyBasedTreeEntries.value.m_orphans.#len": 1
+   },
+   "declared_ours": [
+    "EMPTY table (no classification rows, no external references)"
+   ]
+  },
+  "ColorFillSchema": {
+   "slots": 10,
+   "differing_field_paths": {
+    "m_strName": 10,
+    "m_title": 10,
+    "m_colorFillArr.#len": 5
+   },
+   "declared_ours": [
+    "m_colorFillArr (our entries / colours)",
+    "m_strName",
+    "m_title"
+   ]
+  },
+  "LoadCaseElem": {
+   "slots": 8,
+   "differing_field_paths": {
+    "m_name": 8,
+    "m_pParamValueSetAString.value.m_paramSet.[0].m_value": 8,
+    "m_number": 5
+   },
+   "declared_ours": [
+    "m_name",
+    "m_number",
+    "m_pParamValueSetAString(-1015250)"
+   ]
+  },
+  "LoadNatureElem": {
+   "slots": 8,
+   "differing_field_paths": {
+    "m_name": 8,
+    "m_pParamValueSetAString.value.m_paramSet.[0].m_value": 8
+   },
+   "declared_ours": [
+    "m_name",
+    "m_pParamValueSetAString(-1015254)"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 9492,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9493,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9496,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9497,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9498,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9499,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9500,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9501,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9745,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 51438,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51439,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51440,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51441,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51442,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51443,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51444,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51445,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51446,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51447,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51448,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51449,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51450,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51451,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51452,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51453,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 69707,
+   "class": "AreaReportSettingsElem"
+  },
+  {
+   "slot": 99859,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 99860,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 99861,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 99864,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 102898,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 102899,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 103627,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 103635,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 581529,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 581530,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 711934,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 711935,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 713027,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 1218726,
+   "class": "AssemblyCodeTable"
+  },
+  {
+   "slot": 1472456,
+   "class": "ColorFillSchema"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 9492,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9493,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9496,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9497,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9498,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9499,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9500,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9501,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9745,
+   "class": "AreaSchemePlanTopologies",
+   "notes": [
+    "REPRODUCED machinery (empty plan-topology holder (scheme x option) -- machinery) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 51438,
+   "class": "LoadNatureElem",
+   "notes": [
+    "our load nature 'GEN Dead (D)'"
+   ]
+  },
+  {
+   "slot": 51439,
+   "class": "LoadCaseElem",
+   "notes": [
+    "our load case 'GEN D-1 Self Weight and Superimposed Dead' #1; category -2005211 + nature slot 51438 kept"
+   ]
+  },
+  {
+   "slot": 51440,
+   "class": "LoadNatureElem",
+   "notes": [
+    "our load nature 'GEN Live (L)'"
+   ]
+  },
+  {
+   "slot": 51441,
+   "class": "LoadCaseElem",
+   "notes": [
+    "our load case 'GEN L-1 Occupancy Live' #2; category -2005212 + nature slot 51440 kept"
+   ]
+  },
+  {
+   "slot": 51442,
+   "class": "LoadNatureElem",
+   "notes": [
+    "our load nature 'GEN Wind (W)'"
+   ]
+  },
+  {
+   "slot": 51443,
+   "class": "LoadCaseElem",
+   "notes": [
+    "our load case 'GEN W-1 Wind (Primary Direction)' #5; category -2005213 + nature slot 51442 kept"
+   ]
+  },
+  {
+   "slot": 51444,
+   "class": "LoadNatureElem",
+   "notes": [
+    "our load nature 'GEN Snow (S)'"
+   ]
+  },
+  {
+   "slot": 51445,
+   "class": "LoadCaseElem",
+   "notes": [
+    "our load case 'GEN S-1 Balanced Snow' #4; category -2005214 + nature slot 51444 kept"
+   ]
+  },
+  {
+   "slot": 51446,
+   "class": "LoadNatureElem",
+   "notes": [
+    "our load nature 'GEN Roof Live (Lr)'"
+   ]
+  },
+  {
+   "slot": 51447,
+   "class": "LoadCaseElem",
+   "notes": [
+    "our load case 'GEN Lr-1 Roof Live' #3; category -2005215 + nature slot 51446 kept"
+   ]
+  },
+  {
+   "slot": 51448,
+   "class": "LoadNatureElem",
+   "notes": [
+    "our load nature 'GEN Accidental (Ax)'"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 606208,
+ "seconds": 1.5,
+ "reached_by_other_streams_not_reauthored": {
+  "RbsWireInsulationType": "GROUP B ZB2_mepcat (viewer PASS, batch 17) -- our wire catalog",
+  "RbsWireMaterialType": "GROUP B ZB2_mepcat",
+  "RbsWireTemperatureRatingType": "GROUP B ZB2_mepcat",
+  "RbsPipeScheduleType": "GROUP B ZB2_mepcat -- our piping catalog",
+  "RbsPipeConnectionType": "GROUP B ZB2_mepcat",
+  "RbsPipeMaterialType": "GROUP B ZB2_mepcat",
+  "PipeSegment": "GROUP B ZB2_mepcat",
+  "CategoryElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation, D_curtain)",
+  "GStyleElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "FontElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "DimensionStyle": "GROUP A ZA_deep (family-scoped remainder)",
+  "CalloutTag": "GROUP A ZA_deep (family-scoped remainder)",
+  "InteriorElevAttributes": "GROUP A ZA_deep (family-scoped remainder)",
+  "DBViewType": "curtain constellation (deletion stream D_curtain)",
+  "Family": "curtain constellation (D_curtain)",
+  "FamilySurrogate": "curtain constellation (D_curtain)",
+  "CurveElem": "room constellation (deletion stream, blocked -> D_room after the wiring fix)",
+  "LegendComponent": "type previews (2 curtain-owned in D_curtain; 2 owned by our residue types)",
+  "LevelRoomPlan": "room constellation",
+  "LinearDimString": "constraint-dimension group (deletion stream D_content)",
+  "RoomElem": "GROUP B ZB8_content (identity) / room constellation deletion",
+  "MaterialElem": "GROUP B ZB5_palette (surplus materials)",
+  "ParamElemExternal": "GROUP B ZB1_defs",
+  "ParamBinding": "GROUP B ZB1_defs",
+  "ParamElemElectricalLoadClassification": "GROUP B ZB1_defs (the 6-per-class companions of our ZC_elec classifications -- id-wired both sides)",
+  "ParamElemProject": "GROUP B ZB1_defs",
+  "PenWidthTableElem": "GROUP B ZB3_pens",
+  "SectionAttributes": "GROUP B ZB4_annot",
+  "ViewportAttributes": "GROUP B ZB4_annot",
+  "PropertySetElement": "GROUP B ZB5_palette",
+  "ParameterFilterElement": "GROUP B ZB6_filters",
+  "SunAnnotationElem": "GROUP B ZB7_machinery",
+  "NumberingSchema": "GROUP B ZB7_machinery",
+  "SlaveSymbolTrackerElem": "GROUP B ZB7_machinery",
+  "WorksharingViewModeSettings": "GROUP B ZB7_machinery",
+  "PrintSettings": "GROUP B ZB7_machinery",
+  "Viewer": "GROUP B ZB7_machinery (the sheet's viewer 1457029)",
+  "Viewport": "GROUP B ZB7_machinery (the sheet's viewports 1457030/1457043/1457044)",
+  "RefPlane": "GROUP B ZB8_content",
+  "SketchPlane": "GROUP B ZB8_content"
+ },
+ "stream": "genesis-residue-A2 (remaining unsubstituted classes, in place, from ZA_deep)"
+}

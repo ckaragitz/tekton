@@ -1,0 +1,152 @@
+PROVENANCE LEDGER v2 — G0.rvt
+baseline: rstbasicsampleproject.rvt   watermark: 1472524   overlap: 0.0
+layers ledgered: elements
+host elements: 234   embedded family documents: 0 
+element totals: created=108  cloned=126
+WARNING: baseline mismatch: only 0% of candidate ids exist in the baseline — 0 elements are unattributable; pick the sample this file actually descends from (tools/provenance.py --baseline auto)
+
+category                                     E    created     cloned
+--------------------------------------------------------------------
+System-family types                          E         15          2
+Views & view templates                       E         12         11
+Object styles (categories / graphics styles) E          8         93
+Fill / line patterns, materials, appearance  E         22          4
+Text / dimension / arrowhead / annotation ty E          4          0
+Phases / design options / revisions          E          7          1
+Project info & settings elements             E          7          3
+MEP / electrical definition tables           E         28          0
+Datums (levels / grids / reference planes)              5          0
+Placed model content (sample geometry)       E          0          9
+View-owned 2D / annotation content           E          0          3
+
+E = expression-bearing (gated).  Per-class detail (top classes, example ids : name):
+
+[system-family-types]  System-family types
+  RbsConduitType                           created=5
+         created: 1500056:GEN Conduit - EMT with Fittings ~907368(0.42), 1500057:GEN Conduit - EMT (no fittings) ~907368(0.42), 1500058:GEN Conduit - IMC with Fittings ~907368(0.42)
+  BasicWallType                            created=3
+         created: 1500022:GEN Interior - 124mm Gypsum Partition, 1500023:GEN Exterior - 200mm CIP Concrete, 1500024:GEN Interior - 190mm CMU
+  RbsCableTrayType                         created=1 cloned=2
+         created: 1500062:GEN Cable Tray - Ladder ~907364(0.48)
+          cloned: 1500063:GEN Cable Tray - Ventilated Trough ~907364(0.5), 1500064:GEN Cable Tray - Solid Bottom ~907364(0.54)
+  RbsWireType                              created=3
+         created: 1500074:GEN Wire - Cu THWN-2 75C ~55171(0.46), 1500075:GEN Wire - Cu THHN 90C ~55171(0.46), 1500076:GEN Wire - Al XHHW-2 75C ~55171(0.46)
+  FloorAttributes                          created=1
+         created: 1500025:GEN Slab on Grade - 150mm Concrete ~581371(0.33)
+  RoofAttributes                           created=1
+         created: 1500026:GEN Roof - Concrete Deck 200mm with In
+  CompoundCeilingType                      created=1
+         created: 1500027:GEN Ceiling - 16mm GWB on Furring ~1093707(0.25)
+
+[views-and-templates]  Views & view templates
+  SunAndShadowSettings                     created=4
+         created: 1500204:GEN Still Sun - South 45 ~713086(0.32), 1500215:GEN Still Sun - South 45 ~55158(0.26), 1500223:GEN Still Sun - South 45 ~713086(0.3)
+  Viewport                                 cloned=4
+          cloned: 1500207:- ~232(0.71), 1500216:- ~1457153(0.57), 1500224:- ~1457153(0.57)
+  DBDrawing                                cloned=4
+          cloned: 1500208:- ~98987(0.58), 1500217:- ~1472132(0.62), 1500225:- ~1472132(0.62)
+  Viewer                                   cloned=3
+          cloned: 1500206:- ~231(0.9), 1500221:- ~1351713(0.8), 1500228:- ~1351713(0.77)
+  DBViewType                               created=3
+         created: 1500209:GEN 3D View ~49665(0.3), 1500210:GEN Floor Plan ~49665(0.3), 1500211:GEN Ceiling Plan ~49665(0.29)
+  DBViewPlan                               created=2
+         created: 1500220:L1 - Ground Floor ~9599(0.37), 1500227:L2 - Second Floor ~9599(0.37)
+  DBViewProject                            created=1
+         created: 1500205:??? ~230(0.26)
+  DBView3d                                 created=1
+         created: 1500212:GEN Working 3D ~1386343(0.29)
+  Viewer3d                                 created=1
+         created: 1500213:-
+
+[object-styles]  Object styles (categories / graphics styles)
+  GStyleElem                               created=4 cloned=90
+         created: 1500177:style:GEN Fire-Rated Assembly Line ~983057(0.33), 1500179:style:GEN Above-Ceiling Conduit ~983057(0.33), 1500181:style:GEN Demolition (Existing to Remo ~983057(0.33)
+          cloned: 1500080:style:Category(1500079) ~983061(0.69), 1500084:style:Category(1500083) ~983061(0.69), 1500088:style:Category(1500087) ~983061(0.69)
+  CategoryElem                             created=4 cloned=3
+         created: 1500176:GEN Fire-Rated Assembly Line ~1352207(0.33), 1500178:GEN Above-Ceiling Conduit ~1352207(0.35), 1500180:GEN Demolition (Existing to Remove) ~1352207(0.3)
+          cloned: 1500079:- ~1390254(0.5), 1500083:- ~1464242(0.5), 1500087:- ~1253558(0.5)
+
+[patterns-materials]  Fill / line patterns, materials, appearance assets
+  MaterialElem                             created=13
+         created: 1500009:GEN Concrete, Cast-in-Place ~1389254(0.31), 1500010:GEN Concrete Masonry Units ~414(0.26), 1500011:GEN Gypsum Wall Board
+  FillPatternElem                          created=5
+         created: 1500004:GEN Solid Fill ~3(0.28), 1500005:GEN Diagonal Crosshatch 3mm, 1500006:GEN Diagonal Up 4mm
+  LinePatternElem                          created=4
+         created: 1500000:GEN Dash 3mm ~17(0.43), 1500001:GEN Hidden 2mm ~1351854(0.4), 1500002:GEN Centre 8mm ~1351854(0.35)
+  FontElem                                 cloned=3
+          cloned: 1500078:Arial ~137228(0.55), 1500082:Arial ~1464244(0.55), 1500086:Arial ~137228(0.55)
+  LightSchemeElement                       cloned=1
+          cloned: 1500218:- ~1138913(0.56)
+
+[text-dimension-types]  Text / dimension / arrowhead / annotation types
+  TextNoteAttributes                       created=3
+         created: 1500077:GEN 2.5mm Text ~1456487(0.43), 1500081:GEN 3.5mm Text Bold ~1456487(0.41), 1500085:GEN 5mm Title ~1456487(0.43)
+  LevelAttributes                          created=1
+         created: 1500192:GEN Level Head - Circle ~305(0.38)
+
+[phases-design-options]  Phases / design options / revisions
+  PhaseFilterElem                          created=5
+         created: 1500198:GEN All Phases, 1500199:GEN Existing Conditions Only ~24937(0.33), 1500200:GEN Demolition Plan ~371(0.33)
+  ProjectPhase                             created=2
+         created: 1500196:Existing Conditions, 1500197:New Work
+  AllProjectPhases                         cloned=1
+          cloned: 1500195:- ~1(0.63)
+
+[project-info-settings]  Project info & settings elements
+  GeoSite                                  created=2
+         created: 1500186:- ~21747(0.26), 1500187:- ~21747(0.26)
+  GeoLocation                              created=2
+         created: 1500188:GEN Internal Origin ~111428(0.39), 1500189:GEN Project Position ~21748(0.39)
+  BasePoint                                cloned=2
+          cloned: 1500190:- ~111426(0.78), 1500191:- ~111429(0.84)
+  ElectricalSetting                        created=1
+         created: 1500050:-
+  UnitsElem                                cloned=1
+          cloned: 1500184:- ~19236(0.54)
+  TrueNorth                                created=1
+         created: 1500185:- ~7850(0.46)
+  ProjectInfo                              created=1
+         created: 1500203:-
+
+[mep-electrical-definitions]  MEP / electrical definition tables
+  RbsVoltageType                           created=6
+         created: 1500028:GEN 120 V, 1500029:GEN 208 V, 1500030:GEN 240 V
+  ElectricalLoadClassification             created=6
+         created: 1500044:GEN Lighting, 1500045:GEN Receptacle, 1500046:GEN Motor
+  RbsDistributionSysType                   created=5
+         created: 1500034:GEN 120/240 V Single-Phase 3W, 1500035:GEN 208Y/120 V Three-Phase 4W Wye, 1500036:GEN 480Y/277 V Three-Phase 4W Wye
+  ElectricalDemandFactorDefinition         created=5
+         created: 1500039:GEN Continuous Load 125% (NEC 210.19) ~237140(0.25), 1500040:GEN Receptacle Demand (NEC 220.44), 1500041:GEN Motor Demand (NEC 430.24)
+  ConduitStandardType                      created=4
+         created: 1500051:GEN EMT, 1500052:GEN IMC, 1500053:GEN RMC
+  ConduitSizesElem                         created=1
+         created: 1500055:-
+  CableTraySizesElem                       created=1
+         created: 1500061:-
+
+[datums]  Datums (levels / grids / reference planes)
+  ExtentElem                               created=3
+         created: 1500219:- ~1382273(0.25), 1500226:- ~1382273(0.45), 1500233:- ~1382273(0.45)
+  Level                                    created=2
+         created: 1500193:L1 - Ground Floor ~1351691(0.27), 1500194:L2 - Second Floor
+
+[placed-model-content]  Placed model content (sample geometry)
+  CustomElement                            cloned=9
+          cloned: 1500065:- ~1472460(0.82), 1500066:- ~1472518(0.64), 1500067:- ~1472516(0.8)
+
+[view-annotation-2d-content]  View-owned 2D / annotation content
+  SketchPlane                              cloned=2
+          cloned: 1500222:- ~1457155(0.65), 1500229:- ~1457155(0.65)
+  ModelClipBox                             cloned=1
+          cloned: 1500214:- ~1138915(0.8)
+
+G1 GATE: FAIL — 126 Autodesk-derived element(s) in expression-bearing categories
+   (layers NOT ledgered: streams, strings, identity)
+   x [elements] system-family-types                transitive-cloned                 2
+   x [elements] views-and-templates                transitive-cloned                11
+   x [elements] object-styles                      transitive-cloned                93
+   x [elements] patterns-materials                 transitive-cloned                 4
+   x [elements] phases-design-options              transitive-cloned                 1
+   x [elements] project-info-settings              transitive-cloned                 3
+   x [elements] placed-model-content               transitive-cloned                 9
+   x [elements] view-annotation-2d-content         transitive-cloned                 3

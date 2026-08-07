@@ -1,0 +1,580 @@
+{
+ "element_id": 422466,
+ "note": "Door in wall 422243, symbol 490150 (clone), master 232780, family 218942",
+ "elemtable": {
+  "found_in_ElemTable": true,
+  "raw_40_bytes_hex": "42 72 06 00 00 00 00 00 74 02 00 00 4a 03 00 00 e9 02 00 00 42 72 06 00 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00",
+  "fields": {
+   "+0 u64 m_history.m_originalElementId": 422466,
+   "+8 u32 m_history.m_creationDate (EpisodeId)": 628,
+   "+12 u32 m_history.m_lastModificationDate (EpisodeId)": 842,
+   "+16 u32 m_history.m_lastUserModificationDate": 745,
+   "+20 u64 m_id": 422466,
+   "+28 u64 m_OwningElementId": -1,
+   "+36 u32 m_partitionId": 0
+  }
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 579017,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 422466,
+  "stamp": null,
+  "psize": 265,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 263,
+  "total_record_bytes": 281,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 69 7b e1 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "263/263",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -2000023,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -4225
+   },
+   "m_abFlags4Bytes": 2344,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "FamilyInstance"
+    }
+   },
+   "m_pBBox": {
+    "ptr_class": "Outline",
+    "pid": -1,
+    "value": {
+     "m_minmax": [
+      [
+       29.402662459,
+       1.10654622,
+       -0.0
+      ],
+      [
+       32.552268758,
+       4.492801908,
+       7.152230971
+      ]
+     ]
+    }
+   },
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      311,
+      86961,
+      232780,
+      422243,
+      422466,
+      490150
+     ],
+     "m_regenOnly": [
+      113109,
+      198367,
+      218942
+     ],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [
+      311,
+      113109,
+      232780,
+      490150
+     ],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -2000023,
+  "builtin": "OST_Doors"
+ },
+ "classDef": "FamilyInstance",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 4430649,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 422466,
+  "stamp": 2774638342,
+  "psize": 541,
+  "class_id_hex": "0x07c5",
+  "object_bytes": 539,
+  "total_record_bytes": 561,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff f7 08 00 00 00 00 ff ff",
+  "class": "FamilyInstance",
+  "clean": true,
+  "consumed_of_object": "539/539",
+  "value": {
+   "m_pParamValueSetDouble": null,
+   "m_pParamValueSetInt": null,
+   "m_pParamValueSetAString": null,
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": null,
+   "m_pGeomTable": {
+    "ptr_class": "GeomTable",
+    "pid": -1,
+    "value": {
+     "m_refPntMirrored": false,
+     "m_table": [
+      {
+       "m_geomGeneratorId": -1
+      }
+     ],
+     "m_bigTableOwner": null,
+     "m_materialMarkers": [],
+     "m_faceTypeMarkers": []
+    }
+   },
+   "m_constrInfo": [],
+   "m_cellList": {
+    "ptr_class": "CellList",
+    "pid": -1,
+    "value": {
+     "m_cells": [
+      {
+       "ptr_class": "AnalyticalSpaceBoundingCell",
+       "pid": -1,
+       "value": {
+        "m_isSpaceBounding": true
+       }
+      },
+      {
+       "ptr_class": "FamilyInstancePatternHelper",
+       "pid": -1,
+       "value": {
+        "m_PatternPositionMap": [],
+        "m_substituteFaceMap": []
+       }
+      }
+     ]
+    }
+   },
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 422466,
+   "m_assocLevelId": 311,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": 86961,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_pInstanceInfo": {
+    "ptr_class": "InstanceInfo",
+    "pid": -1,
+    "value": {
+     "m_Trf": {
+      "m_3x3": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        -0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ],
+      "m_or": [
+       30.977465608,
+       4.063011881,
+       0.0
+      ]
+     },
+     "m_symbolId": 490150,
+     "m_GRepId": 0,
+     "m_cda": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     }
+    }
+   },
+   "m_GInstanceId": 0,
+   "m_elevation": 0.0,
+   "m_hostParam": 2.034120735,
+   "m_hostId": 422243,
+   "m_extraHostIds": [],
+   "m_explicitHostIds": [],
+   "m_refs": [],
+   "m_offsetPosArr": [],
+   "m_subInstTable": [],
+   "m_pInstParams": {
+    "ptr_class": "FamilyParams",
+    "pid": -1,
+    "value": {
+     "m_params": [],
+     "m_geomRefHandles": {
+      "m_offsetGeomMap": []
+     }
+    }
+   },
+   "m_oFamInstSpec": {
+    "ptr_class": "FamInstDoor",
+    "pid": -1,
+    "value": {
+     "m_pInst": {
+      "weakref": 2
+     },
+     "m_doorNumber": "103"
+    }
+   },
+   "m_pDesignPropManager": null,
+   "m_pCurveDriver": null,
+   "m_pInplaceInsertionHelper": null,
+   "m_pConnectorManager": null,
+   "m_posRelToGrid": null,
+   "m_oFamInstUserData": null,
+   "m_leaders": [],
+   "m_oPOFDriver": null,
+   "m_instOrigin": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "m_RefDir": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "m_zAxis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "m_masterSymbolId": 232780,
+   "m_ownerElemId": -1,
+   "m_assocSketchPlaneId": -1,
+   "m_analyticalTopPlaneId": -1,
+   "m_analyticalBottomPlaneId": -1,
+   "m_superInstanceId": -1,
+   "m_scheduleOnlyLevelId": -1,
+   "m_famElemVisibility": {
+    "m_flags": -1
+   },
+   "m_structType": 0,
+   "m_structUsage": 0,
+   "m_insertOrientation": 0,
+   "m_roomBounding": true,
+   "m_flippedX": true,
+   "m_flippedY": false,
+   "m_flippedFromToRoom": false,
+   "m_useOffsetPos": false,
+   "m_invisible": false,
+   "m_workPlaneBased": false,
+   "m_workPlaneFlipped": false,
+   "m_bVertical": true,
+   "m_instDormant": false
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 10757755,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 422466,
+  "stamp": 4085733631,
+  "psize": 300,
+  "class_id_hex": "0x089e",
+  "object_bytes": 298,
+  "total_record_bytes": 320,
+  "size_trailer_ok": true,
+  "payload_head_hex": "2c 00 00 00 00 00 00 00 42 72 06 00 00 00 00 00 04 80 08 00 01 00 00 00 03 00 00 00 7f 08 d7 ce",
+  "class": "GElement",
+  "clean": true,
+  "consumed_of_object": "298/298",
+  "value": {
+   "m_GInfo": {
+    "m_categoryId": 44,
+    "m_tag": 422466,
+    "m_controlCommand": 0,
+    "m_flags": 557060
+   },
+   "m_subNodes": [
+    {
+     "ptr_class": "GInstance",
+     "pid": 3,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 0,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "m_instanceInfo": {
+       "ptr_class": "InstanceInfo",
+       "pid": -1,
+       "value": {
+        "m_Trf": {
+         "m_3x3": [
+          [
+           1.0,
+           0.0,
+           0.0
+          ],
+          [
+           -0.0,
+           1.0,
+           0.0
+          ],
+          [
+           0.0,
+           0.0,
+           1.0
+          ]
+         ],
+         "m_or": [
+          30.977465608,
+          4.063011881,
+          0.0
+         ]
+        },
+        "m_symbolId": 490150,
+        "m_GRepId": 0,
+        "m_cda": {
+         "m_pDoc": {
+          "weakref": 1
+         }
+        }
+       }
+      },
+      "m_oEmbeddedSymbolGRep": null,
+      "m_tagId": -1,
+      "m_forbiddenTarget": {
+       "m_targets": 0
+      },
+      "m_resolveSymInView": false,
+      "m_bHasScale": false
+     }
+    }
+   ],
+   "m_bBox": [
+    [
+     29.402662459,
+     1.10654622,
+     -0.0
+    ],
+    [
+     32.552268758,
+     4.492801908,
+     7.152230971
+    ]
+   ],
+   "m_tightbBox": [
+    [
+     29.402662459,
+     1.10654622,
+     -0.0
+    ],
+    [
+     32.552268758,
+     4.492801908,
+     7.152230971
+    ]
+   ],
+   "m_elementId": 422466,
+   "m_gElemType": 3,
+   "m_flags": 0
+  }
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[0]",
+   "id": 311,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[1]",
+   "id": 86961,
+   "target_class": "ProjectPhase",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[2]",
+   "id": 232780,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[3]",
+   "id": 422243,
+   "target_class": "SWall",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[4]",
+   "id": 422466,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[5]",
+   "id": 490150,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[0]",
+   "id": 113109,
+   "target_class": "ActiveGeoLocationTrackingElement",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[1]",
+   "id": 198367,
+   "target_class": "BasicWallType",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[2]",
+   "id": 218942,
+   "target_class": "Family",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[0]",
+   "id": 311,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[1]",
+   "id": 113109,
+   "target_class": "ActiveGeoLocationTrackingElement",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[2]",
+   "id": 232780,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[3]",
+   "id": 490150,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 422466,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_assocLevelId",
+   "id": 311,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_createdPhaseId",
+   "id": 86961,
+   "target_class": "ProjectPhase",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pInstanceInfo.value.m_symbolId",
+   "id": 490150,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_hostId",
+   "id": 422243,
+   "target_class": "SWall",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_masterSymbolId",
+   "id": 232780,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 103,
+   "path": "m_subNodes[0].value.m_instanceInfo.value.m_symbolId",
+   "id": 490150,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 103,
+   "path": "m_elementId",
+   "id": 422466,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  }
+ ]
+}

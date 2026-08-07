@@ -1,0 +1,1783 @@
+{
+  "engine": "tekton-ifc validate",
+  "engine_version": "0.1.0",
+  "file": "/Users/ck/dev/things/tekton/usecases/chicago-plenum-electrical-room/generated.ifc",
+  "file_size": 43919,
+  "schema": {
+    "ran": true,
+    "schema": "IFC4",
+    "n_statements": 0,
+    "n_errors": 0,
+    "n_warnings": 0,
+    "errors": [],
+    "warnings": []
+  },
+  "histogram": {
+    "IfcPropertySingleValue": 185,
+    "IfcDirection": 104,
+    "IfcCartesianPoint": 60,
+    "IfcAxis2Placement3D": 43,
+    "IfcPropertySet": 27,
+    "IfcShapeRepresentation": 24,
+    "IfcLocalPlacement": 21,
+    "IfcProductDefinitionShape": 20,
+    "IfcRelDefinesByProperties": 19,
+    "IfcExtrudedAreaSolid": 18,
+    "IfcArbitraryClosedProfileDef": 14,
+    "IfcCartesianTransformationOperator3D": 13,
+    "IfcMappedItem": 13,
+    "IfcCartesianPointList2D": 13,
+    "IfcIndexedPolyCurve": 13,
+    "IfcSIUnit": 8,
+    "IfcRelDefinesByType": 7,
+    "IfcElectricDistributionBoard": 6,
+    "IfcDiscreteAccessory": 4,
+    "IfcRectangleProfileDef": 4,
+    "IfcRepresentationMap": 4,
+    "IfcRelAggregates": 4,
+    "IfcTransformer": 3,
+    "IfcWall": 3,
+    "IfcElectricDistributionBoardType": 2,
+    "IfcDiscreteAccessoryType": 1,
+    "IfcTransformerType": 1,
+    "IfcDoorType": 1,
+    "IfcRelFillsElement": 1,
+    "IfcSpace": 1,
+    "IfcPolyline": 1,
+    "IfcSlabType": 1,
+    "IfcOpeningElement": 1,
+    "IfcRelVoidsElement": 1,
+    "IfcDoor": 1,
+    "IfcWallType": 1,
+    "IfcSlab": 1,
+    "IfcPerson": 1,
+    "IfcOrganization": 1,
+    "IfcPersonAndOrganization": 1,
+    "IfcApplication": 1,
+    "IfcOwnerHistory": 1,
+    "IfcProject": 1,
+    "IfcUnitAssignment": 1,
+    "IfcGeometricRepresentationContext": 1,
+    "IfcGeometricRepresentationSubContext": 1,
+    "IfcSite": 1,
+    "IfcBuilding": 1,
+    "IfcBuildingStorey": 1,
+    "IfcRelContainedInSpatialStructure": 1
+  },
+  "products": [
+    {
+      "step_id": 162,
+      "guid": "0ULkbYWyDSmf5SWJDjxVYr",
+      "class": "IfcDoor",
+      "predefined_type": "DOOR",
+      "object_type": null,
+      "name": "D-E101",
+      "description": null,
+      "tag": null,
+      "type_name": "Door 914 x 2134mm",
+      "type_id": 236,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Doors",
+      "placement_identity": false,
+      "placement_origin": [
+        0.0,
+        1.5,
+        0.0
+      ],
+      "psets": {},
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 171,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 0.025,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.0,
+              2.134,
+              0.9144,
+              2.134,
+              0.9144,
+              0.0,
+              0.8894,
+              0.0,
+              0.8894,
+              2.109,
+              0.025,
+              2.109,
+              0.025,
+              0.0
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 180,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 0.025,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.0,
+              2.134,
+              0.9144,
+              2.134,
+              0.9144,
+              0.0,
+              0.8644,
+              0.0,
+              0.8644,
+              2.084,
+              0.05,
+              2.084,
+              0.05,
+              0.0
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 216,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 2.084,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.8644,
+              0.0,
+              0.8644,
+              0.035,
+              0.0,
+              0.035
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 225,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 0.02,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.0,
+              -0.04,
+              -0.12,
+              -0.04,
+              -0.12,
+              -0.02,
+              -0.02,
+              -0.02,
+              -0.02,
+              0.0
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 226,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 0.02,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.0,
+              0.04,
+              -0.12,
+              0.04,
+              -0.12,
+              0.02,
+              -0.02,
+              0.02,
+              -0.02,
+              0.0
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 189,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 0.025,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.8144,
+              0.0,
+              0.8144,
+              0.1,
+              0.0,
+              0.1
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 198,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 0.005,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.0,
+              2.159,
+              0.9644,
+              2.159,
+              0.9644,
+              0.0,
+              0.8894,
+              0.0,
+              0.8894,
+              2.084,
+              0.075,
+              2.084,
+              0.075,
+              0.0
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 207,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 0.005,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.0,
+              2.159,
+              0.9644,
+              2.159,
+              0.9644,
+              0.0,
+              0.9144,
+              0.0,
+              0.9144,
+              2.109,
+              0.05,
+              2.109,
+              0.05,
+              0.0
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 8,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 122,
+      "guid": "11T4tNnMvUzBSOMSAx1WRw",
+      "class": "IfcSlab",
+      "predefined_type": "FLOOR",
+      "object_type": null,
+      "name": "Slab-E1",
+      "description": null,
+      "tag": null,
+      "type_name": "Slab 150mm",
+      "type_id": 135,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Floors",
+      "placement_identity": false,
+      "placement_origin": [
+        0.0,
+        0.0,
+        -0.15
+      ],
+      "psets": {},
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 127,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 0.15,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              10.363,
+              0.0,
+              10.363,
+              4.877,
+              0.0,
+              4.877
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 1,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 45,
+      "guid": "2ppvIK1APGGxuV8y3kQWSW",
+      "class": "IfcWall",
+      "predefined_type": "STANDARD",
+      "object_type": "Painted CMU 8in",
+      "name": "W-north",
+      "description": null,
+      "tag": null,
+      "type_name": "Painted CMU 8in 200mm",
+      "type_id": 70,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Walls",
+      "placement_identity": false,
+      "placement_origin": [
+        0.0,
+        4.877,
+        0.0
+      ],
+      "psets": {
+        "Pset_WallCommon": {
+          "IsExternal": true,
+          "LoadBearing": true,
+          "Reference": "Painted CMU 8in",
+          "id": 64
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 54,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 6.096,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.0,
+              0.2,
+              10.363,
+              0.2,
+              10.363,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 1,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 72,
+      "guid": "28JnG$k$vS_Pkm1funMutD",
+      "class": "IfcWall",
+      "predefined_type": "STANDARD",
+      "object_type": "Painted CMU 8in",
+      "name": "W-west",
+      "description": null,
+      "tag": null,
+      "type_name": "Painted CMU 8in 200mm",
+      "type_id": 70,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Walls",
+      "placement_identity": false,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "Pset_WallCommon": {
+          "IsExternal": true,
+          "LoadBearing": true,
+          "Reference": "Painted CMU 8in",
+          "id": 90
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 81,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 6.096,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.0,
+              0.2,
+              4.877,
+              0.2,
+              4.877,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 1,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 97,
+      "guid": "08$VSlwTjND8E9idWw8OGC",
+      "class": "IfcWall",
+      "predefined_type": "STANDARD",
+      "object_type": "Painted CMU 8in",
+      "name": "W-east",
+      "description": null,
+      "tag": null,
+      "type_name": "Painted CMU 8in 200mm",
+      "type_id": 70,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Walls",
+      "placement_identity": false,
+      "placement_origin": [
+        10.363,
+        4.877,
+        0.0
+      ],
+      "psets": {
+        "Pset_WallCommon": {
+          "IsExternal": true,
+          "LoadBearing": true,
+          "Reference": "Painted CMU 8in",
+          "id": 115
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 106,
+            "style_name": null,
+            "transparency": 0.0,
+            "depth": 6.096,
+            "profile": "IfcArbitraryClosedProfileDef",
+            "profile_dims": [
+              0.0,
+              0.0,
+              0.0,
+              0.2,
+              4.877,
+              0.2,
+              4.877,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 1,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 540,
+      "guid": "0AYxIvg_DUORi6ETlU0xN5",
+      "class": "IfcTransformer",
+      "predefined_type": "VOLTAGE",
+      "object_type": "45 kVA dry-type 480D-208Y/120",
+      "name": "XFMR-LR1",
+      "description": "45 kVA dry-type, 480 V delta - 208Y/120 V, feeds B-LR1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-LR1",
+      "type_name": "45 kVA dry-type 480D-208Y/120",
+      "type_id": 531,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        2.195,
+        0.405,
+        0.1
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "DT-3 45 kVA dry-type",
+          "id": 534
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.61,
+          "Depth": 0.51,
+          "Height": 0.76,
+          "id": 538
+        },
+        "TransformerSchedule": {
+          "Tag": "XFMR-LR1",
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-LR1",
+          "PrimaryVoltage": 480.0,
+          "SecondaryVoltage": 208.0,
+          "Mounting": "Floor / housekeeping pad",
+          "WorkingClearanceDepth": 0.914,
+          "id": 560
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 543,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 530
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 563,
+      "guid": "1a5$LHqMjNuxWarjs1r1Yw",
+      "class": "IfcTransformer",
+      "predefined_type": "VOLTAGE",
+      "object_type": "45 kVA dry-type 480D-208Y/120",
+      "name": "XFMR-LQ1",
+      "description": "45 kVA dry-type, 480 V delta - 208Y/120 V, feeds B-LQ1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-LQ1",
+      "type_name": "45 kVA dry-type 480D-208Y/120",
+      "type_id": 531,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        4.816,
+        0.405,
+        0.1
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "DT-3 45 kVA dry-type",
+          "id": 534
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.61,
+          "Depth": 0.51,
+          "Height": 0.76,
+          "id": 538
+        },
+        "TransformerSchedule": {
+          "Tag": "XFMR-LQ1",
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-LQ1",
+          "PrimaryVoltage": 480.0,
+          "SecondaryVoltage": 208.0,
+          "Mounting": "Floor / housekeeping pad",
+          "WorkingClearanceDepth": 0.914,
+          "id": 583
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 566,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 530
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 586,
+      "guid": "2vPMyUFDLQQ9rx6kWYbwKh",
+      "class": "IfcTransformer",
+      "predefined_type": "VOLTAGE",
+      "object_type": "45 kVA dry-type 480D-208Y/120",
+      "name": "XFMR-B-SLQ1",
+      "description": "45 kVA dry-type, 480 V delta - 208Y/120 V, feeds B-SLQ1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-B-SLQ1",
+      "type_name": "45 kVA dry-type 480D-208Y/120",
+      "type_id": 531,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        6.888,
+        0.405,
+        0.1
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "DT-3 45 kVA dry-type",
+          "id": 534
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.61,
+          "Depth": 0.51,
+          "Height": 0.76,
+          "id": 538
+        },
+        "TransformerSchedule": {
+          "Tag": "XFMR-B-SLQ1",
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-SLQ1",
+          "PrimaryVoltage": 480.0,
+          "SecondaryVoltage": 208.0,
+          "Mounting": "Floor / housekeeping pad",
+          "WorkingClearanceDepth": 0.914,
+          "id": 606
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 589,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 530
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 311,
+      "guid": "3gxDOsy_rTqAgaGCNZ1tWe",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+      "name": "B-HG4",
+      "description": "Panelboard, 480Y/277 V; fed from MDB via BS-FD1020",
+      "tag": "B-HG4",
+      "type_name": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+      "type_id": 301,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        1.399,
+        4.757,
+        1.067
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "Pow-R-Line 4",
+          "ModelReference": "PRL4-400MB-42",
+          "id": 305
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.508,
+          "Depth": 0.15,
+          "Height": 0.914,
+          "id": 309
+        },
+        "PanelSchedule": {
+          "PanelName": "B-HG4",
+          "Voltage": 480.0,
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 400.0,
+          "MainsType": "Main Breaker",
+          "MainsRating": 400.0,
+          "ShortCircuitRatingkA": 35.0,
+          "Mounting": "Surface",
+          "NumberOfCircuits": 42.0,
+          "NeutralRating": "100%",
+          "FedFrom": "MDB via BS-FD1020",
+          "FeederRun": "BS-FD1020",
+          "TopOfPanelAFF": 1.981,
+          "WorkingClearanceDepth": 1.067,
+          "WorkingClearanceWidth": 0.762,
+          "WorkingClearanceHeight": 1.981,
+          "id": 339
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 314,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 300
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 364,
+      "guid": "1yCjxwwE5NmgpZvdQaNfOr",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": "Eaton Pow-R-Line 1 (style) - 225A MLO - 42 space",
+      "name": "B-LR1",
+      "description": "Panelboard, 208Y/120 V; fed from XFMR-LR1 via BS-FD1011",
+      "tag": "B-LR1",
+      "type_name": "Eaton Pow-R-Line 1 (style) - 225A MLO - 42 space",
+      "type_id": 354,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        2.195,
+        4.757,
+        1.067
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "Pow-R-Line 1",
+          "ModelReference": "PRL1-225MLO-42",
+          "id": 358
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.508,
+          "Depth": 0.15,
+          "Height": 0.914,
+          "id": 362
+        },
+        "PanelSchedule": {
+          "PanelName": "B-LR1",
+          "Voltage": 208.0,
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 225.0,
+          "MainsType": "Main Lugs Only",
+          "MainsRating": 225.0,
+          "ShortCircuitRatingkA": 10.0,
+          "Mounting": "Surface",
+          "NumberOfCircuits": 42.0,
+          "NeutralRating": "100%",
+          "FedFrom": "XFMR-LR1 via BS-FD1011",
+          "FeederRun": "BS-FD1011",
+          "TopOfPanelAFF": 1.981,
+          "WorkingClearanceDepth": 0.914,
+          "WorkingClearanceWidth": 0.762,
+          "WorkingClearanceHeight": 1.981,
+          "id": 392
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 367,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 353
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 395,
+      "guid": "2JHpd3feLO4AW9SFJ3GhS0",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+      "name": "B-HQ1",
+      "description": "Panelboard, 480Y/277 V; fed from B-HD1 via BS-FD1009",
+      "tag": "B-HQ1",
+      "type_name": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+      "type_id": 301,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        4.907,
+        4.757,
+        1.067
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "Pow-R-Line 4",
+          "ModelReference": "PRL4-400MB-42",
+          "id": 305
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.508,
+          "Depth": 0.15,
+          "Height": 0.914,
+          "id": 309
+        },
+        "PanelSchedule": {
+          "PanelName": "B-HQ1",
+          "Voltage": 480.0,
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 400.0,
+          "MainsType": "Main Breaker",
+          "MainsRating": 400.0,
+          "ShortCircuitRatingkA": 35.0,
+          "Mounting": "Surface",
+          "NumberOfCircuits": 42.0,
+          "NeutralRating": "100%",
+          "FedFrom": "B-HD1 via BS-FD1009",
+          "FeederRun": "BS-FD1009",
+          "TopOfPanelAFF": 1.981,
+          "WorkingClearanceDepth": 1.067,
+          "WorkingClearanceWidth": 0.762,
+          "WorkingClearanceHeight": 1.981,
+          "id": 423
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 398,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 300
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 426,
+      "guid": "3pmKTO19HM_fUznb8GuvNr",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": "Eaton Pow-R-Line 1 (style) - 225A MLO - 42 space",
+      "name": "B-LQ1",
+      "description": "Panelboard, 208Y/120 V; fed from XFMR-LQ1 via BS-FD1013",
+      "tag": "B-LQ1",
+      "type_name": "Eaton Pow-R-Line 1 (style) - 225A MLO - 42 space",
+      "type_id": 354,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        5.614,
+        4.757,
+        1.067
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "Pow-R-Line 1",
+          "ModelReference": "PRL1-225MLO-42",
+          "id": 358
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.508,
+          "Depth": 0.15,
+          "Height": 0.914,
+          "id": 362
+        },
+        "PanelSchedule": {
+          "PanelName": "B-LQ1",
+          "Voltage": 208.0,
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 225.0,
+          "MainsType": "Main Lugs Only",
+          "MainsRating": 225.0,
+          "ShortCircuitRatingkA": 10.0,
+          "Mounting": "Surface",
+          "NumberOfCircuits": 42.0,
+          "NeutralRating": "100%",
+          "FedFrom": "XFMR-LQ1 via BS-FD1013",
+          "FeederRun": "BS-FD1013",
+          "TopOfPanelAFF": 1.981,
+          "WorkingClearanceDepth": 0.914,
+          "WorkingClearanceWidth": 0.762,
+          "WorkingClearanceHeight": 1.981,
+          "id": 454
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 429,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 353
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 457,
+      "guid": "2dsD5MW$DRwO6CrRplLs$J",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": "Eaton Pow-R-Line 1 (style) - 225A MLO - 42 space",
+      "name": "B-SLQ1",
+      "description": "Panelboard, 208Y/120 V (verify system); fed from XFMR-B-SLQ1 (run not in BS-EP7-00 - verify)",
+      "tag": "B-SLQ1",
+      "type_name": "Eaton Pow-R-Line 1 (style) - 225A MLO - 42 space",
+      "type_id": 354,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        6.309,
+        4.757,
+        1.067
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "Pow-R-Line 1",
+          "ModelReference": "PRL1-225MLO-42",
+          "id": 358
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.508,
+          "Depth": 0.15,
+          "Height": 0.914,
+          "id": 362
+        },
+        "PanelSchedule": {
+          "PanelName": "B-SLQ1",
+          "Voltage": 208.0,
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 225.0,
+          "MainsType": "Main Lugs Only",
+          "MainsRating": 225.0,
+          "ShortCircuitRatingkA": 10.0,
+          "Mounting": "Surface",
+          "NumberOfCircuits": 42.0,
+          "NeutralRating": "100%",
+          "FedFrom": "XFMR-B-SLQ1 (verify)",
+          "FeederRun": "not in BS-EP7-00 - verify",
+          "TopOfPanelAFF": 1.981,
+          "WorkingClearanceDepth": 0.914,
+          "WorkingClearanceWidth": 0.762,
+          "WorkingClearanceHeight": 1.981,
+          "id": 485
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 460,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 353
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 488,
+      "guid": "3NCA4giQLHlgUlGbu0RCa$",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+      "name": "B-SHQ1",
+      "description": "Panelboard, 480Y/277 V (verify); fed from MDB (run not in BS-EP7-00 - verify)",
+      "tag": "B-SHQ1",
+      "type_name": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+      "type_id": 301,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        8.833,
+        4.757,
+        1.067
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "Pow-R-Line 4",
+          "ModelReference": "PRL4-400MB-42",
+          "id": 305
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.508,
+          "Depth": 0.15,
+          "Height": 0.914,
+          "id": 309
+        },
+        "PanelSchedule": {
+          "PanelName": "B-SHQ1",
+          "Voltage": 480.0,
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 400.0,
+          "MainsType": "Main Breaker",
+          "MainsRating": 400.0,
+          "ShortCircuitRatingkA": 35.0,
+          "Mounting": "Surface",
+          "NumberOfCircuits": 42.0,
+          "NeutralRating": "100%",
+          "FedFrom": "MDB (verify)",
+          "FeederRun": "not in BS-EP7-00 - verify",
+          "TopOfPanelAFF": 1.981,
+          "WorkingClearanceDepth": 1.067,
+          "WorkingClearanceWidth": 0.762,
+          "WorkingClearanceHeight": 1.981,
+          "id": 516
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 491,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 300
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 629,
+      "guid": "2gB0eWTNrJ1P6Uug9VG0F0",
+      "class": "IfcDiscreteAccessory",
+      "predefined_type": "BRACKET",
+      "object_type": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+      "name": "HGR-01",
+      "description": "Trapeze hanger rack (strut on threaded rod) at 16 ft 6 in AFF; identical racks share one type and one geometry map (instanced)",
+      "tag": "HGR-01",
+      "type_name": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+      "type_id": 621,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Specialty Equipment / Generic Models",
+      "placement_identity": false,
+      "placement_origin": [
+        2.0,
+        2.438,
+        5.029
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "ModelLabel": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+          "id": 623
+        },
+        "revitbridge_Dimensions": {
+          "Width": 1.52,
+          "Depth": 1.076,
+          "Height": 0.06,
+          "id": 627
+        },
+        "SupportSchedule": {
+          "Rack": "HGR-01",
+          "StrutSize": "1-5/8 in",
+          "RodDiameter": "3/8 in",
+          "ElevationAFFft": 16.5,
+          "id": 644
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 632,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 620
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 647,
+      "guid": "0xFFjLGaTSWwXBKI_FxRf0",
+      "class": "IfcDiscreteAccessory",
+      "predefined_type": "BRACKET",
+      "object_type": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+      "name": "HGR-02",
+      "description": null,
+      "tag": "HGR-02",
+      "type_name": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+      "type_id": 621,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Specialty Equipment / Generic Models",
+      "placement_identity": false,
+      "placement_origin": [
+        4.0,
+        2.438,
+        5.029
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "ModelLabel": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+          "id": 623
+        },
+        "revitbridge_Dimensions": {
+          "Width": 1.52,
+          "Depth": 1.076,
+          "Height": 0.06,
+          "id": 627
+        },
+        "SupportSchedule": {
+          "Rack": "HGR-02",
+          "StrutSize": "1-5/8 in",
+          "RodDiameter": "3/8 in",
+          "ElevationAFFft": 16.5,
+          "id": 662
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 650,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 620
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 665,
+      "guid": "1v2bYL_Y5U2R0uHBiMPNST",
+      "class": "IfcDiscreteAccessory",
+      "predefined_type": "BRACKET",
+      "object_type": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+      "name": "HGR-03",
+      "description": null,
+      "tag": "HGR-03",
+      "type_name": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+      "type_id": 621,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Specialty Equipment / Generic Models",
+      "placement_identity": false,
+      "placement_origin": [
+        6.0,
+        2.438,
+        5.029
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "ModelLabel": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+          "id": 623
+        },
+        "revitbridge_Dimensions": {
+          "Width": 1.52,
+          "Depth": 1.076,
+          "Height": 0.06,
+          "id": 627
+        },
+        "SupportSchedule": {
+          "Rack": "HGR-03",
+          "StrutSize": "1-5/8 in",
+          "RodDiameter": "3/8 in",
+          "ElevationAFFft": 16.5,
+          "id": 680
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 668,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 620
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 683,
+      "guid": "2gfm8iFRnJIAMEWuarz70m",
+      "class": "IfcDiscreteAccessory",
+      "predefined_type": "BRACKET",
+      "object_type": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+      "name": "HGR-04",
+      "description": null,
+      "tag": "HGR-04",
+      "type_name": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+      "type_id": 621,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Specialty Equipment / Generic Models",
+      "placement_identity": false,
+      "placement_origin": [
+        8.0,
+        2.438,
+        5.029
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "ModelLabel": "Trapeze hanger - 1-5/8 in strut on 3/8 in rods @ 16 ft 6 in AFF",
+          "id": 623
+        },
+        "revitbridge_Dimensions": {
+          "Width": 1.52,
+          "Depth": 1.076,
+          "Height": 0.06,
+          "id": 627
+        },
+        "SupportSchedule": {
+          "Rack": "HGR-04",
+          "StrutSize": "1-5/8 in",
+          "RodDiameter": "3/8 in",
+          "ElevationAFFft": 16.5,
+          "id": 698
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 686,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 620
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    }
+  ],
+  "types": {
+    "type_objects": 7,
+    "rel_defines_by_type": 7,
+    "duplicate_groups": [],
+    "duplicate_type_objects": 0,
+    "products_typed": 18,
+    "products_untyped": 0,
+    "untyped_product_ids": [],
+    "typed_fraction": 1.0
+  },
+  "instancing": {
+    "repeated_groups": [
+      {
+        "class": "IfcTransformer",
+        "count": 3,
+        "names": [
+          "XFMR-LR1",
+          "XFMR-LQ1",
+          "XFMR-B-SLQ1"
+        ],
+        "uses_mapped_items": true,
+        "triangles_each": 0,
+        "duplicated_triangles": 0
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "count": 3,
+        "names": [
+          "B-HG4",
+          "B-HQ1",
+          "B-SHQ1"
+        ],
+        "uses_mapped_items": true,
+        "triangles_each": 0,
+        "duplicated_triangles": 0
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "count": 3,
+        "names": [
+          "B-LR1",
+          "B-LQ1",
+          "B-SLQ1"
+        ],
+        "uses_mapped_items": true,
+        "triangles_each": 0,
+        "duplicated_triangles": 0
+      },
+      {
+        "class": "IfcDiscreteAccessory",
+        "count": 4,
+        "names": [
+          "HGR-01",
+          "HGR-02",
+          "HGR-03",
+          "HGR-04"
+        ],
+        "uses_mapped_items": true,
+        "triangles_each": 0,
+        "duplicated_triangles": 0
+      }
+    ],
+    "unshared_repeated_products": 0,
+    "unshared_fraction": 0.0,
+    "duplicated_triangles": 0
+  },
+  "phantoms": {
+    "count": 0,
+    "high_confidence": 0,
+    "findings": []
+  },
+  "spatial": {
+    "project": "DDOT Coolidge - Area E bus storage electrical room (Chicago-plenum job)",
+    "sites": 1,
+    "buildings": 1,
+    "storeys": [
+      {
+        "name": "Level 1",
+        "elevation": 0.0
+      }
+    ],
+    "storey_count": 1,
+    "single_storey": true,
+    "spaces": [
+      {
+        "name": "E101",
+        "long_name": "Electrical Room E101",
+        "predefined": "SPACE"
+      }
+    ],
+    "space_count": 1,
+    "orphan_element_ids": [],
+    "orphan_count": 0,
+    "containment_coverage": 1.0,
+    "elements_per_storey": {
+      "Level 1": 18
+    }
+  },
+  "psets": {
+    "by_class": {
+      "IfcWall": {
+        "Pset_WallCommon": {
+          "IsExternal": "IfcBoolean",
+          "LoadBearing": "IfcBoolean",
+          "Reference": "IfcIdentifier"
+        }
+      },
+      "IfcTransformer": {
+        "TransformerSchedule": {
+          "Tag": "IfcLabel",
+          "RatingkVA": "IfcReal",
+          "Primary": "IfcLabel",
+          "Secondary": "IfcLabel",
+          "Feeds": "IfcLabel",
+          "PrimaryVoltage": "IfcElectricVoltageMeasure",
+          "SecondaryVoltage": "IfcElectricVoltageMeasure",
+          "Mounting": "IfcLabel",
+          "WorkingClearanceDepth": "IfcLengthMeasure"
+        }
+      },
+      "IfcElectricDistributionBoard": {
+        "PanelSchedule": {
+          "PanelName": "IfcLabel",
+          "Voltage": "IfcElectricVoltageMeasure",
+          "Phases": "IfcInteger",
+          "Wires": "IfcInteger",
+          "BusRating": "IfcElectricCurrentMeasure",
+          "MainsType": "IfcLabel",
+          "MainsRating": "IfcElectricCurrentMeasure",
+          "ShortCircuitRatingkA": "IfcReal",
+          "Mounting": "IfcLabel",
+          "NumberOfCircuits": "IfcCountMeasure",
+          "NeutralRating": "IfcLabel",
+          "FedFrom": "IfcLabel",
+          "FeederRun": "IfcLabel",
+          "TopOfPanelAFF": "IfcLengthMeasure",
+          "WorkingClearanceDepth": "IfcLengthMeasure",
+          "WorkingClearanceWidth": "IfcLengthMeasure",
+          "WorkingClearanceHeight": "IfcLengthMeasure"
+        }
+      },
+      "IfcDiscreteAccessory": {
+        "SupportSchedule": {
+          "Rack": "IfcLabel",
+          "StrutSize": "IfcLabel",
+          "RodDiameter": "IfcLabel",
+          "ElevationAFFft": "IfcReal"
+        }
+      }
+    },
+    "consistency_checks": 4,
+    "consistent": 4,
+    "consistency_ratio": 1.0,
+    "inconsistent": [],
+    "typing_smells": [],
+    "pset_names": [
+      "PanelSchedule",
+      "Pset_WallCommon",
+      "SupportSchedule",
+      "TransformerSchedule"
+    ]
+  },
+  "units": {
+    "units": {
+      "AREAUNIT": "SQUARE_METRE",
+      "ELECTRICCURRENTUNIT": "AMPERE",
+      "ELECTRICVOLTAGEUNIT": "VOLT",
+      "FREQUENCYUNIT": "HERTZ",
+      "LENGTHUNIT": "METRE",
+      "PLANEANGLEUNIT": "RADIAN",
+      "POWERUNIT": "WATT",
+      "VOLUMEUNIT": "CUBIC_METRE"
+    },
+    "length_unit": "METRE",
+    "is_metric": true,
+    "electrical_units_missing": [],
+    "issues": []
+  },
+  "score": {
+    "score": 100.0,
+    "tier": "Tier 1 -- clean, movable, dimensionally-honest reference geometry (DirectShape, no MEP connectors)",
+    "components": {
+      "schema": 1.0,
+      "geometry_parametric": 1.0,
+      "placements": 1.0,
+      "typing": 1.0,
+      "instancing": 1.0,
+      "phantom_free": 1.0,
+      "spatial": 1.0,
+      "data": 1.0,
+      "units": 1.0
+    },
+    "weights": {
+      "schema": 8,
+      "geometry_parametric": 28,
+      "placements": 20,
+      "typing": 14,
+      "instancing": 6,
+      "phantom_free": 8,
+      "spatial": 8,
+      "data": 4,
+      "units": 4
+    },
+    "stats": {
+      "products": 18,
+      "with_body": 18,
+      "tessellated": 0,
+      "tessellated_fraction": 0.0,
+      "identity_placements": 0,
+      "identity_fraction": 0.0
+    },
+    "top_fixes": [],
+    "all_fixes": []
+  }
+}

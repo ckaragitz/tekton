@@ -1,0 +1,207 @@
+{
+ "subject": "experiments/genesis/subst_k4/residue_a2/ZC_deep.rvt",
+ "elements": 3342,
+ "landed_ours": 2116,
+ "residue_elements": 1226,
+ "residue_classes": 44,
+ "residue_by_class": {
+  "ParamElemExternal": {
+   "count": 466,
+   "disposition": "other stream: GROUP B ZB1_defs"
+  },
+  "ParamBinding": {
+   "count": 209,
+   "disposition": "other stream: GROUP B ZB1_defs"
+  },
+  "ParamElemElectricalLoadClassification": {
+   "count": 108,
+   "disposition": "other stream: GROUP B ZB1_defs (the 6-per-class companions of our ZC_elec classifications -- id-wired both sides)"
+  },
+  "DBViewType": {
+   "count": 72,
+   "disposition": "other stream: curtain constellation (deletion stream D_curtain)"
+  },
+  "CategoryElem": {
+   "count": 40,
+   "disposition": "other stream: GROUP A ZA_deep (family-scoped remainder = curtain constellation, D_curtain)"
+  },
+  "GStyleElem": {
+   "count": 40,
+   "disposition": "other stream: GROUP A ZA_deep (family-scoped remainder = curtain constellation)"
+  },
+  "SketchPlane": {
+   "count": 30,
+   "disposition": "other stream: GROUP B ZB8_content"
+  },
+  "PropertySetElement": {
+   "count": 28,
+   "disposition": "other stream: GROUP B ZB5_palette"
+  },
+  "RbsWireInsulationType": {
+   "count": 26,
+   "disposition": "other stream: GROUP B ZB2_mepcat (viewer PASS, batch 17) -- our wire catalog"
+  },
+  "FontElem": {
+   "count": 24,
+   "disposition": "other stream: GROUP A ZA_deep (family-scoped remainder = curtain constellation)"
+  },
+  "RefPlane": {
+   "count": 21,
+   "disposition": "other stream: GROUP B ZB8_content"
+  },
+  "PipeSegment": {
+   "count": 15,
+   "disposition": "other stream: GROUP B ZB2_mepcat"
+  },
+  "RbsPipeScheduleType": {
+   "count": 13,
+   "disposition": "other stream: GROUP B ZB2_mepcat -- our piping catalog"
+  },
+  "SectionAttributes": {
+   "count": 10,
+   "disposition": "other stream: GROUP B ZB4_annot"
+  },
+  "MaterialElem": {
+   "count": 10,
+   "disposition": "other stream: GROUP B ZB5_palette (surplus materials)"
+  },
+  "Family": {
+   "count": 8,
+   "disposition": "other stream: curtain constellation (D_curtain)"
+  },
+  "FamilySurrogate": {
+   "count": 8,
+   "disposition": "other stream: curtain constellation (D_curtain)"
+  },
+  "ParamElemProject": {
+   "count": 8,
+   "disposition": "other stream: GROUP B ZB1_defs"
+  },
+  "CalloutTag": {
+   "count": 8,
+   "disposition": "other stream: GROUP A ZA_deep (family-scoped remainder)"
+  },
+  "InteriorElevAttributes": {
+   "count": 8,
+   "disposition": "other stream: GROUP A ZA_deep (family-scoped remainder)"
+  },
+  "RbsPipeConnectionType": {
+   "count": 8,
+   "disposition": "other stream: GROUP B ZB2_mepcat"
+  },
+  "DimensionStyle": {
+   "count": 8,
+   "disposition": "other stream: GROUP A ZA_deep (family-scoped remainder)"
+  },
+  "PenWidthTableElem": {
+   "count": 8,
+   "disposition": "other stream: GROUP B ZB3_pens"
+  },
+  "ParameterFilterElement": {
+   "count": 7,
+   "disposition": "other stream: GROUP B ZB6_filters"
+  },
+  "RbsPipeMaterialType": {
+   "count": 5,
+   "disposition": "other stream: GROUP B ZB2_mepcat"
+  },
+  "CurveElem": {
+   "count": 5,
+   "disposition": "other stream: room constellation (deletion stream, blocked -> D_room after the wiring fix)"
+  },
+  "RbsWireMaterialType": {
+   "count": 4,
+   "disposition": "other stream: GROUP B ZB2_mepcat"
+  },
+  "LegendComponent": {
+   "count": 4,
+   "disposition": "other stream: type previews (2 curtain-owned in D_curtain; 2 owned by our residue types)"
+  },
+  "RbsWireTemperatureRatingType": {
+   "count": 3,
+   "disposition": "other stream: GROUP B ZB2_mepcat"
+  },
+  "SunAnnotationElem": {
+   "count": 3,
+   "disposition": "other stream: GROUP B ZB7_machinery"
+  },
+  "NumberingSchema": {
+   "count": 3,
+   "disposition": "other stream: GROUP B ZB7_machinery"
+  },
+  "Viewport": {
+   "count": 3,
+   "disposition": "other stream: GROUP B ZB7_machinery (the sheet's viewports 1457030/1457043/1457044)"
+  },
+  "PrintSettings": {
+   "count": 2,
+   "disposition": "other stream: GROUP B ZB7_machinery"
+  },
+  "ViewportAttributes": {
+   "count": 1,
+   "disposition": "other stream: GROUP B ZB4_annot"
+  },
+  "AreaSchemePlanTopologies": {
+   "count": 1,
+   "disposition": "NOT in-place-able: DELETE-WITH-CONTENT (with the room constellation)"
+  },
+  "WorksharingViewModeSettings": {
+   "count": 1,
+   "disposition": "other stream: GROUP B ZB7_machinery"
+  },
+  "LinearDimString": {
+   "count": 1,
+   "disposition": "other stream: constraint-dimension group (deletion stream D_content)"
+  },
+  "LevelRoomPlan": {
+   "count": 1,
+   "disposition": "other stream: room constellation"
+  },
+  "RoomElem": {
+   "count": 1,
+   "disposition": "other stream: GROUP B ZB8_content (identity) / room constellation deletion"
+  },
+  "RvtLinkSymbol": {
+   "count": 1,
+   "disposition": "NOT in-place-able: DELETE-WITH-CONTENT (clean-header rung first)"
+  },
+  "RvtLinkInstance": {
+   "count": 1,
+   "disposition": "NOT in-place-able: DELETE-WITH-CONTENT (emitted: deletion stream D_links)"
+  },
+  "DataStorage": {
+   "count": 1,
+   "disposition": "NOT in-place-able: DELETE (leaf)"
+  },
+  "SlaveSymbolTrackerElem": {
+   "count": 1,
+   "disposition": "other stream: GROUP B ZB7_machinery"
+  },
+  "Viewer": {
+   "count": 1,
+   "disposition": "other stream: GROUP B ZB7_machinery (the sheet's viewer 1457029)"
+  }
+ },
+ "totals_by_disposition": {
+  "other stream": 1222,
+  "NOT in-place-able": 4
+ },
+ "not_in_place_able": {
+  "RvtLinkSymbol": {
+   "operation": "DELETE-WITH-CONTENT (clean-header rung first)",
+   "reason": "a genesis file links NO model: the symbol names an external Autodesk sample file ('rac_basic_sample_project.rvt' + a relative path) -- nothing of ours to express at the slot.  The deletion stream (docs/inbox/genesis-deletion.md, finding 1) measured it NOT delete-reachable on ZA_deep: OUR OWN Y2/Y9 view slots' inherited seq-101 headers list it as a deletion parent, and this stream's ZC_browse sheet-view constructor REMOVES its remaining seq-102 pin (the drafting/sheet view's RvtLinkOverrides display map).  Retirement = the clean-header rung (seqs 101+102 on our views) then one maxgc deletion of {symbol + drafting-view constellation} -- the substitution stream's queue."
+  },
+  "RvtLinkInstance": {
+   "operation": "DELETE-WITH-CONTENT (emitted: deletion stream D_links)",
+   "reason": "the placed instance of the link; the deletion stream's D_links probe deletes it with OUR CopyWatchProperties 1250031 (delete-with-content of our own referrer, EDIT-FREE)."
+  },
+  "DataStorage": {
+   "operation": "DELETE (leaf)",
+   "reason": "an Extensible-Storage container whose ESEntity blob is a VENDOR schema this project's decoder does not read (the arbiter's one standing warning): there is nothing of ours to express, and reproducing it would keep an undecoded third-party blob -- a zero-referrer leaf for the deletion set (endgame step 24)."
+  },
+  "AreaSchemePlanTopologies(room)": {
+   "operation": "DELETE-WITH-CONTENT (with the room constellation)",
+   "reason": "topology 9744 CONTAINS the placed room's LevelRoomPlan + boundary curves (deletion stream finding 2: the constellation is held together by 9744 and PINNED by OUR AreaMeasureElem 9490's kept wiring) -- it leaves with the room, atomically; left byte-identical here."
+  }
+ }
+}

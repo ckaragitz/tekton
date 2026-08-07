@@ -1,0 +1,450 @@
+{
+ "rung": "RC_deep",
+ "label": "ALL residue-C groups in one in-place rung from the certified G_ABPD",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [101, 102], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "out": "experiments/genesis/subst_k4/residue_c/RC_deep.rvt",
+ "slots": [
+  230,
+  9490,
+  69851,
+  245443,
+  907404,
+  1064656,
+  1201130,
+  1454508,
+  1457028,
+  1471979,
+  1471980,
+  1471981,
+  1471982,
+  1471983,
+  1471984,
+  1471985,
+  1471986,
+  1471987,
+  1471988,
+  1471989,
+  1471990,
+  1471991,
+  1471992,
+  1471993,
+  1471994,
+  1471995,
+  1471996,
+  1471997,
+  1471998,
+  1471999,
+  1472000,
+  1472001,
+  1472002,
+  1472003,
+  1472004,
+  1472005
+ ],
+ "seqs": [
+  101,
+  102
+ ],
+ "ours_by_slot": {
+  "1471979": [
+   "m_scheduleName"
+  ],
+  "1471980": [
+   "m_scheduleName"
+  ],
+  "1471981": [
+   "m_scheduleName"
+  ],
+  "1471982": [
+   "m_scheduleName"
+  ],
+  "1471983": [
+   "m_scheduleName"
+  ],
+  "1471984": [
+   "m_scheduleName"
+  ],
+  "1471985": [
+   "m_scheduleName"
+  ],
+  "1471986": [
+   "m_scheduleName"
+  ],
+  "1471987": [
+   "m_scheduleName"
+  ],
+  "1471988": [
+   "m_scheduleName"
+  ],
+  "1471989": [
+   "m_scheduleName"
+  ],
+  "1471990": [
+   "m_scheduleName"
+  ],
+  "1471991": [
+   "m_scheduleName"
+  ],
+  "1471992": [
+   "m_scheduleName"
+  ],
+  "1471993": [
+   "m_scheduleName"
+  ],
+  "1471994": [
+   "m_scheduleName"
+  ],
+  "1471995": [
+   "m_scheduleName"
+  ],
+  "1471996": [
+   "m_scheduleName"
+  ],
+  "1471997": [
+   "m_scheduleName"
+  ],
+  "1471998": [
+   "m_scheduleName"
+  ],
+  "1471999": [
+   "m_scheduleName"
+  ],
+  "1472000": [
+   "m_scheduleName"
+  ],
+  "1472001": [
+   "m_scheduleName"
+  ],
+  "1472002": [
+   "m_scheduleName"
+  ],
+  "1472003": [
+   "m_scheduleName"
+  ],
+  "1472004": [
+   "m_scheduleName"
+  ],
+  "1472005": [
+   "m_scheduleName"
+  ],
+  "907404": [
+   "m_oPreviewImage"
+  ],
+  "1201130": [
+   "m_oPreviewImage"
+  ],
+  "230": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "69851": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "245443": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "1064656": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "1454508": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "1457028": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "9490": [
+   "m_areaSchemePlanTopologyElemId",
+   "m_parents.m_deletion (minus 9744)"
+  ]
+ },
+ "notes": [
+  "27 year schedules; name source = OUR day-schedule library landed by ZC_hvac (names read from the parent)",
+  "null m_oPreviewImage is corpus-normal (dach 2 / rme 4 measured); the wiring (m_componentType -> OUR types 600634 / 1201129) is untouched",
+  "seq-101 substitution at OUR OWN slots (the certified in-place mechanism; the objects were already ours / adopted) -- the RvtLinkSymbol's last pins leave, enabling its lawful deletion",
+  "the deletion stream's finding-2 fix: after this the room constellation {9744 + room content} is one clean maxgc rung"
+ ],
+ "new_object_reference_check": {
+  "mode": "typed",
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   101,
+   102
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 14,
+   "records": 9309,
+   "elements_decoded": 3102,
+   "decode_failures": 1,
+   "refs_checked": 45872
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "byte_delta": {
+  "changed_records": 37,
+  "changed_ids": [
+   230,
+   9490,
+   69851,
+   245443,
+   907404,
+   1064656,
+   1201130,
+   1454508,
+   1457028,
+   1471979,
+   1471980,
+   1471981,
+   1471982,
+   1471983,
+   1471984,
+   1471985,
+   1471986,
+   1471987,
+   1471988,
+   1471989,
+   1471990,
+   1471991,
+   1471992,
+   1471993,
+   1471994,
+   1471995,
+   1471996,
+   1471997,
+   1471998,
+   1471999,
+   1472000,
+   1472001,
+   1472002,
+   1472003,
+   1472004,
+   1472005
+  ],
+  "expected_slot_ids": [
+   230,
+   9490,
+   69851,
+   245443,
+   907404,
+   1064656,
+   1201130,
+   1454508,
+   1457028,
+   1471979,
+   1471980,
+   1471981,
+   1471982,
+   1471983,
+   1471984,
+   1471985,
+   1471986,
+   1471987,
+   1471988,
+   1471989,
+   1471990,
+   1471991,
+   1471992,
+   1471993,
+   1471994,
+   1471995,
+   1471996,
+   1471997,
+   1471998,
+   1471999,
+   1472000,
+   1472001,
+   1472002,
+   1472003,
+   1472004,
+   1472005
+  ],
+  "expected_records_max": 37,
+  "unexpected_changed_ids": [],
+  "added_or_removed": false,
+  "landed_but_byte_identical": [],
+  "global_latest_identical": true,
+  "global_elemtable_identical": true,
+  "assertion_holds": true,
+  "diff_streams": [
+   "Partitions/21"
+  ]
+ },
+ "verdict": "VALID",
+ "md5": "3547df82bb8bdb8c14ac6102faca9d90",
+ "seconds": 2.5,
+ "landed_slots": [
+  {
+   "slot": 230,
+   "class": "DBViewProject"
+  },
+  {
+   "slot": 9490,
+   "class": "AreaMeasureElem"
+  },
+  {
+   "slot": 69851,
+   "class": "RbsDbViewSystemNavigator"
+  },
+  {
+   "slot": 245443,
+   "class": "DBViewPlan"
+  },
+  {
+   "slot": 907404,
+   "class": "LegendComponent"
+  },
+  {
+   "slot": 1064656,
+   "class": "DBViewPlan"
+  },
+  {
+   "slot": 1201130,
+   "class": "LegendComponent"
+  },
+  {
+   "slot": 1454508,
+   "class": "DBView3d"
+  },
+  {
+   "slot": 1457028,
+   "class": "DBViewDrafting"
+  },
+  {
+   "slot": 1471979,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471980,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471981,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471982,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471983,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471984,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471985,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471986,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471987,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471988,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471989,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471990,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471991,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471992,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471993,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471994,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471995,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471996,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471997,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471998,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471999,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472000,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472001,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472002,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472003,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472004,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472005,
+   "class": "BuildingOperatingYearSchedule"
+  }
+ ]
+}

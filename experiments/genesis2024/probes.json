@@ -1,0 +1,88 @@
+{
+ "stream": "genesis-2024-reduce (the Revit-2024 reduction ladder -- the certified 2026 recipe at its third release)",
+ "situation": "The certified genesis bases are Revit 2026 (G_ABPD) and, since verdicts #28, the 2025 reduction lineage (B2025_K4); a Revit-2024 user can open NEITHER (Revit never opens newer files).  This ladder re-runs the same certified recipe (rstbasic -> R-rungs -> K3 -> K4) on Autodesk's own 2024 rst basic sample under rvt.versions.reading + the proven local-tag patch set.  NOTHING 2024 is viewer-certified yet, so every file here is a candidate-base; the batch control is the UNTOUCHED 2024 sample itself (Autodesk's own bytes -- certified by construction), which simultaneously answers 'does the viewer read 2024 uploads at all?'.",
+ "ordering": "reading order: control (the 2024 sample) FIRST -- if it fails, the viewer/oracle cannot read 2024 uploads and every other verdict is VOID; then R9_2024, K3_2024, B2024_K4 (certification cascades; a parent FAIL voids its children; R5..R8_2024 are on disk for bisection).",
+ "base": "samples/2024/rstbasicsampleproject.rvt",
+ "known_passing_anchors": {
+  "sample": "samples/2024/rstbasicsampleproject.rvt (Autodesk's own file -- certified by construction)"
+ },
+ "probes": [
+  {
+   "name": "R9_2024",
+   "file": "experiments/genesis2024/reduce/R9_2024.rvt",
+   "kind": "candidate-base",
+   "base": "samples/2024/rstbasicsampleproject.rvt",
+   "the_ONE_thing_it_tests": "Round-1 anchor of the 2024 campaign AND its deepest R-rung in one file: views/types/options/families' host elements gone (the certified 2026/2025 R9 shape; every embedded doc still present, censused).  K3_2024's parent.",
+   "if_PASS": "certify; the 2024 reduction mechanics (re-blocker, ECC, ordinals) are viewer-proven; K3/K4 verdicts readable.",
+   "if_FAIL": "with the sample control PASSING, the 2024 EMIT path is defective (framing/ordinal bug) -- bisect via the on-disk R5_2024..R8_2024 rungs before reading anything else.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "EDIT-FREE",
+   "release_detected": 2024,
+   "elements": 3659,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52
+   },
+   "report": "experiments/genesis2024/reduce/R9_2024.json"
+  },
+  {
+   "name": "K3_2024",
+   "file": "experiments/genesis2024/reduce/K3_2024.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2024/reduce/R9_2024.rvt",
+   "the_ONE_thing_it_tests": "Loadable-family USAGE nulled (families + documents still present) -- the M3-certified modify path, the mandatory parent state of B2024_K4 (precedent: K3 PASS 2026 round 5, K3_2025 PASS verdicts #28).",
+   "if_PASS": "certify; B2024_K4's verdict is readable.",
+   "if_FAIL": "the 2024 reader requires head/tag defaults to name real families -- B2024_K4 unreadable until split.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "SURVIVORS-EDITED",
+   "release_detected": 2024,
+   "elements": 3659,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52
+   },
+   "report": "experiments/genesis2024/reduce/K3_2024.json",
+   "parent_rung": "R9_2024"
+  },
+  {
+   "name": "B2024_K4",
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2024/reduce/K3_2024.rvt",
+   "the_ONE_thing_it_tests": "THE 2024 FAMILY-FREE BASE CANDIDATE: zero loadable families, zero embedded family documents, FOUR-registry coherent, on Autodesk's own 2024 skeleton (the certified 2026 K4 recipe, 2025-transfer-proven).  PASS = the certified 2024 base the 2024 substitution ladder builds on.",
+   "if_PASS": "certify + ledger; the 2024 campaign proceeds to the constructor retarget + substitution ladder (the G25-3/4 pattern at 2024).",
+   "if_FAIL": "(with K3_2024 passing) the 2024 reader diverges on the family-document question -- re-run the KD1-equivalent control before concluding anything.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "EDIT-FREE",
+   "release_detected": 2024,
+   "elements": 3295,
+   "coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_doc_guids": 0
+   },
+   "report": "experiments/genesis2024/reduce/B2024_K4.json",
+   "parent_rung": "K3_2024"
+  }
+ ]
+}

@@ -1,0 +1,56 @@
+{
+ "tool": "tools/identity_probe.py",
+ "stream": "identity",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "forensics": "experiments/identity/identity_diff.json",
+ "probes": [
+  {
+   "probe": "I1",
+   "file": "experiments/identity/I1.rvt",
+   "md5": "3d1cc2cd298cad8c9a1a2d671f781967",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "axis": "THE DECISIVE CELL: T1u's famdoc rebuilt byte-identically (machine-pinned vs the rst PASS T1u.rvt), then OUR 35 elements' identity fields -- and ONLY those fields -- normalized to the born convention (14 ParamElemFamily identity suffixes re-minted as frozen birth ids 7675..7688; 12 covered headers' m_abFlags4Bytes set to the born-standalone table), famloaded + one uniform instance on G_ABPD.  The ONE thing vs T1uG (FAIL): the normalized identity field set.  Content untouched, machine-verified per record.",
+   "document_guid": "4e638b14-bdd5-4d91-bd56-e140c51be0c3",
+   "gates_ok": true
+  },
+  {
+   "probe": "BX_v4",
+   "file": "experiments/identity/BX_v4.rvt",
+   "md5": "4d4ec8673a18d08bf97eac32324795f7",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "axis": "B0's recipe through birthright v4: SC1's exact spec + binds (sha-pinned) + the BORN IDENTITY lane via famload + one instance on G_ABPD.  The ONE thing vs BX_v3 (FAIL): the element identity fields (frozen-birth parameter suffixes + born header flags).",
+   "document_guid": "61f3b655-b894-4407-bf30-953f2ef101aa",
+   "gates_ok": true
+  },
+  {
+   "probe": "DEMO_250v_room_v10",
+   "file": "experiments/identity/DEMO_250v_room_v10.rvt",
+   "md5": "78876fcfa472a6eb2d4cc912a1ea6890",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "axis": "the user's exact prompt through rvt.frontdoor.run with birthright v4 -- v9's recipe at version=4 (identity lane applied to all 6 families; loader hostsym half carried over).",
+   "document_guid": null,
+   "gates_ok": true
+  }
+ ],
+ "reading_the_matrix": {
+  "knowns": {
+   "T2a": "PASS on G_ABPD (standalone-born; all param identity OTHER-form)",
+   "TB0g": "PASS on G_ABPD (embedded-born; all OTHER)",
+   "T1uG": "FAIL on G_ABPD / PASS on rst as T1u (ours 14 params SELF-minted; flags mixed)",
+   "SC1/BX_v3/DEMO v8-v9": "FAIL on G_ABPD (ours SELF-minted; flags mixed)"
+  },
+  "pre_committed": [
+   "I1 PASS + BX_v4 PASS + DEMO v10 PASS => THE CLOSE: the identity law is confirmed -- element identity minted against the host id space is what reduced bases reject; the fix is exactly the normalized field set (frozen-birth parameter identity + the born flags table).  Promote birthright v4 to the famgen emission default and rebuild acceptance.",
+   "I1 PASS + BX_v4 FAIL => v4 AUTHORING GAP: the identity fields are the law but v4's authored famdoc still differs from I1's normalized shape by a finite list -- diff BX_v4 against I1 with this tool's forensic instruments; pre-identified candidates in order: (1) the parents-structure finding (our ExtentElem/SketchPlane satellites lack the self-Family deletion root every born twin carries), (2) the born-roster true-up (species rank 2), (3) the born-wrapper ADocument.",
+   "I1 PASS + BX_v4 PASS + DEMO v10 FAIL => famgen-loader lane gap -- bisect v10 family-by-family through BX_v4's famload lane (the species-stream precedent).",
+   "I1 FAIL => IDENTITY IS INSUFFICIENT: the normalized element identity set does not flip the reduced-base verdict.  Record the remaining unprobed-axis ledger honestly: (a) the inline elemArr episode columns (T1uG ships 0 where every famload-authored PASS ships the host episode 1016 -- the one doc-level surface still separating T1uG from TB0g), (b) the parents-structure finding, (c) content birth itself (verdict-#46's residual axis: reduced bases accept only born unit content -- no famdoc-side authoring closes it), (d) the container/envelope axes (terminal-diff territory).  The desktop-Revit check kit becomes the primary instrument; compose-side repair (hr1 rank 1) re-ranks first.",
+   "Control FAIL => every verdict in the round is VOID."
+  ],
+  "reading_order": [
+   "I1",
+   "BX_v4",
+   "DEMO_250v_room_v10"
+  ]
+ },
+ "quarantine": "I1 embeds vendor-born content -- PROOF-ONLY, never shipped; BX_v4 + DEMO v10 carry zero donor bytes (authored birth + our own minted identity, test-enforced)"
+}

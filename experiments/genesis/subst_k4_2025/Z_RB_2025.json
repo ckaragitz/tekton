@@ -1,0 +1,8 @@
+{
+ "rung": "Z_RB_2025",
+ "alias_of": "RB_2025",
+ "md5": "3ade6173330bfa7eedde8c74351e0e47",
+ "parent": "experiments/genesis/subst_k4_2025/RA_2025.rvt",
+ "verdict": "VALID",
+ "meaning": "md5-identical alias of RB_2025.rvt for the one-call composer's Z*-rung discovery (tools/genesis_compose_2025.py); the rung's delta vs its parent is slot-disjoint from every other composed layer"
+}

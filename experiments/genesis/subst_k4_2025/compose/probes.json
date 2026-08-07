@@ -1,0 +1,41 @@
+{
+ "stream": "compose-2025 (THE 2025 COMPOSER: tools/genesis_compose_2025.py)",
+ "release": 2025,
+ "situation": "B2025_K4 (experiments/genesis2025/reduce/B2025_K4.rvt) is viewer-CERTIFIED (VERDICTS #28: the whole 2025 reduction lineage passed in one round).  The Y2025 substitution ladder (Y1..Y9, genesis-2025-port) is BUILT on it; the composer's 2025 anchor holds (compose of the nine rung deltas == Y9 byte-identical, see anchor_2025.json).  This batch stages the FULL composed candidate G_ABPD_2025.",
+ "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+ "probes": [
+  {
+   "name": "G_ABPD_2025",
+   "file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "composed_from": {
+    "y_rungs": [
+     "Y2025:Y1_2025",
+     "Y2025:Y2_2025",
+     "Y2025:Y3_2025",
+     "Y2025:Y4_2025",
+     "Y2025:Y5_2025",
+     "Y2025:Y6_2025",
+     "Y2025:Y7_2025",
+     "Y2025:Y8_2025",
+     "Y2025:Y9_2025"
+    ],
+    "residue_rungs": [
+     "R2025:Z_RA_2025",
+     "R2025:Z_RB_2025",
+     "R2025:Z_RC_2025",
+     "R2025:RC_2025_inplace"
+    ],
+    "deletion_sets": [
+     "D_2025_stragglers_full"
+    ]
+   },
+   "the_ONE_thing_it_tests": "Whether the COMPOSED 2025 candidate (every substituted layer merged onto the certified 2025 family-free base in one deterministic pass) LOADS in Autodesk's reader -- the 2025 equivalent of the G_ABPD candidacy (2026 verdict #24).",
+   "if_PASS": "certify + pin: fill genesis_base.json releases.2025 (sha256/bytes/status certified) + flip KNOWN_RELEASES[2025].creation_certified + bundle the asset (the ready-to-apply diff is in docs/inbox/compose-2025.md); the front door's --target-version 2025 then resolves this file.",
+   "if_FAIL": "with the control passing, bisect the composed layers the 2026 way: the sibling Y-ladder batch (experiments/genesis2025/subst/probes.json, bisection-first order Y9 -> Y6 -> Y1) isolates which rung's content the 2025 reader rejects.",
+   "viewer_status": "PENDING (nothing uploaded by this stream)"
+  }
+ ],
+ "flip_gate": "The G25-5 data flip (registry pin + version-model flag + plugin asset) is GATED on this batch's viewer verdict AND on the file being the FULL composition; the exact diff is in docs/inbox/compose-2025.md and is NOT applied."
+}

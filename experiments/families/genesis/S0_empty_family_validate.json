@@ -1,0 +1,125 @@
+{
+ "emit": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/S0_empty_family.rfa",
+  "size": 266240,
+  "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+  "elements": 21,
+  "elem_table_count": 21,
+  "partition_stream": "Partitions/0",
+  "logical_partition_bytes": 4075,
+  "document_guid": "e9e0a796-4831-4a2d-839a-06977c3330fa",
+  "streams": {
+   "Partitions/0": 4152,
+   "Global/ElemTable": 228,
+   "Global/History": 130,
+   "Global/DocumentIncrementTable": 122,
+   "Global/PartitionTable": 126,
+   "Global/ContentDocuments": 82,
+   "Contents": 204,
+   "Formats/Latest": 165553,
+   "Global/Latest": 68508,
+   "BasicFileInfo": 1961,
+   "TransmissionData": 214,
+   "PartAtom": 713
+  },
+  "ours": [
+   "Partitions save unit",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/DocumentIncrementTable",
+   "Global/PartitionTable",
+   "Global/ContentDocuments",
+   "Contents",
+   "BasicFileInfo",
+   "TransmissionData",
+   "PartAtom"
+  ],
+  "carried_from_donor": [
+   "Formats/Latest (per-release schema constant)",
+   "Global/Latest (ADocument -- NO encoder; gate G1a)",
+   "unit footer blob + stream end record (opaque)"
+  ],
+  "notes": []
+ },
+ "verify": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/S0_empty_family.rfa",
+  "gzip_members": 11,
+  "gzip_crc_failures": 0,
+  "ecc_full_pages": 3,
+  "ecc_mismatch": 0,
+  "streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "PartAtom",
+   "Partitions/0",
+   "TransmissionData"
+  ],
+  "walker_errors": [],
+  "n_units": 1,
+  "record_counts": {
+   "101": 22,
+   "102": 22,
+   "103": 22
+  },
+  "decode_seq102": {
+   "records": 21,
+   "clean": 21,
+   "error_classes": {}
+  },
+  "id_sets_identical_across_seqs": true,
+  "ok": true
+ },
+ "validate": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/S0_empty_family.rfa",
+  "family_mode": {
+   "verdict": "VALID",
+   "n_errors": 0,
+   "errors": [],
+   "n_warnings": 0,
+   "warnings": [],
+   "stats": {
+    "streams": 12,
+    "pages_checked": 12,
+    "gzip_members": 8,
+    "partition_blocks": 3,
+    "records": 66,
+    "elements_decoded": 21,
+    "decode_failures": 0,
+    "refs_checked": 360,
+    "connector_edges": 0,
+    "circuits": 0
+   }
+  },
+  "project_mode": {
+   "verdict": "INVALID",
+   "n_errors": 3,
+   "errors": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block (713 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+    "structure PartAtom: no gzip member found in framed stream"
+   ],
+   "n_warnings": 0,
+   "warnings": [],
+   "stats": {
+    "streams": 12,
+    "pages_checked": 12,
+    "gzip_members": 8,
+    "partition_blocks": 3,
+    "records": 66,
+    "elements_decoded": 21,
+    "decode_failures": 0,
+    "refs_checked": 360,
+    "connector_edges": 0,
+    "circuits": 0
+   }
+  },
+  "ok": true
+ }
+}

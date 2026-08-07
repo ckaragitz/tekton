@@ -1,0 +1,575 @@
+{
+ "engine": "rvt.convert.build_into_target",
+ "target": {
+  "path": "experiments/frontdoor/ifc-electrical-room-2500a/electrical-room-2500a.rvt",
+  "sha256": "f6392557c6b13b8e2669f7ce9c7dbe89dfb5c808a0536a29e55ef8ec16d251b3",
+  "bytes": 663552,
+  "release": 2026,
+  "release_supported": true,
+  "schema_sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+  "quarantined": false,
+  "levels": [
+   {
+    "id": 1351691,
+    "name": "GEN B1 - Basement",
+    "elevation_ft": -8.858267716535433,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 511122,
+    "name": "GEN T.O. Footing",
+    "elevation_ft": -3.937007874015748,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 515270,
+    "name": "GEN T.O. Slab",
+    "elevation_ft": -1.804461942257218,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 311,
+    "name": "L1 - Ground Floor",
+    "elevation_ft": 0.0,
+    "attr_id": 305,
+    "is_building_story": true
+   },
+   {
+    "id": 1300863,
+    "name": "GEN Ceiling - L1",
+    "elevation_ft": 8.001968503937007,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 694,
+    "name": "GEN Mezzanine",
+    "elevation_ft": 10.826771653543307,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 245423,
+    "name": "L2 - Second Floor",
+    "elevation_ft": 12.0,
+    "attr_id": 305,
+    "is_building_story": true
+   },
+   {
+    "id": 196629,
+    "name": "GEN Roof Datum",
+    "elevation_ft": 19.68503937007874,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 417275,
+    "name": "GEN T.O. Parapet",
+    "elevation_ft": 29.52755905511811,
+    "attr_id": 305,
+    "is_building_story": false
+   }
+  ],
+  "n_walls": 4,
+  "n_instances": 8,
+  "n_family_docs": 8,
+  "wall_types": [
+   600634
+  ],
+  "bbox_m": {
+   "x": [
+    -4.6,
+    4.6
+   ],
+   "y": [
+    -3.1,
+    3.1
+   ],
+   "z": [
+    0.0,
+    1.543
+   ]
+  },
+  "watermark": 1473007,
+  "notes": []
+ },
+ "files": {
+  "families_dir": "experiments/convert_combo/A1_add_own/families",
+  "combined": "experiments/convert_combo/A1_add_own/A1_lp_into_own.rvt"
+ },
+ "stages": [
+  {
+   "stage": "F",
+   "built": 1,
+   "all_ok": true,
+   "dir": "experiments/convert_combo/A1_add_own/families"
+  },
+  {
+   "stage": "L",
+   "n_loaded": 1,
+   "n_planned": 1,
+   "final": "experiments/convert_combo/A1_add_own/_stages/stage_L1_lp1.rvt",
+   "blocker": null
+  },
+  {
+   "stage": "specimens",
+   "source": "(constructed vs target)",
+   "wall": 990000001,
+   "wall_type": 600634,
+   "instance": 990000002
+  },
+  {
+   "stage": "E",
+   "ok": true,
+   "in": "experiments/convert_combo/A1_add_own/_stages/stage_L1_lp1.rvt",
+   "out": "experiments/convert_combo/A1_add_own/A1_lp_into_own.rvt",
+   "level": 311,
+   "elemtable_before": 3275,
+   "elemtable_after": 3276,
+   "new_ids": [
+    1473067
+   ],
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_matches_header": true,
+    "sentinels_last": true,
+    "new_elements_clean_per_seq": {
+     "101": 1,
+     "102": 1,
+     "103": 1
+    }
+   },
+   "structurally_valid": true,
+   "seconds": 1.2,
+   "instances": [
+    {
+     "tag": "LP-1",
+     "elem_id": 1473067,
+     "symbol": 1473065
+    }
+   ]
+  }
+ ],
+ "created": [
+  {
+   "kind": "family(.rfa)",
+   "tag": "LP-1",
+   "name": "Lighting Panelboard LP-1 480Y/277 100A MLO 42sp",
+   "path": "experiments/convert_combo/A1_add_own/families/lp1_eaton_prl2x_100a_42sp_480y_277.rfa",
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true
+  },
+  {
+   "kind": "equipment-instance",
+   "tag": "LP-1",
+   "elem_id": 1473067,
+   "symbol": 1473065,
+   "family": 1473049,
+   "position_ft": [
+    19.206,
+    0.0,
+    4.659
+   ],
+   "file_role": "E"
+  },
+  {
+   "kind": "loaded-family",
+   "tag": "LP-1",
+   "symbol_id": 1473065,
+   "family_id": 1473049,
+   "content_guid": "07425a4a-94f7-4523-87ed-918d16381780"
+  }
+ ],
+ "degradations": [
+  "note: the target already carries native walls; loading OUR families into it is the certified L1a shape (foreign host load), not the created-walls+loaded-families open-bug combination"
+ ],
+ "errors": [],
+ "validation": {
+  "combined": {
+   "validate": {
+    "path": "experiments/convert_combo/A1_add_own/A1_lp_into_own.rvt",
+    "md5": "2f05d899fe4e79c2e308f5627b7f51a3",
+    "size": 675840,
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": [],
+    "warnings": [
+     {
+      "severity": "warning",
+      "layer": "semantic",
+      "where": "objects",
+      "message": "1/3645 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+     }
+    ],
+    "stats": {
+     "streams": 12,
+     "pages_checked": 16,
+     "gzip_members": 8,
+     "partition_blocks": 41,
+     "records": 10965,
+     "elements_decoded": 3645,
+     "decode_failures": 1,
+     "refs_checked": 55766,
+     "connector_edges": 0,
+     "circuits": 0
+    },
+    "seconds": 0.4
+   },
+   "census": {
+    "save_units": 10,
+    "contentdocs_entries": 9,
+    "contentdocs_guids": [
+     "07425a4a-94f7-4523-87ed-918d16381780",
+     "30a58235-f1e1-4bf1-80e6-87c3fcac785b",
+     "62d06477-d79a-439c-a81f-ca2a71fe70cf",
+     "92f2a1c8-1fa5-4289-9462-eed9e1985f9a",
+     "9841f77d-f130-435a-bc5b-1ebbf107ca44",
+     "a986b1b9-78ce-4a3e-a995-ccd795bb413a",
+     "ad7f16b9-559a-438f-9f43-5c465f551630",
+     "dc70a281-02b2-4a0a-82f8-4073f6791470",
+     "f73eba78-9865-48b3-acca-e74dc83c8404"
+    ],
+    "contenttable_records": 9,
+    "contenttable_guids": [
+     "07425a4a-94f7-4523-87ed-918d16381780",
+     "30a58235-f1e1-4bf1-80e6-87c3fcac785b",
+     "62d06477-d79a-439c-a81f-ca2a71fe70cf",
+     "92f2a1c8-1fa5-4289-9462-eed9e1985f9a",
+     "9841f77d-f130-435a-bc5b-1ebbf107ca44",
+     "a986b1b9-78ce-4a3e-a995-ccd795bb413a",
+     "ad7f16b9-559a-438f-9f43-5c465f551630",
+     "dc70a281-02b2-4a0a-82f8-4073f6791470",
+     "f73eba78-9865-48b3-acca-e74dc83c8404"
+    ],
+    "familymgr_entries": 18,
+    "familymgr_guids": [
+     "07425a4a-94f7-4523-87ed-918d16381780",
+     "30a58235-f1e1-4bf1-80e6-87c3fcac785b",
+     "62d06477-d79a-439c-a81f-ca2a71fe70cf",
+     "92f2a1c8-1fa5-4289-9462-eed9e1985f9a",
+     "9841f77d-f130-435a-bc5b-1ebbf107ca44",
+     "a986b1b9-78ce-4a3e-a995-ccd795bb413a",
+     "ad7f16b9-559a-438f-9f43-5c465f551630",
+     "dc70a281-02b2-4a0a-82f8-4073f6791470",
+     "f73eba78-9865-48b3-acca-e74dc83c8404"
+    ],
+    "coherent": true
+   },
+   "release": {
+    "input": 2026,
+    "output": 2026,
+    "preserved": true
+   },
+   "self_checks_ok": true
+  }
+ },
+ "stamps": [
+  "PROOF-ONLY, NOT-DELIVERABLE (P0: identity/counsel gates G2-G3 open; every tekton output is an internal proof)"
+ ],
+ "level": {
+  "id": 311,
+  "elevation_ft": 0.0,
+  "requested": "(nearest elevation 0)"
+ },
+ "verdict": {
+  "open_bug": null,
+  "open_bug_text": null,
+  "has_walls": false,
+  "n_walls": 0,
+  "has_loaded_families": true,
+  "n_loaded_families": 1,
+  "triggers_open_bug": false,
+  "mode": "single",
+  "stamp": null,
+  "files": [
+   "combined"
+  ],
+  "reason": "no walls+families combination in this intent: loaded families + instances only (viewer-certified shape: family load + placement on the genesis base)",
+  "notes": []
+ },
+ "families": {
+  "stage": "F",
+  "families": [
+   {
+    "tag": "LP-1",
+    "kind": "lighting_panelboard",
+    "built": true,
+    "path": "experiments/convert_combo/A1_add_own/families/lp1_eaton_prl2x_100a_42sp_480y_277.rfa",
+    "size": 299008,
+    "family_name": "Lighting Panelboard LP-1 480Y/277 100A MLO 42sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "kwargs": {
+     "vendor": "eaton",
+     "line": "pow-r-line",
+     "mains_a": 100.0,
+     "spaces": 42,
+     "voltage": "480Y/277",
+     "mcb": false,
+     "mounting": "surface",
+     "panel_name": "LP-1",
+     "sccr_ka": null
+    },
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true,
+    "verify": {
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0
+    },
+    "validate_family_mode": {
+     "verdict": "VALID",
+     "n_errors": 0
+    },
+    "provenance_ok": true,
+    "provenance_suspects": [],
+    "assumed_fields": [
+     "height_in",
+     "sccr_ka"
+    ],
+    "unverified_fields": [
+     "height_in",
+     "mains_rating_a",
+     "mains_type",
+     "mounting",
+     "neutral_rating",
+     "panel_name",
+     "phases",
+     "sccr_ka",
+     "spaces",
+     "voltage_ll_v",
+     "voltage_system",
+     "wires"
+    ],
+    "notes": [
+     "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+     "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+    ],
+    "report": "experiments/convert_combo/A1_add_own/families/lp1_eaton_prl2x_100a_42sp_480y_277.json"
+   }
+  ],
+  "dir": "experiments/convert_combo/A1_add_own/families",
+  "all_ok": true,
+  "built": 1
+ },
+ "load": {
+  "stage": "L",
+  "base": "experiments/frontdoor/ifc-electrical-room-2500a/electrical-room-2500a.rvt",
+  "loads": [
+   {
+    "tag": "LP-1",
+    "in": "experiments/convert_combo/A1_add_own/_stages/stage_L0_base.rvt",
+    "out": "experiments/convert_combo/A1_add_own/_stages/stage_L1_lp1.rvt",
+    "ok": true,
+    "stop_reason": "",
+    "host_watermark": 1473007,
+    "symbol_id": 1473065,
+    "family_id": 1473049,
+    "surrogate_id": 1473064,
+    "content_guid": "07425a4a-94f7-4523-87ed-918d16381780",
+    "twins": 14,
+    "elements_added": 18,
+    "proofs": {
+     "plan": {
+      "content_guid": "07425a4a-94f7-4523-87ed-918d16381780",
+      "host_watermark": 1473007,
+      "our_doc_ids": [
+       1473008,
+       1473048
+      ],
+      "host_ids": {
+       "family": 1473049,
+       "surrogate": 1473064,
+       "symbol": 1473065,
+       "symbol_surrogate": 1473066,
+       "instance": -1,
+       "twins": 14
+      }
+     },
+     "roundtrip_gate": {
+      "records": 54,
+      "roundtrip_ok": 54,
+      "failed": 0,
+      "encoded_bytes": 19639,
+      "failures": []
+     },
+     "save_unit": {
+      "guid": "07425a4a-94f7-4523-87ed-918d16381780",
+      "records": 41,
+      "bytes": 7405,
+      "segments": {
+       "101": 6895,
+       "102": 29838,
+       "103": 5380
+      }
+     },
+     "content_documents": {
+      "entries_before": 8,
+      "entries_after": 9,
+      "ours_present": true,
+      "end_record_intact": true,
+      "delta_bytes": 3053
+     },
+     "adocument_reencode": {
+      "clean": true,
+      "bytes_before": 1580974,
+      "bytes_after": 1581086
+     }
+    },
+    "acceptance": [
+     "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+     "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+     "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+     "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+     "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+     "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+    ],
+    "seconds": 2.6,
+    "report": "experiments/convert_combo/A1_add_own/_stages/stage_L1_lp1.rvt.load.json"
+   }
+  ],
+  "final": "experiments/convert_combo/A1_add_own/_stages/stage_L1_lp1.rvt",
+  "blocker": null,
+  "order": [
+   "LP-1"
+  ],
+  "loaded": {
+   "LP-1": {
+    "symbol_id": 1473065,
+    "family_id": 1473049,
+    "content_guid": "07425a4a-94f7-4523-87ed-918d16381780"
+   }
+  },
+  "n_loaded": 1,
+  "n_planned": 1
+ },
+ "mode": "single",
+ "identity_note": "the output keeps the TARGET's own identity block (BasicFileInfo / history): this route EDITS the user's file, it does not re-author its identity; the P0 provenance gate does not apply a genesis-base ledger to a user-supplied target",
+ "seconds": 6.8,
+ "route": "prompt+rvt->rvt (rvt.convert.add_to_project)",
+ "prompt": "add a 100 A lighting panel to my project",
+ "prompt_coverage": {
+  "understood": [
+   {
+    "clause": "lighting panel",
+    "as": "equipment",
+    "kind": "lighting_panelboard",
+    "count": 1,
+    "rating_a": 100.0,
+    "kva": null,
+    "voltage": null,
+    "mains": null,
+    "spaces": null
+   }
+  ],
+  "ignored_words": [
+   "add"
+  ],
+  "not_built": [],
+  "defaults_applied": [
+   "LP-1: voltage 480Y/277 V (service system)",
+   "LP-1: MLO (main lugs only kind default)",
+   "LP-1: 42 spaces (default)",
+   "no room shell: equipment laid out in a row along +X (free-standing; wall panels stand upright facing -Y)",
+   "no wall shell built (no room dimensions or 'equipment only')"
+  ],
+  "warnings": [],
+  "consumed_ratio": 0.475,
+  "statement": "rules-first deterministic parser (no external model call, no API key): everything under 'understood' was normalised into the intent; 'ignored_words' are prompt words the parser did not use; 'not_built' items were recognised but are outside today's model build path; 'defaults_applied' names every value the parser had to assume."
+ },
+ "placement": {
+  "rule": "free floor space east of the target's content bbox (+1.0 m margin, y-centred)",
+  "offset": {
+   "dx_m": 5.6,
+   "dy_m": 0.0,
+   "equip_dz_m": 0.0,
+   "equipment_translated": 1,
+   "walls_translated": 0,
+   "note": "clearance boxes / conduit runs (informational layers) are NOT translated; positions in the manifest are post-offset"
+  },
+  "level": {
+   "id": 311,
+   "elevation_ft": 0.0
+  },
+  "hosting": "free-standing (certified shape); wall panels stand upright at panel height; FACE-HOSTING on the target's walls (H1 recipe) is the fidelity follow-up"
+ },
+ "intent_summary": {
+  "project": "Prompt-authored model",
+  "source": "prompt:add a 100 A lighting panel to my project",
+  "schema": "prompt/spec-v2",
+  "levels": [
+   {
+    "id": "L1",
+    "name": "Level 1",
+    "elevation": 0.0
+   }
+  ],
+  "room": null,
+  "equipment_total": 1,
+  "equipment_by_kind": {
+   "lighting_panelboard": 1
+  },
+  "equipment": [
+   {
+    "tag": "LP-1",
+    "kind": "lighting_panelboard",
+    "disposition": "generated-family",
+    "insertion_m": [
+     5.854,
+     0.0,
+     1.42
+    ],
+    "mounting": "surface",
+    "frame_kind": "upright"
+   }
+  ],
+  "feeder_edges": [],
+  "family_plans_by_status": {
+   "resolved": 1
+  },
+  "family_plans": [
+   {
+    "tag": "LP-1",
+    "kind": "lighting_panelboard",
+    "status": "resolved",
+    "constructor": "make_panelboard",
+    "variant": "PRL2X",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "refusal": null
+   }
+  ],
+  "clearances": 0,
+  "audit": {
+   "source": "prompt (built-in rules-first fallback; no external model call)",
+   "equipment_with_positions": 1,
+   "positions_all_zero": false,
+   "feeder_edges": 0,
+   "family_plans": {
+    "LP-1": "resolved"
+   },
+   "prompt_consumed_ratio": 0.475,
+   "prompt_ignored_words": [
+    "add"
+   ]
+  }
+ },
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "written_at": "2026-08-05T04:20:02Z",
+ "deliverables": {
+  "combined": {
+   "path": "experiments/convert_combo/A1_add_own/A1_lp_into_own.rvt",
+   "bytes": 675840,
+   "sha256": "f3eb3f5111815af6149ba2cf34a293b513672742c351038006b3aa6e03c8efbf"
+  }
+ }
+}

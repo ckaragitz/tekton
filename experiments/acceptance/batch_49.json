@@ -1,0 +1,93 @@
+{
+ "batch": 49,
+ "created": "2026-08-05T09:09:54-05:00",
+ "tool": "tools/rft_probe.py (via tools/probe_batch.py primitives)",
+ "law": "every entry's declared base is ITSELF certified (or an Autodesk sample source); the batch carries one CONTROL per distinct base, CONTROLS FIRST; control FAIL voids its probes",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 3,
+ "controls": {
+  "racadvancedsampleproject.rvt": "experiments/acceptance/CTRL_racadvancedsampleproject_b49.rvt",
+  "rstbasicsampleproject.rvt": "experiments/acceptance/CTRL_rstbasicsampleproject_b49.rvt",
+  "G_ABPD.rvt": "experiments/acceptance/CTRL_G_ABPD_b49.rvt"
+ },
+ "note": "rft-probes: THE BIRTH-STATE LADDER.  Revit only creates families FROM .rft templates -- every genuine famdoc is born with template inheritance; verdicts #36-#42 left exactly that unmeasured (SUB_ALL donor-derived PASS vs BX_conj famgen FAIL).  Reading order: TB0/TB0r (born-famdoc machinery generality), T0 (FAIL anchor), T2 (pure-birth control), T1 (THE DECISION RUNG), T3 (birthright product fix).  Read experiments/rftprobe/probes.json reading_the_matrix.",
+ "reading_order": [
+  "CTRL_racadvancedsampleproject_b49.rvt",
+  "CTRL_rstbasicsampleproject_b49.rvt",
+  "CTRL_G_ABPD_b49.rvt",
+  "TB0.rvt",
+  "TB0r.rvt",
+  "T0.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_racadvancedsampleproject_b49.rvt",
+   "staged_as": "experiments/acceptance/CTRL_racadvancedsampleproject_b49.rvt",
+   "md5": "c85be4162ad6cb59768cc74aad12b741",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/racadvancedsampleproject.rvt",
+   "base": "samples/racadvancedsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 1,
+   "file": "experiments/acceptance/CTRL_rstbasicsampleproject_b49.rvt",
+   "staged_as": "experiments/acceptance/CTRL_rstbasicsampleproject_b49.rvt",
+   "md5": "b3235ad2743f19bcfff243654fec35dd",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/rstbasicsampleproject.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 2,
+   "file": "experiments/acceptance/CTRL_G_ABPD_b49.rvt",
+   "staged_as": "experiments/acceptance/CTRL_G_ABPD_b49.rvt",
+   "md5": "1f1ff65bd68415a05228d6b6ac2bf271",
+   "kind": "control",
+   "control": true,
+   "control_source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 3,
+   "file": "experiments/rftprobe/TB0.rvt",
+   "staged_as": "experiments/acceptance/TB0.rvt",
+   "md5": "194fb98cf064d9153e2eb5f384aea79b",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/racadvancedsampleproject.rvt",
+   "base_declared_by": "experiments/rftprobe/probes.json entry 'TB0' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 4,
+   "file": "experiments/rftprobe/TB0r.rvt",
+   "staged_as": "experiments/acceptance/TB0r.rvt",
+   "md5": "650133d89328cd2b38d17d4b58fbd49f",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/rftprobe/probes.json entry 'TB0r' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 5,
+   "file": "experiments/rftprobe/T0.rvt",
+   "staged_as": "experiments/acceptance/T0.rvt",
+   "md5": "b8d143993d1601fb43aa5add5647d873",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/rftprobe/probes.json entry 'T0' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ ]
+}

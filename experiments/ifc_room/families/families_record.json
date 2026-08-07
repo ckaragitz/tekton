@@ -1,0 +1,481 @@
+{
+ "stage": "F",
+ "families": [
+  {
+   "tag": "TMGB",
+   "kind": "ground_bus",
+   "built": false,
+   "reason": "no house generator for a ground bus bar (a small generic-model family is the follow-up; the TMGB is a detail component, not equipment) -- recorded only"
+  },
+  {
+   "tag": "T1",
+   "kind": "transformer",
+   "built": true,
+   "path": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.rfa",
+   "size": 270336,
+   "family_name": "Dry Type Transformer T1 150kVA 480-208Y/120",
+   "constructor": "rvt.famgen.factory.make_transformer",
+   "kwargs": {
+    "kva": 150.0,
+    "vendor": "eaton",
+    "primary_v": 480,
+    "secondary_v": "208Y/120"
+   },
+   "catalog": "eaton/dry-type-transformers",
+   "variant": "V48M28T4916",
+   "ok": true,
+   "verify": {
+    "gzip_members": 11,
+    "gzip_crc_failures": 0,
+    "ecc_full_pages": 3,
+    "ecc_mismatch": 0
+   },
+   "validate_family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0
+   },
+   "provenance_ok": true,
+   "provenance_suspects": null,
+   "assumed_fields": [],
+   "unverified_fields": [
+    "enclosure",
+    "primary_v",
+    "secondary_v"
+   ],
+   "notes": [
+    "two connectors (primary / secondary) on the top face; the secondary is bound to the kVA rating (the load it can serve)"
+   ],
+   "report": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.json"
+  },
+  {
+   "tag": "MSB",
+   "kind": "switchboard",
+   "built": true,
+   "path": "experiments/ifc_room/families/msb_switchboard_msb_2500a_480y_277.rfa",
+   "size": 270336,
+   "family_name": "MSB - main switchboard 2500 A, 480Y/277 V 2500A 480Y/277",
+   "constructor": "rvt.ifc.intent.make_house_switchboard",
+   "kwargs": {
+    "tag": "MSB",
+    "name": "MSB - main switchboard 2500 A, 480Y/277 V",
+    "mains_a": 2500.0,
+    "voltage": "480Y/277",
+    "phases": 3,
+    "wires": 4,
+    "sccr_ka": 65.0,
+    "sections": 4,
+    "mains_device": "2500 A, 3-pole insulated-case main breaker, 100% rated",
+    "mounting": "Floor, on 100 mm housekeeping pad, front accessible",
+    "feeder_entry": "Top; overhead EMT on trapeze hangers",
+    "manufacturer": "Eaton",
+    "model_label": "Pow-R-Line C style switchboard",
+    "width_m": 4.27,
+    "depth_m": 0.6229999999999998,
+    "height_m": 2.286
+   },
+   "catalog": null,
+   "variant": null,
+   "ok": true,
+   "verify": {
+    "gzip_members": 11,
+    "gzip_crc_failures": 0,
+    "ecc_full_pages": 3,
+    "ecc_mismatch": 0
+   },
+   "validate_family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0
+   },
+   "provenance_ok": true,
+   "provenance_suspects": null,
+   "assumed_fields": [],
+   "unverified_fields": [
+    "bus_rating_a",
+    "depth_in",
+    "height_in",
+    "mains_rating_a",
+    "mains_type",
+    "mounting",
+    "panel_name",
+    "phases",
+    "sccr_ka",
+    "sections",
+    "voltage_ll_v",
+    "voltage_system",
+    "width_in",
+    "wires"
+   ],
+   "notes": [
+    "house switchboard from OUR IFC-modeled dimensions (no catalog record); ratings are Pset values, identity strings are ifc-declared"
+   ],
+   "report": "experiments/ifc_room/families/msb_switchboard_msb_2500a_480y_277.json"
+  },
+  {
+   "tag": "DP-1",
+   "kind": "distribution_panelboard",
+   "built": true,
+   "path": "experiments/ifc_room/families/dp1_eaton_prl2x_400a_42sp_480y_277.rfa",
+   "size": 270336,
+   "family_name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+   "constructor": "rvt.famgen.factory.make_panelboard",
+   "kwargs": {
+    "vendor": "eaton",
+    "line": "pow-r-line",
+    "mains_a": 400.0,
+    "spaces": 42,
+    "voltage": "480Y/277",
+    "mcb": true,
+    "mounting": "surface",
+    "panel_name": "DP-1",
+    "sccr_ka": null
+   },
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true,
+   "verify": {
+    "gzip_members": 11,
+    "gzip_crc_failures": 0,
+    "ecc_full_pages": 3,
+    "ecc_mismatch": 0
+   },
+   "validate_family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0
+   },
+   "provenance_ok": true,
+   "provenance_suspects": null,
+   "assumed_fields": [
+    "height_in",
+    "sccr_ka"
+   ],
+   "unverified_fields": [
+    "height_in",
+    "mains_rating_a",
+    "mains_type",
+    "mounting",
+    "neutral_rating",
+    "panel_name",
+    "phases",
+    "sccr_ka",
+    "spaces",
+    "voltage_ll_v",
+    "voltage_system",
+    "wires"
+   ],
+   "notes": [
+    "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+    "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+   ],
+   "report": "experiments/ifc_room/families/dp1_eaton_prl2x_400a_42sp_480y_277.json"
+  },
+  {
+   "tag": "LP-1",
+   "kind": "lighting_panelboard",
+   "built": true,
+   "path": "experiments/ifc_room/families/lp1_eaton_prl2x_100a_30sp_480y_277.rfa",
+   "size": 270336,
+   "family_name": "Lighting Panelboard LP-1 480Y/277 100A MLO 30sp",
+   "constructor": "rvt.famgen.factory.make_panelboard",
+   "kwargs": {
+    "vendor": "eaton",
+    "line": "pow-r-line",
+    "mains_a": 100.0,
+    "spaces": 30,
+    "voltage": "480Y/277",
+    "mcb": false,
+    "mounting": "surface",
+    "panel_name": "LP-1",
+    "sccr_ka": null
+   },
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true,
+   "verify": {
+    "gzip_members": 11,
+    "gzip_crc_failures": 0,
+    "ecc_full_pages": 3,
+    "ecc_mismatch": 0
+   },
+   "validate_family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0
+   },
+   "provenance_ok": true,
+   "provenance_suspects": null,
+   "assumed_fields": [
+    "height_in",
+    "sccr_ka"
+   ],
+   "unverified_fields": [
+    "height_in",
+    "mains_rating_a",
+    "mains_type",
+    "mounting",
+    "neutral_rating",
+    "panel_name",
+    "phases",
+    "sccr_ka",
+    "spaces",
+    "voltage_ll_v",
+    "voltage_system",
+    "wires"
+   ],
+   "notes": [
+    "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+    "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+   ],
+   "report": "experiments/ifc_room/families/lp1_eaton_prl2x_100a_30sp_480y_277.json"
+  },
+  {
+   "tag": "LP-2",
+   "kind": "lighting_panelboard",
+   "built": true,
+   "path": "experiments/ifc_room/families/lp2_eaton_prl2x_100a_30sp_480y_277.rfa",
+   "size": 270336,
+   "family_name": "Lighting Panelboard LP-2 480Y/277 100A MLO 30sp",
+   "constructor": "rvt.famgen.factory.make_panelboard",
+   "kwargs": {
+    "vendor": "eaton",
+    "line": "pow-r-line",
+    "mains_a": 100.0,
+    "spaces": 30,
+    "voltage": "480Y/277",
+    "mcb": false,
+    "mounting": "surface",
+    "panel_name": "LP-2",
+    "sccr_ka": null
+   },
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true,
+   "verify": {
+    "gzip_members": 11,
+    "gzip_crc_failures": 0,
+    "ecc_full_pages": 3,
+    "ecc_mismatch": 0
+   },
+   "validate_family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0
+   },
+   "provenance_ok": true,
+   "provenance_suspects": null,
+   "assumed_fields": [
+    "height_in",
+    "sccr_ka"
+   ],
+   "unverified_fields": [
+    "height_in",
+    "mains_rating_a",
+    "mains_type",
+    "mounting",
+    "neutral_rating",
+    "panel_name",
+    "phases",
+    "sccr_ka",
+    "spaces",
+    "voltage_ll_v",
+    "voltage_system",
+    "wires"
+   ],
+   "notes": [
+    "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+    "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+   ],
+   "report": "experiments/ifc_room/families/lp2_eaton_prl2x_100a_30sp_480y_277.json"
+  },
+  {
+   "tag": "DP-2",
+   "kind": "distribution_panelboard",
+   "built": true,
+   "path": "experiments/ifc_room/families/dp2_eaton_prl2x_400a_42sp_480y_277.rfa",
+   "size": 270336,
+   "family_name": "Distribution Panelboard DP-2 480Y/277 400A MB 42sp",
+   "constructor": "rvt.famgen.factory.make_panelboard",
+   "kwargs": {
+    "vendor": "eaton",
+    "line": "pow-r-line",
+    "mains_a": 400.0,
+    "spaces": 42,
+    "voltage": "480Y/277",
+    "mcb": true,
+    "mounting": "surface",
+    "panel_name": "DP-2",
+    "sccr_ka": null
+   },
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true,
+   "verify": {
+    "gzip_members": 11,
+    "gzip_crc_failures": 0,
+    "ecc_full_pages": 3,
+    "ecc_mismatch": 0
+   },
+   "validate_family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0
+   },
+   "provenance_ok": true,
+   "provenance_suspects": null,
+   "assumed_fields": [
+    "height_in",
+    "sccr_ka"
+   ],
+   "unverified_fields": [
+    "height_in",
+    "mains_rating_a",
+    "mains_type",
+    "mounting",
+    "neutral_rating",
+    "panel_name",
+    "phases",
+    "sccr_ka",
+    "spaces",
+    "voltage_ll_v",
+    "voltage_system",
+    "wires"
+   ],
+   "notes": [
+    "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+    "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+   ],
+   "report": "experiments/ifc_room/families/dp2_eaton_prl2x_400a_42sp_480y_277.json"
+  },
+  {
+   "tag": "LP-3",
+   "kind": "lighting_panelboard",
+   "built": true,
+   "path": "experiments/ifc_room/families/lp3_eaton_prl2x_100a_30sp_480y_277.rfa",
+   "size": 270336,
+   "family_name": "Lighting Panelboard LP-3 480Y/277 100A MLO 30sp",
+   "constructor": "rvt.famgen.factory.make_panelboard",
+   "kwargs": {
+    "vendor": "eaton",
+    "line": "pow-r-line",
+    "mains_a": 100.0,
+    "spaces": 30,
+    "voltage": "480Y/277",
+    "mcb": false,
+    "mounting": "surface",
+    "panel_name": "LP-3",
+    "sccr_ka": null
+   },
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true,
+   "verify": {
+    "gzip_members": 11,
+    "gzip_crc_failures": 0,
+    "ecc_full_pages": 3,
+    "ecc_mismatch": 0
+   },
+   "validate_family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0
+   },
+   "provenance_ok": true,
+   "provenance_suspects": null,
+   "assumed_fields": [
+    "height_in",
+    "sccr_ka"
+   ],
+   "unverified_fields": [
+    "height_in",
+    "mains_rating_a",
+    "mains_type",
+    "mounting",
+    "neutral_rating",
+    "panel_name",
+    "phases",
+    "sccr_ka",
+    "spaces",
+    "voltage_ll_v",
+    "voltage_system",
+    "wires"
+   ],
+   "notes": [
+    "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+    "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+   ],
+   "report": "experiments/ifc_room/families/lp3_eaton_prl2x_100a_30sp_480y_277.json"
+  },
+  {
+   "tag": "LP-4",
+   "kind": "receptacle_panelboard",
+   "built": true,
+   "path": "experiments/ifc_room/families/lp4_eaton_prl1x_225a_42sp_208y_120.rfa",
+   "size": 270336,
+   "family_name": "Receptacle Panelboard LP-4 208Y/120 225A MB 42sp",
+   "constructor": "rvt.famgen.factory.make_panelboard",
+   "kwargs": {
+    "vendor": "eaton",
+    "line": "pow-r-line",
+    "mains_a": 225.0,
+    "spaces": 42,
+    "voltage": "208Y/120",
+    "mcb": true,
+    "mounting": "surface",
+    "panel_name": "LP-4",
+    "sccr_ka": null
+   },
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL1X",
+   "ok": true,
+   "verify": {
+    "gzip_members": 11,
+    "gzip_crc_failures": 0,
+    "ecc_full_pages": 3,
+    "ecc_mismatch": 0
+   },
+   "validate_family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0
+   },
+   "provenance_ok": true,
+   "provenance_suspects": null,
+   "assumed_fields": [
+    "sccr_ka"
+   ],
+   "unverified_fields": [
+    "mains_rating_a",
+    "mains_type",
+    "mounting",
+    "neutral_rating",
+    "panel_name",
+    "phases",
+    "sccr_ka",
+    "spaces",
+    "voltage_ll_v",
+    "voltage_system",
+    "wires"
+   ],
+   "notes": [
+    "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+    "UNVERIFIED (assumed) values surfaced: sccr_ka"
+   ],
+   "report": "experiments/ifc_room/families/lp4_eaton_prl1x_225a_42sp_208y_120.json"
+  },
+  {
+   "tag": "CONDUIT",
+   "kind": "conduit_run",
+   "built": false,
+   "reason": "conduit RUNS are rvt.mep.conduit territory (add_conduit_path over the recorded polyline); needs conduit types in the base -- recorded as run geometry, omitted from v1"
+  },
+  {
+   "tag": "SERVICE",
+   "kind": "service_entrance",
+   "built": false,
+   "reason": "utility service entrance: external source -- recorded as the SERVICE edge of the feeder tree"
+  },
+  {
+   "tag": "HANGERS",
+   "kind": "support",
+   "built": false,
+   "reason": "trapeze hangers / clevis supports = detailing (supports stream); recorded, omitted from the project file"
+  }
+ ],
+ "dir": "experiments/ifc_room/families",
+ "all_ok": true,
+ "built": 8
+}

@@ -1,0 +1,38 @@
+{
+ "test": "tests/test_target2025.py::test_END_STATE_author_2025_produces_a_2025_file",
+ "mode": "FULL build (no_handoff) -- the test's actual body",
+ "g_file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+ "g_sha256": "6242c3aaccf86e7187fbd56879d450089c6fd33ad677d5847cb7c56d5e2b1171",
+ "flip": "IN MEMORY ONLY (nothing on disk changed)",
+ "checks": {
+  "creation_status_supported": true,
+  "release_status_certified": true,
+  "resolve_base": {
+   "path": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "certified": true,
+   "pinned": true,
+   "detected_release": 2025
+  },
+  "output_file": "MISSING (build produced no rvt)"
+ },
+ "simulated_fix": "standalone.forbid_research_inputs wrapped to ALSO allow the resolved 2025 base (the proposed one-line build.py fix: allow=[opts.specimen_src, opts.base.path])",
+ "in_context": "the WHOLE author call runs inside context_compose_2025 (the 2025 emit context: versions.reading + the seven framing patches + the 2025 codecs) -- probing whether the ladder's context is the missing versions.creating(2025) the build path needs",
+ "author": {
+  "ok": false,
+  "errors": [
+   "no family could be loaded and there are no walls to build"
+  ],
+  "target_version": {
+   "status": "match",
+   "requested": 2025,
+   "output_release": 2025,
+   "line": null
+  },
+  "files": {
+   "families_dir": "../../../../../var/folders/z6/dd6cnjys7gv3bf540fnnyqpr0000gp/T/finishline2025_3ew1z4th/families"
+  }
+ },
+ "assertion_status_match": true,
+ "seconds": 2.4,
+ "verdict": "WOULD FAIL post-flip -- see checks/author for the exact gap"
+}

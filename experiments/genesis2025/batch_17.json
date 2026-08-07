@@ -1,0 +1,77 @@
+{
+ "batch": 17,
+ "created": "2026-08-04T22:35:55-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "2025 campaign round 1 (plan G25-1/G25-2 combined): every entry a candidate-base (no 2025 file is certified yet); control = the untouched Autodesk 2025 rst sample, which also answers 'does the viewer accept 2025 uploads?'.  Read with probe_batch.read_batch_verdicts; certification cascades R5 -> R9 -> K3 -> B2025_K4.",
+ "reading_order": [
+  "CTRL_rstbasicsampleproject_b17.rvt",
+  "R5_2025.rvt",
+  "R9_2025.rvt",
+  "K3_2025.rvt",
+  "B2025_K4.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/genesis2025/CTRL_rstbasicsampleproject_b17.rvt",
+   "staged_as": "experiments/genesis2025/CTRL_rstbasicsampleproject_b17.rvt",
+   "md5": "74858a46d826a6df31d10c1794b563a7",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/2025/rstbasicsampleproject.rvt",
+   "base": "samples/2025/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 1,
+   "file": "experiments/genesis2025/reduce/R5_2025.rvt",
+   "staged_as": "experiments/genesis2025/R5_2025.rvt",
+   "md5": "e25c645a95f80e78253530a8bf60beca",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "samples/2025/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/genesis2025/probes.json entry 'R5_2025' field 'base'",
+   "base_status": "sample (lineage informational only for a candidate-base)",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 2,
+   "file": "experiments/genesis2025/reduce/R9_2025.rvt",
+   "staged_as": "experiments/genesis2025/R9_2025.rvt",
+   "md5": "386dc6d7763945fe9986bddfa65a3ab8",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "samples/2025/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/genesis2025/probes.json entry 'R9_2025' field 'base'",
+   "base_status": "sample (lineage informational only for a candidate-base)",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 3,
+   "file": "experiments/genesis2025/reduce/K3_2025.rvt",
+   "staged_as": "experiments/genesis2025/K3_2025.rvt",
+   "md5": "33c8189a0ac36185ae3d797b0857d6f0",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2025/reduce/R9_2025.rvt",
+   "base_declared_by": "experiments/genesis2025/probes.json entry 'K3_2025' field 'base'",
+   "base_status": "unknown (lineage informational only for a candidate-base)",
+   "base_certification": null
+  },
+  {
+   "order": 4,
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "staged_as": "experiments/genesis2025/B2025_K4.rvt",
+   "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2025/reduce/K3_2025.rvt",
+   "base_declared_by": "experiments/genesis2025/probes.json entry 'B2025_K4' field 'base'",
+   "base_status": "unknown (lineage informational only for a candidate-base)",
+   "base_certification": null
+  }
+ ]
+}

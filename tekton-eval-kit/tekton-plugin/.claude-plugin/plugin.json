@@ -1,0 +1,24 @@
+{
+  "name": "tekton",
+  "displayName": "tekton",
+  "version": "0.2.0",
+  "description": "tekton: author your own project content as valid Autodesk Revit (.rvt/.rfa) files with no Revit install and no base file \u2014 from a prompt, an IFC, or an existing .rvt. Create rooms, walls, panelboards, families and circuits; edit, move, retype and delete elements; validate and inspect any file. A licensed engineer opens the output in Autodesk software for final QA.",
+  "author": {
+    "name": "tekton project"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "tekton",
+    "revit",
+    "bim",
+    "ifc",
+    "mep",
+    "electrical",
+    "autodesk",
+    "rvt",
+    "panelboard",
+    "switchboard",
+    "transformer",
+    "claude-design"
+  ]
+}

@@ -1,0 +1,139 @@
+PROVENANCE LEDGER v2 — G0.rvt
+baselines (multi, union): dach-sample-project.rvt, racadvancedsampleproject.rvt, racbasicsampleproject.rvt, rmebasicsampleproject.rvt, rstadvancedsampleproject.rvt, rstbasicsampleproject.rvt
+primary baseline: dach-sample-project.rvt   watermark: 4294190   overlap: 0.0
+layers ledgered: elements + streams + strings + identity
+host elements: 205   embedded family documents: 0 
+element totals: created=51  cloned=154
+
+STREAM LEDGER (byte-weighted):
+  ALL STREAMS: of 2,218,218 total inflated bytes, 94.91% identical-to-baseline, 0.15% modified-lineage, 4.94% ours
+  EXCLUDING Formats/Latest (schema, counsel C4): of 1,721,621 total inflated bytes, 93.44% identical-to-baseline, 0.2% modified-lineage, 6.36% ours
+  stream / unit                            R    inflated   identical  %ident  class            best-baseline
+  ----------------------------------------------------------------------------------------------------------
+  BasicFileInfo                            F       1,915         256   13.4%  modified-lineage racadvancedsampleproject
+  Contents                                 F         264           0    0.0%  prefix-shared    rstbasicsampleproject
+  Formats/Latest                           S     496,597     496,597  100.0%  identical        dach-sample-project
+  Global/ContentDocuments                  E          22           0    0.0%  ours             racadvancedsampleproject
+  Global/DocumentIncrementTable            F       5,336       4,608   86.4%  modified-lineage rstbasicsampleproject
+  Global/ElemTable                         F       8,238           0    0.0%  ours             dach-sample-project
+  Global/History                           F      18,188      17,408   95.7%  modified-lineage rstbasicsampleproject
+  Global/Latest                            E   1,586,254   1,586,254  100.0%  identical        rstbasicsampleproject
+  Global/PartitionTable                    F          95          95  100.0%  identical        rstbasicsampleproject
+  Partitions/21#host                       H     100,354           0    0.0%  ours             -
+  ProjectInformation                       F         741           0    0.0%  ours             dach-sample-project
+  TransmissionData                         F         214           0    0.0%  ours             dach-sample-project
+  R: E=expression-bearing (gated)  S=schema (counsel C4)  F=fingerprint (identity/lineage)  H=host element records
+
+AUTODESK RESOURCE REFS (G1c): 7,438 in document content (20 host elements carry them); 0 more inside the schema stream
+    forge-typeid                 7,313
+    autodesk-name                   52
+    asset-library-fbx               35
+    revit-resource-string           24
+    sunandsky-asset                  8
+    adsk-token                       2
+    revit-server-string              2
+    forge-schema-corpus              1
+    autodesk-url                     1
+
+IDENTITY (G2 policy): author='rvt-writer' username='rvt-writer' last_save_path='G0.rvt'
+    x DocumentIncrementTable.username: {'loboarch': 9, 'okapaw': 4, 'xuew': 3, 'youyi': 2, 'zhangg': 1, 'gbs_subsuser6': 1, 'campbes': 1, 'hansonje': 1} — 22 of 23 save episodes are signed by Autodesk employee usernames — the sample's chain of custody, in our bytes
+
+MULTI-BASELINE ELEMENT TABLE (per baseline, then union over all):
+    dach-sample-project              unmatched=205
+    racadvancedsampleproject         created=76  cloned=129
+    racbasicsampleproject            created=65  cloned=140
+    rmebasicsampleproject            created=75  cloned=130
+    rstadvancedsampleproject         created=79  cloned=126
+    rstbasicsampleproject            created=63  cloned=142
+    UNION (any baseline)             created=51  cloned=154
+    derived elements attributed to: racadvancedsampleproject=114, racbasicsampleproject=16, rmebasicsampleproject=14, rstbasicsampleproject=8, rstadvancedsampleproject=2
+
+category                                     E    created     cloned
+--------------------------------------------------------------------
+System-family types                          E         11          2
+Views & view templates                       E          1         22
+Object styles (categories / graphics styles) E          8         91
+Fill / line patterns, materials, appearance  E         16          5
+Text / dimension / arrowhead / annotation ty E          2          1
+Phases / design options / revisions          E          0          8
+Project info & settings elements             E          3          7
+MEP / electrical definition tables           E          9          7
+Datums (levels / grids / reference planes)              1          4
+Placed model content (sample geometry)       E          0          4
+View-owned 2D / annotation content           E          0          3
+
+E = expression-bearing (gated).  Per-class detail (top classes, example ids : name):
+
+[system-family-types]  System-family types
+  RbsConduitType                           created=4
+  BasicWallType                            created=3
+  RbsCableTrayType                         cloned=2
+    ... 4 more class(es)
+
+[views-and-templates]  Views & view templates
+  SunAndShadowSettings                     cloned=4
+  Viewport                                 cloned=4
+  DBDrawing                                cloned=4
+    ... 6 more class(es)
+
+[object-styles]  Object styles (categories / graphics styles)
+  GStyleElem                               created=4 cloned=89
+  CategoryElem                             created=4 cloned=2
+
+[patterns-materials]  Fill / line patterns, materials, appearance assets
+  MaterialElem                             created=9 cloned=2
+  FillPatternElem                          created=4
+  LinePatternElem                          created=3
+    ... 2 more class(es)
+
+[text-dimension-types]  Text / dimension / arrowhead / annotation types
+  TextNoteAttributes                       created=1 cloned=1
+  LevelAttributes                          created=1
+
+[phases-design-options]  Phases / design options / revisions
+  PhaseFilterElem                          cloned=5
+  ProjectPhase                             cloned=2
+  AllProjectPhases                         cloned=1
+
+[project-info-settings]  Project info & settings elements
+  GeoSite                                  created=2
+  GeoLocation                              cloned=2
+  BasePoint                                cloned=2
+    ... 4 more class(es)
+
+[mep-electrical-definitions]  MEP / electrical definition tables
+  RbsVoltageType                           created=4
+  ElectricalLoadClassification             cloned=4
+  RbsDistributionSysType                   created=2
+    ... 4 more class(es)
+
+[datums]  Datums (levels / grids / reference planes)
+  ExtentElem                               created=1 cloned=2
+  Level                                    cloned=2
+
+[placed-model-content]  Placed model content (sample geometry)
+  CustomElement                            cloned=4
+
+[view-annotation-2d-content]  View-owned 2D / annotation content
+  SketchPlane                              cloned=2
+  ModelClipBox                             cloned=1
+
+G1 GATE: FAIL — 150 Autodesk-derived element(s) in expression-bearing categories; 1,586,254 byte(s) byte-identical to baseline in expression-bearing streams; 7,438 Autodesk resource identifier(s); 1 identity violation(s)
+   x [elements] system-family-types                transitive-cloned                 2
+   x [elements] views-and-templates                transitive-cloned                22
+   x [elements] object-styles                      transitive-cloned                91
+   x [elements] patterns-materials                 transitive-cloned                 5
+   x [elements] text-dimension-types               transitive-cloned                 1
+   x [elements] phases-design-options              transitive-cloned                 8
+   x [elements] project-info-settings              transitive-cloned                 7
+   x [elements] mep-electrical-definitions         transitive-cloned                 7
+   x [elements] placed-model-content               transitive-cloned                 4
+   x [elements] view-annotation-2d-content         transitive-cloned                 3
+   x [streams ] Global/Latest                      stream-identical          1,586,254
+   x [strings ] autodesk-resource-refs             autodesk-resource-refs        7,438
+   x [identity] identity:DocumentIncrementTable.us identity-not-ours                22
+   ? [counsel ] C4 schema-stream Formats/Latest — Formats/Latest is Autodesk's serialized class model shipped byte-identical — counsel decides ship-verbatim vs clean-room
+   ~ 5 advisory item(s) (lineage fingerprints / identity notes) in JSON
+
+json report: experiments/genesis/provenance/G0_v2.json
+[12.8s]

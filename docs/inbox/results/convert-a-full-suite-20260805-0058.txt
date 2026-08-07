@@ -1,0 +1,314 @@
+........................................................................ [  4%]
+............................................F...................FF...... [  8%]
+........................................................................ [ 12%]
+........................................................................ [ 16%]
+..............................................F......................... [ 21%]
+........................................................................ [ 25%]
+......................................................................F. [ 29%]
+..........................................................F............. [ 33%]
+........................................................................ [ 37%]
+........................................................................ [ 42%]
+........................................................................ [ 46%]
+........................................................................ [ 50%]
+........................................................................ [ 54%]
+............................................................F........... [ 59%]
+........................................................................ [ 63%]
+........................................................................ [ 67%]
+........................................................................ [ 71%]
+........................................................................ [ 75%]
+........................................................................ [ 80%]
+........................................................................ [ 84%]
+
+=== byte-level comparison report ===
+[rstbasicsampleproject] byte-identical: NO
+    header fields: 2 difference(s); e.g. first_dir_sector: 1 vs 2
+    directory tree: 10 difference(s); e.g. (root).color: red vs black
+    sector layout: 13 difference(s); e.g. (root).start_sector: 3 vs 4
+    padding / slack: 4 difference(s); e.g. Partitions/21: 1007 non-zero slack bytes after end of stream (first: 0aa79c38adc571ef)
+[racbasicsampleproject] byte-identical: NO
+    header fields: 2 difference(s); e.g. first_dir_sector: 1 vs 5
+    directory tree: 18 difference(s); e.g. (root).color: red vs black
+    sector layout: 14 difference(s); e.g. (root).start_sector: 3 vs 7
+    padding / slack: 6 difference(s); e.g. RevitPreview4.0: 3915 non-zero slack bytes after end of stream (first: b03125473069ab16)
+[racadvancedsampleproject] byte-identical: NO
+    header fields: 2 difference(s); e.g. first_dir_sector: 1 vs 5
+    directory tree: 18 difference(s); e.g. (root).color: red vs black
+    sector layout: 14 difference(s); e.g. (root).start_sector: 3 vs 7
+    padding / slack: 4 difference(s); e.g. Partitions/13: 3068 non-zero slack bytes after end of stream (first: fab9da9463ae63c7)
+[rmebasicsampleproject] byte-identical: NO
+    header fields: 2 difference(s); e.g. first_dir_sector: 1 vs 8
+    directory tree: 18 difference(s); e.g. (root).color: red vs black
+    sector layout: 14 difference(s); e.g. (root).start_sector: 3 vs 10
+    padding / slack: 4 difference(s); e.g. Partitions/14: 3521 non-zero slack bytes after end of stream (first: d2d0937d3b59ec9c)
+[rstadvancedsampleproject] byte-identical: NO
+    header fields: 2 difference(s); e.g. first_dir_sector: 1 vs 4
+    directory tree: 18 difference(s); e.g. (root).color: red vs black
+    sector layout: 14 difference(s); e.g. (root).start_sector: 3 vs 6
+    padding / slack: 5 difference(s); e.g. TransmissionData: 4052 non-zero slack bytes after end of stream (first: 3c002f0054007200)
+[dach-sample-project] byte-identical: NO
+    header fields: 2 difference(s); e.g. first_dir_sector: 1 vs 34
+    directory tree: 23 difference(s); e.g. (root).color: red vs black
+    sector layout: 15 difference(s); e.g. (root).start_sector: 3 vs 36
+    padding / slack: 7 difference(s); e.g. RevitPreview4.0: 3472 non-zero slack bytes after end of stream (first: 49454e44ae426082)
+........................................................................ [ 88%]
+........................................................................ [ 92%]
+............................s...........s............................... [ 97%]
+.........................F........................                       [100%]
+=================================== FAILURES ===================================
+_______________ test_rvt_to_ifc_roundtrip_survives_on_own_output _______________
+
+tmp_path = PosixPath('/private/var/folders/z6/dd6cnjys7gv3bf540fnnyqpr0000gp/T/pytest-of-ck/pytest-415/test_rvt_to_ifc_roundtrip_surv0')
+
+    @needs_accept
+    @needs_ifcos
+    def test_rvt_to_ifc_roundtrip_survives_on_own_output(tmp_path):
+        from rvt.convert.rvt_to_ifc import convert_rvt_to_ifc
+        out = str(tmp_path / "room.ifc")
+        rec = convert_rvt_to_ifc(ACCEPT_RVT, out, out_dir=str(tmp_path))
+        # deliverable rule: the IFC and its manifest exist
+        assert os.path.isfile(out)
+        assert rec["deliverables"]["ifc"]["bytes"] > 1000
+        assert os.path.isfile(str(tmp_path / "room.manifest.json"))
+        assert os.path.isfile(str(tmp_path / "room.MANIFEST.md"))
+        # our own lineage: no foreign stamp
+        assert not rec["input"]["provenance"]["foreign"]
+        assert rec["stamps"] == []
+        # extraction cells
+        cells = rec["extraction"]["cells"]
+        assert cells["walls"]["count"] == 4
+>       assert cells["equipment"]["count"] == 7
+E       assert 4 == 7
+
+tests/test_convert.py:80: AssertionError
+________________________ test_add_to_project_end_to_end ________________________
+
+tmp_path = PosixPath('/private/var/folders/z6/dd6cnjys7gv3bf540fnnyqpr0000gp/T/pytest-of-ck/pytest-415/test_add_to_project_end_to_end0')
+
+    @skip_large
+    @needs_accept
+    @needs_catalog
+    def test_add_to_project_end_to_end(tmp_path):
+        rec = A.add_to_project("add a 100 A lighting panel to my project",
+                               ACCEPT_RVT, str(tmp_path), stem="t_add")
+        assert rec["deliverables"], f"no deliverable: {rec.get('errors')}"
+        g = rec["validation"]["combined"]
+>       assert g["validate"]["verdict"] == "VALID"
+E       AssertionError: assert 'INVALID' == 'VALID'
+E         
+E         - VALID
+E         + INVALID
+E         ? ++
+
+tests/test_convert_combo.py:253: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[ifc_intent] F  LP-1  -> lp1_eaton_prl2x_100a_42sp_480y_277.rfa (OK: validate=VALID, provenance ok=True)
+[ifc_intent] L  LP-1 loaded -> stage_L1_lp1.rvt (symbol 1473065, family 1473049, 18 host elements, 1.8s)
+[ifc_intent] E  LP-1  elem 1473067 symbol 1473065 at [19.21, 0.0, 4.66] ft upright (dangling refs 0, dropped rows 0)
+__________________________ test_merge_ifc_end_to_end ___________________________
+
+tmp_path = PosixPath('/private/var/folders/z6/dd6cnjys7gv3bf540fnnyqpr0000gp/T/pytest-of-ck/pytest-415/test_merge_ifc_end_to_end0')
+
+    @skip_large
+    @needs_accept
+    @needs_catalog
+    @pytest.mark.skipif(not os.path.isfile(IFC_ROOM), reason="electrical-room IFC absent")
+    def test_merge_ifc_end_to_end(tmp_path):
+        from rvt.convert import merge_ifc as MI
+        import shutil
+        tgt = str(tmp_path / "target.rvt")
+        shutil.copyfile(ACCEPT_RVT, tgt)
+        rec = MI.merge_ifc(IFC_ROOM, tgt, str(tmp_path / "out"), stem="t_merge")
+        assert rec["deliverables"], f"no deliverable: {rec.get('errors')}"
+        assert rec["created_ids"]
+        for g in rec["validation"].values():
+>           assert g["validate"]["verdict"] == "VALID"
+E           AssertionError: assert 'INVALID' == 'VALID'
+E             
+E             - VALID
+E             + INVALID
+E             ? ++
+
+tests/test_convert_combo.py:278: AssertionError
+----------------------------- Captured stdout call -----------------------------
+[ifc_intent] F  T1    -> t1_xfmr_150kva_480_208y_120.rfa (OK: validate=VALID, provenance ok=True)
+[ifc_intent] F  MSB   -> msb_switchboard_msb_2500a_480y_277.rfa (OK: validate=VALID, provenance ok=True)
+[ifc_intent] F  DP-1  -> dp1_eaton_prl2x_400a_42sp_480y_277.rfa (OK: validate=VALID, provenance ok=True)
+[ifc_intent] F  LP-1  -> lp1_eaton_prl2x_100a_30sp_480y_277.rfa (OK: validate=VALID, provenance ok=True)
+[ifc_intent] F  LP-2  -> lp2_eaton_prl2x_100a_30sp_480y_277.rfa (OK: validate=VALID, provenance ok=True)
+[ifc_intent] F  DP-2  -> dp2_eaton_prl2x_400a_42sp_480y_277.rfa (OK: validate=VALID, provenance ok=True)
+[ifc_intent] F  LP-3  -> lp3_eaton_prl2x_100a_30sp_480y_277.rfa (OK: validate=VALID, provenance ok=True)
+[ifc_intent] F  LP-4  -> lp4_eaton_prl1x_225a_42sp_208y_120.rfa (OK: validate=VALID, provenance ok=True)
+[ifc_intent] L  MSB loaded -> stage_L1_msb.rvt (symbol 1473069, family 1473051, 20 host elements, 1.8s)
+[ifc_intent] L  DP-1 loaded -> stage_L2_dp1.rvt (symbol 1473128, family 1473112, 18 host elements, 1.8s)
+[ifc_intent] L  DP-2 loaded -> stage_L3_dp2.rvt (symbol 1473187, family 1473171, 18 host elements, 1.9s)
+[ifc_intent] L  LP-1 loaded -> stage_L4_lp1.rvt (symbol 1473246, family 1473230, 18 host elements, 1.9s)
+[ifc_intent] L  LP-2 loaded -> stage_L5_lp2.rvt (symbol 1473305, family 1473289, 18 host elements, 1.9s)
+[ifc_intent] L  LP-3 loaded -> stage_L6_lp3.rvt (symbol 1473364, family 1473348, 18 host elements, 1.9s)
+[ifc_intent] L  T1 loaded -> stage_L7_t1.rvt (symbol 1473418, family 1473405, 15 host elements, 2.0s)
+[ifc_intent] L  LP-4 loaded -> stage_L8_lp4.rvt (symbol 1473477, family 1473461, 18 host elements, 2.0s)
+[ifc_intent] W  W-N  elem 1473479 (55.475721784776894, 6.512467191601048) -> (25.291994750656166, 6.512467191601048) ft h=12.01 (dangling refs 0, mode min)
+[ifc_intent] W  W-W  elem 1473480 (25.291994750656166, 6.512467191601048) -> (25.291994750656166, -13.828740157480313) ft h=12.01 (dangling refs 0, mode min)
+[ifc_intent] W  W-E  elem 1473481 (55.475721784776894, -13.828740157480313) -> (55.475721784776894, 6.512467191601048) ft h=12.01 (dangling refs 0, mode min)
+[ifc_intent] W  W-S  elem 1473482 (25.291994750656166, -13.828740157480313) -> (55.475721784776894, -13.828740157480313) ft h=12.01 (dangling refs 0, mode min)
+[ifc_intent] E  T1    elem 1473483 symbol 1473418 at [49.24, 4.46, 0.33] ft yaw (dangling refs 0, dropped rows 0)
+[ifc_intent] E  MSB   elem 1473484 symbol 1473069 at [33.6, 4.83, 0.33] ft yaw (dangling refs 0, dropped rows 0)
+[ifc_intent] E  DP-1  elem 1473485 symbol 1473128 at [25.77, 1.92, 4.31] ft upright (dangling refs 0, dropped rows 0)
+[ifc_intent] E  LP-1  elem 1473486 symbol 1473246 at [25.77, -1.85, 5.06] ft upright (dangling refs 0, dropped rows 0)
+[ifc_intent] E  LP-2  elem 1473487 symbol 1473305 at [25.77, -5.46, 5.06] ft upright (dangling refs 0, dropped rows 0)
+[ifc_intent] E  DP-2  elem 1473488 symbol 1473187 at [55.0, 1.92, 4.31] ft upright (dangling refs 0, dropped rows 0)
+[ifc_intent] E  LP-3  elem 1473489 symbol 1473364 at [55.0, -1.85, 5.06] ft upright (dangling refs 0, dropped rows 0)
+[ifc_intent] E  LP-4  elem 1473490 symbol 1473477 at [55.0, -5.46, 5.06] ft upright (dangling refs 0, dropped rows 0)
+_______________ test_host_family_is_our_self_family_transformed ________________
+
+product = FamilyProduct(kind='panelboard', doc=FamilyDoc(category_id=-2001040, name='Panelboard 480Y/277 400A MCB 42ckt Surface'...op tags of the solid) -- resolves the S0e datum-host gap", 'UNVERIFIED (assumed) values surfaced: height_in, sccr_ka'])
+host = HostContext(path='/Users/ck/dev/things/tekton/samples/rmebasicsampleproject.rvt', doc=<rvt.mutate.Document object at 0...78120, 'name': 'Roof Level', 'elevation_ft': 35.761154855642694, 'attr_id': 305, 'is_building_story': True}], notes=[])
+
+>   ???
+E   AssertionError: assert ({'ptr_class': 'FamDimConstrMgrImpl', 'pid': -1, 'value': {'m_pFam': {'weakref': 2}, 'm_paramExprs': [], 'm_drivenDimSegs': [], 'm_ignoredDimValueExprs': [], ...}} is None)
+
+tests/test_famgen_loader.py:160: AssertionError
+_________________ test_batch_manifest_number_does_not_collide __________________
+
+    @needs_rungs
+    def test_batch_manifest_number_does_not_collide():
+        """Batch numbering must be UNIQUE across every round's on-disk evidence
+        (manifests AND CTRL_*_b<n> control names -- rounds 18..27 left controls
+        but no manifests).  Not "newest": sibling streams may legitimately stage
+        higher numbers after us (batch 29 landed concurrently from the 2025
+        compose fleet); the invariant is that OUR number is used by our stream
+        alone."""
+        if not os.path.exists(BATCH):
+            pytest.skip("batch not staged")
+        import glob
+        import re
+        with open(BATCH) as fh:
+            n = json.load(fh)["batch"]
+        users = []                                # every path claiming number n
+        for p in glob.glob(os.path.join(ROOT, "experiments", "**", "batch_*.json"),
+                           recursive=True):
+            m = re.match(r"batch_(\d+)\.json$", os.path.basename(p))
+            if m and int(m.group(1)) == n:
+                users.append(p)
+        for p in glob.glob(os.path.join(ROOT, "experiments", "**", "CTRL_*_b*.*"),
+                           recursive=True):
+            m = re.search(r"_b(\d+)\.[A-Za-z]+$", os.path.basename(p))
+            if m and int(m.group(1)) == n:
+                users.append(p)
+        assert users, "our own manifest/control should claim the number"
+        outsiders = [p for p in users if OUT not in os.path.abspath(p)]
+>       assert not outsiders, f"batch number {n} also claimed by {outsiders}"
+E       AssertionError: batch number 28 also claimed by ['/Users/ck/dev/things/tekton/experiments/acceptance/CTRL_rstbasicsampleproject_b28.rvt']
+E       assert not ['/Users/ck/dev/things/tekton/experiments/acceptance/CTRL_rstbasicsampleproject_b28.rvt']
+
+tests/test_genesis_2024.py:286: AssertionError
+____________________________ test_ladder_end_to_end ____________________________
+
+tmp_path = PosixPath('/private/var/folders/z6/dd6cnjys7gv3bf540fnnyqpr0000gp/T/pytest-of-ck/pytest-415/test_ladder_end_to_end0')
+ga = <module 'genesis_assemble' from '/Users/ck/dev/things/tekton/tools/genesis_assemble.py'>
+
+    @needs_base
+    def test_ladder_end_to_end(tmp_path, ga):
+        """Build the whole G0 ladder into a temp dir; every rung validates with
+        ZERO errors; the final G0 holds exactly OUR elements, ZERO Autodesk-sample
+        elements, ZERO embedded family documents, and OUR identity."""
+        out = str(tmp_path)
+        pipe = ga.build_ladder(out, base=BASE)
+    
+        files = pipe["files"]
+        assert set(files) >= {"G0a", "G0b", "G0c", "G0d", "G0"}
+        for tag, cert in files.items():
+>           assert cert["validator"]["ok"], f"{tag}: {cert['validator']['error_messages']}"
+E           AssertionError: G0a: ["[semantic] loaded-content: FOUR-REGISTRY INCOHERENCE: save units 14 / ContentDocuments 14 / ContentTable 52 / FamilyMgr GUIDs 52 — counts and GUID sets must agree (audit law, R9b-FAIL vs KD1-PASS). units-not-in-CD []; CT-dangling ['09982dbb-c022-48fc-a116-6d8ba6867fdb', '0c78fe6b-c9f7-409c-9a39-2206"]
+E           assert False
+
+tests/test_genesis_assemble.py:194: AssertionError
+----------------------------- Captured stdout call -----------------------------
+== base R10b.rvt: lineage watermark 1,472,524; our ids from 1,500,000  (scrub=full, prefix=G0)
+== OUR content: 234 elements (ids 1,500,000..1,500,233); round-trip 234/234; dangling refs 0 (0.1s)
+== G0a: insert our content into the base
+    [G0a] size 1,454,080 B | validator ok=False (errors 1, warnings 1) | ledger: sample=3,022 cloned=132 created=102 modified=0 | family docs {'count': 14, 'by_provenance': {'autodesk-sample': 14}}
+== G0b: maximal-GC delete of every Autodesk element
+[state-v2] host 3,256 elems, 7,279 ids file-wide, 20,293 typed edges, Latest-scan 2,374 ids (1.0s)
+    [G0b] size   983,040 B | validator ok=False (errors 1, warnings 0) | ledger: sample=165 cloned=130 created=104 modified=0 | family docs {'count': 14, 'by_provenance': {'autodesk-sample': 14}}
+== G0c: remove all embedded family documents
+[state-v2] host 399 elems, 4,422 ids file-wide, 16,201 typed edges, Latest-scan 85 ids (0.7s)
+    [G0c] size   495,616 B | validator ok=True (errors 0, warnings 0) | ledger: sample=165 cloned=130 created=104 modified=0 | family docs {'count': 0, 'by_provenance': {}}
+== G0d: second GC pass — release the lineage residue
+[state-v2] host 399 elems, 399 ids file-wide, 636 typed edges, Latest-scan 85 ids (0.3s)
+    [G0d] size   385,024 B | validator ok=True (errors 0, warnings 0) | ledger: sample=0 cloned=126 created=108 modified=0 | family docs {'count': 0, 'by_provenance': {}}
+== G0: coordinated own-save (our episode / GUID / identity / username scrub)
+    [G0] size   380,928 B | validator ok=True (errors 0, warnings 0) | ledger: sample=0 cloned=126 created=108 modified=0 | family docs {'count': 0, 'by_provenance': {}}
+== pipeline record: /private/var/folders/z6/dd6cnjys7gv3bf540fnnyqpr0000gp/T/pytest-of-ck/pytest-415/test_ladder_end_to_end0/G0_pipeline.json (12.3s total)
+______________________ test_no_denylisted_data_in_plugin _______________________
+
+    def test_no_denylisted_data_in_plugin():
+        """Quarantined / third-party-extracted reference data must never enter
+        the shipping tree (the sync's own audit, re-asserted here)."""
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        try:
+            import importlib
+            sp = importlib.import_module("sync_plugin")
+            importlib.reload(sp)
+            leaks = sp.audit_deny(PLUGIN)
+        finally:
+            sys.path.pop(0)
+        assert leaks == [], f"deny-listed files inside plugin/: {leaks[:5]}"
+        # and the plugin ships exactly the sanctioned .rvt asset(s), nothing else
+        rvts = []
+        for base, _dirs, files in os.walk(PLUGIN):
+            for f in files:
+                if f.lower().endswith((".rvt", ".rfa")):
+                    rvts.append(os.path.relpath(os.path.join(base, f), PLUGIN))
+        allowed = {os.path.join("assets", "genesis", "G_ABPD.rvt")}
+        # (large example proof .rvt files may exist on disk under examples/ but
+        #  are excluded from tekton-plugin.zip; the asset dir must hold only ours)
+        in_assets = {r for r in rvts if r.startswith("assets" + os.sep)}
+>       assert in_assets == allowed, f"unexpected binaries in assets/: {sorted(in_assets - allowed)}"
+E       AssertionError: unexpected binaries in assets/: ['assets/genesis/G_ABPD_2025.rvt']
+E       assert {'assets/gene...BPD_2025.rvt'} == {'assets/genesis/G_ABPD.rvt'}
+E         
+E         Extra items in the left set:
+E         'assets/genesis/G_ABPD_2025.rvt'
+E         Use -v to get more diff
+
+tests/test_plugin_sync.py:143: AssertionError
+_____________________________ test_probes_manifest _____________________________
+
+    @needs_rungs
+    def test_probes_manifest():
+        with open(os.path.join(OUT, "probes.json")) as fh:
+            m = json.load(fh)
+        assert m["release"] == 2025
+        assert m["upload_order_bisection_first"][0] == "Y7_2025"
+        assert set(m["upload_order_bisection_first"][1:3]) == {"Y1s_2025", "Y6s_2025"}
+        assert sorted(m["upload_order_bisection_first"]) == sorted(ALL)
+        # every entry names the certified base + the verdict-#28 citation + control
+        for e in m["probes"]:
+            assert e["base"]["file"] == "experiments/genesis2025/reduce/B2025_K4.rvt"
+>           assert "#28" in e["base"]["certified_by"]
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'certified_by'
+
+tests/test_y2025_a.py:315: KeyError
+=============================== warnings summary ===============================
+tests/test_residue_b.py::TestMachineryReproduction::test_numbering_schemas_reproduce_the_builtin_machinery
+tests/test_residue_b.py::TestBuilders::test_y_ladder_landed_slots_are_protected
+tests/test_residue_b.py::TestBuilders::test_builder_lands_one_record_per_residue_slot_of_the_same_class[ZB1_defs-expect0]
+  /Users/ck/dev/things/tekton/.venv/lib/python3.12/site-packages/_pytest/fixtures.py:1313: PytestRemovedIn10Warning: Class-scoped fixture defined as instance method is deprecated.
+  Instance attributes set in this fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use @classmethod decorator and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_convert.py::test_rvt_to_ifc_roundtrip_survives_on_own_output
+FAILED tests/test_convert_combo.py::test_add_to_project_end_to_end - Assertio...
+FAILED tests/test_convert_combo.py::test_merge_ifc_end_to_end - AssertionErro...
+FAILED tests/test_famgen_loader.py::test_host_family_is_our_self_family_transformed
+FAILED tests/test_genesis_2024.py::test_batch_manifest_number_does_not_collide
+FAILED tests/test_genesis_assemble.py::test_ladder_end_to_end - AssertionErro...
+FAILED tests/test_plugin_sync.py::test_no_denylisted_data_in_plugin - Asserti...
+FAILED tests/test_y2025_a.py::test_probes_manifest - KeyError: 'certified_by'
+8 failed, 1696 passed, 2 skipped, 3 warnings in 1529.88s (0:25:29)

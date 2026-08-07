@@ -1,0 +1,916 @@
+{
+ "rung": "Y7",
+ "label": "line/fill patterns + materials -> our palette, IN PLACE (role + slot-fill)",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+ "base": {
+  "file": "experiments/genesis/triage/K4.rvt",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  },
+  "lineage": "K4 = K3 minus the ENTIRE loadable-family layer AND all 52 embedded family documents (four-registry coherent removal); K3 = R9 with every family-USAGE field nulled; R9 = the deepest viewer-PASSED reduction of samples/rstbasicsampleproject (R5 -> R9 lineage; thousands of dangling ADocument refs, tolerated).  Every ancestor that matters is itself certified: R5, R9, K3, K4, KD1.  K4 is family-free (52/52 documents removed, ContentDocuments 14-byte empty form, ContentTable + FamilyMgr reconciled), 3,342 host elements, one save unit -- the ideal genesis base: the family/document layer is already gone."
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+  "identical_to": "experiments/genesis/triage/K4.rvt",
+  "md5": "f4863b9559bd28521c77d816da361053",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y6.rvt",
+ "parent_rung": "Y6",
+ "out": "experiments/genesis/subst_k4/Y7.rvt",
+ "description": "Y6 with the graphic-material palette's OBJECTS replaced in place: the base's 7 line patterns / 9 fill patterns / 23 materials receive OUR palette (house_standard: 4 line patterns, 5 fill patterns, 13 materials -- no asset binding, no property sets): role-matched slots first (their 'Dash' variants -> our dash; 'Concrete 10 MPa' -> our concrete; a zero-grid fill -> our solid), the rest of our palette into free same-class slots ranked by inbound reference count (SLOT-FILL); our materials' pattern references are remapped onto the fill-pattern slots our patterns landed in.  The base's surplus patterns / materials and ALL its AppearanceAssetElem / PropertySetElement companions STAY as residue (a removal rung's business).",
+ "tests": "Whether the reader accepts OUR pattern + material OBJECTS at Autodesk's palette registrations (incl. the two token questions: our solid fill under our own name, no 'Default'-named material).",
+ "if_PASS": "Our patterns / materials are reader-accepted at the sample's slots; no name token is required.",
+ "if_FAIL": "Our palette objects are rejected -- bisect patterns vs materials (two single-layer in-place probes); if a NAME token is the cause it is a REQUIRED TOKEN for the counsel list.",
+ "stages": [],
+ "parent_context": {
+  "host_elements": 3342,
+  "watermark": 1472524
+ },
+ "candidates_old_by_class": {
+  "PropertySetElement": 28,
+  "MaterialElem": 23,
+  "AppearanceAssetElem": 18,
+  "FillPatternElem": 9,
+  "LinePatternElem": 7
+ },
+ "our_records_by_class": {
+  "MaterialElem": 13,
+  "FillPatternElem": 5,
+  "LinePatternElem": 4
+ },
+ "build_notes": [
+  "our palette: 4 line patterns ['dash'], 5 fill patterns ['diagonal_up'], 13 materials ['concrete']",
+  "role matches (sample->ours, many-to-one): {'fill:diagonal_up': 3, 'line:dash': 2, 'material:concrete': 5}",
+  "sample elements with NO role match (deleted; their referencing fields neutralise): {'LinePatternElem': 5, 'FillPatternElem': 6, 'MaterialElem': 18}",
+  "companions deleted with the materials: AppearanceAssetElem (render assets, Autodesk's asset library), PropertySetElement (thermal/physical property data), PropertySetLibrary -- our materials carry none",
+  "OPEN TOKEN QUESTIONS (probe rows): (1) the sample's '<Solid fill>' pattern is replaced by our structural solid fill under our name; (2) the sample's 'Default' material is replaced by our concrete -- ours has no 'Default'-named material"
+ ],
+ "build_info": {
+  "role_histogram": {
+   "line:dash": 2,
+   "fill:diagonal_up": 3,
+   "material:concrete": 5
+  },
+  "unmatched": {
+   "LinePatternElem": 5,
+   "FillPatternElem": 6,
+   "MaterialElem": 18
+  }
+ },
+ "residue_named_by_builder": {
+  "GStyleElem(project-subcategory)": "the subcategory line styles now point at our patterns or -1 (X6b gap layer)",
+  "BasicWallType/FloorAttributes/RoofAttributes/CompoundCeilingType": "the sample's SYSTEM types stay (their layer materials re-pointed to ours by role) -- a system-types rung",
+  "ConceptualConstructionType": "massing energy constructions (their materials neutralised) -- residue"
+ },
+ "plan": {
+  "landed": 22,
+  "by_match": {
+   "role-primary": 3,
+   "donor": 17,
+   "sibling-donor": 2
+  },
+  "landed_by_class": {
+   "MaterialElem": 13,
+   "FillPatternElem": 5,
+   "LinePatternElem": 4
+  },
+  "dropped_ours": 0,
+  "residue_olds": 63,
+  "class_mismatch": [],
+  "protected_slots_from_earlier_rungs": [],
+  "notes": [
+   "role groups where several sample elements shared one of our roles: {\"LinePatternElem\": 2, \"FillPatternElem\": 3, \"MaterialElem\": 5}"
+  ]
+ },
+ "retarget": {
+  "leaves_remapped": 5,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 22,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 22,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.1
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   3,
+   4,
+   5,
+   11,
+   20,
+   21,
+   22,
+   29,
+   417,
+   426,
+   429,
+   519,
+   8798,
+   51455,
+   102856,
+   105006,
+   105007,
+   137433,
+   137434,
+   137435,
+   137436,
+   600660
+  ],
+  "records_changed_count": 22,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 22,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 3,
+    "len_ours": 344,
+    "len_parent": 211,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FillPatternElem",
+      "class_parent": "FillPatternElem"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[len]",
+      "ours": 2,
+      "parent": 0
+     },
+     {
+      "path": ".m_pFillPattern.value.m_name",
+      "ours": "'GEN Diagonal Crosshatch 3mm'",
+      "parent": "'Solid fill'"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_windowSize",
+      "ours": "0.008202099737532808",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_pGeomTable",
+      "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_refPntMirrored': False, 'm_ta",
+      "parent": "None"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 4,
+    "len_ours": 218,
+    "len_parent": 243,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FillPatternElem",
+      "class_parent": "FillPatternElem"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[len]",
+      "ours": 0,
+      "parent": 1
+     },
+     {
+      "path": ".m_pFillPattern.value.m_name",
+      "ours": "'GEN Solid Fill'",
+      "parent": "'Diagonal up'"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_windowSize",
+      "ours": "0.008202099737532808",
+      "parent": "0.009842519685039372"
+     },
+     {
+      "path": ".m_pGeomTable",
+      "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_refPntMirrored': False, 'm_ta",
+      "parent": "None"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 5,
+    "len_ours": 278,
+    "len_parent": 247,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FillPatternElem",
+      "class_parent": "FillPatternElem"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_angle",
+      "ours": "0.7853981633974483",
+      "parent": "2.3561944901923426"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_deltas[1]",
+      "ours": "0.013123359580052493",
+      "parent": "0.009842519685039372"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_name",
+      "ours": "'GEN Diagonal Up 4mm'",
+      "parent": "'Diagonal down'"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_windowSize",
+      "ours": "0.008202099737532808",
+      "parent": "0.009842519685039372"
+     },
+     {
+      "path": ".m_pGeomTable",
+      "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_refPntMirrored': False, 'm_ta",
+      "parent": "None"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 11,
+    "len_ours": 197,
+    "len_parent": 201,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "LinePatternElem",
+      "class_parent": "LinePatternElem"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_name",
+      "ours": "'GEN Dash 3mm'",
+      "parent": "'Dash'"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_segs[0].m_data",
+      "ours": "0.00984251968503937",
+      "parent": "0.010416666666666666"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_segs[1].m_data",
+      "ours": "0.00984251968503937",
+      "parent": "0.010416666666666666"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 14,
+    "blocks_out": 13
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 22,
+  "slots_with_registry_surface": 22,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 3,
+    "paths": [
+     "ADocument.m_oNobleSecondaryData->NOBLE_SecondaryDataStorage.m_data[*].second.m_oData->ColorFillSecondaryData.m_collectedPrimaryDataIds[*].m_elementId",
+     "ADocument.m_oNobleSecondaryData->NOBLE_SecondaryDataStorage.m_data[*].second.m_oData->ColorFillSecondaryData.m_collectedPrimaryDataIds[*].m_elementId",
+     "ADocument.m_oNobleSecondaryData->NOBLE_SecondaryDataStorage.m_data[*].second.m_oData->ColorFillSecondaryData.m_collectedPrimaryDataIds[*].m_elementId",
+     "ADocument.m_oNobleSecondaryData->NOBLE_SecondaryDataStorage.m_data[*].second.m_oData->ColorFillSecondaryData.m_colorFillResults[*].m_fillPatternId"
+    ],
+    "n_paths": 29
+   },
+   {
+    "slot": 4,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->FillPatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 5,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->FillPatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 11,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LinePatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 20,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LinePatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 21,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LinePatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 22,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LinePatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 29,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->MaterialTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 22,
+  "pairs_ok": 22,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 3,
+   "class": "FillPatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 29
+  },
+  {
+   "slot": 4,
+   "class": "FillPatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 5,
+   "class": "FillPatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 11,
+   "class": "LinePatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 20,
+   "class": "LinePatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 21,
+   "class": "LinePatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51822
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/Y7.rvt",
+  "elements": 3342,
+  "file_size": 778240,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "classes_top": {
+   "GStyleElem": 1458,
+   "ParamElemExternal": 466,
+   "CategoryElem": 209,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "MaterialElem": 23,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 11,
+   "SectionAttributes": 10,
+   "ColorFillSchema": 10,
+   "PenWidthTableElem": 9,
+   "FillPatternElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9
+  }
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500005,
+   "slot": 3,
+   "class": "FillPatternElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 7,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 4,
+   "class": "FillPatternElem",
+   "match": "role-primary",
+   "role_group": 3,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 5,
+   "class": "FillPatternElem",
+   "match": "sibling-donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500000,
+   "slot": 11,
+   "class": "LinePatternElem",
+   "match": "role-primary",
+   "role_group": 2,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 20,
+   "class": "LinePatternElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 4,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 21,
+   "class": "LinePatternElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 22,
+   "class": "LinePatternElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500011,
+   "slot": 29,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500019,
+   "slot": 417,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500007,
+   "slot": 426,
+   "class": "FillPatternElem",
+   "match": "sibling-donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500008,
+   "slot": 429,
+   "class": "FillPatternElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500020,
+   "slot": 519,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500021,
+   "slot": 8798,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500012,
+   "slot": 51455,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500013,
+   "slot": 102856,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500014,
+   "slot": 105006,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500015,
+   "slot": 105007,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500016,
+   "slot": 137433,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500010,
+   "slot": 137434,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 7,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500017,
+   "slot": 137435,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500018,
+   "slot": 137436,
+   "class": "MaterialElem",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500009,
+   "slot": 600660,
+   "class": "MaterialElem",
+   "match": "role-primary",
+   "role_group": 5,
+   "slot_referrers": 1,
+   "our_name": ""
+  }
+ ],
+ "correspondence_note": "all pairs stored",
+ "landed_slots": [
+  {
+   "slot": 11,
+   "class": "LinePatternElem",
+   "match": "role-primary",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 4,
+   "class": "FillPatternElem",
+   "match": "role-primary",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 600660,
+   "class": "MaterialElem",
+   "match": "role-primary",
+   "ours_tmp": 1500009
+  },
+  {
+   "slot": 20,
+   "class": "LinePatternElem",
+   "match": "donor",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 22,
+   "class": "LinePatternElem",
+   "match": "donor",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 21,
+   "class": "LinePatternElem",
+   "match": "donor",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 3,
+   "class": "FillPatternElem",
+   "match": "donor",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 5,
+   "class": "FillPatternElem",
+   "match": "sibling-donor",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 426,
+   "class": "FillPatternElem",
+   "match": "sibling-donor",
+   "ours_tmp": 1500007
+  },
+  {
+   "slot": 429,
+   "class": "FillPatternElem",
+   "match": "donor",
+   "ours_tmp": 1500008
+  },
+  {
+   "slot": 137434,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500010
+  },
+  {
+   "slot": 29,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500011
+  },
+  {
+   "slot": 51455,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500012
+  },
+  {
+   "slot": 102856,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500013
+  },
+  {
+   "slot": 105006,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500014
+  },
+  {
+   "slot": 105007,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500015
+  },
+  {
+   "slot": 137433,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500016
+  },
+  {
+   "slot": 137435,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500017
+  },
+  {
+   "slot": 137436,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500018
+  },
+  {
+   "slot": 417,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500019
+  },
+  {
+   "slot": 519,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500020
+  },
+  {
+   "slot": 8798,
+   "class": "MaterialElem",
+   "match": "donor",
+   "ours_tmp": 1500021
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": [],
+  "meaning": "our records that found NO in-place slot in the parent (the parent lacks an element of the class, or fewer than we build); landing them requires the ADD path -- deliberately NOT this ladder's variable"
+ },
+ "residue_olds_left_in_place": {
+  "count": 63,
+  "by_class": {
+   "PropertySetElement": 28,
+   "AppearanceAssetElem": 18,
+   "MaterialElem": 10,
+   "FillPatternElem": 4,
+   "LinePatternElem": 3
+  },
+  "meaning": "the parent's candidate elements our set did not land on (surplus sample instances / companions): left EXACTLY as they were -- residue for the census"
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 778240,
+ "seconds": 2.0
+}

@@ -1,0 +1,833 @@
+{
+ "element_id": 467291,
+ "note": "M_Duplex Receptacle : Standard on circuit 469428",
+ "elemtable": {
+  "found_in_ElemTable": true,
+  "raw_40_bytes_hex": "5b 21 07 00 00 00 00 00 44 02 00 00 18 03 00 00 44 02 00 00 5b 21 07 00 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00",
+  "fields": {
+   "+0 u64 m_history.m_originalElementId": 467291,
+   "+8 u32 m_history.m_creationDate (EpisodeId)": 580,
+   "+12 u32 m_history.m_lastModificationDate (EpisodeId)": 792,
+   "+16 u32 m_history.m_lastUserModificationDate": 580,
+   "+20 u64 m_id": 467291,
+   "+28 u64 m_OwningElementId": -1,
+   "+36 u32 m_partitionId": 0
+  }
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 1297994,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 467291,
+  "stamp": null,
+  "psize": 297,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 295,
+  "total_record_bytes": 313,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 5c 77 e1 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "295/295",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -2001060,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": 379575,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -4225
+   },
+   "m_abFlags4Bytes": 6456,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "FamilyInstance"
+    }
+   },
+   "m_pBBox": {
+    "ptr_class": "Outline",
+    "pid": -1,
+    "value": {
+     "m_minmax": [
+      [
+       59.079291102,
+       109.975270688,
+       1.321686352
+      ],
+      [
+       59.271999436,
+       110.204437355,
+       1.696686352
+      ]
+     ]
+    }
+   },
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      86961,
+      342654,
+      378117,
+      379575,
+      467291,
+      467294,
+      469428,
+      469466,
+      471046,
+      573809
+     ],
+     "m_regenOnly": [
+      19236,
+      584488,
+      689475
+     ],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [
+      379575
+     ],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [
+      342654,
+      584488
+     ],
+     "m_deferredParents": [
+      712554
+     ],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": true
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -2001060,
+  "builtin": "OST_ElectricalFixtures"
+ },
+ "classDef": "FamilyInstance",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 9751170,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 467291,
+  "stamp": 396883452,
+  "psize": 960,
+  "class_id_hex": "0x07c5",
+  "object_bytes": 958,
+  "total_record_bytes": 980,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 00 00 00 00 ff ff ff ff 5c 0c 00 00 00 00 00 00 00 00 ff ff ff ff f7 08 00 00 00 00",
+  "class": "FamilyInstance",
+  "clean": true,
+  "consumed_of_object": "958/958",
+  "value": {
+   "m_pParamValueSetDouble": null,
+   "m_pParamValueSetInt": null,
+   "m_pParamValueSetAString": {
+    "ptr_class": "ParamValueSetAString",
+    "pid": -1,
+    "value": {
+     "m_paramSet": [
+      {
+       "m_paramId": -1001203,
+       "m_value": "434"
+      }
+     ]
+    }
+   },
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": null,
+   "m_pGeomTable": {
+    "ptr_class": "GeomTable",
+    "pid": -1,
+    "value": {
+     "m_refPntMirrored": false,
+     "m_table": [
+      {
+       "m_geomGeneratorId": -1
+      }
+     ],
+     "m_bigTableOwner": null,
+     "m_materialMarkers": [],
+     "m_faceTypeMarkers": []
+    }
+   },
+   "m_constrInfo": [],
+   "m_cellList": {
+    "ptr_class": "CellList",
+    "pid": -1,
+    "value": {
+     "m_cells": [
+      {
+       "ptr_class": "AnalyticalSpaceBoundingCell",
+       "pid": -1,
+       "value": {
+        "m_isSpaceBounding": true
+       }
+      },
+      {
+       "ptr_class": "FamilyInstancePatternHelper",
+       "pid": -1,
+       "value": {
+        "m_PatternPositionMap": [],
+        "m_substituteFaceMap": []
+       }
+      }
+     ]
+    }
+   },
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 467291,
+   "m_assocLevelId": -1,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": 86961,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_pInstanceInfo": {
+    "ptr_class": "InstanceInfo",
+    "pid": -1,
+    "value": {
+     "m_Trf": {
+      "m_3x3": [
+       [
+        0.0,
+        -0.0,
+        1.0
+       ],
+       [
+        1.0,
+        0.0,
+        -0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ]
+      ],
+      "m_or": [
+       59.256374436,
+       110.089854021,
+       1.509186352
+      ]
+     },
+     "m_symbolId": 342654,
+     "m_GRepId": 0,
+     "m_cda": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     }
+    }
+   },
+   "m_GInstanceId": 0,
+   "m_elevation": 0.0,
+   "m_hostParam": 0.0,
+   "m_hostId": 467294,
+   "m_extraHostIds": [],
+   "m_explicitHostIds": [],
+   "m_refs": [],
+   "m_offsetPosArr": [],
+   "m_subInstTable": [],
+   "m_pInstParams": {
+    "ptr_class": "FamilyParams",
+    "pid": -1,
+    "value": {
+     "m_params": [],
+     "m_geomRefHandles": {
+      "m_offsetGeomMap": []
+     }
+    }
+   },
+   "m_oFamInstSpec": null,
+   "m_pDesignPropManager": {
+    "ptr_class": "ElectricalFamInstDesignPropertyManager",
+    "pid": -1,
+    "value": {
+     "m_idCenterLine": -1,
+     "m_pressureDropCalculationServerInfo": null,
+     "m_idSpace": 379575,
+     "m_idRoom": 573809,
+     "m_lineAndArcRunId": -1,
+     "m_idRoutingPreference": -1,
+     "m_bMEPCalcServerMissingWarningPosted": false,
+     "m_sOverallSize": "",
+     "m_sFreeSize": "",
+     "m_sCalculatedSize": "",
+     "m_sFabNotes": "",
+     "m_tapCoefficients": [],
+     "m_oLoadClassificationsData": null,
+     "m_apparentPerPhaseData": {
+      "m_intermediateData": [],
+      "m_apparentPowerAnglePhaseA": 0.0,
+      "m_apparentPowerAnglePhaseB": 0.0,
+      "m_apparentPowerAnglePhaseC": 0.0,
+      "m_apparentPowerPhaseA": 0.0,
+      "m_apparentPowerPhaseB": 0.0,
+      "m_apparentPowerPhaseC": 0.0,
+      "m_currentAnglePhaseA": 0.0,
+      "m_currentAnglePhaseB": 0.0,
+      "m_currentAnglePhaseC": 0.0,
+      "m_currentPhaseA": 0.0,
+      "m_currentPhaseB": 0.0,
+      "m_currentPhaseC": 0.0,
+      "m_truePowerPhaseA": 0.0,
+      "m_truePowerPhaseB": 0.0,
+      "m_truePowerPhaseC": 0.0
+     },
+     "m_LargestMotorMap": {
+      "first": -1,
+      "second": {
+       "first": -1,
+       "second": 0.0
+      }
+     },
+     "m_dDemandLoad": 0.0,
+     "m_dApparentLoad": 0.0,
+     "m_dDemandCurrent": 0.0,
+     "m_dApparentCurrent": 0.0,
+     "m_eCircuitNumberingOption": 0,
+     "m_voltageMap": [],
+     "m_secondaryVoltageMap": []
+    }
+   },
+   "m_pCurveDriver": null,
+   "m_pInplaceInsertionHelper": null,
+   "m_pConnectorManager": {
+    "ptr_class": "FamilyInstanceConnectorManager",
+    "pid": 3,
+    "value": {
+     "m_setDeletedConnectors": [],
+     "m_connPtrArray": [
+      {
+       "ptr_class": "Connector",
+       "pid": 4,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 469428,
+          "m_nIndex": 0,
+          "m_connType": 4
+         },
+         {
+          "m_id": 469466,
+          "m_nIndex": 0,
+          "m_connType": 1
+         },
+         {
+          "m_id": 471046,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 1,
+        "m_mode": 1,
+        "m_modifiers": [
+         {
+          "ptr_class": "FamilyConnectorPosition",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 4
+           }
+          }
+         },
+         {
+          "ptr_class": "MEPFamilyConnectorCalculationElectrical",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 4
+           },
+           "m_velocityPressureImpl": 0.0,
+           "m_idDownstreamCircuit": 469466
+          }
+         },
+         {
+          "ptr_class": "MEPFamilyConnectorDataElectrical",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 4
+           },
+           "m_delayedWriteParamMap": {
+            "m_paramIdValueMap": []
+           }
+          }
+         }
+        ]
+       }
+      }
+     ],
+     "m_modifiers": [
+      {
+       "ptr_class": "MEPFamilyInstanceConnectionBehaviorModifier",
+       "pid": -1,
+       "value": {
+        "m_pConnectorManager": {
+         "weakref": 3
+        }
+       }
+      }
+     ]
+    }
+   },
+   "m_posRelToGrid": null,
+   "m_oFamInstUserData": null,
+   "m_leaders": [],
+   "m_oPOFDriver": null,
+   "m_instOrigin": [
+    -15.583641443,
+    1.509186352,
+    -0.0
+   ],
+   "m_RefDir": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "m_zAxis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "m_masterSymbolId": 342654,
+   "m_ownerElemId": -1,
+   "m_assocSketchPlaneId": -1,
+   "m_analyticalTopPlaneId": -1,
+   "m_analyticalBottomPlaneId": -1,
+   "m_superInstanceId": -1,
+   "m_scheduleOnlyLevelId": 378117,
+   "m_famElemVisibility": {
+    "m_flags": -1
+   },
+   "m_structType": 0,
+   "m_structUsage": 0,
+   "m_insertOrientation": 0,
+   "m_roomBounding": true,
+   "m_flippedX": false,
+   "m_flippedY": false,
+   "m_flippedFromToRoom": false,
+   "m_useOffsetPos": false,
+   "m_invisible": false,
+   "m_workPlaneBased": true,
+   "m_workPlaneFlipped": false,
+   "m_bVertical": false,
+   "m_instDormant": false
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 7746657,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 467291,
+  "stamp": 2994110316,
+  "psize": 392,
+  "class_id_hex": "0x089e",
+  "object_bytes": 390,
+  "total_record_bytes": 412,
+  "size_trailer_ok": true,
+  "payload_head_hex": "7d 00 00 00 00 00 00 00 5b 21 07 00 00 00 00 00 04 80 08 00 02 00 00 00 03 00 00 00 a0 08 04 00",
+  "class": "GElement",
+  "clean": true,
+  "consumed_of_object": "390/390",
+  "value": {
+   "m_GInfo": {
+    "m_categoryId": 125,
+    "m_tag": 467291,
+    "m_controlCommand": 0,
+    "m_flags": 557060
+   },
+   "m_subNodes": [
+    {
+     "ptr_class": "GGroup",
+     "pid": 3,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": -1,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "m_subNodes": [
+       {
+        "ptr_class": "GPoint",
+        "pid": 5,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 3001,
+          "m_controlCommand": 0,
+          "m_flags": 557732
+         },
+         "m_coord": [
+          59.167832769,
+          110.089854021,
+          1.634186352
+         ],
+         "m_size": 6,
+         "m_borderSize": 2,
+         "m_pointFlags": 0
+        }
+       }
+      ]
+     }
+    },
+    {
+     "ptr_class": "GInstance",
+     "pid": 4,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 0,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "m_instanceInfo": {
+       "ptr_class": "InstanceInfo",
+       "pid": -1,
+       "value": {
+        "m_Trf": {
+         "m_3x3": [
+          [
+           0.0,
+           -0.0,
+           1.0
+          ],
+          [
+           1.0,
+           0.0,
+           -0.0
+          ],
+          [
+           0.0,
+           1.0,
+           0.0
+          ]
+         ],
+         "m_or": [
+          59.256374436,
+          110.089854021,
+          1.509186352
+         ]
+        },
+        "m_symbolId": 342654,
+        "m_GRepId": 0,
+        "m_cda": {
+         "m_pDoc": {
+          "weakref": 1
+         }
+        }
+       }
+      },
+      "m_oEmbeddedSymbolGRep": null,
+      "m_tagId": -1,
+      "m_forbiddenTarget": {
+       "m_targets": 0
+      },
+      "m_resolveSymInView": false,
+      "m_bHasScale": false
+     }
+    }
+   ],
+   "m_bBox": [
+    [
+     59.079291102,
+     109.975270688,
+     1.321686352
+    ],
+    [
+     59.271999436,
+     110.204437355,
+     1.696686352
+    ]
+   ],
+   "m_tightbBox": [
+    [
+     59.079291102,
+     109.975270688,
+     1.321686352
+    ],
+    [
+     59.271999436,
+     110.204437355,
+     1.696686352
+    ]
+   ],
+   "m_elementId": 467291,
+   "m_gElemType": 3,
+   "m_flags": 0
+  }
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_miscId",
+   "id": 379575,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[0]",
+   "id": 86961,
+   "target_class": "ProjectPhase",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[1]",
+   "id": 342654,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[2]",
+   "id": 378117,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[3]",
+   "id": 379575,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[4]",
+   "id": 467291,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[5]",
+   "id": 467294,
+   "target_class": "SketchPlane",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[6]",
+   "id": 469428,
+   "target_class": "RbsElectricalSystem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[7]",
+   "id": 469466,
+   "target_class": "RbsWireCurve",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[8]",
+   "id": 471046,
+   "target_class": "RbsWireCurve",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[9]",
+   "id": 573809,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[0]",
+   "id": 19236,
+   "target_class": "UnitsElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[1]",
+   "id": 584488,
+   "target_class": "ActiveGeoLocationTrackingElement",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[2]",
+   "id": 689475,
+   "target_class": "Family",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[0]",
+   "id": 342654,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[1]",
+   "id": 584488,
+   "target_class": "ActiveGeoLocationTrackingElement",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deferredParents[0]",
+   "id": 712554,
+   "target_class": "MEPSystemTracker",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 467291,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_createdPhaseId",
+   "id": 86961,
+   "target_class": "ProjectPhase",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pInstanceInfo.value.m_symbolId",
+   "id": 342654,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_hostId",
+   "id": 467294,
+   "target_class": "SketchPlane",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pDesignPropManager.value.m_idSpace",
+   "id": 379575,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pDesignPropManager.value.m_idRoom",
+   "id": 573809,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[0].m_id",
+   "id": 469428,
+   "target_class": "RbsElectricalSystem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1].m_id",
+   "id": 469466,
+   "target_class": "RbsWireCurve",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[2].m_id",
+   "id": 471046,
+   "target_class": "RbsWireCurve",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_modifiers[1].value.m_idDownstreamCircuit",
+   "id": 469466,
+   "target_class": "RbsWireCurve",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_masterSymbolId",
+   "id": 342654,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_scheduleOnlyLevelId",
+   "id": 378117,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 103,
+   "path": "m_subNodes[1].value.m_instanceInfo.value.m_symbolId",
+   "id": 342654,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 103,
+   "path": "m_elementId",
+   "id": 467291,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  }
+ ]
+}

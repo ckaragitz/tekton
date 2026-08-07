@@ -1,0 +1,2993 @@
+{
+  "engine": "tekton-ifc validate",
+  "engine_version": "0.1.0",
+  "file": "/Users/ck/dev/things/tekton/usecases/chicago-plenum-electrical-room/original.ifc",
+  "file_size": 83780,
+  "schema": {
+    "ran": true,
+    "schema": "IFC4",
+    "n_statements": 0,
+    "n_errors": 0,
+    "n_warnings": 0,
+    "errors": [],
+    "warnings": []
+  },
+  "histogram": {
+    "IfcPropertySingleValue": 59,
+    "IfcCartesianPointList3D": 50,
+    "IfcTriangulatedFaceSet": 50,
+    "IfcStyledItem": 50,
+    "IfcLocalPlacement": 14,
+    "IfcPropertySet": 11,
+    "IfcRelDefinesByProperties": 11,
+    "IfcShapeRepresentation": 11,
+    "IfcProductDefinitionShape": 11,
+    "IfcSIUnit": 7,
+    "IfcElectricDistributionBoard": 6,
+    "IfcPresentationStyleAssignment": 6,
+    "IfcColourRgb": 6,
+    "IfcSurfaceStyleRendering": 6,
+    "IfcSurfaceStyle": 6,
+    "IfcTransformer": 3,
+    "IfcRelAggregates": 3,
+    "IfcDirection": 2,
+    "IfcDiscreteAccessory": 1,
+    "IfcRelContainedInSpatialStructure": 1,
+    "IfcPerson": 1,
+    "IfcOrganization": 1,
+    "IfcPersonAndOrganization": 1,
+    "IfcApplication": 1,
+    "IfcOwnerHistory": 1,
+    "IfcCartesianPoint": 1,
+    "IfcAxis2Placement3D": 1,
+    "IfcGeometricRepresentationContext": 1,
+    "IfcGeometricRepresentationSubContext": 1,
+    "IfcUnitAssignment": 1,
+    "IfcProject": 1,
+    "IfcSite": 1,
+    "IfcBuilding": 1,
+    "IfcBuildingStorey": 1,
+    "IfcBuildingElementProxy": 1
+  },
+  "products": [
+    {
+      "step_id": 53,
+      "guid": "1HIerdo5jUXwamW6MpY5VO",
+      "class": "IfcBuildingElementProxy",
+      "predefined_type": "NOTDEFINED",
+      "object_type": null,
+      "name": "Bus storage electrical room shell \u2014 Area E",
+      "description": "34 ft x 16 ft clear, 20 ft to structure; front wall cut away for viewing",
+      "tag": "ROOM",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Generic Models",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "RoomInformation": {
+          "Facility": "DDOT Coolidge \u2014 bus storage / coach services",
+          "Area": "E",
+          "ConduitRackMinElevationFt": 16.0,
+          "id": 57
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 31,
+            "style_name": "floor_slab",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              10.7632,
+              5.0768,
+              0.15
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 38,
+            "style_name": "wall_north_panelwall",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              10.7632,
+              0.2,
+              6.096
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 45,
+            "style_name": "wall_west",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.2,
+              4.8768,
+              6.096
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 48,
+            "style_name": "wall_east",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.2,
+              4.8768,
+              6.096
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          }
+        ],
+        "tri_count": 48,
+        "faceset_count": 4,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              0.0,
+              0.09999999999999987,
+              -0.15
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 10.7632,
+            "ydim": 5.0768,
+            "height": 0.15,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.0,
+              2.5384,
+              -0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 10.7632,
+            "ydim": 0.19999999999999973,
+            "height": 6.096,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -5.2816,
+              0.0,
+              -0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.1999999999999993,
+            "ydim": 4.8768,
+            "height": 6.096,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              5.2816,
+              0.0,
+              -0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.1999999999999993,
+            "ydim": 4.8768,
+            "height": 6.096,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.15,
+        "footprint_area": 65.6125
+      }
+    },
+    {
+      "step_id": 252,
+      "guid": "3ZGqadb7cqrHWdSOgOJ5IP",
+      "class": "IfcTransformer",
+      "predefined_type": "VOLTAGE",
+      "object_type": null,
+      "name": "XFMR-LR1",
+      "description": "45 kVA dry-type, 480 V delta \u2013 208Y/120 V, feeds B-LR1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-LR1",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-LR1",
+          "LocationStatus": "ASSUMED \u2014 VERIFY",
+          "id": 258
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 238,
+            "style_name": "xfmrlr1_pad",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.81,
+              0.71,
+              0.1
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 241,
+            "style_name": "xfmrlr1_enclosure",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.61,
+              0.51,
+              0.76
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 244,
+            "style_name": "xfmrlr1_louvers",
+            "transparency": 0.0,
+            "triangles": 48,
+            "extent": [
+              0.4575,
+              0.006,
+              0.102
+            ],
+            "boxes_found": 4,
+            "components": 4,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 247,
+            "style_name": "xfmrlr1_nameplate",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.12,
+              0.002,
+              0.04
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          }
+        ],
+        "tri_count": 84,
+        "faceset_count": 4,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              -2.9870400000000004,
+              -2.0334,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.81,
+            "ydim": 0.71,
+            "height": 0.1,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.9870400000000004,
+              -2.0334000000000003,
+              0.1
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.6099999999999999,
+            "ydim": 0.5100000000000002,
+            "height": 0.76,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.9870400000000004,
+              -1.7744,
+              0.214
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.01200000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.9870400000000004,
+              -1.7744,
+              0.244
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.01200000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.9870400000000004,
+              -1.7744,
+              0.274
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.011999999999999955,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.9870400000000004,
+              -1.7744,
+              0.304
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.01200000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.98704,
+              -1.7764000000000002,
+              0.7
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.1200000000000001,
+            "ydim": 0.0020000000000000018,
+            "height": 0.040000000000000036,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.002,
+        "footprint_area": 0.5751
+      }
+    },
+    {
+      "step_id": 275,
+      "guid": "1GSig9yRHZTFmNw4W2rrkJ",
+      "class": "IfcTransformer",
+      "predefined_type": "VOLTAGE",
+      "object_type": null,
+      "name": "XFMR-LQ1",
+      "description": "45 kVA dry-type, 480 V delta \u2013 208Y/120 V, feeds B-LQ1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-LQ1",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-LQ1",
+          "LocationStatus": "ASSUMED \u2014 VERIFY",
+          "id": 281
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 261,
+            "style_name": "xfmrlq1_pad",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.81,
+              0.71,
+              0.1
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 264,
+            "style_name": "xfmrlq1_enclosure",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.61,
+              0.51,
+              0.76
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 267,
+            "style_name": "xfmrlq1_louvers",
+            "transparency": 0.0,
+            "triangles": 48,
+            "extent": [
+              0.4575,
+              0.006,
+              0.102
+            ],
+            "boxes_found": 4,
+            "components": 4,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 270,
+            "style_name": "xfmrlq1_nameplate",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.12,
+              0.002,
+              0.04
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          }
+        ],
+        "tri_count": 84,
+        "faceset_count": 4,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              -0.36576000000000003,
+              -2.0334,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.81,
+            "ydim": 0.71,
+            "height": 0.1,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.36576,
+              -2.0334000000000003,
+              0.1
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.61,
+            "ydim": 0.5100000000000002,
+            "height": 0.76,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.36576000000000003,
+              -1.7744,
+              0.214
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.01200000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.36576000000000003,
+              -1.7744,
+              0.244
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.01200000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.36576000000000003,
+              -1.7744,
+              0.274
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.011999999999999955,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.36576000000000003,
+              -1.7744,
+              0.304
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.01200000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.36576000000000003,
+              -1.7764000000000002,
+              0.7
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.12000000000000005,
+            "ydim": 0.0020000000000000018,
+            "height": 0.040000000000000036,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.002,
+        "footprint_area": 0.5751
+      }
+    },
+    {
+      "step_id": 298,
+      "guid": "1FngqFXpqY8UAT7YnXTYfU",
+      "class": "IfcTransformer",
+      "predefined_type": "VOLTAGE",
+      "object_type": null,
+      "name": "XFMR-B-SLQ1",
+      "description": "45 kVA dry-type, 480 V delta \u2013 208Y/120 V, feeds B-SLQ1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-B-SLQ1",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-SLQ1",
+          "LocationStatus": "ASSUMED \u2014 VERIFY",
+          "id": 304
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 284,
+            "style_name": "xfmrbslq1_pad",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.81,
+              0.71,
+              0.1
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 287,
+            "style_name": "xfmrbslq1_enclosure",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.61,
+              0.51,
+              0.76
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 290,
+            "style_name": "xfmrbslq1_louvers",
+            "transparency": 0.0,
+            "triangles": 48,
+            "extent": [
+              0.4575,
+              0.006,
+              0.102
+            ],
+            "boxes_found": 4,
+            "components": 4,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 293,
+            "style_name": "xfmrbslq1_nameplate",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.12,
+              0.002,
+              0.04
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          }
+        ],
+        "tri_count": 84,
+        "faceset_count": 4,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              1.7068800000000002,
+              -2.0334,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.8100000000000003,
+            "ydim": 0.71,
+            "height": 0.1,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.70688,
+              -2.0334000000000003,
+              0.1
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.6100000000000001,
+            "ydim": 0.5100000000000002,
+            "height": 0.76,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.70688,
+              -1.7744,
+              0.214
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.01200000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.70688,
+              -1.7744,
+              0.244
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.01200000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.70688,
+              -1.7744,
+              0.274
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.011999999999999955,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.70688,
+              -1.7744,
+              0.304
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.4575,
+            "ydim": 0.006000000000000005,
+            "height": 0.01200000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.70688,
+              -1.7764000000000002,
+              0.7
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.1200000000000001,
+            "ydim": 0.0020000000000000018,
+            "height": 0.040000000000000036,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.002,
+        "footprint_area": 0.5751
+      }
+    },
+    {
+      "step_id": 93,
+      "guid": "14wy3TQKz4SSS_bPCufWif",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-HG4",
+      "description": "Panelboard, 480Y/277 V; fed from MDB via BS-FD1020",
+      "tag": "B-HG4",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-HG4",
+          "Voltage": "480Y/277 V",
+          "FedFrom": "MDB via BS-FD1020",
+          "FeederRun": "BS-FD1020",
+          "CenterlineFromGrid16BS": 1.399032,
+          "TopOfPanelAFF": 1.9812,
+          "id": 100
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 60,
+            "style_name": "bhg4_enclosure",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.508,
+              0.15,
+              0.914
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 67,
+            "style_name": "bhg4_door",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.478,
+              0.004,
+              0.884
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 70,
+            "style_name": "bhg4_latch",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.02,
+              0.014,
+              0.07
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 77,
+            "style_name": "bhg4_nameplate",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.11,
+              0.002,
+              0.03
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 84,
+            "style_name": "bhg4_strut_backing",
+            "transparency": 0.0,
+            "triangles": 24,
+            "extent": [
+              0.381,
+              0.041,
+              2.1
+            ],
+            "boxes_found": 2,
+            "components": 2,
+            "is_box": true
+          }
+        ],
+        "tri_count": 72,
+        "faceset_count": 5,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              -3.78257,
+              2.3184,
+              1.0672
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.508,
+            "ydim": 0.15000000000000036,
+            "height": 0.9140000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -3.7825699999999998,
+              2.2404,
+              1.0822
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.47799999999999976,
+            "ydim": 0.0040000000000000036,
+            "height": 0.8839999999999999,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -3.5785699999999996,
+              2.2344,
+              1.4892
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.020000000000000018,
+            "ydim": 0.014000000000000234,
+            "height": 0.06999999999999984,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -3.7825699999999998,
+              2.2374,
+              1.8762
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.10999999999999988,
+            "ydim": 0.0019999999999997797,
+            "height": 0.029999999999999805,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -3.9525699999999997,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -3.61257,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.002,
+        "footprint_area": 0.8001
+      }
+    },
+    {
+      "step_id": 120,
+      "guid": "3DvI2ISY4IImiqWQhTxkaE",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-LR1",
+      "description": "Panelboard, 208Y/120 V; fed from XFMR-LR1 via BS-FD1011",
+      "tag": "B-LR1",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-LR1",
+          "Voltage": "208Y/120 V",
+          "FedFrom": "XFMR-LR1 via BS-FD1011",
+          "FeederRun": "BS-FD1011",
+          "CenterlineFromGrid16BS": 2.19456,
+          "TopOfPanelAFF": 1.9812,
+          "id": 127
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 103,
+            "style_name": "blr1_enclosure",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.508,
+              0.15,
+              0.914
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 106,
+            "style_name": "blr1_door",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.478,
+              0.004,
+              0.884
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 109,
+            "style_name": "blr1_latch",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.02,
+              0.014,
+              0.07
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 112,
+            "style_name": "blr1_nameplate",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.11,
+              0.002,
+              0.03
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 115,
+            "style_name": "blr1_strut_backing",
+            "transparency": 0.0,
+            "triangles": 24,
+            "extent": [
+              0.381,
+              0.041,
+              2.1
+            ],
+            "boxes_found": 2,
+            "components": 2,
+            "is_box": true
+          }
+        ],
+        "tri_count": 72,
+        "faceset_count": 5,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              -2.9870399999999995,
+              2.3184,
+              1.0672
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.508,
+            "ydim": 0.15000000000000036,
+            "height": 0.9140000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.98704,
+              2.2404,
+              1.0822
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.47799999999999976,
+            "ydim": 0.0040000000000000036,
+            "height": 0.8839999999999999,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.78304,
+              2.2344,
+              1.4892
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.020000000000000018,
+            "ydim": 0.014000000000000234,
+            "height": 0.06999999999999984,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.9870400000000004,
+              2.2374,
+              1.8762
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.10999999999999988,
+            "ydim": 0.0019999999999997797,
+            "height": 0.029999999999999805,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -3.1570400000000003,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -2.81704,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.04100000000000037,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.002,
+        "footprint_area": 0.8001
+      }
+    },
+    {
+      "step_id": 147,
+      "guid": "24SK5_hAD4yTgagh7XJomU",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-HQ1",
+      "description": "Panelboard, 480Y/277 V; fed from B-HD1 via BS-FD1009",
+      "tag": "B-HQ1",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-HQ1",
+          "Voltage": "480Y/277 V",
+          "FedFrom": "B-HD1 via BS-FD1009",
+          "FeederRun": "BS-FD1009",
+          "CenterlineFromGrid16BS": 4.90728,
+          "TopOfPanelAFF": 1.9812,
+          "id": 154
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 130,
+            "style_name": "bhq1_enclosure",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.508,
+              0.15,
+              0.914
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 133,
+            "style_name": "bhq1_door",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.478,
+              0.004,
+              0.884
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 136,
+            "style_name": "bhq1_latch",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.02,
+              0.014,
+              0.07
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 139,
+            "style_name": "bhq1_nameplate",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.11,
+              0.002,
+              0.03
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 142,
+            "style_name": "bhq1_strut_backing",
+            "transparency": 0.0,
+            "triangles": 24,
+            "extent": [
+              0.381,
+              0.041,
+              2.1
+            ],
+            "boxes_found": 2,
+            "components": 2,
+            "is_box": true
+          }
+        ],
+        "tri_count": 72,
+        "faceset_count": 5,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              -0.27431999999999995,
+              2.3184,
+              1.0672
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.508,
+            "ydim": 0.15000000000000036,
+            "height": 0.9140000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.27432,
+              2.2404,
+              1.0822
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.478,
+            "ydim": 0.0040000000000000036,
+            "height": 0.8839999999999999,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.07032,
+              2.2344,
+              1.4892
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.020000000000000004,
+            "ydim": 0.014000000000000234,
+            "height": 0.06999999999999984,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.27432,
+              2.2374,
+              1.8762
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.11000000000000001,
+            "ydim": 0.0019999999999997797,
+            "height": 0.029999999999999805,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.44432000000000005,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.041000000000000036,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -0.10432,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999995,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.002,
+        "footprint_area": 0.8001
+      }
+    },
+    {
+      "step_id": 174,
+      "guid": "22NJUdFAn19_LzhIA33mnL",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-LQ1",
+      "description": "Panelboard, 208Y/120 V; fed from XFMR-LQ1 via BS-FD1013",
+      "tag": "B-LQ1",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-LQ1",
+          "Voltage": "208Y/120 V",
+          "FedFrom": "XFMR-LQ1 via BS-FD1013",
+          "FeederRun": "BS-FD1013",
+          "CenterlineFromGrid16BS": 5.614416,
+          "TopOfPanelAFF": 1.9812,
+          "id": 181
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 157,
+            "style_name": "blq1_enclosure",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.508,
+              0.15,
+              0.914
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 160,
+            "style_name": "blq1_door",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.478,
+              0.004,
+              0.884
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 163,
+            "style_name": "blq1_latch",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.02,
+              0.014,
+              0.07
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 166,
+            "style_name": "blq1_nameplate",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.11,
+              0.002,
+              0.03
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 169,
+            "style_name": "blq1_strut_backing",
+            "transparency": 0.0,
+            "triangles": 24,
+            "extent": [
+              0.381,
+              0.041,
+              2.1
+            ],
+            "boxes_found": 2,
+            "components": 2,
+            "is_box": true
+          }
+        ],
+        "tri_count": 72,
+        "faceset_count": 5,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              0.43282,
+              2.3184,
+              1.0672
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.508,
+            "ydim": 0.15000000000000036,
+            "height": 0.9140000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.43282,
+              2.2404,
+              1.0822
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.478,
+            "ydim": 0.0040000000000000036,
+            "height": 0.8839999999999999,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.6368199999999999,
+              2.2344,
+              1.4892
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.019999999999999907,
+            "ydim": 0.014000000000000234,
+            "height": 0.06999999999999984,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.43282,
+              2.2374,
+              1.8762
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.10999999999999999,
+            "ydim": 0.0019999999999997797,
+            "height": 0.029999999999999805,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.26282,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.04100000000000001,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.60282,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.041000000000000036,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.002,
+        "footprint_area": 0.8001
+      }
+    },
+    {
+      "step_id": 201,
+      "guid": "3G3sP66IX_rWVMLu8BB5Vf",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-SLQ1",
+      "description": "Panelboard, 208Y/120 V (verify system); fed from XFMR-B-SLQ1 (run not in BS-EP7-00 \u2014 verify)",
+      "tag": "B-SLQ1",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-SLQ1",
+          "Voltage": "208Y/120 V (verify system)",
+          "FedFrom": "XFMR-B-SLQ1 (run not in BS-EP7-00 \u2014 verify)",
+          "FeederRun": "ASSUMED",
+          "CenterlineFromGrid16BS": 6.30936,
+          "TopOfPanelAFF": 1.9812,
+          "id": 208
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 184,
+            "style_name": "bslq1_enclosure",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.508,
+              0.15,
+              0.914
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 187,
+            "style_name": "bslq1_door",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.478,
+              0.004,
+              0.884
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 190,
+            "style_name": "bslq1_latch",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.02,
+              0.014,
+              0.07
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 193,
+            "style_name": "bslq1_nameplate",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.11,
+              0.002,
+              0.03
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 196,
+            "style_name": "bslq1_strut_backing",
+            "transparency": 0.0,
+            "triangles": 24,
+            "extent": [
+              0.381,
+              0.041,
+              2.1
+            ],
+            "boxes_found": 2,
+            "components": 2,
+            "is_box": true
+          }
+        ],
+        "tri_count": 72,
+        "faceset_count": 5,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              1.12776,
+              2.3184,
+              1.0672
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.5080000000000001,
+            "ydim": 0.15000000000000036,
+            "height": 0.9140000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.12776,
+              2.2404,
+              1.0822
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.478,
+            "ydim": 0.0040000000000000036,
+            "height": 0.8839999999999999,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.33176,
+              2.2344,
+              1.4892
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.020000000000000018,
+            "ydim": 0.014000000000000234,
+            "height": 0.06999999999999984,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.1277599999999999,
+              2.2374,
+              1.8762
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.1100000000000001,
+            "ydim": 0.0019999999999997797,
+            "height": 0.029999999999999805,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.9577600000000001,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.041000000000000036,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              1.29776,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.002,
+        "footprint_area": 0.8001
+      }
+    },
+    {
+      "step_id": 228,
+      "guid": "2ROiznUzrJyvmqvVQaZ1Am",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-SHQ1",
+      "description": "Panelboard, 480Y/277 V (verify); fed from MDB (run not in BS-EP7-00 \u2014 verify)",
+      "tag": "B-SHQ1",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-SHQ1",
+          "Voltage": "480Y/277 V (verify)",
+          "FedFrom": "MDB (run not in BS-EP7-00 \u2014 verify)",
+          "FeederRun": "ASSUMED",
+          "CenterlineFromGrid16BS": 8.833104,
+          "TopOfPanelAFF": 1.9812,
+          "id": 235
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 211,
+            "style_name": "bshq1_enclosure",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.508,
+              0.15,
+              0.914
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 214,
+            "style_name": "bshq1_door",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.478,
+              0.004,
+              0.884
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 217,
+            "style_name": "bshq1_latch",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.02,
+              0.014,
+              0.07
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 220,
+            "style_name": "bshq1_nameplate",
+            "transparency": 0.0,
+            "triangles": 12,
+            "extent": [
+              0.11,
+              0.002,
+              0.03
+            ],
+            "boxes_found": 1,
+            "components": 1,
+            "is_box": true
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 223,
+            "style_name": "bshq1_strut_backing",
+            "transparency": 0.0,
+            "triangles": 24,
+            "extent": [
+              0.381,
+              0.041,
+              2.1
+            ],
+            "boxes_found": 2,
+            "components": 2,
+            "is_box": true
+          }
+        ],
+        "tri_count": 72,
+        "faceset_count": 5,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": true,
+        "boxes": [
+          {
+            "origin": [
+              3.6515,
+              2.3184,
+              1.0672
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.508,
+            "ydim": 0.15000000000000036,
+            "height": 0.9140000000000001,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.6515,
+              2.2404,
+              1.0822
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.47799999999999976,
+            "ydim": 0.0040000000000000036,
+            "height": 0.8839999999999999,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.8555,
+              2.2344,
+              1.4892
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.020000000000000018,
+            "ydim": 0.014000000000000234,
+            "height": 0.06999999999999984,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.6515,
+              2.2374,
+              1.8762
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.11000000000000032,
+            "ydim": 0.0019999999999997797,
+            "height": 0.029999999999999805,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.4814999999999996,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.8215000000000003,
+              2.4143999999999997,
+              0.0
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 0.040999999999999925,
+            "height": 2.1,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.002,
+        "footprint_area": 0.8001
+      }
+    },
+    {
+      "step_id": 321,
+      "guid": "3PwxoDEU6RTNBkPNIHha$b",
+      "class": "IfcDiscreteAccessory",
+      "predefined_type": "BRACKET",
+      "object_type": null,
+      "name": "Trapeze hangers \u2014 1-5/8 in strut on 3/8 in rods, rack at 16 ft 6 in AFF",
+      "description": null,
+      "tag": "HANGERS",
+      "type_name": null,
+      "type_id": null,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Specialty Equipment / Generic Models",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "SupportSchedule": {
+          "StrutSize": "1-5/8 in x 1-5/8 in, 12 ga",
+          "StrutLengthEach": 1.7,
+          "RodSize": "3/8 in-16 threaded rod",
+          "RodLengthEach": 1.03536,
+          "SpacingFt": 8.0,
+          "id": 327
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 307,
+            "style_name": "trapeze_01",
+            "transparency": 0.0,
+            "triangles": 100,
+            "extent": [
+              0.06,
+              1.52,
+              1.0759
+            ],
+            "boxes_found": 3,
+            "components": 5,
+            "is_box": false
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 310,
+            "style_name": "trapeze_02",
+            "transparency": 0.0,
+            "triangles": 100,
+            "extent": [
+              0.06,
+              1.52,
+              1.0759
+            ],
+            "boxes_found": 3,
+            "components": 5,
+            "is_box": false
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 313,
+            "style_name": "trapeze_03",
+            "transparency": 0.0,
+            "triangles": 100,
+            "extent": [
+              0.06,
+              1.52,
+              1.0759
+            ],
+            "boxes_found": 3,
+            "components": 5,
+            "is_box": false
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 316,
+            "style_name": "trapeze_04",
+            "transparency": 0.0,
+            "triangles": 100,
+            "extent": [
+              0.06,
+              1.52,
+              1.0759
+            ],
+            "boxes_found": 3,
+            "components": 5,
+            "is_box": false
+          }
+        ],
+        "tri_count": 400,
+        "faceset_count": 4,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [
+          {
+            "origin": [
+              -4.2672,
+              1.0484,
+              4.9487
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.04100000000000037,
+            "ydim": 1.52,
+            "height": 0.04100000000000037,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -4.2672,
+              1.7584,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.0600000000000005,
+            "ydim": 0.06000000000000005,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -4.2672,
+              0.33840000000000003,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.0600000000000005,
+            "ydim": 0.06,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -1.8288,
+              1.0484,
+              4.9487
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 1.52,
+            "height": 0.04100000000000037,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -1.8288,
+              1.7584,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.06000000000000005,
+            "ydim": 0.06000000000000005,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -1.8288,
+              0.33840000000000003,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.06000000000000005,
+            "ydim": 0.06,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.6096,
+              1.0484,
+              4.9487
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.041000000000000036,
+            "ydim": 1.52,
+            "height": 0.04100000000000037,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.6095999999999999,
+              1.7584,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.05999999999999994,
+            "ydim": 0.06000000000000005,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.6095999999999999,
+              0.33840000000000003,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.05999999999999994,
+            "ydim": 0.06,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.048,
+              1.0484,
+              4.9487
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 1.52,
+            "height": 0.04100000000000037,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.0479999999999996,
+              1.7584,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.06000000000000005,
+            "ydim": 0.06000000000000005,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.0479999999999996,
+              0.33840000000000003,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.06000000000000005,
+            "ydim": 0.06,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.06,
+        "footprint_area": 1.6353
+      }
+    }
+  ],
+  "types": {
+    "type_objects": 0,
+    "rel_defines_by_type": 0,
+    "duplicate_groups": [],
+    "duplicate_type_objects": 0,
+    "products_typed": 0,
+    "products_untyped": 11,
+    "untyped_product_ids": [
+      53,
+      252,
+      275,
+      298,
+      93,
+      120,
+      147,
+      174,
+      201,
+      228,
+      321
+    ],
+    "typed_fraction": 0.0
+  },
+  "instancing": {
+    "repeated_groups": [
+      {
+        "class": "IfcTransformer",
+        "count": 3,
+        "names": [
+          "XFMR-LR1",
+          "XFMR-LQ1",
+          "XFMR-B-SLQ1"
+        ],
+        "uses_mapped_items": false,
+        "triangles_each": 84,
+        "duplicated_triangles": 168
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "count": 6,
+        "names": [
+          "B-HG4",
+          "B-LR1",
+          "B-HQ1",
+          "B-LQ1",
+          "B-SLQ1",
+          "B-SHQ1"
+        ],
+        "uses_mapped_items": false,
+        "triangles_each": 72,
+        "duplicated_triangles": 360
+      }
+    ],
+    "unshared_repeated_products": 9,
+    "unshared_fraction": 0.818,
+    "duplicated_triangles": 528
+  },
+  "phantoms": {
+    "count": 0,
+    "high_confidence": 0,
+    "findings": []
+  },
+  "spatial": {
+    "project": "DDOT Coolidge - Area E bus storage electrical room",
+    "sites": 1,
+    "buildings": 1,
+    "storeys": [
+      {
+        "name": "Level 1",
+        "elevation": 0.0
+      }
+    ],
+    "storey_count": 1,
+    "single_storey": true,
+    "spaces": [],
+    "space_count": 0,
+    "orphan_element_ids": [],
+    "orphan_count": 0,
+    "containment_coverage": 1.0,
+    "elements_per_storey": {
+      "Level 1": 11
+    }
+  },
+  "psets": {
+    "by_class": {
+      "IfcBuildingElementProxy": {
+        "RoomInformation": {
+          "Facility": "IfcLabel",
+          "Area": "IfcLabel",
+          "ConduitRackMinElevationFt": "IfcReal"
+        }
+      },
+      "IfcTransformer": {
+        "TransformerSchedule": {
+          "RatingkVA": "IfcReal",
+          "Primary": "IfcLabel",
+          "Secondary": "IfcLabel",
+          "Feeds": "IfcLabel",
+          "LocationStatus": "IfcLabel"
+        }
+      },
+      "IfcElectricDistributionBoard": {
+        "PanelSchedule": {
+          "PanelName": "IfcLabel",
+          "Voltage": "IfcLabel",
+          "FedFrom": "IfcLabel",
+          "FeederRun": "IfcLabel",
+          "CenterlineFromGrid16BS": "IfcLengthMeasure",
+          "TopOfPanelAFF": "IfcLengthMeasure"
+        }
+      },
+      "IfcDiscreteAccessory": {
+        "SupportSchedule": {
+          "StrutSize": "IfcLabel",
+          "StrutLengthEach": "IfcLengthMeasure",
+          "RodSize": "IfcLabel",
+          "RodLengthEach": "IfcLengthMeasure",
+          "SpacingFt": "IfcReal"
+        }
+      }
+    },
+    "consistency_checks": 2,
+    "consistent": 2,
+    "consistency_ratio": 1.0,
+    "inconsistent": [],
+    "typing_smells": [
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-HG4",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-LR1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-HQ1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-LQ1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-SLQ1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-SHQ1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      }
+    ],
+    "pset_names": [
+      "PanelSchedule",
+      "RoomInformation",
+      "SupportSchedule",
+      "TransformerSchedule"
+    ]
+  },
+  "units": {
+    "units": {
+      "LENGTHUNIT": "METRE",
+      "AREAUNIT": "SQUARE_METRE",
+      "VOLUMEUNIT": "CUBIC_METRE",
+      "PLANEANGLEUNIT": "RADIAN",
+      "ELECTRICVOLTAGEUNIT": "VOLT",
+      "ELECTRICCURRENTUNIT": "AMPERE",
+      "POWERUNIT": "WATT"
+    },
+    "length_unit": "METRE",
+    "is_metric": true,
+    "electrical_units_missing": [],
+    "issues": []
+  },
+  "score": {
+    "score": 31.4,
+    "tier": "Tier 0 (v1-like) -- imports as frozen DirectShape blobs with baked coordinates",
+    "components": {
+      "schema": 1.0,
+      "geometry_parametric": 0.0,
+      "placements": 0.0,
+      "typing": 0.0,
+      "instancing": 0.182,
+      "phantom_free": 1.0,
+      "spatial": 0.85,
+      "data": 0.88,
+      "units": 1.0
+    },
+    "weights": {
+      "schema": 8,
+      "geometry_parametric": 28,
+      "placements": 20,
+      "typing": 14,
+      "instancing": 6,
+      "phantom_free": 8,
+      "spatial": 8,
+      "data": 4,
+      "units": 4
+    },
+    "stats": {
+      "products": 11,
+      "with_body": 11,
+      "tessellated": 11,
+      "tessellated_fraction": 1.0,
+      "identity_placements": 11,
+      "identity_fraction": 1.0
+    },
+    "top_fixes": [
+      {
+        "component": "geometry_parametric",
+        "impact": 28.0,
+        "fix": "11/11 elements are triangle-mesh solids (100% tessellated). Emit IfcExtrudedAreaSolid (box/profile extrusions) instead -> clean, dimensionally-editable solids instead of frozen faceted blobs. harden_ifc.py converts exact boxes automatically."
+      },
+      {
+        "component": "placements",
+        "impact": 20.0,
+        "fix": "11/11 elements have identity placements (coordinates baked into vertices; insertion points lost). Emit real IfcLocalPlacement positions per element so they can be moved/rotated in Revit."
+      },
+      {
+        "component": "typing",
+        "impact": 14.0,
+        "fix": "11/11 elements have no type object. Add a shared IfcXxxType per model number so Revit gets one type per catalogue item (type parameters, tags, schedules)."
+      },
+      {
+        "component": "instancing",
+        "impact": 4.91,
+        "fix": "9 elements repeat identical geometry verbatim (528 duplicated triangles). Use IfcRepresentationMap + IfcMappedItem instancing."
+      },
+      {
+        "component": "spatial",
+        "impact": 1.2,
+        "fix": "Single storey and no IfcSpace: add one IfcBuildingStorey per real level and IfcSpace for rooms so Revit gets Levels and space data."
+      }
+    ],
+    "all_fixes": [
+      {
+        "component": "geometry_parametric",
+        "impact": 28.0,
+        "fix": "11/11 elements are triangle-mesh solids (100% tessellated). Emit IfcExtrudedAreaSolid (box/profile extrusions) instead -> clean, dimensionally-editable solids instead of frozen faceted blobs. harden_ifc.py converts exact boxes automatically."
+      },
+      {
+        "component": "placements",
+        "impact": 20.0,
+        "fix": "11/11 elements have identity placements (coordinates baked into vertices; insertion points lost). Emit real IfcLocalPlacement positions per element so they can be moved/rotated in Revit."
+      },
+      {
+        "component": "typing",
+        "impact": 14.0,
+        "fix": "11/11 elements have no type object. Add a shared IfcXxxType per model number so Revit gets one type per catalogue item (type parameters, tags, schedules)."
+      },
+      {
+        "component": "instancing",
+        "impact": 4.91,
+        "fix": "9 elements repeat identical geometry verbatim (528 duplicated triangles). Use IfcRepresentationMap + IfcMappedItem instancing."
+      },
+      {
+        "component": "spatial",
+        "impact": 1.2,
+        "fix": "Single storey and no IfcSpace: add one IfcBuildingStorey per real level and IfcSpace for rooms so Revit gets Levels and space data."
+      },
+      {
+        "component": "data",
+        "impact": 1.2,
+        "fix": "6 electrical propert(ies) stored as plain text (e.g. Voltage as IfcLabel). Use IfcElectricVoltageMeasure/IfcElectricCurrentMeasure/IfcPowerMeasure so Revit binds them to unit-aware parameters."
+      }
+    ]
+  }
+}

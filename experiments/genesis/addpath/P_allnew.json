@@ -1,0 +1,413 @@
+{
+ "probe": "P_allnew",
+ "family": "from-K1",
+ "label": "K1 with the pen table re-registered at the NEW HIGH id 1,500,000 IN PLACE (records rebased at their original position, birth episodes, K1 identity, watermark raised, the ONE ADocument leaf re-pointed) -- ID MOTION ALONE",
+ "order": 3,
+ "upload": "PRIMARY",
+ "file": "experiments/genesis/addpath/P_allnew.rvt",
+ "template": "K1",
+ "sibling": "K1.rvt (viewer PASS)",
+ "one_change": "the element id 2 -> 1,500,000 (records' m_id + own deletion entry, ElemTable row id + footer watermark, PenWidthTableInfo leaf) -- the ID MOTION dimension, everything else at K1's convention",
+ "factors": {
+  "id": "high",
+  "episodes": "orig",
+  "position": "orig",
+  "identity": "template"
+ },
+ "target_id": 1500000,
+ "tests": "Is REGISTERING THE SETTINGS SINGLETON AT A NEW HIGH ID fatal by itself (the ADocument leaf now indexing a 1,500,000 id, the watermark jump 1,472,524 -> 1,500,000, the singleton living in the high user-content band -- objlint's ETR.id_band rule, <5k in 6/6 pen tables)?  This is the maximal registration match for a genuinely NEW id: from X0's side it is X0 with episodes + position + identity ALL restored.",
+ "if_PASS": "ID MOTION ALONE is tolerated: a settings singleton CAN be registered at a new high id when its episodes / position / identity follow K1's convention => the killer is among the other three dimensions (their singles name it), and the genesis writer may keep high ids for singletons.",
+ "if_FAIL": "THE ID MOTION IS FATAL: read P_lowid -- P_lowid PASS => it is the HIGH BAND (settings singletons must be minted at LOW ids in the birth band); P_lowid ALSO FAIL => ANY id/registry motion of this element is fatal (the leaf re-point / watermark itself) => genesis must mint each singleton once at its canonical low id and never delete+re-add it.",
+ "build_info": {
+  "template": "K1",
+  "template_path": "experiments/genesis/triage/K1.rvt",
+  "template_partition_roundtrip_ok": true,
+  "target_id": 1500000,
+  "episodes": {
+   "creation": 0,
+   "modified": 976,
+   "user_modified": 976,
+   "source": "orig"
+  },
+  "position": "orig",
+  "identity": {
+   "copied_verbatim_from_template": true
+  },
+  "partition": {
+   "records_source": "Autodesk's own element-2 bytes, identity rebased 2->1500000 (byte-exact codec, proof recorded)",
+   "rebase_proof": {
+    "element": 2,
+    "class": "PenWidthTableElem",
+    "verbatim_identity_at_original_id": {
+     "101": {
+      "identical": true,
+      "len_ours": 135,
+      "len_specimen": 135,
+      "differing_bytes": 0,
+      "first_divergence": -1,
+      "differing_offsets": []
+     },
+     "102": {
+      "identical": true,
+      "len_ours": 1223,
+      "len_specimen": 1223,
+      "differing_bytes": 0,
+      "first_divergence": -1,
+      "differing_offsets": []
+     },
+     "103": {
+      "identical": true,
+      "len_ours": 22,
+      "len_specimen": 22,
+      "differing_bytes": 0,
+      "first_divergence": -1,
+      "differing_offsets": []
+     }
+    },
+    "all_three_seqs_identical": true,
+    "identity_rebased_leaves": {
+     "object": [
+      "PenWidthTableElem.m_id"
+     ],
+     "header": [
+      "ElementHeader.m_parents->ElementParents.m_deletion[*]"
+     ]
+    },
+    "new_id": 1500000
+   },
+   "removed_from_index": {
+    "101": 2516,
+    "102": 2516,
+    "103": 2516
+   },
+   "placed_at_index": {
+    "101": 2516,
+    "102": 2516,
+    "103": 2516
+   },
+   "records_per_seq": {
+    "101": 6541,
+    "102": 6541,
+    "103": 6541
+   },
+   "logical_len": 3829609,
+   "template_logical_len": 3829608
+  },
+  "elemtable": {
+   "changes": [
+    {
+     "removed_row": {
+      "original_id": 2,
+      "creation_ep": 0,
+      "modified_ep": 976,
+      "user_modified_ep": 976,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     },
+     "inserted_row": {
+      "original_id": 1500000,
+      "creation_ep": 0,
+      "modified_ep": 976,
+      "user_modified_ep": 976,
+      "elem_id": 1500000,
+      "owner": -1,
+      "partition": 0
+     }
+    }
+   ],
+   "row_after": {
+    "elem_id": 1500000,
+    "original_id": 1500000,
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "user_modified_ep": 976,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "count": 6540,
+   "watermark_before": 1472524,
+   "watermark_after": 1500000
+  },
+  "latest": {
+   "leaf_remapped": [
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PenWidthTableInfo.m_penWidthTableElemId",
+     "old": 2,
+     "new": 1500000
+    }
+   ]
+  },
+  "streams_written_new": [
+   "Global/ElemTable",
+   "Global/Latest",
+   "Partitions/21"
+  ],
+  "seconds_build": 3.6
+ },
+ "streams_vs": {
+  "K1": {
+   "BasicFileInfo": "identical",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "identical",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "DIFFERS",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "identical",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0k": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "DIFFERS",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  }
+ },
+ "changed_vs_template": [
+  "Global/ElemTable",
+  "Global/Latest",
+  "Partitions/21"
+ ],
+ "expected_changed_vs_template": [
+  "Partitions/*",
+  "Global/ElemTable",
+  "Global/Latest"
+ ],
+ "changed_set_as_expected": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "verify_written": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": 0,
+  "stamps_ok": true,
+  "elemtable_count": 6540,
+  "header_count": 6540
+ },
+ "target_records": {
+  "id": 1500000,
+  "found_clean": true,
+  "per_seq": {
+   "101": {
+    "class": 1509,
+    "clean": true
+   },
+   "102": {
+    "class": 3231,
+    "clean": true
+   },
+   "103": {
+    "class": 3884,
+    "clean": true
+   }
+  }
+ },
+ "intended_state": {
+  "elemtable_row": {
+   "elem_id": 1500000,
+   "original_id": 1500000,
+   "creation_ep": 0,
+   "modified_ep": 976,
+   "user_modified_ep": 976,
+   "owner_id": -1,
+   "partition_id": 0
+  },
+  "row_ok": true,
+  "record_position": "orig",
+  "position_ok": true,
+  "adocument_surface": {
+   "1500000": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PenWidthTableInfo.m_penWidthTableElemId"
+   ]
+  },
+  "latest_ok": true,
+  "watermark": 1500000,
+  "watermark_ok": true,
+  "counts_6540_coherent": true,
+  "three_seq_orders_equal": true,
+  "elemtable_ids_equal_record_ids": true
+ },
+ "semantic_diff": {
+  "elemtable_vs_K1": {
+   "removed_rows": [
+    {
+     "original_id": 2,
+     "creation_ep": 0,
+     "modified_ep": 976,
+     "user_modified_ep": 976,
+     "elem_id": 2,
+     "owner": -1,
+     "partition": 0
+    }
+   ],
+   "added_rows": [
+    {
+     "original_id": 1500000,
+     "creation_ep": 0,
+     "modified_ep": 976,
+     "user_modified_ep": 976,
+     "elem_id": 1500000,
+     "owner": -1,
+     "partition": 0
+    }
+   ],
+   "changed_rows": [],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1500000
+   ]
+  },
+  "elemtable_vs_template": {
+   "removed_rows": [
+    {
+     "original_id": 2,
+     "creation_ep": 0,
+     "modified_ep": 976,
+     "user_modified_ep": 976,
+     "elem_id": 2,
+     "owner": -1,
+     "partition": 0
+    }
+   ],
+   "added_rows": [
+    {
+     "original_id": 1500000,
+     "creation_ep": 0,
+     "modified_ep": 976,
+     "user_modified_ep": 976,
+     "elem_id": 1500000,
+     "owner": -1,
+     "partition": 0
+    }
+   ],
+   "changed_rows": [],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1500000
+   ]
+  },
+  "record_order_vs_K1": {
+   "K1_len": 6541,
+   "probe_len": 6541,
+   "backbone_order_identical_excluding_target": true,
+   "K1_index_of_2": 2516,
+   "probe_index_of_target": 2516,
+   "probe_target_neighbours": [
+    1455333,
+    1455335,
+    1,
+    1500000,
+    3,
+    4,
+    5
+   ],
+   "record_bytes_at_target_equal_K1_element_2": {
+    "101": {
+     "identical": false,
+     "differing_bytes": 6,
+     "len": [
+      135,
+      135
+     ]
+    },
+    "102": {
+     "identical": false,
+     "differing_bytes": 10,
+     "len": [
+      1223,
+      1223
+     ]
+    },
+    "103": {
+     "identical": false,
+     "differing_bytes": 3,
+     "len": [
+      22,
+      22
+     ]
+    }
+   }
+  },
+  "adocument_leaf_diff_vs_K1": [
+   {
+    "path": "ADocument.m_pAppInfoManager.value.m_appInfoArr[38].value.m_penWidthTableElemId",
+    "K1": 2,
+    "probe": 1500000
+   }
+  ],
+  "identity_vs_K1": {
+   "BasicFileInfo": {},
+   "DIT_usernames": [
+    "campbes",
+    "gbs_subsuser6",
+    "hansonje",
+    "loboarch",
+    "okapaw",
+    "xuew",
+    "youyi",
+    "zhangg"
+   ],
+   "note": "last_save_path/username/author/client_app are the identity scrub; identical == K1's originals"
+  }
+ },
+ "anchor_proof": null,
+ "problems": [],
+ "verdict": "CERTIFIED",
+ "bytes": 4489216,
+ "seconds": 12.2
+}

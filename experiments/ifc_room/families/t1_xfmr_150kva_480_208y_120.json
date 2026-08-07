@@ -1,0 +1,496 @@
+{
+ "path": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.rfa",
+ "family": {
+  "kind": "transformer",
+  "family_name": "Dry Type Transformer T1 150kVA 480-208Y/120",
+  "category": "Electrical Equipment",
+  "part_type": 15,
+  "elements": 39,
+  "types": [
+   "150 kVA 480-208Y/120"
+  ],
+  "parameters": [
+   "Depth",
+   "Enclosure",
+   "Frame",
+   "Height",
+   "Phases",
+   "Primary Voltage",
+   "Secondary Voltage",
+   "Temperature Rise",
+   "Weight",
+   "Width",
+   "kVA Rating"
+  ],
+  "forms": [
+   {
+    "kind": "box",
+    "width_ft": 2.875,
+    "depth_ft": 2.625,
+    "height_ft": 4.25,
+    "base_z_ft": 0.0,
+    "rep": "solid"
+   }
+  ],
+  "connectors": 2,
+  "assumed_fields": [],
+  "unverified_fields": [
+   "enclosure",
+   "primary_v",
+   "secondary_v"
+  ],
+  "notes": [
+   "two connectors (primary / secondary) on the top face; the secondary is bound to the kVA rating (the load it can serve)"
+  ]
+ },
+ "facts": {
+  "subject": "eaton/dry-type-transformers V48M28T4916 150 kVA",
+  "catalog": "eaton/dry-type-transformers",
+  "variant": "V48M28T4916",
+  "values": {
+   "width_in": {
+    "value": 34.5,
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "height_in": {
+    "value": 51.0,
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "depth_in": {
+    "value": 31.5,
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "kva": {
+    "value": 150.0,
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "phases": {
+    "value": 3,
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "primary_v": {
+    "value": 480,
+    "provenance": "given",
+    "source": "",
+    "note": "catalog primary 480 delta"
+   },
+   "secondary_v": {
+    "value": "208Y/120",
+    "provenance": "given",
+    "source": "",
+    "note": "catalog secondary 208Y/120"
+   },
+   "temp_rise_c": {
+    "value": 150,
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "frequency_hz": {
+    "value": 60,
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "windings": {
+    "value": "aluminum",
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "weight_lb": {
+    "value": 1239,
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "weight_kg": {
+    "value": 563,
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "frame": {
+    "value": "FR943",
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "weathershield_kit": {
+    "value": "WS60",
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "wall_mount_bracket": {
+    "value": "WMB04",
+    "provenance": "fact",
+    "source": "V48M28T4916",
+    "note": ""
+   },
+   "enclosure": {
+    "value": "NEMA 2 (indoor)",
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "manufacturer": {
+    "value": "Eaton",
+    "provenance": "fact",
+    "source": "dry-type-transformers",
+    "note": ""
+   },
+   "model": {
+    "value": "V48M28T4916",
+    "provenance": "fact",
+    "source": "dry-type-transformers",
+    "note": "catalog number as the Model parameter VALUE, not the family name"
+   },
+   "clearance_side_rear_in": {
+    "value": 2.0,
+    "provenance": "fact",
+    "source": "dry-type-transformers",
+    "note": ""
+   }
+  },
+  "assumed_fields": [],
+  "notes": [
+   "kVA / voltages / frame / dims / weight are catalog facts; enclosure choice + connector layout are ours."
+  ]
+ },
+ "emit": {
+  "path": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.rfa",
+  "size": 270336,
+  "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+  "elements": 39,
+  "elem_table_count": 39,
+  "partition_stream": "Partitions/0",
+  "logical_partition_bytes": 7400,
+  "document_guid": "50e2e9c0-cfaa-4520-a34a-ae7189c8371e",
+  "streams": {
+   "Partitions/0": 7492,
+   "Global/ElemTable": 317,
+   "Global/History": 130,
+   "Global/DocumentIncrementTable": 122,
+   "Global/PartitionTable": 126,
+   "Global/ContentDocuments": 82,
+   "Contents": 204,
+   "Formats/Latest": 165553,
+   "Global/Latest": 68508,
+   "BasicFileInfo": 2009,
+   "TransmissionData": 214,
+   "PartAtom": 859
+  },
+  "ours": [
+   "Partitions save unit",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/DocumentIncrementTable",
+   "Global/PartitionTable",
+   "Global/ContentDocuments",
+   "Contents",
+   "BasicFileInfo",
+   "TransmissionData",
+   "PartAtom"
+  ],
+  "carried_from_donor": [
+   "Formats/Latest (per-release schema constant)",
+   "Global/Latest (ADocument -- NO encoder; gate G1a)",
+   "unit footer blob + stream end record (opaque)"
+  ],
+  "notes": [
+   "transformer: free-standing (floor); part type 15 = the rme dry-type transformer's own part type [V value]"
+  ]
+ },
+ "verify": {
+  "path": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.rfa",
+  "gzip_members": 11,
+  "gzip_crc_failures": 0,
+  "ecc_full_pages": 3,
+  "ecc_mismatch": 0,
+  "streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "PartAtom",
+   "Partitions/0",
+   "TransmissionData"
+  ],
+  "walker_errors": [],
+  "n_units": 1,
+  "record_counts": {
+   "101": 40,
+   "102": 40,
+   "103": 40
+  },
+  "decode_seq102": {
+   "records": 39,
+   "clean": 39,
+   "error_classes": {}
+  },
+  "id_sets_identical_across_seqs": true,
+  "ok": true
+ },
+ "validate": {
+  "path": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.rfa",
+  "family_mode": {
+   "verdict": "VALID",
+   "n_errors": 0,
+   "errors": [],
+   "n_warnings": 0,
+   "warnings": [],
+   "stats": {
+    "streams": 12,
+    "pages_checked": 12,
+    "gzip_members": 8,
+    "partition_blocks": 3,
+    "records": 120,
+    "elements_decoded": 39,
+    "decode_failures": 0,
+    "refs_checked": 673,
+    "connector_edges": 0,
+    "circuits": 0
+   }
+  },
+  "project_mode": {
+   "verdict": "INVALID",
+   "n_errors": 3,
+   "errors": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block (859 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+    "structure PartAtom: no gzip member found in framed stream"
+   ],
+   "n_warnings": 0,
+   "warnings": [],
+   "stats": {
+    "streams": 12,
+    "pages_checked": 12,
+    "gzip_members": 8,
+    "partition_blocks": 3,
+    "records": 120,
+    "elements_decoded": 39,
+    "decode_failures": 0,
+    "refs_checked": 673,
+    "connector_edges": 0,
+    "circuits": 0
+   }
+  },
+  "ok": true
+ },
+ "provenance": {
+  "path": "experiments/ifc_room/families/t1_xfmr_150kva_480_208y_120.rfa",
+  "checks": {
+   "family_document_strings_clean": true,
+   "part_atom_ours": true,
+   "basic_file_info_ours": true,
+   "formats_latest_is_format_constant": true
+  },
+  "findings": [],
+  "family_document": {
+   "n_elements": 39,
+   "id_range": [
+    1000,
+    1038
+   ],
+   "classes": {
+    "Family": 1,
+    "UnitsElem": 1,
+    "LevelAttributes": 1,
+    "Level": 1,
+    "DBViewProject": 1,
+    "Viewer": 2,
+    "Viewport": 2,
+    "DBDrawing": 2,
+    "DBViewType": 1,
+    "DBViewPlan": 1,
+    "SketchPlane": 2,
+    "SunAndShadowSettings": 1,
+    "ExtentElem": 1,
+    "RefPlane": 2,
+    "ParamElemFamily": 11,
+    "VarSketch": 1,
+    "CurveElem": 4,
+    "ExtrusionElem": 1,
+    "ElectricalLoadClassification": 1,
+    "ConnectorElem": 2
+   },
+   "undecoded": 0,
+   "n_distinct_strings": 154,
+   "forge_vocabulary_ids": [
+    "autodesk.parameter.group:dimensions-1.0.0",
+    "autodesk.parameter.group:electrical-1.0.0",
+    "autodesk.parameter.group:identityData-1.0.0",
+    "autodesk.spec.aec.electrical:apparentPower-1.0.0",
+    "autodesk.spec.aec.electrical:current-2.0.0",
+    "autodesk.spec.aec.electrical:potential-1.0.0",
+    "autodesk.spec.aec.electrical:potential-2.0.0",
+    "autodesk.spec.aec:angle-2.0.0",
+    "autodesk.spec.aec:area-2.0.0",
+    "autodesk.spec.aec:length-1.0.0",
+    "autodesk.spec.aec:length-2.0.0",
+    "autodesk.spec.aec:number-1.0.1",
+    "autodesk.spec.aec:number-2.0.0",
+    "autodesk.spec.aec:volume-2.0.0",
+    "autodesk.spec:spec.int64-1.0.0",
+    "autodesk.spec:spec.string-1.0.0",
+    "autodesk.unit.symbol:ampere-1.0.1",
+    "autodesk.unit.symbol:cf-1.0.1",
+    "autodesk.unit.symbol:degreeSymbol-1.0.1",
+    "autodesk.unit.symbol:sf-1.0.1",
+    "autodesk.unit.symbol:vA-1.0.1",
+    "autodesk.unit.symbol:volt-1.0.1",
+    "autodesk.unit.unit:amperes-1.0.1",
+    "autodesk.unit.unit:cubicFeet-1.0.1",
+    "autodesk.unit.unit:degrees-1.0.1",
+    "autodesk.unit.unit:feetFractionalInches-1.0.0",
+    "autodesk.unit.unit:general-1.0.1",
+    "autodesk.unit.unit:squareFeet-1.0.1",
+    "autodesk.unit.unit:voltAmperes-1.0.1",
+    "autodesk.unit.unit:volts-1.0.1",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b325000003fa-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b325000003fb-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b325000003fc-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b325000003fd-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b325000003fe-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b325000003ff-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b32500000400-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b32500000401-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b32500000402-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b32500000403-1.0.0",
+    "revit.local.family:82ff595351264d0eb1574f6158b3b32500000404-1.0.0"
+   ],
+   "sample_strings": [
+    "%1!s! Connected Apparent Power",
+    "%1!s! Connected Current",
+    "%1!s! Demand Apparent Power",
+    "%1!s! Demand Factor",
+    "%1!s! Estimated Demand Current",
+    "00000000-0000-0000-0000-000000000000",
+    "150 kVA 480-208Y/120",
+    "150 kVA, 3-phase, 480 - 208Y/120 V dry-type transformer, 150 C rise, aluminum windings, frame FR943 (34.5 W x 51 H x 31.5 D in, 1239 lb; generated from catalog facts)",
+    "<In-session, Still>",
+    "???",
+    "APropertyDouble1",
+    "APropertyFloat",
+    "APropertyInteger",
+    "Actual %1!s! Load",
+    "AdHocOverrides",
+    "AnnotationCropOffsets",
+    "CellList",
+    "Center (Front/Back)",
+    "Center (Left/Right)",
+    "ColorFillSchemaSetting",
+    "ConnectorElemDomainElectrical",
+    "ConnectorElemGStep",
+    "CurveElemData",
+    "CurveElemDriver",
+    "CurveElemGStep",
+    "CurveLoop",
+    "DatumPlaneGeomStep",
+    "Depth",
+    "DesignOptionDrawFilter",
+    "DesignOptionViewSettings",
+    "DirectContext3DHandleOverrides",
+    "DrawOrderMgr",
+    "Eaton",
+    "EdgeLoopRef",
+    "ElementIdIndexPairSet",
+    "Enclosure",
+    "ExposureValue",
+    "ExtrusionElemExtrusionHelper",
+    "ExtrusionGStep",
+    "FR943"
+   ]
+  },
+  "streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "PartAtom",
+   "Partitions/0",
+   "TransmissionData"
+  ],
+  "part_atom": {
+   "bytes": 859,
+   "product": true,
+   "no_autodesk_product_label": true,
+   "no_omniclass": true,
+   "namespace_note": "uses the partatom XML VOCABULARY (urn:schemas-autodesk-com:partatom) -- format interoperability, values are ours"
+  },
+  "basic_file_info": {
+   "bytes": 2009,
+   "author_rvt_writer": true,
+   "no_windows_user_path": true,
+   "no_autodesk_employee_path": true
+  },
+  "carried_format_constants": {
+   "Formats/Latest": {
+    "inflated_bytes": 496597,
+    "sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+    "is_corpus_schema_constant": true,
+    "note": "the per-release archive class map, byte-identical in every Revit 2026 file (.rvt and .rfa) -- FORMAT, not content"
+   },
+   "Global/Latest": {
+    "inflated_bytes": 1381296,
+    "status": "decoded",
+    "clean": true,
+    "distinct_element_ids_referenced": 1727,
+    "references_to_our_elements": 0,
+    "dangling_references_to_donor_ids": 1727,
+    "content_records": 0,
+    "n_distinct_strings": 2815,
+    "characterisation": "the DONOR container's serialized ADocument (family-editor / document registries): its element-tracking registries reference donor element ids that do NOT exist in this file (dangling), plus the Revit-shipped Forge unit/spec corpus (a per-release constant, identical in every file).  It carries NO family geometry, NO type table, NO parameter definitions and NO manufacturer content -- those live in the partition save unit and PartAtom, which are ours.  It is the one honest carried non-constant, retired by authoring OUR ADocument (the codec exists: rvt.adocument.encode_latest; acceptance of an empty-registry family document is the open viewer question)."
+   },
+   "opaque": [
+    "Partitions unit footer blob (64 B) + stream end record (~92 B): opaque format bytes from the donor container (V15/V20 proved the reader accepts foreign / re-blocked content beside them)"
+   ]
+  },
+  "ours": [
+   "Partitions save unit (every element of the family document)",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/DocumentIncrementTable",
+   "Global/PartitionTable",
+   "Global/ContentDocuments (empty)",
+   "Contents",
+   "BasicFileInfo",
+   "TransmissionData",
+   "PartAtom",
+   "CFB container, gzip framing, CRCIO page ECC"
+  ],
+  "patterns_checked": [
+   "C:\\\\",
+   "Users\\\\",
+   "\\bAutodesk\\b",
+   "OmniClass",
+   "Table[- ]End",
+   "racbasic",
+   "rmebasic",
+   "Documents and Settings"
+  ],
+  "ok": true
+ },
+ "ok": true
+}

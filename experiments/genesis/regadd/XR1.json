@@ -1,0 +1,171 @@
+{
+ "op": "substitute_element",
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR1.rvt",
+ "target_id": 34,
+ "class_name": "GStyleElem",
+ "seqs_replaced": [
+  101,
+  102,
+  103
+ ],
+ "null_mode": false,
+ "row_before": {
+  "original_id": 34,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 34,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "row_after": {
+  "original_id": 34,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 34,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "positions_before": {
+  "101": 2541,
+  "102": 2541,
+  "103": 2541
+ },
+ "positions_after": {
+  "101": 2541,
+  "102": 2541,
+  "103": 2541
+ },
+ "record_len_delta": {
+  "101": 0,
+  "102": 0,
+  "103": 0
+ },
+ "identity_at_original": null,
+ "emit": {
+  "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR1.rvt",
+  "partition": "Partitions/21",
+  "unit0_blocks_after": {
+   "101": 8,
+   "102": 47,
+   "103": 25
+  },
+  "elemtable_count": 6540,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "notes": [
+  "1 element(s) substituted in place: ids [34]"
+ ],
+ "diff_summary": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "streams_identical_count": 11,
+  "partition_logical_identical": false,
+  "records_added": 0,
+  "records_removed": 0,
+  "records_changed": 1,
+  "changed_ids": [
+   34
+  ],
+  "id_order_identical": true,
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "latest_identical": true,
+  "embedded_units_identical": true
+ },
+ "probe": "XR1",
+ "role": "OUR catalog-row CONTENT (one row), in place, proven mechanics",
+ "one_change_vs_K1": "row 34 (category -2000014 OST_Windows, type 1) object + header replaced by ours at the same id / position",
+ "specimen_row": {
+  "pen": 2,
+  "colour": 0,
+  "line_pattern": -3000010,
+  "material": -1,
+  "header_abFlags4Bytes": "0x400201e"
+ },
+ "our_row": {
+  "pen": 1,
+  "colour": 1579032,
+  "line_pattern": -3000010,
+  "material": -1,
+  "header_abFlags4Bytes": "0x400201e",
+  "profile": {
+   "ab": 67117086,
+   "pattern": "solid",
+   "material": "null",
+   "screen_sized": false,
+   "pen": "ours"
+  }
+ },
+ "changed_records": [
+  {
+   "seq": 102,
+   "id": 34,
+   "len_ours": 176,
+   "len_parent": 176,
+   "first_diff_byte": 8
+  }
+ ],
+ "field_diff_examples": [
+  {
+   "class_ours": "GStyleElem",
+   "class_parent": "GStyleElem"
+  },
+  {
+   "path": ".m_pGStyle.value.m_color",
+   "ours": "1579032",
+   "parent": "0"
+  },
+  {
+   "path": ".m_pGStyle.value.m_penNumber",
+   "ours": "1",
+   "parent": "2"
+  }
+ ],
+ "sibling_experiment": "C1v / C1u (controls) tested this row via the add path; X_cat (subst_v2) carried the whole catalog in place via manipulate and FAILED with the batch",
+ "if_PASS": "our profiled catalog row (values + header preset) is reader-clean in place; XR3 (the whole catalog in place) is the next read",
+ "if_FAIL": "(with XR_null PASSING) a catalog-row VALUE or the header flag word is audited: field_diff_examples names every difference (pen / colour / the profiled abFlags word)",
+ "seconds": 9.0
+}

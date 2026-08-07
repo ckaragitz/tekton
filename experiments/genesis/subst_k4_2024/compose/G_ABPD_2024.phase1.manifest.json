@@ -1,0 +1,970 @@
+{
+ "op": "compose",
+ "base": {
+  "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+  "md5": "b953513bf80a963021b7de8e96d1be9d",
+  "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+  "bytes": 831488,
+  "certification": {
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+   "when": "2026-08-05 ~02:25",
+   "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  },
+  "host_elements": 3295,
+  "watermark": 1472509,
+  "partition": "Partitions/21"
+ },
+ "out": {
+  "file": "experiments/genesis/subst_k4_2024/compose/G_ABPD_2024.phase1.rvt",
+  "md5": "0f8a836dfff8cc3290ead1ba37e5ad2e",
+  "sha256": "a6f52a878537c425a1468d9dd095c756fa1cf99f5a9b85fccea9d0d0615f33a0",
+  "bytes": 581632
+ },
+ "phase_1_inplace": {
+  "merge": {
+   "laws": {
+    "disjoint": true,
+    "collisions": [],
+    "all_slots_exist": true,
+    "missing_slots": [],
+    "same_class": true,
+    "class_mismatch": [],
+    "parent_coherent": true,
+    "incoherent_slots": [],
+    "deletion_overlap": [],
+    "on_overlap": "refuse"
+   },
+   "rungs": [
+    {
+     "name": "Y2024:Y1_2024",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Y1_2024.rvt",
+     "source_md5": "9c5cb1fa962253a94a68e68121ccdd43",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Y1_2024.json",
+     "slots": 1,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "PenWidthTableElem": 1
+     },
+     "landed_slots": 1,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 1
+    },
+    {
+     "name": "Y2024:Y2_2024",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Y2_2024.rvt",
+     "source_md5": "6a58a331d10d955cd7fbccb07a46b9f2",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Y1_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Y2_2024.json",
+     "slots": 8,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "BrowserOrganization": 5,
+      "Viewport": 1,
+      "ConstructionSetProject": 1,
+      "ReconcileBrowserSettingsElem": 1
+     },
+     "landed_slots": 8,
+     "landed_but_byte_identical": 0,
+     "notes": [
+      "1 slot(s) SUPERSEDED by a deeper cumulative rung (last-wins; chain continuity asserted): [69851]"
+     ],
+     "merged_slots": 8
+    },
+    {
+     "name": "Y2024:Y3_2024",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Y3_2024.rvt",
+     "source_md5": "bdabf2142806a48c909709305ce9cb5d",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Y2_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Y3_2024.json",
+     "slots": 2,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "KeynoteTable": 1,
+      "StructSettingsElem": 1
+     },
+     "landed_slots": 5,
+     "landed_but_byte_identical": 3,
+     "notes": [],
+     "merged_slots": 2
+    },
+    {
+     "name": "Y2024:Y4_2024",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Y4_2024.rvt",
+     "source_md5": "bf8df375302222c15e5ba796a4533755",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Y3_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Y4_2024.json",
+     "slots": 8,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "RbsDuctSizesElem": 1,
+      "RbsDuctSettingsElem": 1,
+      "RbsPipeSettingsElem": 1,
+      "RbsWireSettingsElem": 1,
+      "RbsPipeSizesElem": 1,
+      "RbsWireSizesElem": 1,
+      "CableTraySettingsElem": 1,
+      "ConduitSettingsElem": 1
+     },
+     "landed_slots": 8,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 8
+    },
+    {
+     "name": "Y2024:Y5_2024",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Y5_2024.rvt",
+     "source_md5": "af706baf9dc70eb4f638cf4c43b675a3",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Y4_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Y5_2024.json",
+     "slots": 10,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "AreaMeasureElem": 1,
+      "PrintSettings": 1,
+      "ProjectRevision": 1,
+      "AllProjectRevisions": 1,
+      "CoordinateSystemDisplayElem": 1,
+      "EnergyDataSettings": 1,
+      "ElectricalSetting": 1,
+      "WorksharingViewModeSettings": 1,
+      "ReinforcementSettings": 1,
+      "CopyWatchProperties": 1
+     },
+     "landed_slots": 10,
+     "landed_but_byte_identical": 0,
+     "notes": [
+      "1 slot(s) SUPERSEDED by a deeper cumulative rung (last-wins; chain continuity asserted): [9490]"
+     ],
+     "merged_slots": 10
+    },
+    {
+     "name": "Y2024:Y6_2024",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Y6_2024.rvt",
+     "source_md5": "583f3e9f20b71cda6698cb2a4d50c898",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Y5_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Y6_2024.json",
+     "slots": 1156,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "GStyleElem": 1156
+     },
+     "landed_slots": 1156,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 1156
+    },
+    {
+     "name": "Y2024:Y7_2024",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+     "source_md5": "668a419d5e3b29fb2fa9c906e3d023fb",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Y6_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Y7_2024.json",
+     "slots": 60,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "PropertySetElement": 28,
+      "MaterialElem": 23,
+      "FillPatternElem": 5,
+      "LinePatternElem": 4
+     },
+     "landed_slots": 60,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 60
+    },
+    {
+     "name": "Y2024:Y8_2024",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Y8_2024.rvt",
+     "source_md5": "d97ac883e43d1c6672e2ed17fb32ee05",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Y8_2024.json",
+     "slots": 16,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "Level": 2,
+      "BasePoint": 2,
+      "ProjectPhase": 2,
+      "GeoLocation": 2,
+      "GeoSite": 2,
+      "ProjectInfo": 1,
+      "AllProjectPhases": 1,
+      "LevelAttributes": 1,
+      "PhaseFilterElem": 1,
+      "TrueNorth": 1,
+      "UnitsElem": 1
+     },
+     "landed_slots": 16,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 16
+    },
+    {
+     "name": "Y2024:Y9_2024",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Y9_2024.rvt",
+     "source_md5": "b4bc6df0cfcebbd2c5c69c9d76f03398",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Y8_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Y9_2024.json",
+     "slots": 32,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "DBViewType": 19,
+      "SunAndShadowSettings": 4,
+      "Viewport": 3,
+      "Viewer": 2,
+      "ExtentElem": 2,
+      "SketchPlane": 1,
+      "Viewer3d": 1
+     },
+     "landed_slots": 32,
+     "landed_but_byte_identical": 0,
+     "notes": [
+      "4 slot(s) SUPERSEDED by a deeper cumulative rung (last-wins; chain continuity asserted): [230, 245443, 1064656, 1454508]"
+     ],
+     "merged_slots": 32
+    },
+    {
+     "name": "R2024:Z_RA_2024",
+     "group": "residue",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Z_RA_2024.rvt",
+     "source_md5": "a558f098640718178d2ba073ef1bf526",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Y9_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Z_RA_2024.json",
+     "slots": 431,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "GStyleElem": 237,
+      "CategoryElem": 137,
+      "AppearanceAssetElem": 18,
+      "FontElem": 10,
+      "Level": 7,
+      "LeaderStyle": 5,
+      "DimensionStyle": 4,
+      "FillPatternElem": 4,
+      "Grid": 3,
+      "LinePatternElem": 3,
+      "GridAttributes": 1,
+      "InteriorElevAttributes": 1,
+      "CalloutTag": 1
+     },
+     "landed_slots": 431,
+     "landed_but_byte_identical": 0,
+     "notes": [
+      "no certification report found: landed_slots := changed slots"
+     ],
+     "merged_slots": 431
+    },
+    {
+     "name": "R2024:Z_RB_2024",
+     "group": "residue",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Z_RB_2024.rvt",
+     "source_md5": "02cf43b3ce451628ccb53347d64c3775",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Z_RA_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Z_RB_2024.json",
+     "slots": 623,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "ParamElemExternal": 466,
+      "ParamElemElectricalLoadClassification": 108,
+      "PipeSegment": 15,
+      "RbsPipeScheduleType": 11,
+      "ParamElemProject": 8,
+      "RbsPipeMaterialType": 5,
+      "RbsPipeConnectionType": 4,
+      "RbsWireMaterialType": 3,
+      "RbsWireInsulationType": 2,
+      "ParamBinding": 1
+     },
+     "landed_slots": 623,
+     "landed_but_byte_identical": 0,
+     "notes": [
+      "no certification report found: landed_slots := changed slots"
+     ],
+     "merged_slots": 623
+    },
+    {
+     "name": "R2024:Z_RC_2024",
+     "group": "residue",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/Z_RC_2024.rvt",
+     "source_md5": "a6ff13747c4610b023561725d90e6644",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Z_RB_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/Z_RC_2024.json",
+     "slots": 3,
+     "seqs": [
+      101,
+      102
+     ],
+     "classes": {
+      "LegendComponent": 2,
+      "DBViewDrafting": 1
+     },
+     "landed_slots": 3,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 3
+    },
+    {
+     "name": "R2024:RC_2024_inplace",
+     "group": "residue",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2024/RC_2024_inplace.rvt",
+     "source_md5": "0f8a836dfff8cc3290ead1ba37e5ad2e",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2024/Z_RC_2024.rvt",
+     "report_file": "experiments/genesis/subst_k4_2024/RC_2024_inplace.json",
+     "slots": 6,
+     "seqs": [
+      101,
+      102
+     ],
+     "classes": {
+      "DBViewPlan": 2,
+      "DBViewProject": 1,
+      "AreaMeasureElem": 1,
+      "RbsDbViewSystemNavigator": 1,
+      "DBView3d": 1
+     },
+     "landed_slots": 6,
+     "landed_but_byte_identical": 0,
+     "notes": [
+      "5 slot(s) carry per-seq records MERGED from earlier chain rungs (this rung re-emitted only some seqs of the slot; the final state is the union, parent-coherence baseline = the chain ROOT): [230, 69851, 245443, 1064656, 1454508]"
+     ],
+     "merged_slots": 6
+    }
+   ],
+   "resolutions": [],
+   "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "merged_slots": 2356,
+   "merged_seqs": [
+    101,
+    102
+   ],
+   "merged_by_class": {
+    "GStyleElem": 1393,
+    "ParamElemExternal": 466,
+    "CategoryElem": 137,
+    "ParamElemElectricalLoadClassification": 108,
+    "PropertySetElement": 28,
+    "MaterialElem": 23,
+    "DBViewType": 19,
+    "AppearanceAssetElem": 18,
+    "PipeSegment": 15,
+    "RbsPipeScheduleType": 11,
+    "FontElem": 10,
+    "FillPatternElem": 9,
+    "Level": 9,
+    "ParamElemProject": 8,
+    "LinePatternElem": 7,
+    "BrowserOrganization": 5,
+    "LeaderStyle": 5,
+    "RbsPipeMaterialType": 5,
+    "Viewport": 4,
+    "SunAndShadowSettings": 4,
+    "DimensionStyle": 4,
+    "RbsPipeConnectionType": 4,
+    "Grid": 3,
+    "RbsWireMaterialType": 3,
+    "AreaMeasureElem": 2,
+    "BasePoint": 2,
+    "ProjectPhase": 2,
+    "GeoLocation": 2,
+    "GeoSite": 2,
+    "Viewer": 2,
+    "ExtentElem": 2,
+    "RbsWireInsulationType": 2,
+    "LegendComponent": 2,
+    "DBViewPlan": 2,
+    "PenWidthTableElem": 1,
+    "ConstructionSetProject": 1,
+    "ReconcileBrowserSettingsElem": 1,
+    "KeynoteTable": 1,
+    "StructSettingsElem": 1,
+    "RbsDuctSizesElem": 1,
+    "RbsDuctSettingsElem": 1,
+    "RbsPipeSettingsElem": 1,
+    "RbsWireSettingsElem": 1,
+    "RbsPipeSizesElem": 1,
+    "RbsWireSizesElem": 1,
+    "CableTraySettingsElem": 1,
+    "ConduitSettingsElem": 1,
+    "PrintSettings": 1,
+    "ProjectRevision": 1,
+    "AllProjectRevisions": 1,
+    "CoordinateSystemDisplayElem": 1,
+    "EnergyDataSettings": 1,
+    "ElectricalSetting": 1,
+    "WorksharingViewModeSettings": 1,
+    "ReinforcementSettings": 1,
+    "CopyWatchProperties": 1,
+    "ProjectInfo": 1,
+    "AllProjectPhases": 1,
+    "LevelAttributes": 1,
+    "PhaseFilterElem": 1,
+    "TrueNorth": 1,
+    "UnitsElem": 1,
+    "SketchPlane": 1,
+    "Viewer3d": 1,
+    "GridAttributes": 1,
+    "InteriorElevAttributes": 1,
+    "CalloutTag": 1,
+    "ParamBinding": 1,
+    "DBViewDrafting": 1,
+    "DBViewProject": 1,
+    "RbsDbViewSystemNavigator": 1,
+    "DBView3d": 1
+   }
+  },
+  "emit": {
+   "op": "substitute_elements",
+   "verdict": "VALID",
+   "problems": [],
+   "seqs_replaced": [
+    101,
+    102
+   ],
+   "elemtable_rewritten": false,
+   "latest_rewritten": false,
+   "streams_replaced": [
+    "Partitions/21"
+   ],
+   "seconds": 1.8
+  },
+  "validator": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 2,
+   "error_messages": [],
+   "stats": {
+    "streams": 12,
+    "partition_blocks": 15,
+    "records": 9888,
+    "elements_decoded": 3295,
+    "decode_failures": 1,
+    "refs_checked": 40880
+   }
+  },
+  "structural": {
+   "ok": true,
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": [],
+   "counts_match": true,
+   "seq_id_sets_equal": true,
+   "stamps_bad": 0,
+   "isize_identity_ok": true
+  },
+  "byte_delta": {
+   "layer": "in-place",
+   "streams_differing": [
+    "Partitions/21"
+   ],
+   "only_partition_differs": true,
+   "records_changed_count": 2363,
+   "records_changed_by_seq": {
+    "101": 7,
+    "102": 5
+   },
+   "expected_slots": 2356,
+   "unexpected_changed_ids": [],
+   "records_added_ids": [],
+   "records_removed_ids": [],
+   "landed_but_unchanged_slots": 0,
+   "id_order_identical_per_seq": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "block_partition_identical_per_seq": {
+    "101": false,
+    "102": false,
+    "103": true
+   },
+   "elemtable_identical": true,
+   "adocument_identical": true,
+   "embedded_units_identical": true,
+   "field_diff_examples": [
+    {
+     "seq": 101,
+     "id": 230,
+     "len_ours": 239,
+     "len_parent": 247,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ElementHeader",
+       "class_parent": "ElementHeader"
+      },
+      {
+       "path": ".m_parents.value.m_deletion[len]",
+       "ours": 8,
+       "parent": 9
+      }
+     ]
+    },
+    {
+     "seq": 101,
+     "id": 9490,
+     "len_ours": 151,
+     "len_parent": 159,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ElementHeader",
+       "class_parent": "ElementHeader"
+      },
+      {
+       "path": ".m_parents.value.m_deletion[len]",
+       "ours": 3,
+       "parent": 4
+      }
+     ]
+    },
+    {
+     "seq": 101,
+     "id": 69851,
+     "len_ours": 215,
+     "len_parent": 223,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ElementHeader",
+       "class_parent": "ElementHeader"
+      },
+      {
+       "path": ".m_parents.value.m_deletion[len]",
+       "ours": 7,
+       "parent": 8
+      }
+     ]
+    },
+    {
+     "seq": 101,
+     "id": 245443,
+     "len_ours": 279,
+     "len_parent": 287,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ElementHeader",
+       "class_parent": "ElementHeader"
+      },
+      {
+       "path": ".m_parents.value.m_deletion[len]",
+       "ours": 15,
+       "parent": 16
+      },
+      {
+       "path": ".m_parents.value.m_deletion[14]",
+       "ours": "1457044",
+       "parent": "1250029"
+      }
+     ]
+    }
+   ],
+   "exceptions": [
+    {
+     "what": "seq-101 block partition re-flowed",
+     "reason": "our objects differ in byte length from the parent's, so the certified re-blocker (rvt.reduce.reblock) re-chunked the unit-0 seq-101 run; record ORDER unchanged",
+     "blocks_parent": 4,
+     "blocks_out": 4
+    },
+    {
+     "what": "seq-102 block partition re-flowed",
+     "reason": "our objects differ in byte length from the parent's, so the certified re-blocker (rvt.reduce.reblock) re-chunked the unit-0 seq-102 run; record ORDER unchanged",
+     "blocks_parent": 18,
+     "blocks_out": 10
+    }
+   ],
+   "problems": [],
+   "assertion_holds": true
+  },
+  "in_place_law": {
+   "ok": true,
+   "landed": 2356,
+   "changed": 2356,
+   "unchanged_landed": 0,
+   "stray_changed": [],
+   "seq_violations": {},
+   "added": [],
+   "removed": [],
+   "problems": [],
+   "law": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed."
+  },
+  "rung_fidelity": {
+   "all_ok": true,
+   "per_rung": [
+    {
+     "rung": "Y2024:Y1_2024",
+     "slots": 1,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2024:Y2_2024",
+     "slots": 8,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2024:Y3_2024",
+     "slots": 2,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2024:Y4_2024",
+     "slots": 8,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2024:Y5_2024",
+     "slots": 10,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2024:Y6_2024",
+     "slots": 1156,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2024:Y7_2024",
+     "slots": 60,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2024:Y8_2024",
+     "slots": 16,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2024:Y9_2024",
+     "slots": 32,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "R2024:Z_RA_2024",
+     "slots": 431,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "R2024:Z_RB_2024",
+     "slots": 623,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "R2024:Z_RC_2024",
+     "slots": 3,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "R2024:RC_2024_inplace",
+     "slots": 6,
+     "fidelity_ok": true,
+     "mismatches": []
+    }
+   ]
+  },
+  "four_registry": {
+   "save_units": 1,
+   "contentdocs_entries": 0,
+   "contenttable_records": 0,
+   "familymgr_entries": 9,
+   "coherent": true,
+   "coherent_counts": true,
+   "coherent_guids": true,
+   "adocument_clean": true
+  },
+  "registry_parity": {
+   "global_latest_identical": true,
+   "global_elemtable_identical": true,
+   "statement": "100% by construction: Global/Latest and Global/ElemTable are byte-identical to the base, so every registry leaf that indexed a slot still indexes the same id (now carrying OUR object) -- ASSERTED via the stream byte-diff, not assumed"
+  },
+  "registration_diff_sample": [
+   {
+    "slot": 1,
+    "class": "AllProjectPhases",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 2,
+    "class": "PenWidthTableElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 3,
+    "class": "FillPatternElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 29
+   },
+   {
+    "slot": 4,
+    "class": "FillPatternElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 5,
+    "class": "FillPatternElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 11,
+    "class": "LinePatternElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   }
+  ]
+ },
+ "phase_2_deletions": null,
+ "invariants": {
+  "in_place_first_then_deletions": true,
+  "registry_parity": {
+   "global_latest_identical": true,
+   "global_elemtable_identical": true,
+   "statement": "100% by construction: Global/Latest and Global/ElemTable are byte-identical to the base, so every registry leaf that indexed a slot still indexes the same id (now carrying OUR object) -- ASSERTED via the stream byte-diff, not assumed"
+  },
+  "byte_delta_in_place": {
+   "layer": "in-place",
+   "streams_differing": [
+    "Partitions/21"
+   ],
+   "only_partition_differs": true,
+   "records_changed_count": 2363,
+   "records_changed_by_seq": {
+    "101": 7,
+    "102": 5
+   },
+   "expected_slots": 2356,
+   "unexpected_changed_ids": [],
+   "records_added_ids": [],
+   "records_removed_ids": [],
+   "landed_but_unchanged_slots": 0,
+   "id_order_identical_per_seq": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "block_partition_identical_per_seq": {
+    "101": false,
+    "102": false,
+    "103": true
+   },
+   "elemtable_identical": true,
+   "adocument_identical": true,
+   "embedded_units_identical": true,
+   "field_diff_examples": [
+    {
+     "seq": 101,
+     "id": 230,
+     "len_ours": 239,
+     "len_parent": 247,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ElementHeader",
+       "class_parent": "ElementHeader"
+      },
+      {
+       "path": ".m_parents.value.m_deletion[len]",
+       "ours": 8,
+       "parent": 9
+      }
+     ]
+    },
+    {
+     "seq": 101,
+     "id": 9490,
+     "len_ours": 151,
+     "len_parent": 159,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ElementHeader",
+       "class_parent": "ElementHeader"
+      },
+      {
+       "path": ".m_parents.value.m_deletion[len]",
+       "ours": 3,
+       "parent": 4
+      }
+     ]
+    },
+    {
+     "seq": 101,
+     "id": 69851,
+     "len_ours": 215,
+     "len_parent": 223,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ElementHeader",
+       "class_parent": "ElementHeader"
+      },
+      {
+       "path": ".m_parents.value.m_deletion[len]",
+       "ours": 7,
+       "parent": 8
+      }
+     ]
+    },
+    {
+     "seq": 101,
+     "id": 245443,
+     "len_ours": 279,
+     "len_parent": 287,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ElementHeader",
+       "class_parent": "ElementHeader"
+      },
+      {
+       "path": ".m_parents.value.m_deletion[len]",
+       "ours": 15,
+       "parent": 16
+      },
+      {
+       "path": ".m_parents.value.m_deletion[14]",
+       "ours": "1457044",
+       "parent": "1250029"
+      }
+     ]
+    }
+   ],
+   "exceptions": [
+    {
+     "what": "seq-101 block partition re-flowed",
+     "reason": "our objects differ in byte length from the parent's, so the certified re-blocker (rvt.reduce.reblock) re-chunked the unit-0 seq-101 run; record ORDER unchanged",
+     "blocks_parent": 4,
+     "blocks_out": 4
+    },
+    {
+     "what": "seq-102 block partition re-flowed",
+     "reason": "our objects differ in byte length from the parent's, so the certified re-blocker (rvt.reduce.reblock) re-chunked the unit-0 seq-102 run; record ORDER unchanged",
+     "blocks_parent": 18,
+     "blocks_out": 10
+    }
+   ],
+   "problems": [],
+   "assertion_holds": true
+  },
+  "in_place_law": {
+   "ok": true,
+   "landed": 2356,
+   "changed": 2356,
+   "unchanged_landed": 0,
+   "stray_changed": [],
+   "seq_violations": {},
+   "added": [],
+   "removed": [],
+   "problems": [],
+   "law": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed."
+  },
+  "reduce_law_deletions": null,
+  "four_registry_final": {
+   "save_units": 1,
+   "contentdocs_entries": 0,
+   "contenttable_records": 0,
+   "familymgr_entries": 9,
+   "coherent": true,
+   "coherent_counts": true,
+   "coherent_guids": true,
+   "adocument_clean": true
+  },
+  "validator_final": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 2,
+   "error_messages": [],
+   "stats": {
+    "streams": 12,
+    "partition_blocks": 15,
+    "records": 9888,
+    "elements_decoded": 3295,
+    "decode_failures": 1,
+    "refs_checked": 40880
+   }
+  }
+ },
+ "problems": [],
+ "warnings": [],
+ "verdict": "COMPOSED-VALID",
+ "manifest_file": "experiments/genesis/subst_k4_2024/compose/G_ABPD_2024.phase1.manifest.json",
+ "seconds": 2.5,
+ "anchor": null
+}

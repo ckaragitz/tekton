@@ -1,0 +1,846 @@
+{
+ "rung": "X2",
+ "label": "BrowserOrganization set + system-navigator constellation -> ours",
+ "kind": "substitute",
+ "parent": "experiments/genesis/subst_v2/X1.rvt",
+ "parent_rung": "X1",
+ "out": "experiments/genesis/subst_v2/X2.rvt",
+ "description": "X1 with the whole project-browser layer REPLACED: the 11 sample BrowserOrganizations -> OUR scheme (the 4 REQUIRED per-tree 'all' defaults + our 2 house schemes), the MEP system-navigator view + its Viewer/Viewport/DBDrawing -> OUR navigator constellation (wired to the same phases / units / workset-visibility / MEP tracker the sample's was), ReconcileBrowserSettingsElem + ConstructionSetProject -> ours.  DBViewProject's four regen edges and the BrowserOrganizationTracking per-tree default map are re-pointed to OUR defaults; DBViewInfo.m_DBViewSystemNavigatorId + the views / drawings indexes are re-pointed to our navigator constellation; the seven Autodesk browser schemes ('not on sheets', 'Phase', ...) are deleted; our two house schemes are appended to the tracking set.",
+ "tests": "Whether the reader accepts OUR browser-organization scheme + OUR MEP system-navigator view constellation (K5b's classes) in place of the sample's, with every registry that indexed the originals re-pointed.",
+ "if_PASS": "Our browser / navigator constructors and their four registries (BrowserOrganizationTracking, DBViewInfo, DBDrawingInfo, AppInfoSystemFamiliesNames) are reader-accepted.",
+ "if_FAIL": "One of our browser / navigator constructions is rejected -- bisect: an X2a with only the browser organizations replaced (navigator kept) vs an X2b with only the navigator replaced.",
+ "old": {
+  "count": 17,
+  "ids": [
+   24945,
+   24946,
+   24947,
+   26012,
+   26013,
+   26014,
+   26015,
+   26016,
+   26017,
+   69851,
+   69852,
+   69853,
+   69854,
+   99928,
+   116120,
+   1468599,
+   1472524
+  ],
+  "by_class": {
+   "BrowserOrganization": 11,
+   "RbsDbViewSystemNavigator": 1,
+   "Viewer": 1,
+   "Viewport": 1,
+   "DBDrawing": 1,
+   "ConstructionSetProject": 1,
+   "ReconcileBrowserSettingsElem": 1
+  }
+ },
+ "new": {
+  "count": 12,
+  "id_range": [
+   1600000,
+   1600011
+  ],
+  "by_class": {
+   "BrowserOrganization": 6,
+   "ReconcileBrowserSettingsElem": 1,
+   "ConstructionSetProject": 1,
+   "RbsDbViewSystemNavigator": 1,
+   "Viewer": 1,
+   "Viewport": 1,
+   "DBDrawing": 1
+  }
+ },
+ "correspondence": [
+  {
+   "old": 24945,
+   "new": 1600000,
+   "old_class": "BrowserOrganization",
+   "new_class": "BrowserOrganization"
+  },
+  {
+   "old": 24946,
+   "new": 1600001,
+   "old_class": "BrowserOrganization",
+   "new_class": "BrowserOrganization"
+  },
+  {
+   "old": 69851,
+   "new": 1600008,
+   "old_class": "RbsDbViewSystemNavigator",
+   "new_class": "RbsDbViewSystemNavigator"
+  },
+  {
+   "old": 69852,
+   "new": 1600009,
+   "old_class": "Viewer",
+   "new_class": "Viewer"
+  },
+  {
+   "old": 69853,
+   "new": 1600010,
+   "old_class": "Viewport",
+   "new_class": "Viewport"
+  },
+  {
+   "old": 69854,
+   "new": 1600011,
+   "old_class": "DBDrawing",
+   "new_class": "DBDrawing"
+  },
+  {
+   "old": 99928,
+   "new": 1600007,
+   "old_class": "ConstructionSetProject",
+   "new_class": "ConstructionSetProject"
+  },
+  {
+   "old": 116120,
+   "new": 1600006,
+   "old_class": "ReconcileBrowserSettingsElem",
+   "new_class": "ReconcileBrowserSettingsElem"
+  },
+  {
+   "old": 1468599,
+   "new": 1600002,
+   "old_class": "BrowserOrganization",
+   "new_class": "BrowserOrganization"
+  },
+  {
+   "old": 1472524,
+   "new": 1600003,
+   "old_class": "BrowserOrganization",
+   "new_class": "BrowserOrganization"
+  }
+ ],
+ "unmapped_old_deleted": [
+  {
+   "id": 24947,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 26012,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 26013,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 26014,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 26015,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 26016,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 26017,
+   "class": "BrowserOrganization"
+  }
+ ],
+ "new_only_registered": [
+  {
+   "id": 1600004,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 1600005,
+   "class": "BrowserOrganization"
+  }
+ ],
+ "residue_left_in_place": {},
+ "build_notes": [
+  "11 old organizations; defaults per tree {0: 24945, 1: 24946, 3: 1468599, 4: 1472524}; ours [(0, 1600000), (1, 1600001), (3, 1600002), (4, 1600003), (0, 1600004), (1, 1600005)]",
+  "navigator constellation [69851, 69852, 69853, 69854] (['RbsDbViewSystemNavigator', 'Viewer', 'Viewport', 'DBDrawing']) -> ours {'RbsDbViewSystemNavigator': 1600008, 'Viewer': 1600009, 'Viewport': 1600010, 'DBDrawing': 1600011}; wiring {'phase_id': -1, 'phase_filter_id': -1, 'sun_settings_id': -1, 'invisible_style_id': -1, 'not_silhouette_style_id': -1, 'all_phases_id': 1, 'units_id': 19236, 'workset_visibility_id': 113134, 'mep_system_tracker_id': 130510, 'excluded_categories': []}"
+ ],
+ "build_info": {
+  "old_defaults_by_type": {
+   "0": 24945,
+   "1": 24946,
+   "3": 1468599,
+   "4": 1472524
+  },
+  "our_defaults_by_type": {
+   "0": 1600000,
+   "1": 1600001,
+   "3": 1600002,
+   "4": 1600003
+  },
+  "house_schemes": [
+   1600004,
+   1600005
+  ]
+ },
+ "stages": [
+  {
+   "stage": "A: append our records (rvt.commit.commit_new_elements)",
+   "new_elements": 12,
+   "elemtable_after": 6552,
+   "watermark_after": 1600011,
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true
+   },
+   "new_records_clean": 36,
+   "seconds": 7.6
+  },
+  {
+   "stage": "B: re-point survivor referrers + delete OLD (rvt.manipulate.commit_plans)",
+   "referrers_repointed": 1,
+   "referrer_records_edited": 1,
+   "repointed_by_class": [
+    [
+     "DBViewProject",
+     1
+    ]
+   ],
+   "embedded_document_referrers_uneditable": 0,
+   "old_records_removed": 17,
+   "elemtable_before": 6552,
+   "elemtable_after": 6535,
+   "verify_manipulated": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "isize_identity_mismatches": 0
+   },
+   "seconds": 7.3
+  },
+  {
+   "stage": "C: ADocument remap old->new / purge unmapped / register ours-only / re-encode",
+   "leaves_remapped": 18,
+   "remap_examples": [
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 99928,
+     "new": 1600007
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewSystemNavigatorId",
+     "old": 69851,
+     "new": 1600008
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]",
+     "old": 69851,
+     "new": 1600008
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]",
+     "old": 69854,
+     "new": 1600011
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[32]",
+     "old": 116120,
+     "new": 1600006
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]",
+     "old": 24945,
+     "new": 1600000
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]",
+     "old": 24946,
+     "new": 1600001
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]",
+     "old": 1468599,
+     "new": 1600002
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]",
+     "old": 1472524,
+     "new": 1600003
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "old": 24945,
+     "new": 1600000
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "old": 24946,
+     "new": 1600001
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "old": 1468599,
+     "new": 1600002
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "old": 1472524,
+     "new": 1600003
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "old": 24945,
+     "new": 1600000
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "old": 24946,
+     "new": 1600001
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "old": 99928,
+     "new": 1600007
+    }
+   ],
+   "purge_totals": {
+    "dangling": 14,
+    "nulled": 0,
+    "elements_dropped": 14,
+    "scalars_nulled": 0
+   },
+   "purge_bodies": [
+    {
+     "body": "BrowserOrganizationTracking",
+     "dangling": 7,
+     "nulled": 0,
+     "elements_dropped": 7,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "AppInfoSystemFamiliesNames",
+     "dangling": 7,
+     "nulled": 0,
+     "elements_dropped": 7,
+     "scalars_nulled": 0
+    }
+   ],
+   "new_only_registration": {
+    "applied": {
+     "browser-set": 2,
+     "sysfam": 2
+    },
+    "skipped": []
+   },
+   "latest_payload_before": 1586246,
+   "latest_payload_after": 1586182,
+   "seconds": 4.1
+  }
+ ],
+ "new_records_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "referrer_repoint": {
+  "referrer_elements": 1,
+  "record_edits": [
+   {
+    "referrer": 230,
+    "class": "DBViewProject",
+    "seq": 101,
+    "remapped": 4,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[5]"
+    ],
+    "purged": null
+   }
+  ],
+  "embedded_document_referrers_uneditable": 0,
+  "errors": []
+ },
+ "parity": {
+  "pairs": 10,
+  "pairs_ok": 10,
+  "pairs_failed": 0,
+  "table_note": "all pairs stored",
+  "table": [
+   {
+    "old": 24945,
+    "new": 1600000,
+    "class": "BrowserOrganization",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 24946,
+    "new": 1600001,
+    "class": "BrowserOrganization",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 69851,
+    "new": 1600008,
+    "class": "RbsDbViewSystemNavigator",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewSystemNavigatorId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewSystemNavigatorId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 69852,
+    "new": 1600009,
+    "class": "Viewer",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 69853,
+    "new": 1600010,
+    "class": "Viewport",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 69854,
+    "new": 1600011,
+    "class": "DBDrawing",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 99928,
+    "new": 1600007,
+    "class": "ConstructionSetProject",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 116120,
+    "new": 1600006,
+    "class": "ReconcileBrowserSettingsElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[32]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[32]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1468599,
+    "new": 1600002,
+    "class": "BrowserOrganization",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1472524,
+    "new": 1600003,
+    "class": "BrowserOrganization",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_currentBrOrgTypeToBrOrgMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   }
+  ],
+  "positional_uet_slots": [
+   {
+    "old": 116120,
+    "new": 1600006,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[32]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[32]"
+    ],
+    "ok": true
+   }
+  ],
+  "uet_failed": 0,
+  "old_ids_still_in_adocument": {},
+  "adocument_dangling_before": 1245,
+  "adocument_dangling_after": 1245,
+  "adocument_dangling_created": [],
+  "seconds": 2.9
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "deleted_still_present": [],
+  "isize_identity_ok": true,
+  "unit0_element_records": 6535,
+  "walker_errors": 0
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 280,
+   "records": 73989,
+   "elements_decoded": 24610,
+   "decode_failures": 7,
+   "refs_checked": 389197
+  }
+ },
+ "census": {
+  "path": "experiments/genesis/subst_v2/X2.rvt",
+  "elements": 6535,
+  "classes": {
+   "GStyleElem": 2173,
+   "CategoryElem": 606,
+   "ParamElemExternal": 466,
+   "FontElem": 245,
+   "ParamBinding": 209,
+   "LinePatternElem": 150,
+   "AppearanceAssetElem": 131,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemFamily": 120,
+   "FillPatternElem": 116,
+   "ParamElemElectricalLoadClassification": 108,
+   "FamilySymbol": 106,
+   "MaterialElem": 93,
+   "DBViewType": 91,
+   "SunAndShadowSettings": 90,
+   "TextNoteAttributes": 90,
+   "Viewport": 69,
+   "SketchPlane": 64,
+   "LeaderStyle": 61,
+   "CustomElement": 61,
+   "TagNoteAttributes": 60,
+   "PropertySetElement": 56,
+   "FamilySurrogate": 50,
+   "FamSymSurrogate": 50,
+   "DBDrawing": 49,
+   "Family": 49,
+   "ExtentElem": 39,
+   "ConceptualConstructionType": 36,
+   "LegendComponent": 36,
+   "HVACLoadBuildingTypeElem": 33,
+   "FilledRegionAttributes": 32,
+   "RbsFluidType": 28,
+   "SunAnnotationElem": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "Viewer": 24,
+   "DBView3d": 21,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "DBViewSection": 20,
+   "ElectricalLoadClassification": 18,
+   "TilePatternType": 17,
+   "DivisionRule": 17,
+   "DimensionStyle": 16,
+   "DBViewPlan": 16,
+   "Grid": 16,
+   "LightSchemeElement": 15,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "AllPlanTopologies": 12,
+   "Viewer3d": 12,
+   "ModelClipBox": 12,
+   "RbsPipingSystemType": 11,
+   "SectionAttributes": 10,
+   "ColorFillSchema": 10,
+   "ConceptualSurfaceType": 10,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "PenWidthTableElem": 9,
+   "AreaTypeElem": 8,
+   "ParamElemProject": 8,
+   "LoadNatureElem": 8,
+   "LoadCaseElem": 8,
+   "RbsPipeConnectionType": 8,
+   "Section": 8,
+   "RebarShape": 8,
+   "DBViewDrafting": 8,
+   "PhaseFilterElem": 7,
+   "ParameterFilterElement": 7,
+   "InteriorElev": 6,
+   "AreaSchemePlanTopologies": 6,
+   "ConduitStandardType": 6,
+   "CurveElem": 6,
+   "DBViewAnonDrafting": 6,
+   "BrowserOrganization": 6,
+   "FloorAttributes": 5,
+   "RbsPipeMaterialType": 5,
+   "StructConnectionType": 5,
+   "RebarHookType": 5,
+   "ImageHolder": 5,
+   "ImageSymbol": 5,
+   "InteriorElevArrow": 4,
+   "SpotElevationStyle": 4,
+   "RbsWireMaterialType": 4,
+   "CustomElementType": 4,
+   "BasicWallType": 3,
+   "PrintSettings": 3,
+   "RbsWireTemperatureRatingType": 3,
+   "RbsHvacSystemType": 3,
+   "StairsLandingType": 3,
+   "StairsType": 3,
+   "StairsRunType": 3,
+   "DesignOption": 3,
+   "AbsDuctType": 3,
+   "NumberingSchema": 3,
+   "MasterImportSymbol": 3,
+   "ImportInstance": 3,
+   "ViewportAttributes": 2,
+   "CompoundCeilingType": 2,
+   "AreaMeasureElem": 2,
+   "ProjectPhase": 2,
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "ModelGraphicsStyle": 2,
+   "SysPanelFamSym": 2,
+   "CoverType": 2,
+   "BasePoint": 2,
+   "WorksharingViewModeSettings": 2,
+   "ComponentRepeaterSlotSpecialType": 2,
+   "StairsPathType": 2,
+   "StairsSupportType": 2,
+   "ViewSheetSet": 2,
+   "AbsFlexDuctType": 2,
+   "RbsCableTrayType": 2,
+   "RbsConduitType": 2,
+   "GCSViewport": 2,
+   "RebarBarType": 2,
+   "RevisionNumberingSequence": 2,
+   "RebarBendingDetailType": 2,
+   "MEPSystemZoneElementType": 2,
+   "AllProjectPhases": 1,
+   "DBViewProject": 1,
+   "ColorFillSymbol": 1,
+   "LevelAttributes": 1,
+   "CurtainRoofAttributes": 1,
+   "GridAttributes": 1,
+   "RampAttributes": 1,
+   "RevealAttr": 1,
+   "CorniceAttr": 1,
+   "Text3dAttrSymbol": 1,
+   "TrueNorth": 1,
+   "DaylightSourceIdSet": 1,
+   "UnitsElem": 1,
+   "RoofSoffitType": 1,
+   "FasciaAttr": 1,
+   "GutterAttr": 1,
+   "EdgeSlabAttr": 1,
+   "ContourLabelingAttributes": 1,
+   "PropertyAttr": 1,
+   "StairsRailingAttr": 1,
+   "StairsAttributes": 1,
+   "RepeatingDetailAttributes": 1,
+   "ExternalParamLock": 1,
+   "JoistSystemAttr": 1,
+   "RevisionCloudAttr": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "CurtaSystemAttr": 1,
+   "ProjectInfo": 1,
+   "StackedWallType": 1,
+   "StructSettingsElem": 1,
+   "RbsWireType": 1,
+   "RbsVoltageType": 1,
+   "RbsDistributionSysType": 1,
+   "AreaReportSettingsElem": 1,
+   "AreaSettingsElem": 1,
+   "ReactionsUpToDateElem": 1,
+   "ContFootingType": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "KeynoteTable": 1,
+   "KeynotingSystem": 1,
+   "ReferenceViewerAttributes": 1,
+   "WallJoinDefaultSetting": 1,
+   "RbsDuctSizesElem": 1,
+   "RbsDuctSettingsElem": 1,
+   "RbsPipeSettingsElem": 1,
+   "RbsWireSettingsElem": 1,
+   "RbsPipeSizesElem": 1,
+   "RbsWireSizesElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "ZoneScheme": 1,
+   "AutoJoinTracker": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "ConduitSizesElem": 1,
+   "CableTraySizesElem": 1,
+   "CableTraySettingsElem": 1,
+   "ConduitSettingsElem": 1,
+   "ProjectCopySettingsElem": 1,
+   "EnergyDataSettings": 1,
+   "ElectricalSetting": 1,
+   "ListConceptualSurfaceTypes": 1,
+   "MEPSystemTracker": 1,
+   "AssemblyTracker": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "InitialViewSettings": 1,
+   "PropertySetLibrary": 1,
+   "AnalyticalLinkType": 1,
+   "ReinforcementSettings": 1,
+   "HandRailType": 1,
+   "TopRailType": 1,
+   "CutMarkType": 1,
+   "SysMullionFamSym": 1,
+   "BuildingPadType": 1,
+   "CurtaSystemFaceManager": 1,
+   "NewCurtainWallType": 1,
+   "RoofAttributes": 1,
+   "StairsTriserSymbol": 1,
+   "LinearDimString": 1,
+   "DBViewTypeAreaPlan": 1,
+   "DesignOptionSet": 1,
+   "DefaultDivideSettings": 1,
+   "MEPComponentTracker": 1,
+   "RbsPipeType": 1,
+   "RbsFlexPipeType": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "LevelRoomPlan": 1,
+   "LayoutNodesTracker": 1,
+   "AssemblyCodeTable": 1,
+   "FabricationSettings": 1,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "CopyWatchProperties": 1,
+   "GraphSchedColumnTable": 1,
+   "DBViewGraphSchedColumn": 1,
+   "AreaReinforcementType": 1,
+   "FabricAreaType": 1,
+   "FabricWireType": 1,
+   "FabricSheetType": 1,
+   "DataStorage": 1,
+   "LineLoadType": 1,
+   "AreaLoadType": 1,
+   "SlaveSymbolTrackerElem": 1,
+   "DBViewRendering": 1,
+   "FabricationSettingsElement": 1,
+   "StructuralConnectionSettings": 1,
+   "MEPAnalyticalConnectionElementType": 1,
+   "MEPNetworkTracker": 1,
+   "MechanicalEquipmentSetType": 1,
+   "MEPSystemZoneType": 1,
+   "RouteAnalysisSettings": 1,
+   "CircuitNamingTypeSetting": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "GraphicsCache": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "MEPNetworkDataElem": 1,
+   "FabricationServiceSettings": 1,
+   "ToposolidType": 1,
+   "SSEPointVisibilitySettings": 1,
+   "STEPExportSettings": 1,
+   "SheetsInSheetCollectionTracker": 1,
+   "RbsCableType": 1,
+   "ReconcileBrowserSettingsElem": 1,
+   "ConstructionSetProject": 1,
+   "RbsDbViewSystemNavigator": 1
+  },
+  "file_size": 4481024,
+  "save_units": 53,
+  "contentdocs_entries": 52,
+  "contentdocs_clean_tail": true,
+  "contenttable_records": 52,
+  "adocument_clean": true,
+  "familymgr_entries": 50,
+  "familymgr_doc_guids": 52
+ },
+ "coherence": {
+  "save_units": 53,
+  "contentdocs_entries": 52,
+  "contenttable_records": 52,
+  "familymgr_doc_guids": 52,
+  "coherent": true
+ },
+ "bytes": 4481024,
+ "seconds": 30.0,
+ "problems": [],
+ "verdict": "VALID"
+}

@@ -1,0 +1,237 @@
+{
+ "generator": "tools/genesis_controls.py",
+ "stream": "genesis-controls -- the three-way separation {ADD PATH vs OBJECT SHAPE vs OUR VALUES}, one class at a time",
+ "the_divide_it_attacks": "ORCHESTRATOR VERDICTS #9: every file whose element records are Autodesk's verbatim bytes LOADS; every file carrying our from-scratch CONSTRUCTED objects FAILS with 'Revit-DocumentCorruption'.  These controls hold, in turn, the ADD PATH, the OBJECT SHAPE/header/rep, and OUR VALUES constant against the same passing base, first for the PenWidthTableElem (X0/X1v/X1u -- the ladder's X1 class) then for ONE object-styles catalog row (C0/C1v/C1u -- the class R2 / X6a substitute wholesale).",
+ "base": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; its descendants K3 / K4 / KD1 PASS)",
+ "method": "Every probe = K1 + ONE change, built by the SUBSTITUTION ENGINE itself (tools/genesis_substitute.substitute with a one-class Rung) -- i.e. the IDENTICAL add path the X-rungs use: our records appended via rvt.commit.commit_new_elements (ElemTable row = fresh max episode, original_id = the new id), the OLD element deleted via rvt.manipulate, the ADocument registry leaf re-pointed old->new by the schema-typed editor, Global/Latest re-encoded byte-exactly, save-unit 0 re-blocked, and the engine's certification (validator 0 errors, structural proof, registry parity, four-registry coherence, 0 NEW dangling ids).  What differs between the three controls of a class is ONLY where the three element records come from: X0/C0 = Autodesk's exact bytes (decoded and re-encoded byte-identically -- ASSERTED at the original id -- with only the element's own identity fields rebased to the new id); X1v/C1v = OUR constructor fed the specimen's EXACT values (byte-identity ASSERTED and the residual named to the bit); X1u/C1u = OUR constructor with OUR values (everything structural pinned to the specimen).",
+ "reading_order": [
+  "X0",
+  "X1v (no upload: verdict = X0's)",
+  "X1u",
+  "C0",
+  "C1v",
+  "C1u"
+ ],
+ "upload_batch": "ONE round: X0, X1u, C0, C1v, C1u (5 files) + C0all + the addback stream's un-uploaded R2s.  X1v needs no upload (byte-identical twin of X0).  X0k / X1ua / X1ub are pre-built follow-ups (see 'when').",
+ "probes": [
+  {
+   "order": 1,
+   "file": "experiments/genesis/controls/X0.rvt",
+   "report": "experiments/genesis/controls/X0.json",
+   "class": "PenWidthTableElem",
+   "derived_from": "experiments/genesis/triage/K1.rvt (viewer PASS) by ONE change",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; descendants K3 / K4 / KD1 PASS)",
+   "related_files": "experiments/genesis/subst/X1.rvt (the ladder's pen-table rung: OUR constructor + OUR values + OUR imperial scale keys; verdict pending)",
+   "label": "PenWidthTableElem: Autodesk's OWN pen table re-inserted VERBATIM as a new element through OUR add path",
+   "the_one_thing_it_tests": "Is OUR ADD PATH sound for a document-settings singleton?  Content is held at Autodesk's exact bytes, so a FAIL can only be the path (ElemTable row fields, record position, new-id band, registry-leaf rewrite, identity scrub, re-block).",
+   "if_PASS": "The add path is sound for a settings singleton.  The whole X-ladder's singleton substitutions rest on this path; whatever an X-rung's FAIL is, it is that rung's CONTENT (object shape / header / values), not the path.  Read X1u next (values), then the ladder's X1 (keys).",
+   "if_FAIL": "THE ADD PATH ITSELF CORRUPTS a settings singleton -- the X-ladder is void until fixed.  The diff of what our path wrote vs K1's original registration is in X0.json:build_info (ElemTable row (0,976,976)->(ep,ep,ep) with original_id = the new id; record moved from mid-stream to the unit end; id 2 -> 1,500,000 leaving a hole at the front of the id space; the PenWidthTableInfo leaf rewritten to a 1.5M id; the identity scrub).  Upload the pre-built X0k (same-id re-insert, ZERO registry motion) to halve it: X0k PASS => the new-id / registry-rewrite half; X0k FAIL => the record-append / ElemTable-row half.",
+   "byte_identity_assertions": {
+    "autodesk_records_reencoded_byte_identical_all_3_seqs": true
+   },
+   "validator_verdict": "VALID",
+   "validator_errors": 0,
+   "optional": false
+  },
+  {
+   "order": 2,
+   "file": "experiments/genesis/controls/X1v.rvt",
+   "report": "experiments/genesis/controls/X1v.json",
+   "class": "PenWidthTableElem",
+   "derived_from": "experiments/genesis/triage/K1.rvt (viewer PASS) by ONE change",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; descendants K3 / K4 / KD1 PASS)",
+   "related_files": "experiments/genesis/subst/X1.rvt (the ladder's pen-table rung: OUR constructor + OUR values + OUR imperial scale keys; verdict pending)",
+   "label": "PenWidthTableElem: OUR CONSTRUCTOR fed AUTODESK'S EXACT values (byte-identical -- ASSERTED; a no-upload twin of X0)",
+   "the_one_thing_it_tests": "Does OUR constructor's rendition of a byte-identical object load?  Because the byte-identity assertion holds for header + object + rep, this file needs NO upload: its verdict IS X0's.  Its purpose is the ASSERTION (recorded in X1v.json): {shape, header, rep} of the pen-table constructor are retired as suspects by construction, leaving only VALUES (X1u) and scale KEYS (X1) as X1's variables.",
+   "if_PASS": "(= X0 PASS) Our constructor CAN emit a reader-clean pen table when fed Autodesk's exact values: the constructor's structure/header/rep are fine; any X1 failure is OUR VALUES or OUR SCALE KEYS -- X1u separates them.",
+   "if_FAIL": "(= X0 FAIL) The add path is broken; content questions are moot until it is fixed (X0k halves it).",
+   "byte_identity_assertions": {
+    "our_constructor_all_three_seqs_identical": true
+   },
+   "validator_verdict": "VALID",
+   "validator_errors": 0,
+   "optional": false,
+   "NO_UPLOAD_TWIN_OF": "X0",
+   "collapse_check": {
+    "X0": {
+     "partition": "f0fc534e0ddb7304",
+     "Global/Latest": "4c31321736704eb4",
+     "Global/ElemTable": "3133965d51fe86c1"
+    },
+    "X1v": {
+     "partition": "f0fc534e0ddb7304",
+     "Global/Latest": "4c31321736704eb4",
+     "Global/ElemTable": "3133965d51fe86c1"
+    },
+    "identical": {
+     "partition": true,
+     "Global/Latest": true,
+     "Global/ElemTable": true
+    },
+    "content_identical": true,
+    "statement": "X1v's Partitions / Latest / ElemTable streams are byte-identical to X0's"
+   },
+   "upload_note": "Do NOT spend a viewer round on X1v: its element streams are byte-identical to X0's (collapse_check).  Its verdict IS X0's.  It is emitted for the record: the byte-identity assertion in X1v.json is the deliverable (our pen-table constructor's shape/header/rep are Autodesk-identical by construction)."
+  },
+  {
+   "order": 3,
+   "file": "experiments/genesis/controls/X1u.rvt",
+   "report": "experiments/genesis/controls/X1u.json",
+   "class": "PenWidthTableElem",
+   "derived_from": "experiments/genesis/triage/K1.rvt (viewer PASS) by ONE change",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; descendants K3 / K4 / KD1 PASS)",
+   "related_files": "experiments/genesis/subst/X1.rvt (the ladder's pen-table rung: OUR constructor + OUR values + OUR imperial scale keys; verdict pending)",
+   "label": "PenWidthTableElem: OUR width VALUES, the specimen's structure (6 metric scale keys / 16 pens / flags) pinned",
+   "the_one_thing_it_tests": "Are OUR width VALUES themselves acceptable when nothing structural differs from the accepted specimen (the value-semantics question for the pen table)?",
+   "if_PASS": "Our width values are fine.  Then the ONLY variable left in the ladder's X1 is the six scale KEYS (our imperial breakpoints 24/48/96/192/384/768 in a metric-lineage document vs the specimen's 10..500): if X1 FAILS while X1u PASSES, the SCALE-KEY VALUES are the audited constraint (a set of valid view-scale denominators, or units-consistency) -- a one-line settings fix and a KNOWLEDGE entry.  If X1 also PASSES, PenWidthTableElem is fully retired as a suspect (path X0, shape X1v, values X1u, keys X1).",
+   "if_FAIL": "(with X0 PASSING) a WIDTH VALUE range/ordering IS audited by the reader (our 0.13-8.0 mm series vs Autodesk's 0.1-10.0).  Upload the pre-built halving bisectors X1ua (model vectors Autodesk's exact, perspective+draft OURS) and X1ub (model OURS, perspective+draft Autodesk's) to localize it to 96 vs 32 doubles; the width constraint then becomes a documented constant.",
+   "byte_identity_assertions": {},
+   "validator_verdict": "VALID",
+   "validator_errors": 0,
+   "optional": false
+  },
+  {
+   "order": 4,
+   "file": "experiments/genesis/controls/C0.rvt",
+   "report": "experiments/genesis/controls/C0.json",
+   "class": "GStyleElem (built-in catalog row: OST_Windows -2000014 projection, K1 row 34)",
+   "derived_from": "experiments/genesis/triage/K1.rvt (viewer PASS) by ONE change",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; descendants K3 / K4 / KD1 PASS)",
+   "related_files": "experiments/genesis/addback/R2.rvt (OUR whole catalog on K1: viewer FAIL) and R2s.rvt (its original-id mechanics control: NEVER uploaded)",
+   "label": "GStyleElem row (OST_Windows projection): Autodesk's OWN row re-inserted VERBATIM as a new element through OUR add path",
+   "the_one_thing_it_tests": "Is OUR ADD PATH sound for a built-in object-styles catalog row (the class R2 / X6a substitute wholesale)?  The catalog-row analogue of X0.",
+   "if_PASS": "The add path is sound for a catalog row -- R2's / X6a's mechanics per row are not the killer; read C1v (header) and C1u (values), and see C0all for the catalog-SCALE version of this question (R2 substituted 1,348 rows at once).",
+   "if_FAIL": "The add path corrupts a catalog row.  With X0 ALSO FAILING => the add path in general; with X0 PASSING => the catalog-row registration specifically (the CategoryTracking m_gstyleId rewrite to a high id, or a built-in style at a 1.5M id).  C0.json:build_info carries the exact diff (ElemTable row, record position, registry leaf).",
+   "byte_identity_assertions": {
+    "autodesk_records_reencoded_byte_identical_all_3_seqs": true
+   },
+   "validator_verdict": "VALID",
+   "validator_errors": 0,
+   "optional": false
+  },
+  {
+   "order": 5,
+   "file": "experiments/genesis/controls/C1v.rvt",
+   "report": "experiments/genesis/controls/C1v.json",
+   "class": "GStyleElem (built-in catalog row: OST_Windows -2000014 projection, K1 row 34)",
+   "derived_from": "experiments/genesis/triage/K1.rvt (viewer PASS) by ONE change",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; descendants K3 / K4 / KD1 PASS)",
+   "related_files": "experiments/genesis/addback/R2.rvt (OUR whole catalog on K1: viewer FAIL) and R2s.rvt (its original-id mechanics control: NEVER uploaded)",
+   "label": "GStyleElem row (OST_Windows projection): OUR new_gstyle fed the row's EXACT values -- object+rep byte-identical, header ONE flag bit apart",
+   "the_one_thing_it_tests": "Is the ElementHeader flag word audited for object-style rows?  Our catalog constructor emits ONE preset (0x400001e) for all 1,407 built-in rows while the accepted catalog carries SIX presets (findings G1); C1v isolates the bit our preset drops for this row (0x2000).  Findings G2 (the same category carries different presets in different accepted files; our preset itself occurs on 15 accepted K1 rows) predicts PASS.",
+   "if_PASS": "The header flag bit 0x2000 is NOT audited for this row (as G2 predicts): our single header preset is tolerated => read C1u for the values; the per-row header/cell-list divergence of our catalog constructor is NOT R2's killer, and the weight shifts to the catalog-scale path (C0all) and to actually uploading R2s (the addback stream's un-uploaded mechanics control).",
+   "if_FAIL": "(with C0 PASSING) THE ELEMENTHEADER FLAG WORD IS AUDITED for built-in object-style rows: our catalog constructor must emit each row's flag preset (and, likely, the CellList{PatternHelper} the census shows on 790 rows -- the next probe would be a cell-list twin).  This ALONE can explain R2 / X6a (1,392 of their 1,407 rows carry a preset other than ours).  Since G2 shows the presets vary per document, the rule is not per-category: mine the constraint from the six accepted combinations (findings.json).",
+   "byte_identity_assertions": {
+    "object_identical": true,
+    "rep_identical": true,
+    "header_identical": false
+   },
+   "validator_verdict": "VALID",
+   "validator_errors": 0,
+   "optional": false
+  },
+  {
+   "order": 6,
+   "file": "experiments/genesis/controls/C1u.rvt",
+   "report": "experiments/genesis/controls/C1u.json",
+   "class": "GStyleElem (built-in catalog row: OST_Windows -2000014 projection, K1 row 34)",
+   "derived_from": "experiments/genesis/triage/K1.rvt (viewer PASS) by ONE change",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; descendants K3 / K4 / KD1 PASS)",
+   "related_files": "experiments/genesis/addback/R2.rvt (OUR whole catalog on K1: viewer FAIL) and R2s.rvt (its original-id mechanics control: NEVER uploaded)",
+   "label": "GStyleElem row (OST_Windows projection): OUR catalog constructor's LITERAL row (our discipline pen / colour) -- the X6a/R2 row",
+   "the_one_thing_it_tests": "Are OUR object-style VALUES (pen number / COLORREF colour) acceptable for a catalog row?  The value-semantics question, one row.",
+   "if_PASS": "(with C0 and C1v PASSING) the single-row substitution is FULLY EXONERATED -- path, shape, header preset AND our values are all reader-clean for a catalog row.  R2's / X6a's failure is then a WHOLE-CATALOG effect (1,348 rows at once): the pre-built C0all (all referrer-free built-in rows re-inserted VERBATIM at new ids through our path) separates 'the add path at catalog scale' from 'our rows at catalog scale'; upload it, and upload R2s (never uploaded) to close the mechanics side.",
+   "if_FAIL": "(with C1v PASSING) OUR VALUES for a catalog row are audited -- pen number 1 and/or COLORREF 0x181818; a pen/colour twin pair splits them (seconds to build with this tool).",
+   "byte_identity_assertions": {},
+   "validator_verdict": "VALID",
+   "validator_errors": 0,
+   "optional": false
+  }
+ ],
+ "optional_probes": [
+  {
+   "order": 7,
+   "file": "experiments/genesis/controls/C0all.rvt",
+   "report": "experiments/genesis/controls/C0all.json",
+   "class": "GStyleElem (built-in catalog row: OST_Windows -2000014 projection, K1 row 34)",
+   "derived_from": "experiments/genesis/triage/K1.rvt (viewer PASS) by ONE change",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; descendants K3 / K4 / KD1 PASS)",
+   "related_files": "experiments/genesis/addback/R2.rvt (OUR whole catalog on K1: viewer FAIL) and R2s.rvt (its original-id mechanics control: NEVER uploaded)",
+   "label": "ALL referrer-free built-in object-style rows: Autodesk's OWN rows re-inserted VERBATIM at new ids through OUR add path (catalog SCALE control)",
+   "the_one_thing_it_tests": "R2 FAILED with our catalog (this population, OUR rows) and its mechanics control R2s (rows restored at their ORIGINAL ids, document object verbatim) was never uploaded.  C0all is the missing third: OUR PATH at catalog scale with content held byte-identical.  Together with C0 (one row) it separates {path per row} / {path at scale: 1,348 deletions, 1,348 high-id re-inserts at the unit end, fresh episodes, the CategoryTracking mass re-point} / {our rows}.",
+   "if_PASS": "Our add path is sound at catalog scale => R2's failure IS our rows' content (shape/header/values), and C1v / C1u name which aspect per row.  If C1v/C1u also PASS, the residual is a MULTI-row content interaction (e.g. our ink colour on 1,300 rows, our single header preset across the whole table) -- bisect by band/preset.",
+   "if_FAIL": "(with C0 PASSING) the add path breaks AT SCALE though not per row: the 1,348-row mass motion itself (high-id band for the whole object-styles table, the CategoryTracking map's values all rewritten, or 1,348 fresh-episode ElemTable rows / records at the unit end) -- and R2s would tell whether the SAME mass motion at ORIGINAL ids passes.  (with C0 FAILING) => the add path generally.",
+   "byte_identity_assertions": {
+    "all_rows_verbatim_byte_identical_at_original_ids": true,
+    "rows": 1348
+   },
+   "validator_verdict": "VALID",
+   "validator_errors": 0,
+   "optional": true,
+   "when": "Upload WITH the C batch (high value regardless of C0/C1v/C1u): it is the catalog-SCALE add-path control that R2's reading has been missing, and it pairs with R2s (experiments/genesis/addback/R2s.rvt -- built by the addback stream, NEVER uploaded; R2's failure is only attributable to our rows if R2s and C0all PASS)."
+  },
+  {
+   "order": 8,
+   "file": "experiments/genesis/controls/X0k.rvt",
+   "report": "experiments/genesis/controls/X0k.json",
+   "class": "PenWidthTableElem",
+   "derived_from": "experiments/genesis/triage/K1.rvt by ONE change",
+   "label": "PenWidthTableElem re-inserted AT ITS OWN id 2 (delete + append, ZERO registry / id motion, Global/Latest byte-identical to K1's)",
+   "the_one_thing_it_tests": "Is the record-append + ElemTable-row-rewrite HALF of the add path (no id change, no registry rewrite, Global/Latest byte-identical to K1's) reader-clean for the pen table?  The pre-built bisector for an X0 FAIL.",
+   "if_PASS": "With X0 FAILING: the new-id band / ElemTable-append-with-new-id / registry-leaf-rewrite half of the add path is the corruption.  With X0 PASSING: X0k is expected to pass too (subset of X0's change).",
+   "if_FAIL": "The record-append / ElemTable-row-rewrite half itself corrupts a settings singleton (episodes (ep,ep,ep) vs K1's (0,976,976), or the record moved to the unit end): the same path every X-rung and the S/G lines use.",
+   "validator_verdict": "VALID",
+   "optional": true,
+   "when": "Upload ONLY if X0 FAILS (it halves the add path)."
+  },
+  {
+   "order": 9,
+   "file": "experiments/genesis/controls/X1ua.rvt",
+   "report": "experiments/genesis/controls/X1ua.json",
+   "class": "PenWidthTableElem",
+   "derived_from": "experiments/genesis/triage/K1.rvt (viewer PASS) by ONE change",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; descendants K3 / K4 / KD1 PASS)",
+   "related_files": "experiments/genesis/subst/X1.rvt (the ladder's pen-table rung: OUR constructor + OUR values + OUR imperial scale keys; verdict pending)",
+   "label": "PenWidthTableElem value bisector A: model-scale vectors Autodesk's exact, perspective + draft OURS",
+   "the_one_thing_it_tests": "Which half of the width doubles the reader audits (with X1ub).",
+   "if_PASS": "the audited value lives in the model-scale vectors (X1ub should FAIL)",
+   "if_FAIL": "the audited value lives in the perspective / draft vectors (or both halves)",
+   "byte_identity_assertions": {},
+   "validator_verdict": "VALID",
+   "validator_errors": 0,
+   "optional": true,
+   "when": "Upload ONLY if X1u FAILS (with X1ub)."
+  },
+  {
+   "order": 10,
+   "file": "experiments/genesis/controls/X1ub.rvt",
+   "report": "experiments/genesis/controls/X1ub.json",
+   "class": "PenWidthTableElem",
+   "derived_from": "experiments/genesis/triage/K1.rvt (viewer PASS) by ONE change",
+   "passing_sibling": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS; descendants K3 / K4 / KD1 PASS)",
+   "related_files": "experiments/genesis/subst/X1.rvt (the ladder's pen-table rung: OUR constructor + OUR values + OUR imperial scale keys; verdict pending)",
+   "label": "PenWidthTableElem value bisector B: model-scale vectors OURS, perspective + draft Autodesk's exact",
+   "the_one_thing_it_tests": "Which half of the width doubles the reader audits (with X1ua).",
+   "if_PASS": "the audited value lives in the perspective / draft vectors (X1ua should FAIL)",
+   "if_FAIL": "the audited value lives in the model-scale vectors (or both halves)",
+   "byte_identity_assertions": {},
+   "validator_verdict": "VALID",
+   "validator_errors": 0,
+   "optional": true,
+   "when": "Upload ONLY if X1u FAILS (with X1ua)."
+  }
+ ],
+ "decision_tree": {
+  "X0 FAIL": "THE ADD PATH corrupts a settings singleton: every X-rung is void until fixed.  X0.json:build_info diffs our registration against K1's (ElemTable row (0,976,976)->(ep,ep,ep) & original_id, record moved to the unit end, id 2 -> 1,500,000, PenWidthTableInfo leaf -> 1.5M id, identity scrub).  UPLOAD X0k: X0k PASS => the new-id / registry-rewrite half; X0k FAIL => the record-append / ElemTable-row half.",
+  "X0 PASS + X1u PASS": "path fine, our width values fine => the ONLY variable left in the ladder's X1 is the six scale KEYS (our imperial 24..768 vs the specimen's metric 10..500).  If X1 FAILS: the scale-key set is audited (fix: emit valid denominators / follow the document's unit lineage).  If X1 PASSES: PenWidthTableElem is retired as a suspect.",
+  "X0 PASS + X1u FAIL": "our width VALUES are audited (0.13-8.0 mm ISO-128 vs Autodesk's 0.1-10.0): upload X1ua + X1ub to localize to the model vectors (96 doubles) vs perspective/draft (32); the constraint becomes a documented constant.",
+  "X1v": "NO upload: byte-identical twin of X0 (collapse_check).  Its value is the recorded assertion: our constructor reproduces Autodesk's pen table COMPLETELY (header + object + rep) given exact values -- so shape / header / rep are exonerated by construction, and FINDING P1 stands: the mm interface cannot express 8 of the 128 doubles (all the 9.0-mm pens), the settings stream's 'byte-exact reproduction' test is a self-round-trip, not identity-with-specimen.",
+  "C0 FAIL": "the add path corrupts a CATALOG row: with X0 also FAILING => the add path generally; with X0 PASSING => the catalog-row registration specifically (CategoryTracking m_gstyleId at a 1.5M id / a built-in style at a high id band).  R2 / X6a inherit it.",
+  "C0 PASS + C1v FAIL": "THE ELEMENTHEADER FLAG WORD IS AUDITED for built-in object-style rows -- our catalog constructor's single preset 0x400001e (vs SIX presets in the accepted catalog, findings G1) can ALONE explain R2 / X6a; because G2 shows the presets are per-document not per-category, mine the valid-combination rule from findings.json and emit per-row presets (+ the CellList{PatternHelper} 790 rows carry -- the next single-variable twin).",
+  "C0 PASS + C1v PASS + C1u FAIL": "our object-style VALUES are audited (pen number / COLORREF): split pen vs colour with a twin pair (seconds with this tool).",
+  "C0 PASS + C1v PASS + C1u PASS": "the SINGLE-ROW substitution is FULLY EXONERATED -- path, shape, header preset and values are all reader-clean for one catalog row => R2's / X6a's failure is a WHOLE-CATALOG effect.  UPLOAD C0all (all 1,348 referrer-free built-in rows, Autodesk's exact bytes, re-inserted at new ids through our path) + R2s (the un-uploaded original-id mechanics control): C0all PASS + R2s PASS => R2's killer is a MULTI-row property of OUR rows (our one preset / ink colour across the whole table); C0all FAIL => the add path breaks AT SCALE (mass id motion / mass CategoryTracking rewrite / 1,348 fresh-episode rows), not per row.",
+  "ALL SIX PASS": "path (X0, C0), shape/header (X1v, C1v) and values (X1u, C1u) are reader-clean for BOTH classes => the constructed-object divide is NOT per-object for these classes; it is a MULTI-object / scale / interaction property (X5 = 51 more singleton classes at once; R2 = 1,348 rows at once).  The instrument to run next is the same three-way separation applied cumulatively (C0all first), and per-class trios for the X2..X5 constellation."
+ },
+ "findings": "experiments/genesis/controls/findings.json + docs/inbox/genesis-controls.md: P1 (pen doubles not mm-derived; constructor cannot reproduce 8 of 128 doubles via mm), P2 (pen header/rep/object Autodesk-identical => X1v == X0), G1 (six header presets + 790 cell lists in the accepted catalog vs our one preset / no cell), G2 (presets & cell lists are NOT per-category constants -- per-document artefacts, every combination reader-accepted).",
+ "reproduce": "cd rev-revit && .venv/bin/python tools/genesis_controls.py --with-optional"
+}

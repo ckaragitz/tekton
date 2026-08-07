@@ -1,0 +1,2099 @@
+{
+  "engine": "tekton-ifc validate",
+  "engine_version": "0.1.0",
+  "file": "/Users/ck/dev/things/tekton/usecases/chicago-plenum-electrical-room/hardened.ifc",
+  "file_size": 81767,
+  "schema": {
+    "ran": true,
+    "schema": "IFC4",
+    "n_statements": 0,
+    "n_errors": 0,
+    "n_warnings": 0,
+    "errors": [],
+    "warnings": []
+  },
+  "histogram": {
+    "IfcDirection": 205,
+    "IfcAxis2Placement3D": 72,
+    "IfcCartesianPoint": 72,
+    "IfcStyledItem": 65,
+    "IfcExtrudedAreaSolid": 61,
+    "IfcRectangleProfileDef": 61,
+    "IfcPropertySingleValue": 59,
+    "IfcLocalPlacement": 14,
+    "IfcShapeRepresentation": 11,
+    "IfcPropertySet": 11,
+    "IfcRelDefinesByProperties": 11,
+    "IfcProductDefinitionShape": 11,
+    "IfcSIUnit": 7,
+    "IfcElectricDistributionBoard": 6,
+    "IfcPresentationStyleAssignment": 6,
+    "IfcColourRgb": 6,
+    "IfcSurfaceStyleRendering": 6,
+    "IfcSurfaceStyle": 6,
+    "IfcRelDefinesByType": 4,
+    "IfcCartesianPointList3D": 4,
+    "IfcTriangulatedFaceSet": 4,
+    "IfcTransformer": 3,
+    "IfcRelAggregates": 3,
+    "IfcDiscreteAccessory": 1,
+    "IfcRelContainedInSpatialStructure": 1,
+    "IfcBuildingElementProxyType": 1,
+    "IfcTransformerType": 1,
+    "IfcElectricDistributionBoardType": 1,
+    "IfcDiscreteAccessoryType": 1,
+    "IfcPerson": 1,
+    "IfcOrganization": 1,
+    "IfcPersonAndOrganization": 1,
+    "IfcApplication": 1,
+    "IfcOwnerHistory": 1,
+    "IfcGeometricRepresentationContext": 1,
+    "IfcGeometricRepresentationSubContext": 1,
+    "IfcUnitAssignment": 1,
+    "IfcProject": 1,
+    "IfcSite": 1,
+    "IfcBuilding": 1,
+    "IfcBuildingStorey": 1,
+    "IfcBuildingElementProxy": 1
+  },
+  "products": [
+    {
+      "step_id": 53,
+      "guid": "1HIerdo5jUXwamW6MpY5VO",
+      "class": "IfcBuildingElementProxy",
+      "predefined_type": "NOTDEFINED",
+      "object_type": null,
+      "name": "Bus storage electrical room shell \u2014 Area E",
+      "description": "34 ft x 16 ft clear, 20 ft to structure; front wall cut away for viewing",
+      "tag": "ROOM",
+      "type_name": "Building Element Proxy 10763x6096x200mm",
+      "type_id": 330,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Generic Models",
+      "placement_identity": false,
+      "placement_origin": [
+        0.0,
+        2.5384,
+        0.0
+      ],
+      "psets": {
+        "RoomInformation": {
+          "Facility": "DDOT Coolidge \u2014 bus storage / coach services",
+          "Area": "E",
+          "ConduitRackMinElevationFt": 16.0,
+          "id": 57
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 348,
+            "style_name": "floor_slab",
+            "transparency": 0.0,
+            "depth": 0.15,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              10.7632,
+              5.0768
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 356,
+            "style_name": "wall_north_panelwall",
+            "transparency": 0.0,
+            "depth": 6.096,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              10.7632,
+              0.2
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 364,
+            "style_name": "wall_west",
+            "transparency": 0.0,
+            "depth": 6.096,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.2,
+              4.8768
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 372,
+            "style_name": "wall_east",
+            "transparency": 0.0,
+            "depth": 6.096,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.2,
+              4.8768
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 4,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 252,
+      "guid": "3ZGqadb7cqrHWdSOgOJ5IP",
+      "class": "IfcTransformer",
+      "predefined_type": "VOLTAGE",
+      "object_type": null,
+      "name": "XFMR-LR1",
+      "description": "45 kVA dry-type, 480 V delta \u2013 208Y/120 V, feeds B-LR1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-LR1",
+      "type_name": "Transformer 760x610x510mm",
+      "type_id": 332,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        -2.987,
+        -2.0334,
+        0.1
+      ],
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-LR1",
+          "LocationStatus": "ASSUMED \u2014 VERIFY",
+          "id": 258
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 385,
+            "style_name": "xfmrlr1_pad",
+            "transparency": 0.0,
+            "depth": 0.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.81,
+              0.71
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 393,
+            "style_name": "xfmrlr1_enclosure",
+            "transparency": 0.0,
+            "depth": 0.76,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.61,
+              0.51
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 401,
+            "style_name": "xfmrlr1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 409,
+            "style_name": "xfmrlr1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 417,
+            "style_name": "xfmrlr1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 425,
+            "style_name": "xfmrlr1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 433,
+            "style_name": "xfmrlr1_nameplate",
+            "transparency": 0.0,
+            "depth": 0.04,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.12,
+              0.002
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 7,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 275,
+      "guid": "1GSig9yRHZTFmNw4W2rrkJ",
+      "class": "IfcTransformer",
+      "predefined_type": "VOLTAGE",
+      "object_type": null,
+      "name": "XFMR-LQ1",
+      "description": "45 kVA dry-type, 480 V delta \u2013 208Y/120 V, feeds B-LQ1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-LQ1",
+      "type_name": "Transformer 760x610x510mm",
+      "type_id": 332,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        -0.3658,
+        -2.0334,
+        0.1
+      ],
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-LQ1",
+          "LocationStatus": "ASSUMED \u2014 VERIFY",
+          "id": 281
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 446,
+            "style_name": "xfmrlq1_pad",
+            "transparency": 0.0,
+            "depth": 0.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.81,
+              0.71
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 454,
+            "style_name": "xfmrlq1_enclosure",
+            "transparency": 0.0,
+            "depth": 0.76,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.61,
+              0.51
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 462,
+            "style_name": "xfmrlq1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 470,
+            "style_name": "xfmrlq1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 478,
+            "style_name": "xfmrlq1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 486,
+            "style_name": "xfmrlq1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 494,
+            "style_name": "xfmrlq1_nameplate",
+            "transparency": 0.0,
+            "depth": 0.04,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.12,
+              0.002
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 7,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 298,
+      "guid": "1FngqFXpqY8UAT7YnXTYfU",
+      "class": "IfcTransformer",
+      "predefined_type": "VOLTAGE",
+      "object_type": null,
+      "name": "XFMR-B-SLQ1",
+      "description": "45 kVA dry-type, 480 V delta \u2013 208Y/120 V, feeds B-SLQ1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-B-SLQ1",
+      "type_name": "Transformer 760x610x510mm",
+      "type_id": 332,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        1.7069,
+        -2.0334,
+        0.1
+      ],
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-SLQ1",
+          "LocationStatus": "ASSUMED \u2014 VERIFY",
+          "id": 304
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 507,
+            "style_name": "xfmrbslq1_pad",
+            "transparency": 0.0,
+            "depth": 0.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.81,
+              0.71
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 515,
+            "style_name": "xfmrbslq1_enclosure",
+            "transparency": 0.0,
+            "depth": 0.76,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.61,
+              0.51
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 523,
+            "style_name": "xfmrbslq1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 531,
+            "style_name": "xfmrbslq1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 539,
+            "style_name": "xfmrbslq1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 547,
+            "style_name": "xfmrbslq1_louvers",
+            "transparency": 0.0,
+            "depth": 0.012,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.4575,
+              0.006
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 555,
+            "style_name": "xfmrbslq1_nameplate",
+            "transparency": 0.0,
+            "depth": 0.04,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.12,
+              0.002
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 7,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 93,
+      "guid": "14wy3TQKz4SSS_bPCufWif",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-HG4",
+      "description": "Panelboard, 480Y/277 V; fed from MDB via BS-FD1020",
+      "tag": "B-HG4",
+      "type_name": "Electric Distribution Board 914x508x150mm",
+      "type_id": 334,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        -3.7826,
+        2.3184,
+        1.0672
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-HG4",
+          "Voltage": "480Y/277 V",
+          "FedFrom": "MDB via BS-FD1020",
+          "FeederRun": "BS-FD1020",
+          "CenterlineFromGrid16BS": 1.399032,
+          "TopOfPanelAFF": 1.9812,
+          "id": 100
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 568,
+            "style_name": "bhg4_enclosure",
+            "transparency": 0.0,
+            "depth": 0.914,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.508,
+              0.15
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 576,
+            "style_name": "bhg4_door",
+            "transparency": 0.0,
+            "depth": 0.884,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.478,
+              0.004
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 584,
+            "style_name": "bhg4_latch",
+            "transparency": 0.0,
+            "depth": 0.07,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.02,
+              0.014
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 592,
+            "style_name": "bhg4_nameplate",
+            "transparency": 0.0,
+            "depth": 0.03,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.11,
+              0.002
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 600,
+            "style_name": "bhg4_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 608,
+            "style_name": "bhg4_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 6,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 120,
+      "guid": "3DvI2ISY4IImiqWQhTxkaE",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-LR1",
+      "description": "Panelboard, 208Y/120 V; fed from XFMR-LR1 via BS-FD1011",
+      "tag": "B-LR1",
+      "type_name": "Electric Distribution Board 914x508x150mm",
+      "type_id": 334,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        -2.987,
+        2.3184,
+        1.0672
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-LR1",
+          "Voltage": "208Y/120 V",
+          "FedFrom": "XFMR-LR1 via BS-FD1011",
+          "FeederRun": "BS-FD1011",
+          "CenterlineFromGrid16BS": 2.19456,
+          "TopOfPanelAFF": 1.9812,
+          "id": 127
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 621,
+            "style_name": "blr1_enclosure",
+            "transparency": 0.0,
+            "depth": 0.914,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.508,
+              0.15
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 629,
+            "style_name": "blr1_door",
+            "transparency": 0.0,
+            "depth": 0.884,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.478,
+              0.004
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 637,
+            "style_name": "blr1_latch",
+            "transparency": 0.0,
+            "depth": 0.07,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.02,
+              0.014
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 645,
+            "style_name": "blr1_nameplate",
+            "transparency": 0.0,
+            "depth": 0.03,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.11,
+              0.002
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 653,
+            "style_name": "blr1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 661,
+            "style_name": "blr1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 6,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 147,
+      "guid": "24SK5_hAD4yTgagh7XJomU",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-HQ1",
+      "description": "Panelboard, 480Y/277 V; fed from B-HD1 via BS-FD1009",
+      "tag": "B-HQ1",
+      "type_name": "Electric Distribution Board 914x508x150mm",
+      "type_id": 334,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        -0.2743,
+        2.3184,
+        1.0672
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-HQ1",
+          "Voltage": "480Y/277 V",
+          "FedFrom": "B-HD1 via BS-FD1009",
+          "FeederRun": "BS-FD1009",
+          "CenterlineFromGrid16BS": 4.90728,
+          "TopOfPanelAFF": 1.9812,
+          "id": 154
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 674,
+            "style_name": "bhq1_enclosure",
+            "transparency": 0.0,
+            "depth": 0.914,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.508,
+              0.15
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 682,
+            "style_name": "bhq1_door",
+            "transparency": 0.0,
+            "depth": 0.884,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.478,
+              0.004
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 690,
+            "style_name": "bhq1_latch",
+            "transparency": 0.0,
+            "depth": 0.07,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.02,
+              0.014
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 698,
+            "style_name": "bhq1_nameplate",
+            "transparency": 0.0,
+            "depth": 0.03,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.11,
+              0.002
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 706,
+            "style_name": "bhq1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 714,
+            "style_name": "bhq1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 6,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 174,
+      "guid": "22NJUdFAn19_LzhIA33mnL",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-LQ1",
+      "description": "Panelboard, 208Y/120 V; fed from XFMR-LQ1 via BS-FD1013",
+      "tag": "B-LQ1",
+      "type_name": "Electric Distribution Board 914x508x150mm",
+      "type_id": 334,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        0.4328,
+        2.3184,
+        1.0672
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-LQ1",
+          "Voltage": "208Y/120 V",
+          "FedFrom": "XFMR-LQ1 via BS-FD1013",
+          "FeederRun": "BS-FD1013",
+          "CenterlineFromGrid16BS": 5.614416,
+          "TopOfPanelAFF": 1.9812,
+          "id": 181
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 727,
+            "style_name": "blq1_enclosure",
+            "transparency": 0.0,
+            "depth": 0.914,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.508,
+              0.15
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 735,
+            "style_name": "blq1_door",
+            "transparency": 0.0,
+            "depth": 0.884,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.478,
+              0.004
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 743,
+            "style_name": "blq1_latch",
+            "transparency": 0.0,
+            "depth": 0.07,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.02,
+              0.014
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 751,
+            "style_name": "blq1_nameplate",
+            "transparency": 0.0,
+            "depth": 0.03,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.11,
+              0.002
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 759,
+            "style_name": "blq1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 767,
+            "style_name": "blq1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 6,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 201,
+      "guid": "3G3sP66IX_rWVMLu8BB5Vf",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-SLQ1",
+      "description": "Panelboard, 208Y/120 V (verify system); fed from XFMR-B-SLQ1 (run not in BS-EP7-00 \u2014 verify)",
+      "tag": "B-SLQ1",
+      "type_name": "Electric Distribution Board 914x508x150mm",
+      "type_id": 334,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        1.1278,
+        2.3184,
+        1.0672
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-SLQ1",
+          "Voltage": "208Y/120 V (verify system)",
+          "FedFrom": "XFMR-B-SLQ1 (run not in BS-EP7-00 \u2014 verify)",
+          "FeederRun": "ASSUMED",
+          "CenterlineFromGrid16BS": 6.30936,
+          "TopOfPanelAFF": 1.9812,
+          "id": 208
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 780,
+            "style_name": "bslq1_enclosure",
+            "transparency": 0.0,
+            "depth": 0.914,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.508,
+              0.15
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 788,
+            "style_name": "bslq1_door",
+            "transparency": 0.0,
+            "depth": 0.884,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.478,
+              0.004
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 796,
+            "style_name": "bslq1_latch",
+            "transparency": 0.0,
+            "depth": 0.07,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.02,
+              0.014
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 804,
+            "style_name": "bslq1_nameplate",
+            "transparency": 0.0,
+            "depth": 0.03,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.11,
+              0.002
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 812,
+            "style_name": "bslq1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 820,
+            "style_name": "bslq1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 6,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 228,
+      "guid": "2ROiznUzrJyvmqvVQaZ1Am",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": null,
+      "name": "B-SHQ1",
+      "description": "Panelboard, 480Y/277 V (verify); fed from MDB (run not in BS-EP7-00 \u2014 verify)",
+      "tag": "B-SHQ1",
+      "type_name": "Electric Distribution Board 914x508x150mm",
+      "type_id": 334,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        3.6515,
+        2.3184,
+        1.0672
+      ],
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-SHQ1",
+          "Voltage": "480Y/277 V (verify)",
+          "FedFrom": "MDB (run not in BS-EP7-00 \u2014 verify)",
+          "FeederRun": "ASSUMED",
+          "CenterlineFromGrid16BS": 8.833104,
+          "TopOfPanelAFF": 1.9812,
+          "id": 235
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept",
+          "swept"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 833,
+            "style_name": "bshq1_enclosure",
+            "transparency": 0.0,
+            "depth": 0.914,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.508,
+              0.15
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 841,
+            "style_name": "bshq1_door",
+            "transparency": 0.0,
+            "depth": 0.884,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.478,
+              0.004
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 849,
+            "style_name": "bshq1_latch",
+            "transparency": 0.0,
+            "depth": 0.07,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.02,
+              0.014
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 857,
+            "style_name": "bshq1_nameplate",
+            "transparency": 0.0,
+            "depth": 0.03,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.11,
+              0.002
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 865,
+            "style_name": "bshq1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "SweptSolid",
+            "item": "IfcExtrudedAreaSolid",
+            "kind": "swept",
+            "id": 873,
+            "style_name": "bshq1_strut_backing",
+            "transparency": 0.0,
+            "depth": 2.1,
+            "profile": "IfcRectangleProfileDef",
+            "profile_dims": [
+              0.041,
+              0.041
+            ]
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 6,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape clean solid (extrusion; dimensionally honest, movable, real insertion point) -- may nativise for simple walls/slabs via Open IFC",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    },
+    {
+      "step_id": 321,
+      "guid": "3PwxoDEU6RTNBkPNIHha$b",
+      "class": "IfcDiscreteAccessory",
+      "predefined_type": "BRACKET",
+      "object_type": null,
+      "name": "Trapeze hangers \u2014 1-5/8 in strut on 3/8 in rods, rack at 16 ft 6 in AFF",
+      "description": null,
+      "tag": "HANGERS",
+      "type_name": "Discrete Accessory 1520x1076x60mm",
+      "type_id": 336,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Specialty Equipment / Generic Models",
+      "placement_identity": true,
+      "placement_origin": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "psets": {
+        "SupportSchedule": {
+          "StrutSize": "1-5/8 in x 1-5/8 in, 12 ga",
+          "StrutLengthEach": 1.7,
+          "RodSize": "3/8 in-16 threaded rod",
+          "RodLengthEach": 1.03536,
+          "SpacingFt": 8.0,
+          "id": 327
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "tessellated",
+          "tessellated",
+          "tessellated",
+          "tessellated"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 307,
+            "style_name": "trapeze_01",
+            "transparency": 0.0,
+            "triangles": 100,
+            "extent": [
+              0.06,
+              1.52,
+              1.0759
+            ],
+            "boxes_found": 3,
+            "components": 5,
+            "is_box": false
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 310,
+            "style_name": "trapeze_02",
+            "transparency": 0.0,
+            "triangles": 100,
+            "extent": [
+              0.06,
+              1.52,
+              1.0759
+            ],
+            "boxes_found": 3,
+            "components": 5,
+            "is_box": false
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 313,
+            "style_name": "trapeze_03",
+            "transparency": 0.0,
+            "triangles": 100,
+            "extent": [
+              0.06,
+              1.52,
+              1.0759
+            ],
+            "boxes_found": 3,
+            "components": 5,
+            "is_box": false
+          },
+          {
+            "rep_identifier": "Body",
+            "rep_type": "Tessellation",
+            "item": "IfcTriangulatedFaceSet",
+            "kind": "tessellated",
+            "id": 316,
+            "style_name": "trapeze_04",
+            "transparency": 0.0,
+            "triangles": 100,
+            "extent": [
+              0.06,
+              1.52,
+              1.0759
+            ],
+            "boxes_found": 3,
+            "components": 5,
+            "is_box": false
+          }
+        ],
+        "tri_count": 400,
+        "faceset_count": 4,
+        "swept_count": 0,
+        "mapped": false,
+        "all_boxes": false,
+        "boxes": [
+          {
+            "origin": [
+              -4.2672,
+              1.0484,
+              4.9487
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.04100000000000037,
+            "ydim": 1.52,
+            "height": 0.04100000000000037,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -4.2672,
+              1.7584,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.0600000000000005,
+            "ydim": 0.06000000000000005,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -4.2672,
+              0.33840000000000003,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.0600000000000005,
+            "ydim": 0.06,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -1.8288,
+              1.0484,
+              4.9487
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 1.52,
+            "height": 0.04100000000000037,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -1.8288,
+              1.7584,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.06000000000000005,
+            "ydim": 0.06000000000000005,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              -1.8288,
+              0.33840000000000003,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.06000000000000005,
+            "ydim": 0.06,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.6096,
+              1.0484,
+              4.9487
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.041000000000000036,
+            "ydim": 1.52,
+            "height": 0.04100000000000037,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.6095999999999999,
+              1.7584,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.05999999999999994,
+            "ydim": 0.06000000000000005,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              0.6095999999999999,
+              0.33840000000000003,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.05999999999999994,
+            "ydim": 0.06,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.048,
+              1.0484,
+              4.9487
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.040999999999999925,
+            "ydim": 1.52,
+            "height": 0.04100000000000037,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.0479999999999996,
+              1.7584,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.06000000000000005,
+            "ydim": 0.06000000000000005,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          },
+          {
+            "origin": [
+              3.0479999999999996,
+              0.33840000000000003,
+              6.00456
+            ],
+            "xdir": [
+              1.0,
+              0.0,
+              0.0
+            ],
+            "xdim": 0.06000000000000005,
+            "ydim": 0.06,
+            "height": 0.020000000000000462,
+            "triangles": 12
+          }
+        ],
+        "predicted_revit": "DirectShape mesh blob (categorized/schedulable, faceted, not parametrically editable, no meaningful insertion point)",
+        "min_dimension": 0.06,
+        "footprint_area": 1.6353
+      }
+    }
+  ],
+  "types": {
+    "type_objects": 4,
+    "rel_defines_by_type": 4,
+    "duplicate_groups": [],
+    "duplicate_type_objects": 0,
+    "products_typed": 11,
+    "products_untyped": 0,
+    "untyped_product_ids": [],
+    "typed_fraction": 1.0
+  },
+  "instancing": {
+    "repeated_groups": [
+      {
+        "class": "IfcTransformer",
+        "count": 3,
+        "names": [
+          "XFMR-LR1",
+          "XFMR-LQ1",
+          "XFMR-B-SLQ1"
+        ],
+        "uses_mapped_items": false,
+        "triangles_each": 0,
+        "duplicated_triangles": 0
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "count": 6,
+        "names": [
+          "B-HG4",
+          "B-LR1",
+          "B-HQ1",
+          "B-LQ1",
+          "B-SLQ1",
+          "B-SHQ1"
+        ],
+        "uses_mapped_items": false,
+        "triangles_each": 0,
+        "duplicated_triangles": 0
+      }
+    ],
+    "unshared_repeated_products": 9,
+    "unshared_fraction": 0.818,
+    "duplicated_triangles": 0
+  },
+  "phantoms": {
+    "count": 0,
+    "high_confidence": 0,
+    "findings": []
+  },
+  "spatial": {
+    "project": "DDOT Coolidge - Area E bus storage electrical room",
+    "sites": 1,
+    "buildings": 1,
+    "storeys": [
+      {
+        "name": "Level 1",
+        "elevation": 0.0
+      }
+    ],
+    "storey_count": 1,
+    "single_storey": true,
+    "spaces": [],
+    "space_count": 0,
+    "orphan_element_ids": [],
+    "orphan_count": 0,
+    "containment_coverage": 1.0,
+    "elements_per_storey": {
+      "Level 1": 11
+    }
+  },
+  "psets": {
+    "by_class": {
+      "IfcBuildingElementProxy": {
+        "RoomInformation": {
+          "Facility": "IfcLabel",
+          "Area": "IfcLabel",
+          "ConduitRackMinElevationFt": "IfcReal"
+        }
+      },
+      "IfcTransformer": {
+        "TransformerSchedule": {
+          "RatingkVA": "IfcReal",
+          "Primary": "IfcLabel",
+          "Secondary": "IfcLabel",
+          "Feeds": "IfcLabel",
+          "LocationStatus": "IfcLabel"
+        }
+      },
+      "IfcElectricDistributionBoard": {
+        "PanelSchedule": {
+          "PanelName": "IfcLabel",
+          "Voltage": "IfcLabel",
+          "FedFrom": "IfcLabel",
+          "FeederRun": "IfcLabel",
+          "CenterlineFromGrid16BS": "IfcLengthMeasure",
+          "TopOfPanelAFF": "IfcLengthMeasure"
+        }
+      },
+      "IfcDiscreteAccessory": {
+        "SupportSchedule": {
+          "StrutSize": "IfcLabel",
+          "StrutLengthEach": "IfcLengthMeasure",
+          "RodSize": "IfcLabel",
+          "RodLengthEach": "IfcLengthMeasure",
+          "SpacingFt": "IfcReal"
+        }
+      }
+    },
+    "consistency_checks": 2,
+    "consistent": 2,
+    "consistency_ratio": 1.0,
+    "inconsistent": [],
+    "typing_smells": [
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-HG4",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-LR1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-HQ1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-LQ1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-SLQ1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      },
+      {
+        "class": "IfcElectricDistributionBoard",
+        "product": "B-SHQ1",
+        "pset": "PanelSchedule",
+        "property": "Voltage",
+        "value_type": "IfcLabel",
+        "suggested": "IfcElectricVoltageMeasure"
+      }
+    ],
+    "pset_names": [
+      "PanelSchedule",
+      "RoomInformation",
+      "SupportSchedule",
+      "TransformerSchedule"
+    ]
+  },
+  "units": {
+    "units": {
+      "LENGTHUNIT": "METRE",
+      "AREAUNIT": "SQUARE_METRE",
+      "VOLUMEUNIT": "CUBIC_METRE",
+      "PLANEANGLEUNIT": "RADIAN",
+      "ELECTRICVOLTAGEUNIT": "VOLT",
+      "ELECTRICCURRENTUNIT": "AMPERE",
+      "POWERUNIT": "WATT"
+    },
+    "length_unit": "METRE",
+    "is_metric": true,
+    "electrical_units_missing": [],
+    "issues": []
+  },
+  "score": {
+    "score": 89.0,
+    "tier": "Tier 1 (partial) -- imports usably but some elements come in as frozen blobs / at the origin",
+    "components": {
+      "schema": 1.0,
+      "geometry_parametric": 0.909,
+      "placements": 0.909,
+      "typing": 1.0,
+      "instancing": 0.182,
+      "phantom_free": 1.0,
+      "spatial": 0.85,
+      "data": 0.88,
+      "units": 1.0
+    },
+    "weights": {
+      "schema": 8,
+      "geometry_parametric": 28,
+      "placements": 20,
+      "typing": 14,
+      "instancing": 6,
+      "phantom_free": 8,
+      "spatial": 8,
+      "data": 4,
+      "units": 4
+    },
+    "stats": {
+      "products": 11,
+      "with_body": 11,
+      "tessellated": 1,
+      "tessellated_fraction": 0.091,
+      "identity_placements": 1,
+      "identity_fraction": 0.091
+    },
+    "top_fixes": [
+      {
+        "component": "instancing",
+        "impact": 4.91,
+        "fix": "9 elements repeat identical geometry verbatim (0 duplicated triangles). Use IfcRepresentationMap + IfcMappedItem instancing."
+      },
+      {
+        "component": "geometry_parametric",
+        "impact": 2.55,
+        "fix": "1/11 elements are triangle-mesh solids (9% tessellated). Emit IfcExtrudedAreaSolid (box/profile extrusions) instead -> clean, dimensionally-editable solids instead of frozen faceted blobs. harden_ifc.py converts exact boxes automatically."
+      },
+      {
+        "component": "placements",
+        "impact": 1.82,
+        "fix": "1/11 elements have identity placements (coordinates baked into vertices; insertion points lost). Emit real IfcLocalPlacement positions per element so they can be moved/rotated in Revit."
+      },
+      {
+        "component": "spatial",
+        "impact": 1.2,
+        "fix": "Single storey and no IfcSpace: add one IfcBuildingStorey per real level and IfcSpace for rooms so Revit gets Levels and space data."
+      },
+      {
+        "component": "data",
+        "impact": 1.2,
+        "fix": "6 electrical propert(ies) stored as plain text (e.g. Voltage as IfcLabel). Use IfcElectricVoltageMeasure/IfcElectricCurrentMeasure/IfcPowerMeasure so Revit binds them to unit-aware parameters."
+      }
+    ],
+    "all_fixes": [
+      {
+        "component": "instancing",
+        "impact": 4.91,
+        "fix": "9 elements repeat identical geometry verbatim (0 duplicated triangles). Use IfcRepresentationMap + IfcMappedItem instancing."
+      },
+      {
+        "component": "geometry_parametric",
+        "impact": 2.55,
+        "fix": "1/11 elements are triangle-mesh solids (9% tessellated). Emit IfcExtrudedAreaSolid (box/profile extrusions) instead -> clean, dimensionally-editable solids instead of frozen faceted blobs. harden_ifc.py converts exact boxes automatically."
+      },
+      {
+        "component": "placements",
+        "impact": 1.82,
+        "fix": "1/11 elements have identity placements (coordinates baked into vertices; insertion points lost). Emit real IfcLocalPlacement positions per element so they can be moved/rotated in Revit."
+      },
+      {
+        "component": "spatial",
+        "impact": 1.2,
+        "fix": "Single storey and no IfcSpace: add one IfcBuildingStorey per real level and IfcSpace for rooms so Revit gets Levels and space data."
+      },
+      {
+        "component": "data",
+        "impact": 1.2,
+        "fix": "6 electrical propert(ies) stored as plain text (e.g. Voltage as IfcLabel). Use IfcElectricVoltageMeasure/IfcElectricCurrentMeasure/IfcPowerMeasure so Revit binds them to unit-aware parameters."
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+ "route": "prompt+rfa->rfa (rvt.convert.modify_family)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "experiments/frontdoor/ifc-electrical-room-2500a/families/lp2_eaton_prl2x_100a_30sp_480y_277.rfa",
+  "sha256": "47a2e97e2576dea7bad9e3c2ec2b4577f6fea34a7571fbd898930ef6a3d114b6",
+  "release": 2026,
+  "family_name": "Lighting Panelboard LP-2 480Y/277 100A MLO 30sp",
+  "types": [
+   "100A MLO 30ckt"
+  ]
+ },
+ "edit": "{\"ops\": [{\"op\": \"set-param\", \"param\": \"BusRating\", \"value\": \"225\"}, {\"op\": \"rename-type\", \"name\": \"225A MLO 30ckt\"}]}",
+ "parsed": {
+  "ops": [
+   {
+    "op": "set-param",
+    "param_id": 1025,
+    "caption": "BusRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225"
+   },
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "100A MLO 30ckt",
+    "name": "225A MLO 30ckt"
+   }
+  ],
+  "source": "inline-json",
+  "understood": [
+   {
+    "op": "set-param",
+    "param_id": 1025,
+    "caption": "BusRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225"
+   },
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "100A MLO 30ckt",
+    "name": "225A MLO 30ckt"
+   }
+  ],
+  "notes": [],
+  "vocabulary": "rvt.convert.modify_family (built-in)"
+ },
+ "files": {
+  "rfa": "experiments/convert_combo/C4_ops_surface/lp2_eaton_prl2x_100a_30sp_480y_277.edited.rfa"
+ },
+ "stamps": [
+  "PROOF-ONLY, NOT-DELIVERABLE (P0: identity/counsel gates G2-G3 open; every tekton output is an internal proof)"
+ ],
+ "degradations": [],
+ "errors": [],
+ "apply": {
+  "applied": [
+   {
+    "op": "set-param",
+    "param_id": 1025,
+    "caption": "BusRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225"
+   },
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "100A MLO 30ckt",
+    "name": "225A MLO 30ckt"
+   }
+  ],
+  "record_changes": {
+   "m_pFamilyTypes.value.m_pairs[0].params.m_params[7].m_value": 225.0,
+   "m_familyParams.value.m_params[7].m_value": 225.0,
+   "m_pFamilyTypes.value.m_pairs[0].name": "225A MLO 30ckt"
+  },
+  "commit": {
+   "out": "experiments/convert_combo/C4_ops_surface/lp2_eaton_prl2x_100a_30sp_480y_277.edited.rfa",
+   "blocks": null
+  },
+  "structural_verify": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "stamps_ok": true,
+   "elemtable_count": 41,
+   "header_count": 41
+  },
+  "structural_ok": true,
+  "partatom": {
+   "changed": true,
+   "replaced": [
+    {
+     "old": "100A MLO 30ckt",
+     "new": "225A MLO 30ckt",
+     "occurrences": 1
+    }
+   ],
+   "bytes": 869
+  }
+ },
+ "validation": {
+  "rfa": {
+   "family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 0
+   },
+   "release": {
+    "input": 2026,
+    "output": 2026,
+    "preserved": true
+   },
+   "reread": [
+    {
+     "op": "set-param",
+     "caption": "BusRating",
+     "want": 225.0,
+     "got": 225.0,
+     "ok": true
+    },
+    {
+     "op": "rename-type",
+     "want": "225A MLO 30ckt",
+     "got": "225A MLO 30ckt",
+     "ok": true
+    }
+   ],
+   "self_checks_ok": true
+  }
+ },
+ "seconds": 0.7,
+ "deliverables": {
+  "rfa": {
+   "path": "experiments/convert_combo/C4_ops_surface/lp2_eaton_prl2x_100a_30sp_480y_277.edited.rfa",
+   "bytes": 270336,
+   "sha256": "dfdf8931a05c357a031c036b3e10eb58ea654c89cd4dcb612b2c8fe226628c0f"
+  }
+ }
+}

@@ -1,0 +1,1310 @@
+{
+ "stage": "R7",
+ "ladder": "v2",
+ "safe_variant": false,
+ "out": "experiments/genesis/R7.rvt",
+ "file_size": 5517312,
+ "seed": 9062,
+ "seed_kept_pinned": 2214,
+ "deleted": 6848,
+ "surviving_elements": 7088,
+ "elemtable_before": 13936,
+ "records_removed": {
+  "101": 6848,
+  "102": 6848,
+  "103": 6848
+ },
+ "blocks_before": 213,
+ "blocks_after": 145,
+ "structural_ok": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 346,
+   "records": 75648,
+   "elements_decoded": 25163,
+   "decode_failures": 7,
+   "refs_checked": 445056
+  }
+ },
+ "latest_dangling": 1370,
+ "contentdocs_dangling": 0,
+ "pin_evidence": {
+  "kept_seed": 2214,
+  "kept_by_direct_outside_ref": 1458,
+  "kept_by_ext_scan": 0,
+  "kept_seed_by_class": [
+   [
+    "GStyleElem",
+    348
+   ],
+   [
+    "CategoryElem",
+    319
+   ],
+   [
+    "CurveElem",
+    216
+   ],
+   [
+    "FontElem",
+    206
+   ],
+   [
+    "LinearDimString",
+    202
+   ],
+   [
+    "SketchPlane",
+    94
+   ],
+   [
+    "VarSketch",
+    78
+   ],
+   [
+    "TextNoteAttributes",
+    78
+   ],
+   [
+    "TagNoteAttributes",
+    59
+   ],
+   [
+    "LeaderStyle",
+    58
+   ],
+   [
+    "MaterialElem",
+    47
+   ],
+   [
+    "PropertySetElement",
+    42
+   ],
+   [
+    "Viewport",
+    39
+   ],
+   [
+    "AppearanceAssetElem",
+    37
+   ],
+   [
+    "FilledRegionAttributes",
+    31
+   ],
+   [
+    "RbsWireInsulationType",
+    26
+   ],
+   [
+    "DBDrawing",
+    25
+   ],
+   [
+    "LegendComponent",
+    22
+   ],
+   [
+    "SunAndShadowSettings",
+    19
+   ],
+   [
+    "ExtentElem",
+    18
+   ],
+   [
+    "SunAnnotationElem",
+    18
+   ],
+   [
+    "DimensionStyle",
+    13
+   ],
+   [
+    "RbsPipeScheduleType",
+    13
+   ],
+   [
+    "Viewer",
+    12
+   ],
+   [
+    "FillPatternElem",
+    11
+   ],
+   [
+    "SectionAttributes",
+    10
+   ],
+   [
+    "CalloutTag",
+    9
+   ],
+   [
+    "InteriorElevAttributes",
+    9
+   ],
+   [
+    "LinePatternElem",
+    8
+   ],
+   [
+    "Alignment",
+    8
+   ],
+   [
+    "RebarShape",
+    8
+   ],
+   [
+    "AreaTypeElem",
+    8
+   ],
+   [
+    "RbsPipeConnectionType",
+    8
+   ],
+   [
+    "Section",
+    7
+   ],
+   [
+    "DBViewSection",
+    7
+   ],
+   [
+    "Viewer3d",
+    6
+   ],
+   [
+    "ModelClipBox",
+    6
+   ],
+   [
+    "LightSchemeElement",
+    6
+   ],
+   [
+    "RebarHookType",
+    5
+   ],
+   [
+    "DBView3d",
+    5
+   ]
+  ],
+  "top_pinning_pairs": [
+   "GStyleElem <- Family x785",
+   "CategoryElem <- Family x767",
+   "MaterialElem <- FamilyInstance x417",
+   "FontElem <- Family x329",
+   "RebarBarType <- RebarInSystem x224",
+   "LeaderStyle <- Family x176",
+   "DimensionStyle <- Family x172",
+   "RebarShape <- RebarSystem x132",
+   "GStyleElem <- FamilyInstance x128",
+   "RebarBarType <- Rebar x128",
+   "RebarShape <- Rebar x122",
+   "CoverType <- Rebar x101",
+   "RebarHookType <- Rebar x94",
+   "FillPatternElem <- FilledRegionAttributes x93",
+   "FillPatternElem <- FamilySymbol x91",
+   "MaterialElem <- AnalyticalMember x90",
+   "FillPatternElem <- Family x89",
+   "TextNoteAttributes <- Family x84",
+   "MaterialElem <- FamilySymbol x80",
+   "MaterialElem <- Family x77",
+   "CurveElem <- JoistSystem x65",
+   "TagNoteAttributes <- Family x63",
+   "FillPatternElem <- FilledRegion x56",
+   "CalloutTag <- DBViewType x54",
+   "FillPatternElem <- FamilyInstance x51",
+   "GStyleElem <- FamilySymbol x51",
+   "FillPatternElem <- DPart x45",
+   "MaterialElem <- DPart x45",
+   "CoverType <- RebarSystem x44",
+   "VarSketch <- RebarSystem x44"
+  ],
+  "pinners_of_kept_class": {
+   "GStyleElem": [
+    [
+     "Family",
+     785
+    ],
+    [
+     "FamilyInstance",
+     128
+    ],
+    [
+     "FamilySymbol",
+     51
+    ],
+    [
+     "CurveElem",
+     25
+    ],
+    [
+     "ProfileRefPlane",
+     20
+    ],
+    [
+     "JoistSystem",
+     16
+    ]
+   ],
+   "CategoryElem": [
+    [
+     "Family",
+     767
+    ]
+   ],
+   "MaterialElem": [
+    [
+     "FamilyInstance",
+     417
+    ],
+    [
+     "AnalyticalMember",
+     90
+    ],
+    [
+     "FamilySymbol",
+     80
+    ],
+    [
+     "Family",
+     77
+    ],
+    [
+     "DPart",
+     45
+    ],
+    [
+     "DBViewType",
+     32
+    ]
+   ],
+   "FontElem": [
+    [
+     "Family",
+     329
+    ]
+   ],
+   "RebarBarType": [
+    [
+     "RebarInSystem",
+     224
+    ],
+    [
+     "Rebar",
+     128
+    ],
+    [
+     "RebarSystem",
+     44
+    ]
+   ],
+   "LeaderStyle": [
+    [
+     "Family",
+     176
+    ],
+    [
+     "FamilySymbol",
+     1
+    ],
+    [
+     "RbsWireSettingsElem",
+     1
+    ]
+   ],
+   "DimensionStyle": [
+    [
+     "Family",
+     172
+    ],
+    [
+     "FamilySymbol",
+     1
+    ]
+   ],
+   "RebarShape": [
+    [
+     "RebarSystem",
+     132
+    ],
+    [
+     "Rebar",
+     122
+    ],
+    [
+     "FamilyInstance",
+     36
+    ],
+    [
+     "ContFooting",
+     12
+    ]
+   ],
+   "CoverType": [
+    [
+     "Rebar",
+     101
+    ],
+    [
+     "RebarSystem",
+     44
+    ],
+    [
+     "DPart",
+     41
+    ],
+    [
+     "FamilyInstance",
+     16
+    ],
+    [
+     "SWall",
+     9
+    ],
+    [
+     "ContFooting",
+     4
+    ]
+   ],
+   "RebarHookType": [
+    [
+     "Rebar",
+     94
+    ]
+   ],
+   "FillPatternElem": [
+    [
+     "FilledRegionAttributes",
+     93
+    ],
+    [
+     "FamilySymbol",
+     91
+    ],
+    [
+     "Family",
+     89
+    ],
+    [
+     "FilledRegion",
+     56
+    ],
+    [
+     "FamilyInstance",
+     51
+    ],
+    [
+     "DPart",
+     45
+    ]
+   ],
+   "TextNoteAttributes": [
+    [
+     "Family",
+     84
+    ],
+    [
+     "FamilySymbol",
+     5
+    ]
+   ],
+   "CurveElem": [
+    [
+     "JoistSystem",
+     65
+    ],
+    [
+     "RebarSystem",
+     44
+    ],
+    [
+     "Family",
+     18
+    ],
+    [
+     "Floor",
+     5
+    ],
+    [
+     "AreaSchemePlanTopologies",
+     5
+    ],
+    [
+     "RoomElem",
+     2
+    ]
+   ],
+   "TagNoteAttributes": [
+    [
+     "Family",
+     63
+    ],
+    [
+     "FamilySymbol",
+     23
+    ]
+   ],
+   "CalloutTag": [
+    [
+     "DBViewType",
+     54
+    ],
+    [
+     "Family",
+     8
+    ]
+   ],
+   "VarSketch": [
+    [
+     "RebarSystem",
+     44
+    ],
+    [
+     "JoistSystem",
+     16
+    ],
+    [
+     "Floor",
+     5
+    ],
+    [
+     "AreaLoad",
+     5
+    ],
+    [
+     "PartMaker",
+     4
+    ],
+    [
+     "FormElem",
+     4
+    ]
+   ],
+   "AreaReinforcementType": [
+    [
+     "RebarSystem",
+     44
+    ]
+   ],
+   "DBView3d": [
+    [
+     "Rebar",
+     40
+    ]
+   ],
+   "FilledRegionAttributes": [
+    [
+     "Family",
+     35
+    ],
+    [
+     "FamilySymbol",
+     14
+    ]
+   ],
+   "LineLoadType": [
+    [
+     "LineLoad",
+     35
+    ]
+   ],
+   "LinePatternElem": [
+    [
+     "Family",
+     28
+    ],
+    [
+     "GStyleElem",
+     20
+    ],
+    [
+     "AllProjectPhases",
+     2
+    ]
+   ],
+   "SectionAttributes": [
+    [
+     "DBViewType",
+     27
+    ],
+    [
+     "Family",
+     8
+    ]
+   ],
+   "RbsWireInsulationType": [
+    [
+     "RbsWireSizesElem",
+     26
+    ]
+   ],
+   "LinearDimString": [
+    [
+     "Family",
+     20
+    ],
+    [
+     "RefPlane",
+     3
+    ]
+   ],
+   "LegendComponent": [
+    [
+     "FamilySurrogate",
+     17
+    ]
+   ],
+   "GridAttributes": [
+    [
+     "Grid",
+     16
+    ],
+    [
+     "CopyWatchProperties",
+     1
+    ]
+   ],
+   "JoistSystemAttr": [
+    [
+     "JoistSystem",
+     16
+    ]
+   ],
+   "RbsPipeScheduleType": [
+    [
+     "PipeSegment",
+     15
+    ],
+    [
+     "RbsPipeSizesElem",
+     10
+    ]
+   ],
+   "DBViewPlan": [
+    [
+     "Rebar",
+     15
+    ]
+   ],
+   "LevelAttributes": [
+    [
+     "Level",
+     9
+    ],
+    [
+     "CopyWatchProperties",
+     1
+    ]
+   ],
+   "InteriorElevAttributes": [
+    [
+     "DBViewType",
+     9
+    ],
+    [
+     "Family",
+     8
+    ]
+   ],
+   "BasicWallType": [
+    [
+     "SWall",
+     9
+    ],
+    [
+     "DPart",
+     4
+    ],
+    [
+     "PartMaker",
+     4
+    ],
+    [
+     "CopyWatchProperties",
+     1
+    ]
+   ],
+   "RbsPipeConnectionType": [
+    [
+     "RbsPipeSizesElem",
+     8
+    ]
+   ],
+   "AreaTypeElem": [
+    [
+     "AreaMeasureElem",
+     8
+    ],
+    [
+     "ColorFillSchema",
+     1
+    ],
+    [
+     "RoomElem",
+     1
+    ]
+   ],
+   "RbsPipeMaterialType": [
+    [
+     "RbsPipeSizesElem",
+     5
+    ]
+   ],
+   "ConduitStandardType": [
+    [
+     "ConduitSizesElem",
+     5
+    ]
+   ],
+   "FloorAttributes": [
+    [
+     "Floor",
+     5
+    ],
+    [
+     "CopyWatchProperties",
+     1
+    ]
+   ],
+   "AreaLoadType": [
+    [
+     "AreaLoad",
+     5
+    ]
+   ],
+   "SketchPlane": [
+    [
+     "AreaLoad",
+     5
+    ],
+    [
+     "Family",
+     4
+    ]
+   ],
+   "RbsWireMaterialType": [
+    [
+     "RbsWireSizesElem",
+     4
+    ]
+   ],
+   "ImageHolder": [
+    [
+     "Family",
+     4
+    ]
+   ],
+   "ImageSymbol": [
+    [
+     "Family",
+     4
+    ],
+    [
+     "ImageInstance",
+     1
+    ],
+    [
+     "FamilySymbol",
+     1
+    ]
+   ],
+   "ContFootingType": [
+    [
+     "ContFooting",
+     4
+    ]
+   ],
+   "NonPlanarSketch": [
+    [
+     "FormElem",
+     4
+    ],
+    [
+     "Family",
+     4
+    ],
+    [
+     "ReferencePoint",
+     4
+    ]
+   ],
+   "RbsWireTemperatureRatingType": [
+    [
+     "RbsWireSizesElem",
+     3
+    ]
+   ],
+   "StairsType": [
+    [
+     "StairsSupport",
+     2
+    ],
+    [
+     "StairsElement",
+     1
+    ],
+    [
+     "StairsRun",
+     1
+    ],
+    [
+     "StairsTriserSymbol",
+     1
+    ]
+   ],
+   "StairsRunType": [
+    [
+     "StairsSupport",
+     2
+    ],
+    [
+     "StairsElement",
+     1
+    ],
+    [
+     "StairsRun",
+     1
+    ],
+    [
+     "StairsTriserSymbol",
+     1
+    ]
+   ],
+   "StairsSupportType": [
+    [
+     "StairsSupport",
+     2
+    ],
+    [
+     "StairsRun",
+     1
+    ]
+   ],
+   "Alignment": [
+    [
+     "SWall",
+     2
+    ],
+    [
+     "FamilyInstance",
+     2
+    ],
+    [
+     "StairsRun",
+     1
+    ],
+    [
+     "StairsElement",
+     1
+    ],
+    [
+     "Floor",
+     1
+    ]
+   ],
+   "SunAndShadowSettings": [
+    [
+     "ModelGraphicsStyle",
+     2
+    ],
+    [
+     "DBView3d",
+     1
+    ],
+    [
+     "DBViewPlan",
+     1
+    ],
+    [
+     "RbsDbViewSystemNavigator",
+     1
+    ],
+    [
+     "DBViewProject",
+     1
+    ]
+   ],
+   "ConceptualSurfaceType": [
+    [
+     "MassLevelData",
+     2
+    ]
+   ],
+   "Viewer": [
+    [
+     "DBViewProject",
+     1
+    ],
+    [
+     "RbsDbViewSystemNavigator",
+     1
+    ],
+    [
+     "DBViewPlan",
+     1
+    ]
+   ],
+   "DBDrawing": [
+    [
+     "DBViewProject",
+     1
+    ],
+    [
+     "RbsDbViewSystemNavigator",
+     1
+    ],
+    [
+     "DBView3d",
+     1
+    ],
+    [
+     "DBViewPlan",
+     1
+    ]
+   ],
+   "RvtLinkSymbol": [
+    [
+     "DBViewProject",
+     1
+    ],
+    [
+     "DBView3d",
+     1
+    ],
+    [
+     "RvtLinkInstance",
+     1
+    ],
+    [
+     "CopyWatchProperties",
+     1
+    ],
+    [
+     "DBViewPlan",
+     1
+    ],
+    [
+     "RbsDbViewSystemNavigator",
+     1
+    ]
+   ],
+   "FabricSheetType": [
+    [
+     "SlaveSymbolTrackerElem",
+     1
+    ]
+   ],
+   "StairsLandingType": [
+    [
+     "StairsRun",
+     1
+    ],
+    [
+     "StairsElement",
+     1
+    ]
+   ],
+   "Viewer3d": [
+    [
+     "DBView3d",
+     1
+    ]
+   ],
+   "ModelClipBox": [
+    [
+     "DBView3d",
+     1
+    ]
+   ],
+   "LightSchemeElement": [
+    [
+     "DBView3d",
+     1
+    ]
+   ],
+   "WorksetVisibilitySettingsElem": [
+    [
+     "DBViewPlan",
+     1
+    ],
+    [
+     "RbsDbViewSystemNavigator",
+     1
+    ],
+    [
+     "DBView3d",
+     1
+    ],
+    [
+     "DBViewProject",
+     1
+    ]
+   ],
+   "DBViewDrafting": [
+    [
+     "DBViewPlan",
+     1
+    ]
+   ],
+   "Viewport": [
+    [
+     "DBViewPlan",
+     1
+    ]
+   ],
+   "ExtentElem": [
+    [
+     "DBViewPlan",
+     1
+    ]
+   ],
+   "LevelRoomPlan": [
+    [
+     "AreaSchemePlanTopologies",
+     1
+    ]
+   ]
+  }
+ },
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4135
+  ],
+  [
+   "LinearDimString",
+   508
+  ],
+  [
+   "GStyleElem",
+   448
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "CategoryElem",
+   156
+  ],
+  [
+   "LinePatternElem",
+   142
+  ],
+  [
+   "FillPatternElem",
+   105
+  ],
+  [
+   "AppearanceAssetElem",
+   94
+  ],
+  [
+   "LegendComponent",
+   74
+  ],
+  [
+   "SketchPlane",
+   74
+  ],
+  [
+   "SunAndShadowSettings",
+   71
+  ],
+  [
+   "VarSketch",
+   56
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "FontElem",
+   55
+  ],
+  [
+   "MaterialElem",
+   46
+  ],
+  [
+   "Viewport",
+   40
+  ],
+  [
+   "SketchGrid",
+   40
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "ConceptualConstructionType",
+   35
+  ],
+  [
+   "DBDrawing",
+   34
+  ],
+  [
+   "FamilyInstance",
+   29
+  ],
+  [
+   "RbsFluidType",
+   28
+  ],
+  [
+   "Viewer",
+   22
+  ],
+  [
+   "ExtentElem",
+   20
+  ],
+  [
+   "TilePatternType",
+   17
+  ],
+  [
+   "DivisionRule",
+   17
+  ],
+  [
+   "DBView3d",
+   15
+  ],
+  [
+   "PropertySetElement",
+   14
+  ],
+  [
+   "SunAnnotationElem",
+   13
+  ],
+  [
+   "DBViewSection",
+   13
+  ],
+  [
+   "TextNoteAttributes",
+   12
+  ],
+  [
+   "DBViewPlan",
+   11
+  ],
+  [
+   "RbsPipingSystemType",
+   11
+  ],
+  [
+   "DBViewSchedule",
+   10
+  ],
+  [
+   "ScheduleInstance",
+   10
+  ],
+  [
+   "LightSchemeElement",
+   9
+  ],
+  [
+   "ConceptualSurfaceType",
+   9
+  ],
+  [
+   "InteriorElev",
+   6
+  ],
+  [
+   "Viewer3d",
+   6
+  ],
+  [
+   "ModelClipBox",
+   6
+  ]
+ ],
+ "top_survivor_classes": [
+  [
+   "GStyleElem",
+   1735
+  ],
+  [
+   "FamilyInstance",
+   468
+  ],
+  [
+   "ParamElemExternal",
+   466
+  ],
+  [
+   "CategoryElem",
+   460
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "CurveElem",
+   216
+  ],
+  [
+   "ParamBinding",
+   209
+  ],
+  [
+   "FontElem",
+   208
+  ],
+  [
+   "LinearDimString",
+   202
+  ],
+  [
+   "SketchPlane",
+   135
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "HVACLoadSpaceTypeElem",
+   125
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "ParamElemFamily",
+   120
+  ],
+  [
+   "ParamElemElectricalLoadClassification",
+   108
+  ],
+  [
+   "FamilySymbol",
+   106
+  ],
+  [
+   "DBViewType",
+   91
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "VarSketch",
+   84
+  ],
+  [
+   "TextNoteAttributes",
+   78
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "CustomElement",
+   61
+  ],
+  [
+   "TagNoteAttributes",
+   59
+  ],
+  [
+   "LeaderStyle",
+   58
+  ],
+  [
+   "FamilySurrogate",
+   50
+  ],
+  [
+   "FamSymSurrogate",
+   50
+  ],
+  [
+   "Family",
+   50
+  ],
+  [
+   "MaterialElem",
+   47
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "PropertySetElement",
+   42
+  ],
+  [
+   "Viewport",
+   39
+  ],
+  [
+   "AppearanceAssetElem",
+   37
+  ],
+  [
+   "LineLoad",
+   35
+  ],
+  [
+   "HVACLoadBuildingTypeElem",
+   33
+  ],
+  [
+   "RoomElem",
+   31
+  ],
+  [
+   "FilledRegionAttributes",
+   31
+  ],
+  [
+   "HVACLoadScheduleElem",
+   27
+  ],
+  [
+   "BuildingOperatingYearSchedule",
+   27
+  ]
+ ],
+ "keep_views": {
+  "1064656": "Level 1",
+  "1454508": "{3D}"
+ },
+ "seconds": 11.4
+}

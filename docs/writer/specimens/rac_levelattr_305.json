@@ -1,0 +1,297 @@
+{
+ "element_id": 305,
+ "note": "LevelAttributes type shared by the project levels",
+ "elemtable": {
+  "found_in_ElemTable": true,
+  "raw_40_bytes_hex": "31 01 00 00 00 00 00 00 00 00 00 00 ed 02 00 00 ed 02 00 00 31 01 00 00 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00",
+  "fields": {
+   "+0 u64 m_history.m_originalElementId": 305,
+   "+8 u32 m_history.m_creationDate (EpisodeId)": 0,
+   "+12 u32 m_history.m_lastModificationDate (EpisodeId)": 749,
+   "+16 u32 m_history.m_lastUserModificationDate": 749,
+   "+20 u64 m_id": 305,
+   "+28 u64 m_OwningElementId": -1,
+   "+36 u32 m_partitionId": 0
+  }
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 1124364,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 305,
+  "stamp": null,
+  "psize": 175,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 173,
+  "total_record_bytes": 191,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 90 7a e1 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "173/173",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -2000240,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -32768
+   },
+   "m_abFlags4Bytes": 2078,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "LevelAttributes"
+    }
+   },
+   "m_pBBox": null,
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      305,
+      306,
+      307,
+      308,
+      309,
+      24867
+     ],
+     "m_regenOnly": [
+      -1007109,
+      113109
+     ],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -2000240,
+  "builtin": "OST_Levels"
+ },
+ "classDef": "LevelAttributes",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 11607409,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 305,
+  "stamp": 678195878,
+  "psize": 249,
+  "class_id_hex": "0x09e8",
+  "object_bytes": 247,
+  "total_record_bytes": 269,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 ff ff ff ff 5f 0c 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff",
+  "class": "LevelAttributes",
+  "clean": true,
+  "consumed_of_object": "247/247",
+  "value": {
+   "m_pParamValueSetDouble": null,
+   "m_pParamValueSetInt": {
+    "ptr_class": "ParamValueSetInt",
+    "pid": -1,
+    "value": {
+     "m_paramSet": [
+      {
+       "m_paramId": -1008002,
+       "m_value": 0
+      },
+      {
+       "m_paramId": -1008001,
+       "m_value": 1
+      }
+     ]
+    }
+   },
+   "m_pParamValueSetAString": null,
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": null,
+   "m_pGeomTable": null,
+   "m_constrInfo": [],
+   "m_cellList": {
+    "ptr_class": "CellList",
+    "pid": -1,
+    "value": {
+     "m_cells": [
+      {
+       "ptr_class": "PatternHelper",
+       "pid": -1,
+       "value": {
+        "m_PatternPositionMap": [],
+        "m_substituteFaceMap": []
+       }
+      }
+     ]
+    }
+   },
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 305,
+   "m_assocLevelId": -1,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_symbolInfo": {
+    "ptr_class": "SymbolInfo",
+    "pid": -1,
+    "value": {
+     "m_name": "8mm Head"
+    }
+   },
+   "m_renderStyleId": -1,
+   "m_previewElemId": -1,
+   "m_lineAndTextAttr": {
+    "m_fontId": 308,
+    "m_categoryId": 306,
+    "m_background": 0,
+    "m_bBold": false,
+    "m_bItalic": false,
+    "m_bUnderline": false
+   },
+   "m_roomComputationUserHeight": 3.937007874,
+   "m_leaderCategoryId": 309,
+   "m_familyTagId": 24867,
+   "m_baseElevation": 0,
+   "m_bRoomComputationHeightAutomatic": false
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 13928751,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 305,
+  "stamp": 6881340,
+  "psize": 2,
+  "class_id_hex": "0x0f2c",
+  "object_bytes": 0,
+  "total_record_bytes": 22,
+  "size_trailer_ok": true,
+  "payload_head_hex": "",
+  "class": "SerializedDummy",
+  "clean": true,
+  "consumed_of_object": "0/0",
+  "value": {}
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[0]",
+   "id": 305,
+   "target_class": "LevelAttributes",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[1]",
+   "id": 306,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[2]",
+   "id": 307,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[3]",
+   "id": 308,
+   "target_class": "FontElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[4]",
+   "id": 309,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[5]",
+   "id": 24867,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[1]",
+   "id": 113109,
+   "target_class": "ActiveGeoLocationTrackingElement",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 305,
+   "target_class": "LevelAttributes",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_lineAndTextAttr.m_fontId",
+   "id": 308,
+   "target_class": "FontElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_lineAndTextAttr.m_categoryId",
+   "id": 306,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_leaderCategoryId",
+   "id": 309,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyTagId",
+   "id": 24867,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  }
+ ]
+}

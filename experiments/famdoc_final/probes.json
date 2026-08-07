@@ -1,0 +1,581 @@
+{
+ "stream": "famdoc-final: COMBINATION vs FRAME -- the round that decides.  Batch 44 (verdicts #38): B7 PASS (machinery exonerated with blobs), B1..B6 ALL PASS (every content axis lawful alone), B0 FAIL (our complete famdoc).  This round asks the two remaining questions from both directions: U-probes put our axis UNIONS on the donor frame; F-probes put the donor FRAME under our complete content via the exact B0 recipe.",
+ "bases": {
+  "U_probes+H8B": "samples/rstbasicsampleproject.rvt",
+  "F_probes": "experiments/genesis/subst_k4/compose/G_ABPD.rvt"
+ },
+ "frame_roster": {
+  "roster": [
+   {
+    "role": "self_family",
+    "id": 2000000,
+    "class": "Family",
+    "kind": "self_family",
+    "owner": -1
+   },
+   {
+    "role": "units",
+    "id": 2000001,
+    "class": "UnitsElem",
+    "kind": "registry",
+    "owner": -1
+   },
+   {
+    "role": "proj_view",
+    "id": 2000004,
+    "class": "DBViewProject",
+    "kind": "view",
+    "owner": -1
+   },
+   {
+    "role": "proj_viewer",
+    "id": 2000005,
+    "class": "Viewer",
+    "kind": "view_satellite",
+    "owner": 2000004
+   },
+   {
+    "role": "proj_drawing",
+    "id": 2000007,
+    "class": "DBDrawing",
+    "kind": "view_satellite",
+    "owner": 2000004
+   },
+   {
+    "role": "proj_viewport",
+    "id": 2000006,
+    "class": "Viewport",
+    "kind": "view_satellite",
+    "owner": 2000007
+   }
+  ],
+  "donor_roles": {
+   "self_family": 1410872,
+   "units": 1411008,
+   "proj_view": 1410913,
+   "proj_viewer": 1410912,
+   "proj_drawing": 1410914,
+   "proj_viewport": 1410915
+  },
+  "donor_browser_org_imports": [
+   1411145,
+   1411146
+  ],
+  "note": "the SIX elements of our famdoc outside every batch-44 content axis, in three swap groups (G1 self-Family, G2 units, G3 project-view chain + the donor's BrowserOrganization pair)"
+ },
+ "note": "U-probes = untouched rst sample + ONE loaded hybrid famdoc + ONE placed instance (famdoc_bisect's machinery generalized to axis unions; donor = the sample's own M_Concrete-Square-Column).  F-probes = G_ABPD + ONE famgen family + ONE instance (the B0/BXhf_f1i1 recipe verbatim) with the donor frame swapped into OUR famdoc before the load.  H8B = our famdoc verbatim through famload on rst.  EVERY probe's added unit carries the 64-byte 0x0f3f blob (machine-verified nonce).  PROOF-ONLY sample-derived content, quarantined, never shipped.  Fresh GUIDs per rebuild -- re-hash after any rerun.",
+ "upload_order_max_information_first": [
+  "U16",
+  "F1",
+  "U12345",
+  "H8B",
+  "U12",
+  "U15",
+  "U25",
+  "F2",
+  "F3",
+  "F4"
+ ],
+ "controls": {
+  "rst": {
+   "source": "samples/rstbasicsampleproject.rvt",
+   "voids": "U16,U12345,H8B,U12,U15,U25 on CTRL FAIL"
+  },
+  "g_abpd": {
+   "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "voids": "F1,F2,F3,F4 on CTRL FAIL"
+  }
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL (either)": "round VOID for that base's probes (the rst control voids U16/U12345/H8B/U12/U15/U25; the G_ABPD control voids F1/F2/F3/F4).",
+  "U16 FAIL": "A COMBINATION IS GUILTY: the union of our added axes fails on the donor frame where every single axis passed (B1..B6).  Read U12345 to place the inline-ADocument: U12345 FAIL too => the guilty combination is inside the five content axes -- read the pairs (U12/U15/U25, already in this batch); U12345 PASS (U16 FAIL alone) => the donor-ADocument SWAP is implicated in combination -- an inversion of B6's single-axis PASS; re-run the union ladder holding the ADocument axis fixed.",
+  "U16 PASS + U12345 FAIL": "the guilty combination INVOLVES our authored inline-ADocument flavour interacting with our content (the donor ADocument rescues the same union).  Fix target: factory.author_embedded_adocument vs the donor's populated registries; next ladder swaps the donor ADocument into the B0 shape.",
+  "U16 PASS + U12345 PASS": "NO union of our added axes reproduces B0's failure on the donor frame => the defect is in what B0 carries and the unions do not: OUR FRAME (self-Family / units registry / project-view chain fields), the famgen loader flavour, or the G_ABPD base.  Read F1 and H8B.",
+  "F1 PASS (with U16+U12345 PASS)": "FRAME CONVICTION CONFIRMED FROM BOTH DIRECTIONS: our content on the donor frame passes (U-probes) AND the donor frame under our content passes with loader+base+recipe held EXACTLY at B0's (F1) while B0 fails.  The guilty fields are in frame_diff.json's 'donor'-disposition entries; F2/F3/F4 name the element group (each is ONE group swapped).",
+  "F1 FAIL": "the frame's guilt (if any) is NOT in the swappable element fields.  Read H8B: H8B PASS => our COMPLETE famdoc (frame included) is lawful under famload-on-rst => the defect lives in the famgen-loader flavour or the G_ABPD base, not the famdoc -- pivot the hunt to the loader delta.  H8B FAIL => our famdoc content is rejected under BOTH loaders => the residue is in what no probe here varies: element ORDER / unit shape, the kept-ours self-Family fields (frame_diff.json 'untested_by_swap'), or the document identity surfaces.",
+  "H8B verdict": "the loader/base split anchor: B0 (famgen+G_ABPD) FAIL is batch 44's anchor; H8B (famload+rst, SAME famdoc flavour incl. corpus symbol form) PASS convicts the loader/base delta; H8B FAIL re-convicts our famdoc content under the exonerated machinery (B7) and makes the F-probes' frame reads decisive.",
+  "pairs U12/U15/U25 (read on U16 FAIL + U12345 FAIL)": "each pair FAIL convicts that axis pair's interaction (add-form unions: independent); all three PASS => the guilty combination needs a triple or axes 3/4 -- next round builds the remaining pairs/triples (mechanical).",
+  "singles F2/F3/F4 (read on F1 PASS)": "the group whose single-swap PASSES carries the guilty fields (its donor form heals B0's recipe); a group whose single-swap FAILS is exonerated for the fields it swaps.  F2=self-Family, F3=units registry, F4=project-view chain (+2 BrowserOrganization imports).",
+  "honest residue": "the F-swap keeps membership registries, identity fields and registry-coupled counters OURS (they cannot carry donor values over our roster); frame_diff.json lists every kept-ours key that DIFFERS from the donor under 'untested_by_swap' -- on F1 FAIL + H8B FAIL those fields plus element order/unit shape are the remaining suspect space."
+ },
+ "companion_evidence": {
+  "accounting": "experiments/famdoc_final/accounting.json",
+  "frame_diff_fix_spec": "experiments/famdoc_final/frame_diff.json",
+  "per_probe_reports": "experiments/famdoc_final/_build/<rung>/",
+  "axis_fix_spec": "experiments/famdoc_bisect/famdoc_diff.json",
+  "prior_round": "experiments/famdoc_blobs/probes.json (batch 44)"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "U16",
+   "file": "experiments/famdoc_final/U16.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "donor body + ALL SIX of our axis additions at once (five content subtrees + the donor-inline-ADocument swap)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "donor famdoc + the UNION of our five content subtrees (35 elements, registered like donor members) + the donor's OWN inline ADocument (elem-table extended for the carried roster) -- every single one of these additions PASSED alone in batch 44; this asks them TOGETHER.",
+   "expected": "the combination-vs-frame decider, direction 1: FAIL => combination; PASS => frame (with U12345)",
+   "md5": "4d809455a47b41576815b4843a097969",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/U16/U16_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   },
+   "axes_unioned": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ]
+  },
+  {
+   "order": 2,
+   "rung": "F1",
+   "file": "experiments/famdoc_final/F1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "OUR famdoc with the donor's FRAME swapped in (self-Family + units + project-view chain), the exact B0 recipe otherwise",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "OUR famdoc built by the exact B0 recipe with the donor's frame swapped in: self-Family frame fields (member/identity/counter surfaces kept ours), units registry, project-view chain (+ the donor's 2 BrowserOrganization imports).  The ONLY delta vs batch 44's failing B0 is the frame.",
+   "expected": "the combination-vs-frame decider, direction 2: PASS (with U16 PASS) => frame convicted, fix spec = frame_diff.json",
+   "md5": "2a1430e8e87dd0a1c429a5ddadd90a51",
+   "symbol_id": 1472584,
+   "family_id": 1472568,
+   "instance_ids": [
+    1472586
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/F1_chain/stage_L1_pp1.rvt",
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "frame_donor_block_residual": 0,
+    "symbol_form_ok": true,
+    "gates_ok": true
+   },
+   "frame_groups_swapped": [
+    "G1",
+    "G2",
+    "G3"
+   ]
+  },
+  {
+   "order": 3,
+   "rung": "U12345",
+   "file": "experiments/famdoc_final/U12345.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "donor body + our five content axes with OUR authored inline ADocument (the B0-minus-frame shape)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "donor famdoc + the same 35-element union with OUR authored inline ADocument (what B0 actually carries) -- the B0-minus-frame probe.",
+   "expected": "tightens U16's read: the B0-minus-frame shape (our authored ADocument)",
+   "md5": "68c3bdea9c3573fb2164fe119052b079",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/U12345/U12345_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   },
+   "axes_unioned": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ]
+  },
+  {
+   "order": 4,
+   "rung": "H8B",
+   "file": "experiments/famdoc_final/H8B.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our famdoc VERBATIM through famload on rst (the loader/base split anchor; batch 37's H8 with blobs)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "our famdoc VERBATIM (corpus symbol form, B0's famdoc flavour) through famload on rst + the demo's own placement -- only the loader and base differ from B0.",
+   "expected": "the loader/base split anchor (batch 37 H8 FAILED empty-blob; with blobs the verdict is NEW information)",
+   "md5": "4330bfbfe8853ba802824235f05f58f1",
+   "symbol_id": 1472583,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/H8B/H8B_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "frame_donor_block_residual": null,
+    "symbol_form_ok": true,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 5,
+   "rung": "U12",
+   "file": "experiments/famdoc_final/U12.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "donor body + our geometry + our params/types",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "donor famdoc + our geometry subtree + our param/type layer (registered with the built-in rows, H2's convention).",
+   "expected": "read on U16+U12345 FAIL: geometry x params interaction",
+   "md5": "ff59a069f3be86c705a19ded06d9e215",
+   "symbol_id": 1474582,
+   "family_id": 1474563,
+   "instance_ids": [
+    1474583
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/U12/U12_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   },
+   "axes_unioned": [
+    1,
+    2
+   ]
+  },
+  {
+   "order": 6,
+   "rung": "U15",
+   "file": "experiments/famdoc_final/U15.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "donor body + our geometry + our connector layer",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "donor famdoc + our geometry subtree + our connector layer (the connector's face ref resolves to OUR carried extrusion).",
+   "expected": "read on U16+U12345 FAIL: geometry x connector interaction",
+   "md5": "2a12fd3e3559f83b93604006e549a61a",
+   "symbol_id": 1474571,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474572
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/U15/U15_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   },
+   "axes_unioned": [
+    1,
+    5
+   ]
+  },
+  {
+   "order": 7,
+   "rung": "U25",
+   "file": "experiments/famdoc_final/U25.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "donor body + our params/types + our connector layer",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "donor famdoc + our param/type layer + our connector layer (the connector's face ref repointed to the donor extrusion).",
+   "expected": "read on U16+U12345 FAIL: params x connector interaction",
+   "md5": "81cccedf97f6f79f50a2f6bcb23bdac6",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/U25/U25_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   },
+   "axes_unioned": [
+    2,
+    5
+   ]
+  },
+  {
+   "order": 8,
+   "rung": "F2",
+   "file": "experiments/famdoc_final/F2.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "our famdoc with ONLY the donor self-Family frame fields swapped in",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "B0's recipe with ONLY the self-Family frame-field swap (disposition table in frame_diff.json).",
+   "expected": "read on F1 PASS: does the self-Family frame-field swap alone heal?",
+   "md5": "5f0b57a5eea633345f1f4b1acc3997a8",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/F2_chain/stage_L1_pp1.rvt",
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "frame_donor_block_residual": 0,
+    "symbol_form_ok": true,
+    "gates_ok": true
+   },
+   "frame_groups_swapped": [
+    "G1"
+   ]
+  },
+  {
+   "order": 9,
+   "rung": "F3",
+   "file": "experiments/famdoc_final/F3.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "our famdoc with ONLY the donor units registry swapped in",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "B0's recipe with ONLY the units registry element swapped for the donor's (ids repointed).",
+   "expected": "read on F1 PASS: does the units-registry swap alone heal?",
+   "md5": "797d2dd1825cbd6a3c8ae7875673cf78",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/F3_chain/stage_L1_pp1.rvt",
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "frame_donor_block_residual": 0,
+    "symbol_form_ok": true,
+    "gates_ok": true
+   },
+   "frame_groups_swapped": [
+    "G2"
+   ]
+  },
+  {
+   "order": 10,
+   "rung": "F4",
+   "file": "experiments/famdoc_final/F4.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "our famdoc with ONLY the donor project-view chain swapped in (+ its 2 BrowserOrganization imports)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "B0's recipe with ONLY the project-view chain swapped for the donor's (+2 BrowserOrganization imports, registered).",
+   "expected": "read on F1 PASS: does the project-view-chain swap alone heal?",
+   "md5": "67f721807958a0c4af15372ce6171136",
+   "symbol_id": 1472584,
+   "family_id": 1472568,
+   "instance_ids": [
+    1472586
+   ],
+   "immediate_parent": "experiments/famdoc_final/_build/F4_chain/stage_L1_pp1.rvt",
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "frame_donor_block_residual": 0,
+    "symbol_form_ok": true,
+    "gates_ok": true
+   },
+   "frame_groups_swapped": [
+    "G3"
+   ]
+  }
+ ]
+}

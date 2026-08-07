@@ -1,0 +1,192 @@
+{
+ "stream": "FAMILY-GENESIS (TRACKER G4b) -- batch-gate manifest rewritten by genesis-integrate (2026-08-04) so tools/probe_batch.py can resolve every file's declared BASE",
+ "gate_schema_note": "Every entry declares 'file' + 'base' (probe_batch BASE_KEYS: base | derived_from | derives_from | template | passing_sibling | parent_rung | known_sibling). The .rfa probes' base is the AUTHENTIC Autodesk-2026 family ARCHETYPE the family constructors read for STRUCTURE + the schema constant (rvt.famgen.famdoc_adoc.TEMPLATE_DONOR = rvt.famgen.skeleton.DEFAULT_DONOR). It lives under vendor/ (not experiments/ or samples/), so its 'base' value is a dict whose FIRST value is the absolute path (what today's gate regex resolves) followed by the repo-relative path (the manifest convention); both resolve to vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa. The archetype is NOT viewer-certified and NO standalone .rfa has ever been read by the viewer, so the .rfa probes are (correctly) refused as 'base not certified' until Round F1 certifies the archetype -- see 'rounds'. The L_v2 project rung is admissible TODAY (base = the certified rst sample source).",
+ "law": "docs/inbox/genesis-discipline.md: every batch = a certified BASE + >= 1 certified CONTROL (auto-added by `probe_batch.py stage` from the newest certified file on disk); a candidate BASE is staged with --candidate-base and certified by its own PASS before anything built on it may be read.",
+ "reference_files": {
+  "archetype": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+  "archetype_repo_path": "vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+  "archetype_md5": "6854cceb873d78f7d0afe2412e03e66c",
+  "archetype_size": 417792,
+  "archetype_what": "the authentic Autodesk-shipped Revit-2026 sample family (racbasicsamplefamily-2026.rfa, from the phi-ag/rvt example corpus) -- read for the family-document SHAPE (239-slot family-editor AppInfo registry, per-registry row grammar) and the format constants (Formats/Latest per-release schema; unit footer / end-record tokens); every donor-EXPRESSION value (element ids, names, memory) is purged from the v2 files (docs/inbox/family-genesis.md). It is the family-domain analogue of samples/*.rvt: an Autodesk-authored SOURCE, never certified because the viewer has never been shown a standalone .rfa.",
+  "host_sample": "samples/rstbasicsampleproject.rvt",
+  "host_sample_md5": "b3235ad2743f19bcfff243654fec35dd",
+  "host_certified_sibling": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+  "host_certified_sibling_md5": "fef6c9fd5039f938bbcd90c152a92bc4",
+  "host_certified_sibling_ledger": "certified: 'OUR generated family (level head) LOADED into a working project via the four-registry loader' (docs/coverage/viewer-certified.json)"
+ },
+ "candidate_bases": [
+  {
+   "id": "ARCH",
+   "file": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+   "repo_path": "vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+   "md5": "6854cceb873d78f7d0afe2412e03e66c",
+   "kind": "candidate-base",
+   "stage_with": "tools/probe_batch.py stage --candidate-base vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa (the gate adds the round's certified CTRL_* control automatically)",
+   "tests": "THE FAMILY-DOMAIN ORACLE: does Autodesk's reader open an authentic Autodesk-2026 standalone .rfa at all? No .rfa has ever been read by the viewer -- this is the first family-format upload. Its PASS certifies the archetype as the family lineage's base source (list it in viewer-certified.json 'certified'), which admits every v2 .rfa probe below; its FAIL means the viewer does not read standalone family files (then the family question rides ONLY on the load-into-project path: L_v2 / L1a), and no .rfa probe is meaningful.",
+   "if_PASS": "the reader opens 2026 standalone families; the archetype is CERTIFIED (family lineage base) -> stage Round F2 (FG1..FG5) with it as the declared base",
+   "if_FAIL": "the reader/oracle does not process standalone .rfa (a viewer capability boundary, NOT a defect of ours) -> abandon the standalone .rfa probes; the family-genesis question is answered by the project-load rungs (L_v2, L1a) alone",
+   "calibration_note": "rvt.famgen.famdoc_adoc.validate_family_file scores the archetype WORSE than every v2 file (2 family-mode consistency errors -- its GraveyardRec/DIT layouts are outside our project-calibrated decoders -- and 5 raw-arbiter residuals vs the v2 files' 0/0 family-mode + 3 raw residuals): the raw-arbiter residuals are calibration gaps, not defects, exactly as the family-genesis assay concluded"
+  }
+ ],
+ "probes": [
+  {
+   "id": "FG2",
+   "name": "L_v2_panel_loaded",
+   "file": "experiments/families/genesis2/L_v2_panel_loaded.rvt",
+   "md5": "563abfea08861069815676b8a302cf82",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample = the reader's own reference file; the gate admits samples/*.rvt as certified base sources by rule (Ledger.is_sample_source). The rst sample is the direct source of the certified V15_regzip_ecc_full.rvt (the whole rst file re-written by us, PASS) and of the certified L1a_rstbasic_loaded_levelhead.rvt (the SAME four-registry loader on the SAME host, PASS).",
+   "passing_sibling": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt (certified: our level-head family LOADED into the same rst host via the same rvt.famload four-registry mechanism) -- the ONE difference is the family CONTENT: a real electrical-equipment document (Eaton 400 A panel: solid geometry, a power connector, 14 parameters, part type panelboard) instead of a level-head annotation family",
+   "one_change_vs_base": "the rst sample PLUS our clean equipment family document inserted through the proven four-registry loader (unit 53 / 41 records, family 1472566, symbol 1472583, 14 ParamElemFamily twins; ContentTable / ContentDocuments / FamilyMgr / units registries reconciled -- 54 / 53 / 53 / 51, all coherent, our GUID in all four)",
+   "tests": "our provenance-clean equipment family LOADED into the working rst sample through the proven four-registry loader (rvt.famload, the L1a mechanism) -- a real MEP equipment family, not the level-head test family",
+   "if_PASS": "the loader handles real equipment families; combined with L1a the family-INSERTION mechanism is fully proven -- our authoring pipeline can populate a working project with our own equipment (the delivery form the brothers need is unblocked at the mechanism level)",
+   "if_FAIL": "(with L1a PASSING and the round's control PASSING) the equipment-family CONTENT is the delta: the electrical layer (ConnectorElem / load classification / part-type domain) or the symbol-solid geometry regeneration -- read the corruption card; the container / loader / registries are exonerated by L1a",
+   "self_check": "rvt.validate project-mode: VALID, 0 errors, 1 warning (the pre-existing rst RebarShape/DataStorage ES-blob decoder gap -- identical warning count to the certified L1a); read-back registry census in L_v2_panel_loaded_load.json",
+   "stageable_now": true,
+   "phase": "F1 (admissible now)"
+  },
+  {
+   "id": "FG1",
+   "name": "eaton_prl_400A_42sp_480Y_v2",
+   "file": "experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2.rfa",
+   "md5": "45416dba26559343bfa426e45d064ae5",
+   "kind": "probe",
+   "base": {
+    "file": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+    "repo_path": "vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+    "why": "the authentic Autodesk 2026 family ARCHETYPE (structure + schema source of every constructed family); certified by the ARCH candidate-base upload in Round F1"
+   },
+   "base_certification": "NOT YET CERTIFIED -- becomes admissible when the ARCH candidate-base PASSES and is ledgered (Round F1). Until then the gate correctly refuses this probe with 'declared BASE ... is NOT in certified' (a lineage refusal by design, not a base-RESOLUTION refusal).",
+   "passing_sibling": "none certified in the family domain yet: the ARCH candidate-base is the co-uploaded family-domain oracle; the ELEMENT layer of this exact document is separately proven by FG2 (L_v2: the same document LOADED into rst); experiments/families/factory/eaton_prl_400A_42sp_480Y.rfa is the pre-v2 sibling carrying the DONOR's ADocument + footer bytes (QUARANTINED provenance; never uploaded, not a control)",
+   "one_change_vs_base": "the whole family document is OURS: 41 constructed elements (solid geometry, a power connector, 14 parameters), OUR family ADocument (schema-typed purge of every donor id; registries repopulated over exactly our elements; 0 dangling, 0 donor-id byte hits, 0 donor/employee names), OUR unit footer nonce + the decoded 10-byte end record, identity via rvt.identity; the ONE stream carried from the archetype is the sha256-checked per-release schema constant Formats/Latest (+ the Autodesk Forge unit/parameter-schema product corpus, counsel C4-class, FLAGGED)",
+   "tests": "does Autodesk's reader OPEN a standalone family whose element layer, ADocument, footer, end record and identity are all ours -- the flagship Eaton panel (geometry + connector + parameters)",
+   "if_PASS": "the family-level ADocument codec is accepted: our documents no longer carry any donor document bytes; the asset factory is provenance-clean at the byte level; TRACKER G4b closes",
+   "if_FAIL": "(with ARCH PASSING in F1 and L_v2 PASSING) the standalone acceptance depends on the family ADocument's REGISTRY CONTENT: the two named residuals lead -- UniqueElementsTracking all-null (no family-editor settings singletons: the K5 pattern at family scale) and CategoryTracking empty (no built-in category/GStyle catalogue: the K6 pattern) -- FG3/FGb isolate which; note both project-scale analogues were RETRACTED as VOID by the K1 audit, so the family-scale reading starts clean",
+   "self_check": "family-mode validation VALID (0 errors, 0 warnings); provenance_scan_v2 (11 checks all TRUE); the authentic ARCH archetype scores worse under the same validator (calibration control)",
+   "stageable_now": false,
+   "stageable_when": "after ARCH is certified (Round F2)",
+   "phase": "F2 (base = ARCH archetype, admissible once ARCH is certified)"
+  },
+  {
+   "id": "FG3",
+   "name": "S0e_v2",
+   "file": "experiments/families/genesis2/S0e_v2.rfa",
+   "md5": "2875cc04a8eb1a70432a20834d6537ed",
+   "kind": "probe",
+   "base": {
+    "file": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+    "repo_path": "vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+    "why": "the family archetype (structure + schema source); certified by ARCH in Round F1"
+   },
+   "passing_sibling": "FG1 (the geometry-carrying panel through the identical container/ADocument path): FG3 PASS + FG1 FAIL => geometry; FG3 FAIL + FG1 FAIL => container/ADocument, not the solid",
+   "one_change_vs_base": "the geometry-FREE electrical skeleton (S0e: 25 elements, no forms, one connector) through the same clean container as FG1 -- isolates container + family-ADocument acceptance from the solid-geometry question",
+   "tests": "the geometry-free electrical skeleton through the clean container",
+   "if_PASS": "the clean container + our family ADocument are accepted independent of geometry",
+   "if_FAIL": "(with FG1 also FAIL) the container / ADocument is the cause, not the solid -- corroborates the registry-content hypothesis (see FG1 if_FAIL)",
+   "self_check": "family-mode VALID (0/0)",
+   "stageable_now": false,
+   "stageable_when": "after ARCH is certified (Round F2)",
+   "phase": "F2 (base = ARCH archetype, admissible once ARCH is certified)"
+  },
+  {
+   "id": "FG4",
+   "name": "troffer_2x4_v2",
+   "file": "experiments/families/genesis2/troffer_2x4_v2.rfa",
+   "md5": "12b1ce61159a88f86068603e5f0da81d",
+   "kind": "probe",
+   "base": {
+    "file": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+    "repo_path": "vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+    "why": "the family archetype (structure + schema source); certified by ARCH in Round F1"
+   },
+   "passing_sibling": "FG1 (electrical-equipment category): category is the one difference",
+   "one_change_vs_base": "a second product line (Lithonia 2x4 troffer: lighting-fixture category, single-phase, different parameter set) through the identical clean path -- generality of the constructor + codec beyond electrical equipment",
+   "tests": "the clean family path on a lighting-fixture family",
+   "if_PASS": "the clean family path is category-general",
+   "if_FAIL": "(with FG1 PASSING) a category-specific requirement of the lighting-fixture family document (photometric / light-source objects)",
+   "self_check": "family-mode VALID (0/0)",
+   "stageable_now": false,
+   "stageable_when": "after ARCH is certified (Round F2)",
+   "phase": "F2 (base = ARCH archetype, admissible once ARCH is certified)"
+  },
+  {
+   "id": "FG5",
+   "name": "xfmr_75kVA_v2",
+   "file": "experiments/families/genesis2/xfmr_75kVA_v2.rfa",
+   "md5": "5192ea548aef98ae5a337a93b7fc0b2f",
+   "kind": "probe",
+   "base": {
+    "file": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+    "repo_path": "vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+    "why": "the family archetype (structure + schema source); certified by ARCH in Round F1"
+   },
+   "passing_sibling": "FG1 (single connector): the connector count / systems are the delta",
+   "one_change_vs_base": "the dual-connector case (transformer: primary + secondary power connectors, 480 delta -> 208Y/120) through the clean path -- the multi-connector electrical family",
+   "tests": "the dual-connector electrical family through the clean path",
+   "if_PASS": "multi-connector electrical families are covered by the clean path",
+   "if_FAIL": "(with FG1 PASSING) the second connector / dual-voltage domain block is the delta -- the connector-manager grammar for >1 connector",
+   "self_check": "family-mode VALID (0/0)",
+   "stageable_now": false,
+   "stageable_when": "after ARCH is certified (Round F2)",
+   "phase": "F2 (base = ARCH archetype, admissible once ARCH is certified)"
+  },
+  {
+   "id": "FGa-purity",
+   "file": "experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2_purity.rfa",
+   "md5": "f5224731870d7b7cefd72435cd90c9de",
+   "kind": "probe",
+   "base": "experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2.rfa",
+   "one_change_vs_base": "FG1 with the family ADocument in PURITY mode: the Autodesk Forge unit/spec/parameter JSON corpus EMPTIED (the ONLY residual FG1 shares with any donor -- a per-release product constant, counsel C4-class) and our honest 'saved by' string; Global/Latest shrinks ~1.34 MB -> ~9 KB",
+   "if_PASS": "the Forge corpus is NOT required by the family reader: max-purity family documents (zero Autodesk-authored ADocument bytes) are viable",
+   "if_FAIL": "(with FG1 PASSING) the reader requires the Forge unit-schema corpus in a family document too -- carry it as FG1 does; the C4 question stands",
+   "stageable_when": "after FG1 is certified (Round F3)",
+   "phase": "F3 (attribution rung; base = FG1, admissible once FG1 is certified)"
+  },
+  {
+   "id": "FGb-minimal",
+   "file": "experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2_minimal.rfa",
+   "md5": "a8c1e46630519ad48051472917ea2963",
+   "kind": "probe",
+   "base": "experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2.rfa",
+   "one_change_vs_base": "FG1 with EVERY family-editor registry EMPTY (the all-null-index shape our L1a-loading EMBEDDED documents carry, at standalone scale) -- purge + coherence only, no repopulation",
+   "if_PASS": "(esp. with FG1 also PASS) the family reader does not gate on registry population at all -- our documents may ship the minimal object",
+   "if_FAIL": "(with FG1 PASSING) the family reader REQUIRES populated registries: the repopulation is load-bearing",
+   "stageable_when": "after FG1 is certified (Round F3)",
+   "phase": "F3 (attribution rung; base = FG1, admissible once FG1 is certified)"
+  },
+  {
+   "id": "FGc-emptyfooter",
+   "file": "experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2_emptyfooter.rfa",
+   "md5": "eb9c5d245b77b0a55b689548f1742e73",
+   "kind": "probe",
+   "base": "experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2.rfa",
+   "one_change_vs_base": "FG1 with the 0-LENGTH unit footer blob (the form the tiny dach partition carries and our proven-loading L1a save units used) instead of our 64-byte nonce -- the footer-blob question",
+   "if_PASS": "the 0-length footer form is confirmed at standalone .rfa scale too",
+   "if_FAIL": "(with FG1 PASSING) the reader wants the 64-byte form for a standalone file's unit footer -- use the nonce (FG1's form)",
+   "stageable_when": "after FG1 is certified (Round F3)",
+   "phase": "F3 (attribution rung; base = FG1, admissible once FG1 is certified)"
+  }
+ ],
+ "rounds": {
+  "F1_now": {
+   "stage": ".venv/bin/python tools/probe_batch.py stage experiments/families/genesis2/L_v2_panel_loaded.rvt --candidate-base vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa --control-from experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+   "verified_admissible": "`probe_batch.py check experiments/families/genesis2/L_v2_panel_loaded.rvt --candidate-base vendor/.../racbasicsamplefamily-2026.rfa` -> ADMISSIBLE (2026-08-04, genesis-integrate)",
+   "contents": "the gate adds the certified CTRL_* control (--control-from makes it the L1a loader proof, the family batch's most informative certified control; default = newest certified on disk) + FG2 (base rst sample, admissible) + ARCH as candidate-base",
+   "reads": "CTRL PASS validates the round; FG2 PASS/FAIL reads against L1a; ARCH PASS certifies the family archetype (ledger it), ARCH FAIL closes the standalone-.rfa branch"
+  },
+  "F2_after_ARCH_certified": {
+   "stage": ".venv/bin/python tools/probe_batch.py stage experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2.rfa experiments/families/genesis2/S0e_v2.rfa experiments/families/genesis2/troffer_2x4_v2.rfa experiments/families/genesis2/xfmr_75kVA_v2.rfa",
+   "contents": "control + FG1 (flagship) + FG3 / FG4 / FG5, each declaring the certified ARCH as base",
+   "reads": "FG1 first; FG3/FG4/FG5 attribute a FG1 failure to geometry / category / connector-count (see each probe's if_FAIL)"
+  },
+  "F3_after_FG1_certified": {
+   "stage": ".venv/bin/python tools/probe_batch.py stage experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2_purity.rfa experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2_minimal.rfa experiments/families/genesis2/eaton_prl_400A_42sp_480Y_v2_emptyfooter.rfa",
+   "contents": "control + the FGa/FGb/FGc attribution rungs, each a one-change variant declaring FG1 as base",
+   "reads": "attribute a FG1 result to the Forge corpus, the registry population, or the footer-blob form"
+  }
+ },
+ "read_order": "F1: control, then FG2 (the LOAD proof), then ARCH (the family-domain oracle). F2 (needs ARCH certified): control, FG1, then FG3/FG4/FG5. F3 (needs FG1 certified): control, FGa/FGb/FGc.",
+ "verification": "family files: rvt.famgen.famdoc_adoc.validate_family_file (family-mode 0 errors / 0 warnings on all seven; the authentic ARCH scores 2 family-mode errors + 5 raw residuals under the same instrument = the calibration control); L_v2: tools/rvt_validate.py project-mode OK errors=0 warnings=1 (same as the certified L1a); provenance_scan_v2 per <stem>.json; re-run: .venv/bin/python -m rvt.famgen.famdoc_adoc",
+ "gate_diff_proposed": "tools/probe_batch.py resolves only experiments/ | samples/ repo paths, absolute paths, or unique bare names; the family archetype lives under vendor/, so its 'base' declarations lead with the ABSOLUTE path (dict form: file = absolute, repo_path = vendor/...). Proposed one-line gate change (orchestrator's territory): add 'vendor' to _PATH_RE ((?:experiments|samples|vendor)/...) and glob vendor/phi-ag-rvt/examples/Autodesk/*.rfa in _name_index(), so the repo-relative form resolves alone; and either extend Ledger.is_sample_source to that directory or list the archetype in viewer-certified.json once ARCH passes."
+}

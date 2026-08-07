@@ -1,0 +1,2472 @@
+{
+ "stream": "genesis-triage-b (BUG B: the unit-removal ContentDocuments splice)",
+ "generated_by": "python -m rvt.reduce_v2 --probes",
+ "known_verdicts": {
+  "R9.rvt": "PASS (hosts+instances deleted, 52 docs kept)",
+  "R9b.rvt": "FAIL (38 docs removed by the OLD path)",
+  "R10b.rvt": "FAIL",
+  "R5.rvt": "PASS"
+ },
+ "order": [
+  "B3",
+  "B1",
+  "B4",
+  "B2",
+  "B5"
+ ],
+ "design": "2x2 over (partition end-record tail: exact|junk) x (ADocument content registries: coherent|incoherent), removed set fixed to R9b's 38: R9b=(junk,incoherent)=FAIL, B4=(exact,incoherent), B5=(junk,coherent), B3=(exact,coherent); B1/B2 repeat the new/old mechanics at n=1 document",
+ "reading_the_results": {
+  "B3 PASS": "BUG B SOLVED: R9b/R10b died of the incoherent content registries and/or the junk tail; B4/B5 say which; the ladder resumes from a documents-removed base",
+  "B3 FAIL & B1 PASS": "coherent removal works at n=1 but not n=38 -> a specific removed document (or scale) is load-bearing; bisect the 38 set",
+  "B3 FAIL & B1 FAIL": "the reader rejects ANY unit removal from this base even when coherent -> a third coherence surface exists (or the reader pins the document set); Bug B is deeper than the two mapped registries",
+  "B4 PASS": "coherence NOT required; the killer was the ECC-junk tail",
+  "B4 FAIL & B3 PASS": "coherence IS the requirement (ContentTable/FamilyMgr vs docs)",
+  "B5 PASS & B4 FAIL": "coherence alone rescues R9b; the junk tail is harmless",
+  "B2 FAIL & B1 PASS": "the OLD mechanics kill even a single removal (Bug B at n=1)"
+ },
+ "probes": {
+  "B3": {
+   "tests": "R9b's exact 38-document removal, re-emitted by the v2 recipe: solved-grammar CD + coherent ContentTable/FamilyMgr + canonical partition end record (no ECC junk)",
+   "derives_from": "R9.rvt (viewer PASS); removed set == R9b's 38 units",
+   "one_variable_vs_sibling": "vs R9b (viewer FAIL): identical removed set; differs ONLY in (a) Global/Latest reconciled, (b) 294-byte junk tail after the partition end record dropped -- CD stream byte-identical to R9b's, partition units byte-identical to R9b's",
+   "PASS_means": "BUG B SOLVED: the killer was Latest coherence and/or the junk tail (see B4 to split them); the reduction ladder can resume from an R9b/R10b-equivalent 1.5 MB base",
+   "FAIL_means": "removing 38 documents is rejected even coherently -> the reader requires (some of) these documents; the base cannot shrink below R9's document set by this route (see B1)",
+   "file": "experiments/genesis/triage/B3.rvt",
+   "bytes": 1495040,
+   "coherence": {
+    "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B3.rvt",
+    "partition_units": 15,
+    "partition_end_record_ok": true,
+    "partition_tail_junk_bytes": 0,
+    "cd_entries": 14,
+    "cd_end_record_ok": true,
+    "cd_grammar_roundtrip_ok": true,
+    "cd_guid_sorted": true,
+    "content_table_records": 14,
+    "familymgr_entries": 22,
+    "familymgr_guids": 14,
+    "sets": {
+     "units_eq_cd_entries": true,
+     "cd_entries_eq_content_table": true,
+     "cd_entries_eq_familymgr": true,
+     "content_table_minus_units": [],
+     "units_minus_content_table": [],
+     "familymgr_minus_units": []
+    },
+    "coherent": true
+   },
+   "validate": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 1,
+    "info": 2,
+    "error_messages": []
+   },
+   "report": {
+    "source": "/Users/ck/dev/things/rev-revit/experiments/genesis/R9.rvt",
+    "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B3.rvt",
+    "guids": [
+     "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+     "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+     "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+     "147abf91-ec71-4533-944c-4f2282b39389",
+     "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+     "238471d5-1cda-4554-8458-83bcf331f149",
+     "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+     "2774af49-2b12-4c51-9095-c3af78ae06a8",
+     "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+     "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+     "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+     "30640a46-4395-44f8-99ee-94759c623a88",
+     "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+     "4231c989-43a9-4cf4-8e57-62173b030da6",
+     "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+     "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+     "5478aabb-dc66-4a14-8715-9c0f5812259d",
+     "5e037af6-e747-4731-99e0-ed651d369c9b",
+     "652d2246-3c01-4148-8c16-17146f106321",
+     "68344216-9c79-4c4e-a832-3ed1233c2489",
+     "78061000-56a3-428c-a5a8-5b1397dbb12d",
+     "830890eb-dfe2-4882-81ca-4f8bced826b1",
+     "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+     "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+     "9d3038e2-a69e-40a4-9217-134a4015896a",
+     "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+     "bd60da88-04cb-4223-a54c-555ba16b76a3",
+     "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+     "c7734839-cb9e-4274-bcad-003788721261",
+     "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+     "d3ecb68c-670d-42af-82df-f684c77b9693",
+     "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+     "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+     "ef6a7555-0579-4d66-a628-a069d646838b",
+     "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+     "f932d848-0871-4902-ac37-bb38aec05088",
+     "fb5c6124-6046-4375-9cef-63f740620a8e",
+     "fe0923ee-a917-439a-a945-fae55292b3d1"
+    ],
+    "reconcile_adocument": true,
+    "exact_tail": true,
+    "streams_replaced": [
+     "Partitions/21",
+     "Global/ContentDocuments",
+     "Global/Latest"
+    ],
+    "partition": {
+     "removed": [
+      {
+       "unit": 1,
+       "guid": "78061000-56a3-428c-a5a8-5b1397dbb12d",
+       "counter": 224,
+       "bytes": 21703
+      },
+      {
+       "unit": 2,
+       "guid": "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+       "counter": 224,
+       "bytes": 20554
+      },
+      {
+       "unit": 4,
+       "guid": "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+       "counter": 225,
+       "bytes": 22564
+      },
+      {
+       "unit": 7,
+       "guid": "68344216-9c79-4c4e-a832-3ed1233c2489",
+       "counter": 247,
+       "bytes": 23748
+      },
+      {
+       "unit": 8,
+       "guid": "fb5c6124-6046-4375-9cef-63f740620a8e",
+       "counter": 633,
+       "bytes": 106073
+      },
+      {
+       "unit": 9,
+       "guid": "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+       "counter": 325,
+       "bytes": 33393
+      },
+      {
+       "unit": 10,
+       "guid": "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+       "counter": 710,
+       "bytes": 79680
+      },
+      {
+       "unit": 11,
+       "guid": "c7734839-cb9e-4274-bcad-003788721261",
+       "counter": 245,
+       "bytes": 23229
+      },
+      {
+       "unit": 12,
+       "guid": "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+       "counter": 488,
+       "bytes": 65898
+      },
+      {
+       "unit": 13,
+       "guid": "30640a46-4395-44f8-99ee-94759c623a88",
+       "counter": 270,
+       "bytes": 28208
+      },
+      {
+       "unit": 14,
+       "guid": "652d2246-3c01-4148-8c16-17146f106321",
+       "counter": 231,
+       "bytes": 20402
+      },
+      {
+       "unit": 15,
+       "guid": "f932d848-0871-4902-ac37-bb38aec05088",
+       "counter": 279,
+       "bytes": 30001
+      },
+      {
+       "unit": 16,
+       "guid": "2774af49-2b12-4c51-9095-c3af78ae06a8",
+       "counter": 511,
+       "bytes": 58066
+      },
+      {
+       "unit": 18,
+       "guid": "ef6a7555-0579-4d66-a628-a069d646838b",
+       "counter": 242,
+       "bytes": 22682
+      },
+      {
+       "unit": 19,
+       "guid": "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+       "counter": 574,
+       "bytes": 55077
+      },
+      {
+       "unit": 21,
+       "guid": "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+       "counter": 449,
+       "bytes": 55785
+      },
+      {
+       "unit": 22,
+       "guid": "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+       "counter": 429,
+       "bytes": 47197
+      },
+      {
+       "unit": 24,
+       "guid": "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+       "counter": 318,
+       "bytes": 36728
+      },
+      {
+       "unit": 27,
+       "guid": "bd60da88-04cb-4223-a54c-555ba16b76a3",
+       "counter": 563,
+       "bytes": 86441
+      },
+      {
+       "unit": 28,
+       "guid": "4231c989-43a9-4cf4-8e57-62173b030da6",
+       "counter": 239,
+       "bytes": 22443
+      },
+      {
+       "unit": 30,
+       "guid": "d3ecb68c-670d-42af-82df-f684c77b9693",
+       "counter": 271,
+       "bytes": 28244
+      },
+      {
+       "unit": 31,
+       "guid": "147abf91-ec71-4533-944c-4f2282b39389",
+       "counter": 288,
+       "bytes": 32456
+      },
+      {
+       "unit": 32,
+       "guid": "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+       "counter": 224,
+       "bytes": 21714
+      },
+      {
+       "unit": 33,
+       "guid": "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+       "counter": 484,
+       "bytes": 65207
+      },
+      {
+       "unit": 36,
+       "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+       "counter": 417,
+       "bytes": 47121
+      },
+      {
+       "unit": 37,
+       "guid": "5478aabb-dc66-4a14-8715-9c0f5812259d",
+       "counter": 492,
+       "bytes": 71143
+      },
+      {
+       "unit": 38,
+       "guid": "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+       "counter": 660,
+       "bytes": 80979
+      },
+      {
+       "unit": 40,
+       "guid": "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+       "counter": 271,
+       "bytes": 23583
+      },
+      {
+       "unit": 41,
+       "guid": "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+       "counter": 414,
+       "bytes": 43938
+      },
+      {
+       "unit": 42,
+       "guid": "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+       "counter": 339,
+       "bytes": 37914
+      },
+      {
+       "unit": 43,
+       "guid": "238471d5-1cda-4554-8458-83bcf331f149",
+       "counter": 459,
+       "bytes": 57747
+      },
+      {
+       "unit": 45,
+       "guid": "9d3038e2-a69e-40a4-9217-134a4015896a",
+       "counter": 224,
+       "bytes": 20581
+      },
+      {
+       "unit": 46,
+       "guid": "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+       "counter": 228,
+       "bytes": 21672
+      },
+      {
+       "unit": 47,
+       "guid": "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+       "counter": 443,
+       "bytes": 50494
+      },
+      {
+       "unit": 48,
+       "guid": "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+       "counter": 278,
+       "bytes": 30043
+      },
+      {
+       "unit": 49,
+       "guid": "830890eb-dfe2-4882-81ca-4f8bced826b1",
+       "counter": 490,
+       "bytes": 67780
+      },
+      {
+       "unit": 50,
+       "guid": "fe0923ee-a917-439a-a945-fae55292b3d1",
+       "counter": 420,
+       "bytes": 53038
+      },
+      {
+       "unit": 51,
+       "guid": "5e037af6-e747-4731-99e0-ed651d369c9b",
+       "counter": 224,
+       "bytes": 21686
+      }
+     ],
+     "kept": [
+      {
+       "unit": 0,
+       "guid": null,
+       "counter": null
+      },
+      {
+       "unit": 3,
+       "guid": "3563d602-3ba7-4789-a3ee-254c15adc0ce",
+       "counter": 346
+      },
+      {
+       "unit": 5,
+       "guid": "4d39b104-087e-47c8-885b-300dde8e24e3",
+       "counter": 233
+      },
+      {
+       "unit": 6,
+       "guid": "a0717c14-e2fc-4b34-9c27-2ff3604705e6",
+       "counter": 224
+      },
+      {
+       "unit": 17,
+       "guid": "4f85134f-7e56-4935-9a1d-5c31503c3716",
+       "counter": 222
+      },
+      {
+       "unit": 20,
+       "guid": "d58b645f-9df5-42f4-b770-a00aea8bb4ba",
+       "counter": 258
+      },
+      {
+       "unit": 23,
+       "guid": "f8b30e73-e9cf-4d44-b7c8-d85fb9e63cb6",
+       "counter": 221
+      },
+      {
+       "unit": 25,
+       "guid": "af75f67d-1060-4650-b13a-d467c0872fda",
+       "counter": 619
+      },
+      {
+       "unit": 26,
+       "guid": "03f26a7f-f129-459a-9416-39e40d1f0b80",
+       "counter": 216
+      },
+      {
+       "unit": 29,
+       "guid": "d4bdb58b-e63b-44a4-a882-c793b48ce304",
+       "counter": 224
+      },
+      {
+       "unit": 34,
+       "guid": "9c8df7a4-fbfa-4a9f-97fa-8b8aa5ff3e27",
+       "counter": 239
+      },
+      {
+       "unit": 35,
+       "guid": "36b75aa9-8fc8-4691-b3a3-bcff9df6471a",
+       "counter": 246
+      },
+      {
+       "unit": 39,
+       "guid": "d12022c4-1496-4d94-973a-599c45ef14a8",
+       "counter": 476
+      },
+      {
+       "unit": 44,
+       "guid": "706e2be2-3779-421f-bfa7-57ff3562cd8f",
+       "counter": 233
+      },
+      {
+       "unit": 52,
+       "guid": "b8e18dfa-91c5-4551-a51d-17012a753412",
+       "counter": 266
+      }
+     ],
+     "guids_not_found": [],
+     "units_before": 53,
+     "units_after": 15,
+     "logical_before": 2685832,
+     "logical_after": 1050562,
+     "tail_before": 68,
+     "tail_after": 10,
+     "junk_after_end_record_dropped": 58,
+     "stream": "Partitions/21"
+    },
+    "content_documents": {
+     "entries_before": 52,
+     "entries_after": 14,
+     "removed": [
+      {
+       "guid": "78061000-56a3-428c-a5a8-5b1397dbb12d",
+       "adoc_bytes": 19788
+      },
+      {
+       "guid": "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+       "adoc_bytes": 24524
+      },
+      {
+       "guid": "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+       "adoc_bytes": 19700
+      },
+      {
+       "guid": "68344216-9c79-4c4e-a832-3ed1233c2489",
+       "adoc_bytes": 20848
+      },
+      {
+       "guid": "fb5c6124-6046-4375-9cef-63f740620a8e",
+       "adoc_bytes": 38522
+      },
+      {
+       "guid": "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+       "adoc_bytes": 24248
+      },
+      {
+       "guid": "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+       "adoc_bytes": 42195
+      },
+      {
+       "guid": "c7734839-cb9e-4274-bcad-003788721261",
+       "adoc_bytes": 20800
+      },
+      {
+       "guid": "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+       "adoc_bytes": 32879
+      },
+      {
+       "guid": "30640a46-4395-44f8-99ee-94759c623a88",
+       "adoc_bytes": 21724
+      },
+      {
+       "guid": "652d2246-3c01-4148-8c16-17146f106321",
+       "adoc_bytes": 20136
+      },
+      {
+       "guid": "f932d848-0871-4902-ac37-bb38aec05088",
+       "adoc_bytes": 22296
+      },
+      {
+       "guid": "2774af49-2b12-4c51-9095-c3af78ae06a8",
+       "adoc_bytes": 33240
+      },
+      {
+       "guid": "ef6a7555-0579-4d66-a628-a069d646838b",
+       "adoc_bytes": 20620
+      },
+      {
+       "guid": "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+       "adoc_bytes": 36620
+      },
+      {
+       "guid": "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+       "adoc_bytes": 30624
+      },
+      {
+       "guid": "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+       "adoc_bytes": 29976
+      },
+      {
+       "guid": "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+       "adoc_bytes": 23708
+      },
+      {
+       "guid": "bd60da88-04cb-4223-a54c-555ba16b76a3",
+       "adoc_bytes": 35268
+      },
+      {
+       "guid": "4231c989-43a9-4cf4-8e57-62173b030da6",
+       "adoc_bytes": 20472
+      },
+      {
+       "guid": "d3ecb68c-670d-42af-82df-f684c77b9693",
+       "adoc_bytes": 21960
+      },
+      {
+       "guid": "147abf91-ec71-4533-944c-4f2282b39389",
+       "adoc_bytes": 22656
+      },
+      {
+       "guid": "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+       "adoc_bytes": 19796
+      },
+      {
+       "guid": "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+       "adoc_bytes": 34835
+      },
+      {
+       "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+       "adoc_bytes": 34870
+      },
+      {
+       "guid": "5478aabb-dc66-4a14-8715-9c0f5812259d",
+       "adoc_bytes": 35107
+      },
+      {
+       "guid": "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+       "adoc_bytes": 40199
+      },
+      {
+       "guid": "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+       "adoc_bytes": 21872
+      },
+      {
+       "guid": "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+       "adoc_bytes": 29116
+      },
+      {
+       "guid": "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+       "adoc_bytes": 24816
+      },
+      {
+       "guid": "238471d5-1cda-4554-8458-83bcf331f149",
+       "adoc_bytes": 31527
+      },
+      {
+       "guid": "9d3038e2-a69e-40a4-9217-134a4015896a",
+       "adoc_bytes": 24524
+      },
+      {
+       "guid": "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+       "adoc_bytes": 24510
+      },
+      {
+       "guid": "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+       "adoc_bytes": 30580
+      },
+      {
+       "guid": "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+       "adoc_bytes": 22240
+      },
+      {
+       "guid": "830890eb-dfe2-4882-81ca-4f8bced826b1",
+       "adoc_bytes": 35325
+      },
+      {
+       "guid": "fe0923ee-a917-439a-a945-fae55292b3d1",
+       "adoc_bytes": 31651
+      },
+      {
+       "guid": "5e037af6-e747-4731-99e0-ed651d369c9b",
+       "adoc_bytes": 19788
+      }
+     ],
+     "guids_not_found": [],
+     "grammar_roundtrip_ok": true,
+     "end_record": "a30300000000ffffffff00000000",
+     "sorted_guid_bytes_le": true,
+     "payload_before": 1365825,
+     "payload_after": 320897
+    },
+    "removed_guid_sets_equal": true,
+    "adocument": {
+     "guids": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+      "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+      "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+      "147abf91-ec71-4533-944c-4f2282b39389",
+      "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+      "238471d5-1cda-4554-8458-83bcf331f149",
+      "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+      "2774af49-2b12-4c51-9095-c3af78ae06a8",
+      "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+      "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+      "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+      "30640a46-4395-44f8-99ee-94759c623a88",
+      "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+      "4231c989-43a9-4cf4-8e57-62173b030da6",
+      "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+      "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+      "5478aabb-dc66-4a14-8715-9c0f5812259d",
+      "5e037af6-e747-4731-99e0-ed651d369c9b",
+      "652d2246-3c01-4148-8c16-17146f106321",
+      "68344216-9c79-4c4e-a832-3ed1233c2489",
+      "78061000-56a3-428c-a5a8-5b1397dbb12d",
+      "830890eb-dfe2-4882-81ca-4f8bced826b1",
+      "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+      "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+      "9d3038e2-a69e-40a4-9217-134a4015896a",
+      "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+      "bd60da88-04cb-4223-a54c-555ba16b76a3",
+      "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+      "c7734839-cb9e-4274-bcad-003788721261",
+      "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+      "d3ecb68c-670d-42af-82df-f684c77b9693",
+      "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+      "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+      "ef6a7555-0579-4d66-a628-a069d646838b",
+      "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+      "f932d848-0871-4902-ac37-bb38aec05088",
+      "fb5c6124-6046-4375-9cef-63f740620a8e",
+      "fe0923ee-a917-439a-a945-fae55292b3d1"
+     ],
+     "content_table_before": 52,
+     "content_table_after": 14,
+     "content_table_dropped": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+      "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+      "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+      "147abf91-ec71-4533-944c-4f2282b39389",
+      "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+      "238471d5-1cda-4554-8458-83bcf331f149",
+      "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+      "2774af49-2b12-4c51-9095-c3af78ae06a8",
+      "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+      "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+      "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+      "30640a46-4395-44f8-99ee-94759c623a88",
+      "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+      "4231c989-43a9-4cf4-8e57-62173b030da6",
+      "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+      "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+      "5478aabb-dc66-4a14-8715-9c0f5812259d",
+      "5e037af6-e747-4731-99e0-ed651d369c9b",
+      "652d2246-3c01-4148-8c16-17146f106321",
+      "68344216-9c79-4c4e-a832-3ed1233c2489",
+      "78061000-56a3-428c-a5a8-5b1397dbb12d",
+      "830890eb-dfe2-4882-81ca-4f8bced826b1",
+      "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+      "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+      "9d3038e2-a69e-40a4-9217-134a4015896a",
+      "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+      "bd60da88-04cb-4223-a54c-555ba16b76a3",
+      "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+      "c7734839-cb9e-4274-bcad-003788721261",
+      "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+      "d3ecb68c-670d-42af-82df-f684c77b9693",
+      "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+      "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+      "ef6a7555-0579-4d66-a628-a069d646838b",
+      "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+      "f932d848-0871-4902-ac37-bb38aec05088",
+      "fb5c6124-6046-4375-9cef-63f740620a8e",
+      "fe0923ee-a917-439a-a945-fae55292b3d1"
+     ],
+     "familymgr_entries_before": 50,
+     "familymgr_entries_after": 22,
+     "familymgr_entries_dropped": [
+      {
+       "surrogate_id": 147513,
+       "guids": [
+        "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e"
+       ]
+      },
+      {
+       "surrogate_id": 152406,
+       "guids": [
+        "ef6a7555-0579-4d66-a628-a069d646838b"
+       ]
+      },
+      {
+       "surrogate_id": 157779,
+       "guids": [
+        "0c78fe6b-c9f7-409c-9a39-22068f7b32ab"
+       ]
+      },
+      {
+       "surrogate_id": 160825,
+       "guids": [
+        "30640a46-4395-44f8-99ee-94759c623a88"
+       ]
+      },
+      {
+       "surrogate_id": 170257,
+       "guids": [
+        "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+        "5e037af6-e747-4731-99e0-ed651d369c9b"
+       ]
+      },
+      {
+       "surrogate_id": 975200,
+       "guids": [
+        "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+        "f709839c-bdae-4bbb-b386-bdb0f99c5227"
+       ]
+      },
+      {
+       "surrogate_id": 984442,
+       "guids": [
+        "fb5c6124-6046-4375-9cef-63f740620a8e",
+        "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+        "78061000-56a3-428c-a5a8-5b1397dbb12d",
+        "c7734839-cb9e-4274-bcad-003788721261"
+       ]
+      },
+      {
+       "surrogate_id": 1030514,
+       "guids": [
+        "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1"
+       ]
+      },
+      {
+       "surrogate_id": 1040897,
+       "guids": [
+        "bd60da88-04cb-4223-a54c-555ba16b76a3"
+       ]
+      },
+      {
+       "surrogate_id": 1158736,
+       "guids": [
+        "2f53ad76-bd5c-418e-a1a0-810eda7b27a5"
+       ]
+      },
+      {
+       "surrogate_id": 1175033,
+       "guids": [
+        "2cda7ccf-3847-46e9-b7d0-7661c0eea654"
+       ]
+      },
+      {
+       "surrogate_id": 1177780,
+       "guids": [
+        "3db6cb71-cd2c-4fdf-a082-00b46b2beb47"
+       ]
+      },
+      {
+       "surrogate_id": 1197758,
+       "guids": [
+        "2774af49-2b12-4c51-9095-c3af78ae06a8",
+        "1313cad4-dc67-46e2-9907-6c3c5be1f597"
+       ]
+      },
+      {
+       "surrogate_id": 1253022,
+       "guids": [
+        "264dda00-ca49-4bd8-8ee3-bac15b8da155"
+       ]
+      },
+      {
+       "surrogate_id": 1253556,
+       "guids": [
+        "9d3038e2-a69e-40a4-9217-134a4015896a"
+       ]
+      },
+      {
+       "surrogate_id": 1292620,
+       "guids": [
+        "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe"
+       ]
+      },
+      {
+       "surrogate_id": 1389296,
+       "guids": [
+        "652d2246-3c01-4148-8c16-17146f106321"
+       ]
+      },
+      {
+       "surrogate_id": 1389625,
+       "guids": [
+        "4231c989-43a9-4cf4-8e57-62173b030da6"
+       ]
+      },
+      {
+       "surrogate_id": 1390172,
+       "guids": [
+        "68344216-9c79-4c4e-a832-3ed1233c2489"
+       ]
+      },
+      {
+       "surrogate_id": 1390266,
+       "guids": [
+        "e2e70b03-dc3d-4d77-a52c-09ab0e345795"
+       ]
+      },
+      {
+       "surrogate_id": 1411267,
+       "guids": [
+        "09982dbb-c022-48fc-a116-6d8ba6867fdb"
+       ]
+      },
+      {
+       "surrogate_id": 1453531,
+       "guids": [
+        "238471d5-1cda-4554-8458-83bcf331f149"
+       ]
+      },
+      {
+       "surrogate_id": 1454438,
+       "guids": [
+        "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555"
+       ]
+      },
+      {
+       "surrogate_id": 1455333,
+       "guids": [
+        "d1a6a4ce-025f-407f-aaf5-9eadd5997940"
+       ]
+      },
+      {
+       "surrogate_id": 1463780,
+       "guids": [
+        "5478aabb-dc66-4a14-8715-9c0f5812259d"
+       ]
+      },
+      {
+       "surrogate_id": 1464228,
+       "guids": [
+        "fe0923ee-a917-439a-a945-fae55292b3d1"
+       ]
+      },
+      {
+       "surrogate_id": 1465231,
+       "guids": [
+        "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+        "d3ecb68c-670d-42af-82df-f684c77b9693",
+        "8b4a67ea-913e-4ba3-8291-00648285cdb7"
+       ]
+      },
+      {
+       "surrogate_id": 1466279,
+       "guids": [
+        "830890eb-dfe2-4882-81ca-4f8bced826b1",
+        "f932d848-0871-4902-ac37-bb38aec05088",
+        "147abf91-ec71-4533-944c-4f2282b39389"
+       ]
+      }
+     ],
+     "familymgr_entries_edited": [],
+     "guids_not_referenced": [],
+     "decodes_clean": true,
+     "removed_guids_still_referenced": [],
+     "latest_payload_before": 1586246,
+     "latest_payload_after": 1581750
+    },
+    "partition_table": "untouched (workset table -- no per-unit rows exist)",
+    "file_size": 1495040,
+    "post": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B3.rvt",
+     "partition_units": 15,
+     "partition_end_record_ok": true,
+     "partition_tail_junk_bytes": 0,
+     "cd_entries": 14,
+     "cd_end_record_ok": true,
+     "cd_grammar_roundtrip_ok": true,
+     "cd_guid_sorted": true,
+     "content_table_records": 14,
+     "familymgr_entries": 22,
+     "familymgr_guids": 14,
+     "sets": {
+      "units_eq_cd_entries": true,
+      "cd_entries_eq_content_table": true,
+      "cd_entries_eq_familymgr": true,
+      "content_table_minus_units": [],
+      "units_minus_content_table": [],
+      "familymgr_minus_units": []
+     },
+     "coherent": true
+    }
+   }
+  },
+  "B1": {
+   "tests": "ONE embedded family document removed COHERENTLY by the v2 recipe (unit + CD entry + ContentTable record + FamilyMgr entry; R9's own end-record tail byte-preserved) from a reader-ACCEPTED base",
+   "derives_from": "R9.rvt (viewer PASS: families' hosts+instances deleted, all 52 documents present)",
+   "one_variable_vs_sibling": "the coherent removal of the single document 'M_Concrete-Square-Column' (unit 36, 09982dbb-c022-48fc-a116-6d8ba6867fdb) -- nothing else differs from R9",
+   "PASS_means": "coherent unit removal is reader-legal; the v2 recipe is correct at unit scale; Bug B = the old path's mechanics",
+   "FAIL_means": "even a single coherently-removed document is rejected -> the reader pins the document SET (not the registries); escalate to B4/B2 to see which mechanic",
+   "file": "experiments/genesis/triage/B1.rvt",
+   "bytes": 3260416,
+   "coherence": {
+    "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B1.rvt",
+    "partition_units": 52,
+    "partition_end_record_ok": true,
+    "partition_tail_junk_bytes": 58,
+    "cd_entries": 51,
+    "cd_end_record_ok": true,
+    "cd_grammar_roundtrip_ok": true,
+    "cd_guid_sorted": true,
+    "content_table_records": 51,
+    "familymgr_entries": 49,
+    "familymgr_guids": 51,
+    "sets": {
+     "units_eq_cd_entries": true,
+     "cd_entries_eq_content_table": true,
+     "cd_entries_eq_familymgr": true,
+     "content_table_minus_units": [],
+     "units_minus_content_table": [],
+     "familymgr_minus_units": []
+    },
+    "coherent": true
+   },
+   "validate": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 1,
+    "info": 2,
+    "error_messages": []
+   },
+   "report": {
+    "source": "/Users/ck/dev/things/rev-revit/experiments/genesis/R9.rvt",
+    "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B1.rvt",
+    "guids": [
+     "09982dbb-c022-48fc-a116-6d8ba6867fdb"
+    ],
+    "reconcile_adocument": true,
+    "exact_tail": false,
+    "streams_replaced": [
+     "Partitions/21",
+     "Global/ContentDocuments",
+     "Global/Latest"
+    ],
+    "partition": {
+     "removed": [
+      {
+       "unit": 36,
+       "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+       "counter": 417,
+       "bytes": 47121
+      }
+     ],
+     "kept": [
+      {
+       "unit": 0,
+       "guid": null,
+       "counter": null
+      },
+      {
+       "unit": 1,
+       "guid": "78061000-56a3-428c-a5a8-5b1397dbb12d",
+       "counter": 224
+      },
+      {
+       "unit": 2,
+       "guid": "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+       "counter": 224
+      },
+      {
+       "unit": 3,
+       "guid": "3563d602-3ba7-4789-a3ee-254c15adc0ce",
+       "counter": 346
+      },
+      {
+       "unit": 4,
+       "guid": "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+       "counter": 225
+      },
+      {
+       "unit": 5,
+       "guid": "4d39b104-087e-47c8-885b-300dde8e24e3",
+       "counter": 233
+      },
+      {
+       "unit": 6,
+       "guid": "a0717c14-e2fc-4b34-9c27-2ff3604705e6",
+       "counter": 224
+      },
+      {
+       "unit": 7,
+       "guid": "68344216-9c79-4c4e-a832-3ed1233c2489",
+       "counter": 247
+      },
+      {
+       "unit": 8,
+       "guid": "fb5c6124-6046-4375-9cef-63f740620a8e",
+       "counter": 633
+      },
+      {
+       "unit": 9,
+       "guid": "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+       "counter": 325
+      },
+      {
+       "unit": 10,
+       "guid": "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+       "counter": 710
+      },
+      {
+       "unit": 11,
+       "guid": "c7734839-cb9e-4274-bcad-003788721261",
+       "counter": 245
+      },
+      {
+       "unit": 12,
+       "guid": "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+       "counter": 488
+      },
+      {
+       "unit": 13,
+       "guid": "30640a46-4395-44f8-99ee-94759c623a88",
+       "counter": 270
+      },
+      {
+       "unit": 14,
+       "guid": "652d2246-3c01-4148-8c16-17146f106321",
+       "counter": 231
+      },
+      {
+       "unit": 15,
+       "guid": "f932d848-0871-4902-ac37-bb38aec05088",
+       "counter": 279
+      },
+      {
+       "unit": 16,
+       "guid": "2774af49-2b12-4c51-9095-c3af78ae06a8",
+       "counter": 511
+      },
+      {
+       "unit": 17,
+       "guid": "4f85134f-7e56-4935-9a1d-5c31503c3716",
+       "counter": 222
+      },
+      {
+       "unit": 18,
+       "guid": "ef6a7555-0579-4d66-a628-a069d646838b",
+       "counter": 242
+      },
+      {
+       "unit": 19,
+       "guid": "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+       "counter": 574
+      },
+      {
+       "unit": 20,
+       "guid": "d58b645f-9df5-42f4-b770-a00aea8bb4ba",
+       "counter": 258
+      },
+      {
+       "unit": 21,
+       "guid": "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+       "counter": 449
+      },
+      {
+       "unit": 22,
+       "guid": "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+       "counter": 429
+      },
+      {
+       "unit": 23,
+       "guid": "f8b30e73-e9cf-4d44-b7c8-d85fb9e63cb6",
+       "counter": 221
+      },
+      {
+       "unit": 24,
+       "guid": "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+       "counter": 318
+      },
+      {
+       "unit": 25,
+       "guid": "af75f67d-1060-4650-b13a-d467c0872fda",
+       "counter": 619
+      },
+      {
+       "unit": 26,
+       "guid": "03f26a7f-f129-459a-9416-39e40d1f0b80",
+       "counter": 216
+      },
+      {
+       "unit": 27,
+       "guid": "bd60da88-04cb-4223-a54c-555ba16b76a3",
+       "counter": 563
+      },
+      {
+       "unit": 28,
+       "guid": "4231c989-43a9-4cf4-8e57-62173b030da6",
+       "counter": 239
+      },
+      {
+       "unit": 29,
+       "guid": "d4bdb58b-e63b-44a4-a882-c793b48ce304",
+       "counter": 224
+      },
+      {
+       "unit": 30,
+       "guid": "d3ecb68c-670d-42af-82df-f684c77b9693",
+       "counter": 271
+      },
+      {
+       "unit": 31,
+       "guid": "147abf91-ec71-4533-944c-4f2282b39389",
+       "counter": 288
+      },
+      {
+       "unit": 32,
+       "guid": "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+       "counter": 224
+      },
+      {
+       "unit": 33,
+       "guid": "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+       "counter": 484
+      },
+      {
+       "unit": 34,
+       "guid": "9c8df7a4-fbfa-4a9f-97fa-8b8aa5ff3e27",
+       "counter": 239
+      },
+      {
+       "unit": 35,
+       "guid": "36b75aa9-8fc8-4691-b3a3-bcff9df6471a",
+       "counter": 246
+      },
+      {
+       "unit": 37,
+       "guid": "5478aabb-dc66-4a14-8715-9c0f5812259d",
+       "counter": 492
+      },
+      {
+       "unit": 38,
+       "guid": "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+       "counter": 660
+      },
+      {
+       "unit": 39,
+       "guid": "d12022c4-1496-4d94-973a-599c45ef14a8",
+       "counter": 476
+      },
+      {
+       "unit": 40,
+       "guid": "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+       "counter": 271
+      },
+      {
+       "unit": 41,
+       "guid": "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+       "counter": 414
+      },
+      {
+       "unit": 42,
+       "guid": "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+       "counter": 339
+      },
+      {
+       "unit": 43,
+       "guid": "238471d5-1cda-4554-8458-83bcf331f149",
+       "counter": 459
+      },
+      {
+       "unit": 44,
+       "guid": "706e2be2-3779-421f-bfa7-57ff3562cd8f",
+       "counter": 233
+      },
+      {
+       "unit": 45,
+       "guid": "9d3038e2-a69e-40a4-9217-134a4015896a",
+       "counter": 224
+      },
+      {
+       "unit": 46,
+       "guid": "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+       "counter": 228
+      },
+      {
+       "unit": 47,
+       "guid": "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+       "counter": 443
+      },
+      {
+       "unit": 48,
+       "guid": "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+       "counter": 278
+      },
+      {
+       "unit": 49,
+       "guid": "830890eb-dfe2-4882-81ca-4f8bced826b1",
+       "counter": 490
+      },
+      {
+       "unit": 50,
+       "guid": "fe0923ee-a917-439a-a945-fae55292b3d1",
+       "counter": 420
+      },
+      {
+       "unit": 51,
+       "guid": "5e037af6-e747-4731-99e0-ed651d369c9b",
+       "counter": 224
+      },
+      {
+       "unit": 52,
+       "guid": "b8e18dfa-91c5-4551-a51d-17012a753412",
+       "counter": 266
+      }
+     ],
+     "guids_not_found": [],
+     "units_before": 53,
+     "units_after": 52,
+     "logical_before": 2685832,
+     "logical_after": 2638711,
+     "tail_before": 68,
+     "tail_after": 68,
+     "junk_after_end_record_dropped": 0,
+     "stream": "Partitions/21"
+    },
+    "content_documents": {
+     "entries_before": 52,
+     "entries_after": 51,
+     "removed": [
+      {
+       "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+       "adoc_bytes": 34870
+      }
+     ],
+     "guids_not_found": [],
+     "grammar_roundtrip_ok": true,
+     "end_record": "a30300000000ffffffff00000000",
+     "sorted_guid_bytes_le": true,
+     "payload_before": 1365825,
+     "payload_after": 1330919
+    },
+    "removed_guid_sets_equal": true,
+    "adocument": {
+     "guids": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb"
+     ],
+     "content_table_before": 52,
+     "content_table_after": 51,
+     "content_table_dropped": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb"
+     ],
+     "familymgr_entries_before": 50,
+     "familymgr_entries_after": 49,
+     "familymgr_entries_dropped": [
+      {
+       "surrogate_id": 1411267,
+       "guids": [
+        "09982dbb-c022-48fc-a116-6d8ba6867fdb"
+       ]
+      }
+     ],
+     "familymgr_entries_edited": [],
+     "guids_not_referenced": [],
+     "decodes_clean": true,
+     "removed_guids_still_referenced": [],
+     "latest_payload_before": 1586246,
+     "latest_payload_after": 1586126
+    },
+    "partition_table": "untouched (workset table -- no per-unit rows exist)",
+    "file_size": 3260416,
+    "post": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B1.rvt",
+     "partition_units": 52,
+     "partition_end_record_ok": true,
+     "partition_tail_junk_bytes": 58,
+     "cd_entries": 51,
+     "cd_end_record_ok": true,
+     "cd_grammar_roundtrip_ok": true,
+     "cd_guid_sorted": true,
+     "content_table_records": 51,
+     "familymgr_entries": 49,
+     "familymgr_guids": 51,
+     "sets": {
+      "units_eq_cd_entries": true,
+      "cd_entries_eq_content_table": true,
+      "cd_entries_eq_familymgr": true,
+      "content_table_minus_units": [],
+      "units_minus_content_table": [],
+      "familymgr_minus_units": []
+     },
+     "coherent": true
+    }
+   }
+  },
+  "B4": {
+   "tests": "the CONTENT-REGISTRY COHERENCE variable: B3's exact bytes but Global/Latest UNTOUCHED (ContentTable + FamilyMgr still name the 38 removed documents)",
+   "derives_from": "R9.rvt (viewer PASS); removed set == R9b's",
+   "one_variable_vs_sibling": "vs B3: Global/Latest not reconciled (only difference).  vs R9b: only the 294-byte junk tail dropped (its CD and partition unit bytes equal R9b's)",
+   "PASS_means": "coherence is NOT required -> R9b/R10b died of the accumulated ECC-junk tail the old splice wrote after the end record",
+   "FAIL_means": "(with B3 PASS) coherence IS the requirement: the reader cross-checks ContentTable/FamilyMgr against the document set; (with B3 FAIL) inconclusive -> read B1/B2",
+   "file": "experiments/genesis/triage/B4.rvt",
+   "bytes": 1495040,
+   "coherence": {
+    "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B4.rvt",
+    "partition_units": 15,
+    "partition_end_record_ok": true,
+    "partition_tail_junk_bytes": 0,
+    "cd_entries": 14,
+    "cd_end_record_ok": true,
+    "cd_grammar_roundtrip_ok": true,
+    "cd_guid_sorted": true,
+    "content_table_records": 52,
+    "familymgr_entries": 50,
+    "familymgr_guids": 52,
+    "sets": {
+     "units_eq_cd_entries": true,
+     "cd_entries_eq_content_table": false,
+     "cd_entries_eq_familymgr": false,
+     "content_table_minus_units": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+      "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+      "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+      "147abf91-ec71-4533-944c-4f2282b39389",
+      "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+      "238471d5-1cda-4554-8458-83bcf331f149",
+      "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+      "2774af49-2b12-4c51-9095-c3af78ae06a8",
+      "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+      "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+      "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+      "30640a46-4395-44f8-99ee-94759c623a88",
+      "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+      "4231c989-43a9-4cf4-8e57-62173b030da6",
+      "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+      "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+      "5478aabb-dc66-4a14-8715-9c0f5812259d",
+      "5e037af6-e747-4731-99e0-ed651d369c9b",
+      "652d2246-3c01-4148-8c16-17146f106321",
+      "68344216-9c79-4c4e-a832-3ed1233c2489",
+      "78061000-56a3-428c-a5a8-5b1397dbb12d",
+      "830890eb-dfe2-4882-81ca-4f8bced826b1",
+      "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+      "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+      "9d3038e2-a69e-40a4-9217-134a4015896a",
+      "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+      "bd60da88-04cb-4223-a54c-555ba16b76a3",
+      "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+      "c7734839-cb9e-4274-bcad-003788721261",
+      "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+      "d3ecb68c-670d-42af-82df-f684c77b9693",
+      "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+      "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+      "ef6a7555-0579-4d66-a628-a069d646838b",
+      "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+      "f932d848-0871-4902-ac37-bb38aec05088",
+      "fb5c6124-6046-4375-9cef-63f740620a8e",
+      "fe0923ee-a917-439a-a945-fae55292b3d1"
+     ],
+     "units_minus_content_table": [],
+     "familymgr_minus_units": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+      "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+      "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+      "147abf91-ec71-4533-944c-4f2282b39389",
+      "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+      "238471d5-1cda-4554-8458-83bcf331f149",
+      "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+      "2774af49-2b12-4c51-9095-c3af78ae06a8",
+      "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+      "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+      "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+      "30640a46-4395-44f8-99ee-94759c623a88",
+      "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+      "4231c989-43a9-4cf4-8e57-62173b030da6",
+      "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+      "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+      "5478aabb-dc66-4a14-8715-9c0f5812259d",
+      "5e037af6-e747-4731-99e0-ed651d369c9b",
+      "652d2246-3c01-4148-8c16-17146f106321",
+      "68344216-9c79-4c4e-a832-3ed1233c2489",
+      "78061000-56a3-428c-a5a8-5b1397dbb12d",
+      "830890eb-dfe2-4882-81ca-4f8bced826b1",
+      "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+      "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+      "9d3038e2-a69e-40a4-9217-134a4015896a",
+      "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+      "bd60da88-04cb-4223-a54c-555ba16b76a3",
+      "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+      "c7734839-cb9e-4274-bcad-003788721261",
+      "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+      "d3ecb68c-670d-42af-82df-f684c77b9693",
+      "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+      "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+      "ef6a7555-0579-4d66-a628-a069d646838b",
+      "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+      "f932d848-0871-4902-ac37-bb38aec05088",
+      "fb5c6124-6046-4375-9cef-63f740620a8e",
+      "fe0923ee-a917-439a-a945-fae55292b3d1"
+     ]
+    },
+    "coherent": false
+   },
+   "validate": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 1,
+    "info": 2,
+    "error_messages": []
+   },
+   "report": {
+    "source": "/Users/ck/dev/things/rev-revit/experiments/genesis/R9.rvt",
+    "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B4.rvt",
+    "guids": [
+     "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+     "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+     "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+     "147abf91-ec71-4533-944c-4f2282b39389",
+     "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+     "238471d5-1cda-4554-8458-83bcf331f149",
+     "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+     "2774af49-2b12-4c51-9095-c3af78ae06a8",
+     "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+     "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+     "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+     "30640a46-4395-44f8-99ee-94759c623a88",
+     "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+     "4231c989-43a9-4cf4-8e57-62173b030da6",
+     "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+     "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+     "5478aabb-dc66-4a14-8715-9c0f5812259d",
+     "5e037af6-e747-4731-99e0-ed651d369c9b",
+     "652d2246-3c01-4148-8c16-17146f106321",
+     "68344216-9c79-4c4e-a832-3ed1233c2489",
+     "78061000-56a3-428c-a5a8-5b1397dbb12d",
+     "830890eb-dfe2-4882-81ca-4f8bced826b1",
+     "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+     "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+     "9d3038e2-a69e-40a4-9217-134a4015896a",
+     "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+     "bd60da88-04cb-4223-a54c-555ba16b76a3",
+     "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+     "c7734839-cb9e-4274-bcad-003788721261",
+     "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+     "d3ecb68c-670d-42af-82df-f684c77b9693",
+     "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+     "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+     "ef6a7555-0579-4d66-a628-a069d646838b",
+     "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+     "f932d848-0871-4902-ac37-bb38aec05088",
+     "fb5c6124-6046-4375-9cef-63f740620a8e",
+     "fe0923ee-a917-439a-a945-fae55292b3d1"
+    ],
+    "reconcile_adocument": false,
+    "exact_tail": true,
+    "streams_replaced": [
+     "Partitions/21",
+     "Global/ContentDocuments"
+    ],
+    "partition": {
+     "removed": [
+      {
+       "unit": 1,
+       "guid": "78061000-56a3-428c-a5a8-5b1397dbb12d",
+       "counter": 224,
+       "bytes": 21703
+      },
+      {
+       "unit": 2,
+       "guid": "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+       "counter": 224,
+       "bytes": 20554
+      },
+      {
+       "unit": 4,
+       "guid": "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+       "counter": 225,
+       "bytes": 22564
+      },
+      {
+       "unit": 7,
+       "guid": "68344216-9c79-4c4e-a832-3ed1233c2489",
+       "counter": 247,
+       "bytes": 23748
+      },
+      {
+       "unit": 8,
+       "guid": "fb5c6124-6046-4375-9cef-63f740620a8e",
+       "counter": 633,
+       "bytes": 106073
+      },
+      {
+       "unit": 9,
+       "guid": "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+       "counter": 325,
+       "bytes": 33393
+      },
+      {
+       "unit": 10,
+       "guid": "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+       "counter": 710,
+       "bytes": 79680
+      },
+      {
+       "unit": 11,
+       "guid": "c7734839-cb9e-4274-bcad-003788721261",
+       "counter": 245,
+       "bytes": 23229
+      },
+      {
+       "unit": 12,
+       "guid": "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+       "counter": 488,
+       "bytes": 65898
+      },
+      {
+       "unit": 13,
+       "guid": "30640a46-4395-44f8-99ee-94759c623a88",
+       "counter": 270,
+       "bytes": 28208
+      },
+      {
+       "unit": 14,
+       "guid": "652d2246-3c01-4148-8c16-17146f106321",
+       "counter": 231,
+       "bytes": 20402
+      },
+      {
+       "unit": 15,
+       "guid": "f932d848-0871-4902-ac37-bb38aec05088",
+       "counter": 279,
+       "bytes": 30001
+      },
+      {
+       "unit": 16,
+       "guid": "2774af49-2b12-4c51-9095-c3af78ae06a8",
+       "counter": 511,
+       "bytes": 58066
+      },
+      {
+       "unit": 18,
+       "guid": "ef6a7555-0579-4d66-a628-a069d646838b",
+       "counter": 242,
+       "bytes": 22682
+      },
+      {
+       "unit": 19,
+       "guid": "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+       "counter": 574,
+       "bytes": 55077
+      },
+      {
+       "unit": 21,
+       "guid": "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+       "counter": 449,
+       "bytes": 55785
+      },
+      {
+       "unit": 22,
+       "guid": "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+       "counter": 429,
+       "bytes": 47197
+      },
+      {
+       "unit": 24,
+       "guid": "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+       "counter": 318,
+       "bytes": 36728
+      },
+      {
+       "unit": 27,
+       "guid": "bd60da88-04cb-4223-a54c-555ba16b76a3",
+       "counter": 563,
+       "bytes": 86441
+      },
+      {
+       "unit": 28,
+       "guid": "4231c989-43a9-4cf4-8e57-62173b030da6",
+       "counter": 239,
+       "bytes": 22443
+      },
+      {
+       "unit": 30,
+       "guid": "d3ecb68c-670d-42af-82df-f684c77b9693",
+       "counter": 271,
+       "bytes": 28244
+      },
+      {
+       "unit": 31,
+       "guid": "147abf91-ec71-4533-944c-4f2282b39389",
+       "counter": 288,
+       "bytes": 32456
+      },
+      {
+       "unit": 32,
+       "guid": "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+       "counter": 224,
+       "bytes": 21714
+      },
+      {
+       "unit": 33,
+       "guid": "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+       "counter": 484,
+       "bytes": 65207
+      },
+      {
+       "unit": 36,
+       "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+       "counter": 417,
+       "bytes": 47121
+      },
+      {
+       "unit": 37,
+       "guid": "5478aabb-dc66-4a14-8715-9c0f5812259d",
+       "counter": 492,
+       "bytes": 71143
+      },
+      {
+       "unit": 38,
+       "guid": "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+       "counter": 660,
+       "bytes": 80979
+      },
+      {
+       "unit": 40,
+       "guid": "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+       "counter": 271,
+       "bytes": 23583
+      },
+      {
+       "unit": 41,
+       "guid": "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+       "counter": 414,
+       "bytes": 43938
+      },
+      {
+       "unit": 42,
+       "guid": "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+       "counter": 339,
+       "bytes": 37914
+      },
+      {
+       "unit": 43,
+       "guid": "238471d5-1cda-4554-8458-83bcf331f149",
+       "counter": 459,
+       "bytes": 57747
+      },
+      {
+       "unit": 45,
+       "guid": "9d3038e2-a69e-40a4-9217-134a4015896a",
+       "counter": 224,
+       "bytes": 20581
+      },
+      {
+       "unit": 46,
+       "guid": "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+       "counter": 228,
+       "bytes": 21672
+      },
+      {
+       "unit": 47,
+       "guid": "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+       "counter": 443,
+       "bytes": 50494
+      },
+      {
+       "unit": 48,
+       "guid": "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+       "counter": 278,
+       "bytes": 30043
+      },
+      {
+       "unit": 49,
+       "guid": "830890eb-dfe2-4882-81ca-4f8bced826b1",
+       "counter": 490,
+       "bytes": 67780
+      },
+      {
+       "unit": 50,
+       "guid": "fe0923ee-a917-439a-a945-fae55292b3d1",
+       "counter": 420,
+       "bytes": 53038
+      },
+      {
+       "unit": 51,
+       "guid": "5e037af6-e747-4731-99e0-ed651d369c9b",
+       "counter": 224,
+       "bytes": 21686
+      }
+     ],
+     "kept": [
+      {
+       "unit": 0,
+       "guid": null,
+       "counter": null
+      },
+      {
+       "unit": 3,
+       "guid": "3563d602-3ba7-4789-a3ee-254c15adc0ce",
+       "counter": 346
+      },
+      {
+       "unit": 5,
+       "guid": "4d39b104-087e-47c8-885b-300dde8e24e3",
+       "counter": 233
+      },
+      {
+       "unit": 6,
+       "guid": "a0717c14-e2fc-4b34-9c27-2ff3604705e6",
+       "counter": 224
+      },
+      {
+       "unit": 17,
+       "guid": "4f85134f-7e56-4935-9a1d-5c31503c3716",
+       "counter": 222
+      },
+      {
+       "unit": 20,
+       "guid": "d58b645f-9df5-42f4-b770-a00aea8bb4ba",
+       "counter": 258
+      },
+      {
+       "unit": 23,
+       "guid": "f8b30e73-e9cf-4d44-b7c8-d85fb9e63cb6",
+       "counter": 221
+      },
+      {
+       "unit": 25,
+       "guid": "af75f67d-1060-4650-b13a-d467c0872fda",
+       "counter": 619
+      },
+      {
+       "unit": 26,
+       "guid": "03f26a7f-f129-459a-9416-39e40d1f0b80",
+       "counter": 216
+      },
+      {
+       "unit": 29,
+       "guid": "d4bdb58b-e63b-44a4-a882-c793b48ce304",
+       "counter": 224
+      },
+      {
+       "unit": 34,
+       "guid": "9c8df7a4-fbfa-4a9f-97fa-8b8aa5ff3e27",
+       "counter": 239
+      },
+      {
+       "unit": 35,
+       "guid": "36b75aa9-8fc8-4691-b3a3-bcff9df6471a",
+       "counter": 246
+      },
+      {
+       "unit": 39,
+       "guid": "d12022c4-1496-4d94-973a-599c45ef14a8",
+       "counter": 476
+      },
+      {
+       "unit": 44,
+       "guid": "706e2be2-3779-421f-bfa7-57ff3562cd8f",
+       "counter": 233
+      },
+      {
+       "unit": 52,
+       "guid": "b8e18dfa-91c5-4551-a51d-17012a753412",
+       "counter": 266
+      }
+     ],
+     "guids_not_found": [],
+     "units_before": 53,
+     "units_after": 15,
+     "logical_before": 2685832,
+     "logical_after": 1050562,
+     "tail_before": 68,
+     "tail_after": 10,
+     "junk_after_end_record_dropped": 58,
+     "stream": "Partitions/21"
+    },
+    "content_documents": {
+     "entries_before": 52,
+     "entries_after": 14,
+     "removed": [
+      {
+       "guid": "78061000-56a3-428c-a5a8-5b1397dbb12d",
+       "adoc_bytes": 19788
+      },
+      {
+       "guid": "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+       "adoc_bytes": 24524
+      },
+      {
+       "guid": "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+       "adoc_bytes": 19700
+      },
+      {
+       "guid": "68344216-9c79-4c4e-a832-3ed1233c2489",
+       "adoc_bytes": 20848
+      },
+      {
+       "guid": "fb5c6124-6046-4375-9cef-63f740620a8e",
+       "adoc_bytes": 38522
+      },
+      {
+       "guid": "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+       "adoc_bytes": 24248
+      },
+      {
+       "guid": "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+       "adoc_bytes": 42195
+      },
+      {
+       "guid": "c7734839-cb9e-4274-bcad-003788721261",
+       "adoc_bytes": 20800
+      },
+      {
+       "guid": "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+       "adoc_bytes": 32879
+      },
+      {
+       "guid": "30640a46-4395-44f8-99ee-94759c623a88",
+       "adoc_bytes": 21724
+      },
+      {
+       "guid": "652d2246-3c01-4148-8c16-17146f106321",
+       "adoc_bytes": 20136
+      },
+      {
+       "guid": "f932d848-0871-4902-ac37-bb38aec05088",
+       "adoc_bytes": 22296
+      },
+      {
+       "guid": "2774af49-2b12-4c51-9095-c3af78ae06a8",
+       "adoc_bytes": 33240
+      },
+      {
+       "guid": "ef6a7555-0579-4d66-a628-a069d646838b",
+       "adoc_bytes": 20620
+      },
+      {
+       "guid": "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+       "adoc_bytes": 36620
+      },
+      {
+       "guid": "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+       "adoc_bytes": 30624
+      },
+      {
+       "guid": "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+       "adoc_bytes": 29976
+      },
+      {
+       "guid": "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+       "adoc_bytes": 23708
+      },
+      {
+       "guid": "bd60da88-04cb-4223-a54c-555ba16b76a3",
+       "adoc_bytes": 35268
+      },
+      {
+       "guid": "4231c989-43a9-4cf4-8e57-62173b030da6",
+       "adoc_bytes": 20472
+      },
+      {
+       "guid": "d3ecb68c-670d-42af-82df-f684c77b9693",
+       "adoc_bytes": 21960
+      },
+      {
+       "guid": "147abf91-ec71-4533-944c-4f2282b39389",
+       "adoc_bytes": 22656
+      },
+      {
+       "guid": "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+       "adoc_bytes": 19796
+      },
+      {
+       "guid": "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+       "adoc_bytes": 34835
+      },
+      {
+       "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+       "adoc_bytes": 34870
+      },
+      {
+       "guid": "5478aabb-dc66-4a14-8715-9c0f5812259d",
+       "adoc_bytes": 35107
+      },
+      {
+       "guid": "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+       "adoc_bytes": 40199
+      },
+      {
+       "guid": "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+       "adoc_bytes": 21872
+      },
+      {
+       "guid": "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+       "adoc_bytes": 29116
+      },
+      {
+       "guid": "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+       "adoc_bytes": 24816
+      },
+      {
+       "guid": "238471d5-1cda-4554-8458-83bcf331f149",
+       "adoc_bytes": 31527
+      },
+      {
+       "guid": "9d3038e2-a69e-40a4-9217-134a4015896a",
+       "adoc_bytes": 24524
+      },
+      {
+       "guid": "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+       "adoc_bytes": 24510
+      },
+      {
+       "guid": "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+       "adoc_bytes": 30580
+      },
+      {
+       "guid": "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+       "adoc_bytes": 22240
+      },
+      {
+       "guid": "830890eb-dfe2-4882-81ca-4f8bced826b1",
+       "adoc_bytes": 35325
+      },
+      {
+       "guid": "fe0923ee-a917-439a-a945-fae55292b3d1",
+       "adoc_bytes": 31651
+      },
+      {
+       "guid": "5e037af6-e747-4731-99e0-ed651d369c9b",
+       "adoc_bytes": 19788
+      }
+     ],
+     "guids_not_found": [],
+     "grammar_roundtrip_ok": true,
+     "end_record": "a30300000000ffffffff00000000",
+     "sorted_guid_bytes_le": true,
+     "payload_before": 1365825,
+     "payload_after": 320897
+    },
+    "removed_guid_sets_equal": true,
+    "adocument": {
+     "reconciled": false,
+     "dangling_content_guids_left_in_registries": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+      "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+      "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+      "147abf91-ec71-4533-944c-4f2282b39389",
+      "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+      "238471d5-1cda-4554-8458-83bcf331f149",
+      "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+      "2774af49-2b12-4c51-9095-c3af78ae06a8",
+      "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+      "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+      "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+      "30640a46-4395-44f8-99ee-94759c623a88",
+      "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+      "4231c989-43a9-4cf4-8e57-62173b030da6",
+      "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+      "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+      "5478aabb-dc66-4a14-8715-9c0f5812259d",
+      "5e037af6-e747-4731-99e0-ed651d369c9b",
+      "652d2246-3c01-4148-8c16-17146f106321",
+      "68344216-9c79-4c4e-a832-3ed1233c2489",
+      "78061000-56a3-428c-a5a8-5b1397dbb12d",
+      "830890eb-dfe2-4882-81ca-4f8bced826b1",
+      "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+      "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+      "9d3038e2-a69e-40a4-9217-134a4015896a",
+      "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+      "bd60da88-04cb-4223-a54c-555ba16b76a3",
+      "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+      "c7734839-cb9e-4274-bcad-003788721261",
+      "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+      "d3ecb68c-670d-42af-82df-f684c77b9693",
+      "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+      "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+      "ef6a7555-0579-4d66-a628-a069d646838b",
+      "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+      "f932d848-0871-4902-ac37-bb38aec05088",
+      "fb5c6124-6046-4375-9cef-63f740620a8e",
+      "fe0923ee-a917-439a-a945-fae55292b3d1"
+     ],
+     "note": "ContentTable / FamilyMgr still name the removed documents (deliberately incoherent -- coherence isolation probe)"
+    },
+    "partition_table": "untouched (workset table -- no per-unit rows exist)",
+    "file_size": 1495040,
+    "post": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B4.rvt",
+     "partition_units": 15,
+     "partition_end_record_ok": true,
+     "partition_tail_junk_bytes": 0,
+     "cd_entries": 14,
+     "cd_end_record_ok": true,
+     "cd_grammar_roundtrip_ok": true,
+     "cd_guid_sorted": true,
+     "content_table_records": 52,
+     "familymgr_entries": 50,
+     "familymgr_guids": 52,
+     "sets": {
+      "units_eq_cd_entries": true,
+      "cd_entries_eq_content_table": false,
+      "cd_entries_eq_familymgr": false,
+      "content_table_minus_units": [
+       "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+       "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+       "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+       "147abf91-ec71-4533-944c-4f2282b39389",
+       "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+       "238471d5-1cda-4554-8458-83bcf331f149",
+       "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+       "2774af49-2b12-4c51-9095-c3af78ae06a8",
+       "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+       "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+       "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+       "30640a46-4395-44f8-99ee-94759c623a88",
+       "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+       "4231c989-43a9-4cf4-8e57-62173b030da6",
+       "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+       "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+       "5478aabb-dc66-4a14-8715-9c0f5812259d",
+       "5e037af6-e747-4731-99e0-ed651d369c9b",
+       "652d2246-3c01-4148-8c16-17146f106321",
+       "68344216-9c79-4c4e-a832-3ed1233c2489",
+       "78061000-56a3-428c-a5a8-5b1397dbb12d",
+       "830890eb-dfe2-4882-81ca-4f8bced826b1",
+       "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+       "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+       "9d3038e2-a69e-40a4-9217-134a4015896a",
+       "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+       "bd60da88-04cb-4223-a54c-555ba16b76a3",
+       "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+       "c7734839-cb9e-4274-bcad-003788721261",
+       "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+       "d3ecb68c-670d-42af-82df-f684c77b9693",
+       "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+       "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+       "ef6a7555-0579-4d66-a628-a069d646838b",
+       "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+       "f932d848-0871-4902-ac37-bb38aec05088",
+       "fb5c6124-6046-4375-9cef-63f740620a8e",
+       "fe0923ee-a917-439a-a945-fae55292b3d1"
+      ],
+      "units_minus_content_table": [],
+      "familymgr_minus_units": [
+       "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+       "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+       "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+       "147abf91-ec71-4533-944c-4f2282b39389",
+       "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+       "238471d5-1cda-4554-8458-83bcf331f149",
+       "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+       "2774af49-2b12-4c51-9095-c3af78ae06a8",
+       "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+       "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+       "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+       "30640a46-4395-44f8-99ee-94759c623a88",
+       "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+       "4231c989-43a9-4cf4-8e57-62173b030da6",
+       "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+       "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+       "5478aabb-dc66-4a14-8715-9c0f5812259d",
+       "5e037af6-e747-4731-99e0-ed651d369c9b",
+       "652d2246-3c01-4148-8c16-17146f106321",
+       "68344216-9c79-4c4e-a832-3ed1233c2489",
+       "78061000-56a3-428c-a5a8-5b1397dbb12d",
+       "830890eb-dfe2-4882-81ca-4f8bced826b1",
+       "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+       "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+       "9d3038e2-a69e-40a4-9217-134a4015896a",
+       "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+       "bd60da88-04cb-4223-a54c-555ba16b76a3",
+       "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+       "c7734839-cb9e-4274-bcad-003788721261",
+       "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+       "d3ecb68c-670d-42af-82df-f684c77b9693",
+       "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+       "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+       "ef6a7555-0579-4d66-a628-a069d646838b",
+       "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+       "f932d848-0871-4902-ac37-bb38aec05088",
+       "fb5c6124-6046-4375-9cef-63f740620a8e",
+       "fe0923ee-a917-439a-a945-fae55292b3d1"
+      ]
+     },
+     "coherent": false
+    }
+   }
+  },
+  "B2": {
+   "tests": "the OLD unit-removal path (tools/rvt_reduce.remove_units) on the SAME single document as B1: no Latest reconciliation + the de-page ECC junk carried after the partition end record",
+   "derives_from": "R9.rvt (viewer PASS); the OLD mechanics (control probe)",
+   "one_variable_vs_sibling": "vs B1: identical removed document; differs ONLY in the removal MECHANICS (old: incoherent registries + junk tail; CD bytes equal B1's)",
+   "PASS_means": "a single removal survives even the old path -> R9b's failure needs scale (38) or a specific document; B1 vs B3 decides",
+   "FAIL_means": "(with B1 PASS) the old mechanics kill even one removal -> the v2 recipe is the fix (Bug B confirmed at n=1)",
+   "file": "experiments/genesis/triage/B2.rvt",
+   "bytes": 3260416,
+   "coherence": {
+    "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B2.rvt",
+    "partition_units": 52,
+    "partition_end_record_ok": true,
+    "partition_tail_junk_bytes": 294,
+    "cd_entries": 51,
+    "cd_end_record_ok": true,
+    "cd_grammar_roundtrip_ok": true,
+    "cd_guid_sorted": true,
+    "content_table_records": 52,
+    "familymgr_entries": 50,
+    "familymgr_guids": 52,
+    "sets": {
+     "units_eq_cd_entries": true,
+     "cd_entries_eq_content_table": false,
+     "cd_entries_eq_familymgr": false,
+     "content_table_minus_units": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb"
+     ],
+     "units_minus_content_table": [],
+     "familymgr_minus_units": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb"
+     ]
+    },
+    "coherent": false
+   },
+   "validate": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 1,
+    "info": 2,
+    "error_messages": []
+   },
+   "report": {
+    "units_before": 53,
+    "units_after": 52,
+    "removed_units": [
+     {
+      "unit": 36,
+      "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+      "bytes": 47121
+     }
+    ],
+    "cd_entries_before": 52,
+    "cd_entries_after": 51,
+    "partition_logical_before": 2686068,
+    "partition_logical_after": 2638947,
+    "cd_payload_before": 1365825,
+    "cd_payload_after": 1330919
+   }
+  },
+  "B5": {
+   "tests": "the coherence variable applied to R9b's EXACT bytes: R9b + the ContentTable/FamilyMgr reconciliation, its junk-tail partition and old-splice CD kept byte-for-byte",
+   "derives_from": "R9b.rvt (viewer FAIL)",
+   "one_variable_vs_sibling": "vs R9b: Global/Latest reconciled (only difference).  vs B3: partition tail junk kept (294 B) -- completes the tail x coherence square",
+   "PASS_means": "(esp. with B4 FAIL) coherence alone rescues R9b -> the junk tail is harmless",
+   "FAIL_means": "(with B3 PASS) the junk tail also matters; (with B3 FAIL) 38-document removal is rejected regardless",
+   "file": "experiments/genesis/triage/B5.rvt",
+   "bytes": 1495040,
+   "coherence": {
+    "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B5.rvt",
+    "partition_units": 15,
+    "partition_end_record_ok": true,
+    "partition_tail_junk_bytes": 294,
+    "cd_entries": 14,
+    "cd_end_record_ok": true,
+    "cd_grammar_roundtrip_ok": true,
+    "cd_guid_sorted": true,
+    "content_table_records": 14,
+    "familymgr_entries": 22,
+    "familymgr_guids": 14,
+    "sets": {
+     "units_eq_cd_entries": true,
+     "cd_entries_eq_content_table": true,
+     "cd_entries_eq_familymgr": true,
+     "content_table_minus_units": [],
+     "units_minus_content_table": [],
+     "familymgr_minus_units": []
+    },
+    "coherent": true
+   },
+   "validate": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 1,
+    "info": 2,
+    "error_messages": []
+   },
+   "report": {
+    "write": {
+     "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/B5.rvt",
+     "payload": 1581750,
+     "logical": 127491,
+     "framed": 128451
+    },
+    "reconciliation": {
+     "guids": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+      "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+      "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+      "147abf91-ec71-4533-944c-4f2282b39389",
+      "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+      "238471d5-1cda-4554-8458-83bcf331f149",
+      "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+      "2774af49-2b12-4c51-9095-c3af78ae06a8",
+      "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+      "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+      "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+      "30640a46-4395-44f8-99ee-94759c623a88",
+      "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+      "4231c989-43a9-4cf4-8e57-62173b030da6",
+      "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+      "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+      "5478aabb-dc66-4a14-8715-9c0f5812259d",
+      "5e037af6-e747-4731-99e0-ed651d369c9b",
+      "652d2246-3c01-4148-8c16-17146f106321",
+      "68344216-9c79-4c4e-a832-3ed1233c2489",
+      "78061000-56a3-428c-a5a8-5b1397dbb12d",
+      "830890eb-dfe2-4882-81ca-4f8bced826b1",
+      "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+      "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+      "9d3038e2-a69e-40a4-9217-134a4015896a",
+      "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+      "bd60da88-04cb-4223-a54c-555ba16b76a3",
+      "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+      "c7734839-cb9e-4274-bcad-003788721261",
+      "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+      "d3ecb68c-670d-42af-82df-f684c77b9693",
+      "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+      "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+      "ef6a7555-0579-4d66-a628-a069d646838b",
+      "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+      "f932d848-0871-4902-ac37-bb38aec05088",
+      "fb5c6124-6046-4375-9cef-63f740620a8e",
+      "fe0923ee-a917-439a-a945-fae55292b3d1"
+     ],
+     "content_table_before": 52,
+     "content_table_after": 14,
+     "content_table_dropped": [
+      "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+      "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+      "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+      "147abf91-ec71-4533-944c-4f2282b39389",
+      "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+      "238471d5-1cda-4554-8458-83bcf331f149",
+      "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+      "2774af49-2b12-4c51-9095-c3af78ae06a8",
+      "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+      "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+      "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+      "30640a46-4395-44f8-99ee-94759c623a88",
+      "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+      "4231c989-43a9-4cf4-8e57-62173b030da6",
+      "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+      "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+      "5478aabb-dc66-4a14-8715-9c0f5812259d",
+      "5e037af6-e747-4731-99e0-ed651d369c9b",
+      "652d2246-3c01-4148-8c16-17146f106321",
+      "68344216-9c79-4c4e-a832-3ed1233c2489",
+      "78061000-56a3-428c-a5a8-5b1397dbb12d",
+      "830890eb-dfe2-4882-81ca-4f8bced826b1",
+      "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+      "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+      "9d3038e2-a69e-40a4-9217-134a4015896a",
+      "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+      "bd60da88-04cb-4223-a54c-555ba16b76a3",
+      "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+      "c7734839-cb9e-4274-bcad-003788721261",
+      "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+      "d3ecb68c-670d-42af-82df-f684c77b9693",
+      "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+      "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+      "ef6a7555-0579-4d66-a628-a069d646838b",
+      "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+      "f932d848-0871-4902-ac37-bb38aec05088",
+      "fb5c6124-6046-4375-9cef-63f740620a8e",
+      "fe0923ee-a917-439a-a945-fae55292b3d1"
+     ],
+     "familymgr_entries_before": 50,
+     "familymgr_entries_after": 22,
+     "familymgr_entries_dropped": [
+      {
+       "surrogate_id": 147513,
+       "guids": [
+        "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e"
+       ]
+      },
+      {
+       "surrogate_id": 152406,
+       "guids": [
+        "ef6a7555-0579-4d66-a628-a069d646838b"
+       ]
+      },
+      {
+       "surrogate_id": 157779,
+       "guids": [
+        "0c78fe6b-c9f7-409c-9a39-22068f7b32ab"
+       ]
+      },
+      {
+       "surrogate_id": 160825,
+       "guids": [
+        "30640a46-4395-44f8-99ee-94759c623a88"
+       ]
+      },
+      {
+       "surrogate_id": 170257,
+       "guids": [
+        "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+        "5e037af6-e747-4731-99e0-ed651d369c9b"
+       ]
+      },
+      {
+       "surrogate_id": 975200,
+       "guids": [
+        "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+        "f709839c-bdae-4bbb-b386-bdb0f99c5227"
+       ]
+      },
+      {
+       "surrogate_id": 984442,
+       "guids": [
+        "fb5c6124-6046-4375-9cef-63f740620a8e",
+        "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+        "78061000-56a3-428c-a5a8-5b1397dbb12d",
+        "c7734839-cb9e-4274-bcad-003788721261"
+       ]
+      },
+      {
+       "surrogate_id": 1030514,
+       "guids": [
+        "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1"
+       ]
+      },
+      {
+       "surrogate_id": 1040897,
+       "guids": [
+        "bd60da88-04cb-4223-a54c-555ba16b76a3"
+       ]
+      },
+      {
+       "surrogate_id": 1158736,
+       "guids": [
+        "2f53ad76-bd5c-418e-a1a0-810eda7b27a5"
+       ]
+      },
+      {
+       "surrogate_id": 1175033,
+       "guids": [
+        "2cda7ccf-3847-46e9-b7d0-7661c0eea654"
+       ]
+      },
+      {
+       "surrogate_id": 1177780,
+       "guids": [
+        "3db6cb71-cd2c-4fdf-a082-00b46b2beb47"
+       ]
+      },
+      {
+       "surrogate_id": 1197758,
+       "guids": [
+        "2774af49-2b12-4c51-9095-c3af78ae06a8",
+        "1313cad4-dc67-46e2-9907-6c3c5be1f597"
+       ]
+      },
+      {
+       "surrogate_id": 1253022,
+       "guids": [
+        "264dda00-ca49-4bd8-8ee3-bac15b8da155"
+       ]
+      },
+      {
+       "surrogate_id": 1253556,
+       "guids": [
+        "9d3038e2-a69e-40a4-9217-134a4015896a"
+       ]
+      },
+      {
+       "surrogate_id": 1292620,
+       "guids": [
+        "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe"
+       ]
+      },
+      {
+       "surrogate_id": 1389296,
+       "guids": [
+        "652d2246-3c01-4148-8c16-17146f106321"
+       ]
+      },
+      {
+       "surrogate_id": 1389625,
+       "guids": [
+        "4231c989-43a9-4cf4-8e57-62173b030da6"
+       ]
+      },
+      {
+       "surrogate_id": 1390172,
+       "guids": [
+        "68344216-9c79-4c4e-a832-3ed1233c2489"
+       ]
+      },
+      {
+       "surrogate_id": 1390266,
+       "guids": [
+        "e2e70b03-dc3d-4d77-a52c-09ab0e345795"
+       ]
+      },
+      {
+       "surrogate_id": 1411267,
+       "guids": [
+        "09982dbb-c022-48fc-a116-6d8ba6867fdb"
+       ]
+      },
+      {
+       "surrogate_id": 1453531,
+       "guids": [
+        "238471d5-1cda-4554-8458-83bcf331f149"
+       ]
+      },
+      {
+       "surrogate_id": 1454438,
+       "guids": [
+        "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555"
+       ]
+      },
+      {
+       "surrogate_id": 1455333,
+       "guids": [
+        "d1a6a4ce-025f-407f-aaf5-9eadd5997940"
+       ]
+      },
+      {
+       "surrogate_id": 1463780,
+       "guids": [
+        "5478aabb-dc66-4a14-8715-9c0f5812259d"
+       ]
+      },
+      {
+       "surrogate_id": 1464228,
+       "guids": [
+        "fe0923ee-a917-439a-a945-fae55292b3d1"
+       ]
+      },
+      {
+       "surrogate_id": 1465231,
+       "guids": [
+        "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+        "d3ecb68c-670d-42af-82df-f684c77b9693",
+        "8b4a67ea-913e-4ba3-8291-00648285cdb7"
+       ]
+      },
+      {
+       "surrogate_id": 1466279,
+       "guids": [
+        "830890eb-dfe2-4882-81ca-4f8bced826b1",
+        "f932d848-0871-4902-ac37-bb38aec05088",
+        "147abf91-ec71-4533-944c-4f2282b39389"
+       ]
+      }
+     ],
+     "familymgr_entries_edited": [],
+     "guids_not_referenced": []
+    }
+   }
+  }
+ },
+ "files": [
+  "experiments/genesis/triage/B1.rvt",
+  "experiments/genesis/triage/B2.rvt",
+  "experiments/genesis/triage/B3.rvt",
+  "experiments/genesis/triage/B4.rvt",
+  "experiments/genesis/triage/B5.rvt"
+ ]
+}

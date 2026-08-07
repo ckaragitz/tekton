@@ -1,0 +1,83 @@
+{
+ "route": "rvt->rfa (rvt.convert.extract_family)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "experiments/frontdoor/prompt-electrical-room/electrical_room_prompt.rvt",
+  "sha256": "3221ddd95ff93f667bf7751510e3379e90906a5bd41313e578a083cd15c48da7",
+  "provenance": {
+   "author": "rvt-writer",
+   "format": "2026",
+   "lineage": "tekton-authored (self-reported BasicFileInfo author)",
+   "foreign": false,
+   "quarantined": false
+  }
+ },
+ "family": {
+  "selector": "Switchboard MSB",
+  "family_id": 1472568,
+  "family_name": "Switchboard MSB 2500A 480Y/277",
+  "unit": 1,
+  "category": -2001040,
+  "types": [
+   "2500A 4-section"
+  ]
+ },
+ "files": {
+  "rfa": "experiments/convert/extract-family/MSB_reextracted.rfa"
+ },
+ "stamps": [],
+ "degradations": [],
+ "errors": [],
+ "assembly": {
+  "size": 299008,
+  "partition_stream": "Partitions/0",
+  "elements": 43,
+  "document_guid": "07240249-5543-403f-95d1-27bc2420d966",
+  "adoc_mode": "candidate",
+  "adoc_bytes": 1359235,
+  "ours": [
+   "partition framing + unit footer nonce + end record",
+   "Global/{ElemTable,History,DocumentIncrementTable,PartitionTable,ContentDocuments,Latest}",
+   "Contents",
+   "BasicFileInfo (rvt.identity)",
+   "TransmissionData",
+   "PartAtom",
+   "CFB container / gzip / CRCIO framing"
+  ],
+  "carried": [
+   "the family document's OWN records (verbatim; the content being extracted)",
+   "Formats/Latest from the SOURCE file (per-release schema constant -- format, not content)"
+  ],
+  "verify": {
+   "gzip_crc_failures": 0,
+   "ecc_mismatch": 0,
+   "walker_errors": [],
+   "n_units": 1,
+   "record_counts": {
+    "101": 44,
+    "102": 44,
+    "103": 44
+   }
+  }
+ },
+ "validation": {
+  "family_mode": {
+   "verdict": "VALID",
+   "n_errors": 0,
+   "n_warnings": 0,
+   "errors": []
+  },
+  "records_decode_clean": true,
+  "ids_match_source_unit": true,
+  "self_checks_ok": true
+ },
+ "seconds": 1.1,
+ "deliverables": {
+  "rfa": {
+   "path": "experiments/convert/extract-family/MSB_reextracted.rfa",
+   "bytes": 299008,
+   "sha256": "c1bd9acaf799f78bc67e5e6f74ea7b71eb2f94e47637c07fe8c2f8ea32275590"
+  }
+ }
+}

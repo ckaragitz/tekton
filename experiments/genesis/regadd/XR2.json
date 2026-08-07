@@ -1,0 +1,544 @@
+{
+ "op": "substitute_elements",
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR2.rvt",
+ "target_id": 2,
+ "class_name": "PenWidthTableElem",
+ "seqs_replaced": [
+  101,
+  102,
+  103
+ ],
+ "null_mode": false,
+ "row_before": {
+  "original_id": 2,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 2,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "row_after": {
+  "original_id": 2,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 2,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "positions_before": {
+  "101": 2516,
+  "102": 2516,
+  "103": 2516
+ },
+ "positions_after": {
+  "101": 2516,
+  "102": 2516,
+  "103": 2516
+ },
+ "record_len_delta": {
+  "101": 0,
+  "102": 0,
+  "103": 0
+ },
+ "identity_at_original": null,
+ "emit": {
+  "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR2.rvt",
+  "partition": "Partitions/21",
+  "unit0_blocks_after": {
+   "101": 8,
+   "102": 43,
+   "103": 25
+  },
+  "elemtable_count": 6540,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 277,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389019
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "notes": [
+  "78 element(s) substituted in place: ids [2, 9490, 9494, 12799, 19895, 24945, 24946, 46017]..."
+ ],
+ "diff_summary": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "streams_identical_count": 11,
+  "partition_logical_identical": false,
+  "records_added": 0,
+  "records_removed": 0,
+  "records_changed": 53,
+  "changed_ids": [
+   2,
+   9490,
+   9494,
+   12799,
+   19895,
+   24945,
+   24946,
+   46017,
+   49030,
+   49031,
+   54523,
+   54525,
+   54663,
+   69851,
+   69853,
+   86204,
+   86291,
+   99928,
+   102126,
+   102127
+  ],
+  "id_order_identical": true,
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical": {
+   "101": false,
+   "102": false,
+   "103": false
+  },
+  "elemtable_identical": true,
+  "latest_identical": true,
+  "embedded_units_identical": true
+ },
+ "probe": "XR2",
+ "role": "the settings-singleton layer OUR content, in place (1:1 subset)",
+ "inplaced": [
+  {
+   "id": 2,
+   "class": "PenWidthTableElem"
+  },
+  {
+   "id": 9490,
+   "class": "AreaMeasureElem"
+  },
+  {
+   "id": 9494,
+   "class": "AreaMeasureElem"
+  },
+  {
+   "id": 12799,
+   "class": "DaylightSourceIdSet"
+  },
+  {
+   "id": 19895,
+   "class": "PrintSettings"
+  },
+  {
+   "id": 24945,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 24946,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 46017,
+   "class": "ExternalParamLock"
+  },
+  {
+   "id": 49030,
+   "class": "ProjectRevision"
+  },
+  {
+   "id": 49031,
+   "class": "AllProjectRevisions"
+  },
+  {
+   "id": 54523,
+   "class": "ModelGraphicsStyle"
+  },
+  {
+   "id": 54525,
+   "class": "ModelGraphicsStyle"
+  },
+  {
+   "id": 54663,
+   "class": "StructSettingsElem"
+  },
+  {
+   "id": 69851,
+   "class": "RbsDbViewSystemNavigator"
+  },
+  {
+   "id": 69852,
+   "class": "Viewer"
+  },
+  {
+   "id": 69853,
+   "class": "Viewport"
+  },
+  {
+   "id": 69854,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 85092,
+   "class": "AreaSettingsElem"
+  },
+  {
+   "id": 85104,
+   "class": "ReactionsUpToDateElem"
+  },
+  {
+   "id": 86204,
+   "class": "CoordinateSystemDisplayElem"
+  },
+  {
+   "id": 86291,
+   "class": "KeynoteTable"
+  },
+  {
+   "id": 86315,
+   "class": "KeynotingSystem"
+  },
+  {
+   "id": 99928,
+   "class": "ConstructionSetProject"
+  },
+  {
+   "id": 102105,
+   "class": "WallJoinDefaultSetting"
+  },
+  {
+   "id": 102126,
+   "class": "RbsDuctSizesElem"
+  },
+  {
+   "id": 102127,
+   "class": "RbsDuctSettingsElem"
+  },
+  {
+   "id": 102128,
+   "class": "RbsPipeSettingsElem"
+  },
+  {
+   "id": 102129,
+   "class": "RbsWireSettingsElem"
+  },
+  {
+   "id": 102379,
+   "class": "RbsPipeSizesElem"
+  },
+  {
+   "id": 102410,
+   "class": "RbsWireSizesElem"
+  },
+  {
+   "id": 102444,
+   "class": "Dwg2dExportUserSettingsData"
+  },
+  {
+   "id": 102461,
+   "class": "ZoneScheme"
+  },
+  {
+   "id": 102467,
+   "class": "AutoJoinTracker"
+  },
+  {
+   "id": 102842,
+   "class": "AutoCamSettingsElem"
+  },
+  {
+   "id": 105779,
+   "class": "HalftoneUnderlaySettings"
+  },
+  {
+   "id": 113109,
+   "class": "ActiveGeoLocationTrackingElement"
+  },
+  {
+   "id": 113134,
+   "class": "WorksetVisibilitySettingsElem"
+  },
+  {
+   "id": 113173,
+   "class": "CableTraySettingsElem"
+  },
+  {
+   "id": 113174,
+   "class": "ConduitSettingsElem"
+  },
+  {
+   "id": 115987,
+   "class": "ProjectCopySettingsElem"
+  },
+  {
+   "id": 115988,
+   "class": "EnergyDataSettings"
+  },
+  {
+   "id": 116120,
+   "class": "ReconcileBrowserSettingsElem"
+  },
+  {
+   "id": 121706,
+   "class": "ElectricalSetting"
+  },
+  {
+   "id": 130510,
+   "class": "MEPSystemTracker"
+  },
+  {
+   "id": 130813,
+   "class": "WorksharingViewModeSettings"
+  },
+  {
+   "id": 132328,
+   "class": "AssemblyTracker"
+  },
+  {
+   "id": 132481,
+   "class": "RvtLinkInstanceAppearanceParentElem"
+  },
+  {
+   "id": 132484,
+   "class": "SketchGridAppearanceParentElem"
+  },
+  {
+   "id": 133303,
+   "class": "InitialViewSettings"
+  },
+  {
+   "id": 137426,
+   "class": "ReinforcementSettings"
+  },
+  {
+   "id": 423812,
+   "class": "CurtaSystemFaceManager"
+  },
+  {
+   "id": 503760,
+   "class": "ViewSheetSet"
+  },
+  {
+   "id": 701421,
+   "class": "ViewSheetSet"
+  },
+  {
+   "id": 907053,
+   "class": "DefaultDivideSettings"
+  },
+  {
+   "id": 907354,
+   "class": "MEPComponentTracker"
+  },
+  {
+   "id": 907382,
+   "class": "KeynoteTagsOnSheetsTracker"
+  },
+  {
+   "id": 907486,
+   "class": "RevisionCloudsOnSheetsTracker"
+  },
+  {
+   "id": 1218550,
+   "class": "LayoutNodesTracker"
+  },
+  {
+   "id": 1218727,
+   "class": "FabricationSettings"
+  },
+  {
+   "id": 1250031,
+   "class": "CopyWatchProperties"
+  },
+  {
+   "id": 1457285,
+   "class": "FabricationSettingsElement"
+  },
+  {
+   "id": 1462521,
+   "class": "StructuralConnectionSettings"
+  },
+  {
+   "id": 1468014,
+   "class": "MEPNetworkTracker"
+  },
+  {
+   "id": 1468599,
+   "class": "BrowserOrganization"
+  },
+  {
+   "id": 1470390,
+   "class": "RouteAnalysisSettings"
+  },
+  {
+   "id": 1471217,
+   "class": "CircuitNamingTypeSetting"
+  },
+  {
+   "id": 1471446,
+   "class": "MEPHiddenLineSettingsElem"
+  },
+  {
+   "id": 1471489,
+   "class": "MultipleValuesIndicationSettings"
+  },
+  {
+   "id": 1471493,
+   "class": "RevisionNumberingSequence"
+  },
+  {
+   "id": 1471494,
+   "class": "RevisionNumberingSequence"
+  },
+  {
+   "id": 1471712,
+   "class": "GraphicsCache"
+  },
+  {
+   "id": 1471770,
+   "class": "AnalyticalToPhysicalRelationManager"
+  },
+  {
+   "id": 1471901,
+   "class": "MEPNetworkDataElem"
+  },
+  {
+   "id": 1471905,
+   "class": "FabricationServiceSettings"
+  },
+  {
+   "id": 1471913,
+   "class": "SSEPointVisibilitySettings"
+  },
+  {
+   "id": 1471926,
+   "class": "STEPExportSettings"
+  },
+  {
+   "id": 1472007,
+   "class": "SheetsInSheetCollectionTracker"
+  },
+  {
+   "id": 1472524,
+   "class": "BrowserOrganization"
+  }
+ ],
+ "inplaced_count": 78,
+ "residue_not_inplaceable": [
+  {
+   "rung": "X2",
+   "our_new_only": 1500005,
+   "class": "BrowserOrganization",
+   "reason": "OUR new-only record has no old correspondent (needs the ADD path)"
+  },
+  {
+   "rung": "X2",
+   "our_new_only": 1500006,
+   "class": "BrowserOrganization",
+   "reason": "OUR new-only record has no old correspondent (needs the ADD path)"
+  },
+  {
+   "rung": "X2",
+   "our_new_only": 1500005,
+   "class": "BrowserOrganization",
+   "reason": "new-only registration record (needs the ADD path)"
+  },
+  {
+   "rung": "X2",
+   "our_new_only": 1500006,
+   "class": "BrowserOrganization",
+   "reason": "new-only registration record (needs the ADD path)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 24947,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26012,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26013,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26014,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26015,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26016,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26017,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X5",
+   "old_deleted": 171476,
+   "class": "WorksharingViewModeSettings",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X5",
+   "old_deleted": 408188,
+   "class": "PrintSettings",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X5",
+   "old_deleted": 1013474,
+   "class": "PrintSettings",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  }
+ ],
+ "assertion_that_cannot_hold": "the classes listed under residue_not_inplaceable have NO pure in-place form: their corpus registration genuinely differs from a content swap (our constructor emits a different NUMBER of elements or new-only registry companions -- the browser-organization set X2 (11 old / our 6), the navigator constellation, param companions).  Those need the ADD path (regadd.add_element_like_original with the class rule) and are the honest limit of the in-place ladder.",
+ "if_PASS": "the in-placeable settings singletons carry OUR values reader-clean; the settings-layer residue is exactly the add-path work list above",
+ "if_FAIL": "(with XR0 PASSING) one of the in-placed classes' VALUES is audited: bisect the pairs (halve the id list -- seconds with this tool)",
+ "seconds": 11.5
+}

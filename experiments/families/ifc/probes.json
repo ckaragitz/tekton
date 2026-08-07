@@ -1,0 +1,122 @@
+{
+ "stream": "ifc-family (IFC product facts -> OUR family -> loaded project)",
+ "created": "2026-08-04T09:04:36",
+ "gate": "tools/probe_batch.py: the .rfa entries are CANDIDATE-BASES (no family file is viewer-certified); the loaded .rvt is a PROBE whose declared base is the certified rst sample source. Stage with: tools/probe_batch.py stage <IFA2 .rvt> --candidate-base <IFA0 archetype .rfa> --candidate-base <IFA1 .rfa> --control-from samples/rstbasicsampleproject.rvt",
+ "read_order": [
+  "CONTROL (gate-generated CTRL_ copy of a certified file) FIRST",
+  "IFA2 (the LOAD proof on the certified rst base -- the DONE probe)",
+  "IFA0 (the archetype .rfa: does the oracle read a family at all?)",
+  "IFA1 (our downlight .rfa) then IFA1m (envelope sibling)"
+ ],
+ "bases": {
+  "rst": {
+   "path": "samples/rstbasicsampleproject.rvt",
+   "ledger_status": "sample"
+  },
+  "rme": {
+   "path": "samples/rmebasicsampleproject.rvt",
+   "ledger_status": "sample"
+  },
+  "archetype": {
+   "path": "experiments/families/genesis2/troffer_2x4_v2.rfa",
+   "ledger_status": "unknown"
+  }
+ },
+ "known_passing_anchors": {
+  "L1a": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+  "rst": "samples/rstbasicsampleproject.rvt"
+ },
+ "probes": [
+  {
+   "id": "IFA0-archetype",
+   "kind": "candidate-base",
+   "file": "experiments/families/genesis2/troffer_2x4_v2.rfa",
+   "role": "the luminaire ARCHETYPE (factory make_luminaire, recessed-troffer form) through the assay-clean emitter -- the FAMILY the downlight variant derives from",
+   "ledger_status": "unknown",
+   "why_first": "NO .rfa is viewer-certified yet (docs/coverage/viewer-certified.json has zero family entries), so the archetype the downlight builds on is itself unjudged; upload it FIRST as the base-to-certify. If it PASSES the downlight becomes a one-variable probe on it (recessed-can composition + IFC-facts parameters); if it FAILS the lighting-fixture family layer is the finding and the downlight verdict is moot until it is fixed",
+   "if_PASS": "certified luminaire ARCHETYPE: family files reach the oracle at all, and the clean-path lighting-fixture family (skeleton + box housing + connector + parameters) loads; re-read IFA1 against it",
+   "if_FAIL": "the lighting-fixture family layer itself fails (skeleton / clean ADocument / lighting category) -- bisect with the certified panel/xfmr v2 siblings; IFA1's verdict measures nothing until this passes"
+  },
+  {
+   "id": "IFA1-downlight-rfa",
+   "kind": "candidate-base",
+   "file": "experiments/families/ifc/chicago_plenum_downlight.rfa",
+   "derived_from": "experiments/families/genesis2/troffer_2x4_v2.rfa",
+   "role": "OUR recessed-downlight family composed from the IFC facts: 8 form clusters (can / trim / lens / frame / junction box / driver / 2 bar hangers), the CCEA-spec + dimension parameters, one Lighting connector on the junction box top -- assay-clean emitter (our ADocument / footer / identity)",
+   "the_ONE_change_vs_archetype": "housing = a MULTI-FORM recessed-can composition sized by measured IFC facts (vs the archetype's single box housing) + the CCEA/aperture/lamp/mounting parameter set + the photometric-web reference parameter",
+   "validate_family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "errors": [],
+    "n_warnings": 0,
+    "warnings": [],
+    "adjustments": [
+     "PartAtom treated as UNFRAMED (plain Atom XML)",
+     "ProjectInformation not required (a family stream set has PartAtom instead)"
+    ]
+   },
+   "provenance_ok": true,
+   "if_PASS": "the IFC->family bridge lands a REAL family in the reader: our multi-form recessed can is accepted; the fixture family is instantiable content",
+   "if_FAIL": "(with IFA0 PASSING) the recessed-can COMPOSITION or the new parameter set is the delta -- read the card; the IFA1m envelope sibling (2 forms) attributes it to the multi-form composition vs the parameters"
+  },
+  {
+   "id": "IFA1m-downlight-envelope",
+   "kind": "candidate-base",
+   "file": "experiments/families/ifc/chicago_plenum_downlight_min.rfa",
+   "derived_from": "experiments/families/genesis2/troffer_2x4_v2.rfa",
+   "role": "the same family reduced to the housing ENVELOPE (can + trim ring, datum-hosted connector) -- the attribution sibling isolating the 8-form composition",
+   "if_PASS": "(with IFA1 FAIL) the multi-form composition (jbox / driver / hangers / lens / frame or the face-hosted connector) is the delta",
+   "if_FAIL": "(with IFA0 PASS) the parameter set / connector binding is the delta, not the form count"
+  },
+  {
+   "id": "IFA2-downlight-loaded",
+   "kind": "probe",
+   "file": "experiments/families/ifc/L_downlight_loaded.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_ledger_status": "sample",
+   "base_certification": "Autodesk sample source (certified BASE by the gate) AND the exact host on which the four-registry loader rvt.famload is viewer-PROVEN: L1a_rstbasic_loaded_levelhead.rvt PASS",
+   "passing_sibling": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt (same loader + same host + the same core-id pattern -- L1a bound its level-head category GStyle 23795, we bind the host's built-in Lighting-Fixtures projection GStyle 127 -- so the ONE change is the family document: our lighting-fixture downlight (model family, part type 0, 8 solids + a face-hosted connector) instead of the level-head annotation family)",
+   "tests": "does the reader accept the certified rst base with OUR IFC-derived recessed-downlight family LOADED as an embedded document (save unit + ContentDocuments + ContentTable + FamilyMgr coherent, host Family / symbol / surrogates / param twins ours)?  = the family is INSTANTIABLE",
+   "loader_ok": true,
+   "validate_project_mode": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "errors": [],
+    "n_warnings": 1,
+    "warnings": [
+     "semantic objects: 7/32125 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+    ]
+   },
+   "if_PASS": "our IFC-derived family document is accepted as a project's embedded content: the IFC -> facts -> family -> loaded-project bridge is proven end to end at the reader; the family is a candidate for placement",
+   "if_FAIL": "(with the CTRL passing and L1a certified) our family DOCUMENT's content is the delta vs L1a's level head: the model-family layer (part type 0 lighting fixture, multi-form solids, the electrical connector / load classification, the symbol-regeneration hypothesis H2) -- bisect against IFA2m (envelope-only load) and the acceptance list"
+  },
+  {
+   "id": "IFA3-downlight-loaded-rme",
+   "kind": "probe",
+   "file": "experiments/families/ifc/L_downlight_loaded_rme.rvt",
+   "base": "samples/rmebasicsampleproject.rvt",
+   "base_ledger_status": "sample",
+   "base_certification": "Autodesk MEP sample source (certified BASE by the gate)",
+   "tests": "the DOMAIN-REAL host: the MEP sample (an electrical / lighting project that already carries luminaire families) -- the same loader and family on a different host (the four-registry loader is NOT viewer-proven on rme; the HOST is the variable vs IFA2). Both hosts bind the built-in Lighting-Fixtures projection GStyle (element 127 in each) as the family's core id -- the shipped category catalog is laid out identically across the samples",
+   "loader_ok": true,
+   "validate_project_mode": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "errors": [],
+    "n_warnings": 1,
+    "warnings": [
+     "semantic objects: 1171/142288 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+    ]
+   },
+   "if_PASS": "the loader generalises to the MEP host; the electrical-domain project accepts our fixture family alongside its own luminaires",
+   "if_FAIL": "(with IFA2 PASSING) the HOST is the delta (rme core-id binding / the MEP registries), not our family content"
+  }
+ ],
+ "hypotheses_carried": [
+  "H1 an embedded family ADocument with the all-null 239-slot AppInfoManager (rvt.famload's L3 open question, unchanged)",
+  "H2 the loaded FamilySymbol's seq-103 rep is a SerializedDummy -- Revit regenerates the symbol geometry from the family document (our 8 solids)",
+  "H3 the family's electrical layer: one Lighting connector on a solid FACE (box template, geometry tag + edge-loop tags), our load classification",
+  "H4 NO ImposterLight / photometric light-source object -- photometrics as parameters, photometric web an unset REFERENCE",
+  "H5 the trim is a solid DISC (no annular aperture void) -- the aperture is a parameter value, not a cut form (phase 2)"
+ ]
+}

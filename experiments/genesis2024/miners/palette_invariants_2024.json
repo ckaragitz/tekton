@@ -1,0 +1,24 @@
+{
+ "generator": "rvt.genesis.port2024.derive_palette_invariants_2024",
+ "release": 2024,
+ "property_sets": 129,
+ "per_file": {
+  "rstbasicsampleproject": 56,
+  "rmebasicsampleproject": 20,
+  "racbasicsampleproject": 53
+ },
+ "type_census": {
+  "1": 78,
+  "2": 51
+ },
+ "param_containers_ascending": {
+  "True": 387
+ },
+ "param_ids_negative": {
+  "True": 4770
+ },
+ "element_id_set": {
+  "present_empty": 129
+ },
+ "laws_hold": true
+}

@@ -1,0 +1,99 @@
+{
+ "subject": "experiments/genesis/subst_k4_2025/RC_2025.rvt",
+ "elements_total": 3316,
+ "landed_ours": 2731,
+ "residue_elements": 585,
+ "residue_classes": 44,
+ "by_bucket": {
+  "product-data": {
+   "elements": 185,
+   "classes": {
+    "HVACLoadSpaceTypeElem": 125,
+    "HVACLoadBuildingTypeElem": 33,
+    "HVACLoadScheduleElem": 27
+   }
+  },
+  "curtain-systems(no-constructor)": {
+   "elements": 97,
+   "classes": {
+    "DBViewType": 72,
+    "Family": 8,
+    "FamilySurrogate": 8,
+    "PenWidthTableElem": 8,
+    "SlaveSymbolTrackerElem": 1
+   }
+  },
+  "gap-X6b": {
+   "elements": 40,
+   "classes": {
+    "CategoryElem": 40
+   }
+  },
+  "gap-X6b+family-scoped": {
+   "elements": 40,
+   "classes": {
+    "GStyleElem": 40
+   }
+  },
+  "content-removal-candidate": {
+   "elements": 49,
+   "classes": {
+    "SketchPlane": 29,
+    "RefPlane": 18,
+    "LegendComponent": 2
+   }
+  },
+  "no-constructor": {
+   "elements": 109,
+   "classes": {
+    "FontElem": 24,
+    "SectionAttributes": 10,
+    "ColorFillSchema": 9,
+    "AreaTypeElem": 8,
+    "CalloutTag": 8,
+    "InteriorElevAttributes": 8,
+    "LoadNatureElem": 8,
+    "LoadCaseElem": 8,
+    "DimensionStyle": 8,
+    "ParameterFilterElement": 7,
+    "AreaSchemePlanTopologies": 5,
+    "NumberingSchema": 3,
+    "ViewportAttributes": 1,
+    "AreaReportSettingsElem": 1,
+    "AssemblyCodeTable": 1
+   }
+  },
+  "constructor-exists": {
+   "elements": 39,
+   "classes": {
+    "ElectricalDemandFactorDefinition": 21,
+    "ElectricalLoadClassification": 18
+   }
+  },
+  "constructor-partial": {
+   "elements": 11,
+   "classes": {
+    "ConduitStandardType": 5,
+    "ConduitSizesElem": 1,
+    "CableTraySizesElem": 1,
+    "BasicWallType": 1,
+    "FloorAttributes": 1,
+    "FabricWireType": 1,
+    "FabricSheetType": 1
+   }
+  },
+  "surplus-sample-instances": {
+   "elements": 15,
+   "classes": {
+    "BrowserOrganization": 4,
+    "SunAnnotationElem": 3,
+    "Viewport": 3,
+    "PrintSettings": 2,
+    "WorksharingViewModeSettings": 1,
+    "Viewer": 1,
+    "DBDrawing": 1
+   }
+  }
+ },
+ "note": "the remaining queue: curtain constellation (removal), the ZC groups (hvac/electrical/analysis product data -- residue_a2's 2026 territory, not this charter), ZB3..ZB8 buckets, definitions-removal candidates"
+}

@@ -1,0 +1,79 @@
+{
+ "stream": "instbug-fix: THE FIX + RE-EMIT (docs/inbox/instbug-fix.md)",
+ "purpose": "The product-path bug (walls/families/instances on the genesis lineage trip the Revit-DocumentCorruption audit, -1073742517) -- every measured corpus-law violation on the demo path fixed by rvt.famload_fix, the demo re-emitted, plus the minimal proof pair. The fixes are D1 instance connector-manager class, D2 ContentTable GUID order, D3 the two null owned slots, D4 the empty ConnectorDataCell table, D5 the instance phase. NOT covered (recorded honestly): R_inst_box carried NONE of D1..D5 and still failed -- if the BXfix pair fails too, the remaining suspect is the famgen baked symbol-geometry [H] grammar.",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "control": {
+  "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "note": "control = byte-identical G_ABPD copy (probe_batch stage --control-from)"
+ },
+ "read_order": [
+  "CTRL",
+  "BXfix_f1i1",
+  "BXfix_f6i6",
+  "DEMO_250v_room_v2"
+ ],
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID -- interpret nothing",
+  "BXfix_f1i1 PASS + BXfix_f6i6 PASS + DEMO_v2 PASS": "bug fixed end to end; apply the source diffs (record sec DIFFS)",
+  "BXfix_f1i1 FAIL": "corpus-law fixes insufficient at N=1 => [H] symbol geometry is the prime residual; build the symbol_solid=False rung",
+  "BXfix_f1i1 PASS + BXfix_f6i6 FAIL": "an N>=2 residual beyond ContentTable order; diff the pair",
+  "read with": "the instbug-forensics BX ladder (experiments/instbug/probes.json) -- BX vs BXfix pairs isolate each fix set"
+ },
+ "validator_note": "every probe: rvt.validate 0 errors INCLUDING the NEW loaded-content rule (four-registry coherence [R9b/KD1 law], ContentTable GUID order, instance connector-manager class); the OLD demo now fails that rule with 2 errors -- the audit gap the charter named is closed",
+ "probes": [
+  {
+   "probe": "BXfix_f1i1",
+   "file": "experiments/instbug/fix/BXfix_f1i1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_verdict": "certified (G_ABPD, verdict #24)",
+   "md5": "edfa2748bdaa5e426271c4e2b6293573",
+   "tests": "ONE panel family loaded + ONE placed instance on G_ABPD through the FIXED PRODUCT PATH (rvt.famload_fix D1..D5): instance connector manager class -> FamilyInstanceConnectorManager (corpus 13,636/13,636); ContentTable GUID-sorted (corpus + famload law); Family.m_oFamDimConstrMgr + FamilySymbol.m_pMoveRestrictions = lawful empty forms (831/831, 2710/2710, WF_fix-certified); ConnectorDataCell = the canonical 15-row electrical property table (22/22 corpus); instance createdPhase = the base's New Work ProjectPhase + header deletion entry (V20-certified shape)",
+   "if_PASS": "the corpus-law fixes cure the N=1 family+instance audit failure (R_inst_box class); read BXfix_f6i6 for the N=6 chain",
+   "if_FAIL": "the fixed N=1 file still trips the audit => the residual is OUTSIDE the measured corpus violations; prime remaining suspect = the famgen baked symbol-geometry [H] grammar under the audit deep walk -- next bisection: symbol_solid=False variant (famload SerializedDummy form) of the same rung",
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "fix_assertions_ok": true,
+   "report": "fix_probes.json"
+  },
+  {
+   "probe": "BXfix_f6i6",
+   "file": "experiments/instbug/fix/BXfix_f6i6.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_verdict": "certified (G_ABPD, verdict #24)",
+   "md5": "14cfd20a10df91532250f8e99a4d8e14",
+   "tests": "SIX panel families chained + SIX placed instances (the demo shape) through the FIXED PRODUCT PATH (rvt.famload_fix D1..D5): instance connector manager class -> FamilyInstanceConnectorManager (corpus 13,636/13,636); ContentTable GUID-sorted (corpus + famload law); Family.m_oFamDimConstrMgr + FamilySymbol.m_pMoveRestrictions = lawful empty forms (831/831, 2710/2710, WF_fix-certified); ConnectorDataCell = the canonical 15-row electrical property table (22/22 corpus); instance createdPhase = the base's New Work ProjectPhase + header deletion entry (V20-certified shape)",
+   "if_PASS": "the chained-load + instance product path is cured at demo scale",
+   "if_FAIL": "with BXfix_f1i1 PASS: an N>=2-only residual remains (diff the two accountings); with BXfix_f1i1 FAIL: same residual as its if_FAIL",
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "fix_assertions_ok": true,
+   "report": "fix_probes.json"
+  },
+  {
+   "probe": "DEMO_250v_room_v2",
+   "file": "experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_verdict": "certified (G_ABPD, verdict #24)",
+   "md5": "af0a370b8ca78ad970bec910e41951e7",
+   "tests": "THE USER'S DEMO RE-EMITTED: the exact prompt 'an electrical room rated for 250V with 6 panels' end to end through rvt.frontdoor.run under the FIXED PRODUCT PATH (rvt.famload_fix D1..D5): instance connector manager class -> FamilyInstanceConnectorManager (corpus 13,636/13,636); ContentTable GUID-sorted (corpus + famload law); Family.m_oFamDimConstrMgr + FamilySymbol.m_pMoveRestrictions = lawful empty forms (831/831, 2710/2710, WF_fix-certified); ConnectorDataCell = the canonical 15-row electrical property table (22/22 corpus); instance createdPhase = the base's New Work ProjectPhase + header deletion entry (V20-certified shape)",
+   "if_PASS": "*** THE PRODUCT-PATH BUG IS FIXED ***: the from-scratch demo that failed for the user now loads; route the famload_fix diffs to the famgen/ifc_intent/standalone owners and lift the front-door PROOF-ONLY degrade for families+instances",
+   "if_FAIL": "read with the BXfix pair; the demo adds nothing beyond BXfix_f6i6 (same shape + manifest)",
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "fix_assertions_ok": true,
+   "report": "fix_probes.json"
+  }
+ ]
+}

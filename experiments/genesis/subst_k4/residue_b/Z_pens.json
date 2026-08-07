@@ -1,0 +1,1106 @@
+{
+ "rung": "Z_pens",
+ "label": "the 8 curtain-family-scoped pen tables -> our ISO-128 pen series (family scope kept) [SINGLE-CHANGE PROBE off the parent]",
+ "kind": "inplace",
+ "stream": "genesis-residue-B",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; one our-record per residue slot",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+  "md5": "aa5952bceeb5830790f289af0d7cee27",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y9.rvt",
+ "parent_rung": "BASE",
+ "out": "experiments/genesis/subst_k4/residue_b/Z_pens.rvt",
+ "description": "Each curtain-SYSTEM family's own pen table receives our pen values, keeping m_famId (the family = the slot's registration).",
+ "tests": "Whether a family-SCOPED pen table of ours loads (the project one passed at Y1).",
+ "if_PASS": "Family-scoped pen tables are ours too.",
+ "if_FAIL": "Our pen values are rejected in FAMILY scope while Y1 passed -> the family scoping (m_famId) is the variable: diff vs the Y1 table.",
+ "stages": [],
+ "group_b_classes": {},
+ "parent_context": {
+  "host_elements": 3342,
+  "watermark": 1472524,
+  "protected_slots_from_earlier_rungs": 1333
+ },
+ "candidates_old_by_class": {
+  "PenWidthTableElem": 8
+ },
+ "our_records_by_class": {
+  "PenWidthTableElem": 8
+ },
+ "build_notes": [
+  "family-scoped pen tables: 8 <- our ISO-128 series; family scopes kept: [(8482, 'Rectangular Mullion'), (8483, 'Circular Mullion'), (12609, 'System Panel'), (12613, 'Empty System Panel'), (18428, 'L Corner Mullion'), (18432, 'V Corner Mullion'), (18436, 'Trapezoid Corner Mullion'), (18440, 'Quad Corner Mullion')]"
+ ],
+ "build_info": {
+  "family_scopes": [
+   [
+    1218557,
+    8482,
+    "Rectangular Mullion"
+   ],
+   [
+    1218558,
+    8483,
+    "Circular Mullion"
+   ],
+   [
+    1218559,
+    12609,
+    "System Panel"
+   ],
+   [
+    1218560,
+    12613,
+    "Empty System Panel"
+   ],
+   [
+    1218561,
+    18428,
+    "L Corner Mullion"
+   ],
+   [
+    1218562,
+    18432,
+    "V Corner Mullion"
+   ],
+   [
+    1218563,
+    18436,
+    "Trapezoid Corner Mullion"
+   ],
+   [
+    1218564,
+    18440,
+    "Quad Corner Mullion"
+   ]
+  ]
+ },
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 8,
+  "by_match": {
+   "role": 8
+  },
+  "landed_by_class": {
+   "PenWidthTableElem": 8
+  },
+  "dropped_ours": 0,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 0,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 8,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 8,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.3
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   1218557,
+   1218558,
+   1218559,
+   1218560,
+   1218561,
+   1218562,
+   1218563,
+   1218564
+  ],
+  "records_changed_count": 8,
+  "records_changed_by_seq": {
+   "102": 8
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 8,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 1218557,
+    "len_ours": 1223,
+    "len_parent": 1223,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PenWidthTableElem",
+      "class_parent": "PenWidthTableElem"
+     },
+     {
+      "path": ".m_designOptionId",
+      "ours": "-1",
+      "parent": "-4"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.000984251968503937"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.002952755905511811"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.003937007874015748"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.005249343832020997"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026247"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.008202099737532808"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.00984251968503937"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.011482939632545932"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.014107611548556429"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[13]",
+      "ours": "0.01968503937007874",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[14]",
+      "ours": "0.022965879265091863",
+      "parent": "0.027887139107611546"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[15]",
+      "ours": "0.026246719160104987",
+      "parent": "0.03280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.0005905511811023622"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0008202099737532808"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0011482939632545932"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.0022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.0032808398950131233"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.004593175853018373"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026247"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.009186351706036745"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.013123359580052493"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.026246719160104987"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1218558,
+    "len_ours": 1223,
+    "len_parent": 1223,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PenWidthTableElem",
+      "class_parent": "PenWidthTableElem"
+     },
+     {
+      "path": ".m_designOptionId",
+      "ours": "-1",
+      "parent": "-4"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.000984251968503937"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.002952755905511811"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.003937007874015748"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.005249343832020997"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026247"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.008202099737532808"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.00984251968503937"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.011482939632545932"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.014107611548556429"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[13]",
+      "ours": "0.01968503937007874",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[14]",
+      "ours": "0.022965879265091863",
+      "parent": "0.027887139107611546"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[15]",
+      "ours": "0.026246719160104987",
+      "parent": "0.03280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.0005905511811023622"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0008202099737532808"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0011482939632545932"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.0022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.0032808398950131233"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.004593175853018373"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026247"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.009186351706036745"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.013123359580052493"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.026246719160104987"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1218559,
+    "len_ours": 1223,
+    "len_parent": 1223,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PenWidthTableElem",
+      "class_parent": "PenWidthTableElem"
+     },
+     {
+      "path": ".m_designOptionId",
+      "ours": "-1",
+      "parent": "-4"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.000984251968503937"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.002952755905511811"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.003937007874015748"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.005249343832020997"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026247"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.008202099737532808"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.00984251968503937"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.011482939632545932"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.014107611548556429"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[13]",
+      "ours": "0.01968503937007874",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[14]",
+      "ours": "0.022965879265091863",
+      "parent": "0.027887139107611546"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[15]",
+      "ours": "0.026246719160104987",
+      "parent": "0.03280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.0005905511811023622"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0008202099737532808"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0011482939632545932"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.0022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.0032808398950131233"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.004593175853018373"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026247"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.009186351706036745"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.013123359580052493"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.026246719160104987"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1218560,
+    "len_ours": 1223,
+    "len_parent": 1223,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PenWidthTableElem",
+      "class_parent": "PenWidthTableElem"
+     },
+     {
+      "path": ".m_designOptionId",
+      "ours": "-1",
+      "parent": "-4"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.000984251968503937"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.002952755905511811"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.003937007874015748"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.005249343832020997"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026247"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.008202099737532808"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.00984251968503937"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.011482939632545932"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.014107611548556429"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[13]",
+      "ours": "0.01968503937007874",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[14]",
+      "ours": "0.022965879265091863",
+      "parent": "0.027887139107611546"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[15]",
+      "ours": "0.026246719160104987",
+      "parent": "0.03280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.0005905511811023622"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0008202099737532808"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0011482939632545932"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.0022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.0032808398950131233"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.004593175853018373"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026247"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.009186351706036745"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.013123359580052493"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.026246719160104987"
+     }
+    ]
+   }
+  ],
+  "exceptions": [],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 8,
+  "slots_with_registry_surface": 0,
+  "positional_uet_slots": [],
+  "surface_examples": [],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 8,
+  "pairs_ok": 8,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 1218557,
+   "class": "PenWidthTableElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 907,
+    "modified_ep": 907,
+    "owner_id": 8482,
+    "id_band": "<5M"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 1218558,
+   "class": "PenWidthTableElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 907,
+    "modified_ep": 907,
+    "owner_id": 8483,
+    "id_band": "<5M"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 1218559,
+   "class": "PenWidthTableElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 907,
+    "modified_ep": 907,
+    "owner_id": 12609,
+    "id_band": "<5M"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 1218560,
+   "class": "PenWidthTableElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 907,
+    "modified_ep": 907,
+    "owner_id": 12613,
+    "id_band": "<5M"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 1218561,
+   "class": "PenWidthTableElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 907,
+    "modified_ep": 907,
+    "owner_id": 18428,
+    "id_band": "<5M"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 1218562,
+   "class": "PenWidthTableElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 907,
+    "modified_ep": 907,
+    "owner_id": 18432,
+    "id_band": "<5M"
+   },
+   "surface_paths": 0
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_b/Z_pens.rvt",
+  "elements": 3342,
+  "file_size": 774144,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500000,
+   "slot": 1218557,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 1218558,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 1218559,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 1218560,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 1218561,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500005,
+   "slot": 1218562,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 1218563,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500007,
+   "slot": 1218564,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  }
+ ],
+ "landed_slots": [
+  {
+   "slot": 1218557,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 1218558,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 1218559,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 1218560,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 1218561,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 1218562,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 1218563,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 1218564,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "ours_tmp": 1500007
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": []
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {}
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 774144,
+ "seconds": 2.2
+}

@@ -1,0 +1,36 @@
+{
+ "entries": [
+  {
+   "classes": 4492,
+   "file": "0bfb947b3c9a0cec2ea9692873e3b0325f1c9387caaffddbce4cc2509e77cf21.tksc",
+   "revit_release": null,
+   "schema_sha256": "0bfb947b3c9a0cec2ea9692873e3b0325f1c9387caaffddbce4cc2509e77cf21",
+   "sources": [
+    "assets/genesis/G_ABPD_2024.rvt"
+   ],
+   "stream_bytes": 470502
+  },
+  {
+   "classes": 4690,
+   "file": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2.tksc",
+   "revit_release": "2026",
+   "schema_sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+   "sources": [
+    "assets/genesis/G_ABPD.rvt"
+   ],
+   "stream_bytes": 496597
+  },
+  {
+   "classes": 4600,
+   "file": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04.tksc",
+   "revit_release": null,
+   "schema_sha256": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04",
+   "sources": [
+    "assets/genesis/G_ABPD_2025.rvt"
+   ],
+   "stream_bytes": 484585
+  }
+ ],
+ "format": 1,
+ "note": "sha256(Formats/Latest inflated) -> parsed-schema cache; built by tools/sync_plugin.py via rvt.schema_cache"
+}

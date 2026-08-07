@@ -1,0 +1,1718 @@
+{
+ "sample": "rstbasicsampleproject",
+ "stream": "Global/Latest",
+ "framing": "u64 prefix 5 | u16 class 0x1c (ADocument) + object graph (parent-first, breadth-first deferred bodies, document = pid 1) | u32 0",
+ "coverage": {
+  "consumed": 1586240,
+  "total": 1586244,
+  "fraction": 0.999997478319855,
+  "errors": 0,
+  "deferred_bodies": 773
+ },
+ "clean": true,
+ "trailer_hex": "00000000",
+ "payload_len": 1586246,
+ "adocument_version": 2662,
+ "top_level": {
+  "m_elemTable": null,
+  "m_appInfoArr": {
+   "count": 0,
+   "first": []
+  },
+  "m_oContentTable": {
+   "->": "ContentTable",
+   "pid": -1,
+   "fields": {
+    "m_pHostDocument": {
+     "weakref": 1
+    },
+    "m_ContentRecSet": {
+     "count": 52,
+     "first": [
+      {
+       "m_pHostDocument": {
+        "weakref": 1
+       },
+       "m_ContentKey": {
+        "m_guidKey": "78061000-56a3-428c-a5a8-5b1397dbb12d"
+       },
+       "m_author": "Autodesk Revit",
+       "m_history": {
+        "m_originalElementId": {
+         "m_id64": -1
+        },
+        "m_creationDate": {
+         "m_id": 907
+        },
+        "m_lastModificationDate": {
+         "m_id": 988
+        },
+        "m_lastUserModificationDate": {
+         "m_id": -1
+        }
+       },
+       "m_EpisodeCounts": {
+        "count": 2,
+        "first": [
+         {
+          "first": {
+           "m_id": 1003
+          },
+          "second": 223
+         },
+         {
+          "first": {
+           "m_id": 1013
+          },
+          "second": 1
+         }
+        ]
+       }
+      },
+      {
+       "m_pHostDocument": {
+        "weakref": 1
+       },
+       "m_ContentKey": {
+        "m_guidKey": "264dda00-ca49-4bd8-8ee3-bac15b8da155"
+       },
+       "m_author": "Autodesk Revit",
+       "m_history": {
+        "m_originalElementId": {
+         "m_id64": -1
+        },
+        "m_creationDate": {
+         "m_id": 913
+        },
+        "m_lastModificationDate": {
+         "m_id": 988
+        },
+        "m_lastUserModificationDate": {
+         "m_id": -1
+        }
+       },
+       "m_EpisodeCounts": {
+        "count": 2,
+        "first": [
+         {
+          "first": {
+           "m_id": 1003
+          },
+          "second": 223
+         },
+         {
+          "first": {
+           "m_id": 1013
+          },
+          "second": 1
+         }
+        ]
+       }
+      },
+      {
+       "m_pHostDocument": {
+        "weakref": 1
+       },
+       "m_ContentKey": {
+        "m_guidKey": "3563d602-3ba7-4789-a3ee-254c15adc0ce"
+       },
+       "m_author": "Autodesk Revit",
+       "m_history": {
+        "m_originalElementId": {
+         "m_id64": -1
+        },
+        "m_creationDate": {
+         "m_id": 981
+        },
+        "m_lastModificationDate": {
+         "m_id": 988
+        },
+        "m_lastUserModificationDate": {
+         "m_id": -1
+        }
+       },
+       "m_EpisodeCounts": {
+        "count": 2,
+        "first": [
+         {
+          "first": {
+           "m_id": 1003
+          },
+          "second": 344
+         },
+         {
+          "first": {
+           "m_id": 1013
+          },
+          "second": 2
+         }
+        ]
+       }
+      }
+     ]
+    }
+   }
+  },
+  "m_pHostDocument": {
+   "weakref": 1
+  },
+  "m_pAppInfoManager": {
+   "->": "AppInfoManager",
+   "pid": -1,
+   "fields": {
+    "m_pADoc": {
+     "weakref": 1
+    },
+    "m_appInfoArr": {
+     "count": 241,
+     "first": [
+      {
+       "->": "FamilyMgr",
+       "pid": 2,
+       "fields": {
+        "m_pADoc": {
+         "weakref": 1
+        },
+        "m_arrLoadedFamilyInfo": {
+         "count": 50,
+         "first": [
+          {
+           "m_surrogateId": 8484,
+           "m_familyDocGUIDs": {
+            "count": 0,
+            "first": []
+           }
+          },
+          {
+           "m_surrogateId": 8485,
+           "m_familyDocGUIDs": {
+            "count": 0,
+            "first": []
+           }
+          },
+          {
+           "m_surrogateId": 12610,
+           "m_familyDocGUIDs": {
+            "count": 0,
+            "first": []
+           }
+          }
+         ]
+        }
+       }
+      },
+      {
+       "->": "SketchEditMgr",
+       "pid": 3,
+       "fields": {
+        "m_pADoc": {
+         "weakref": 1
+        },
+        "m_editedElemId": -1,
+        "m_inEditMode": 0
+       }
+      },
+      {
+       "->": "SymbolIdMgr",
+       "pid": 4,
+       "fields": {
+        "m_pADoc": {
+         "weakref": 1
+        },
+        "m_defCatSymIds": {
+         "->": "CategoryToIdMap",
+         "pid": -1,
+         "fields": {
+          "m_categoryIds": {
+           "count": 92,
+           "first": [
+            -2006080,
+            -2006040,
+            -2006020
+           ]
+          },
+          "m_ids": {
+           "count": 92,
+           "first": [
+            -1,
+            1417016,
+            1417017
+           ]
+          }
+         }
+        },
+        "m_defElementTypeMap": {
+         "count": 150,
+         "first": [
+          {
+           "first": 2,
+           "second": 600634
+          },
+          {
+           "first": 3,
+           "second": 507024
+          },
+          {
+           "first": 4,
+           "second": 1201129
+          }
+         ]
+        },
+        "m_famRecentLists": null,
+        "m_systemRecentLists": {
+         "->": "ElementTypeGroupRecentSymbolListMap",
+         "pid": -1,
+         "fields": {
+          "m_innerMap": {
+           "count": 1,
+           "first": [
+            {
+             "first": 65,
+             "second": {
+              "m_arr": {
+               "count": 1,
+               "first": [
+                49560
+               ]
+              }
+             }
+            }
+           ]
+          }
+         }
+        },
+        "m_paramSetKeys": {
+         "count": 63,
+         "first": [
+          {
+           "->": "ParamSetKey",
+           "pid": -1,
+           "fields": {
+            "m_categoryId": -2000011,
+            "m_other64": 1,
+            "m_type": 0
+           }
+          },
+          {
+           "->": "ParamSetKey",
+           "pid": -1,
+           "fields": {
+            "m_categoryId": -2000011,
+            "m_other64": 0,
+            "m_type": 0
+           }
+          },
+          {
+           "->": "ParamSetKey",
+           "pid": -1,
+           "fields": {
+            "m_categoryId": -2000035,
+            "m_other64": 0,
+            "m_type": 3
+           }
+          }
+         ]
+        },
+        "m_paramSets": {
+         "count": 63,
+         "first": [
+          {
+           "->": "ParamSet",
+           "pid": -1,
+           "fields": {
+            "m_pDoubleParams": {
+             "->": "ParamValueSetDouble",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 5,
+               "first": [
+                {
+                 "m_value": 0.0,
+                 "m_paramId": -1012829
+                },
+                {
+                 "m_value": 0.0,
+                 "m_paramId": -1012828
+                },
+                {
+                 "m_value": -3.2808398950131235,
+                 "m_paramId": -1001109
+                }
+               ]
+              }
+             }
+            },
+            "m_pIntParams": {
+             "->": "ParamValueSetInt",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 5,
+               "first": [
+                {
+                 "m_paramId": -1001596,
+                 "m_value": 0
+                },
+                {
+                 "m_paramId": -1001552,
+                 "m_value": 0
+                },
+                {
+                 "m_paramId": -1001122,
+                 "m_value": 0
+                }
+               ]
+              }
+             }
+            },
+            "m_pAStringParams": {
+             "->": "ParamValueSetAString",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 0,
+               "first": []
+              }
+             }
+            },
+            "m_pElementIdParams": {
+             "->": "ParamValueSetElementId",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 5,
+               "first": [
+                {
+                 "m_paramId": -1013437,
+                 "m_value": 99880
+                },
+                {
+                 "m_paramId": -1013436,
+                 "m_value": 99880
+                },
+                {
+                 "m_paramId": -1013435,
+                 "m_value": 99880
+                }
+               ]
+              }
+             }
+            }
+           }
+          },
+          {
+           "->": "ParamSet",
+           "pid": -1,
+           "fields": {
+            "m_pDoubleParams": {
+             "->": "ParamValueSetDouble",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 5,
+               "first": [
+                {
+                 "m_value": 0.0,
+                 "m_paramId": -1012829
+                },
+                {
+                 "m_value": 0.0,
+                 "m_paramId": -1012828
+                },
+                {
+                 "m_value": 0.0,
+                 "m_paramId": -1001109
+                }
+               ]
+              }
+             }
+            },
+            "m_pIntParams": {
+             "->": "ParamValueSetInt",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 5,
+               "first": [
+                {
+                 "m_paramId": -1001596,
+                 "m_value": 0
+                },
+                {
+                 "m_paramId": -1001552,
+                 "m_value": 0
+                },
+                {
+                 "m_paramId": -1001122,
+                 "m_value": 0
+                }
+               ]
+              }
+             }
+            },
+            "m_pAStringParams": {
+             "->": "ParamValueSetAString",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 0,
+               "first": []
+              }
+             }
+            },
+            "m_pElementIdParams": {
+             "->": "ParamValueSetElementId",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 5,
+               "first": [
+                {
+                 "m_paramId": -1013437,
+                 "m_value": 99880
+                },
+                {
+                 "m_paramId": -1013436,
+                 "m_value": 99880
+                },
+                {
+                 "m_paramId": -1013435,
+                 "m_value": 99880
+                }
+               ]
+              }
+             }
+            }
+           }
+          },
+          {
+           "->": "ParamSet",
+           "pid": -1,
+           "fields": {
+            "m_pDoubleParams": {
+             "->": "ParamValueSetDouble",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 3,
+               "first": [
+                {
+                 "m_value": 0.577350269189625,
+                 "m_paramId": -1006016
+                },
+                {
+                 "m_value": 0.0,
+                 "m_paramId": -1006001
+                },
+                {
+                 "m_value": 0.0,
+                 "m_paramId": -1001707
+                }
+               ]
+              }
+             }
+            },
+            "m_pIntParams": {
+             "->": "ParamValueSetInt",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 1,
+               "first": [
+                {
+                 "m_paramId": -1006000,
+                 "m_value": 1
+                }
+               ]
+              }
+             }
+            },
+            "m_pAStringParams": {
+             "->": "ParamValueSetAString",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 0,
+               "first": []
+              }
+             }
+            },
+            "m_pElementIdParams": {
+             "->": "ParamValueSetElementId",
+             "pid": -1,
+             "fields": {
+              "m_paramSet": {
+               "count": 0,
+               "first": []
+              }
+             }
+            }
+           }
+          }
+         ]
+        },
+        "m_defRoomOffset": 13.123359580052494
+       },
+       "more_fields": 5
+      }
+     ]
+    }
+   }
+  },
+  "m_pStyleSettings": {
+   "->": "StyleSettings",
+   "pid": -1,
+   "fields": {
+    "m_categoryTable": {
+     "->": "CategoryTable",
+     "pid": -1,
+     "fields": {
+      "m_pADoc": {
+       "weakref": 1
+      }
+     }
+    },
+    "m_pMaterialTable": {
+     "->": "MaterialTableNew",
+     "pid": -1,
+     "fields": {
+      "m_pADoc": {
+       "weakref": 1
+      }
+     }
+    },
+    "m_pPenWidthTableGetter": {
+     "->": "PenWidthTableGetter",
+     "pid": -1,
+     "fields": {
+      "m_pADoc": {
+       "weakref": 1
+      }
+     }
+    },
+    "m_pLinePatternTable": {
+     "->": "LinePatternTable",
+     "pid": -1,
+     "fields": {
+      "m_pADoc": {
+       "weakref": 1
+      }
+     }
+    },
+    "m_pFontTable": {
+     "->": "FontTableNew",
+     "pid": -1,
+     "fields": {
+      "m_pADoc": {
+       "weakref": 1
+      }
+     }
+    },
+    "m_pFillPatternTable": {
+     "->": "FillPatternTable",
+     "pid": -1,
+     "fields": {
+      "m_pADoc": {
+       "weakref": 1
+      }
+     }
+    },
+    "m_pTilePatternTable": {
+     "->": "TilePatternTable",
+     "pid": -1,
+     "fields": {
+      "m_pADoc": {
+       "weakref": 1
+      }
+     }
+    },
+    "m_pAppearanceAssetTable": {
+     "->": "AppearanceAssetTable",
+     "pid": -1,
+     "fields": {
+      "m_pADoc": {
+       "weakref": 1
+      }
+     }
+    }
+   },
+   "more_fields": 1
+  },
+  "m_pHistory": null,
+  "m_pSteelModelInfo": {
+   "->": "SteelModelInfo",
+   "pid": -1,
+   "fields": {
+    "m_extModelId": "",
+    "m_localIncrement": {
+     "m_binaryData": {
+      "count": 0,
+      "first": []
+     },
+     "m_uid": "00000000-0000-0000-0000-000000000000"
+    },
+    "m_steelModelLastSTC_hashAString": "",
+    "m_steelModelLatest_hashAString": "",
+    "m_steelModelLastSTC": {
+     "count": 0,
+     "first": []
+    },
+    "m_steelModelLatest": {
+     "count": 0,
+     "first": []
+    },
+    "m_numCentralIncrements": 0
+   }
+  },
+  "m_pPartitionTable": null,
+  "m_oNobleSecondaryData": {
+   "->": "NOBLE_SecondaryDataStorage",
+   "pid": -1,
+   "fields": {
+    "m_appInfoData": {
+     "count": 1,
+     "first": [
+      {
+       "first": "NobleDocWarnings",
+       "second": {
+        "->": "NobleDocWarnings",
+        "pid": -1,
+        "fields": {
+         "m_nobleWarningsMap": {
+          "count": 0,
+          "first": []
+         }
+        }
+       }
+      }
+     ]
+    },
+    "m_data": {
+     "count": 9,
+     "first": [
+      {
+       "first": {
+        "m_requestToken": {
+         "m_token": "ColorFillSecondaryData"
+        },
+        "m_secondaryDataDescription": {
+         "m_calculationName": "Color Fills",
+         "m_dataTypeNameForJournal": "ColorFillSecondaryData",
+         "m_dataTypeNameForUI": "Color Fill",
+         "m_details": "Rooms : Name",
+         "m_helpTopicId": "",
+         "m_iconName": "",
+         "<more>": 2
+        },
+        "m_elementId": 99859,
+        "m_docId": {
+         "m_docNum": 0
+        },
+        "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+       },
+       "second": {
+        "m_oData": {
+         "->": "ColorFillSecondaryData",
+         "pid": -1,
+         "fields": {
+          "m_collectedPrimaryDataIds": {
+           "count": 25,
+           "first": [
+            {
+             "m_elementId": 3,
+             "m_appInfoType": 14,
+             "m_dataType": 1,
+             "m_docId": {
+              "m_docNum": 0
+             },
+             "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+             "m_elementId": 99859,
+             "m_appInfoType": 14,
+             "m_dataType": 1,
+             "m_docId": {
+              "m_docNum": 0
+             },
+             "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+             "m_elementId": 857191,
+             "m_appInfoType": 14,
+             "m_dataType": 1,
+             "m_docId": {
+              "m_docNum": 0
+             },
+             "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+            }
+           ]
+          },
+          "m_oSupplementaryRequestData": null,
+          "m_warningCollection": {
+           "count": 0,
+           "first": []
+          },
+          "m_failureMode": 0,
+          "m_colorFillResults": {
+           "count": 12,
+           "first": [
+            {
+             "m_caption": "",
+             "m_paramStorage": {
+              "m_str": {
+               "m_str": "Bathroom"
+              },
+              "m_dbl": 0.0,
+              "m_elemId": -1,
+              "m_int": 0,
+              "m_storageType": 3
+             },
+             "m_fillPatternId": 3,
+             "m_color": 9943452,
+             "m_bByRange": false,
+             "m_bColorManually": false,
+             "<more>": 4
+            },
+            {
+             "m_caption": "",
+             "m_paramStorage": {
+              "m_str": {
+               "m_str": "Bathroom 1"
+              },
+              "m_dbl": 0.0,
+              "m_elemId": -1,
+              "m_int": 0,
+              "m_storageType": 3
+             },
+             "m_fillPatternId": 3,
+             "m_color": 14081450,
+             "m_bByRange": false,
+             "m_bColorManually": false,
+             "<more>": 4
+            },
+            {
+             "m_caption": "",
+             "m_paramStorage": {
+              "m_str": {
+               "m_str": "Bathroom 2"
+              },
+              "m_dbl": 0.0,
+              "m_elemId": -1,
+              "m_int": 0,
+              "m_storageType": 3
+             },
+             "m_fillPatternId": 3,
+             "m_color": 13557208,
+             "m_bByRange": false,
+             "m_bColorManually": false,
+             "<more>": 4
+            }
+           ]
+          }
+         }
+        },
+        "m_state": 1
+       }
+      },
+      {
+       "first": {
+        "m_requestToken": {
+         "m_token": "ColorFillSecondaryData"
+        },
+        "m_secondaryDataDescription": {
+         "m_calculationName": "Color Fills",
+         "m_dataTypeNameForJournal": "ColorFillSecondaryData",
+         "m_dataTypeNameForUI": "Color Fill",
+         "m_details": "Areas : Gross Building Area",
+         "m_helpTopicId": "",
+         "m_iconName": "",
+         "<more>": 2
+        },
+        "m_elementId": 99860,
+        "m_docId": {
+         "m_docNum": 0
+        },
+        "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+       },
+       "second": {
+        "m_oData": {
+         "->": "ColorFillSecondaryData",
+         "pid": -1,
+         "fields": {
+          "m_collectedPrimaryDataIds": {
+           "count": 7,
+           "first": [
+            {
+             "m_elementId": 3,
+             "m_appInfoType": 14,
+             "m_dataType": 1,
+             "m_docId": {
+              "m_docNum": 0
+             },
+             "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+             "m_elementId": 99860,
+             "m_appInfoType": 14,
+             "m_dataType": 1,
+             "m_docId": {
+              "m_docNum": 0
+             },
+             "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+             "m_elementId": 1004910,
+             "m_appInfoType": 14,
+             "m_dataType": 1,
+             "m_docId": {
+              "m_docNum": 0
+             },
+             "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+            }
+           ]
+          },
+          "m_oSupplementaryRequestData": null,
+          "m_warningCollection": {
+           "count": 0,
+           "first": []
+          },
+          "m_failureMode": 0,
+          "m_colorFillResults": {
+           "count": 1,
+           "first": [
+            {
+             "m_caption": "",
+             "m_paramStorage": {
+              "m_str": {
+               "m_str": ""
+              },
+              "m_dbl": 0.0,
+              "m_elemId": 9492,
+              "m_int": 0,
+              "m_storageType": 4
+             },
+             "m_fillPatternId": 3,
+             "m_color": 9943452,
+             "m_bByRange": false,
+             "m_bColorManually": false,
+             "<more>": 4
+            }
+           ]
+          }
+         }
+        },
+        "m_state": 1
+       }
+      },
+      {
+       "first": {
+        "m_requestToken": {
+         "m_token": "ColorFillSecondaryData"
+        },
+        "m_secondaryDataDescription": {
+         "m_calculationName": "Color Fills",
+         "m_dataTypeNameForJournal": "ColorFillSecondaryData",
+         "m_dataTypeNameForUI": "Color Fill",
+         "m_details": "Areas : Rentable Area",
+         "m_helpTopicId": "",
+         "m_iconName": "",
+         "<more>": 2
+        },
+        "m_elementId": 99861,
+        "m_docId": {
+         "m_docNum": 0
+        },
+        "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+       },
+       "second": {
+        "m_oData": {
+         "->": "ColorFillSecondaryData",
+         "pid": -1,
+         "fields": {
+          "m_collectedPrimaryDataIds": {
+           "count": 5,
+           "first": [
+            {
+             "m_elementId": 99861,
+             "m_appInfoType": 14,
+             "m_dataType": 1,
+             "m_docId": {
+              "m_docNum": 0
+             },
+             "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+             "m_elementId": 1004910,
+             "m_appInfoType": 14,
+             "m_dataType": 1,
+             "m_docId": {
+              "m_docNum": 0
+             },
+             "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+            },
+            {
+             "m_elementId": 1250029,
+             "m_appInfoType": 14,
+             "m_dataType": 1,
+             "m_docId": {
+              "m_docNum": 0
+             },
+             "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+            }
+           ]
+          },
+          "m_oSupplementaryRequestData": null,
+          "m_warningCollection": {
+           "count": 0,
+           "first": []
+          },
+          "m_failureMode": 0,
+          "m_colorFillResults": {
+           "count": 0,
+           "first": []
+          }
+         }
+        },
+        "m_state": 1
+       }
+      }
+     ]
+    },
+    "m_pDoc": {
+     "weakref": 1
+    },
+    "m_enqueuedData2primaryParents": {
+     "count": 0,
+     "first": []
+    },
+    "m_invalidatedInTransaction": {
+     "count": 0,
+     "first": []
+    },
+    "m_invalidatingCandidates": {
+     "count": 0,
+     "first": []
+    },
+    "m_primary2SecondaryDataIdMap": {
+     "count": 58,
+     "first": [
+      {
+       "first": {
+        "m_elementId": 3,
+        "m_appInfoType": 14,
+        "m_dataType": 1,
+        "m_docId": {
+         "m_docNum": 0
+        },
+        "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+       },
+       "second": {
+        "m_dataIds": {
+         "count": 3,
+         "first": [
+          {
+           "m_requestToken": {
+            "m_token": "ColorFillSecondaryData"
+           },
+           "m_secondaryDataDescription": {
+            "m_calculationName": "Color Fills",
+            "m_dataTypeNameForJournal": "ColorFillSecondaryData",
+            "m_dataTypeNameForUI": "Color Fill",
+            "m_details": "Rooms : Name",
+            "m_helpTopicId": "",
+            "m_iconName": "",
+            "<more>": 2
+           },
+           "m_elementId": 99859,
+           "m_docId": {
+            "m_docNum": 0
+           },
+           "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+           "m_requestToken": {
+            "m_token": "ColorFillSecondaryData"
+           },
+           "m_secondaryDataDescription": {
+            "m_calculationName": "Color Fills",
+            "m_dataTypeNameForJournal": "ColorFillSecondaryData",
+            "m_dataTypeNameForUI": "Color Fill",
+            "m_details": "Areas : Gross Building Area",
+            "m_helpTopicId": "",
+            "m_iconName": "",
+            "<more>": 2
+           },
+           "m_elementId": 99860,
+           "m_docId": {
+            "m_docNum": 0
+           },
+           "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+          },
+          {
+           "m_requestToken": {
+            "m_token": "ColorFillSecondaryData"
+           },
+           "m_secondaryDataDescription": {
+            "m_calculationName": "Color Fills",
+            "m_dataTypeNameForJournal": "ColorFillSecondaryData",
+            "m_dataTypeNameForUI": "Color Fill",
+            "m_details": "Spaces : Schema 1",
+            "m_helpTopicId": "",
+            "m_iconName": "",
+            "<more>": 2
+           },
+           "m_elementId": 103627,
+           "m_docId": {
+            "m_docNum": 0
+           },
+           "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+          }
+         ]
+        }
+       }
+      },
+      {
+       "first": {
+        "m_elementId": 86962,
+        "m_appInfoType": 14,
+        "m_dataType": 1,
+        "m_docId": {
+         "m_docNum": 0
+        },
+        "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+       },
+       "second": {
+        "m_dataIds": {
+         "count": 1,
+         "first": [
+          {
+           "m_requestToken": {
+            "m_token": "ColorFillSecondaryData"
+           },
+           "m_secondaryDataDescription": {
+            "m_calculationName": "Color Fills",
+            "m_dataTypeNameForJournal": "ColorFillSecondaryData",
+            "m_dataTypeNameForUI": "Color Fill",
+            "m_details": "Rooms : Area",
+            "m_helpTopicId": "",
+            "m_iconName": "",
+            "<more>": 2
+           },
+           "m_elementId": 713027,
+           "m_docId": {
+            "m_docNum": 0
+           },
+           "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+          }
+         ]
+        }
+       }
+      },
+      {
+       "first": {
+        "m_elementId": 99859,
+        "m_appInfoType": 14,
+        "m_dataType": 1,
+        "m_docId": {
+         "m_docNum": 0
+        },
+        "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+       },
+       "second": {
+        "m_dataIds": {
+         "count": 1,
+         "first": [
+          {
+           "m_requestToken": {
+            "m_token": "ColorFillSecondaryData"
+           },
+           "m_secondaryDataDescription": {
+            "m_calculationName": "Color Fills",
+            "m_dataTypeNameForJournal": "ColorFillSecondaryData",
+            "m_dataTypeNameForUI": "Color Fill",
+            "m_details": "Rooms : Name",
+            "m_helpTopicId": "",
+            "m_iconName": "",
+            "<more>": 2
+           },
+           "m_elementId": 99859,
+           "m_docId": {
+            "m_docNum": 0
+           },
+           "m_secondaryId": "00000000-0000-0000-0000-000000000000"
+          }
+         ]
+        }
+       }
+      }
+     ]
+    }
+   }
+  },
+  "m_ownerFamilyId": -1,
+  "m_ownerFamilyContainingGroupId": -1,
+  "m_devBranchInfo": {
+   "m_devBranchId": 1,
+   "m_syncVersion": 2662
+  },
+  "m_groupFile": false,
+  "m_corruptDocument": false,
+  "m_bIsCoreDocument": false,
+  "m_executedUpgrades": {
+   "count": 0,
+   "first": []
+  },
+  "m_storedByRevitBuild": {
+   "count": 7,
+   "first": [
+    {
+     "m_str": "Revit 2018 - Preview Pre-Release 2018 (2018.000) : 20170106_1515(x64)"
+    },
+    {
+     "m_str": "Revit 2019 2019 (2019.000) : 20180123_1515(x64)"
+    },
+    {
+     "m_str": "Revit 2020 2020 (2020.000) : 20190207_1515(x64)"
+    },
+    {
+     "m_str": "Revit 2021 2021 (2021.000) : 20200131_1515(x64)"
+    },
+    {
+     "m_str": "Revit 2022 - Preview Pre-Release 2022 (2022.000) : 20210129_1515(x64)"
+    }
+   ]
+  },
+  "m_oExServicesUsed": {
+   "->": "ExServicesUsed",
+   "pid": -1,
+   "fields": {
+    "m_arrServiceInfo": {
+     "count": 0,
+     "first": []
+    }
+   }
+  }
+ },
+ "bytes_by_top_field": [
+  [
+   "m_pAppInfoManager",
+   1545965
+  ],
+  [
+   "m_oNobleSecondaryData",
+   34410
+  ],
+  [
+   "m_oContentTable",
+   4864
+  ],
+  [
+   "<top-level fields>",
+   863
+  ],
+  [
+   "m_pStyleSettings",
+   90
+  ],
+  [
+   "m_pSteelModelInfo",
+   44
+  ],
+  [
+   "m_oExServicesUsed",
+   4
+  ]
+ ],
+ "top_appinfo_by_bytes": [
+  [
+   "ESSchemaStorage",
+   1333818
+  ],
+  [
+   "CategoryTracking",
+   53528
+  ],
+  [
+   "AppInfoElementsAssociations",
+   33526
+  ],
+  [
+   "NumberingAppInfo",
+   29071
+  ],
+  [
+   "SymbolIdMgr",
+   19146
+  ],
+  [
+   "ElementTrackingData",
+   12948
+  ],
+  [
+   "ExternalParamTracking",
+   11204
+  ],
+  [
+   "SketchPlaneInfo",
+   6985
+  ],
+  [
+   "AbsLayoutAppInfo",
+   6138
+  ],
+  [
+   "StructuralElemSetTracking",
+   4260
+  ],
+  [
+   "AppInfoSystemFamiliesNames",
+   4213
+  ],
+  [
+   "BasedOnTracker",
+   3488
+  ],
+  [
+   "ParamBindingTracking",
+   3228
+  ],
+  [
+   "PropagationFilterData",
+   2196
+  ],
+  [
+   "ElementTracking",
+   2185
+  ],
+  [
+   "DBViewInfo",
+   1556
+  ],
+  [
+   "DynamicUpdateAppInfo",
+   1479
+  ],
+  [
+   "FamilyMgr",
+   1440
+  ],
+  [
+   "NewItemNumber",
+   1268
+  ],
+  [
+   "LinePatternTracking",
+   1216
+  ],
+  [
+   "AppearanceAssetTracking",
+   1064
+  ],
+  [
+   "BrowserOrganizationTracking",
+   948
+  ],
+  [
+   "FillPatternTracking",
+   944
+  ],
+  [
+   "MaterialTracking",
+   760
+  ],
+  [
+   "UniqueElementsTracking",
+   752
+  ],
+  [
+   "CustomElementTracking",
+   596
+  ],
+  [
+   "DBDrawingInfo",
+   582
+  ],
+  [
+   "PropertySetElementTracking",
+   464
+  ],
+  [
+   "PlanTopologyIdInfo",
+   392
+  ],
+  [
+   "DatumTracking",
+   384
+  ]
+ ],
+ "appinfo_slot_count": 241,
+ "appinfo_populated": 180,
+ "appinfo_slots": [
+  "FamilyMgr",
+  "SketchEditMgr",
+  "SymbolIdMgr",
+  "DBViewInfo",
+  null,
+  "SketchPlaneInfo",
+  "DBDrawingInfo",
+  "DimSides",
+  null,
+  "AppearanceInfo",
+  null,
+  null,
+  "LightMgr",
+  null,
+  "ElementTracking",
+  "PlanTopologyIdInfo",
+  "AlignSides",
+  "NewItemNumber",
+  "LinkedFileInfo",
+  null,
+  null,
+  null,
+  "FillPatternTracking",
+  "WallJoinEditMgr",
+  null,
+  null,
+  "ADocWarnings",
+  "WallOffsetAppInfo",
+  "CategoryTracking",
+  null,
+  "DetailLevelMgr",
+  "SFCostIdInfo",
+  "ElementTrackingData",
+  "MaterialTracking",
+  null,
+  "RefTableInfo",
+  "AllProjectPhasesInfo",
+  "PhaseFilterTracking",
+  "PenWidthTableInfo",
+  "JoinTrackerAppInfo",
+  "LinePatternTracking",
+  "SiteMgr",
+  "RoomTracking",
+  "SiteSurfaceEditMgr",
+  "ElementGroupAppInfo",
+  "AreaMeasureTracking",
+  "LightGroupTracking",
+  "MultiSketchElemEditMgr",
+  "GroupEditModeMgr",
+  "Path3dEditMgr",
+  "SubstitutionManager",
+  "ScheduleInstanceTracking",
+  "LevelPlanViewTracking",
+  "DatumTracking",
+  "MoribundElemTracking",
+  null,
+  "NewElementsVisibilityInfo",
+  "TransientElemSetTracking",
+  "ExternalParamTracking",
+  "ConstraintDimTracking",
+  "GroupHelperAppInfo",
+  "UnitsTracking",
+  "SelectionHistory",
+  "ViewSheetSetTracking",
+  "PrintSettingsTracking",
+  "RvtLinkTracking",
+  "RvtTargetTracking",
+  "ParamBindingTracking",
+  "ProjectParamTracking",
+  "RvtLinkInstTracking",
+  "InEditModeInfoMgr",
+  null,
+  "UniqueElementsTracking",
+  "ViewCreationTracking",
+  "TempModeInfo",
+  "BrowserOrganizationTracking",
+  "DesignOptionMgr",
+  "TemporaryElements",
+  "TemporaryUndoableElements",
+  "DesignOptionSetTracking",
+  "KeepAtLeastOneLevel",
+  "BasedOnTracker",
+  "AbsLayoutAppInfo",
+  "AbsSingleCurveTracking",
+  null,
+  "AutoDimOptions",
+  null,
+  null,
+  "StructMgr",
+  "CircuitGroupAppInfo",
+  "CircuitGroupEditModeMgr",
+  "CopyWatchModeMgr",
+  "APIAppInfo",
+  "RbsMechanicalDisplayAppInfo",
+  "RbsSystemNavigatorTracking",
+  "InterferenceReportAppInfo",
+  "OpenLoadedFamsMgr",
+  null,
+  null,
+  "AreaReportSettingsTracking",
+  null,
+  "MaterialPhyParamTracking",
+  "DBViewTypesForNewLevel",
+  "ImportInstanceTracking",
+  "StructuralElemSetTracking",
+  "GCSElemTracking",
+  "PasteEditModeMgr",
+  "AllViewFiltersAppInfo",
+  "KeynoteTableTracking",
+  "KeynotingSystemTracking",
+  "RbsSystemInspectorAppInfo",
+  "RbsSystemInspectorEditModeMgr",
+  "AllWatchElems",
+  "SFilterEditModeMgr",
+  "ImageInstanceTracking",
+  "RbsLayoutPathEditModeMgr",
+  "PreviewTempElementsTracking",
+  null,
+  "RebarShapeRecordAppInfo",
+  null,
+  "ZoneAppInfo",
+  "ZoneEditModeMgr",
+  "TilePatternTracking",
+  "ZoneSchemeTracking",
+  "ZoneElementTracking",
+  "KickAutoJoinAppInfo",
+  "LightGroupEditModeMgr",
+  "StretchableSymMgr",
+  "KickGCSTrackerAppInfo",
+  "APIVSTAMacroElemTracking",
+  "LoadCaseElemTracking",
+  "LoadCombinationElemTracking",
+  "BeamAnnotationsInfo",
+  null,
+  null,
+  null,
+  null,
+  "RenderRegionTracking",
+  "RbsInsulationLiningEditModeMgr",
+  "RbsJustifySlopeRouteEditModeMgr",
+  "HalftoneUnderlaySettingsAppInfo",
+  "XRayContext",
+  null,
+  null,
+  "StructConnectionTypeTracking",
+  "DynamicUpdateAppInfo",
+  "WorkPlaneViewContextAppInfo",
+  "SpatialFieldTracking",
+  null,
+  "PanelScheduleTemplateEditModeMgr",
+  "SurfaceConnectorEditModeMgr",
+  "AnalysisDisplayStyleTracking",
+  null,
+  "ElemsSetWithCellsTracking",
+  null,
+  null,
+  "PanelScheduleTemplateElementTracking",
+  "MEPSystemElemSetTracking",
+  "AssemblyEditModeMgr",
+  "AppearanceAssetTracking",
+  "ExportDWGSettingsTracking",
+  "ViewTagTracking",
+  "PointCloudTypeTracking",
+  "AnalyticalModelEditModeMgr",
+  "FamilySymbolTracking",
+  "DivisionEditModeMgr",
+  null,
+  "WorksharingDisplaySettingsTracking",
+  "PropertySetLibraryTracking",
+  "PropertySetElementTracking",
+  "PointCloudInstanceTracking",
+  "ESSchemaStorage",
+  "CreateAssemblyViewsInfo",
+  null,
+  "ExportDGNSettingsTracking",
+  "StairsEditModeMgr",
+  "AppInfoSystemFamiliesNames",
+  "RailPathEditModeMgr",
+  null,
+  "EStorageTracking",
+  "OpenLockControlTracking",
+  "DisplacementEditModeMgr",
+  "GlobalParamTracking",
+  "TemporaryViewPropertiesMenu",
+  "ImportedDataEditMgr",
+  "NumberingAppInfo",
+  "ExternalResourceErrorAppInfo",
+  null,
+  null,
+  "PropagationFilterData",
+  null,
+  null,
+  null,
+  "StructConnectivityEditModeMgr",
+  null,
+  "NonInteractingTransientElemSetTracking",
+  null,
+  "EnergyAnalysisModelTracker",
+  "UserSpecificSettingsTracker",
+  "FabricationConfigurationAppInfo",
+  "FabricationPartRoutingEditModeMgr",
+  null,
+  null,
+  "StructuralConnectionApprovalTypeTracking",
+  "StructuralConnectionHandlerTypeTracking",
+  "StructuralConnectionHandlerTracking",
+  null,
+  null,
+  "ExternalResourceReferenceUpdateForWorksharingTracker",
+  "SiteLinkTracking",
+  "SteelElementsLinksTracker",
+  "TopographyLinkTypeTracking",
+  null,
+  "ExportPDFSettingsTracking",
+  null,
+  null,
+  null,
+  "FamSymGlobalComputedSymbolCache",
+  "AppInfoExternalLinks",
+  "TemporaryGraphicsManager",
+  "RevisionNumberingSequenceTracking",
+  null,
+  "AppInfoElementsAssociations",
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "CustomApiGraphicsServerTrackingAppInfo",
+  "FDXExchangeIdAppInfo",
+  null,
+  "SmoothToposolidAppInfo",
+  null,
+  "IfcCategoryTemplateTracking",
+  "CustomElementTracking",
+  null,
+  "ViewPositionInfo",
+  "ToposolidBooleanSettingAppInfo",
+  "AnalyticalAutomationEditModeMgr"
+ ],
+ "appinfo_slot_deviations": [],
+ "forge_schema_corpus": {
+  "forge_unit_schema_pairs": 893,
+  "forge_unit_schema_bytes": 796204,
+  "parameter_schema_pairs": 422,
+  "parameter_schema_bytes": 537134,
+  "es_schema_usage_entries": 2,
+  "dirty": 0
+ },
+ "element_id_refs": {
+  "total": 9737,
+  "distinct": 6342
+ },
+ "top_appinfo_by_element_id_refs": [
+  [
+   "CategoryTracking",
+   3650,
+   2799
+  ],
+  [
+   "ElementTrackingData",
+   1246,
+   1246
+  ],
+  [
+   "NumberingAppInfo",
+   1235,
+   365
+  ],
+  [
+   "StructuralElemSetTracking",
+   530,
+   490
+  ],
+  [
+   "ExternalParamTracking",
+   467,
+   467
+  ],
+  [
+   "BasedOnTracker",
+   395,
+   159
+  ],
+  [
+   "AppInfoSystemFamiliesNames",
+   364,
+   364
+  ],
+  [
+   "ParamBindingTracking",
+   209,
+   209
+  ],
+  [
+   "LinePatternTracking",
+   150,
+   150
+  ],
+  [
+   "AppearanceAssetTracking",
+   131,
+   131
+  ],
+  [
+   "FillPatternTracking",
+   116,
+   116
+  ],
+  [
+   "MaterialTracking",
+   93,
+   93
+  ],
+  [
+   "SketchPlaneInfo",
+   79,
+   79
+  ],
+  [
+   "SymbolIdMgr",
+   72,
+   12
+  ],
+  [
+   "UniqueElementsTracking",
+   72,
+   72
+  ],
+  [
+   "CustomElementTracking",
+   61,
+   61
+  ],
+  [
+   "PropertySetElementTracking",
+   56,
+   56
+  ],
+  [
+   "FamilyMgr",
+   50,
+   50
+  ],
+  [
+   "DatumTracking",
+   46,
+   46
+  ],
+  [
+   "RoomTracking",
+   31,
+   31
+  ]
+ ],
+ "stored_by_revit_build": [
+  "Revit 2018 - Preview Pre-Release 2018 (2018.000) : 20170106_1515(x64)",
+  "Revit 2019 2019 (2019.000) : 20180123_1515(x64)",
+  "Revit 2020 2020 (2020.000) : 20190207_1515(x64)",
+  "Revit 2021 2021 (2021.000) : 20200131_1515(x64)",
+  "Revit 2022 - Preview Pre-Release 2022 (2022.000) : 20210129_1515(x64)",
+  "Revit 2025 2025 (2025.000) : Development Build",
+  "Revit 2026 2026 (2026.000) : 20250227_1515(x64)"
+ ]
+}

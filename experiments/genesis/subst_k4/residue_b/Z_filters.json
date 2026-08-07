@@ -1,0 +1,594 @@
+{
+ "rung": "Z_filters",
+ "label": "the 7 view filters -> our house electrical / MEP coordination filters [SINGLE-CHANGE PROBE off the parent]",
+ "kind": "inplace",
+ "stream": "genesis-residue-B",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; one our-record per residue slot",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+  "md5": "aa5952bceeb5830790f289af0d7cee27",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y9.rvt",
+ "parent_rung": "BASE",
+ "out": "experiments/genesis/subst_k4/residue_b/Z_filters.rvt",
+ "description": "Our category-scoped house view filters replace the sample's filters in place.",
+ "tests": "Whether the reader accepts our ParameterFilterElement objects.",
+ "if_PASS": "View filters are constructible ours.",
+ "if_FAIL": "Our filter object shape is rejected -- diff vs the sample's category-only filter 116099.",
+ "stages": [],
+ "group_b_classes": {},
+ "parent_context": {
+  "host_elements": 3342,
+  "watermark": 1472524,
+  "protected_slots_from_earlier_rungs": 1333
+ },
+ "candidates_old_by_class": {
+  "ParameterFilterElement": 7
+ },
+ "our_records_by_class": {
+  "ParameterFilterElement": 7
+ },
+ "build_notes": [
+  "view filters: 7 <- our 7 house filters (category-scoped)"
+ ],
+ "build_info": {},
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 7,
+  "by_match": {
+   "role": 7
+  },
+  "landed_by_class": {
+   "ParameterFilterElement": 7
+  },
+  "dropped_ours": 0,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 0,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 7,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 7,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.4
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   116099,
+   928364,
+   1296133,
+   1296134,
+   1296135,
+   1352984,
+   1352985
+  ],
+  "records_changed_count": 7,
+  "records_changed_by_seq": {
+   "102": 7
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 7,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 116099,
+    "len_ours": 234,
+    "len_parent": 280,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ParameterFilterElement",
+      "class_parent": "ParameterFilterElement"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN Electrical - Power Devices'",
+      "parent": "'Interior'"
+     },
+     {
+      "path": ".m_oCategoryRule.value.m_categories[len]",
+      "ours": 2,
+      "parent": 5
+     },
+     {
+      "path": ".m_oCategoryRule.value.m_categories[0]",
+      "ours": "-2001060",
+      "parent": "-2000180"
+     },
+     {
+      "path": ".m_oCategoryRule.value.m_categories[1]",
+      "ours": "-2001040",
+      "parent": "-2000120"
+     },
+     {
+      "path": ".m_oRuleCombination.value.m_filters[len]",
+      "ours": 0,
+      "parent": 1
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 928364,
+    "len_ours": 224,
+    "len_parent": 350,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ParameterFilterElement",
+      "class_parent": "ParameterFilterElement"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN Electrical - Lighting'",
+      "parent": "'Learning Content'"
+     },
+     {
+      "path": ".m_oCategoryRule.value.m_categories[len]",
+      "ours": 2,
+      "parent": 14
+     },
+     {
+      "path": ".m_oCategoryRule.value.m_categories[0]",
+      "ours": "-2001120",
+      "parent": "-2001340"
+     },
+     {
+      "path": ".m_oCategoryRule.value.m_categories[1]",
+      "ours": "-2008087",
+      "parent": "-2001263"
+     },
+     {
+      "path": ".m_oRuleCombination.value.m_filters[len]",
+      "ours": 0,
+      "parent": 1
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1296133,
+    "len_ours": 234,
+    "len_parent": 240,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ParameterFilterElement",
+      "class_parent": "ParameterFilterElement"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN Electrical - Distribution Gear'",
+      "parent": "'Coonected Node'"
+     },
+     {
+      "path": ".m_oCategoryRule.value.m_categories[0]",
+      "ours": "-2001040",
+      "parent": "-2009645"
+     },
+     {
+      "path": ".m_oRuleCombination.value.m_filters[len]",
+      "ours": 0,
+      "parent": 1
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1296134,
+    "len_ours": 272,
+    "len_parent": 244,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ParameterFilterElement",
+      "class_parent": "ParameterFilterElement"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN Electrical - Raceway (conduit + tray)'",
+      "parent": "'Connected Manual'"
+     },
+     {
+      "path": ".m_oCategoryRule.value.m_categories[len]",
+      "ours": 4,
+      "parent": 1
+     },
+     {
+      "path": ".m_oCategoryRule.value.m_categories[0]",
+      "ours": "-2008132",
+      "parent": "-2009645"
+     },
+     {
+      "path": ".m_oRuleCombination.value.m_filters[len]",
+      "ours": 0,
+      "parent": 1
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 13,
+    "blocks_out": 13
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 7,
+  "slots_with_registry_surface": 7,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 116099,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AllViewFiltersAppInfo.m_viewFilterIds[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 928364,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AllViewFiltersAppInfo.m_viewFilterIds[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 1296133,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AllViewFiltersAppInfo.m_viewFilterIds[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 1296134,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AllViewFiltersAppInfo.m_viewFilterIds[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 1296135,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AllViewFiltersAppInfo.m_viewFilterIds[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 1352984,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AllViewFiltersAppInfo.m_viewFilterIds[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 1352985,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AllViewFiltersAppInfo.m_viewFilterIds[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 7,
+  "pairs_ok": 7,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 116099,
+   "class": "ParameterFilterElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 472,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 928364,
+   "class": "ParameterFilterElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 759,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 1296133,
+   "class": "ParameterFilterElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 915,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 1296134,
+   "class": "ParameterFilterElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 915,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 1296135,
+   "class": "ParameterFilterElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 915,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 1352984,
+   "class": "ParameterFilterElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 922,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51470
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_b/Z_filters.rvt",
+  "elements": 3342,
+  "file_size": 774144,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500000,
+   "slot": 116099,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Electrical - Power Devices"
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 928364,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Electrical - Lighting"
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 1296133,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Electrical - Distribution Gear"
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 1296134,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Electrical - Raceway (conduit + tray)"
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 1296135,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Systems - Communications & Life Safety"
+  },
+  {
+   "ours_tmp": 1500005,
+   "slot": 1352984,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Coordination - Mechanical & Plumbing"
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 1352985,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Coordination - Architectural Context"
+  }
+ ],
+ "landed_slots": [
+  {
+   "slot": 116099,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 928364,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 1296133,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 1296134,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 1296135,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 1352984,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 1352985,
+   "class": "ParameterFilterElement",
+   "match": "role",
+   "ours_tmp": 1500006
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": []
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {}
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 774144,
+ "seconds": 2.2
+}

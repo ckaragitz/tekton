@@ -1,0 +1,4358 @@
+{
+ "element_id": 454674,
+ "note": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+ "elemtable": {
+  "found_in_ElemTable": true,
+  "raw_40_bytes_hex": "12 f0 06 00 00 00 00 00 3e 02 00 00 18 03 00 00 fd 02 00 00 12 f0 06 00 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00",
+  "fields": {
+   "+0 u64 m_history.m_originalElementId": 454674,
+   "+8 u32 m_history.m_creationDate (EpisodeId)": 574,
+   "+12 u32 m_history.m_lastModificationDate (EpisodeId)": 792,
+   "+16 u32 m_history.m_lastUserModificationDate": 765,
+   "+20 u64 m_id": 454674,
+   "+28 u64 m_OwningElementId": -1,
+   "+36 u32 m_partitionId": 0
+  }
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 1177180,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 454674,
+  "stamp": null,
+  "psize": 855,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 853,
+  "total_record_bytes": 871,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "853/853",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -1,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -32768
+   },
+   "m_abFlags4Bytes": 26,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "Family"
+    }
+   },
+   "m_pBBox": null,
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      -1155100,
+      -1150159,
+      -1140146,
+      -1140142,
+      -1140140,
+      -1140131,
+      -1140083,
+      -1140082,
+      -1140081,
+      -1140079,
+      -1140018,
+      -1140014,
+      -1140009,
+      -1140008,
+      -1140007,
+      -1140006,
+      -1140005,
+      -1140004,
+      -1140003,
+      -1140002,
+      -1140001,
+      -1140000,
+      -1133412,
+      -1001320,
+      -1001205,
+      3,
+      16,
+      111,
+      124,
+      176,
+      177,
+      179,
+      193,
+      201,
+      277,
+      278,
+      279,
+      280,
+      281,
+      282,
+      285,
+      286,
+      287,
+      288,
+      289,
+      290,
+      291,
+      292,
+      293,
+      296,
+      297,
+      298,
+      6473,
+      18451,
+      18452,
+      18453,
+      18454,
+      23763,
+      23764,
+      23765,
+      "... 33 more (total 93)"
+     ],
+     "m_regenOnly": [],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -1,
+  "builtin": "?"
+ },
+ "classDef": "Family",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 9361733,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 454674,
+  "stamp": 1930314713,
+  "psize": 11012,
+  "class_id_hex": "0x07af",
+  "object_bytes": 11010,
+  "total_record_bytes": 11032,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff",
+  "class": "Family",
+  "clean": true,
+  "consumed_of_object": "11010/11010",
+  "value": {
+   "m_pParamValueSetDouble": null,
+   "m_pParamValueSetInt": null,
+   "m_pParamValueSetAString": null,
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": null,
+   "m_pGeomTable": null,
+   "m_constrInfo": [],
+   "m_cellList": {
+    "ptr_class": "CellList",
+    "pid": -1,
+    "value": {
+     "m_cells": [
+      {
+       "ptr_class": "ConnectorDataCell",
+       "pid": -1,
+       "value": {
+        "m_propId2FamParamIdBindings": [],
+        "m_oRelevantParams": {
+         "ptr_class": "FamilyParams",
+         "pid": -1,
+         "value": {
+          "m_params": [
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 2238.893366676,
+            "m_elemId": -1,
+            "m_paramId": -1140002,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1150159,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140018,
+            "m_int": 31,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1133412,
+            "m_int": 1,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140009,
+            "m_int": 1,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 1.0,
+            "m_elemId": -1,
+            "m_paramId": -1140008,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140001,
+            "m_int": 3,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140131,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": 638828,
+            "m_paramId": -1140014,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140000,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140003,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140007,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140006,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140005,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           },
+           {
+            "m_str": "",
+            "m_oExpression": null,
+            "m_value": 0.0,
+            "m_elemId": -1,
+            "m_paramId": -1140004,
+            "m_int": 0,
+            "m_instance": false,
+            "m_reporting": false
+           }
+          ],
+          "m_geomRefHandles": {
+           "m_offsetGeomMap": []
+          }
+         }
+        },
+        "m_connectorType": 1,
+        "m_domain": 2,
+        "m_index": 1,
+        "m_profileType": -1
+       }
+      },
+      {
+       "ptr_class": "FamilyParamsOrderCell",
+       "pid": -1,
+       "value": {
+        "m_sortedParams": [
+         {
+          "m_groupTypeId": {
+           "m_typeId": "autodesk.parameter.group:electricalCircuiting-1.0.0"
+          },
+          "m_paramIds": [
+           -1140079,
+           -1140082,
+           -1140146,
+           -1140145,
+           -1140144,
+           -1140143,
+           -1140142,
+           -1140140,
+           -1140139,
+           -1140138,
+           -1140087,
+           -1140086,
+           -1140085,
+           -1140084,
+           -1140080,
+           -1140064
+          ]
+         },
+         {
+          "m_groupTypeId": {
+           "m_typeId": "autodesk.parameter.group:general-1.0.0"
+          },
+          "m_paramIds": [
+           -1140081,
+           -1140083,
+           -1140078
+          ]
+         },
+         {
+          "m_groupTypeId": {
+           "m_typeId": "autodesk.parameter.group:electrical-1.0.0"
+          },
+          "m_paramIds": [
+           -1010401,
+           -1010400
+          ]
+         },
+         {
+          "m_groupTypeId": {
+           "m_typeId": "autodesk.parameter.group:constraints-1.0.0"
+          },
+          "m_paramIds": [
+           -1001320
+          ]
+         },
+         {
+          "m_groupTypeId": {
+           "m_typeId": "autodesk.parameter.group:dimensions-1.0.0"
+          },
+          "m_paramIds": [
+           455335,
+           455334,
+           455336,
+           455340,
+           455339,
+           455338,
+           455337
+          ]
+         },
+         {
+          "m_groupTypeId": {
+           "m_typeId": "autodesk.parameter.group:identityData-1.0.0"
+          },
+          "m_paramIds": [
+           -1152384,
+           -1140422,
+           -1010109,
+           -1010108,
+           -1010105,
+           -1010104,
+           -1010103,
+           -1002500,
+           -1001205
+          ]
+         }
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 454674,
+   "m_assocLevelId": -1,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_familyParams": {
+    "ptr_class": "FamilyParams",
+    "pid": -1,
+    "value": {
+     "m_params": [
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 1.666666667,
+       "m_elemId": -1,
+       "m_paramId": 455335,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1140142,
+       "m_int": -1,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "Surface",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1140081,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1140079,
+       "m_int": 12,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 100.0,
+       "m_elemId": -1,
+       "m_paramId": -1140082,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 1.0,
+       "m_elemId": -1,
+       "m_paramId": -1140140,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": {
+        "ptr_class": "FunctionExpression",
+        "pid": -1,
+        "value": {
+         "m_function": 10,
+         "m_subexpressions": [
+          {
+           "ptr_class": "BinaryOperatorExpression",
+           "pid": -1,
+           "value": {
+            "m_binaryOperator": 7,
+            "m_pLeftSubexpression": {
+             "ptr_class": "ParameterExpression",
+             "pid": -1,
+             "value": {
+              "m_paramId": -1140079
+             }
+            },
+            "m_pRightSubexpression": {
+             "ptr_class": "NumberConstantExpression",
+             "pid": -1,
+             "value": {
+              "m_value": 12.0,
+              "m_specTypeId": {
+               "m_typeId": "autodesk.spec.aec:number-1.0.0"
+              }
+             }
+            }
+           }
+          },
+          {
+           "ptr_class": "FunctionExpression",
+           "pid": -1,
+           "value": {
+            "m_function": 10,
+            "m_subexpressions": [
+             {
+              "ptr_class": "BinaryOperatorExpression",
+              "pid": -1,
+              "value": {
+               "m_binaryOperator": 7,
+               "m_pLeftSubexpression": {
+                "ptr_class": "ParameterExpression",
+                "pid": -1,
+                "value": {
+                 "m_paramId": -1140079
+                }
+               },
+               "m_pRightSubexpression": {
+                "ptr_class": "NumberConstantExpression",
+                "pid": -1,
+                "value": {
+                 "m_value": 24.0,
+                 "m_specTypeId": {
+                  "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                 }
+                }
+               }
+              }
+             },
+             {
+              "ptr_class": "FunctionExpression",
+              "pid": -1,
+              "value": {
+               "m_function": 10,
+               "m_subexpressions": [
+                {
+                 "ptr_class": "BinaryOperatorExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_binaryOperator": 7,
+                  "m_pLeftSubexpression": {
+                   "ptr_class": "ParameterExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_paramId": -1140079
+                   }
+                  },
+                  "m_pRightSubexpression": {
+                   "ptr_class": "NumberConstantExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_value": 30.0,
+                    "m_specTypeId": {
+                     "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "ptr_class": "ParameterExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_paramId": 455340
+                 }
+                },
+                {
+                 "ptr_class": "ParameterExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_paramId": 455339
+                 }
+                }
+               ]
+              }
+             },
+             {
+              "ptr_class": "ParameterExpression",
+              "pid": -1,
+              "value": {
+               "m_paramId": 455338
+              }
+             }
+            ]
+           }
+          },
+          {
+           "ptr_class": "ParameterExpression",
+           "pid": -1,
+           "value": {
+            "m_paramId": 455337
+           }
+          }
+         ]
+        }
+       },
+       "m_value": 4.416666667,
+       "m_elemId": -1,
+       "m_paramId": 455334,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1155100,
+       "m_int": -1,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "Type 1",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1140083,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 0.479330709,
+       "m_elemId": -1,
+       "m_paramId": 455336,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 3.937007874,
+       "m_elemId": -1,
+       "m_paramId": -1001320,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 6.166666667,
+       "m_elemId": -1,
+       "m_paramId": 455340,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 5.416666667,
+       "m_elemId": -1,
+       "m_paramId": 455339,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 4.416666667,
+       "m_elemId": -1,
+       "m_paramId": 455338,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 4.416666667,
+       "m_elemId": -1,
+       "m_paramId": 455337,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      }
+     ],
+     "m_geomRefHandles": {
+      "m_offsetGeomMap": []
+     }
+    }
+   },
+   "m_trivialParamIds": [
+    -1140083,
+    -1140082,
+    -1140081,
+    -1001320
+   ],
+   "m_name": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "m_path": "C:\\Documents and Settings\\All Users\\Application Data\\Autodesk\\RME 2009\\Metric Library\\Electrical Components\\Electrical Equipment\\Panelboard\\",
+   "m_famCatalogKeys": [
+    {
+     "m_str": ""
+    },
+    {
+     "m_str": ""
+    },
+    {
+     "m_str": ""
+    },
+    {
+     "m_str": ""
+    },
+    {
+     "m_str": ""
+    }
+   ],
+   "m_pFamilyTypes": {
+    "ptr_class": "FamilyTypeTable",
+    "pid": -1,
+    "value": {
+     "m_idx": 4,
+     "m_pairs": [
+      {
+       "name": " ",
+       "params": {
+        "m_params": [
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455335,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140142,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Surface",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140081,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140079,
+          "m_int": 12,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 100.0,
+          "m_elemId": -1,
+          "m_paramId": -1140082,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.0,
+          "m_elemId": -1,
+          "m_paramId": -1140140,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": {
+           "ptr_class": "FunctionExpression",
+           "pid": -1,
+           "value": {
+            "m_function": 10,
+            "m_subexpressions": [
+             {
+              "ptr_class": "BinaryOperatorExpression",
+              "pid": -1,
+              "value": {
+               "m_binaryOperator": 7,
+               "m_pLeftSubexpression": {
+                "ptr_class": "ParameterExpression",
+                "pid": -1,
+                "value": {
+                 "m_paramId": -1140079
+                }
+               },
+               "m_pRightSubexpression": {
+                "ptr_class": "NumberConstantExpression",
+                "pid": -1,
+                "value": {
+                 "m_value": 12.0,
+                 "m_specTypeId": {
+                  "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                 }
+                }
+               }
+              }
+             },
+             {
+              "ptr_class": "FunctionExpression",
+              "pid": -1,
+              "value": {
+               "m_function": 10,
+               "m_subexpressions": [
+                {
+                 "ptr_class": "BinaryOperatorExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_binaryOperator": 7,
+                  "m_pLeftSubexpression": {
+                   "ptr_class": "ParameterExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_paramId": -1140079
+                   }
+                  },
+                  "m_pRightSubexpression": {
+                   "ptr_class": "NumberConstantExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_value": 24.0,
+                    "m_specTypeId": {
+                     "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "ptr_class": "FunctionExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_function": 10,
+                  "m_subexpressions": [
+                   {
+                    "ptr_class": "BinaryOperatorExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_binaryOperator": 7,
+                     "m_pLeftSubexpression": {
+                      "ptr_class": "ParameterExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_paramId": -1140079
+                      }
+                     },
+                     "m_pRightSubexpression": {
+                      "ptr_class": "NumberConstantExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_value": 30.0,
+                       "m_specTypeId": {
+                        "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455340
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455339
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "ptr_class": "ParameterExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_paramId": 455338
+                 }
+                }
+               ]
+              }
+             },
+             {
+              "ptr_class": "ParameterExpression",
+              "pid": -1,
+              "value": {
+               "m_paramId": 455337
+              }
+             }
+            ]
+           }
+          },
+          "m_value": 4.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455334,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1155100,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Type 1",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140083,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.479330709,
+          "m_elemId": -1,
+          "m_paramId": 455336,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 3.937007874,
+          "m_elemId": -1,
+          "m_paramId": -1001320,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 6.166666667,
+          "m_elemId": -1,
+          "m_paramId": 455340,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 5.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455339,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 4.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455338,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 4.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455337,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         }
+        ],
+        "m_geomRefHandles": {
+         "m_offsetGeomMap": []
+        }
+       }
+      },
+      {
+       "name": "100 A",
+       "params": {
+        "m_params": [
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455335,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140142,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Surface",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140081,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140079,
+          "m_int": 12,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 100.0,
+          "m_elemId": -1,
+          "m_paramId": -1140082,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.0,
+          "m_elemId": -1,
+          "m_paramId": -1140140,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": {
+           "ptr_class": "FunctionExpression",
+           "pid": -1,
+           "value": {
+            "m_function": 10,
+            "m_subexpressions": [
+             {
+              "ptr_class": "BinaryOperatorExpression",
+              "pid": -1,
+              "value": {
+               "m_binaryOperator": 7,
+               "m_pLeftSubexpression": {
+                "ptr_class": "ParameterExpression",
+                "pid": -1,
+                "value": {
+                 "m_paramId": -1140079
+                }
+               },
+               "m_pRightSubexpression": {
+                "ptr_class": "NumberConstantExpression",
+                "pid": -1,
+                "value": {
+                 "m_value": 12.0,
+                 "m_specTypeId": {
+                  "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                 }
+                }
+               }
+              }
+             },
+             {
+              "ptr_class": "FunctionExpression",
+              "pid": -1,
+              "value": {
+               "m_function": 10,
+               "m_subexpressions": [
+                {
+                 "ptr_class": "BinaryOperatorExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_binaryOperator": 7,
+                  "m_pLeftSubexpression": {
+                   "ptr_class": "ParameterExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_paramId": -1140079
+                   }
+                  },
+                  "m_pRightSubexpression": {
+                   "ptr_class": "NumberConstantExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_value": 24.0,
+                    "m_specTypeId": {
+                     "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "ptr_class": "FunctionExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_function": 10,
+                  "m_subexpressions": [
+                   {
+                    "ptr_class": "BinaryOperatorExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_binaryOperator": 7,
+                     "m_pLeftSubexpression": {
+                      "ptr_class": "ParameterExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_paramId": -1140079
+                      }
+                     },
+                     "m_pRightSubexpression": {
+                      "ptr_class": "NumberConstantExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_value": 30.0,
+                       "m_specTypeId": {
+                        "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455340
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455339
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "ptr_class": "ParameterExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_paramId": 455338
+                 }
+                }
+               ]
+              }
+             },
+             {
+              "ptr_class": "ParameterExpression",
+              "pid": -1,
+              "value": {
+               "m_paramId": 455337
+              }
+             }
+            ]
+           }
+          },
+          "m_value": 1.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455334,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1155100,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Type 1",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140083,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.479330709,
+          "m_elemId": -1,
+          "m_paramId": 455336,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 3.937007874,
+          "m_elemId": -1,
+          "m_paramId": -1001320,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 3.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455340,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 2.166666667,
+          "m_elemId": -1,
+          "m_paramId": 455339,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.916666667,
+          "m_elemId": -1,
+          "m_paramId": 455338,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455337,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         }
+        ],
+        "m_geomRefHandles": {
+         "m_offsetGeomMap": []
+        }
+       }
+      },
+      {
+       "name": "225 A",
+       "params": {
+        "m_params": [
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455335,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140142,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Surface",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140081,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140079,
+          "m_int": 12,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 100.0,
+          "m_elemId": -1,
+          "m_paramId": -1140082,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.0,
+          "m_elemId": -1,
+          "m_paramId": -1140140,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": {
+           "ptr_class": "FunctionExpression",
+           "pid": -1,
+           "value": {
+            "m_function": 10,
+            "m_subexpressions": [
+             {
+              "ptr_class": "BinaryOperatorExpression",
+              "pid": -1,
+              "value": {
+               "m_binaryOperator": 7,
+               "m_pLeftSubexpression": {
+                "ptr_class": "ParameterExpression",
+                "pid": -1,
+                "value": {
+                 "m_paramId": -1140079
+                }
+               },
+               "m_pRightSubexpression": {
+                "ptr_class": "NumberConstantExpression",
+                "pid": -1,
+                "value": {
+                 "m_value": 12.0,
+                 "m_specTypeId": {
+                  "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                 }
+                }
+               }
+              }
+             },
+             {
+              "ptr_class": "FunctionExpression",
+              "pid": -1,
+              "value": {
+               "m_function": 10,
+               "m_subexpressions": [
+                {
+                 "ptr_class": "BinaryOperatorExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_binaryOperator": 7,
+                  "m_pLeftSubexpression": {
+                   "ptr_class": "ParameterExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_paramId": -1140079
+                   }
+                  },
+                  "m_pRightSubexpression": {
+                   "ptr_class": "NumberConstantExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_value": 24.0,
+                    "m_specTypeId": {
+                     "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "ptr_class": "FunctionExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_function": 10,
+                  "m_subexpressions": [
+                   {
+                    "ptr_class": "BinaryOperatorExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_binaryOperator": 7,
+                     "m_pLeftSubexpression": {
+                      "ptr_class": "ParameterExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_paramId": -1140079
+                      }
+                     },
+                     "m_pRightSubexpression": {
+                      "ptr_class": "NumberConstantExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_value": 30.0,
+                       "m_specTypeId": {
+                        "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455340
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455339
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "ptr_class": "ParameterExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_paramId": 455338
+                 }
+                }
+               ]
+              }
+             },
+             {
+              "ptr_class": "ParameterExpression",
+              "pid": -1,
+              "value": {
+               "m_paramId": 455337
+              }
+             }
+            ]
+           }
+          },
+          "m_value": 2.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455334,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1155100,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Type 1",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140083,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.479330709,
+          "m_elemId": -1,
+          "m_paramId": 455336,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 3.937007874,
+          "m_elemId": -1,
+          "m_paramId": -1001320,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 3.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455340,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 2.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455339,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 2.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455338,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 2.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455337,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         }
+        ],
+        "m_geomRefHandles": {
+         "m_offsetGeomMap": []
+        }
+       }
+      },
+      {
+       "name": "400 A",
+       "params": {
+        "m_params": [
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455335,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140142,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Surface",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140081,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140079,
+          "m_int": 12,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 100.0,
+          "m_elemId": -1,
+          "m_paramId": -1140082,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.0,
+          "m_elemId": -1,
+          "m_paramId": -1140140,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": {
+           "ptr_class": "FunctionExpression",
+           "pid": -1,
+           "value": {
+            "m_function": 10,
+            "m_subexpressions": [
+             {
+              "ptr_class": "BinaryOperatorExpression",
+              "pid": -1,
+              "value": {
+               "m_binaryOperator": 7,
+               "m_pLeftSubexpression": {
+                "ptr_class": "ParameterExpression",
+                "pid": -1,
+                "value": {
+                 "m_paramId": -1140079
+                }
+               },
+               "m_pRightSubexpression": {
+                "ptr_class": "NumberConstantExpression",
+                "pid": -1,
+                "value": {
+                 "m_value": 12.0,
+                 "m_specTypeId": {
+                  "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                 }
+                }
+               }
+              }
+             },
+             {
+              "ptr_class": "FunctionExpression",
+              "pid": -1,
+              "value": {
+               "m_function": 10,
+               "m_subexpressions": [
+                {
+                 "ptr_class": "BinaryOperatorExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_binaryOperator": 7,
+                  "m_pLeftSubexpression": {
+                   "ptr_class": "ParameterExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_paramId": -1140079
+                   }
+                  },
+                  "m_pRightSubexpression": {
+                   "ptr_class": "NumberConstantExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_value": 24.0,
+                    "m_specTypeId": {
+                     "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "ptr_class": "FunctionExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_function": 10,
+                  "m_subexpressions": [
+                   {
+                    "ptr_class": "BinaryOperatorExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_binaryOperator": 7,
+                     "m_pLeftSubexpression": {
+                      "ptr_class": "ParameterExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_paramId": -1140079
+                      }
+                     },
+                     "m_pRightSubexpression": {
+                      "ptr_class": "NumberConstantExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_value": 30.0,
+                       "m_specTypeId": {
+                        "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455340
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455339
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "ptr_class": "ParameterExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_paramId": 455338
+                 }
+                }
+               ]
+              }
+             },
+             {
+              "ptr_class": "ParameterExpression",
+              "pid": -1,
+              "value": {
+               "m_paramId": 455337
+              }
+             }
+            ]
+           }
+          },
+          "m_value": 4.166666667,
+          "m_elemId": -1,
+          "m_paramId": 455334,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1155100,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Type 1",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140083,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.479330709,
+          "m_elemId": -1,
+          "m_paramId": 455336,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 3.937007874,
+          "m_elemId": -1,
+          "m_paramId": -1001320,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 4.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455340,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 4.166666667,
+          "m_elemId": -1,
+          "m_paramId": 455339,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 4.166666667,
+          "m_elemId": -1,
+          "m_paramId": 455338,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 4.166666667,
+          "m_elemId": -1,
+          "m_paramId": 455337,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         }
+        ],
+        "m_geomRefHandles": {
+         "m_offsetGeomMap": []
+        }
+       }
+      },
+      {
+       "name": "600 A",
+       "params": {
+        "m_params": [
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.666666667,
+          "m_elemId": -1,
+          "m_paramId": 455335,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140142,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Surface",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140081,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140079,
+          "m_int": 12,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 100.0,
+          "m_elemId": -1,
+          "m_paramId": -1140082,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 1.0,
+          "m_elemId": -1,
+          "m_paramId": -1140140,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": {
+           "ptr_class": "FunctionExpression",
+           "pid": -1,
+           "value": {
+            "m_function": 10,
+            "m_subexpressions": [
+             {
+              "ptr_class": "BinaryOperatorExpression",
+              "pid": -1,
+              "value": {
+               "m_binaryOperator": 7,
+               "m_pLeftSubexpression": {
+                "ptr_class": "ParameterExpression",
+                "pid": -1,
+                "value": {
+                 "m_paramId": -1140079
+                }
+               },
+               "m_pRightSubexpression": {
+                "ptr_class": "NumberConstantExpression",
+                "pid": -1,
+                "value": {
+                 "m_value": 12.0,
+                 "m_specTypeId": {
+                  "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                 }
+                }
+               }
+              }
+             },
+             {
+              "ptr_class": "FunctionExpression",
+              "pid": -1,
+              "value": {
+               "m_function": 10,
+               "m_subexpressions": [
+                {
+                 "ptr_class": "BinaryOperatorExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_binaryOperator": 7,
+                  "m_pLeftSubexpression": {
+                   "ptr_class": "ParameterExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_paramId": -1140079
+                   }
+                  },
+                  "m_pRightSubexpression": {
+                   "ptr_class": "NumberConstantExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_value": 24.0,
+                    "m_specTypeId": {
+                     "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "ptr_class": "FunctionExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_function": 10,
+                  "m_subexpressions": [
+                   {
+                    "ptr_class": "BinaryOperatorExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_binaryOperator": 7,
+                     "m_pLeftSubexpression": {
+                      "ptr_class": "ParameterExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_paramId": -1140079
+                      }
+                     },
+                     "m_pRightSubexpression": {
+                      "ptr_class": "NumberConstantExpression",
+                      "pid": -1,
+                      "value": {
+                       "m_value": 30.0,
+                       "m_specTypeId": {
+                        "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455340
+                    }
+                   },
+                   {
+                    "ptr_class": "ParameterExpression",
+                    "pid": -1,
+                    "value": {
+                     "m_paramId": 455339
+                    }
+                   }
+                  ]
+                 }
+                },
+                {
+                 "ptr_class": "ParameterExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_paramId": 455338
+                 }
+                }
+               ]
+              }
+             },
+             {
+              "ptr_class": "ParameterExpression",
+              "pid": -1,
+              "value": {
+               "m_paramId": 455337
+              }
+             }
+            ]
+           }
+          },
+          "m_value": 4.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455334,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1155100,
+          "m_int": -1,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "Type 1",
+          "m_oExpression": null,
+          "m_value": 0.0,
+          "m_elemId": -1,
+          "m_paramId": -1140083,
+          "m_int": 0,
+          "m_instance": true,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 0.479330709,
+          "m_elemId": -1,
+          "m_paramId": 455336,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 3.937007874,
+          "m_elemId": -1,
+          "m_paramId": -1001320,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 6.166666667,
+          "m_elemId": -1,
+          "m_paramId": 455340,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 5.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455339,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 4.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455338,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         },
+         {
+          "m_str": "",
+          "m_oExpression": null,
+          "m_value": 4.416666667,
+          "m_elemId": -1,
+          "m_paramId": 455337,
+          "m_int": 0,
+          "m_instance": false,
+          "m_reporting": false
+         }
+        ],
+        "m_geomRefHandles": {
+         "m_offsetGeomMap": []
+        }
+       }
+      }
+     ]
+    }
+   },
+   "m_pADoc": {
+    "weakref": 1
+   },
+   "m_oFamDoc": {
+    "ptr_class": "FamilyDocument",
+    "pid": 3,
+    "value": {
+     "m_contentDocGUID": "159ccbc8-40de-40ce-82d1-902658f7302b",
+     "m_big2SmallMap2": [
+      {
+       "first": 277,
+       "second": {
+        "m_id64": 786406
+       }
+      },
+      {
+       "first": 278,
+       "second": {
+        "m_id64": 786407
+       }
+      },
+      {
+       "first": 279,
+       "second": {
+        "m_id64": 786408
+       }
+      },
+      {
+       "first": 280,
+       "second": {
+        "m_id64": 786409
+       }
+      },
+      {
+       "first": 281,
+       "second": {
+        "m_id64": 786410
+       }
+      },
+      {
+       "first": 282,
+       "second": {
+        "m_id64": 786411
+       }
+      },
+      {
+       "first": 285,
+       "second": {
+        "m_id64": 786414
+       }
+      },
+      {
+       "first": 286,
+       "second": {
+        "m_id64": 786415
+       }
+      },
+      {
+       "first": 287,
+       "second": {
+        "m_id64": 786416
+       }
+      },
+      {
+       "first": 288,
+       "second": {
+        "m_id64": 786417
+       }
+      },
+      {
+       "first": 289,
+       "second": {
+        "m_id64": 786418
+       }
+      },
+      {
+       "first": 290,
+       "second": {
+        "m_id64": 786419
+       }
+      },
+      {
+       "first": 291,
+       "second": {
+        "m_id64": 786420
+       }
+      },
+      {
+       "first": 292,
+       "second": {
+        "m_id64": 786421
+       }
+      },
+      {
+       "first": 293,
+       "second": {
+        "m_id64": 786422
+       }
+      },
+      {
+       "first": 296,
+       "second": {
+        "m_id64": 786425
+       }
+      },
+      {
+       "first": 297,
+       "second": {
+        "m_id64": 786426
+       }
+      },
+      {
+       "first": 298,
+       "second": {
+        "m_id64": 786427
+       }
+      },
+      {
+       "first": 18451,
+       "second": {
+        "m_id64": 786412
+       }
+      },
+      {
+       "first": 18452,
+       "second": {
+        "m_id64": 786413
+       }
+      },
+      {
+       "first": 18453,
+       "second": {
+        "m_id64": 786423
+       }
+      },
+      {
+       "first": 18454,
+       "second": {
+        "m_id64": 786424
+       }
+      },
+      {
+       "first": 23763,
+       "second": {
+        "m_id64": 786428
+       }
+      },
+      {
+       "first": 23764,
+       "second": {
+        "m_id64": 786429
+       }
+      },
+      {
+       "first": 23765,
+       "second": {
+        "m_id64": 786430
+       }
+      },
+      {
+       "first": 23766,
+       "second": {
+        "m_id64": 786431
+       }
+      },
+      {
+       "first": 23767,
+       "second": {
+        "m_id64": 786432
+       }
+      },
+      {
+       "first": 23768,
+       "second": {
+        "m_id64": 786433
+       }
+      },
+      {
+       "first": 23771,
+       "second": {
+        "m_id64": 786434
+       }
+      },
+      {
+       "first": 23772,
+       "second": {
+        "m_id64": 786435
+       }
+      },
+      {
+       "first": 23773,
+       "second": {
+        "m_id64": 786436
+       }
+      },
+      {
+       "first": 23774,
+       "second": {
+        "m_id64": 786437
+       }
+      },
+      {
+       "first": 23775,
+       "second": {
+        "m_id64": 786438
+       }
+      },
+      {
+       "first": 454678,
+       "second": {
+        "m_id64": 786443
+       }
+      },
+      {
+       "first": 454679,
+       "second": {
+        "m_id64": 786444
+       }
+      },
+      {
+       "first": 454680,
+       "second": {
+        "m_id64": 786445
+       }
+      },
+      {
+       "first": 454681,
+       "second": {
+        "m_id64": 786446
+       }
+      },
+      {
+       "first": 454718,
+       "second": {
+        "m_id64": 786483
+       }
+      },
+      {
+       "first": 454719,
+       "second": {
+        "m_id64": 786484
+       }
+      },
+      {
+       "first": 454720,
+       "second": {
+        "m_id64": 786485
+       }
+      },
+      {
+       "first": 454724,
+       "second": {
+        "m_id64": 786489
+       }
+      },
+      {
+       "first": 454725,
+       "second": {
+        "m_id64": 786490
+       }
+      },
+      {
+       "first": 454728,
+       "second": {
+        "m_id64": 786493
+       }
+      },
+      {
+       "first": 454729,
+       "second": {
+        "m_id64": 786494
+       }
+      },
+      {
+       "first": 455334,
+       "second": {
+        "m_id64": 786844
+       }
+      },
+      {
+       "first": 455335,
+       "second": {
+        "m_id64": 786845
+       }
+      },
+      {
+       "first": 455336,
+       "second": {
+        "m_id64": 786846
+       }
+      },
+      {
+       "first": 455337,
+       "second": {
+        "m_id64": 786847
+       }
+      },
+      {
+       "first": 455338,
+       "second": {
+        "m_id64": 786848
+       }
+      },
+      {
+       "first": 455339,
+       "second": {
+        "m_id64": 786849
+       }
+      },
+      {
+       "first": 455340,
+       "second": {
+        "m_id64": 786850
+       }
+      },
+      {
+       "first": 870665,
+       "second": {
+        "m_id64": 873338
+       }
+      }
+     ],
+     "m_coreIds": [
+      3,
+      16,
+      111,
+      124,
+      176,
+      177,
+      179,
+      193,
+      201,
+      6473,
+      23795,
+      51455,
+      55150,
+      638828
+     ]
+    }
+   },
+   "m_deletableElements": [],
+   "m_oldCurveElemsWithBadSketchAndSP": [],
+   "m_lockedParameterIdsForDirectManipulation": [
+    -1140146,
+    -1140079,
+    -1001320,
+    -1001205,
+    455334,
+    455335,
+    455336,
+    455337,
+    455338,
+    455339,
+    455340
+   ],
+   "m_familyIds": {
+    "ptr_class": "ElementIdIndexPairSet",
+    "pid": -1,
+    "value": {
+     "m_data": [
+      {
+       "m_elementId": 454678,
+       "m_index": 297
+      },
+      {
+       "m_elementId": 454679,
+       "m_index": 85
+      },
+      {
+       "m_elementId": 454680,
+       "m_index": 298
+      },
+      {
+       "m_elementId": 454681,
+       "m_index": 83
+      },
+      {
+       "m_elementId": 454718,
+       "m_index": 305
+      },
+      {
+       "m_elementId": 454719,
+       "m_index": 67
+      },
+      {
+       "m_elementId": 454720,
+       "m_index": 68
+      },
+      {
+       "m_elementId": 454724,
+       "m_index": 84
+      },
+      {
+       "m_elementId": 454725,
+       "m_index": 86
+      },
+      {
+       "m_elementId": 454728,
+       "m_index": 268
+      },
+      {
+       "m_elementId": 454729,
+       "m_index": 269
+      },
+      {
+       "m_elementId": 455334,
+       "m_index": 1106
+      },
+      {
+       "m_elementId": 455335,
+       "m_index": 1107
+      },
+      {
+       "m_elementId": 455336,
+       "m_index": 1108
+      },
+      {
+       "m_elementId": 455337,
+       "m_index": 1109
+      },
+      {
+       "m_elementId": 455338,
+       "m_index": 1110
+      },
+      {
+       "m_elementId": 455339,
+       "m_index": 1111
+      },
+      {
+       "m_elementId": 455340,
+       "m_index": 1112
+      }
+     ]
+    }
+   },
+   "m_oHostFaceGeomRef": null,
+   "m_dbviewInfos": [
+    {
+     "ptr_class": "DBViewInfoForPreview",
+     "pid": -1,
+     "value": {
+      "m_name": "Ref. Level",
+      "m_horz": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "m_origin": [
+       0.0,
+       0.0,
+       -0.0
+      ],
+      "m_scale": 0.05,
+      "m_vert": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "m_viewerTargetPos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_viewFamily": 109,
+      "m_viewType": 1
+     }
+    },
+    {
+     "ptr_class": "DBViewInfoForPreview",
+     "pid": -1,
+     "value": {
+      "m_name": "Ref. Level",
+      "m_horz": [
+       1.0,
+       0.0,
+       0.0
+      ],
+      "m_origin": [
+       0.0,
+       0.0,
+       -0.0
+      ],
+      "m_scale": 0.05,
+      "m_vert": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "m_viewerTargetPos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_viewFamily": 111,
+      "m_viewType": 2
+     }
+    },
+    {
+     "ptr_class": "DBViewInfoForPreview",
+     "pid": -1,
+     "value": {
+      "m_name": "Back",
+      "m_horz": [
+       -1.0,
+       0.0,
+       0.0
+      ],
+      "m_origin": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_scale": 0.05,
+      "m_vert": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "m_viewerTargetPos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_viewFamily": 114,
+      "m_viewType": 3
+     }
+    },
+    {
+     "ptr_class": "DBViewInfoForPreview",
+     "pid": -1,
+     "value": {
+      "m_name": "Front",
+      "m_horz": [
+       1.0,
+       0.0,
+       -0.0
+      ],
+      "m_origin": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_scale": 0.05,
+      "m_vert": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "m_viewerTargetPos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_viewFamily": 114,
+      "m_viewType": 3
+     }
+    },
+    {
+     "ptr_class": "DBViewInfoForPreview",
+     "pid": -1,
+     "value": {
+      "m_name": "Left",
+      "m_horz": [
+       0.0,
+       -1.0,
+       0.0
+      ],
+      "m_origin": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_scale": 0.05,
+      "m_vert": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "m_viewerTargetPos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_viewFamily": 114,
+      "m_viewType": 3
+     }
+    },
+    {
+     "ptr_class": "DBViewInfoForPreview",
+     "pid": -1,
+     "value": {
+      "m_name": "Right",
+      "m_horz": [
+       0.0,
+       1.0,
+       0.0
+      ],
+      "m_origin": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_scale": 0.05,
+      "m_vert": [
+       0.0,
+       0.0,
+       1.0
+      ],
+      "m_viewerTargetPos": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "m_viewFamily": 114,
+      "m_viewType": 3
+     }
+    },
+    {
+     "ptr_class": "DBViewInfoForPreview",
+     "pid": -1,
+     "value": {
+      "m_name": "View 1",
+      "m_horz": [
+       0.707106781,
+       0.707106781,
+       0.0
+      ],
+      "m_origin": [
+       11.006350853,
+       6.493649147,
+       1.006350853
+      ],
+      "m_scale": 0.05,
+      "m_vert": [
+       -0.40824829,
+       0.40824829,
+       0.816496581
+      ],
+      "m_viewerTargetPos": [
+       10.0,
+       7.5,
+       0.0
+      ],
+      "m_viewFamily": 102,
+      "m_viewType": 4
+     }
+    },
+    {
+     "ptr_class": "DBViewInfoForPreview",
+     "pid": -1,
+     "value": {
+      "m_name": "{3D}",
+      "m_horz": [
+       0.707106781,
+       0.707106781,
+       0.0
+      ],
+      "m_origin": [
+       3.937349866,
+       -3.937349866,
+       3.437349866
+      ],
+      "m_scale": 0.05,
+      "m_vert": [
+       -0.40824829,
+       0.40824829,
+       0.816496581
+      ],
+      "m_viewerTargetPos": [
+       0.0,
+       -0.0,
+       -0.5
+      ],
+      "m_viewFamily": 102,
+      "m_viewType": 4
+     }
+    }
+   ],
+   "m_fsdos": [],
+   "m_dumpSymName": "",
+   "m_omniClassCode": "",
+   "m_classificationDescription": "",
+   "m_seekItemId": "",
+   "m_familyNameKeyText": "",
+   "m_structuralCodeName": "",
+   "m_protectionAccessKey": "",
+   "m_tagCurveAttachmentProportion": -1.0,
+   "m_categoryId": -2001040,
+   "m_keyExtParamId": -1,
+   "m_ownerSymbolId": -1,
+   "m_regeneratingGroupId": -1,
+   "m_famDocGUID": "91a66ddf-12ab-4ac0-8cbd-53175a73df48",
+   "m_nextAbsorbedIndex": 1390,
+   "m_predefinedLimitIdx": 1105,
+   "m_appVersionAtLoad": 2134,
+   "m_appVersionAtInitialLoad": 2134,
+   "m_eRenderModelType": 0,
+   "m_eSymbolicRepType": 0,
+   "m_eStructConnectionApplyTo": 0,
+   "m_eBraceRepType": 1,
+   "m_eStructMaterialType": 4,
+   "m_eBeamCutbackForColumn": 1,
+   "m_eStructHiddenViewDisplayType": 0,
+   "m_lightSourceDefBits": 0,
+   "m_eProfileFamUsage": 0,
+   "m_eProfileFamDefinition": 0,
+   "m_eProteinRenderType": 0,
+   "m_partType": 14,
+   "m_roundConnDimType": 1,
+   "m_panelConfig": 1,
+   "m_familyNestingBehavior": 0,
+   "m_tagOrientationBehavior": 0,
+   "m_bFromADPx": false,
+   "m_inPlace": false,
+   "m_isCurtainPanel": false,
+   "m_isModel": true,
+   "m_is2d": false,
+   "m_isCrvDriven": false,
+   "m_isVertical": false,
+   "m_rotateTagWithComponent": false,
+   "m_keepTextReadable": false,
+   "m_isParametric": true,
+   "m_shouldStayParametric": false,
+   "m_contentProtected": false,
+   "m_isAboutToBecomeParametric": true,
+   "m_couldAutojoin": true,
+   "m_bIsSavable": true,
+   "m_bHasTypesFromCatalog": false,
+   "m_bHasSimpleCuts": false,
+   "m_bHasComplexCuts": false,
+   "m_bHasBaseArrays": false,
+   "m_bIsHostBased": false,
+   "m_bHasInstances": false,
+   "m_isWorkPlaneBased": true,
+   "m_bShared": false,
+   "m_bUsePreCutShape": true,
+   "m_bElevationMarkBody": true,
+   "m_bForceProperMirroring": false,
+   "m_bStructUseCap": false,
+   "m_curveBased": false,
+   "m_bElecKeepAnnotationOrientation": false,
+   "m_isRebarShape": false,
+   "m_bStretchingDisallowed": false,
+   "m_bIsNew2010": false,
+   "m_bHasLabeledDimensions": false,
+   "m_bCutback": true,
+   "m_bAllowCutWithUnattachedVoids": false,
+   "m_canHostRebar": false,
+   "m_isSpiralShape": false,
+   "m_enableCuttingInViews": true,
+   "m_hasRoomCalculationPoint": false,
+   "m_bIsSelfOrienting": false,
+   "m_rotateTagTextWithComponent": false,
+   "m_oFamDimConstrMgr": {
+    "ptr_class": "FamDimConstrMgrImpl",
+    "pid": -1,
+    "value": {
+     "m_pFam": {
+      "weakref": 2
+     },
+     "m_paramExprs": [],
+     "m_drivenDimSegs": [],
+     "m_ignoredDimValueExprs": [],
+     "m_overconstrDimSegs": [],
+     "m_fixedRefs": [],
+     "m_redundantConstrs": [],
+     "m_propagatedDrivers": [],
+     "m_dimSegDataMap": [],
+     "m_additionalParamExprs": [],
+     "m_additionalFixedRefs": []
+    }
+   },
+   "m_refs": [],
+   "m_refTypeIds": [
+    7
+   ],
+   "m_oDefaultStretchLine": null,
+   "m_outOfFamilyRefs": [],
+   "m_outOfFamilyHostIds": [],
+   "m_outOfFamilyHostGrefs": [],
+   "m_oFamilyReferenceIdxMgr": {
+    "ptr_class": "FamilyReferenceIdxMgr",
+    "pid": -1,
+    "value": {
+     "m_idxToRefMap": [
+      {
+       "first": 25,
+       "second": {
+        "first": 4,
+        "second": "Center (Front/Back)"
+       }
+      },
+      {
+       "first": 26,
+       "second": {
+        "first": 7,
+        "second": "Front"
+       }
+      },
+      {
+       "first": 27,
+       "second": {
+        "first": 1,
+        "second": "Center (Left/Right)"
+       }
+      }
+     ]
+    }
+   },
+   "m_fixedElevation": 0.0,
+   "m_defaultColumnHeight": 0.0,
+   "m_defaultHostThickness": -1e+30,
+   "m_defaultHeightAboveLevel": -1e+30,
+   "m_inplaceFamElevation": 0.0,
+   "m_surrogateId": 455404,
+   "m_elevationFixed": false,
+   "m_isUserCreated": true,
+   "m_setCreated2011FaceBasedFamily": false,
+   "m_bHasAnyDummyRefs": true
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 7585903,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 454674,
+  "stamp": 6881340,
+  "psize": 2,
+  "class_id_hex": "0x0f2c",
+  "object_bytes": 0,
+  "total_record_bytes": 22,
+  "size_trailer_ok": true,
+  "payload_head_hex": "",
+  "class": "SerializedDummy",
+  "clean": true,
+  "consumed_of_object": "0/0",
+  "value": {}
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[25]",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[26]",
+   "id": 16,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[27]",
+   "id": 111,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[28]",
+   "id": 124,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[29]",
+   "id": 176,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[30]",
+   "id": 177,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[31]",
+   "id": 179,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[32]",
+   "id": 193,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[33]",
+   "id": 201,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[34]",
+   "id": 277,
+   "target_class": "DimensionStyle",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[35]",
+   "id": 278,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[36]",
+   "id": 279,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[37]",
+   "id": 280,
+   "target_class": "FontElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[38]",
+   "id": 281,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[39]",
+   "id": 282,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[40]",
+   "id": 285,
+   "target_class": "LeaderStyle",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[41]",
+   "id": 286,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[42]",
+   "id": 287,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[43]",
+   "id": 288,
+   "target_class": "DimensionStyle",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[44]",
+   "id": 289,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[45]",
+   "id": 290,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[46]",
+   "id": 291,
+   "target_class": "FontElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[47]",
+   "id": 292,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[48]",
+   "id": 293,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[49]",
+   "id": 296,
+   "target_class": "LeaderStyle",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[50]",
+   "id": 297,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[51]",
+   "id": 298,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[52]",
+   "id": 6473,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[53]",
+   "id": 18451,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[54]",
+   "id": 18452,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[55]",
+   "id": 18453,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[56]",
+   "id": 18454,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[57]",
+   "id": 23763,
+   "target_class": "DimensionStyle",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[58]",
+   "id": 23764,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[59]",
+   "id": 23765,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[60]",
+   "id": 23766,
+   "target_class": "FontElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[61]",
+   "id": 23767,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[62]",
+   "id": 23768,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[63]",
+   "id": 23771,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[64]",
+   "id": 23772,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[65]",
+   "id": 23773,
+   "target_class": "LeaderStyle",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[66]",
+   "id": 23774,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[67]",
+   "id": 23775,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[68]",
+   "id": 23795,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[69]",
+   "id": 51455,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[70]",
+   "id": 55150,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[71]",
+   "id": 454674,
+   "target_class": "Family",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[72]",
+   "id": 454678,
+   "target_class": "TextNoteAttributes",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[73]",
+   "id": 454679,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[74]",
+   "id": 454680,
+   "target_class": "TagNoteAttributes",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[75]",
+   "id": 454681,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[76]",
+   "id": 454718,
+   "target_class": "LeaderStyle",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[77]",
+   "id": 454719,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[78]",
+   "id": 454720,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[79]",
+   "id": 454724,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[80]",
+   "id": 454725,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[81]",
+   "id": 454728,
+   "target_class": "FontElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[82]",
+   "id": 454729,
+   "target_class": "FontElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[83]",
+   "id": 455334,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[84]",
+   "id": 455335,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[85]",
+   "id": 455336,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[86]",
+   "id": 455337,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[87]",
+   "id": 455338,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[88]",
+   "id": 455339,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[89]",
+   "id": 455340,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[90]",
+   "id": 455404,
+   "target_class": "FamilySurrogate",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[91]",
+   "id": 638828,
+   "target_class": "ElectricalLoadClassification",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[92]",
+   "id": 870665,
+   "target_class": "DimensionStyle",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_cellList.value.m_cells[0].value.m_oRelevantParams.value.m_params[8].m_elemId",
+   "id": 638828,
+   "target_class": "ElectricalLoadClassification",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 454674,
+   "target_class": "Family",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pFamilyTypes.value.m_idx",
+   "id": 4,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[0].second.m_id64",
+   "id": 786406,
+   "target_class": "DimensionStyle",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[1].second.m_id64",
+   "id": 786407,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[2].second.m_id64",
+   "id": 786408,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[3].second.m_id64",
+   "id": 786409,
+   "target_class": "FontElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[4].second.m_id64",
+   "id": 786410,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[5].second.m_id64",
+   "id": 786411,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[6].second.m_id64",
+   "id": 786414,
+   "target_class": "LeaderStyle",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[7].second.m_id64",
+   "id": 786415,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[8].second.m_id64",
+   "id": 786416,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[9].second.m_id64",
+   "id": 786417,
+   "target_class": "DimensionStyle",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[10].second.m_id64",
+   "id": 786418,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[11].second.m_id64",
+   "id": 786419,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[12].second.m_id64",
+   "id": 786420,
+   "target_class": "FontElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[13].second.m_id64",
+   "id": 786421,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[14].second.m_id64",
+   "id": 786422,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[15].second.m_id64",
+   "id": 786425,
+   "target_class": "LeaderStyle",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[16].second.m_id64",
+   "id": 786426,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[17].second.m_id64",
+   "id": 786427,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[18].second.m_id64",
+   "id": 786412,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[19].second.m_id64",
+   "id": 786413,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[20].second.m_id64",
+   "id": 786423,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[21].second.m_id64",
+   "id": 786424,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[22].second.m_id64",
+   "id": 786428,
+   "target_class": "DimensionStyle",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[23].second.m_id64",
+   "id": 786429,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[24].second.m_id64",
+   "id": 786430,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[25].second.m_id64",
+   "id": 786431,
+   "target_class": "FontElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[26].second.m_id64",
+   "id": 786432,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[27].second.m_id64",
+   "id": 786433,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[28].second.m_id64",
+   "id": 786434,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[29].second.m_id64",
+   "id": 786435,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[30].second.m_id64",
+   "id": 786436,
+   "target_class": "LeaderStyle",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[31].second.m_id64",
+   "id": 786437,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[32].second.m_id64",
+   "id": 786438,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[33].second.m_id64",
+   "id": 786443,
+   "target_class": "TextNoteAttributes",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[34].second.m_id64",
+   "id": 786444,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[35].second.m_id64",
+   "id": 786445,
+   "target_class": "TagNoteAttributes",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[36].second.m_id64",
+   "id": 786446,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[37].second.m_id64",
+   "id": 786483,
+   "target_class": "LeaderStyle",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[38].second.m_id64",
+   "id": 786484,
+   "target_class": "CategoryElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[39].second.m_id64",
+   "id": 786485,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[40].second.m_id64",
+   "id": 786489,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[41].second.m_id64",
+   "id": 786490,
+   "target_class": "GStyleElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[42].second.m_id64",
+   "id": 786493,
+   "target_class": "FontElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[43].second.m_id64",
+   "id": 786494,
+   "target_class": "FontElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[44].second.m_id64",
+   "id": 786844,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[45].second.m_id64",
+   "id": 786845,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[46].second.m_id64",
+   "id": 786846,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[47].second.m_id64",
+   "id": 786847,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[48].second.m_id64",
+   "id": 786848,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[49].second.m_id64",
+   "id": 786849,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[50].second.m_id64",
+   "id": 786850,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_big2SmallMap2[51].second.m_id64",
+   "id": 873338,
+   "target_class": "DimensionStyle",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[0]",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[1]",
+   "id": 16,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[2]",
+   "id": 111,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[3]",
+   "id": 124,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[4]",
+   "id": 176,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[5]",
+   "id": 177,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[6]",
+   "id": 179,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[7]",
+   "id": 193,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[8]",
+   "id": 201,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[9]",
+   "id": 6473,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[10]",
+   "id": 23795,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[11]",
+   "id": 51455,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[12]",
+   "id": 55150,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oFamDoc.value.m_coreIds[13]",
+   "id": 638828,
+   "target_class": "ElectricalLoadClassification",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_lockedParameterIdsForDirectManipulation[4]",
+   "id": 455334,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_lockedParameterIdsForDirectManipulation[5]",
+   "id": 455335,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_lockedParameterIdsForDirectManipulation[6]",
+   "id": 455336,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_lockedParameterIdsForDirectManipulation[7]",
+   "id": 455337,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_lockedParameterIdsForDirectManipulation[8]",
+   "id": 455338,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_lockedParameterIdsForDirectManipulation[9]",
+   "id": 455339,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_lockedParameterIdsForDirectManipulation[10]",
+   "id": 455340,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[0].m_elementId",
+   "id": 454678,
+   "target_class": "TextNoteAttributes",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[1].m_elementId",
+   "id": 454679,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[2].m_elementId",
+   "id": 454680,
+   "target_class": "TagNoteAttributes",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[3].m_elementId",
+   "id": 454681,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[4].m_elementId",
+   "id": 454718,
+   "target_class": "LeaderStyle",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[5].m_elementId",
+   "id": 454719,
+   "target_class": "CategoryElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[6].m_elementId",
+   "id": 454720,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[7].m_elementId",
+   "id": 454724,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[8].m_elementId",
+   "id": 454725,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[9].m_elementId",
+   "id": 454728,
+   "target_class": "FontElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[10].m_elementId",
+   "id": 454729,
+   "target_class": "FontElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[11].m_elementId",
+   "id": 455334,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[12].m_elementId",
+   "id": 455335,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[13].m_elementId",
+   "id": 455336,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[14].m_elementId",
+   "id": 455337,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[15].m_elementId",
+   "id": 455338,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[16].m_elementId",
+   "id": 455339,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyIds.value.m_data[17].m_elementId",
+   "id": 455340,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_predefinedLimitIdx",
+   "id": 1105,
+   "target_class": null,
+   "in_ElemTable": false,
+   "in_partitions": false
+  },
+  {
+   "from_seq": 102,
+   "path": "m_refTypeIds[0]",
+   "id": 7,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_surrogateId",
+   "id": 455404,
+   "target_class": "FamilySurrogate",
+   "in_ElemTable": true,
+   "in_partitions": true
+  }
+ ]
+}

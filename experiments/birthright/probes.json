@@ -1,0 +1,97 @@
+{
+ "stream": "birthright (the sufficiency probe + the authored birth)",
+ "tool": "tools/birthright_mine.py",
+ "created": "2026-08-05T09:53:49-0500",
+ "question": "is the template-birth set SUFFICIENT for our content (T1v), and does famgen AUTHORING that birth set (zero donor bytes) close the instance gap (BX_birth, DEMO v7)?  [verdict #43: born famdocs PASS, ours FAIL]",
+ "probes": [
+  {
+   "order": 1,
+   "rung": "T1v",
+   "file": "experiments/birthright/T1v.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "SUFFICIENCY: our 35-element content union ADDED alongside the born famdoc shell (vendor .rfa unmodified), famload + ONE instance on G_ABPD -- the ONE thing vs T2a (PASS): our content rides the born body",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the vendor-born famdoc + OUR 35-element content union (registered in the born self-Family), famload + instance on G_ABPD.  The ONE thing vs T2a (PASS): our content rides the born body.",
+   "expected": "PASS = birth set sufficient (T2a accepted the shell; SUB_ALL accepted the union in a donor body); FAIL = content interaction",
+   "md5": "059286397fba95768bb3846bc7b69cce",
+   "symbol_id": 1672588,
+   "family_id": 1672565,
+   "instance_ids": [
+    1672589
+   ],
+   "validator": {
+    "n_errors": 0,
+    "unexpected": 0
+   },
+   "gates_ok": true
+  },
+  {
+   "order": 2,
+   "rung": "BX_birth",
+   "file": "experiments/birthright/BX_birth.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "the B0 recipe through birthright: OUR famdoc + OUR authored birth set (zero donor bytes), famgen chain + ONE instance on G_ABPD",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the B0 recipe (G_ABPD + ONE famgen panelboard + ONE instance) with the famdoc AUGMENTED by the authored birth set.  The ONE thing vs B0 (FAIL): the birth set (zero donor bytes).",
+   "expected": "the product bet: PASS closes the single-panel gap with zero donors",
+   "md5": "234ee8a59e1da3731fbe2ea0ba6de9a3",
+   "symbol_id": 1474265,
+   "family_id": 1474249,
+   "instance_ids": [
+    1474267
+   ],
+   "validator": {
+    "n_errors": 0,
+    "unexpected": 0
+   },
+   "gates_ok": true
+  },
+  {
+   "order": 3,
+   "rung": "DEMO_250v_room_v7",
+   "file": "experiments/birthright/DEMO_250v_room_v7.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "the user's exact prompt end-to-end through rvt.frontdoor.run with birthright enabled",
+   "n_families": 6,
+   "n_instances": 6,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the user's exact prompt through the real front door with birthright enabled.  The ONE thing vs DEMO v5 (FAIL): the birth set.",
+   "expected": "PASS closes the campaign",
+   "md5": "5c18cb7db71f7596faae55c838803669",
+   "symbol_id": null,
+   "family_id": null,
+   "instance_ids": [
+    1482977,
+    1482978,
+    1482979,
+    1482980,
+    1482981,
+    1482982
+   ],
+   "validator": {
+    "n_errors": 0,
+    "unexpected": 0
+   },
+   "gates_ok": true
+  }
+ ],
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID (oracle/environment) -- interpret nothing",
+  "T1v PASS + BX_birth PASS + v7 PASS": "THE CAMPAIGN CLOSES: the birth set is sufficient for our content AND our authored birth reproduces it -- birthright becomes the famgen emission default next; the instance gap is shut with zero donor bytes.",
+  "T1v PASS + BX_birth FAIL": "the birth set is sufficient but our AUTHORED birth misses something the born shell has -- run `diff`: the authored-vs-mined field diff plus the mined exclusion list IS the finite gap list; close it constructor by constructor.",
+  "T1v FAIL": "our content INTERACTS with the born shell (SUB_ALL accepted the same union in a project-donor body; a standalone-born body does not) -- bisect our axes inside the born shell (T1v_g/T1v_p/... singles) before trusting any authored birth.",
+  "BX_birth PASS + v7 FAIL": "the single-panel authored birth passes but the 6-panel demo does not -- multi-unit propagation (chain-order, id-space, or per-unit birth block) is the remaining axis; bisect panel count."
+ },
+ "notes": [
+  "every probe: validator 0 unexpected errors, 64-byte 0x0f3f blob on every unit (added units carry OUR deterministic nonce -- machine-verified), coherent four-registry census, references resolved",
+  "T1v embeds the vendor-born famdoc: DEV/PROOF-ONLY, quarantined under experiments/ (zero donor bytes in anything shipped)",
+  "BX_birth / DEMO v7 carry ZERO donor bytes: every birth element re-authored by our writers from the mined template_birth.json (adoptable laws/shapes carried; identity/content authored fresh)"
+ ]
+}

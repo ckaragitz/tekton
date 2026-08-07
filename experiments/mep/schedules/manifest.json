@@ -1,0 +1,1843 @@
+{
+ "template": "/Users/ck/dev/things/rev-revit/samples/rmebasicsampleproject.rvt",
+ "files": {
+  "panel_schedule_view.rvt": {
+   "verb": "create",
+   "category": "PanelScheduleView",
+   "out": "experiments/mep/schedules/panel_schedule_view.rvt",
+   "elements": {
+    "panel": 888014,
+    "loads": [
+     888015,
+     888016
+    ],
+    "circuits": [
+     888017,
+     888018
+    ],
+    "schedule_view": 888019,
+    "cluster": [
+     [
+      888019,
+      "PanelScheduleView"
+     ],
+     [
+      888020,
+      "Viewer"
+     ],
+     [
+      888021,
+      "DBDrawing"
+     ],
+     [
+      888022,
+      "FontElem"
+     ],
+     [
+      888023,
+      "CategoryElem"
+     ],
+     [
+      888024,
+      "FontElem"
+     ],
+     [
+      888025,
+      "Viewport"
+     ],
+     [
+      888026,
+      "GStyleElem"
+     ]
+    ]
+   },
+   "out_of_date": true,
+   "commit": {
+    "elemtable_before": 28132,
+    "elemtable_after": 28145,
+    "watermark_after": 888026,
+    "bytes_added": {
+     "101": 2609,
+     "102": 161951,
+     "103": 1766
+    }
+   },
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "new_ids_found": {
+     "101": {
+      "888014": {
+       "class": 1509,
+       "clean": true
+      },
+      "888015": {
+       "class": 1509,
+       "clean": true
+      },
+      "888016": {
+       "class": 1509,
+       "clean": true
+      },
+      "888017": {
+       "class": 1509,
+       "clean": true
+      },
+      "888018": {
+       "class": 1509,
+       "clean": true
+      },
+      "888019": {
+       "class": 1509,
+       "clean": true
+      },
+      "888020": {
+       "class": 1509,
+       "clean": true
+      },
+      "888021": {
+       "class": 1509,
+       "clean": true
+      },
+      "888022": {
+       "class": 1509,
+       "clean": true
+      },
+      "888023": {
+       "class": 1509,
+       "clean": true
+      },
+      "888024": {
+       "class": 1509,
+       "clean": true
+      },
+      "888025": {
+       "class": 1509,
+       "clean": true
+      },
+      "888026": {
+       "class": 1509,
+       "clean": true
+      }
+     },
+     "102": {
+      "888014": {
+       "class": 1989,
+       "clean": true
+      },
+      "888015": {
+       "class": 1989,
+       "clean": true
+      },
+      "888016": {
+       "class": 1989,
+       "clean": true
+      },
+      "888017": {
+       "class": 3463,
+       "clean": true
+      },
+      "888018": {
+       "class": 3463,
+       "clean": true
+      },
+      "888019": {
+       "class": 2888,
+       "clean": true
+      },
+      "888020": {
+       "class": 724,
+       "clean": true
+      },
+      "888021": {
+       "class": 1123,
+       "clean": true
+      },
+      "888022": {
+       "class": 2124,
+       "clean": true
+      },
+      "888023": {
+       "class": 737,
+       "clean": true
+      },
+      "888024": {
+       "class": 2124,
+       "clean": true
+      },
+      "888025": {
+       "class": 2189,
+       "clean": true
+      },
+      "888026": {
+       "class": 2252,
+       "clean": true
+      }
+     },
+     "103": {
+      "888014": {
+       "class": 2206,
+       "clean": true
+      },
+      "888015": {
+       "class": 2206,
+       "clean": true
+      },
+      "888016": {
+       "class": 2206,
+       "clean": true
+      },
+      "888017": {
+       "class": 3884,
+       "clean": true
+      },
+      "888018": {
+       "class": 3884,
+       "clean": true
+      },
+      "888019": {
+       "class": 3884,
+       "clean": true
+      },
+      "888020": {
+       "class": 3884,
+       "clean": true
+      },
+      "888021": {
+       "class": 3884,
+       "clean": true
+      },
+      "888022": {
+       "class": 3884,
+       "clean": true
+      },
+      "888023": {
+       "class": 3884,
+       "clean": true
+      },
+      "888024": {
+       "class": 3884,
+       "clean": true
+      },
+      "888025": {
+       "class": 3884,
+       "clean": true
+      },
+      "888026": {
+       "class": 3884,
+       "clean": true
+      }
+     }
+    },
+    "elemtable_count": 28145,
+    "header_count": 28145,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true
+   },
+   "structural_ok": true,
+   "readback": {
+    "view": {
+     "id": 888019,
+     "class": "PanelScheduleView",
+     "name": "EP-NEW-1",
+     "target_panel": 888014,
+     "template": 638860,
+     "out_of_date": true,
+     "cached_slots": 0,
+     "fonts": [
+      888022,
+      888024
+     ],
+     "drawing": 888021,
+     "viewer": 888020,
+     "color_category": [
+      888023
+     ],
+     "cluster": [
+      [
+       888019,
+       "PanelScheduleView"
+      ],
+      [
+       888020,
+       "Viewer"
+      ],
+      [
+       888021,
+       "DBDrawing"
+      ],
+      [
+       888022,
+       "FontElem"
+      ],
+      [
+       888023,
+       "CategoryElem"
+      ],
+      [
+       888024,
+       "FontElem"
+      ],
+      [
+       888025,
+       "Viewport"
+      ],
+      [
+       888026,
+       "GStyleElem"
+      ]
+     ]
+    },
+    "target_is_new_panel": true,
+    "template": 638860,
+    "template_name": "Branch Panel",
+    "cluster_owners": {
+     "888019": 18446744073709551615,
+     "888020": 888019,
+     "888021": 888019,
+     "888022": 888019,
+     "888023": 888019,
+     "888024": 888019,
+     "888025": 888021,
+     "888026": 888023
+    },
+    "panel_regenOnly_lists_view": true,
+    "circuits": [
+     888017,
+     888018
+    ]
+   },
+   "semantic_ok": true,
+   "validate": {
+    "ok": true,
+    "errors": [],
+    "n_errors": 0,
+    "warnings": [
+     {
+      "severity": "warning",
+      "layer": "structure",
+      "where": "Partitions/14",
+      "message": "3 block(s) whose header counters A/C violate the corpus identity hdr_len(seq)*A + C + adj(flags) == inflated length (payload CRC-valid; tolerated by Revit's reader \u2014 proven by the accepted V20-V29 \u2014 but a writer counter defect; strict makes it an error)"
+     },
+     {
+      "severity": "warning",
+      "layer": "semantic",
+      "where": "objects",
+      "message": "1171/142187 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+     }
+    ],
+    "n_warnings": 2,
+    "stats": {
+     "records": 427479,
+     "elements_decoded": 142187,
+     "decode_failures": 1171,
+     "refs_checked": 2573976,
+     "connector_edges": 15347
+    },
+    "text": "rvt-validate: /Users/ck/dev/things/rev-revit/experiments/mep/schedules/panel_schedule_view.rvt\n  verdict: VALID (no errors); warnings=2 info=2; layers=structure,consistency,semantic\n  streams: 13\n  pages_checked: 506\n  gzip_members: 8\n  partition_blocks: 2050\n  records: 427479\n  elements_decoded: 142187\n  decode_failures: 1171\n  refs_checked: 2573976\n  connector_edges: 15347\n  timings: structure=0.6s, consistency=0.2s, semantic=11.4s, total=12.2s\n  [WARNING] structure   Partitions/14: 3 block(s) whose header counters A/C violate the corpus identity hdr_len(seq)*A + C + adj(flags) == inflated length (payload CRC-valid; tolerated by Revit's reader \u2014 proven by the accepted V20-V29 \u2014 but a writer counter defect; strict makes it an error)\n  [WARNING] semantic    objects: 1171/142187 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+   },
+   "summary": "new panel 888014 + circuits 888017,888018 + PanelScheduleView 888019 (cluster of 8), outOfDate=True; validator errors=0",
+   "status": "VALIDATES"
+  },
+  "panel_schedule_view_current.rvt": {
+   "verb": "create",
+   "category": "PanelScheduleView",
+   "out": "experiments/mep/schedules/panel_schedule_view_current.rvt",
+   "elements": {
+    "panel": 888014,
+    "loads": [
+     888015,
+     888016
+    ],
+    "circuits": [
+     888017,
+     888018
+    ],
+    "schedule_view": 888019,
+    "cluster": [
+     [
+      888019,
+      "PanelScheduleView"
+     ],
+     [
+      888020,
+      "Viewer"
+     ],
+     [
+      888021,
+      "DBDrawing"
+     ],
+     [
+      888022,
+      "FontElem"
+     ],
+     [
+      888023,
+      "CategoryElem"
+     ],
+     [
+      888024,
+      "FontElem"
+     ],
+     [
+      888025,
+      "Viewport"
+     ],
+     [
+      888026,
+      "GStyleElem"
+     ]
+    ]
+   },
+   "out_of_date": false,
+   "commit": {
+    "elemtable_before": 28132,
+    "elemtable_after": 28145,
+    "watermark_after": 888026,
+    "bytes_added": {
+     "101": 2609,
+     "102": 162063,
+     "103": 1766
+    }
+   },
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "new_ids_found": {
+     "101": {
+      "888014": {
+       "class": 1509,
+       "clean": true
+      },
+      "888015": {
+       "class": 1509,
+       "clean": true
+      },
+      "888016": {
+       "class": 1509,
+       "clean": true
+      },
+      "888017": {
+       "class": 1509,
+       "clean": true
+      },
+      "888018": {
+       "class": 1509,
+       "clean": true
+      },
+      "888019": {
+       "class": 1509,
+       "clean": true
+      },
+      "888020": {
+       "class": 1509,
+       "clean": true
+      },
+      "888021": {
+       "class": 1509,
+       "clean": true
+      },
+      "888022": {
+       "class": 1509,
+       "clean": true
+      },
+      "888023": {
+       "class": 1509,
+       "clean": true
+      },
+      "888024": {
+       "class": 1509,
+       "clean": true
+      },
+      "888025": {
+       "class": 1509,
+       "clean": true
+      },
+      "888026": {
+       "class": 1509,
+       "clean": true
+      }
+     },
+     "102": {
+      "888014": {
+       "class": 1989,
+       "clean": true
+      },
+      "888015": {
+       "class": 1989,
+       "clean": true
+      },
+      "888016": {
+       "class": 1989,
+       "clean": true
+      },
+      "888017": {
+       "class": 3463,
+       "clean": true
+      },
+      "888018": {
+       "class": 3463,
+       "clean": true
+      },
+      "888019": {
+       "class": 2888,
+       "clean": true
+      },
+      "888020": {
+       "class": 724,
+       "clean": true
+      },
+      "888021": {
+       "class": 1123,
+       "clean": true
+      },
+      "888022": {
+       "class": 2124,
+       "clean": true
+      },
+      "888023": {
+       "class": 737,
+       "clean": true
+      },
+      "888024": {
+       "class": 2124,
+       "clean": true
+      },
+      "888025": {
+       "class": 2189,
+       "clean": true
+      },
+      "888026": {
+       "class": 2252,
+       "clean": true
+      }
+     },
+     "103": {
+      "888014": {
+       "class": 2206,
+       "clean": true
+      },
+      "888015": {
+       "class": 2206,
+       "clean": true
+      },
+      "888016": {
+       "class": 2206,
+       "clean": true
+      },
+      "888017": {
+       "class": 3884,
+       "clean": true
+      },
+      "888018": {
+       "class": 3884,
+       "clean": true
+      },
+      "888019": {
+       "class": 3884,
+       "clean": true
+      },
+      "888020": {
+       "class": 3884,
+       "clean": true
+      },
+      "888021": {
+       "class": 3884,
+       "clean": true
+      },
+      "888022": {
+       "class": 3884,
+       "clean": true
+      },
+      "888023": {
+       "class": 3884,
+       "clean": true
+      },
+      "888024": {
+       "class": 3884,
+       "clean": true
+      },
+      "888025": {
+       "class": 3884,
+       "clean": true
+      },
+      "888026": {
+       "class": 3884,
+       "clean": true
+      }
+     }
+    },
+    "elemtable_count": 28145,
+    "header_count": 28145,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true
+   },
+   "structural_ok": true,
+   "readback": {
+    "view": {
+     "id": 888019,
+     "class": "PanelScheduleView",
+     "name": "EP-NEW-1",
+     "target_panel": 888014,
+     "template": 638860,
+     "out_of_date": false,
+     "cached_slots": 28,
+     "fonts": [
+      888022,
+      888024
+     ],
+     "drawing": 888021,
+     "viewer": 888020,
+     "color_category": [
+      888023
+     ],
+     "cluster": [
+      [
+       888019,
+       "PanelScheduleView"
+      ],
+      [
+       888020,
+       "Viewer"
+      ],
+      [
+       888021,
+       "DBDrawing"
+      ],
+      [
+       888022,
+       "FontElem"
+      ],
+      [
+       888023,
+       "CategoryElem"
+      ],
+      [
+       888024,
+       "FontElem"
+      ],
+      [
+       888025,
+       "Viewport"
+      ],
+      [
+       888026,
+       "GStyleElem"
+      ]
+     ]
+    },
+    "target_is_new_panel": true,
+    "template": 638860,
+    "template_name": "Branch Panel",
+    "cluster_owners": {
+     "888019": 18446744073709551615,
+     "888020": 888019,
+     "888021": 888019,
+     "888022": 888019,
+     "888023": 888019,
+     "888024": 888019,
+     "888025": 888021,
+     "888026": 888023
+    },
+    "panel_regenOnly_lists_view": true,
+    "circuits": [
+     888017,
+     888018
+    ]
+   },
+   "semantic_ok": true,
+   "validate": {
+    "ok": true,
+    "errors": [],
+    "n_errors": 0,
+    "warnings": [
+     {
+      "severity": "warning",
+      "layer": "structure",
+      "where": "Partitions/14",
+      "message": "3 block(s) whose header counters A/C violate the corpus identity hdr_len(seq)*A + C + adj(flags) == inflated length (payload CRC-valid; tolerated by Revit's reader \u2014 proven by the accepted V20-V29 \u2014 but a writer counter defect; strict makes it an error)"
+     },
+     {
+      "severity": "warning",
+      "layer": "semantic",
+      "where": "objects",
+      "message": "1171/142187 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+     }
+    ],
+    "n_warnings": 2,
+    "stats": {
+     "records": 427479,
+     "elements_decoded": 142187,
+     "decode_failures": 1171,
+     "refs_checked": 2573976,
+     "connector_edges": 15347
+    },
+    "text": "rvt-validate: /Users/ck/dev/things/rev-revit/experiments/mep/schedules/panel_schedule_view_current.rvt\n  verdict: VALID (no errors); warnings=2 info=2; layers=structure,consistency,semantic\n  streams: 13\n  pages_checked: 506\n  gzip_members: 8\n  partition_blocks: 2050\n  records: 427479\n  elements_decoded: 142187\n  decode_failures: 1171\n  refs_checked: 2573976\n  connector_edges: 15347\n  timings: structure=0.6s, consistency=0.2s, semantic=11.1s, total=12.0s\n  [WARNING] structure   Partitions/14: 3 block(s) whose header counters A/C violate the corpus identity hdr_len(seq)*A + C + adj(flags) == inflated length (payload CRC-valid; tolerated by Revit's reader \u2014 proven by the accepted V20-V29 \u2014 but a writer counter defect; strict makes it an error)\n  [WARNING] semantic    objects: 1171/142187 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+   },
+   "summary": "new panel 888014 + circuits 888017,888018 + PanelScheduleView 888019 (cluster of 8), outOfDate=False; validator errors=0",
+   "status": "VALIDATES"
+  },
+  "panel_schedule_view_rename.rvt": {
+   "verb": "modify",
+   "category": "PanelScheduleView",
+   "out": "experiments/mep/schedules/panel_schedule_view_rename.rvt",
+   "edit": {
+    "view": 709455,
+    "old_name": "LP-1",
+    "new_name": "LP-1-RENAMED",
+    "readback_name": "LP-1-RENAMED"
+   },
+   "commit": {
+    "partition": "Partitions/14",
+    "removed_ids": [],
+    "replaced": [
+     [
+      102,
+      709455
+     ]
+    ],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28132,
+    "watermark": 888013,
+    "blocks_before": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "blocks_after": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/mep/schedules/panel_schedule_view_rename.rvt"
+   },
+   "verify_manipulated": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 28132,
+    "header_count": 28132,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "709455": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "PanelScheduleView",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_ok": true,
+   "semantic_ok": true,
+   "validate": {
+    "ok": true,
+    "errors": [],
+    "n_errors": 0,
+    "warnings": [
+     {
+      "severity": "warning",
+      "layer": "semantic",
+      "where": "objects",
+      "message": "1171/142174 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+     }
+    ],
+    "n_warnings": 1,
+    "stats": {
+     "records": 427440,
+     "elements_decoded": 142174,
+     "decode_failures": 1171,
+     "refs_checked": 2570603,
+     "connector_edges": 15339
+    },
+    "text": "rvt-validate: /Users/ck/dev/things/rev-revit/experiments/mep/schedules/panel_schedule_view_rename.rvt\n  verdict: VALID (no errors); warnings=1 info=2; layers=structure,consistency,semantic\n  streams: 13\n  pages_checked: 506\n  gzip_members: 8\n  partition_blocks: 2050\n  records: 427440\n  elements_decoded: 142174\n  decode_failures: 1171\n  refs_checked: 2570603\n  connector_edges: 15339\n  timings: structure=0.6s, consistency=0.2s, semantic=11.3s, total=12.1s\n  [WARNING] semantic    objects: 1171/142174 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+   },
+   "summary": "view 709455 'LP-1' -> 'LP-1-RENAMED'; validator errors=0",
+   "status": "VALIDATES"
+  },
+  "panel_schedule_view_delete.rvt": {
+   "verb": "delete",
+   "category": "PanelScheduleView",
+   "out": "experiments/mep/schedules/panel_schedule_view_delete.rvt",
+   "edit": {
+    "view": 709461,
+    "owned_cluster": [
+     709461,
+     709462,
+     709464,
+     709465,
+     709466,
+     721610,
+     721611,
+     721613,
+     709463,
+     721612
+    ],
+    "closure_deleted": [
+     709461,
+     709462,
+     709463,
+     709464,
+     709465,
+     709466,
+     721610,
+     721611,
+     721612,
+     721613
+    ],
+    "referrers_neutralised": 1,
+    "dependency_report": {
+     "referrers": [
+      {
+       "id": 503251,
+       "class": "FamilyInstance",
+       "paths": {
+        "101": [
+         "m_parents.value.m_regenOnly[17]"
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "commit": {
+    "partition": "Partitions/14",
+    "removed_ids": [
+     709461,
+     709462,
+     709463,
+     709464,
+     709465,
+     709466,
+     721610,
+     721611,
+     721612,
+     721613
+    ],
+    "replaced": [
+     [
+      101,
+      503251
+     ]
+    ],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28122,
+    "watermark": 888013,
+    "blocks_before": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "blocks_after": {
+     "101": 54,
+     "102": 418,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/mep/schedules/panel_schedule_view_delete.rvt"
+   },
+   "verify_manipulated": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 28122,
+    "header_count": 28122,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "503251": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_ok": true,
+   "semantic_ok": true,
+   "readback": {
+    "cluster_gone": [
+     709461,
+     709462,
+     709464,
+     709465,
+     709466,
+     721610,
+     721611,
+     721613,
+     709463,
+     721612
+    ],
+    "cluster_still_present": []
+   },
+   "validate": {
+    "ok": true,
+    "errors": [],
+    "n_errors": 0,
+    "warnings": [
+     {
+      "severity": "warning",
+      "layer": "semantic",
+      "where": "objects",
+      "message": "1171/142164 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+     }
+    ],
+    "n_warnings": 1,
+    "stats": {
+     "records": 427410,
+     "elements_decoded": 142164,
+     "decode_failures": 1171,
+     "refs_checked": 2567373,
+     "connector_edges": 15339
+    },
+    "text": "rvt-validate: /Users/ck/dev/things/rev-revit/experiments/mep/schedules/panel_schedule_view_delete.rvt\n  verdict: VALID (no errors); warnings=1 info=2; layers=structure,consistency,semantic\n  streams: 13\n  pages_checked: 506\n  gzip_members: 8\n  partition_blocks: 2047\n  records: 427410\n  elements_decoded: 142164\n  decode_failures: 1171\n  refs_checked: 2567373\n  connector_edges: 15339\n  timings: structure=0.7s, consistency=0.2s, semantic=11.5s, total=12.4s\n  [WARNING] semantic    objects: 1171/142164 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+   },
+   "summary": "view 709461 + owned cluster 10 deleted (10 elements in closure); validator errors=0",
+   "status": "VALIDATES"
+  },
+  "space_create.rvt": {
+   "verb": "create",
+   "category": "Space (RoomElem OST_MEPSpaces) + SpaceTag + Zone",
+   "out": "experiments/mep/spaces/space_create.rvt",
+   "elements": {
+    "walls": [
+     888014,
+     888015,
+     888016,
+     888017
+    ],
+    "zone": 888018,
+    "space": 888019,
+    "tag": 888020,
+    "room_footprint_ft": [
+     100.0,
+     -120.0,
+     120.0,
+     -104.0
+    ],
+    "point": [
+     110.0,
+     -112.0
+    ]
+   },
+   "commit": {
+    "elemtable_before": 28132,
+    "elemtable_after": 28139,
+    "watermark_after": 888020,
+    "bytes_added": {
+     "101": 1667,
+     "102": 17572,
+     "103": 154
+    }
+   },
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "new_ids_found": {
+     "101": {
+      "888014": {
+       "class": 1509,
+       "clean": true
+      },
+      "888015": {
+       "class": 1509,
+       "clean": true
+      },
+      "888016": {
+       "class": 1509,
+       "clean": true
+      },
+      "888017": {
+       "class": 1509,
+       "clean": true
+      },
+      "888018": {
+       "class": 1509,
+       "clean": true
+      },
+      "888019": {
+       "class": 1509,
+       "clean": true
+      },
+      "888020": {
+       "class": 1509,
+       "clean": true
+      }
+     },
+     "102": {
+      "888014": {
+       "class": 3842,
+       "clean": true
+      },
+      "888015": {
+       "class": 3842,
+       "clean": true
+      },
+      "888016": {
+       "class": 3842,
+       "clean": true
+      },
+      "888017": {
+       "class": 3842,
+       "clean": true
+      },
+      "888018": {
+       "class": 4580,
+       "clean": true
+      },
+      "888019": {
+       "class": 3784,
+       "clean": true
+      },
+      "888020": {
+       "class": 3788,
+       "clean": true
+      }
+     },
+     "103": {
+      "888014": {
+       "class": 3884,
+       "clean": true
+      },
+      "888015": {
+       "class": 3884,
+       "clean": true
+      },
+      "888016": {
+       "class": 3884,
+       "clean": true
+      },
+      "888017": {
+       "class": 3884,
+       "clean": true
+      },
+      "888018": {
+       "class": 3884,
+       "clean": true
+      },
+      "888019": {
+       "class": 3884,
+       "clean": true
+      },
+      "888020": {
+       "class": 3884,
+       "clean": true
+      }
+     }
+    },
+    "elemtable_count": 28139,
+    "header_count": 28139,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true
+   },
+   "structural_ok": true,
+   "readback": {
+    "space": {
+     "id": 888019,
+     "class": "RoomElem",
+     "category": -2003600,
+     "name": "ELECTRICAL ROOM",
+     "number": "E101",
+     "point": [
+      110.0,
+      -112.0
+     ],
+     "level": 378117,
+     "upper_level": 378117,
+     "upper_offset": 10.0,
+     "height": 10.0,
+     "zone": 888018,
+     "room": -1,
+     "bounding": [
+      888014,
+      888015,
+      888016,
+      888017
+     ],
+     "placement": {
+      "m_ref0": 888014,
+      "m_ref1": 888015,
+      "m_offset0": -8.0,
+      "m_offset1": -10.0
+     },
+     "locationless": false,
+     "tags": [
+      888020
+     ]
+    },
+    "space_class": "RoomElem",
+    "space_category": -2003600,
+    "tag": {
+     "id": 888020,
+     "class": "RoomTag",
+     "category": -2000485,
+     "tags_space": 888019,
+     "owner_view": 379500,
+     "symbol": 351633,
+     "head": [
+      110.0,
+      -112.0,
+      0.0
+     ]
+    },
+    "zone": {
+     "id": 888018,
+     "class": "ZoneElement",
+     "space_ids": [
+      888019
+     ]
+    },
+    "walls_exist": true
+   },
+   "semantic_ok": true,
+   "validate": {
+    "ok": true,
+    "errors": [],
+    "n_errors": 0,
+    "warnings": [
+     {
+      "severity": "warning",
+      "layer": "structure",
+      "where": "Partitions/14",
+      "message": "3 block(s) whose header counters A/C violate the corpus identity hdr_len(seq)*A + C + adj(flags) == inflated length (payload CRC-valid; tolerated by Revit's reader \u2014 proven by the accepted V20-V29 \u2014 but a writer counter defect; strict makes it an error)"
+     },
+     {
+      "severity": "warning",
+      "layer": "semantic",
+      "where": "objects",
+      "message": "1171/142181 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+     }
+    ],
+    "n_warnings": 2,
+    "stats": {
+     "records": 427461,
+     "elements_decoded": 142181,
+     "decode_failures": 1171,
+     "refs_checked": 2570809,
+     "connector_edges": 15339
+    },
+    "text": "rvt-validate: /Users/ck/dev/things/rev-revit/experiments/mep/spaces/space_create.rvt\n  verdict: VALID (no errors); warnings=2 info=2; layers=structure,consistency,semantic\n  streams: 13\n  pages_checked: 506\n  gzip_members: 8\n  partition_blocks: 2050\n  records: 427461\n  elements_decoded: 142181\n  decode_failures: 1171\n  refs_checked: 2570809\n  connector_edges: 15339\n  timings: structure=0.7s, consistency=0.2s, semantic=11.4s, total=12.2s\n  [WARNING] structure   Partitions/14: 3 block(s) whose header counters A/C violate the corpus identity hdr_len(seq)*A + C + adj(flags) == inflated length (payload CRC-valid; tolerated by Revit's reader \u2014 proven by the accepted V20-V29 \u2014 but a writer counter defect; strict makes it an error)\n  [WARNING] semantic    objects: 1171/142181 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+   },
+   "summary": "walls [888014, 888015, 888016, 888017] + zone 888018 + space 888019 'ELECTRICAL ROOM' E101 + tag 888020; validator errors=0",
+   "status": "VALIDATES"
+  },
+  "space_rename.rvt": {
+   "verb": "modify",
+   "category": "Space (RoomElem)",
+   "out": "experiments/mep/spaces/space_rename.rvt",
+   "edit": {
+    "space": 379575,
+    "before": {
+     "name": "Technology",
+     "number": "28"
+    },
+    "after": {
+     "name": "ELEC EQUIP RM",
+     "number": "128"
+    }
+   },
+   "commit": {
+    "partition": "Partitions/14",
+    "removed_ids": [],
+    "replaced": [
+     [
+      102,
+      379575
+     ]
+    ],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28132,
+    "watermark": 888013,
+    "blocks_before": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "blocks_after": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/mep/spaces/space_rename.rvt"
+   },
+   "verify_manipulated": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 28132,
+    "header_count": 28132,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "379575": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RoomElem",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_ok": true,
+   "semantic_ok": true,
+   "validate": {
+    "ok": true,
+    "errors": [],
+    "n_errors": 0,
+    "warnings": [
+     {
+      "severity": "warning",
+      "layer": "semantic",
+      "where": "objects",
+      "message": "1171/142174 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+     }
+    ],
+    "n_warnings": 1,
+    "stats": {
+     "records": 427440,
+     "elements_decoded": 142174,
+     "decode_failures": 1171,
+     "refs_checked": 2570603,
+     "connector_edges": 15339
+    },
+    "text": "rvt-validate: /Users/ck/dev/things/rev-revit/experiments/mep/spaces/space_rename.rvt\n  verdict: VALID (no errors); warnings=1 info=2; layers=structure,consistency,semantic\n  streams: 13\n  pages_checked: 506\n  gzip_members: 8\n  partition_blocks: 2050\n  records: 427440\n  elements_decoded: 142174\n  decode_failures: 1171\n  refs_checked: 2570603\n  connector_edges: 15339\n  timings: structure=0.6s, consistency=0.2s, semantic=11.0s, total=11.8s\n  [WARNING] semantic    objects: 1171/142174 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+   },
+   "summary": "space 379575 28 'Technology' -> 128 'ELEC EQUIP RM'; validator errors=0",
+   "status": "VALIDATES"
+  },
+  "space_delete.rvt": {
+   "verb": "delete",
+   "category": "Space (RoomElem)",
+   "out": "experiments/mep/spaces/space_delete.rvt",
+   "edit": {
+    "space": 379575,
+    "its_tags": [
+     379576
+    ],
+    "closure_deleted": [
+     379575,
+     379576
+    ],
+    "n_referrers_neutralised": 18,
+    "dependency_report_kinds": [
+     "cascade_capped_at",
+     "cascade_ids",
+     "dependents",
+     "referrers",
+     "target",
+     "target_class",
+     "truncated_at_depth"
+    ]
+   },
+   "commit": {
+    "partition": "Partitions/14",
+    "removed_ids": [
+     379575,
+     379576
+    ],
+    "replaced": [
+     [
+      101,
+      293355
+     ],
+     [
+      101,
+      379574
+     ],
+     [
+      101,
+      379577
+     ],
+     [
+      101,
+      386706
+     ],
+     [
+      101,
+      386707
+     ],
+     [
+      101,
+      444176
+     ],
+     [
+      101,
+      444203
+     ],
+     [
+      101,
+      452442
+     ],
+     [
+      101,
+      452792
+     ],
+     [
+      101,
+      467291
+     ],
+     [
+      101,
+      467456
+     ],
+     [
+      101,
+      467473
+     ],
+     [
+      101,
+      467480
+     ],
+     [
+      101,
+      467523
+     ],
+     [
+      101,
+      581482
+     ],
+     [
+      101,
+      581483
+     ],
+     [
+      101,
+      581484
+     ],
+     [
+      101,
+      581485
+     ],
+     [
+      102,
+      293355
+     ],
+     [
+      102,
+      379574
+     ],
+     [
+      102,
+      379577
+     ],
+     [
+      102,
+      386706
+     ],
+     [
+      102,
+      386707
+     ],
+     [
+      102,
+      444176
+     ],
+     [
+      102,
+      444203
+     ],
+     [
+      102,
+      452442
+     ],
+     [
+      102,
+      452792
+     ],
+     [
+      102,
+      467291
+     ],
+     [
+      102,
+      467456
+     ],
+     [
+      102,
+      467473
+     ],
+     [
+      102,
+      467480
+     ],
+     [
+      102,
+      467523
+     ],
+     [
+      102,
+      581482
+     ],
+     [
+      102,
+      581483
+     ],
+     [
+      102,
+      581484
+     ],
+     [
+      102,
+      581485
+     ]
+    ],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28130,
+    "watermark": 888013,
+    "blocks_before": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "blocks_after": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/mep/spaces/space_delete.rvt"
+   },
+   "verify_manipulated": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 28130,
+    "header_count": 28130,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "581482": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "581483": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "581484": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "581485": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "386706": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "386707": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "444176": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "444203": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "452442": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "452792": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "467291": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "467456": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "467473": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "467480": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "467523": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "293355": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "AllPlanTopologies",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     },
+     "379577": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "LevelRoomPlan",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     },
+     "379574": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "ZoneElement",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_ok": true,
+   "semantic_ok": true,
+   "readback": {
+    "space_gone": true,
+    "tags_gone": [
+     379576
+    ],
+    "zone_still_listing_space": null
+   },
+   "validate": {
+    "ok": true,
+    "errors": [],
+    "n_errors": 0,
+    "warnings": [
+     {
+      "severity": "warning",
+      "layer": "semantic",
+      "where": "objects",
+      "message": "1171/142172 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+     }
+    ],
+    "n_warnings": 1,
+    "stats": {
+     "records": 427434,
+     "elements_decoded": 142172,
+     "decode_failures": 1171,
+     "refs_checked": 2570534,
+     "connector_edges": 15339
+    },
+    "text": "rvt-validate: /Users/ck/dev/things/rev-revit/experiments/mep/spaces/space_delete.rvt\n  verdict: VALID (no errors); warnings=1 info=2; layers=structure,consistency,semantic\n  streams: 13\n  pages_checked: 506\n  gzip_members: 8\n  partition_blocks: 2050\n  records: 427434\n  elements_decoded: 142172\n  decode_failures: 1171\n  refs_checked: 2570534\n  connector_edges: 15339\n  timings: structure=0.6s, consistency=0.2s, semantic=10.7s, total=11.6s\n  [WARNING] semantic    objects: 1171/142172 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+   },
+   "summary": "space 379575 + tags [379576] deleted (2 in closure); zone member list neutralised=True; validator errors=0",
+   "status": "VALIDATES"
+  }
+ },
+ "seconds": 489.4,
+ "cell_table": [
+  {
+   "file": "panel_schedule_view.rvt",
+   "verb": "create",
+   "category": "PanelScheduleView",
+   "status": "VALIDATES",
+   "structural_ok": true,
+   "semantic_ok": true,
+   "validator_errors": 0,
+   "validator_warnings": 2
+  },
+  {
+   "file": "panel_schedule_view_current.rvt",
+   "verb": "create",
+   "category": "PanelScheduleView",
+   "status": "VALIDATES",
+   "structural_ok": true,
+   "semantic_ok": true,
+   "validator_errors": 0,
+   "validator_warnings": 2
+  },
+  {
+   "file": "panel_schedule_view_rename.rvt",
+   "verb": "modify",
+   "category": "PanelScheduleView",
+   "status": "VALIDATES",
+   "structural_ok": true,
+   "semantic_ok": true,
+   "validator_errors": 0,
+   "validator_warnings": 1
+  },
+  {
+   "file": "panel_schedule_view_delete.rvt",
+   "verb": "delete",
+   "category": "PanelScheduleView",
+   "status": "VALIDATES",
+   "structural_ok": true,
+   "semantic_ok": true,
+   "validator_errors": 0,
+   "validator_warnings": 1
+  },
+  {
+   "file": "space_create.rvt",
+   "verb": "create",
+   "category": "Space (RoomElem OST_MEPSpaces) + SpaceTag + Zone",
+   "status": "VALIDATES",
+   "structural_ok": true,
+   "semantic_ok": true,
+   "validator_errors": 0,
+   "validator_warnings": 2
+  },
+  {
+   "file": "space_rename.rvt",
+   "verb": "modify",
+   "category": "Space (RoomElem)",
+   "status": "VALIDATES",
+   "structural_ok": true,
+   "semantic_ok": true,
+   "validator_errors": 0,
+   "validator_warnings": 1
+  },
+  {
+   "file": "space_delete.rvt",
+   "verb": "delete",
+   "category": "Space (RoomElem)",
+   "status": "VALIDATES",
+   "structural_ok": true,
+   "semantic_ok": true,
+   "validator_errors": 0,
+   "validator_warnings": 1
+  }
+ ]
+}

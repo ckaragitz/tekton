@@ -1,0 +1,190 @@
+{
+ "delta_K1_vs_X0": {
+  "reference_PASS": "experiments/genesis/triage/K1.rvt",
+  "subject_FAIL": "experiments/genesis/controls/X0.rvt",
+  "streams": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "DIFFERS",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "streams_differing": [
+   "BasicFileInfo",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/Latest",
+   "Partitions/21"
+  ],
+  "partition_compression": {
+   "embedded_unit_blocks": [
+    201,
+    201
+   ],
+   "embedded_blocks_with_identical_INFLATED_payload": 201,
+   "embedded_blocks_with_identical_COMPRESSED_member": 0,
+   "end_record_len": [
+    603,
+    823
+   ],
+   "reading": "all embedded-unit blocks inflate identically; their compressed members and the trailing end-record junk differ because commit_new_elements re-compresses every block and each re-block generation appends the source's final-page ECC pad.  Compression / trailing junk are reader-tolerated cosmetics (V15, V20..V29, K3/K4 all PASS) and are therefore NOT candidate rules; this tool's probes add no new junk and keep the original compression of every untouched block."
+  },
+  "adocument_leaf_differences": [
+   {
+    "path": "ADocument.m_pAppInfoManager.value.m_appInfoArr[38].value.m_penWidthTableElemId",
+    "K1": 2,
+    "X0": 1500000
+   }
+  ],
+  "elemtable": {
+   "K1_row_for_element_2": {
+    "elem_id": 2,
+    "original_id": 2,
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "user_modified_ep": 976,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "X0_row_for_element_1500000": {
+    "elem_id": 1500000,
+    "original_id": 1500000,
+    "creation_ep": 1016,
+    "modified_ep": 1016,
+    "user_modified_ep": 1016,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "K1_count": 6540,
+   "X0_count": 6540,
+   "K1_watermark": 1472524,
+   "X0_watermark": 1500000,
+   "K1_max_modified_ep": 1016
+  },
+  "record_order": {
+   "K1_records_per_seq": 6541,
+   "X0_records_per_seq": 6541,
+   "K1_position_of_id_2": 2516,
+   "K1_neighbours_of_id_2": [
+    1455333,
+    1455335,
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "X0_position_of_id_1500000": 6539,
+   "X0_records_after_sentinel_exclusive_last_index": 6539,
+   "three_seqs_identical_order": true,
+   "K1_order_law": "NOT id-sorted: 43 ascending id-runs; the max id 1,472,524 sits at position 131, the birth-vintage block (ids 1,2,3,...) starts at position 2,515; the last real record is id 49,026"
+  },
+  "identity": {
+   "BasicFileInfo_fields_changed": {
+    "last_save_path": [
+     "C:\\Users\\hansonje\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+     ".X0.a_appended.rvt"
+    ],
+    "author": [
+     "Autodesk Revit",
+     "rvt-writer"
+    ],
+    "username": [
+     "",
+     "rvt-writer"
+    ],
+    "client_app_name": [
+     "RevitApplication",
+     "rvt-writer"
+    ]
+   },
+   "DIT_usernames_K1": [
+    "campbes",
+    "gbs_subsuser6",
+    "hansonje",
+    "loboarch",
+    "okapaw",
+    "xuew",
+    "youyi",
+    "zhangg"
+   ],
+   "DIT_usernames_X0": [
+    "rvt-writer"
+   ]
+  },
+  "end_record_junk_note": "K1's true partition logical ends with a 603-byte 'end record' = the genuine 68-byte end marker + 535 bytes of ancestor ECC-pad junk carried by every reduction generation; X0 carries one more generation of it.  delete_elements smuggles the source's final-page ECC pad into the output's logical stream (uses the depaged logical, whose tail extends past the true end), so no re-blocked file can be byte-identical to its parent.  READER-TOLERATED (K1 596 B of it, K4 1.5 KB, all PASS) => cosmetic, not a candidate rule; this tool builds every probe from unframe_exact() so no NEW junk is added.",
+  "dimensions_derived": [
+   "ID MOTION (records m_id + deletion entry, ElemTable row id, watermark, the ONE ADocument leaf PenWidthTableInfo.m_penWidthTableElemId)",
+   "EPISODES (ElemTable row (0,976,976) -> (1016,1016,1016))",
+   "RECORD POSITION (index 2,516 -> unit-0 end, before the sentinel)",
+   "IDENTITY (BasicFileInfo scrub + DIT usernames -- V30..V32-proven)"
+  ],
+  "X0k": {
+   "row_for_element_2": {
+    "elem_id": 2,
+    "original_id": 2,
+    "creation_ep": 1016,
+    "modified_ep": 1016,
+    "user_modified_ep": 1016,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "watermark": 1472524,
+   "position_of_id_2": 6539,
+   "global_latest_identical_to_K1": true,
+   "streams_vs_K1": {
+    "BasicFileInfo": "DIFFERS",
+    "Contents": "identical",
+    "Formats/Latest": "identical",
+    "Global/ContentDocuments": "identical",
+    "Global/DocumentIncrementTable": "DIFFERS",
+    "Global/ElemTable": "DIFFERS",
+    "Global/History": "identical",
+    "Global/Latest": "identical",
+    "Global/PartitionTable": "identical",
+    "Partitions/21": "DIFFERS",
+    "ProjectInformation": "identical",
+    "TransmissionData": "identical"
+   }
+  }
+ },
+ "collapsed": {
+  "P_owner": {
+   "collapsed_onto": "X0 (byte-identical -- NO FILE, NO UPLOAD; verdict = X0's)",
+   "elemrec_owner_K1_row2": -1,
+   "elemrec_owner_X0_row": -1,
+   "both_INVALID": true,
+   "header_owner_channels": "the pen table's ElementHeader has category -1, empty appearance/regen parents and deletion = [self]; the ElemTable owner is the only ownership channel and it is INVALID in both K1 and X0"
+  },
+  "P_flags": {
+   "collapsed_onto": "X0 (byte-identical -- NO FILE, NO UPLOAD; verdict = X0's)",
+   "elemrec_has_no_flag_field": "40-byte ElemRec = original_id(u64) + creation/modified/user_modified episodes(3 x u32) + id(u64) + owner(u64) + partition(u32): there is no flag word",
+   "header_field_differences_K1_id2_vs_X0_id1500000": [
+    {
+     "path": "ElementHeader.m_parents.value.m_deletion[0]",
+     "K1": 2,
+     "X0": 1500000
+    }
+   ],
+   "reading": "X0's ElementHeader is Autodesk's own header with only the element's own entry in ElementParents.m_deletion rebased 2 -> 1,500,000; the flag word m_abFlags4Bytes and every other field are byte-identical",
+   "X0_json_byte_identity_assertion": {
+    "all_three_seqs_identical_at_original_id": true,
+    "identity_rebased_leaves": {
+     "object": [
+      "PenWidthTableElem.m_id"
+     ],
+     "header": [
+      "ElementHeader.m_parents->ElementParents.m_deletion[*]"
+     ]
+    }
+   }
+  }
+ }
+}

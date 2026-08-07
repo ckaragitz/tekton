@@ -1,0 +1,2164 @@
+{
+  "kind": "tekton.electrical-summary",
+  "specVersion": "0.1.0",
+  "project": {
+    "name": "DDOT Coolidge - Area E bus storage electrical room (Chicago-plenum job)",
+    "number": "BS-EP7-00",
+    "buildingName": "Bus Storage Building - Area E",
+    "room": "Electrical Room E101",
+    "author": "tekton-ifc / rvt.electrical calc engine",
+    "organisation": "C. Karagitz Electric",
+    "issueDate": "2026-08-03"
+  },
+  "example": true,
+  "disclaimer": "DESIGN AID \u2014 computed by tekton's calc engine from the job spec. All values must be reviewed and stamped by the licensed engineer of record before construction/permit. Simplified NEC-style rules; conductor derating, voltage drop, series ratings and coordination are NOT evaluated.",
+  "codeBasis": "NEC-style simplified: line current I=VA/V (1-ph) or VA/(V*sqrt3) (3-ph); continuous/motor/xfmr loads x125%; next standard OCPD (240.6(A)); Cu 75C ampacity (310.16 + 240.4(D)); demand: lighting 100%, receptacles first 10 kVA 100% then 50% (220.44), motors +25% of largest (430.24).",
+  "panels": {
+    "B-HG4": {
+      "panel": "B-HG4",
+      "system": "480Y/277",
+      "systemLabel": "480Y/277V, 3PH, 4W",
+      "mainsType": "MCB",
+      "mainsRatingA": 400.0,
+      "busRatingA": 400.0,
+      "spaces": 42,
+      "polesUsed": 21,
+      "fedFrom": "MDB via BS-FD1020",
+      "feeder": "BS-FD1020",
+      "connectedVA": 163390.6,
+      "connectedKVA": 163.391,
+      "demandVA": 164388.3,
+      "demandKVA": 164.388,
+      "connectedAmps": 196.53,
+      "demandAmps": 197.73,
+      "continuousVA": 159400.0,
+      "largestMotorVA": 3990.6,
+      "phaseVA": {
+        "A": 56863.5,
+        "B": 53263.5,
+        "C": 53263.5
+      },
+      "phaseImbalanceVA": 3600.0,
+      "phaseImbalancePct": 6.61,
+      "classConnectedVA": {
+        "xfmr": 135000.0,
+        "hvac": 10000.0,
+        "motor": 3990.6,
+        "lighting": 14400.0,
+        "misc": 0.0
+      },
+      "classDemandVA": {
+        "xfmr": 135000.0,
+        "hvac": 10000.0,
+        "motor": 4988.3,
+        "lighting": 14400.0,
+        "misc": 0.0
+      },
+      "warnings": [],
+      "circuits": [
+        {
+          "panel": "B-HG4",
+          "number": "1",
+          "load": "XFMR-LR1",
+          "equipmentLoad": true,
+          "description": "XFMR-LR1 45 kVA 480-208Y/120 primary",
+          "rating": 70,
+          "poles": 3,
+          "wire": "4 AWG",
+          "va": 45000.0,
+          "amps": 54.13,
+          "loadClass": "xfmr",
+          "continuous": true,
+          "slots": [
+            1,
+            3,
+            5
+          ],
+          "phases": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "2",
+          "load": "XFMR-LQ1",
+          "equipmentLoad": true,
+          "description": "XFMR-LQ1 45 kVA 480-208Y/120 primary",
+          "rating": 70,
+          "poles": 3,
+          "wire": "4 AWG",
+          "va": 45000.0,
+          "amps": 54.13,
+          "loadClass": "xfmr",
+          "continuous": true,
+          "slots": [
+            2,
+            4,
+            6
+          ],
+          "phases": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "7",
+          "load": "XFMR-B-SLQ1",
+          "equipmentLoad": true,
+          "description": "XFMR-B-SLQ1 45 kVA 480-208Y/120 primary",
+          "rating": 70,
+          "poles": 3,
+          "wire": "4 AWG",
+          "va": 45000.0,
+          "amps": 54.13,
+          "loadClass": "xfmr",
+          "continuous": true,
+          "slots": [
+            7,
+            9,
+            11
+          ],
+          "phases": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "8",
+          "load": "UH-E1 unit heater 10 kW 480 V 3-ph",
+          "equipmentLoad": false,
+          "description": "UH-E1 unit heater 10 kW 480 V 3-ph",
+          "rating": 20,
+          "poles": 3,
+          "wire": "12 AWG",
+          "va": 10000.0,
+          "amps": 12.03,
+          "loadClass": "hvac",
+          "continuous": true,
+          "slots": [
+            8,
+            10,
+            12
+          ],
+          "phases": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "13",
+          "load": "EF-E1 exhaust fan 3 HP 480 V (NEC 430.250 FLA 4.8 A)",
+          "equipmentLoad": false,
+          "description": "EF-E1 exhaust fan 3 HP 480 V (NEC 430.250 FLA 4.8 A)",
+          "rating": 20,
+          "poles": 3,
+          "wire": "12 AWG",
+          "va": 3990.6,
+          "amps": 4.8,
+          "loadClass": "motor",
+          "continuous": false,
+          "slots": [
+            13,
+            15,
+            17
+          ],
+          "phases": [
+            "A",
+            "B",
+            "C"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "14",
+          "load": "Plenum recessed lighting - Area E row 1 (277 V)",
+          "equipmentLoad": false,
+          "description": "Plenum recessed lighting - Area E row 1 (277 V)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 3600.0,
+          "amps": 13.0,
+          "loadClass": "lighting",
+          "continuous": true,
+          "slots": [
+            14
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "16",
+          "load": "Plenum recessed lighting - Area E row 2 (277 V)",
+          "equipmentLoad": false,
+          "description": "Plenum recessed lighting - Area E row 2 (277 V)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 3600.0,
+          "amps": 13.0,
+          "loadClass": "lighting",
+          "continuous": true,
+          "slots": [
+            16
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "18",
+          "load": "Plenum recessed lighting - Area E row 3 (277 V)",
+          "equipmentLoad": false,
+          "description": "Plenum recessed lighting - Area E row 3 (277 V)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 3600.0,
+          "amps": 13.0,
+          "loadClass": "lighting",
+          "continuous": true,
+          "slots": [
+            18
+          ],
+          "phases": [
+            "C"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "19",
+          "load": "Plenum recessed lighting - Area E row 4 (277 V)",
+          "equipmentLoad": false,
+          "description": "Plenum recessed lighting - Area E row 4 (277 V)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 3600.0,
+          "amps": 13.0,
+          "loadClass": "lighting",
+          "continuous": true,
+          "slots": [
+            19
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "20",
+          "load": "SPARE",
+          "equipmentLoad": false,
+          "description": "SPARE",
+          "rating": 20.0,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 0.0,
+          "amps": 0.0,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            20
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-HG4",
+          "number": "21",
+          "load": "SPARE",
+          "equipmentLoad": false,
+          "description": "SPARE",
+          "rating": 20.0,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 0.0,
+          "amps": 0.0,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            21
+          ],
+          "phases": [
+            "B"
+          ]
+        }
+      ],
+      "psets": {
+        "PanelScheduleCalc": {
+          "ConnectedLoadKVA": {
+            "value": 163.39,
+            "type": "real"
+          },
+          "DemandLoadKVA": {
+            "value": 164.39,
+            "type": "real"
+          },
+          "DemandLoadAmps": {
+            "value": 197.7,
+            "type": "current"
+          },
+          "PhaseAVA": {
+            "value": 56864.0,
+            "type": "real"
+          },
+          "PhaseBVA": {
+            "value": 53264.0,
+            "type": "real"
+          },
+          "PhaseCVA": {
+            "value": 53264.0,
+            "type": "real"
+          },
+          "PhaseImbalancePct": {
+            "value": 6.6,
+            "type": "real"
+          },
+          "PolesUsed": {
+            "value": 21,
+            "type": "count"
+          },
+          "CalcBasis": "tekton electrical calc engine (design aid, NEC-style simplified)",
+          "ReviewRequired": "Licensed engineer to verify before construction"
+        }
+      }
+    },
+    "B-LR1": {
+      "panel": "B-LR1",
+      "system": "208Y/120",
+      "systemLabel": "208Y/120V, 3PH, 4W",
+      "mainsType": "MLO",
+      "mainsRatingA": 225.0,
+      "busRatingA": 225.0,
+      "spaces": 42,
+      "polesUsed": 18,
+      "fedFrom": "XFMR-LR1 via BS-FD1011",
+      "feeder": "BS-FD1011",
+      "connectedVA": 22116.0,
+      "connectedKVA": 22.116,
+      "demandVA": 21290.0,
+      "demandKVA": 21.29,
+      "connectedAmps": 61.39,
+      "demandAmps": 59.1,
+      "continuousVA": 5800.0,
+      "largestMotorVA": 1176.0,
+      "phaseVA": {
+        "A": 7380.0,
+        "B": 7300.0,
+        "C": 7436.0
+      },
+      "phaseImbalanceVA": 136.0,
+      "phaseImbalancePct": 1.84,
+      "classConnectedVA": {
+        "hvac": 5000.0,
+        "receptacle": 12240.0,
+        "misc": 2900.0,
+        "lighting": 800.0,
+        "motor": 1176.0
+      },
+      "classDemandVA": {
+        "hvac": 5000.0,
+        "receptacle": 11120.0,
+        "misc": 2900.0,
+        "lighting": 800.0,
+        "motor": 1470.0
+      },
+      "warnings": [],
+      "circuits": [
+        {
+          "panel": "B-LR1",
+          "number": "1",
+          "load": "UH-E101 unit heater 5 kW 208 V 1-ph (Elec Rm)",
+          "equipmentLoad": false,
+          "description": "UH-E101 unit heater 5 kW 208 V 1-ph (Elec Rm)",
+          "rating": 35,
+          "poles": 2,
+          "wire": "8 AWG",
+          "va": 5000.0,
+          "amps": 24.04,
+          "loadClass": "hvac",
+          "continuous": true,
+          "slots": [
+            1,
+            3
+          ],
+          "phases": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "2",
+          "load": "Recepts - Area E bus bay north 3 (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E bus bay north 3 (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            2
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "4",
+          "load": "Recepts - Area E bus bay south 1 (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E bus bay south 1 (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            4
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "5",
+          "load": "Recepts - Area E bus bay north 1 (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E bus bay north 1 (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            5
+          ],
+          "phases": [
+            "C"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "6",
+          "load": "Recepts - Area E bus bay north 2 (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E bus bay north 2 (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            6
+          ],
+          "phases": [
+            "C"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "7",
+          "load": "Recepts - Area E bus bay south 3 (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E bus bay south 3 (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            7
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "8",
+          "load": "Battery charger receptacle 1 (dedicated 20 A)",
+          "equipmentLoad": false,
+          "description": "Battery charger receptacle 1 (dedicated 20 A)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1200.0,
+          "amps": 10.0,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            8
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "9",
+          "load": "Recepts - Area E workbench (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E workbench (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            9
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "10",
+          "load": "Battery charger receptacle 2 (dedicated 20 A)",
+          "equipmentLoad": false,
+          "description": "Battery charger receptacle 2 (dedicated 20 A)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1200.0,
+          "amps": 10.0,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            10
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "11",
+          "load": "Recepts - Area E bus bay south 2 (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E bus bay south 2 (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            11
+          ],
+          "phases": [
+            "C"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "12",
+          "load": "Recepts - Area E charging alcove (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E charging alcove (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            12
+          ],
+          "phases": [
+            "C"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "13",
+          "load": "Egress / exit lighting 120 V (Area E)",
+          "equipmentLoad": false,
+          "description": "Egress / exit lighting 120 V (Area E)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 800.0,
+          "amps": 6.67,
+          "loadClass": "lighting",
+          "continuous": true,
+          "slots": [
+            13
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "14",
+          "load": "SPARE",
+          "equipmentLoad": false,
+          "description": "SPARE",
+          "rating": 20.0,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 0.0,
+          "amps": 0.0,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            14
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "15",
+          "load": "Recepts - Elec Rm E101 (4 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Elec Rm E101 (4 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 720.0,
+          "amps": 6.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            15
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "16",
+          "load": "SPARE",
+          "equipmentLoad": false,
+          "description": "SPARE",
+          "rating": 20.0,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 0.0,
+          "amps": 0.0,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            16
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "17",
+          "load": "SP-E101 sump pump 1/2 HP 120 V (NEC 430.248 FLA 9.8 A)",
+          "equipmentLoad": false,
+          "description": "SP-E101 sump pump 1/2 HP 120 V (NEC 430.248 FLA 9.8 A)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1176.0,
+          "amps": 9.8,
+          "loadClass": "motor",
+          "continuous": false,
+          "slots": [
+            17
+          ],
+          "phases": [
+            "C"
+          ]
+        },
+        {
+          "panel": "B-LR1",
+          "number": "18",
+          "load": "Water cooler / bottle filler",
+          "equipmentLoad": false,
+          "description": "Water cooler / bottle filler",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 500.0,
+          "amps": 4.17,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            18
+          ],
+          "phases": [
+            "C"
+          ]
+        }
+      ],
+      "psets": {
+        "PanelScheduleCalc": {
+          "ConnectedLoadKVA": {
+            "value": 22.12,
+            "type": "real"
+          },
+          "DemandLoadKVA": {
+            "value": 21.29,
+            "type": "real"
+          },
+          "DemandLoadAmps": {
+            "value": 59.1,
+            "type": "current"
+          },
+          "PhaseAVA": {
+            "value": 7380.0,
+            "type": "real"
+          },
+          "PhaseBVA": {
+            "value": 7300.0,
+            "type": "real"
+          },
+          "PhaseCVA": {
+            "value": 7436.0,
+            "type": "real"
+          },
+          "PhaseImbalancePct": {
+            "value": 1.8,
+            "type": "real"
+          },
+          "PolesUsed": {
+            "value": 18,
+            "type": "count"
+          },
+          "CalcBasis": "tekton electrical calc engine (design aid, NEC-style simplified)",
+          "ReviewRequired": "Licensed engineer to verify before construction"
+        }
+      }
+    },
+    "B-LQ1": {
+      "panel": "B-LQ1",
+      "system": "208Y/120",
+      "systemLabel": "208Y/120V, 3PH, 4W",
+      "mainsType": "MLO",
+      "mainsRatingA": 225.0,
+      "busRatingA": 225.0,
+      "spaces": 42,
+      "polesUsed": 9,
+      "fedFrom": "XFMR-LQ1 via BS-FD1013",
+      "feeder": "BS-FD1013",
+      "connectedVA": 10872.0,
+      "connectedKVA": 10.872,
+      "demandVA": 11166.0,
+      "demandKVA": 11.166,
+      "connectedAmps": 30.18,
+      "demandAmps": 30.99,
+      "continuousVA": 1200.0,
+      "largestMotorVA": 1176.0,
+      "phaseVA": {
+        "A": 2940.0,
+        "B": 3876.0,
+        "C": 4056.0
+      },
+      "phaseImbalanceVA": 1116.0,
+      "phaseImbalancePct": 30.79,
+      "classConnectedVA": {
+        "misc": 3000.0,
+        "receptacle": 4320.0,
+        "lighting": 1200.0,
+        "motor": 2352.0
+      },
+      "classDemandVA": {
+        "misc": 3000.0,
+        "receptacle": 4320.0,
+        "lighting": 1200.0,
+        "motor": 2646.0
+      },
+      "warnings": [],
+      "circuits": [
+        {
+          "panel": "B-LQ1",
+          "number": "1",
+          "load": "Bus wash pressure washer 208 V 1-ph 3 kVA",
+          "equipmentLoad": false,
+          "description": "Bus wash pressure washer 208 V 1-ph 3 kVA",
+          "rating": 20,
+          "poles": 2,
+          "wire": "12 AWG",
+          "va": 3000.0,
+          "amps": 14.42,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            1,
+            3
+          ],
+          "phases": [
+            "A",
+            "B"
+          ]
+        },
+        {
+          "panel": "B-LQ1",
+          "number": "2",
+          "load": "Recepts - Area E maintenance aisle 3 (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E maintenance aisle 3 (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            2
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-LQ1",
+          "number": "4",
+          "load": "Work-area lighting 120 V (Area E)",
+          "equipmentLoad": false,
+          "description": "Work-area lighting 120 V (Area E)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1200.0,
+          "amps": 10.0,
+          "loadClass": "lighting",
+          "continuous": true,
+          "slots": [
+            4
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-LQ1",
+          "number": "5",
+          "load": "Recepts - Area E maintenance aisle 1 (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E maintenance aisle 1 (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            5
+          ],
+          "phases": [
+            "C"
+          ]
+        },
+        {
+          "panel": "B-LQ1",
+          "number": "6",
+          "load": "Recepts - Area E maintenance aisle 2 (8 duplex @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Recepts - Area E maintenance aisle 2 (8 duplex @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1440.0,
+          "amps": 12.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            6
+          ],
+          "phases": [
+            "C"
+          ]
+        },
+        {
+          "panel": "B-LQ1",
+          "number": "7",
+          "load": "SPARE",
+          "equipmentLoad": false,
+          "description": "SPARE",
+          "rating": 20.0,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 0.0,
+          "amps": 0.0,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            7
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-LQ1",
+          "number": "9",
+          "load": "OHD-E1 roll-up door operator 1/2 HP 120 V",
+          "equipmentLoad": false,
+          "description": "OHD-E1 roll-up door operator 1/2 HP 120 V",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1176.0,
+          "amps": 9.8,
+          "loadClass": "motor",
+          "continuous": false,
+          "slots": [
+            9
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-LQ1",
+          "number": "11",
+          "load": "OHD-E2 roll-up door operator 1/2 HP 120 V",
+          "equipmentLoad": false,
+          "description": "OHD-E2 roll-up door operator 1/2 HP 120 V",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 1176.0,
+          "amps": 9.8,
+          "loadClass": "motor",
+          "continuous": false,
+          "slots": [
+            11
+          ],
+          "phases": [
+            "C"
+          ]
+        }
+      ],
+      "psets": {
+        "PanelScheduleCalc": {
+          "ConnectedLoadKVA": {
+            "value": 10.87,
+            "type": "real"
+          },
+          "DemandLoadKVA": {
+            "value": 11.17,
+            "type": "real"
+          },
+          "DemandLoadAmps": {
+            "value": 31.0,
+            "type": "current"
+          },
+          "PhaseAVA": {
+            "value": 2940.0,
+            "type": "real"
+          },
+          "PhaseBVA": {
+            "value": 3876.0,
+            "type": "real"
+          },
+          "PhaseCVA": {
+            "value": 4056.0,
+            "type": "real"
+          },
+          "PhaseImbalancePct": {
+            "value": 30.8,
+            "type": "real"
+          },
+          "PolesUsed": {
+            "value": 9,
+            "type": "count"
+          },
+          "CalcBasis": "tekton electrical calc engine (design aid, NEC-style simplified)",
+          "ReviewRequired": "Licensed engineer to verify before construction"
+        }
+      }
+    },
+    "B-SLQ1": {
+      "panel": "B-SLQ1",
+      "system": "208Y/120",
+      "systemLabel": "208Y/120V, 3PH, 4W",
+      "mainsType": "MLO",
+      "mainsRatingA": 225.0,
+      "busRatingA": 225.0,
+      "spaces": 42,
+      "polesUsed": 5,
+      "fedFrom": "XFMR-B-SLQ1 (verify)",
+      "feeder": "verify - not in BS-EP7-00",
+      "connectedVA": 5520.0,
+      "connectedKVA": 5.52,
+      "demandVA": 5520.0,
+      "demandKVA": 5.52,
+      "connectedAmps": 15.32,
+      "demandAmps": 15.32,
+      "continuousVA": 4800.0,
+      "largestMotorVA": 0.0,
+      "phaseVA": {
+        "A": 2400.0,
+        "B": 2400.0,
+        "C": 720.0
+      },
+      "phaseImbalanceVA": 1680.0,
+      "phaseImbalancePct": 91.3,
+      "classConnectedVA": {
+        "lighting": 4800.0,
+        "misc": 0.0,
+        "receptacle": 720.0
+      },
+      "classDemandVA": {
+        "lighting": 4800.0,
+        "misc": 0.0,
+        "receptacle": 720.0
+      },
+      "warnings": [],
+      "circuits": [
+        {
+          "panel": "B-SLQ1",
+          "number": "1",
+          "load": "Site lighting contactor - Area E yard 1",
+          "equipmentLoad": false,
+          "description": "Site lighting contactor - Area E yard 1",
+          "rating": 25,
+          "poles": 1,
+          "wire": "10 AWG",
+          "va": 2400.0,
+          "amps": 20.0,
+          "loadClass": "lighting",
+          "continuous": true,
+          "slots": [
+            1
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-SLQ1",
+          "number": "2",
+          "load": "SPARE",
+          "equipmentLoad": false,
+          "description": "SPARE",
+          "rating": 20.0,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 0.0,
+          "amps": 0.0,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            2
+          ],
+          "phases": [
+            "A"
+          ]
+        },
+        {
+          "panel": "B-SLQ1",
+          "number": "3",
+          "load": "Site lighting contactor - Area E yard 2",
+          "equipmentLoad": false,
+          "description": "Site lighting contactor - Area E yard 2",
+          "rating": 25,
+          "poles": 1,
+          "wire": "10 AWG",
+          "va": 2400.0,
+          "amps": 20.0,
+          "loadClass": "lighting",
+          "continuous": true,
+          "slots": [
+            3
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-SLQ1",
+          "number": "4",
+          "load": "SPARE",
+          "equipmentLoad": false,
+          "description": "SPARE",
+          "rating": 20.0,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 0.0,
+          "amps": 0.0,
+          "loadClass": "misc",
+          "continuous": false,
+          "slots": [
+            4
+          ],
+          "phases": [
+            "B"
+          ]
+        },
+        {
+          "panel": "B-SLQ1",
+          "number": "5",
+          "load": "Exterior GFCI receptacles (4 @ 180 VA)",
+          "equipmentLoad": false,
+          "description": "Exterior GFCI receptacles (4 @ 180 VA)",
+          "rating": 20,
+          "poles": 1,
+          "wire": "12 AWG",
+          "va": 720.0,
+          "amps": 6.0,
+          "loadClass": "receptacle",
+          "continuous": false,
+          "slots": [
+            5
+          ],
+          "phases": [
+            "C"
+          ]
+        }
+      ],
+      "psets": {
+        "PanelScheduleCalc": {
+          "ConnectedLoadKVA": {
+            "value": 5.52,
+            "type": "real"
+          },
+          "DemandLoadKVA": {
+            "value": 5.52,
+            "type": "real"
+          },
+          "DemandLoadAmps": {
+            "value": 15.3,
+            "type": "current"
+          },
+          "PhaseAVA": {
+            "value": 2400.0,
+            "type": "real"
+          },
+          "PhaseBVA": {
+            "value": 2400.0,
+            "type": "real"
+          },
+          "PhaseCVA": {
+            "value": 720.0,
+            "type": "real"
+          },
+          "PhaseImbalancePct": {
+            "value": 91.3,
+            "type": "real"
+          },
+          "PolesUsed": {
+            "value": 5,
+            "type": "count"
+          },
+          "CalcBasis": "tekton electrical calc engine (design aid, NEC-style simplified)",
+          "ReviewRequired": "Licensed engineer to verify before construction"
+        }
+      }
+    }
+  },
+  "transformers": {
+    "XFMR-LR1": {
+      "name": "XFMR-LR1",
+      "kva": 45.0,
+      "primaryV": 480.0,
+      "secondaryV": 208.0,
+      "phases": 3,
+      "fedFrom": "B-HG4",
+      "feeds": "B-LR1",
+      "primaryFLA": 54.13,
+      "primaryFLAx125": 67.66,
+      "primaryOCPD": 70,
+      "secondaryFLA": 124.91,
+      "secondaryOCPD": 175,
+      "fedPanel": "B-LR1",
+      "fedConnectedKVA": 22.116,
+      "fedDemandKVA": 21.29,
+      "loadingPct": 47.3,
+      "warnings": [],
+      "psets": {
+        "TransformerCalc": {
+          "PrimaryFLA": {
+            "value": 54.1,
+            "type": "current"
+          },
+          "PrimaryOCPD": {
+            "value": 70,
+            "type": "current"
+          },
+          "SecondaryFLA": {
+            "value": 124.9,
+            "type": "current"
+          },
+          "SecondaryOCPD": {
+            "value": 175,
+            "type": "current"
+          },
+          "DemandLoadingPct": {
+            "value": 47.3,
+            "type": "real"
+          },
+          "CalcBasis": "tekton electrical calc engine (design aid)"
+        }
+      }
+    },
+    "XFMR-LQ1": {
+      "name": "XFMR-LQ1",
+      "kva": 45.0,
+      "primaryV": 480.0,
+      "secondaryV": 208.0,
+      "phases": 3,
+      "fedFrom": "B-HG4",
+      "feeds": "B-LQ1",
+      "primaryFLA": 54.13,
+      "primaryFLAx125": 67.66,
+      "primaryOCPD": 70,
+      "secondaryFLA": 124.91,
+      "secondaryOCPD": 175,
+      "fedPanel": "B-LQ1",
+      "fedConnectedKVA": 10.872,
+      "fedDemandKVA": 11.166,
+      "loadingPct": 24.8,
+      "warnings": [],
+      "psets": {
+        "TransformerCalc": {
+          "PrimaryFLA": {
+            "value": 54.1,
+            "type": "current"
+          },
+          "PrimaryOCPD": {
+            "value": 70,
+            "type": "current"
+          },
+          "SecondaryFLA": {
+            "value": 124.9,
+            "type": "current"
+          },
+          "SecondaryOCPD": {
+            "value": 175,
+            "type": "current"
+          },
+          "DemandLoadingPct": {
+            "value": 24.8,
+            "type": "real"
+          },
+          "CalcBasis": "tekton electrical calc engine (design aid)"
+        }
+      }
+    },
+    "XFMR-B-SLQ1": {
+      "name": "XFMR-B-SLQ1",
+      "kva": 45.0,
+      "primaryV": 480.0,
+      "secondaryV": 208.0,
+      "phases": 3,
+      "fedFrom": "B-HG4",
+      "feeds": "B-SLQ1",
+      "primaryFLA": 54.13,
+      "primaryFLAx125": 67.66,
+      "primaryOCPD": 70,
+      "secondaryFLA": 124.91,
+      "secondaryOCPD": 175,
+      "fedPanel": "B-SLQ1",
+      "fedConnectedKVA": 5.52,
+      "fedDemandKVA": 5.52,
+      "loadingPct": 12.3,
+      "warnings": [],
+      "psets": {
+        "TransformerCalc": {
+          "PrimaryFLA": {
+            "value": 54.1,
+            "type": "current"
+          },
+          "PrimaryOCPD": {
+            "value": 70,
+            "type": "current"
+          },
+          "SecondaryFLA": {
+            "value": 124.9,
+            "type": "current"
+          },
+          "SecondaryOCPD": {
+            "value": 175,
+            "type": "current"
+          },
+          "DemandLoadingPct": {
+            "value": 12.3,
+            "type": "real"
+          },
+          "CalcBasis": "tekton electrical calc engine (design aid)"
+        }
+      }
+    }
+  },
+  "circuits": [
+    {
+      "panel": "B-HG4",
+      "number": "1",
+      "load": "XFMR-LR1",
+      "equipmentLoad": true,
+      "description": "XFMR-LR1 45 kVA 480-208Y/120 primary",
+      "rating": 70,
+      "poles": 3,
+      "wire": "4 AWG",
+      "va": 45000.0,
+      "amps": 54.13,
+      "loadClass": "xfmr",
+      "continuous": true,
+      "slots": [
+        1,
+        3,
+        5
+      ],
+      "phases": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "2",
+      "load": "XFMR-LQ1",
+      "equipmentLoad": true,
+      "description": "XFMR-LQ1 45 kVA 480-208Y/120 primary",
+      "rating": 70,
+      "poles": 3,
+      "wire": "4 AWG",
+      "va": 45000.0,
+      "amps": 54.13,
+      "loadClass": "xfmr",
+      "continuous": true,
+      "slots": [
+        2,
+        4,
+        6
+      ],
+      "phases": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "7",
+      "load": "XFMR-B-SLQ1",
+      "equipmentLoad": true,
+      "description": "XFMR-B-SLQ1 45 kVA 480-208Y/120 primary",
+      "rating": 70,
+      "poles": 3,
+      "wire": "4 AWG",
+      "va": 45000.0,
+      "amps": 54.13,
+      "loadClass": "xfmr",
+      "continuous": true,
+      "slots": [
+        7,
+        9,
+        11
+      ],
+      "phases": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "8",
+      "load": "UH-E1 unit heater 10 kW 480 V 3-ph",
+      "equipmentLoad": false,
+      "description": "UH-E1 unit heater 10 kW 480 V 3-ph",
+      "rating": 20,
+      "poles": 3,
+      "wire": "12 AWG",
+      "va": 10000.0,
+      "amps": 12.03,
+      "loadClass": "hvac",
+      "continuous": true,
+      "slots": [
+        8,
+        10,
+        12
+      ],
+      "phases": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "13",
+      "load": "EF-E1 exhaust fan 3 HP 480 V (NEC 430.250 FLA 4.8 A)",
+      "equipmentLoad": false,
+      "description": "EF-E1 exhaust fan 3 HP 480 V (NEC 430.250 FLA 4.8 A)",
+      "rating": 20,
+      "poles": 3,
+      "wire": "12 AWG",
+      "va": 3990.6,
+      "amps": 4.8,
+      "loadClass": "motor",
+      "continuous": false,
+      "slots": [
+        13,
+        15,
+        17
+      ],
+      "phases": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "14",
+      "load": "Plenum recessed lighting - Area E row 1 (277 V)",
+      "equipmentLoad": false,
+      "description": "Plenum recessed lighting - Area E row 1 (277 V)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 3600.0,
+      "amps": 13.0,
+      "loadClass": "lighting",
+      "continuous": true,
+      "slots": [
+        14
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "16",
+      "load": "Plenum recessed lighting - Area E row 2 (277 V)",
+      "equipmentLoad": false,
+      "description": "Plenum recessed lighting - Area E row 2 (277 V)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 3600.0,
+      "amps": 13.0,
+      "loadClass": "lighting",
+      "continuous": true,
+      "slots": [
+        16
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "18",
+      "load": "Plenum recessed lighting - Area E row 3 (277 V)",
+      "equipmentLoad": false,
+      "description": "Plenum recessed lighting - Area E row 3 (277 V)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 3600.0,
+      "amps": 13.0,
+      "loadClass": "lighting",
+      "continuous": true,
+      "slots": [
+        18
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "19",
+      "load": "Plenum recessed lighting - Area E row 4 (277 V)",
+      "equipmentLoad": false,
+      "description": "Plenum recessed lighting - Area E row 4 (277 V)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 3600.0,
+      "amps": 13.0,
+      "loadClass": "lighting",
+      "continuous": true,
+      "slots": [
+        19
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "20",
+      "load": "SPARE",
+      "equipmentLoad": false,
+      "description": "SPARE",
+      "rating": 20.0,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 0.0,
+      "amps": 0.0,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        20
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-HG4",
+      "number": "21",
+      "load": "SPARE",
+      "equipmentLoad": false,
+      "description": "SPARE",
+      "rating": 20.0,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 0.0,
+      "amps": 0.0,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        21
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "1",
+      "load": "UH-E101 unit heater 5 kW 208 V 1-ph (Elec Rm)",
+      "equipmentLoad": false,
+      "description": "UH-E101 unit heater 5 kW 208 V 1-ph (Elec Rm)",
+      "rating": 35,
+      "poles": 2,
+      "wire": "8 AWG",
+      "va": 5000.0,
+      "amps": 24.04,
+      "loadClass": "hvac",
+      "continuous": true,
+      "slots": [
+        1,
+        3
+      ],
+      "phases": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "2",
+      "load": "Recepts - Area E bus bay north 3 (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E bus bay north 3 (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        2
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "4",
+      "load": "Recepts - Area E bus bay south 1 (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E bus bay south 1 (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        4
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "5",
+      "load": "Recepts - Area E bus bay north 1 (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E bus bay north 1 (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        5
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "6",
+      "load": "Recepts - Area E bus bay north 2 (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E bus bay north 2 (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        6
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "7",
+      "load": "Recepts - Area E bus bay south 3 (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E bus bay south 3 (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        7
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "8",
+      "load": "Battery charger receptacle 1 (dedicated 20 A)",
+      "equipmentLoad": false,
+      "description": "Battery charger receptacle 1 (dedicated 20 A)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1200.0,
+      "amps": 10.0,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        8
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "9",
+      "load": "Recepts - Area E workbench (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E workbench (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        9
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "10",
+      "load": "Battery charger receptacle 2 (dedicated 20 A)",
+      "equipmentLoad": false,
+      "description": "Battery charger receptacle 2 (dedicated 20 A)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1200.0,
+      "amps": 10.0,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        10
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "11",
+      "load": "Recepts - Area E bus bay south 2 (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E bus bay south 2 (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        11
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "12",
+      "load": "Recepts - Area E charging alcove (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E charging alcove (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        12
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "13",
+      "load": "Egress / exit lighting 120 V (Area E)",
+      "equipmentLoad": false,
+      "description": "Egress / exit lighting 120 V (Area E)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 800.0,
+      "amps": 6.67,
+      "loadClass": "lighting",
+      "continuous": true,
+      "slots": [
+        13
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "14",
+      "load": "SPARE",
+      "equipmentLoad": false,
+      "description": "SPARE",
+      "rating": 20.0,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 0.0,
+      "amps": 0.0,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        14
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "15",
+      "load": "Recepts - Elec Rm E101 (4 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Elec Rm E101 (4 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 720.0,
+      "amps": 6.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        15
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "16",
+      "load": "SPARE",
+      "equipmentLoad": false,
+      "description": "SPARE",
+      "rating": 20.0,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 0.0,
+      "amps": 0.0,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        16
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "17",
+      "load": "SP-E101 sump pump 1/2 HP 120 V (NEC 430.248 FLA 9.8 A)",
+      "equipmentLoad": false,
+      "description": "SP-E101 sump pump 1/2 HP 120 V (NEC 430.248 FLA 9.8 A)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1176.0,
+      "amps": 9.8,
+      "loadClass": "motor",
+      "continuous": false,
+      "slots": [
+        17
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-LR1",
+      "number": "18",
+      "load": "Water cooler / bottle filler",
+      "equipmentLoad": false,
+      "description": "Water cooler / bottle filler",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 500.0,
+      "amps": 4.17,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        18
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-LQ1",
+      "number": "1",
+      "load": "Bus wash pressure washer 208 V 1-ph 3 kVA",
+      "equipmentLoad": false,
+      "description": "Bus wash pressure washer 208 V 1-ph 3 kVA",
+      "rating": 20,
+      "poles": 2,
+      "wire": "12 AWG",
+      "va": 3000.0,
+      "amps": 14.42,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        1,
+        3
+      ],
+      "phases": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LQ1",
+      "number": "2",
+      "load": "Recepts - Area E maintenance aisle 3 (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E maintenance aisle 3 (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        2
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-LQ1",
+      "number": "4",
+      "load": "Work-area lighting 120 V (Area E)",
+      "equipmentLoad": false,
+      "description": "Work-area lighting 120 V (Area E)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1200.0,
+      "amps": 10.0,
+      "loadClass": "lighting",
+      "continuous": true,
+      "slots": [
+        4
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LQ1",
+      "number": "5",
+      "load": "Recepts - Area E maintenance aisle 1 (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E maintenance aisle 1 (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        5
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-LQ1",
+      "number": "6",
+      "load": "Recepts - Area E maintenance aisle 2 (8 duplex @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Recepts - Area E maintenance aisle 2 (8 duplex @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1440.0,
+      "amps": 12.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        6
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-LQ1",
+      "number": "7",
+      "load": "SPARE",
+      "equipmentLoad": false,
+      "description": "SPARE",
+      "rating": 20.0,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 0.0,
+      "amps": 0.0,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        7
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-LQ1",
+      "number": "9",
+      "load": "OHD-E1 roll-up door operator 1/2 HP 120 V",
+      "equipmentLoad": false,
+      "description": "OHD-E1 roll-up door operator 1/2 HP 120 V",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1176.0,
+      "amps": 9.8,
+      "loadClass": "motor",
+      "continuous": false,
+      "slots": [
+        9
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-LQ1",
+      "number": "11",
+      "load": "OHD-E2 roll-up door operator 1/2 HP 120 V",
+      "equipmentLoad": false,
+      "description": "OHD-E2 roll-up door operator 1/2 HP 120 V",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 1176.0,
+      "amps": 9.8,
+      "loadClass": "motor",
+      "continuous": false,
+      "slots": [
+        11
+      ],
+      "phases": [
+        "C"
+      ]
+    },
+    {
+      "panel": "B-SLQ1",
+      "number": "1",
+      "load": "Site lighting contactor - Area E yard 1",
+      "equipmentLoad": false,
+      "description": "Site lighting contactor - Area E yard 1",
+      "rating": 25,
+      "poles": 1,
+      "wire": "10 AWG",
+      "va": 2400.0,
+      "amps": 20.0,
+      "loadClass": "lighting",
+      "continuous": true,
+      "slots": [
+        1
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-SLQ1",
+      "number": "2",
+      "load": "SPARE",
+      "equipmentLoad": false,
+      "description": "SPARE",
+      "rating": 20.0,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 0.0,
+      "amps": 0.0,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        2
+      ],
+      "phases": [
+        "A"
+      ]
+    },
+    {
+      "panel": "B-SLQ1",
+      "number": "3",
+      "load": "Site lighting contactor - Area E yard 2",
+      "equipmentLoad": false,
+      "description": "Site lighting contactor - Area E yard 2",
+      "rating": 25,
+      "poles": 1,
+      "wire": "10 AWG",
+      "va": 2400.0,
+      "amps": 20.0,
+      "loadClass": "lighting",
+      "continuous": true,
+      "slots": [
+        3
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-SLQ1",
+      "number": "4",
+      "load": "SPARE",
+      "equipmentLoad": false,
+      "description": "SPARE",
+      "rating": 20.0,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 0.0,
+      "amps": 0.0,
+      "loadClass": "misc",
+      "continuous": false,
+      "slots": [
+        4
+      ],
+      "phases": [
+        "B"
+      ]
+    },
+    {
+      "panel": "B-SLQ1",
+      "number": "5",
+      "load": "Exterior GFCI receptacles (4 @ 180 VA)",
+      "equipmentLoad": false,
+      "description": "Exterior GFCI receptacles (4 @ 180 VA)",
+      "rating": 20,
+      "poles": 1,
+      "wire": "12 AWG",
+      "va": 720.0,
+      "amps": 6.0,
+      "loadClass": "receptacle",
+      "continuous": false,
+      "slots": [
+        5
+      ],
+      "phases": [
+        "C"
+      ]
+    }
+  ]
+}

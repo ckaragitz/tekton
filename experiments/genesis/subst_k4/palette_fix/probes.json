@@ -1,0 +1,528 @@
+{
+ "stream": "genesis-palette-fix (THE ONE NAMED CONSTRUCTOR DEFECT: Group B's PALETTE bucket)",
+ "situation": "Batch 17 (VERDICTS #19): Z_palette (Y9 + ONLY the palette bucket) FAILS Autodesk's reader while the six sibling Group-B buckets PASS; ZB_deep (all eight) translates PARTIALLY (view tree built, then the extractor dies). This batch carries the DIAGNOSIS (docs/inbox/genesis-palette-fix.md) as falsifiable probes plus the FIX.",
+ "diagnosis": {
+  "D1_primary_certain": "residue_b._int_param_set swaps m_paramId and m_value: our structural/thermal assets carry m_paramId = 3/0/1 (POSITIVE) with m_value = the built-in ids -- positive param ids read as ParameterElement ElementIds (0/1/3 = document-birth singletons); confined to the two palette constructors (no passing bucket uses _int_param_set).",
+  "D2_corpus_invariants": "(a) every corpus param set is ASCENDING (300/300) -- ours descending; (b) m_pElementIdParams is present-empty in all 16 shapes -- ours null; (c) -1150464 is the asset-class enum -- ours 3 everywhere (concrete shipped as Metal).",
+  "D3_exonerated": "MaterialElem: types.new_material = the constructor Y7 landed on K4's 13 active slots (all with appearance assets + 8 with shared-asset links); Y9 with those 13 is certified -- the identical surgery on the 10 surplus slots is proven."
+ },
+ "the_operation": "In-place substitution (rvt.regadd.substitute_elements): seq-102 only; Global/Latest + Global/ElemTable BYTE-IDENTICAL to Y9; the Y-ladder's landed slots protected; nothing added or deleted.",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "standing_control": {
+  "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+  "md5": "aa5952bceeb5830790f289af0d7cee27",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "controls_discipline": "Read the CONTROL first: if it fails the round is VOID. Only with the control PASSING are probe verdicts read.",
+ "upload_order_bisection_first": [
+  "Z_palette_v2",
+  "P_pal_mat",
+  "P_pal_struct",
+  "P_pal_thermal",
+  "P_pal_swapfix",
+  "P_pal_struct_v2",
+  "P_pal_thermal_v2"
+ ],
+ "reading_the_results": {
+  "Z_palette_v2": "The deliverable. PASS = the palette defect is closed and the seven singles are corroboration; FAIL = read the singles.",
+  "P_pal_mat / P_pal_struct / P_pal_thermal": "The diagnostic BISECTION (materials = certified constructor; struct/thermal = ORIGINAL swapped constructors). Predicted PASS / FAIL / FAIL -- naming the two PropertySetElement constructors.",
+  "P_pal_swapfix": "The swap-ALONE isolate: PASS = D1 was the entire defect; FAIL = a D2 shape correction carried by Z_palette_v2 is also load-bearing.",
+  "P_pal_struct_v2 / P_pal_thermal_v2": "The two corrected constructors alone -- each PASS proves that constructor independently of the other and of the materials."
+ },
+ "predicted_verdicts": {
+  "Z_palette_v2": "PASS",
+  "P_pal_mat": "PASS",
+  "P_pal_struct": "FAIL",
+  "P_pal_thermal": "FAIL",
+  "P_pal_swapfix": "PASS (if D1 alone was the whole defect)",
+  "P_pal_struct_v2": "PASS",
+  "P_pal_thermal_v2": "PASS"
+ },
+ "verdicts_local_self_checks": {
+  "Z_palette_v2": "VALID",
+  "P_pal_mat": "VALID",
+  "P_pal_struct": "VALID",
+  "P_pal_thermal": "VALID",
+  "P_pal_swapfix": "VALID",
+  "P_pal_struct_v2": "VALID",
+  "P_pal_thermal_v2": "VALID"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "probe": "Z_palette_v2",
+   "file": "experiments/genesis/subst_k4/palette_fix/Z_palette_v2.rvt",
+   "layer_substituted": "the WHOLE corrected palette bucket (10 materials + 17 structural + 11 thermal assets)",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "the_ONE_thing_it_tests": "Whether the CORRECTED palette bucket loads -- the one defective Group-B bucket fixed.",
+   "predicted_verdict": "PASS",
+   "if_PASS": "The palette constructor defect is CLOSED: all eight Group-B buckets are ours; Y9 + ZA_deep + ZB(7 clean + palette-fixed) compose into the ZAB deep file.",
+   "if_FAIL": "Read the singles: P_pal_mat (materials), P_pal_struct / P_pal_thermal (original, swapped), P_pal_struct_v2 / P_pal_thermal_v2 (corrected), P_pal_swapfix (swap-alone) -- they bisect materials vs structural vs thermal and separate the D1 swap from the shape corrections.",
+   "elements_substituted_in_place": {
+    "landed": 38,
+    "by_class": {
+     "PropertySetElement": 28,
+     "MaterialElem": 10
+    },
+    "by_match": {
+     "role": 38
+    }
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 38,
+    "expected_slots": 38,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 761856,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/palette_fix/Z_palette_v2.json"
+  },
+  {
+   "order": 2,
+   "probe": "P_pal_mat",
+   "file": "experiments/genesis/subst_k4/palette_fix/P_pal_mat.rvt",
+   "layer_substituted": "ONLY the 10 SURPLUS materials (the certified types.new_material)",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "the_ONE_thing_it_tests": "Whether the material sub-class of the palette bucket is clean (predicted YES).",
+   "predicted_verdict": "PASS",
+   "if_PASS": "The MaterialElem sub-class is exonerated (as the K4/Y7 control history predicts).",
+   "if_FAIL": "Contradicts the Y7/Y9 exoneration: diff a surplus slot's referrers vs an active slot's -- the surplus slots' registration context is then the variable.",
+   "elements_substituted_in_place": {
+    "landed": 10,
+    "by_class": {
+     "MaterialElem": 10
+    },
+    "by_match": {
+     "role": 10
+    }
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 10,
+    "expected_slots": 10,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 765952,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/palette_fix/P_pal_mat.json"
+  },
+  {
+   "order": 3,
+   "probe": "P_pal_struct",
+   "file": "experiments/genesis/subst_k4/palette_fix/P_pal_struct.rvt",
+   "layer_substituted": "ONLY the 17 STRUCTURAL assets -- residue_b's ORIGINAL (swapped) constructor",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "the_ONE_thing_it_tests": "Whether the structural-asset sub-class carries the defect (predicted YES, D1).",
+   "predicted_verdict": "FAIL",
+   "if_PASS": "The structural sub-class is NOT the killer -- read P_pal_thermal.",
+   "if_FAIL": "The structural assets are convicted; P_pal_struct_v2 proves the fix.",
+   "elements_substituted_in_place": {
+    "landed": 17,
+    "by_class": {
+     "PropertySetElement": 17
+    },
+    "by_match": {
+     "role": 17
+    }
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 17,
+    "expected_slots": 17,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/palette_fix/P_pal_struct.json"
+  },
+  {
+   "order": 4,
+   "probe": "P_pal_thermal",
+   "file": "experiments/genesis/subst_k4/palette_fix/P_pal_thermal.rvt",
+   "layer_substituted": "ONLY the 11 THERMAL assets -- residue_b's ORIGINAL (swapped) constructor",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "the_ONE_thing_it_tests": "Whether the thermal-asset sub-class carries the defect (predicted YES, D1).",
+   "predicted_verdict": "FAIL",
+   "if_PASS": "The thermal sub-class is NOT the killer -- read P_pal_struct.",
+   "if_FAIL": "The thermal assets are convicted; P_pal_thermal_v2 proves the fix.",
+   "elements_substituted_in_place": {
+    "landed": 11,
+    "by_class": {
+     "PropertySetElement": 11
+    },
+    "by_match": {
+     "role": 11
+    }
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 11,
+    "expected_slots": 11,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/palette_fix/P_pal_thermal.json"
+  },
+  {
+   "order": 5,
+   "probe": "P_pal_swapfix",
+   "file": "experiments/genesis/subst_k4/palette_fix/P_pal_swapfix.rvt",
+   "layer_substituted": "ZB5's EXACT 38 objects with ONLY the int-param keying corrected (the swap-ALONE isolate)",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "the_ONE_thing_it_tests": "Whether the int-param swap ALONE was the whole defect (PASS) or the shape corrections in v2 are also load-bearing (FAIL).",
+   "predicted_verdict": "PASS (if D1 alone was the whole defect)",
+   "if_PASS": "D1 (the swapped int params) is the ENTIRE defect; residue-B's other shape deviations (descending order, null ElementId set, legacy-on-modern, dropped -1152337, source 'GEN') are all reader-tolerated.",
+   "if_FAIL": "D1 is necessary but not sufficient -- one of D2's shape corrections carried by Z_palette_v2 (order / ElementId set / shape fidelity) is also load-bearing.",
+   "elements_substituted_in_place": {
+    "landed": 38,
+    "by_class": {
+     "PropertySetElement": 28,
+     "MaterialElem": 10
+    },
+    "by_match": {
+     "role": 38
+    }
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 38,
+    "expected_slots": 38,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 761856,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/palette_fix/P_pal_swapfix.json"
+  },
+  {
+   "order": 6,
+   "probe": "P_pal_struct_v2",
+   "file": "experiments/genesis/subst_k4/palette_fix/P_pal_struct_v2.rvt",
+   "layer_substituted": "ONLY the 17 CORRECTED structural assets",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "the_ONE_thing_it_tests": "Whether the corrected structural constructor loads.",
+   "predicted_verdict": "PASS",
+   "if_PASS": "The corrected structural-asset constructor is reader-accepted.",
+   "if_FAIL": "A structural-asset shape issue survives the D1 fix -- diff a modern slot (174481) and a legacy slot (194585) of P_pal_struct_v2 vs Y9 field by field.",
+   "elements_substituted_in_place": {
+    "landed": 17,
+    "by_class": {
+     "PropertySetElement": 17
+    },
+    "by_match": {
+     "role": 17
+    }
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 17,
+    "expected_slots": 17,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/palette_fix/P_pal_struct_v2.json"
+  },
+  {
+   "order": 7,
+   "probe": "P_pal_thermal_v2",
+   "file": "experiments/genesis/subst_k4/palette_fix/P_pal_thermal_v2.rvt",
+   "layer_substituted": "ONLY the 11 CORRECTED thermal assets",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "the_ONE_thing_it_tests": "Whether the corrected thermal constructor loads.",
+   "predicted_verdict": "PASS",
+   "if_PASS": "The corrected thermal-asset constructor is reader-accepted.",
+   "if_FAIL": "A thermal-asset shape issue survives the D1 fix -- diff slot 174516 of P_pal_thermal_v2 vs Y9 field by field.",
+   "elements_substituted_in_place": {
+    "landed": 11,
+    "by_class": {
+     "PropertySetElement": 11
+    },
+    "by_match": {
+     "role": 11
+    }
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 11,
+    "expected_slots": 11,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 778240,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/palette_fix/P_pal_thermal_v2.json"
+  }
+ ],
+ "record": "docs/inbox/genesis-palette-fix.md",
+ "residue_b_diff": "docs/inbox/genesis-palette-fix.md ## The residue_b.py diff"
+}

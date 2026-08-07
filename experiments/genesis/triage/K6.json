@@ -1,0 +1,569 @@
+{
+ "rung": "K6",
+ "kind": "gc-delete",
+ "parent": "experiments/genesis/triage/K1.rvt",
+ "parent_rung": "K1",
+ "out": "experiments/genesis/triage/K6.rvt",
+ "description": "K1 (empty project) minus the built-in-category graphic-style CATALOG beyond the referenced core: every CategoryElem / GStyleElem / fill-pattern / line-pattern / material / appearance-asset / pen-table element that nothing surviving references (the object-styles table's un-referenced rows); the deleted rows are also dropped from the ADocument category / style / material tracking registries.",
+ "tests": "G1_candidate authors ~101 category/style rows for the categories its content uses and NO built-in-category style catalog (rstbasic carries 1,533 GStyleElem + 284 CategoryElem).  Is the un-referenced part of that catalog required by the reader?",
+ "if_PASS": "The un-referenced graphic-style catalog is NOT required -- the base only needs the rows its content references (exactly what the house standard emits); retire the catalog from the Bug-A suspect list.",
+ "if_FAIL": "The reader REQUIRES the built-in-category graphic-style catalog even for un-used categories -- the genesis base must generate the full object-styles table (the counsel item B5 / `object_styles.json` question becomes load-bearing).",
+ "seed": 3278,
+ "seed_kept_pinned": 1127,
+ "deleted": 2151,
+ "deleted_by_class": [
+  [
+   "GStyleElem",
+   1622
+  ],
+  [
+   "CategoryElem",
+   171
+  ],
+  [
+   "LinePatternElem",
+   142
+  ],
+  [
+   "FillPatternElem",
+   101
+  ],
+  [
+   "AppearanceAssetElem",
+   82
+  ],
+  [
+   "MaterialElem",
+   32
+  ],
+  [
+   "PenWidthTableElem",
+   1
+  ]
+ ],
+ "kept_seed_by_class": [
+  [
+   "GStyleElem",
+   551
+  ],
+  [
+   "CategoryElem",
+   435
+  ],
+  [
+   "MaterialElem",
+   61
+  ],
+  [
+   "AppearanceAssetElem",
+   49
+  ],
+  [
+   "FillPatternElem",
+   15
+  ],
+  [
+   "PenWidthTableElem",
+   8
+  ],
+  [
+   "LinePatternElem",
+   8
+  ]
+ ],
+ "pin_evidence": {
+  "kept_seed": 1127,
+  "kept_by_direct_outside_ref": 983,
+  "kept_by_ext_scan": 0,
+  "kept_seed_by_class": [
+   [
+    "GStyleElem",
+    551
+   ],
+   [
+    "CategoryElem",
+    435
+   ],
+   [
+    "MaterialElem",
+    61
+   ],
+   [
+    "AppearanceAssetElem",
+    49
+   ],
+   [
+    "FillPatternElem",
+    15
+   ],
+   [
+    "PenWidthTableElem",
+    8
+   ],
+   [
+    "LinePatternElem",
+    8
+   ]
+  ],
+  "top_pinning_pairs": [
+   "GStyleElem <- Family x1092",
+   "CategoryElem <- Family x769",
+   "GStyleElem <- CurveElem x614",
+   "GStyleElem <- FamilySymbol x398",
+   "GStyleElem <- DBViewSection x193",
+   "GStyleElem <- DBViewPlan x130",
+   "FillPatternElem <- FilledRegionAttributes x125",
+   "GStyleElem <- MasterImportSymbol x124",
+   "GStyleElem <- FilledRegion x115",
+   "GStyleElem <- DBViewProject x106",
+   "GStyleElem <- DBViewDrafting x106",
+   "GStyleElem <- DBView3d x92",
+   "FillPatternElem <- FamilySymbol x91",
+   "GStyleElem <- TextNoteAttributes x90",
+   "CategoryElem <- TextNoteAttributes x90",
+   "FillPatternElem <- Family x89",
+   "MaterialElem <- FamilySymbol x80",
+   "CategoryElem <- MasterImportSymbol x78",
+   "MaterialElem <- Family x77",
+   "CategoryElem <- LeaderStyle x61",
+   "GStyleElem <- TagNoteAttributes x60",
+   "CategoryElem <- TagNoteAttributes x60",
+   "FillPatternElem <- FilledRegion x56",
+   "CategoryElem <- DimensionStyle x48",
+   "GStyleElem <- Viewer3d x36",
+   "MaterialElem <- ConceptualConstructionType x36",
+   "GStyleElem <- ExtrusionElem x33",
+   "CategoryElem <- FilledRegionAttributes x32",
+   "GStyleElem <- FilledRegionAttributes x32",
+   "MaterialElem <- DBViewType x32"
+  ],
+  "pinners_of_kept_class": {
+   "GStyleElem": [
+    [
+     "Family",
+     1092
+    ],
+    [
+     "CurveElem",
+     614
+    ],
+    [
+     "FamilySymbol",
+     398
+    ],
+    [
+     "DBViewSection",
+     193
+    ],
+    [
+     "DBViewPlan",
+     130
+    ],
+    [
+     "MasterImportSymbol",
+     124
+    ]
+   ],
+   "CategoryElem": [
+    [
+     "Family",
+     769
+    ],
+    [
+     "TextNoteAttributes",
+     90
+    ],
+    [
+     "MasterImportSymbol",
+     78
+    ],
+    [
+     "LeaderStyle",
+     61
+    ],
+    [
+     "TagNoteAttributes",
+     60
+    ],
+    [
+     "DimensionStyle",
+     48
+    ]
+   ],
+   "FillPatternElem": [
+    [
+     "FilledRegionAttributes",
+     125
+    ],
+    [
+     "FamilySymbol",
+     91
+    ],
+    [
+     "Family",
+     89
+    ],
+    [
+     "FilledRegion",
+     56
+    ],
+    [
+     "ExtrusionElem",
+     9
+    ],
+    [
+     "PhaseFilterElem",
+     6
+    ]
+   ],
+   "MaterialElem": [
+    [
+     "FamilySymbol",
+     80
+    ],
+    [
+     "Family",
+     77
+    ],
+    [
+     "ConceptualConstructionType",
+     36
+    ],
+    [
+     "DBViewType",
+     32
+    ],
+    [
+     "DBView3d",
+     21
+    ],
+    [
+     "BasicWallType",
+     15
+    ]
+   ],
+   "LinePatternElem": [
+    [
+     "Family",
+     28
+    ],
+    [
+     "GStyleElem",
+     20
+    ],
+    [
+     "AllProjectPhases",
+     2
+    ]
+   ],
+   "PenWidthTableElem": [
+    [
+     "Family",
+     8
+    ]
+   ]
+  }
+ },
+ "latest_dangling_ids_created": 0,
+ "latest_purge": {
+  "purged_ids": 2151,
+  "totals": {
+   "leaves": 14810,
+   "dangling": 2429,
+   "nulled": 0,
+   "elements_dropped": 2155,
+   "scalars_nulled": 1
+  },
+  "bodies_touched": [
+   "FillPatternTracking",
+   "CategoryTracking",
+   "MaterialTracking",
+   "PenWidthTableInfo",
+   "LinePatternTracking",
+   "ElemsSetWithCellsTracking",
+   "AppearanceAssetTracking"
+  ],
+  "latest_payload_before": 1586246,
+  "latest_payload_after": 1548174
+ },
+ "structural_ok": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 269,
+   "records": 67551,
+   "elements_decoded": 22464,
+   "decode_failures": 7,
+   "refs_checked": 363370
+  }
+ },
+ "census": {
+  "path": "experiments/genesis/triage/K6.rvt",
+  "elements": 4389,
+  "classes": {
+   "GStyleElem": 551,
+   "ParamElemExternal": 466,
+   "CategoryElem": 435,
+   "FontElem": 245,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemFamily": 120,
+   "ParamElemElectricalLoadClassification": 108,
+   "FamilySymbol": 106,
+   "DBViewType": 91,
+   "SunAndShadowSettings": 90,
+   "TextNoteAttributes": 90,
+   "Viewport": 69,
+   "SketchPlane": 64,
+   "MaterialElem": 61,
+   "LeaderStyle": 61,
+   "CustomElement": 61,
+   "TagNoteAttributes": 60,
+   "PropertySetElement": 56,
+   "FamilySurrogate": 50,
+   "FamSymSurrogate": 50,
+   "DBDrawing": 49,
+   "Family": 49,
+   "AppearanceAssetElem": 49,
+   "ExtentElem": 39,
+   "ConceptualConstructionType": 36,
+   "LegendComponent": 36,
+   "HVACLoadBuildingTypeElem": 33,
+   "FilledRegionAttributes": 32,
+   "RbsFluidType": 28,
+   "SunAnnotationElem": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "Viewer": 24,
+   "DBView3d": 21,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "DBViewSection": 20,
+   "ElectricalLoadClassification": 18,
+   "TilePatternType": 17,
+   "DivisionRule": 17,
+   "DimensionStyle": 16,
+   "DBViewPlan": 16,
+   "Grid": 16,
+   "FillPatternElem": 15,
+   "LightSchemeElement": 15,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "AllPlanTopologies": 12,
+   "Viewer3d": 12,
+   "ModelClipBox": 12,
+   "BrowserOrganization": 11,
+   "RbsPipingSystemType": 11,
+   "SectionAttributes": 10,
+   "ColorFillSchema": 10,
+   "ConceptualSurfaceType": 10,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "LinePatternElem": 8,
+   "AreaTypeElem": 8,
+   "ParamElemProject": 8,
+   "LoadNatureElem": 8,
+   "LoadCaseElem": 8,
+   "RbsPipeConnectionType": 8,
+   "Section": 8,
+   "PenWidthTableElem": 8,
+   "RebarShape": 8,
+   "DBViewDrafting": 8,
+   "PhaseFilterElem": 7,
+   "ParameterFilterElement": 7,
+   "InteriorElev": 6,
+   "AreaSchemePlanTopologies": 6,
+   "ConduitStandardType": 6,
+   "CurveElem": 6,
+   "DBViewAnonDrafting": 6,
+   "FloorAttributes": 5,
+   "RbsPipeMaterialType": 5,
+   "StructConnectionType": 5,
+   "RebarHookType": 5,
+   "ImageHolder": 5,
+   "ImageSymbol": 5,
+   "InteriorElevArrow": 4,
+   "SpotElevationStyle": 4,
+   "RbsWireMaterialType": 4,
+   "CustomElementType": 4,
+   "BasicWallType": 3,
+   "PrintSettings": 3,
+   "RbsWireTemperatureRatingType": 3,
+   "RbsHvacSystemType": 3,
+   "StairsLandingType": 3,
+   "StairsType": 3,
+   "StairsRunType": 3,
+   "DesignOption": 3,
+   "AbsDuctType": 3,
+   "NumberingSchema": 3,
+   "MasterImportSymbol": 3,
+   "ImportInstance": 3,
+   "ViewportAttributes": 2,
+   "CompoundCeilingType": 2,
+   "AreaMeasureElem": 2,
+   "ProjectPhase": 2,
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "ModelGraphicsStyle": 2,
+   "SysPanelFamSym": 2,
+   "CoverType": 2,
+   "BasePoint": 2,
+   "WorksharingViewModeSettings": 2,
+   "ComponentRepeaterSlotSpecialType": 2,
+   "StairsPathType": 2,
+   "StairsSupportType": 2,
+   "ViewSheetSet": 2,
+   "AbsFlexDuctType": 2,
+   "RbsCableTrayType": 2,
+   "RbsConduitType": 2,
+   "GCSViewport": 2,
+   "RebarBarType": 2,
+   "RevisionNumberingSequence": 2,
+   "RebarBendingDetailType": 2,
+   "MEPSystemZoneElementType": 2,
+   "AllProjectPhases": 1,
+   "DBViewProject": 1,
+   "ColorFillSymbol": 1,
+   "LevelAttributes": 1,
+   "CurtainRoofAttributes": 1,
+   "GridAttributes": 1,
+   "RampAttributes": 1,
+   "RevealAttr": 1,
+   "CorniceAttr": 1,
+   "Text3dAttrSymbol": 1,
+   "TrueNorth": 1,
+   "DaylightSourceIdSet": 1,
+   "UnitsElem": 1,
+   "RoofSoffitType": 1,
+   "FasciaAttr": 1,
+   "GutterAttr": 1,
+   "EdgeSlabAttr": 1,
+   "ContourLabelingAttributes": 1,
+   "PropertyAttr": 1,
+   "StairsRailingAttr": 1,
+   "StairsAttributes": 1,
+   "RepeatingDetailAttributes": 1,
+   "ExternalParamLock": 1,
+   "JoistSystemAttr": 1,
+   "RevisionCloudAttr": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "CurtaSystemAttr": 1,
+   "ProjectInfo": 1,
+   "StackedWallType": 1,
+   "StructSettingsElem": 1,
+   "RbsWireType": 1,
+   "RbsVoltageType": 1,
+   "RbsDistributionSysType": 1,
+   "AreaReportSettingsElem": 1,
+   "RbsDbViewSystemNavigator": 1,
+   "AreaSettingsElem": 1,
+   "ReactionsUpToDateElem": 1,
+   "ContFootingType": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "KeynoteTable": 1,
+   "KeynotingSystem": 1,
+   "ReferenceViewerAttributes": 1,
+   "ConstructionSetProject": 1,
+   "WallJoinDefaultSetting": 1,
+   "RbsDuctSizesElem": 1,
+   "RbsDuctSettingsElem": 1,
+   "RbsPipeSettingsElem": 1,
+   "RbsWireSettingsElem": 1,
+   "RbsPipeSizesElem": 1,
+   "RbsWireSizesElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "ZoneScheme": 1,
+   "AutoJoinTracker": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "ConduitSizesElem": 1,
+   "CableTraySizesElem": 1,
+   "CableTraySettingsElem": 1,
+   "ConduitSettingsElem": 1,
+   "ProjectCopySettingsElem": 1,
+   "EnergyDataSettings": 1,
+   "ReconcileBrowserSettingsElem": 1,
+   "ElectricalSetting": 1,
+   "ListConceptualSurfaceTypes": 1,
+   "MEPSystemTracker": 1,
+   "AssemblyTracker": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "InitialViewSettings": 1,
+   "PropertySetLibrary": 1,
+   "AnalyticalLinkType": 1,
+   "ReinforcementSettings": 1,
+   "HandRailType": 1,
+   "TopRailType": 1,
+   "CutMarkType": 1,
+   "SysMullionFamSym": 1,
+   "BuildingPadType": 1,
+   "CurtaSystemFaceManager": 1,
+   "NewCurtainWallType": 1,
+   "RoofAttributes": 1,
+   "StairsTriserSymbol": 1,
+   "LinearDimString": 1,
+   "DBViewTypeAreaPlan": 1,
+   "DesignOptionSet": 1,
+   "DefaultDivideSettings": 1,
+   "MEPComponentTracker": 1,
+   "RbsPipeType": 1,
+   "RbsFlexPipeType": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "LevelRoomPlan": 1,
+   "LayoutNodesTracker": 1,
+   "AssemblyCodeTable": 1,
+   "FabricationSettings": 1,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "CopyWatchProperties": 1,
+   "GraphSchedColumnTable": 1,
+   "DBViewGraphSchedColumn": 1,
+   "AreaReinforcementType": 1,
+   "FabricAreaType": 1,
+   "FabricWireType": 1,
+   "FabricSheetType": 1,
+   "DataStorage": 1,
+   "LineLoadType": 1,
+   "AreaLoadType": 1,
+   "SlaveSymbolTrackerElem": 1,
+   "DBViewRendering": 1,
+   "FabricationSettingsElement": 1,
+   "StructuralConnectionSettings": 1,
+   "MEPAnalyticalConnectionElementType": 1,
+   "MEPNetworkTracker": 1,
+   "MechanicalEquipmentSetType": 1,
+   "MEPSystemZoneType": 1,
+   "RouteAnalysisSettings": 1,
+   "CircuitNamingTypeSetting": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "GraphicsCache": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "MEPNetworkDataElem": 1,
+   "FabricationServiceSettings": 1,
+   "ToposolidType": 1,
+   "SSEPointVisibilitySettings": 1,
+   "STEPExportSettings": 1,
+   "SheetsInSheetCollectionTracker": 1,
+   "RbsCableType": 1
+  },
+  "file_size": 4251648,
+  "save_units": 53,
+  "contentdocs_entries": 52,
+  "contentdocs_clean_tail": true,
+  "contenttable_records": 52,
+  "adocument_clean": true
+ },
+ "seconds": 9.3
+}

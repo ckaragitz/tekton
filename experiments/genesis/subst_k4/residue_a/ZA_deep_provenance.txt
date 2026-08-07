@@ -1,0 +1,340 @@
+PROVENANCE LEDGER v2 — ZA_deep.rvt
+baselines (multi, union): dach-sample-project.rvt, racadvancedsampleproject.rvt, racbasicsampleproject.rvt, rmebasicsampleproject.rvt, rstadvancedsampleproject.rvt, rstbasicsampleproject.rvt
+primary baseline: rstbasicsampleproject.rvt   watermark: 1472524   overlap: 1.0
+layers ledgered: elements + streams + strings + identity
+host elements: 3,342   embedded family documents: 0 
+element totals: sample=1,631  modified=1,711
+
+STREAM LEDGER (byte-weighted):
+  ALL STREAMS: of 4,153,483 total inflated bytes, 71.56% identical-to-baseline, 28.44% modified-lineage, 0.0% ours
+  EXCLUDING Formats/Latest (schema, counsel C4): of 3,656,886 total inflated bytes, 67.7% identical-to-baseline, 32.3% modified-lineage, 0.0% ours
+  stream / unit                            R    inflated   identical  %ident  class            best-baseline
+  ----------------------------------------------------------------------------------------------------------
+  BasicFileInfo                            F       2,171       2,171  100.0%  identical        rstbasicsampleproject
+  Contents                                 F         264         264  100.0%  identical        rstbasicsampleproject
+  Formats/Latest                           S     496,597     496,597  100.0%  identical        dach-sample-project
+  Global/ContentDocuments                  E          22           0    0.0%  ours             racadvancedsampleproject
+  Global/DocumentIncrementTable            F       5,094       5,094  100.0%  identical        rstbasicsampleproject
+  Global/ElemTable                         F     133,718      86,528   64.7%  modified-lineage rstbasicsampleproject
+  Global/History                           F      18,171      18,171  100.0%  identical        rstbasicsampleproject
+  Global/Latest                            E   1,580,074   1,579,264  100.0%  modified-lineage rstbasicsampleproject
+  Global/PartitionTable                    F          95          95  100.0%  identical        rstbasicsampleproject
+  Partitions/21#host                       H   1,912,470     779,264   40.8%  modified-lineage rstbasicsampleproject
+  ProjectInformation                       F         969         969  100.0%  identical        rstbasicsampleproject
+  TransmissionData                         F       3,838       3,838  100.0%  identical        rstbasicsampleproject
+  R: E=expression-bearing (gated)  S=schema (counsel C4)  F=fingerprint (identity/lineage)  H=host element records
+
+AUTODESK RESOURCE REFS (G1c): 8,475 in document content (592 host elements carry them); 0 more inside the schema stream
+    forge-typeid                 8,274
+    revit-resource-string          108
+    asset-library-fbx               55
+    autodesk-name                   28
+    sunandsky-asset                  4
+    adsk-token                       2
+    revit-server-string              2
+    forge-schema-corpus              1
+    autodesk-url                     1
+
+IDENTITY (G2 policy): author='Autodesk Revit' username='' last_save_path='C:\\Users\\hansonje\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt'
+    x author: Autodesk Revit — asserts Autodesk authorship — a template identity, never claim an origin we don't have
+    x client_app_name: RevitApplication — template client identity inherited
+    x last_save_path: C:\Users\hansonje\Desktop\Downloadable Files\rstbasicsampleproject.rvt — template file path leaked (must be a bare filename or empty)
+    x unique_document_guid: 34447475-c1fb-44d1-b0f8-1adaa86cdbe1 — document GUID inherited from a sample (identity is theirs)
+    x central_episode_guid: 34447475-c1fb-44d1-b0f8-1adaa86cdbe1 — document GUID inherited from a sample (identity is theirs)
+    x last_save_path: C:\Users\hansonje\Desktop\Downloadable Files\rstbasicsampleproject.rvt — sample save path inherited
+    x DocumentIncrementTable.username: {'loboarch': 9, 'okapaw': 4, 'xuew': 3, 'youyi': 2, 'zhangg': 1, 'gbs_subsuser6': 1, 'campbes': 1, 'hansonje': 1} — 22 of 22 save episodes are signed by Autodesk employee usernames — the sample's chain of custody, in our bytes
+
+MULTI-BASELINE ELEMENT TABLE (per baseline, then union over all):
+    dach-sample-project              modified=150  unmatched=3,192
+    racadvancedsampleproject         sample=9  modified=1,080  created=651  cloned=706  unmatched=896
+    racbasicsampleproject            sample=747  modified=1,391  created=98  cloned=511  unmatched=595
+    rmebasicsampleproject            sample=3  modified=909  created=407  cloned=678  unmatched=1,345
+    rstadvancedsampleproject         modified=160  created=761  cloned=786  unmatched=1,635
+    rstbasicsampleproject            sample=1,631  modified=1,711
+    UNION (any baseline)             sample=1,631  modified=1,711
+    derived elements attributed to: rstbasicsampleproject=1394, racbasicsampleproject=1164, racadvancedsampleproject=638, dach-sample-project=146
+
+category                                     E     sample   modified
+--------------------------------------------------------------------
+Loadable families (host side)                E         16          0
+Family types (symbols)                       E          2          0
+System-family types                          E          4          0
+Views & view templates                       E        118         41
+Object styles (categories / graphics styles) E        125      1,546
+Fill / line patterns, materials, appearance  E         45         58
+Text / dimension / arrowhead / annotation ty E         32         17
+Shared / project parameter definitions       E        821          1
+Phases / design options / revisions          E          5          6
+Project info & settings elements             E         17         21
+MEP / electrical definition tables           E        351          3
+Datums (levels / grids / reference planes)             22         14
+Placed model content (sample geometry)       E          2          2
+View-owned 2D / annotation content           E         45          1
+Internal bookkeeping (regenerated by Revit)            26          1
+
+E = expression-bearing (gated).  Per-class detail (top classes, example ids : name):
+
+[loadable-families]  Loadable families (host side)
+  Family                                   sample=8
+          sample: 8482:Rectangular Mullion, 8483:Circular Mullion, 12609:System Panel
+  FamilySurrogate                          sample=8
+          sample: 8484:Rectangular Mullion, 8485:Circular Mullion, 12610:System Panel
+
+[family-types-symbols]  Family types (symbols)
+  RvtLinkSymbol                            sample=1
+          sample: 1250029:rac_basic_sample_project.rvt
+  SlaveSymbolTrackerElem                   sample=1
+          sample: 1454535:-
+
+[system-family-types]  System-family types
+  BasicWallType                            sample=1
+          sample: 600634:CL_W1
+  FloorAttributes                          sample=1
+          sample: 1201129:Plywood double brace
+  FabricWireType                           sample=1
+          sample: 1352718:W2.0
+  FabricSheetType                          sample=1
+          sample: 1352719:4x4-W2.0xW2.0
+
+[views-and-templates]  Views & view templates
+  DBViewType                               sample=72 modified=19
+          sample: 49584:Floor Plan, 49585:Ceiling Plan, 49586:Section 1
+        modified: 49552:GEN Floor Plan, 49553:GEN Ceiling Plan, 49554:GEN Section
+  BrowserOrganization                      sample=7 modified=4
+          sample: 26013:Discipline, 26014:Type/Discipline, 26015:Issue Date
+        modified: 24945:all, 24946:all, 24947:GEN Discipline / Phase
+  ColorFillSchema                          sample=10
+          sample: 99859:-, 99860:-, 99861:-
+  Viewport                                 sample=4 modified=4
+          sample: 232:-, 1457030:-, 1457043:-
+        modified: 69853:-, 245448:-, 1064661:-
+  ParameterFilterElement                   sample=7
+          sample: 116099:Interior, 928364:Learning Content, 1296133:Coonected Node
+  DBDrawing                                sample=6
+          sample: 233:-, 69854:-, 245449:-
+  AreaSchemePlanTopologies                 sample=6
+          sample: 9744:-, 9745:-, 581529:-
+  Viewer                                   sample=3 modified=2
+          sample: 231:-, 69852:-, 1457029:-
+        modified: 245445:-, 1064658:-
+    ... 9 more class(es)
+
+[object-styles]  Object styles (categories / graphics styles)
+  GStyleElem                               sample=49 modified=1,409
+          sample: 307:style:Category(306), 310:style:Category(309), 343:style:Category(342)
+        modified: 32:-, 33:-, 34:style:Windows
+  CategoryElem                             sample=72 modified=137
+          sample: 278:-, 281:-, 286:-
+        modified: 1951:GEN Door - Swing (Plan), 2466:GEN Window - Glazing, 2489:GEN Window - Frame / Mullion
+  ModelGraphicsStyle                       sample=2
+          sample: 54523:<Shading>, 54525:<Raytracing>
+  RvtLinkInstanceAppearanceParentElem      sample=1
+          sample: 132481:-
+  SketchGridAppearanceParentElem           sample=1
+          sample: 132484:-
+
+[patterns-materials]  Fill / line patterns, materials, appearance assets
+  FontElem                                 sample=25 modified=10
+          sample: 49582:Arial, 49592:Arial, 49600:Arial
+        modified: 280:Arial, 291:Arial, 308:Arial
+  MaterialElem                             sample=10 modified=13
+          sample: 123310:Softwood, Lumber, 141538:Aluminum, 218358:Concrete - Cast-in-Place Concrete
+        modified: 29:GEN Gypsum Wall Board, 417:GEN Phase - Demolition, 519:GEN Phase - New
+  AppearanceAssetElem                      modified=18
+        modified: 171886:Generic, 171938:Generic, 171941:Generic
+  PenWidthTableElem                        sample=8 modified=1
+          sample: 1218557:-, 1218558:-, 1218559:-
+        modified: 2:-
+  FillPatternElem                          modified=9
+        modified: 3:GEN Diagonal Crosshatch 3mm, 4:GEN Solid Fill, 5:GEN Diagonal Up 4mm
+  LinePatternElem                          modified=7
+        modified: 11:GEN Dash 3mm, 16:GEN Dash Dot 6mm, 20:GEN Hidden 2mm
+  AssemblyCodeTable                        sample=1
+          sample: 1218726:-
+  LightSchemeElement                       sample=1
+          sample: 1454513:-
+
+[text-dimension-types]  Text / dimension / arrowhead / annotation types
+  DimensionStyle                           sample=8 modified=4
+          sample: 907054:Diameter, 907062:Diameter, 907070:Diameter
+        modified: 277:SecretInternalLinAngDimStyle714q616180, 288:SecretInternalRadDimStyle353q963863, 23763:SecretInternalTypePreviewDimStyle700q6
+  SectionAttributes                        sample=8 modified=2
+          sample: 49579:Section 1, 49597:Section 1, 49615:Section 1
+        modified: 26029:Section Head - Filled, Section Tail - , 29088:Section Head - No Arrow, Section Tail 
+  InteriorElevAttributes                   sample=8 modified=1
+          sample: 49589:Elevation 1, 49607:Elevation 1, 49625:Elevation 1
+        modified: 357:GEN Elevation Marker - 10mm Circle
+  CalloutTag                               sample=8 modified=1
+          sample: 49583:Callout Tag 1, 49601:Callout Tag 1, 49619:Callout Tag 1
+        modified: 49508:GEN Callout Head - 2mm Radius
+  LeaderStyle                              modified=5
+        modified: 285:SecretInternalLinAngArrowhead148q03932, 296:SecretInternalRadArrowhead640d780868, 23773:SecretInternalTypePreviewgArrowhead461
+  LevelAttributes                          modified=1
+        modified: 305:GEN Level Head - Circle
+  ViewportAttributes                       modified=1
+        modified: 324:Title w Line
+  GridAttributes                           modified=1
+        modified: 341:GEN Grid Head - 8mm Circle
+    ... 1 more class(es)
+
+[parameter-definitions]  Shared / project parameter definitions
+  ParamElemExternal                        sample=466
+          sample: 21308:Door Level, 21309:Door Level, 114978:A
+  ParamBinding                             sample=209
+          sample: 26011:Occupant -> Rooms, 198378:Recycled Content -> Materials, 198386:Embodied Energy -> -2009030
+  ParamElemElectricalLoadClassification    sample=108
+          sample: 127547:Other Demand Apparent Power, 127548:Other Connected Apparent Power, 127549:Other Estimated Demand Current
+  PropertySetElement                       sample=28
+          sample: 174481:-, 174487:-, 174488:-
+  ParamElemProject                         sample=8
+          sample: 26010:Occupant, 713618:Hinge Set, 713619:Lock Function
+  ExternalParamLock                        sample=1
+          sample: 46017:-
+  KeynoteTable                             modified=1
+        modified: 86291:Standard
+  KeynotingSystem                          sample=1
+          sample: 86315:-
+
+[phases-design-options]  Phases / design options / revisions
+  NumberingSchema                          sample=3
+          sample: 1218729:-, 1218730:-, 1457391:-
+  ProjectPhase                             modified=2
+        modified: 12589:Existing Conditions, 86961:New Work
+  RevisionNumberingSequence                sample=2
+          sample: 1471493:-, 1471494:-
+  AllProjectPhases                         modified=1
+        modified: 1:-
+  PhaseFilterElem                          modified=1
+        modified: 375:GEN All Phases
+  ProjectRevision                          modified=1
+        modified: 49030:-
+  AllProjectRevisions                      modified=1
+        modified: 49031:-
+
+[project-info-settings]  Project info & settings elements
+  GeoSite                                  modified=2
+        modified: 21747:-, 111427:-
+  GeoLocation                              modified=2
+        modified: 21748:GEN Internal Origin, 111428:GEN Project Position
+  BasePoint                                modified=2
+        modified: 111426:-, 111429:-
+  WorksharingViewModeSettings              sample=1 modified=1
+          sample: 171476:-
+        modified: 130813:-
+  TrueNorth                                modified=1
+        modified: 7850:-
+  DaylightSourceIdSet                      sample=1
+          sample: 12799:-
+  UnitsElem                                modified=1
+        modified: 19236:-
+  ProjectInfo                              modified=1
+        modified: 49504:-
+    ... 26 more class(es)
+
+[mep-electrical-definitions]  MEP / electrical definition tables
+  HVACLoadSpaceTypeElem                    sample=125
+          sample: 105590:Active Storage, 105591:Active Storage - Hospital/Healthcare, 105592:Air/Train/Bus - Baggage Area
+  HVACLoadBuildingTypeElem                 sample=33
+          sample: 105557:Automotive Facility, 105558:Convention Center, 105559:Courthouse
+  HVACLoadScheduleElem                     sample=27
+          sample: 105532:-, 105533:-, 105534:-
+  BuildingOperatingYearSchedule            sample=27
+          sample: 1471979:-, 1471980:-, 1471981:-
+  RbsWireInsulationType                    sample=26
+          sample: 102415:FEP, 102416:FEPB, 102417:FEPW
+  ElectricalDemandFactorDefinition         sample=21
+          sample: 113159:Other, 113161:Motor, 113943:Demand Factor
+  ElectricalLoadClassification             sample=18
+          sample: 113160:Other, 113162:Motor, 113944:Power
+  PipeSegment                              sample=15
+          sample: 137323:Carbon Steel - Schedule 40, 137324:Carbon Steel - Schedule 80, 137325:Stainless Steel - 5S
+    ... 16 more class(es)
+
+[datums]  Datums (levels / grids / reference planes)
+  RefPlane                                 sample=21
+          sample: 273446:-, 275461:-, 275545:-
+  Level                                    modified=9
+        modified: 311:L1 - Ground Floor, 694:GEN Mezzanine, 196629:GEN Roof Datum
+  Grid                                     modified=3
+        modified: 195338:01, 195411:02, 195418:03
+  ExtentElem                               sample=1 modified=2
+          sample: 245444:-
+        modified: 1064657:-, 1470264:-
+
+[placed-model-content]  Placed model content (sample geometry)
+  AreaMeasureElem                          modified=2
+        modified: 9490:-, 9494:-
+  RoomElem                                 sample=1
+          sample: 1004910:1 Area
+  RvtLinkInstance                          sample=1
+          sample: 1250030:rac_basic_sample_project.rvt
+
+[view-annotation-2d-content]  View-owned 2D / annotation content
+  SketchPlane                              sample=31 modified=1
+          sample: 3325:-, 196658:-, 245433:-
+        modified: 245451:-
+  CurveElem                                sample=5
+          sample: 1004904:-, 1004905:-, 1004906:-
+  LegendComponent                          sample=4
+          sample: 907404:-, 907423:-, 907424:-
+  SunAnnotationElem                        sample=3
+          sample: 245447:-, 1064660:-, 1454510:-
+  LinearDimString                          sample=1
+          sample: 763420:-
+  ModelClipBox                             sample=1
+          sample: 1454507:-
+
+[internal-bookkeeping]  Internal bookkeeping (regenerated by Revit)
+  AreaTypeElem                             sample=8
+          sample: 9492:-, 9493:-, 9496:-
+  ReactionsUpToDateElem                    sample=1
+          sample: 85104:-
+  Dwg2dExportUserSettingsData              sample=1
+          sample: 102444:-
+  AutoJoinTracker                          sample=1
+          sample: 102467:-
+  AutoCamSettingsElem                      sample=1
+          sample: 102842:-
+  WorksetVisibilitySettingsElem            sample=1
+          sample: 113134:-
+  ProjectCopySettingsElem                  sample=1
+          sample: 115987:-
+  ReconcileBrowserSettingsElem             modified=1
+        modified: 116120:-
+    ... 12 more class(es)
+
+G1 GATE: FAIL — 3,279 Autodesk-derived element(s) in expression-bearing categories; 1,579,264 byte(s) byte-identical to baseline in expression-bearing streams; 8,475 Autodesk resource identifier(s); 7 identity violation(s)
+   x [elements] loadable-families                  autodesk-sample                  16
+   x [elements] family-types-symbols               autodesk-sample                   2
+   x [elements] system-family-types                autodesk-sample                   4
+   x [elements] views-and-templates                autodesk-sample                 118
+   x [elements] views-and-templates                ours-modified                    41
+   x [elements] object-styles                      autodesk-sample                 125
+   x [elements] object-styles                      ours-modified                 1,546
+   x [elements] patterns-materials                 autodesk-sample                  45
+   x [elements] patterns-materials                 ours-modified                    58
+   x [elements] text-dimension-types               autodesk-sample                  32
+   x [elements] text-dimension-types               ours-modified                    17
+   x [elements] parameter-definitions              autodesk-sample                 821
+   x [elements] parameter-definitions              ours-modified                     1
+   x [elements] phases-design-options              autodesk-sample                   5
+   x [elements] phases-design-options              ours-modified                     6
+   x [elements] project-info-settings              autodesk-sample                  17
+   x [elements] project-info-settings              ours-modified                    21
+   x [elements] mep-electrical-definitions         autodesk-sample                 351
+   x [elements] mep-electrical-definitions         ours-modified                     3
+   x [elements] placed-model-content               autodesk-sample                   2
+   x [elements] placed-model-content               ours-modified                     2
+   x [elements] view-annotation-2d-content         autodesk-sample                  45
+   x [elements] view-annotation-2d-content         ours-modified                     1
+   x [streams ] Global/Latest                      stream-modified-lineag    1,579,264
+   x [strings ] autodesk-resource-refs             autodesk-resource-refs        8,475
+   x [identity] identity:author                    identity-not-ours                 1
+   x [identity] identity:client_app_name           identity-not-ours                 1
+   x [identity] identity:last_save_path            identity-not-ours                 1
+   x [identity] identity:unique_document_guid      identity-not-ours                 1
+   x [identity] identity:central_episode_guid      identity-not-ours                 1
+   x [identity] identity:last_save_path            identity-not-ours                 1
+   x [identity] identity:DocumentIncrementTable.us identity-not-ours                22
+   ? [counsel ] C4 schema-stream Formats/Latest — Formats/Latest is Autodesk's serialized class model shipped byte-identical — counsel decides ship-verbatim vs clean-room
+   ~ 8 advisory item(s) (lineage fingerprints / identity notes) in JSON

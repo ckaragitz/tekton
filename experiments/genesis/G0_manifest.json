@@ -1,0 +1,2661 @@
+{
+ "generator": "tools/genesis_assemble.py",
+ "author": "rvt-writer",
+ "id_range": [
+  1500000,
+  1500233
+ ],
+ "element_count": 234,
+ "content_source": "rvt.genesis.house_standard.build_catalog",
+ "scrub": "full",
+ "by_kind": [
+  [
+   "object-style",
+   91
+  ],
+  [
+   "plan-view-constellation",
+   14
+  ],
+  [
+   "material",
+   13
+  ],
+  [
+   "text-type",
+   12
+  ],
+  [
+   "3d-view-constellation",
+   8
+  ],
+  [
+   "voltage-type",
+   6
+  ],
+  [
+   "load-classification",
+   6
+  ],
+  [
+   "fill-pattern",
+   5
+  ],
+  [
+   "distribution-system",
+   5
+  ],
+  [
+   "demand-factor",
+   5
+  ],
+  [
+   "conduit-type",
+   5
+  ],
+  [
+   "phase-filter",
+   5
+  ],
+  [
+   "line-pattern",
+   4
+  ],
+  [
+   "conduit-standard",
+   4
+  ],
+  [
+   "sub-category",
+   4
+  ],
+  [
+   "project-view-constellation",
+   4
+  ],
+  [
+   "wall-type",
+   3
+  ],
+  [
+   "cable-tray-type",
+   3
+  ],
+  [
+   "conductor-insulation",
+   3
+  ],
+  [
+   "wire-type",
+   3
+  ],
+  [
+   "view-type",
+   3
+  ],
+  [
+   "conductor-material",
+   2
+  ],
+  [
+   "conductor-temperature-rating",
+   2
+  ],
+  [
+   "conductor-size",
+   2
+  ],
+  [
+   "geo-site",
+   2
+  ],
+  [
+   "geo-location",
+   2
+  ],
+  [
+   "level",
+   2
+  ],
+  [
+   "phase",
+   2
+  ],
+  [
+   "floor-type",
+   1
+  ],
+  [
+   "roof-type",
+   1
+  ],
+  [
+   "ceiling-type",
+   1
+  ],
+  [
+   "electrical-setting",
+   1
+  ],
+  [
+   "conduit-sizes-table",
+   1
+  ],
+  [
+   "cable-tray-sizes-table",
+   1
+  ],
+  [
+   "units-registry",
+   1
+  ],
+  [
+   "true-north",
+   1
+  ],
+  [
+   "project-base-point",
+   1
+  ],
+  [
+   "survey-point",
+   1
+  ],
+  [
+   "level-type",
+   1
+  ],
+  [
+   "phase-set",
+   1
+  ],
+  [
+   "project-info",
+   1
+  ],
+  [
+   "document-sun-settings",
+   1
+  ]
+ ],
+ "by_class": [
+  [
+   "GStyleElem",
+   94
+  ],
+  [
+   "MaterialElem",
+   13
+  ],
+  [
+   "CustomElement",
+   9
+  ],
+  [
+   "CategoryElem",
+   7
+  ],
+  [
+   "RbsVoltageType",
+   6
+  ],
+  [
+   "ElectricalLoadClassification",
+   6
+  ],
+  [
+   "FillPatternElem",
+   5
+  ],
+  [
+   "RbsDistributionSysType",
+   5
+  ],
+  [
+   "ElectricalDemandFactorDefinition",
+   5
+  ],
+  [
+   "RbsConduitType",
+   5
+  ],
+  [
+   "PhaseFilterElem",
+   5
+  ],
+  [
+   "LinePatternElem",
+   4
+  ],
+  [
+   "ConduitStandardType",
+   4
+  ],
+  [
+   "SunAndShadowSettings",
+   4
+  ],
+  [
+   "Viewport",
+   4
+  ],
+  [
+   "DBDrawing",
+   4
+  ],
+  [
+   "BasicWallType",
+   3
+  ],
+  [
+   "RbsCableTrayType",
+   3
+  ],
+  [
+   "RbsWireType",
+   3
+  ],
+  [
+   "TextNoteAttributes",
+   3
+  ],
+  [
+   "FontElem",
+   3
+  ],
+  [
+   "Viewer",
+   3
+  ],
+  [
+   "DBViewType",
+   3
+  ],
+  [
+   "ExtentElem",
+   3
+  ],
+  [
+   "GeoSite",
+   2
+  ],
+  [
+   "GeoLocation",
+   2
+  ],
+  [
+   "BasePoint",
+   2
+  ],
+  [
+   "Level",
+   2
+  ],
+  [
+   "ProjectPhase",
+   2
+  ],
+  [
+   "DBViewPlan",
+   2
+  ],
+  [
+   "SketchPlane",
+   2
+  ],
+  [
+   "FloorAttributes",
+   1
+  ],
+  [
+   "RoofAttributes",
+   1
+  ],
+  [
+   "CompoundCeilingType",
+   1
+  ],
+  [
+   "ElectricalSetting",
+   1
+  ],
+  [
+   "ConduitSizesElem",
+   1
+  ],
+  [
+   "CableTraySizesElem",
+   1
+  ],
+  [
+   "UnitsElem",
+   1
+  ],
+  [
+   "TrueNorth",
+   1
+  ],
+  [
+   "LevelAttributes",
+   1
+  ],
+  [
+   "AllProjectPhases",
+   1
+  ],
+  [
+   "ProjectInfo",
+   1
+  ],
+  [
+   "DBViewProject",
+   1
+  ],
+  [
+   "DBView3d",
+   1
+  ],
+  [
+   "Viewer3d",
+   1
+  ],
+  [
+   "ModelClipBox",
+   1
+  ],
+  [
+   "LightSchemeElement",
+   1
+  ]
+ ],
+ "named_ids": {
+  "units": 1500184,
+  "level1": 1500193,
+  "level2": 1500194,
+  "phase_new": 1500197,
+  "phase_existing": 1500196,
+  "phase_set": 1500195,
+  "project_view": 1500205,
+  "view_3d": 1500212,
+  "project_info": 1500203,
+  "geo_location": 1500189,
+  "true_north": 1500185,
+  "document_sun": 1500204
+ },
+ "roundtrip": {
+  "records": 234,
+  "ok": 234,
+  "failed": 0,
+  "failures": []
+ },
+ "dangling_references": [],
+ "elements": [
+  {
+   "id": 1500000,
+   "class": "LinePatternElem",
+   "kind": "line-pattern",
+   "name": "GEN Dash 3mm"
+  },
+  {
+   "id": 1500001,
+   "class": "LinePatternElem",
+   "kind": "line-pattern",
+   "name": "GEN Hidden 2mm"
+  },
+  {
+   "id": 1500002,
+   "class": "LinePatternElem",
+   "kind": "line-pattern",
+   "name": "GEN Centre 8mm"
+  },
+  {
+   "id": 1500003,
+   "class": "LinePatternElem",
+   "kind": "line-pattern",
+   "name": "GEN Demolition 4mm"
+  },
+  {
+   "id": 1500004,
+   "class": "FillPatternElem",
+   "kind": "fill-pattern",
+   "name": "GEN Solid Fill"
+  },
+  {
+   "id": 1500005,
+   "class": "FillPatternElem",
+   "kind": "fill-pattern",
+   "name": "GEN Diagonal Crosshatch 3mm"
+  },
+  {
+   "id": 1500006,
+   "class": "FillPatternElem",
+   "kind": "fill-pattern",
+   "name": "GEN Diagonal Up 4mm"
+  },
+  {
+   "id": 1500007,
+   "class": "FillPatternElem",
+   "kind": "fill-pattern",
+   "name": "GEN Insulation Batting 6mm"
+  },
+  {
+   "id": 1500008,
+   "class": "FillPatternElem",
+   "kind": "fill-pattern",
+   "name": "GEN Sand Stipple 1.5mm"
+  },
+  {
+   "id": 1500009,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Concrete, Cast-in-Place",
+   "params": {
+    "rgb": [
+     200,
+     198,
+     192
+    ]
+   }
+  },
+  {
+   "id": 1500010,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Concrete Masonry Units",
+   "params": {
+    "rgb": [
+     172,
+     168,
+     158
+    ]
+   }
+  },
+  {
+   "id": 1500011,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Gypsum Wall Board",
+   "params": {
+    "rgb": [
+     246,
+     246,
+     240
+    ]
+   }
+  },
+  {
+   "id": 1500012,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Metal Stud Framing",
+   "params": {
+    "rgb": [
+     168,
+     168,
+     178
+    ]
+   }
+  },
+  {
+   "id": 1500013,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Steel, Structural",
+   "params": {
+    "rgb": [
+     150,
+     152,
+     160
+    ]
+   }
+  },
+  {
+   "id": 1500014,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Rigid Insulation",
+   "params": {
+    "rgb": [
+     250,
+     240,
+     200
+    ]
+   }
+  },
+  {
+   "id": 1500015,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Glass, Clear",
+   "params": {
+    "rgb": [
+     198,
+     220,
+     236
+    ]
+   }
+  },
+  {
+   "id": 1500016,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Wood, Softwood Lumber",
+   "params": {
+    "rgb": [
+     204,
+     178,
+     140
+    ]
+   }
+  },
+  {
+   "id": 1500017,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Earth",
+   "params": {
+    "rgb": [
+     140,
+     116,
+     88
+    ]
+   }
+  },
+  {
+   "id": 1500018,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Phase - Existing",
+   "params": {
+    "rgb": [
+     176,
+     176,
+     176
+    ]
+   }
+  },
+  {
+   "id": 1500019,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Phase - Demolition",
+   "params": {
+    "rgb": [
+     140,
+     140,
+     140
+    ]
+   }
+  },
+  {
+   "id": 1500020,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Phase - New",
+   "params": {
+    "rgb": [
+     224,
+     224,
+     224
+    ]
+   }
+  },
+  {
+   "id": 1500021,
+   "class": "MaterialElem",
+   "kind": "material",
+   "name": "GEN Phase - Temporary",
+   "params": {
+    "rgb": [
+     206,
+     206,
+     216
+    ]
+   }
+  },
+  {
+   "id": 1500022,
+   "class": "BasicWallType",
+   "kind": "wall-type",
+   "name": "GEN Interior - 124mm Gypsum Partition",
+   "params": {
+    "rationale": "5/8 in gypsum board each side of a 3-5/8 in (92 mm) steel stud"
+   }
+  },
+  {
+   "id": 1500023,
+   "class": "BasicWallType",
+   "kind": "wall-type",
+   "name": "GEN Exterior - 200mm CIP Concrete",
+   "params": {
+    "rationale": "single 200 mm cast-in-place concrete structural layer"
+   }
+  },
+  {
+   "id": 1500024,
+   "class": "BasicWallType",
+   "kind": "wall-type",
+   "name": "GEN Interior - 190mm CMU",
+   "params": {
+    "rationale": "nominal 8 in concrete block (190 mm actual)"
+   }
+  },
+  {
+   "id": 1500025,
+   "class": "FloorAttributes",
+   "kind": "floor-type",
+   "name": "GEN Slab on Grade - 150mm Concrete",
+   "params": {
+    "rationale": "150 mm structural concrete slab"
+   }
+  },
+  {
+   "id": 1500026,
+   "class": "RoofAttributes",
+   "kind": "roof-type",
+   "name": "GEN Roof - Concrete Deck 200mm with Insulation",
+   "params": {
+    "rationale": "60 mm rigid insulation over 200 mm concrete deck"
+   }
+  },
+  {
+   "id": 1500027,
+   "class": "CompoundCeilingType",
+   "kind": "ceiling-type",
+   "name": "GEN Ceiling - 16mm GWB on Furring",
+   "params": {
+    "rationale": "5/8 in gypsum on 1-1/2 in (38 mm) furring"
+   }
+  },
+  {
+   "id": 1500028,
+   "class": "RbsVoltageType",
+   "kind": "voltage-type",
+   "name": "GEN 120 V",
+   "params": {
+    "nominal": 120.0,
+    "source": "ANSI C84.1 Range A"
+   }
+  },
+  {
+   "id": 1500029,
+   "class": "RbsVoltageType",
+   "kind": "voltage-type",
+   "name": "GEN 208 V",
+   "params": {
+    "nominal": 208.0,
+    "source": "ANSI C84.1 Range A"
+   }
+  },
+  {
+   "id": 1500030,
+   "class": "RbsVoltageType",
+   "kind": "voltage-type",
+   "name": "GEN 240 V",
+   "params": {
+    "nominal": 240.0,
+    "source": "ANSI C84.1 Range A"
+   }
+  },
+  {
+   "id": 1500031,
+   "class": "RbsVoltageType",
+   "kind": "voltage-type",
+   "name": "GEN 277 V",
+   "params": {
+    "nominal": 277.0,
+    "source": "ANSI C84.1 Range A"
+   }
+  },
+  {
+   "id": 1500032,
+   "class": "RbsVoltageType",
+   "kind": "voltage-type",
+   "name": "GEN 480 V",
+   "params": {
+    "nominal": 480.0,
+    "source": "ANSI C84.1 Range A"
+   }
+  },
+  {
+   "id": 1500033,
+   "class": "RbsVoltageType",
+   "kind": "voltage-type",
+   "name": "GEN 600 V",
+   "params": {
+    "nominal": 600.0,
+    "source": "ANSI C84.1 Range A"
+   }
+  },
+  {
+   "id": 1500034,
+   "class": "RbsDistributionSysType",
+   "kind": "distribution-system",
+   "name": "GEN 120/240 V Single-Phase 3W",
+   "params": {
+    "source": "ANSI C84.1 Table 1"
+   }
+  },
+  {
+   "id": 1500035,
+   "class": "RbsDistributionSysType",
+   "kind": "distribution-system",
+   "name": "GEN 208Y/120 V Three-Phase 4W Wye",
+   "params": {
+    "source": "ANSI C84.1 Table 1"
+   }
+  },
+  {
+   "id": 1500036,
+   "class": "RbsDistributionSysType",
+   "kind": "distribution-system",
+   "name": "GEN 480Y/277 V Three-Phase 4W Wye",
+   "params": {
+    "source": "ANSI C84.1 Table 1"
+   }
+  },
+  {
+   "id": 1500037,
+   "class": "RbsDistributionSysType",
+   "kind": "distribution-system",
+   "name": "GEN 480 V Three-Phase 3W Delta",
+   "params": {
+    "source": "ANSI C84.1 Table 1"
+   }
+  },
+  {
+   "id": 1500038,
+   "class": "RbsDistributionSysType",
+   "kind": "distribution-system",
+   "name": "GEN 600 V Three-Phase 3W Delta",
+   "params": {
+    "source": "ANSI C84.1 Table 1"
+   }
+  },
+  {
+   "id": 1500039,
+   "class": "ElectricalDemandFactorDefinition",
+   "kind": "demand-factor",
+   "name": "GEN Continuous Load 125% (NEC 210.19)",
+   "params": {
+    "source": "NEC 210.19(A)/215.2(A): continuous loads at 125 %"
+   }
+  },
+  {
+   "id": 1500040,
+   "class": "ElectricalDemandFactorDefinition",
+   "kind": "demand-factor",
+   "name": "GEN Receptacle Demand (NEC 220.44)",
+   "params": {
+    "source": "NEC 220.44: first 10 kVA at 100 %, remainder at 50 %"
+   }
+  },
+  {
+   "id": 1500041,
+   "class": "ElectricalDemandFactorDefinition",
+   "kind": "demand-factor",
+   "name": "GEN Motor Demand (NEC 430.24)",
+   "params": {
+    "source": "NEC 430.24: 125 % of the largest motor plus 100 % of the rest"
+   }
+  },
+  {
+   "id": 1500042,
+   "class": "ElectricalDemandFactorDefinition",
+   "kind": "demand-factor",
+   "name": "GEN Commercial Kitchen Demand (NEC 220.56)",
+   "params": {
+    "source": "NEC 220.56 Table: 1-2 units 100 %, 3 units 90 %, 4 units 80 %, 5 units 70 %, 6+ units 65 % [count-range encoding: hypothesis]"
+   }
+  },
+  {
+   "id": 1500043,
+   "class": "ElectricalDemandFactorDefinition",
+   "kind": "demand-factor",
+   "name": "GEN No Diversity 100%",
+   "params": {
+    "source": "our policy: no demand diversity applied (base default)"
+   }
+  },
+  {
+   "id": 1500044,
+   "class": "ElectricalLoadClassification",
+   "kind": "load-classification",
+   "name": "GEN Lighting"
+  },
+  {
+   "id": 1500045,
+   "class": "ElectricalLoadClassification",
+   "kind": "load-classification",
+   "name": "GEN Receptacle"
+  },
+  {
+   "id": 1500046,
+   "class": "ElectricalLoadClassification",
+   "kind": "load-classification",
+   "name": "GEN Motor"
+  },
+  {
+   "id": 1500047,
+   "class": "ElectricalLoadClassification",
+   "kind": "load-classification",
+   "name": "GEN HVAC"
+  },
+  {
+   "id": 1500048,
+   "class": "ElectricalLoadClassification",
+   "kind": "load-classification",
+   "name": "GEN Kitchen Equipment"
+  },
+  {
+   "id": 1500049,
+   "class": "ElectricalLoadClassification",
+   "kind": "load-classification",
+   "name": "GEN Spare"
+  },
+  {
+   "id": 1500050,
+   "class": "ElectricalSetting",
+   "kind": "electrical-setting",
+   "name": ""
+  },
+  {
+   "id": 1500051,
+   "class": "ConduitStandardType",
+   "kind": "conduit-standard",
+   "name": "GEN EMT",
+   "params": {
+    "source": "ANSI C80.3 / NEC Ch.9 T4"
+   }
+  },
+  {
+   "id": 1500052,
+   "class": "ConduitStandardType",
+   "kind": "conduit-standard",
+   "name": "GEN IMC",
+   "params": {
+    "source": "ANSI C80.6 / NEC Ch.9 T4"
+   }
+  },
+  {
+   "id": 1500053,
+   "class": "ConduitStandardType",
+   "kind": "conduit-standard",
+   "name": "GEN RMC",
+   "params": {
+    "source": "ANSI C80.1 / NEC Ch.9 T4"
+   }
+  },
+  {
+   "id": 1500054,
+   "class": "ConduitStandardType",
+   "kind": "conduit-standard",
+   "name": "GEN PVC Schedule 40",
+   "params": {
+    "source": "NEMA TC-2 / NEC Ch.9 T4"
+   }
+  },
+  {
+   "id": 1500055,
+   "class": "ConduitSizesElem",
+   "kind": "conduit-sizes-table",
+   "name": "",
+   "params": {
+    "source": "NEC Ch.9 Table 4 / Table 2"
+   }
+  },
+  {
+   "id": 1500056,
+   "class": "RbsConduitType",
+   "kind": "conduit-type",
+   "name": "GEN Conduit - EMT with Fittings"
+  },
+  {
+   "id": 1500057,
+   "class": "RbsConduitType",
+   "kind": "conduit-type",
+   "name": "GEN Conduit - EMT (no fittings)"
+  },
+  {
+   "id": 1500058,
+   "class": "RbsConduitType",
+   "kind": "conduit-type",
+   "name": "GEN Conduit - IMC with Fittings"
+  },
+  {
+   "id": 1500059,
+   "class": "RbsConduitType",
+   "kind": "conduit-type",
+   "name": "GEN Conduit - RMC with Fittings"
+  },
+  {
+   "id": 1500060,
+   "class": "RbsConduitType",
+   "kind": "conduit-type",
+   "name": "GEN Conduit - PVC Sch 40 with Fittings"
+  },
+  {
+   "id": 1500061,
+   "class": "CableTraySizesElem",
+   "kind": "cable-tray-sizes-table",
+   "name": "",
+   "params": {
+    "source": "NEMA VE 1"
+   }
+  },
+  {
+   "id": 1500062,
+   "class": "RbsCableTrayType",
+   "kind": "cable-tray-type",
+   "name": "GEN Cable Tray - Ladder"
+  },
+  {
+   "id": 1500063,
+   "class": "RbsCableTrayType",
+   "kind": "cable-tray-type",
+   "name": "GEN Cable Tray - Ventilated Trough"
+  },
+  {
+   "id": 1500064,
+   "class": "RbsCableTrayType",
+   "kind": "cable-tray-type",
+   "name": "GEN Cable Tray - Solid Bottom"
+  },
+  {
+   "id": 1500065,
+   "class": "CustomElement",
+   "kind": "conductor-material",
+   "name": ""
+  },
+  {
+   "id": 1500066,
+   "class": "CustomElement",
+   "kind": "conductor-material",
+   "name": ""
+  },
+  {
+   "id": 1500067,
+   "class": "CustomElement",
+   "kind": "conductor-temperature-rating",
+   "name": ""
+  },
+  {
+   "id": 1500068,
+   "class": "CustomElement",
+   "kind": "conductor-temperature-rating",
+   "name": ""
+  },
+  {
+   "id": 1500069,
+   "class": "CustomElement",
+   "kind": "conductor-insulation",
+   "name": ""
+  },
+  {
+   "id": 1500070,
+   "class": "CustomElement",
+   "kind": "conductor-insulation",
+   "name": ""
+  },
+  {
+   "id": 1500071,
+   "class": "CustomElement",
+   "kind": "conductor-insulation",
+   "name": ""
+  },
+  {
+   "id": 1500072,
+   "class": "CustomElement",
+   "kind": "conductor-size",
+   "name": "",
+   "params": {
+    "diameter_mm": 20.650199999999998,
+    "source": "NEC Ch.9 Table 8"
+   }
+  },
+  {
+   "id": 1500073,
+   "class": "CustomElement",
+   "kind": "conductor-size",
+   "name": "",
+   "params": {
+    "diameter_mm": 25.3492,
+    "source": "NEC Ch.9 Table 8"
+   }
+  },
+  {
+   "id": 1500074,
+   "class": "RbsWireType",
+   "kind": "wire-type",
+   "name": "GEN Wire - Cu THWN-2 75C"
+  },
+  {
+   "id": 1500075,
+   "class": "RbsWireType",
+   "kind": "wire-type",
+   "name": "GEN Wire - Cu THHN 90C"
+  },
+  {
+   "id": 1500076,
+   "class": "RbsWireType",
+   "kind": "wire-type",
+   "name": "GEN Wire - Al XHHW-2 75C"
+  },
+  {
+   "id": 1500077,
+   "class": "TextNoteAttributes",
+   "kind": "text-type",
+   "name": "GEN 2.5mm Text",
+   "params": {
+    "size_mm": 2.5,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500078,
+   "class": "FontElem",
+   "kind": "text-type",
+   "name": "Arial",
+   "params": {
+    "size_mm": 2.5,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500079,
+   "class": "CategoryElem",
+   "kind": "text-type",
+   "name": "",
+   "params": {
+    "size_mm": 2.5,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500080,
+   "class": "GStyleElem",
+   "kind": "text-type",
+   "name": "",
+   "params": {
+    "size_mm": 2.5,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500081,
+   "class": "TextNoteAttributes",
+   "kind": "text-type",
+   "name": "GEN 3.5mm Text Bold",
+   "params": {
+    "size_mm": 3.5,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500082,
+   "class": "FontElem",
+   "kind": "text-type",
+   "name": "Arial",
+   "params": {
+    "size_mm": 3.5,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500083,
+   "class": "CategoryElem",
+   "kind": "text-type",
+   "name": "",
+   "params": {
+    "size_mm": 3.5,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500084,
+   "class": "GStyleElem",
+   "kind": "text-type",
+   "name": "",
+   "params": {
+    "size_mm": 3.5,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500085,
+   "class": "TextNoteAttributes",
+   "kind": "text-type",
+   "name": "GEN 5mm Title",
+   "params": {
+    "size_mm": 5.0,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500086,
+   "class": "FontElem",
+   "kind": "text-type",
+   "name": "Arial",
+   "params": {
+    "size_mm": 5.0,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500087,
+   "class": "CategoryElem",
+   "kind": "text-type",
+   "name": "",
+   "params": {
+    "size_mm": 5.0,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500088,
+   "class": "GStyleElem",
+   "kind": "text-type",
+   "name": "",
+   "params": {
+    "size_mm": 5.0,
+    "source": "ISO 3098"
+   }
+  },
+  {
+   "id": 1500089,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Walls / projection",
+   "params": {
+    "category": -2000011,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500090,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Walls / cut",
+   "params": {
+    "category": -2000011,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500091,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Windows / projection",
+   "params": {
+    "category": -2000014,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500092,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Windows / cut",
+   "params": {
+    "category": -2000014,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500093,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Doors / projection",
+   "params": {
+    "category": -2000023,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500094,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Doors / cut",
+   "params": {
+    "category": -2000023,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500095,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Floors / projection",
+   "params": {
+    "category": -2000032,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500096,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Floors / cut",
+   "params": {
+    "category": -2000032,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500097,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Roofs / projection",
+   "params": {
+    "category": -2000035,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500098,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Roofs / cut",
+   "params": {
+    "category": -2000035,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500099,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Ceilings / projection",
+   "params": {
+    "category": -2000038,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500100,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Ceilings / cut",
+   "params": {
+    "category": -2000038,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500101,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Lines / projection",
+   "params": {
+    "category": -2000051,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500102,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Furniture / projection",
+   "params": {
+    "category": -2000080,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500103,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Furniture / cut",
+   "params": {
+    "category": -2000080,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500104,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Columns / projection",
+   "params": {
+    "category": -2000100,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500105,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Columns / cut",
+   "params": {
+    "category": -2000100,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500106,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Stairs / projection",
+   "params": {
+    "category": -2000120,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500107,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Stairs / cut",
+   "params": {
+    "category": -2000120,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500108,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Railings / projection",
+   "params": {
+    "category": -2000126,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500109,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Railings / cut",
+   "params": {
+    "category": -2000126,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500110,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Generic Annotations / projection",
+   "params": {
+    "category": -2000150,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500111,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Generic Models / projection",
+   "params": {
+    "category": -2000151,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500112,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Generic Models / cut",
+   "params": {
+    "category": -2000151,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500113,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Rooms / projection",
+   "params": {
+    "category": -2000160,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500114,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Grids / projection",
+   "params": {
+    "category": -2000220,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500115,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Levels / projection",
+   "params": {
+    "category": -2000240,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500116,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Dimensions / projection",
+   "params": {
+    "category": -2000260,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500117,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Title Blocks / projection",
+   "params": {
+    "category": -2000280,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500118,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Text Notes / projection",
+   "params": {
+    "category": -2000300,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500119,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Section Heads / projection",
+   "params": {
+    "category": -2000400,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500120,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Room Tags / projection",
+   "params": {
+    "category": -2000480,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500121,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Space Tags / projection",
+   "params": {
+    "category": -2000485,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500122,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Viewports / projection",
+   "params": {
+    "category": -2000510,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500123,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "View Titles / projection",
+   "params": {
+    "category": -2000515,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500124,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Reference Planes / projection",
+   "params": {
+    "category": -2000530,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500125,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Callout Heads / projection",
+   "params": {
+    "category": -2000538,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500126,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Schedules / projection",
+   "params": {
+    "category": -2000573,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500127,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Sheets / projection",
+   "params": {
+    "category": -2000600,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500128,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Sheets / cut",
+   "params": {
+    "category": -2000600,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500129,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Materials / projection",
+   "params": {
+    "category": -2000700,
+    "discipline": "general",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500130,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Casework / projection",
+   "params": {
+    "category": -2001000,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500131,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Casework / cut",
+   "params": {
+    "category": -2001000,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500132,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Electrical Equipment / projection",
+   "params": {
+    "category": -2001040,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500133,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Electrical Fixtures / projection",
+   "params": {
+    "category": -2001060,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500134,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Lighting Fixtures / projection",
+   "params": {
+    "category": -2001120,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500135,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Mechanical Equipment / projection",
+   "params": {
+    "category": -2001140,
+    "discipline": "mechanical",
+    "pen": 1,
+    "color": 4615680
+   }
+  },
+  {
+   "id": 1500136,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Plumbing Fixtures / projection",
+   "params": {
+    "category": -2001160,
+    "discipline": "piping",
+    "pen": 1,
+    "color": 9198110
+   }
+  },
+  {
+   "id": 1500137,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Plumbing Fixtures / cut",
+   "params": {
+    "category": -2001160,
+    "discipline": "piping",
+    "pen": 3,
+    "color": 9198110
+   }
+  },
+  {
+   "id": 1500138,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Site / projection",
+   "params": {
+    "category": -2001260,
+    "discipline": "site",
+    "pen": 1,
+    "color": 2642040
+   }
+  },
+  {
+   "id": 1500139,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Site / cut",
+   "params": {
+    "category": -2001260,
+    "discipline": "site",
+    "pen": 3,
+    "color": 2642040
+   }
+  },
+  {
+   "id": 1500140,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Survey Point / projection",
+   "params": {
+    "category": -2001271,
+    "discipline": "site",
+    "pen": 1,
+    "color": 2642040
+   }
+  },
+  {
+   "id": 1500141,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Survey Point / cut",
+   "params": {
+    "category": -2001271,
+    "discipline": "site",
+    "pen": 3,
+    "color": 2642040
+   }
+  },
+  {
+   "id": 1500142,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Project Base Point / projection",
+   "params": {
+    "category": -2001272,
+    "discipline": "site",
+    "pen": 1,
+    "color": 2642040
+   }
+  },
+  {
+   "id": 1500143,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Project Base Point / cut",
+   "params": {
+    "category": -2001272,
+    "discipline": "site",
+    "pen": 3,
+    "color": 2642040
+   }
+  },
+  {
+   "id": 1500144,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Structural Foundations / projection",
+   "params": {
+    "category": -2001300,
+    "discipline": "structural",
+    "pen": 2,
+    "color": 2105440
+   }
+  },
+  {
+   "id": 1500145,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Structural Foundations / cut",
+   "params": {
+    "category": -2001300,
+    "discipline": "structural",
+    "pen": 5,
+    "color": 2105440
+   }
+  },
+  {
+   "id": 1500146,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Structural Framing / projection",
+   "params": {
+    "category": -2001320,
+    "discipline": "structural",
+    "pen": 2,
+    "color": 2105440
+   }
+  },
+  {
+   "id": 1500147,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Structural Framing / cut",
+   "params": {
+    "category": -2001320,
+    "discipline": "structural",
+    "pen": 5,
+    "color": 2105440
+   }
+  },
+  {
+   "id": 1500148,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Structural Columns / projection",
+   "params": {
+    "category": -2001330,
+    "discipline": "structural",
+    "pen": 2,
+    "color": 2105440
+   }
+  },
+  {
+   "id": 1500149,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Structural Columns / cut",
+   "params": {
+    "category": -2001330,
+    "discipline": "structural",
+    "pen": 5,
+    "color": 2105440
+   }
+  },
+  {
+   "id": 1500150,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Specialty Equipment / projection",
+   "params": {
+    "category": -2001350,
+    "discipline": "architectural",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500151,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Specialty Equipment / cut",
+   "params": {
+    "category": -2001350,
+    "discipline": "architectural",
+    "pen": 4,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500152,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Detail Items / projection",
+   "params": {
+    "category": -2002000,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500153,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Project Information / projection",
+   "params": {
+    "category": -2003101,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500154,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Spaces / projection",
+   "params": {
+    "category": -2003600,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500155,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Electrical Equipment Tags / projection",
+   "params": {
+    "category": -2005003,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500156,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Lighting Fixture Tags / projection",
+   "params": {
+    "category": -2005008,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500157,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Level Heads / projection",
+   "params": {
+    "category": -2006020,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500158,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Grid Heads / projection",
+   "params": {
+    "category": -2006040,
+    "discipline": "annotation",
+    "pen": 1,
+    "color": 0
+   }
+  },
+  {
+   "id": 1500159,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Connectors / projection",
+   "params": {
+    "category": -2007000,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500160,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Ducts / projection",
+   "params": {
+    "category": -2008000,
+    "discipline": "mechanical",
+    "pen": 1,
+    "color": 4615680
+   }
+  },
+  {
+   "id": 1500161,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Duct Fittings / projection",
+   "params": {
+    "category": -2008010,
+    "discipline": "mechanical",
+    "pen": 1,
+    "color": 4615680
+   }
+  },
+  {
+   "id": 1500162,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Air Terminals / projection",
+   "params": {
+    "category": -2008013,
+    "discipline": "mechanical",
+    "pen": 1,
+    "color": 4615680
+   }
+  },
+  {
+   "id": 1500163,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Electrical Circuits / projection",
+   "params": {
+    "category": -2008037,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500164,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Wires / projection",
+   "params": {
+    "category": -2008039,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500165,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Pipes / projection",
+   "params": {
+    "category": -2008044,
+    "discipline": "piping",
+    "pen": 1,
+    "color": 9198110
+   }
+  },
+  {
+   "id": 1500166,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Pipe Fittings / projection",
+   "params": {
+    "category": -2008049,
+    "discipline": "piping",
+    "pen": 1,
+    "color": 9198110
+   }
+  },
+  {
+   "id": 1500167,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Communication Devices / projection",
+   "params": {
+    "category": -2008077,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500168,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Security Devices / projection",
+   "params": {
+    "category": -2008079,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500169,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Fire Alarm Devices / projection",
+   "params": {
+    "category": -2008081,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500170,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Data Devices / projection",
+   "params": {
+    "category": -2008083,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500171,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Lighting Devices / projection",
+   "params": {
+    "category": -2008087,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500172,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Cable Tray Fittings / projection",
+   "params": {
+    "category": -2008126,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500173,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Conduit Fittings / projection",
+   "params": {
+    "category": -2008128,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500174,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Cable Trays / projection",
+   "params": {
+    "category": -2008130,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500175,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "Conduits / projection",
+   "params": {
+    "category": -2008132,
+    "discipline": "electrical",
+    "pen": 1,
+    "color": 9845760
+   }
+  },
+  {
+   "id": 1500176,
+   "class": "CategoryElem",
+   "kind": "sub-category",
+   "name": "GEN Fire-Rated Assembly Line",
+   "params": {
+    "parent": -2000011,
+    "discipline": "architectural"
+   }
+  },
+  {
+   "id": 1500177,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "GEN Fire-Rated Assembly Line / projection",
+   "params": {
+    "parent": -2000011,
+    "discipline": "architectural"
+   }
+  },
+  {
+   "id": 1500178,
+   "class": "CategoryElem",
+   "kind": "sub-category",
+   "name": "GEN Above-Ceiling Conduit",
+   "params": {
+    "parent": -2008132,
+    "discipline": "electrical"
+   }
+  },
+  {
+   "id": 1500179,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "GEN Above-Ceiling Conduit / projection",
+   "params": {
+    "parent": -2008132,
+    "discipline": "electrical"
+   }
+  },
+  {
+   "id": 1500180,
+   "class": "CategoryElem",
+   "kind": "sub-category",
+   "name": "GEN Demolition (Existing to Remove)",
+   "params": {
+    "parent": -2000011,
+    "discipline": "architectural"
+   }
+  },
+  {
+   "id": 1500181,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "GEN Demolition (Existing to Remove) / projection",
+   "params": {
+    "parent": -2000011,
+    "discipline": "architectural"
+   }
+  },
+  {
+   "id": 1500182,
+   "class": "CategoryElem",
+   "kind": "sub-category",
+   "name": "GEN Centre Lines",
+   "params": {
+    "parent": -2000051,
+    "discipline": "annotation"
+   }
+  },
+  {
+   "id": 1500183,
+   "class": "GStyleElem",
+   "kind": "object-style",
+   "name": "GEN Centre Lines / projection",
+   "params": {
+    "parent": -2000051,
+    "discipline": "annotation"
+   }
+  },
+  {
+   "id": 1500184,
+   "class": "UnitsElem",
+   "kind": "units-registry",
+   "name": "",
+   "params": {
+    "entries": 24,
+    "unit_system": "imperial"
+   }
+  },
+  {
+   "id": 1500185,
+   "class": "TrueNorth",
+   "kind": "true-north",
+   "name": ""
+  },
+  {
+   "id": 1500186,
+   "class": "GeoSite",
+   "kind": "geo-site",
+   "name": "",
+   "params": {
+    "latitude_deg": 0.0,
+    "longitude_deg": 0.0
+   }
+  },
+  {
+   "id": 1500187,
+   "class": "GeoSite",
+   "kind": "geo-site",
+   "name": "",
+   "params": {
+    "latitude_deg": 0.0,
+    "longitude_deg": 0.0
+   }
+  },
+  {
+   "id": 1500188,
+   "class": "GeoLocation",
+   "kind": "geo-location",
+   "name": "GEN Internal Origin"
+  },
+  {
+   "id": 1500189,
+   "class": "GeoLocation",
+   "kind": "geo-location",
+   "name": "GEN Project Position"
+  },
+  {
+   "id": 1500190,
+   "class": "BasePoint",
+   "kind": "project-base-point",
+   "name": ""
+  },
+  {
+   "id": 1500191,
+   "class": "BasePoint",
+   "kind": "survey-point",
+   "name": ""
+  },
+  {
+   "id": 1500192,
+   "class": "LevelAttributes",
+   "kind": "level-type",
+   "name": "GEN Level Head - Circle"
+  },
+  {
+   "id": 1500193,
+   "class": "Level",
+   "kind": "level",
+   "name": "L1 - Ground Floor",
+   "params": {
+    "elevation_ft": 0.0
+   }
+  },
+  {
+   "id": 1500194,
+   "class": "Level",
+   "kind": "level",
+   "name": "L2 - Second Floor",
+   "params": {
+    "elevation_ft": 12.0
+   }
+  },
+  {
+   "id": 1500195,
+   "class": "AllProjectPhases",
+   "kind": "phase-set",
+   "name": ""
+  },
+  {
+   "id": 1500196,
+   "class": "ProjectPhase",
+   "kind": "phase",
+   "name": "Existing Conditions"
+  },
+  {
+   "id": 1500197,
+   "class": "ProjectPhase",
+   "kind": "phase",
+   "name": "New Work"
+  },
+  {
+   "id": 1500198,
+   "class": "PhaseFilterElem",
+   "kind": "phase-filter",
+   "name": "GEN All Phases"
+  },
+  {
+   "id": 1500199,
+   "class": "PhaseFilterElem",
+   "kind": "phase-filter",
+   "name": "GEN Existing Conditions Only"
+  },
+  {
+   "id": 1500200,
+   "class": "PhaseFilterElem",
+   "kind": "phase-filter",
+   "name": "GEN Demolition Plan"
+  },
+  {
+   "id": 1500201,
+   "class": "PhaseFilterElem",
+   "kind": "phase-filter",
+   "name": "GEN New Work Only"
+  },
+  {
+   "id": 1500202,
+   "class": "PhaseFilterElem",
+   "kind": "phase-filter",
+   "name": "GEN Construction Set (Existing + New + Temporary)"
+  },
+  {
+   "id": 1500203,
+   "class": "ProjectInfo",
+   "kind": "project-info",
+   "name": "",
+   "params": {
+    "project_name": "GENESIS Base"
+   }
+  },
+  {
+   "id": 1500204,
+   "class": "SunAndShadowSettings",
+   "kind": "document-sun-settings",
+   "name": ""
+  },
+  {
+   "id": 1500205,
+   "class": "DBViewProject",
+   "kind": "project-view-constellation",
+   "name": "???"
+  },
+  {
+   "id": 1500206,
+   "class": "Viewer",
+   "kind": "project-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500207,
+   "class": "Viewport",
+   "kind": "project-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500208,
+   "class": "DBDrawing",
+   "kind": "project-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500209,
+   "class": "DBViewType",
+   "kind": "view-type",
+   "name": "GEN 3D View",
+   "params": {
+    "family": "3d"
+   }
+  },
+  {
+   "id": 1500210,
+   "class": "DBViewType",
+   "kind": "view-type",
+   "name": "GEN Floor Plan",
+   "params": {
+    "family": "floor_plan"
+   }
+  },
+  {
+   "id": 1500211,
+   "class": "DBViewType",
+   "kind": "view-type",
+   "name": "GEN Ceiling Plan",
+   "params": {
+    "family": "ceiling_plan"
+   }
+  },
+  {
+   "id": 1500212,
+   "class": "DBView3d",
+   "kind": "3d-view-constellation",
+   "name": "GEN Working 3D"
+  },
+  {
+   "id": 1500213,
+   "class": "Viewer3d",
+   "kind": "3d-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500214,
+   "class": "ModelClipBox",
+   "kind": "3d-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500215,
+   "class": "SunAndShadowSettings",
+   "kind": "3d-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500216,
+   "class": "Viewport",
+   "kind": "3d-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500217,
+   "class": "DBDrawing",
+   "kind": "3d-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500218,
+   "class": "LightSchemeElement",
+   "kind": "3d-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500219,
+   "class": "ExtentElem",
+   "kind": "3d-view-constellation",
+   "name": ""
+  },
+  {
+   "id": 1500220,
+   "class": "DBViewPlan",
+   "kind": "plan-view-constellation",
+   "name": "L1 - Ground Floor",
+   "params": {
+    "level": "L1 - Ground Floor"
+   }
+  },
+  {
+   "id": 1500221,
+   "class": "Viewer",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L1 - Ground Floor"
+   }
+  },
+  {
+   "id": 1500222,
+   "class": "SketchPlane",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L1 - Ground Floor"
+   }
+  },
+  {
+   "id": 1500223,
+   "class": "SunAndShadowSettings",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L1 - Ground Floor"
+   }
+  },
+  {
+   "id": 1500224,
+   "class": "Viewport",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L1 - Ground Floor"
+   }
+  },
+  {
+   "id": 1500225,
+   "class": "DBDrawing",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L1 - Ground Floor"
+   }
+  },
+  {
+   "id": 1500226,
+   "class": "ExtentElem",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L1 - Ground Floor"
+   }
+  },
+  {
+   "id": 1500227,
+   "class": "DBViewPlan",
+   "kind": "plan-view-constellation",
+   "name": "L2 - Second Floor",
+   "params": {
+    "level": "L2 - Second Floor"
+   }
+  },
+  {
+   "id": 1500228,
+   "class": "Viewer",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L2 - Second Floor"
+   }
+  },
+  {
+   "id": 1500229,
+   "class": "SketchPlane",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L2 - Second Floor"
+   }
+  },
+  {
+   "id": 1500230,
+   "class": "SunAndShadowSettings",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L2 - Second Floor"
+   }
+  },
+  {
+   "id": 1500231,
+   "class": "Viewport",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L2 - Second Floor"
+   }
+  },
+  {
+   "id": 1500232,
+   "class": "DBDrawing",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L2 - Second Floor"
+   }
+  },
+  {
+   "id": 1500233,
+   "class": "ExtentElem",
+   "kind": "plan-view-constellation",
+   "name": "",
+   "params": {
+    "level": "L2 - Second Floor"
+   }
+  }
+ ]
+}

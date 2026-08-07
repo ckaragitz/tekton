@@ -1,0 +1,327 @@
+{
+ "probe": "P_sameid_ep",
+ "family": "from-X0k",
+ "label": "X0k with row 2's EPISODES restored (1016,1016,1016) -> (0,976,976) [X0k = same-id re-add, verdict pending]",
+ "order": 7,
+ "upload": "OPTIONAL",
+ "file": "experiments/genesis/addpath/P_sameid_ep.rvt",
+ "template": "X0k",
+ "sibling": "X0k.rvt (verdict PENDING -- pen table re-added at its own id 2)",
+ "one_change": "ElemTable row 2 episodes (1016,1016,1016) -> (0,976,976) -- X0k with only the vintage restored (X0k's raw partition / Latest / identity kept)",
+ "factors": {
+  "id": "orig",
+  "episodes": "orig",
+  "position": "end",
+  "identity": "template"
+ },
+ "target_id": 2,
+ "tests": "Only relevant if X0k FAILS: separates VINTAGE from POSITION at the SAME id (zero registry motion).  With X0k PASSING these three are moot.",
+ "if_PASS": "(X0k FAIL) vintage was X0k's killer at the same id -- consistent with P_ep_only FAIL.",
+ "if_FAIL": "(X0k FAIL) not vintage alone; read P_sameid_order / P_sameid_ident.",
+ "build_info": {
+  "template": "X0k",
+  "template_path": "experiments/genesis/controls/X0k.rvt",
+  "template_partition_roundtrip_ok": true,
+  "target_id": 2,
+  "episodes": {
+   "creation": 0,
+   "modified": 976,
+   "user_modified": 976,
+   "source": "orig"
+  },
+  "position": "end",
+  "identity": {
+   "copied_verbatim_from_template": true
+  },
+  "partition": {
+   "copied_verbatim_from_template": true
+  },
+  "elemtable": {
+   "changes": [
+    {
+     "episodes_row_before": {
+      "original_id": 2,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     },
+     "episodes_row_after": {
+      "original_id": 2,
+      "creation_ep": 0,
+      "modified_ep": 976,
+      "user_modified_ep": 976,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     }
+    }
+   ],
+   "row_after": {
+    "elem_id": 2,
+    "original_id": 2,
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "user_modified_ep": 976,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "count": 6540,
+   "watermark_before": 1472524,
+   "watermark_after": 1472524
+  },
+  "latest": {
+   "copied_verbatim_from_template": true
+  },
+  "streams_written_new": [
+   "Global/ElemTable"
+  ],
+  "seconds_build": 0.0
+ },
+ "streams_vs": {
+  "K1": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "DIFFERS",
+   "Global/ElemTable": "identical",
+   "Global/History": "identical",
+   "Global/Latest": "identical",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "identical",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0k": {
+   "BasicFileInfo": "identical",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "identical",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "identical",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "identical",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  }
+ },
+ "changed_vs_template": [
+  "Global/ElemTable"
+ ],
+ "expected_changed_vs_template": [
+  "Global/ElemTable"
+ ],
+ "changed_set_as_expected": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "verify_written": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": 0,
+  "stamps_ok": true,
+  "elemtable_count": 6540,
+  "header_count": 6540
+ },
+ "target_records": {
+  "id": 2,
+  "found_clean": true,
+  "per_seq": {
+   "101": {
+    "class": 1509,
+    "clean": true
+   },
+   "102": {
+    "class": 3231,
+    "clean": true
+   },
+   "103": {
+    "class": 3884,
+    "clean": true
+   }
+  }
+ },
+ "intended_state": {
+  "elemtable_row": {
+   "elem_id": 2,
+   "original_id": 2,
+   "creation_ep": 0,
+   "modified_ep": 976,
+   "user_modified_ep": 976,
+   "owner_id": -1,
+   "partition_id": 0
+  },
+  "row_ok": true,
+  "record_position": "end",
+  "position_ok": true,
+  "adocument_surface": {
+   "2": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PenWidthTableInfo.m_penWidthTableElemId"
+   ]
+  },
+  "latest_ok": true,
+  "watermark": 1472524,
+  "watermark_ok": true,
+  "counts_6540_coherent": true,
+  "three_seq_orders_equal": true,
+  "elemtable_ids_equal_record_ids": true
+ },
+ "semantic_diff": {
+  "elemtable_vs_K1": {
+   "removed_rows": [],
+   "added_rows": [],
+   "changed_rows": [],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1472524
+   ]
+  },
+  "elemtable_vs_template": {
+   "removed_rows": [],
+   "added_rows": [],
+   "changed_rows": [
+    {
+     "before": {
+      "original_id": 2,
+      "creation_ep": 1016,
+      "modified_ep": 1016,
+      "user_modified_ep": 1016,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     },
+     "after": {
+      "original_id": 2,
+      "creation_ep": 0,
+      "modified_ep": 976,
+      "user_modified_ep": 976,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     }
+    }
+   ],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1472524
+   ]
+  },
+  "record_order_vs_K1": {
+   "K1_len": 6541,
+   "probe_len": 6541,
+   "backbone_order_identical_excluding_target": true,
+   "K1_index_of_2": 2516,
+   "probe_index_of_target": 6539,
+   "probe_target_neighbours": [
+    141731,
+    141733,
+    49026,
+    2,
+    -1
+   ],
+   "record_bytes_at_target_equal_K1_element_2": {
+    "101": {
+     "identical": true,
+     "differing_bytes": 0,
+     "len": [
+      135,
+      135
+     ]
+    },
+    "102": {
+     "identical": true,
+     "differing_bytes": 0,
+     "len": [
+      1223,
+      1223
+     ]
+    },
+    "103": {
+     "identical": true,
+     "differing_bytes": 0,
+     "len": [
+      22,
+      22
+     ]
+    }
+   }
+  },
+  "adocument_leaf_diff_vs_K1": [],
+  "identity_vs_K1": {
+   "BasicFileInfo": {
+    "client_app_name": [
+     "RevitApplication",
+     "rvt-writer"
+    ],
+    "username": [
+     "",
+     "rvt-writer"
+    ],
+    "author": [
+     "Autodesk Revit",
+     "rvt-writer"
+    ],
+    "last_save_path": [
+     "'C:\\\\Users\\\\hansonje\\\\Desktop\\\\Downloadable Files\\\\rstbasics...",
+     ".X0k.added.rvt"
+    ]
+   },
+   "DIT_usernames": [
+    "rvt-writer"
+   ],
+   "note": "last_save_path/username/author/client_app are the identity scrub; identical == K1's originals"
+  }
+ },
+ "anchor_proof": null,
+ "problems": [],
+ "verdict": "CERTIFIED",
+ "bytes": 4489216,
+ "seconds": 11.9
+}

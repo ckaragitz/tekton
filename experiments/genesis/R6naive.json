@@ -1,0 +1,370 @@
+{
+ "stage": "R6naive",
+ "ladder": "v2",
+ "safe_variant": false,
+ "out": "experiments/genesis/R6naive.rvt",
+ "file_size": 5705728,
+ "seed": 6500,
+ "seed_kept_pinned": 0,
+ "deleted": 6500,
+ "surviving_elements": 7436,
+ "elemtable_before": 13936,
+ "records_removed": {
+  "101": 6500,
+  "102": 6500,
+  "103": 6500
+ },
+ "blocks_before": 213,
+ "blocks_after": 152,
+ "structural_ok": true,
+ "validator": {
+  "ok": false,
+  "errors": 1,
+  "warnings": 1,
+  "error_messages": [
+   "[semantic] references: 494 dangling ElementId reference(s) to elements that do not exist (by field: m_elementId x115, m_sketchId x74, m_directionId x65, m_detailViewIds x55, m_outOfFamilyRefs x50, m_previewElemId x36). e.g. element 1381252 RebarVisibilityCell.m_detailViewIds[0]=1250103; element 1381253 RebarVisibilityCell.m_detailViewIds[0]=1250103; element 1381254 RebarVisibilityCell.m_detailView"
+  ],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 353,
+   "records": 76692,
+   "elements_decoded": 25511,
+   "decode_failures": 7,
+   "refs_checked": 444480
+  }
+ },
+ "latest_dangling": 419,
+ "contentdocs_dangling": 0,
+ "pin_evidence": {
+  "naive": true
+ },
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4351
+  ],
+  [
+   "LinearDimString",
+   710
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "SketchPlane",
+   168
+  ],
+  [
+   "VarSketch",
+   134
+  ],
+  [
+   "LegendComponent",
+   96
+  ],
+  [
+   "SunAndShadowSettings",
+   90
+  ],
+  [
+   "Viewport",
+   79
+  ],
+  [
+   "DBDrawing",
+   59
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "SketchGrid",
+   40
+  ],
+  [
+   "FontElem",
+   40
+  ],
+  [
+   "ExtentElem",
+   38
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "Viewer",
+   34
+  ],
+  [
+   "CategoryElem",
+   34
+  ],
+  [
+   "GStyleElem",
+   34
+  ],
+  [
+   "FamilyInstance",
+   33
+  ],
+  [
+   "SunAnnotationElem",
+   31
+  ],
+  [
+   "DBViewSection",
+   20
+  ],
+  [
+   "DBView3d",
+   20
+  ],
+  [
+   "DBViewPlan",
+   15
+  ],
+  [
+   "LightSchemeElement",
+   15
+  ],
+  [
+   "ModelClipBox",
+   12
+  ],
+  [
+   "Viewer3d",
+   12
+  ],
+  [
+   "SectionAttributes",
+   10
+  ],
+  [
+   "DBViewSchedule",
+   10
+  ],
+  [
+   "ScheduleInstance",
+   10
+  ],
+  [
+   "InteriorElevAttributes",
+   9
+  ],
+  [
+   "Alignment",
+   8
+  ],
+  [
+   "Section",
+   8
+  ],
+  [
+   "DBViewDrafting",
+   8
+  ],
+  [
+   "InteriorElev",
+   6
+  ],
+  [
+   "DBViewAnonDrafting",
+   6
+  ],
+  [
+   "PanelScheduleTemplate",
+   5
+  ],
+  [
+   "InteriorElevArrow",
+   4
+  ],
+  [
+   "NonPlanarSketch",
+   4
+  ],
+  [
+   "ImportInstance",
+   3
+  ],
+  [
+   "ContourSpacingElem",
+   3
+  ],
+  [
+   "ViewportAttributes",
+   2
+  ]
+ ],
+ "top_survivor_classes": [
+  [
+   "GStyleElem",
+   2149
+  ],
+  [
+   "CategoryElem",
+   582
+  ],
+  [
+   "ParamElemExternal",
+   466
+  ],
+  [
+   "FamilyInstance",
+   464
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "FontElem",
+   223
+  ],
+  [
+   "ParamBinding",
+   209
+  ],
+  [
+   "LinePatternElem",
+   150
+  ],
+  [
+   "AppearanceAssetElem",
+   131
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "HVACLoadSpaceTypeElem",
+   125
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "ParamElemFamily",
+   120
+  ],
+  [
+   "FillPatternElem",
+   116
+  ],
+  [
+   "ParamElemElectricalLoadClassification",
+   108
+  ],
+  [
+   "FamilySymbol",
+   106
+  ],
+  [
+   "MaterialElem",
+   93
+  ],
+  [
+   "DBViewType",
+   91
+  ],
+  [
+   "TextNoteAttributes",
+   90
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "LeaderStyle",
+   61
+  ],
+  [
+   "CustomElement",
+   61
+  ],
+  [
+   "TagNoteAttributes",
+   60
+  ],
+  [
+   "PropertySetElement",
+   56
+  ],
+  [
+   "FamilySurrogate",
+   50
+  ],
+  [
+   "FamSymSurrogate",
+   50
+  ],
+  [
+   "Family",
+   50
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "SketchPlane",
+   41
+  ],
+  [
+   "ConceptualConstructionType",
+   36
+  ],
+  [
+   "LineLoad",
+   35
+  ],
+  [
+   "HVACLoadBuildingTypeElem",
+   33
+  ],
+  [
+   "FilledRegionAttributes",
+   32
+  ],
+  [
+   "RoomElem",
+   31
+  ],
+  [
+   "RbsFluidType",
+   28
+  ],
+  [
+   "HVACLoadScheduleElem",
+   27
+  ],
+  [
+   "BuildingOperatingYearSchedule",
+   27
+  ]
+ ],
+ "keep_views": {
+  "1064656": "Level 1",
+  "1454508": "{3D}"
+ },
+ "seconds": 12.0
+}

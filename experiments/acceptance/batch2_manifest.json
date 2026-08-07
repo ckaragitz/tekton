@@ -1,0 +1,66 @@
+{
+  "V8_origbytes_zero_trailers": {
+    "desc": "ElemTable compressed bytes UNTOUCHED (Revit's own); only its full-page trailers zeroed",
+    "report": {
+      "streams": [
+        "Global/ElemTable"
+      ],
+      "mode": "orig_bytes_zero_trailers"
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  },
+  "V9_one_trailer_byte_flipped": {
+    "desc": "Everything original; ONE byte flipped in ElemTable's page-0 trailer",
+    "report": {
+      "stream": "Global/ElemTable",
+      "page": 0,
+      "flipped_bytes": 1,
+      "at_raw_offset": 64896
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  },
+  "V10_history_regzip_keeptail": {
+    "desc": "ONLY Global/History (sub-page, no full trailers) recompressed by us; original short tail kept",
+    "report": {
+      "streams": [
+        {
+          "name": "Global/History",
+          "raw_size": 17144,
+          "full_page_trailers": 0,
+          "keep_tail_bytes": 128
+        }
+      ]
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  },
+  "V11_history_regzip_zerotail": {
+    "desc": "ONLY Global/History recompressed; tail (incl. short trailer) zeroed",
+    "report": {
+      "streams": [
+        {
+          "name": "Global/History",
+          "raw_size": 17144,
+          "full_page_trailers": 0,
+          "keep_tail_bytes": 0
+        }
+      ]
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  }
+}

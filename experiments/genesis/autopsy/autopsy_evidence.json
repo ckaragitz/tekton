@@ -1,0 +1,2249 @@
+{
+ "subject": "experiments/genesis/triage/K1.rvt",
+ "parent": "experiments/genesis/R5.rvt",
+ "generated": "2026-08-04 03:03:39",
+ "k1_vs_r5": {
+  "removed": 2117,
+  "added": 0,
+  "surviving_modified": 23
+ },
+ "decomposition": {
+  "step1_modify_only": {
+   "removed": 0,
+   "added": 0,
+   "edited": 404,
+   "edited_by_class": [
+    [
+     "CurveElem",
+     192
+    ],
+    [
+     "LinearDimString",
+     181
+    ],
+    [
+     "DBViewDrafting",
+     8
+    ],
+    [
+     "Alignment",
+     8
+    ],
+    [
+     "DBView3d",
+     5
+    ],
+    [
+     "FamilySymbol",
+     1
+    ],
+    [
+     "FamSymSurrogate",
+     1
+    ],
+    [
+     "DBViewSection",
+     1
+    ],
+    [
+     "InteriorElevArrow",
+     1
+    ],
+    [
+     "StairsTriserSymbol",
+     1
+    ],
+    [
+     "DBViewRendering",
+     1
+    ],
+    [
+     "LevelRoomPlan",
+     1
+    ],
+    [
+     "AreaSchemePlanTopologies",
+     1
+    ],
+    [
+     "DBViewGraphSchedColumn",
+     1
+    ],
+    [
+     "FamilySurrogate",
+     1
+    ]
+   ]
+  },
+  "step2_delete_only": {
+   "removed": 2117,
+   "survivors_modified": 0
+  },
+  "edited_then_deleted": 381,
+  "edited_and_surviving": 23
+ },
+ "removed_by_class": [
+  [
+   "FamilyInstance",
+   497
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "CurveElem",
+   210
+  ],
+  [
+   "LinearDimString",
+   201
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "SketchPlane",
+   89
+  ],
+  [
+   "VarSketch",
+   84
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "LineLoad",
+   35
+  ],
+  [
+   "RoomElem",
+   31
+  ],
+  [
+   "PostedWarningElem",
+   22
+  ],
+  [
+   "BoundaryConditions",
+   20
+  ],
+  [
+   "JoistSystem",
+   16
+  ],
+  [
+   "AnalyticalPanel",
+   12
+  ],
+  [
+   "SWall",
+   9
+  ],
+  [
+   "Alignment",
+   8
+  ],
+  [
+   "PartMaker",
+   8
+  ],
+  [
+   "AreaLoad",
+   5
+  ],
+  [
+   "Floor",
+   5
+  ],
+  [
+   "NonPlanarSketch",
+   4
+  ],
+  [
+   "ContFooting",
+   4
+  ],
+  [
+   "FormElem",
+   2
+  ],
+  [
+   "MassLevelData",
+   2
+  ],
+  [
+   "StairsSupport",
+   2
+  ],
+  [
+   "HubsTracker",
+   1
+  ],
+  [
+   "StairsElement",
+   1
+  ],
+  [
+   "StairsRun",
+   1
+  ],
+  [
+   "ZoneElement",
+   1
+  ],
+  [
+   "GCSTracker",
+   1
+  ],
+  [
+   "StairsPathElement",
+   1
+  ],
+  [
+   "ImageInstance",
+   1
+  ],
+  [
+   "Family",
+   1
+  ]
+ ],
+ "modified_survivors": [
+  {
+   "id": 9744,
+   "class": "AreaSchemePlanTopologies",
+   "name": null,
+   "group": "G5_topology",
+   "in_certified_files": {
+    "R9": true,
+    "R10": true,
+    "K3": true,
+    "K4": true
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 207,
+     "bytes_after": 191,
+     "leaf_changes": 2,
+     "fields": [
+      [
+       "m_parents.m_nonDetermRegenChildren[]",
+       1
+      ],
+      [
+       "m_parents.m_regenOnly[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_nonDetermRegenChildren[0]",
+       "before": 1004910,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_regenOnly[6]",
+       "before": 1004910,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1141621,
+   "class": "DBView3d",
+   "name": "Structure (Complete)",
+   "group": "G2_viewmaps",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 269,
+     "bytes_after": 253,
+     "leaf_changes": 5,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       5
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[10]",
+       "before": 1210630,
+       "after": 1250029,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[11]",
+       "before": 1211070,
+       "after": 1457000,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[12]",
+       "before": 1250029,
+       "after": 1470258,
+       "target": "target-present"
+      },
+      {
+       "path": "m_parents.value.m_deletion[13]",
+       "before": 1457000,
+       "after": "<absent>",
+       "target": "target-present"
+      },
+      {
+       "path": "m_parents.value.m_deletion[14]",
+       "before": 1470258,
+       "after": "<absent>",
+       "target": "target-present"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3224,
+     "bytes_after": 3208,
+     "leaf_changes": 2,
+     "fields": [
+      [
+       "m_oHiddenElementsViewSettings.m_hiddenElements[]",
+       2
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[0]",
+       "before": 1210630,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[1]",
+       "before": 1211070,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1250103,
+   "class": "DBView3d",
+   "name": "Structure (Foundation)",
+   "group": "G2_viewmaps",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 2461,
+     "bytes_after": 237,
+     "leaf_changes": 285,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       285
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[100]",
+       "before": 1348430,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[101]",
+       "before": 1348431,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[102]",
+       "before": 1348447,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[103]",
+       "before": 1348449,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[104]",
+       "before": 1348450,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[105]",
+       "before": 1348451,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 6577,
+     "bytes_after": 4353,
+     "leaf_changes": 278,
+     "fields": [
+      [
+       "m_oHiddenElementsViewSettings.m_hiddenElements[]",
+       278
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[0]",
+       "before": 1158741,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[100]",
+       "before": 1348472,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[101]",
+       "before": 1348488,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[102]",
+       "before": 1348490,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[103]",
+       "before": 1348491,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[104]",
+       "before": 1348492,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1383083,
+   "class": "DBView3d",
+   "name": "Structure 3D box Wall",
+   "group": "G2_viewmaps",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 549,
+     "bytes_after": 253,
+     "leaf_changes": 45,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       45
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[10]",
+       "before": 512447,
+       "after": 1383088,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[11]",
+       "before": 512449,
+       "after": 1457082,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[12]",
+       "before": 512451,
+       "after": 1470262,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[13]",
+       "before": 512469,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[14]",
+       "before": 512471,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[15]",
+       "before": 512473,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3815,
+     "bytes_after": 3519,
+     "leaf_changes": 37,
+     "fields": [
+      [
+       "m_oHiddenElementsViewSettings.m_hiddenElements[]",
+       37
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[0]",
+       "before": 512319,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[10]",
+       "before": 512473,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[11]",
+       "before": 512475,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[12]",
+       "before": 512522,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[13]",
+       "before": 512524,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[14]",
+       "before": 512526,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1386343,
+   "class": "DBView3d",
+   "name": "Central Pile",
+   "group": "G2_viewmaps",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 3845,
+     "bytes_after": 253,
+     "leaf_changes": 457,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       457
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[100]",
+       "before": 1316777,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[101]",
+       "before": 1316840,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[102]",
+       "before": 1316890,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[103]",
+       "before": 1316891,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[104]",
+       "before": 1316892,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[105]",
+       "before": 1316893,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 8204,
+     "bytes_after": 4572,
+     "leaf_changes": 459,
+     "fields": [
+      [
+       "m_oHiddenElementsViewSettings.m_hiddenElements[]",
+       439
+      ],
+      [
+       "m_oAdHocOverrides.m_elementMap[].first",
+       10
+      ],
+      [
+       "m_oAdHocOverrides.m_elementMap[].second",
+       10
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[0].first",
+       "before": 1175183,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[0].second",
+       "before": 0,
+       "after": "<absent>",
+       "target": null
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[1].first",
+       "before": 1175185,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[1].second",
+       "before": 0,
+       "after": "<absent>",
+       "target": null
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[2].first",
+       "before": 1175186,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[2].second",
+       "before": 0,
+       "after": "<absent>",
+       "target": null
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1457170,
+   "class": "DBView3d",
+   "name": "Central Pile - 3D",
+   "group": "G2_viewmaps",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 3845,
+     "bytes_after": 253,
+     "leaf_changes": 457,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       457
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[100]",
+       "before": 1316777,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[101]",
+       "before": 1316840,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[102]",
+       "before": 1316890,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[103]",
+       "before": 1316891,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[104]",
+       "before": 1316892,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[105]",
+       "before": 1316893,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 8214,
+     "bytes_after": 4582,
+     "leaf_changes": 459,
+     "fields": [
+      [
+       "m_oHiddenElementsViewSettings.m_hiddenElements[]",
+       439
+      ],
+      [
+       "m_oAdHocOverrides.m_elementMap[].first",
+       10
+      ],
+      [
+       "m_oAdHocOverrides.m_elementMap[].second",
+       10
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[0].first",
+       "before": 1175183,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[0].second",
+       "before": 0,
+       "after": "<absent>",
+       "target": null
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[1].first",
+       "before": 1175185,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[1].second",
+       "before": 0,
+       "after": "<absent>",
+       "target": null
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[2].first",
+       "before": 1175186,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oAdHocOverrides.value.m_elementMap[2].second",
+       "before": 0,
+       "after": "<absent>",
+       "target": null
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1456977,
+   "class": "DBViewDrafting",
+   "name": "Title Sheet",
+   "group": "G1_sheets",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 317,
+     "bytes_after": 309,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[9]",
+       "before": 1456982,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3150,
+     "bytes_after": 3150,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_sheetTitleBlockId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_sheetTitleBlockId",
+       "before": 1456982,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1457028,
+   "class": "DBViewDrafting",
+   "name": "Framing Plans",
+   "group": "G1_sheets",
+   "in_certified_files": {
+    "R9": true,
+    "R10": true,
+    "K3": true,
+    "K4": true
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 285,
+     "bytes_after": 277,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[9]",
+       "before": 1457033,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3170,
+     "bytes_after": 3170,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_sheetTitleBlockId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_sheetTitleBlockId",
+       "before": 1457033,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": [
+    "K3",
+    "K4"
+   ]
+  },
+  {
+   "id": 1457045,
+   "class": "DBViewDrafting",
+   "name": "Upper House Framing",
+   "group": "G1_sheets",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 317,
+     "bytes_after": 309,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[9]",
+       "before": 1457050,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3182,
+     "bytes_after": 3182,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_sheetTitleBlockId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_sheetTitleBlockId",
+       "before": 1457050,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1457064,
+   "class": "DBViewDrafting",
+   "name": "Wall Section",
+   "group": "G1_sheets",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 317,
+     "bytes_after": 309,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[9]",
+       "before": 1457069,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3168,
+     "bytes_after": 3168,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_sheetTitleBlockId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_sheetTitleBlockId",
+       "before": 1457069,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1457151,
+   "class": "DBViewDrafting",
+   "name": "Central Pile Section",
+   "group": "G1_sheets",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 301,
+     "bytes_after": 293,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[9]",
+       "before": 1457156,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3184,
+     "bytes_after": 3184,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_sheetTitleBlockId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_sheetTitleBlockId",
+       "before": 1457156,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1457181,
+   "class": "DBViewDrafting",
+   "name": "Footing Detail",
+   "group": "G1_sheets",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 285,
+     "bytes_after": 277,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[9]",
+       "before": 1457186,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3172,
+     "bytes_after": 3172,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_sheetTitleBlockId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_sheetTitleBlockId",
+       "before": 1457186,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1457199,
+   "class": "DBViewDrafting",
+   "name": "Column Schedules",
+   "group": "G1_sheets",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 269,
+     "bytes_after": 261,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[9]",
+       "before": 1457204,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3176,
+     "bytes_after": 3176,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_sheetTitleBlockId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_sheetTitleBlockId",
+       "before": 1457204,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1457228,
+   "class": "DBViewDrafting",
+   "name": "Elevations",
+   "group": "G1_sheets",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 285,
+     "bytes_after": 277,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[9]",
+       "before": 1457233,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3164,
+     "bytes_after": 3164,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_sheetTitleBlockId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_sheetTitleBlockId",
+       "before": 1457233,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1250040,
+   "class": "DBViewGraphSchedColumn",
+   "name": "Graphical Column Schedule",
+   "group": "G3_schedule",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 771,
+     "bytes_after": 523,
+     "leaf_changes": 54,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       48
+      ],
+      [
+       "m_parents.m_regenOnly[]",
+       6
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[25]",
+       "before": 1046264,
+       "after": 1195159,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[26]",
+       "before": 1096385,
+       "after": 1250029,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[27]",
+       "before": 1096413,
+       "after": 1250039,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[28]",
+       "before": 1096419,
+       "after": 1250040,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[29]",
+       "before": 1098642,
+       "after": 1250041,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[30]",
+       "before": 1114995,
+       "after": 1250043,
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 5205,
+     "bytes_after": 3561,
+     "leaf_changes": 219,
+     "fields": [
+      [
+       "m_visGridIntPntArr[].m_columnIdArr[]",
+       30
+      ],
+      [
+       "m_visGridIntPntArr[].m_ccda.m_pDoc.weakref",
+       27
+      ],
+      [
+       "m_visGridIntPntArr[].m_grid0Id",
+       27
+      ],
+      [
+       "m_visGridIntPntArr[].m_grid1Id",
+       27
+      ],
+      [
+       "m_visGridIntPntArr[].m_offset0",
+       27
+      ],
+      [
+       "m_visGridIntPntArr[].m_offset1",
+       27
+      ],
+      [
+       "m_visGridIntPntArr[].m_textGrid0",
+       27
+      ],
+      [
+       "m_visGridIntPntArr[].m_textGrid1",
+       27
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_visGridIntPntArr[0].m_ccda.m_pDoc.weakref",
+       "before": 1,
+       "after": "<absent>",
+       "target": "target-present"
+      },
+      {
+       "path": "m_visGridIntPntArr[0].m_columnIdArr[0]",
+       "before": 1436414,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_visGridIntPntArr[0].m_grid0Id",
+       "before": 195169,
+       "after": "<absent>",
+       "target": "target-present"
+      },
+      {
+       "path": "m_visGridIntPntArr[0].m_grid1Id",
+       "before": 195338,
+       "after": "<absent>",
+       "target": "target-present"
+      },
+      {
+       "path": "m_visGridIntPntArr[0].m_offset0",
+       "before": 0.0,
+       "after": "<absent>",
+       "target": null
+      },
+      {
+       "path": "m_visGridIntPntArr[0].m_offset1",
+       "before": -0.3338676509167051,
+       "after": "<absent>",
+       "target": null
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1456455,
+   "class": "DBViewRendering",
+   "name": "Structure Complete",
+   "group": "G2_viewmaps",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 205,
+     "bytes_after": 197,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[9]",
+       "before": 1456463,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 3054,
+     "bytes_after": 3054,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_imageInstanceId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_imageInstanceId",
+       "before": 1456463,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1199134,
+   "class": "DBViewSection",
+   "name": "Section Wall",
+   "group": "G2_viewmaps",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 1429,
+     "bytes_after": 245,
+     "leaf_changes": 157,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       157
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[100]",
+       "before": 1381574,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[101]",
+       "before": 1381575,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[102]",
+       "before": 1381576,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[103]",
+       "before": 1381577,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[104]",
+       "before": 1381578,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[105]",
+       "before": 1381579,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 4612,
+     "bytes_after": 3428,
+     "leaf_changes": 149,
+     "fields": [
+      [
+       "m_oHiddenElementsViewSettings.m_hiddenElements[]",
+       149
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[0]",
+       "before": 513254,
+       "after": 1186702,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[100]",
+       "before": 1381586,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[101]",
+       "before": 1381587,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[102]",
+       "before": 1381588,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[103]",
+       "before": 1381589,
+       "after": "<absent>",
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_oHiddenElementsViewSettings.value.m_hiddenElements[104]",
+       "before": 1381590,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 876570,
+   "class": "FamSymSurrogate",
+   "name": "building option 1",
+   "group": "G4_orphaning",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 173,
+     "bytes_after": 165,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_regenOnly[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_regenOnly[2]",
+       "before": 876493,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 876494,
+   "class": "FamilySurrogate",
+   "name": "building option 2",
+   "group": "G4_orphaning",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 157,
+     "bytes_after": 149,
+     "leaf_changes": 2,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       2
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[0]",
+       "before": 876493,
+       "after": 876494,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[1]",
+       "before": 876494,
+       "after": "<absent>",
+       "target": "target-present"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 186,
+     "bytes_after": 186,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_elemId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_elemId",
+       "before": 876493,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 876569,
+   "class": "FamilySymbol",
+   "name": null,
+   "group": "G4_orphaning",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 263,
+     "bytes_after": 247,
+     "leaf_changes": 4,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       4
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[1]",
+       "before": 876493,
+       "after": 876569,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[2]",
+       "before": 876569,
+       "after": 876570,
+       "target": "target-present"
+      },
+      {
+       "path": "m_parents.value.m_deletion[3]",
+       "before": 876570,
+       "after": "<absent>",
+       "target": "target-present"
+      },
+      {
+       "path": "m_parents.value.m_deletion[4]",
+       "before": 876571,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 4134,
+     "bytes_after": 4134,
+     "leaf_changes": 2,
+     "fields": [
+      [
+       "m_familyId",
+       1
+      ],
+      [
+       "m_ownerInstanceId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_familyId",
+       "before": 876493,
+       "after": -1,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_ownerInstanceId",
+       "before": 876571,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 8231,
+   "class": "InteriorElevArrow",
+   "name": null,
+   "group": "G5_topology",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 229,
+     "bytes_after": 221,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[3]",
+       "before": 1178029,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 835,
+     "bytes_after": 835,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_endAttach0.m_geomRef.m_elemId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_endAttach0.value.m_geomRef.m_elemId",
+       "before": 1178029,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 1004909,
+   "class": "LevelRoomPlan",
+   "name": null,
+   "group": "G5_topology",
+   "in_certified_files": {
+    "R9": true,
+    "R10": true,
+    "K3": true,
+    "K4": true
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 181,
+     "bytes_after": 173,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[8]",
+       "before": 1004910,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 1174,
+     "bytes_after": 1166,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_planTopology.m_rooms[]",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_planTopology.value.m_rooms[0]",
+       "before": 1004910,
+       "after": "<absent>",
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  },
+  {
+   "id": 513310,
+   "class": "StairsTriserSymbol",
+   "name": null,
+   "group": "G4_orphaning",
+   "in_certified_files": {
+    "R9": false,
+    "R10": false,
+    "K3": false,
+    "K4": false
+   },
+   "seq_diffs": [
+    {
+     "seq": 101,
+     "bytes_before": 223,
+     "bytes_after": 207,
+     "leaf_changes": 4,
+     "fields": [
+      [
+       "m_parents.m_deletion[]",
+       2
+      ],
+      [
+       "m_parents.m_regenOnly[]",
+       2
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_parents.value.m_deletion[0]",
+       "before": 513309,
+       "after": 513310,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_deletion[1]",
+       "before": 513310,
+       "after": "<absent>",
+       "target": "target-present"
+      },
+      {
+       "path": "m_parents.value.m_regenOnly[4]",
+       "before": 513254,
+       "after": 1389801,
+       "target": "target-deleted"
+      },
+      {
+       "path": "m_parents.value.m_regenOnly[5]",
+       "before": 1389801,
+       "after": "<absent>",
+       "target": "target-present"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "bytes_before": 6937,
+     "bytes_after": 6937,
+     "leaf_changes": 1,
+     "fields": [
+      [
+       "m_hostId",
+       1
+      ]
+     ],
+     "sample": [
+      {
+       "path": "m_hostId",
+       "before": 513309,
+       "after": -1,
+       "target": "target-deleted"
+      }
+     ]
+    }
+   ],
+   "byte_vindicated_by": []
+  }
+ ],
+ "deletion_certification": {
+  "counts": [
+   [
+    "R9",
+    2084
+   ],
+   [
+    "R6",
+    31
+   ],
+   [
+    "KEPT_BY_R9",
+    2
+   ]
+  ],
+  "kept_by_R9": [
+   {
+    "id": 1004910,
+    "class": "RoomElem",
+    "in_R10": true,
+    "in_K3": true,
+    "in_K4": true
+   },
+   {
+    "id": 1457033,
+    "class": "FamilyInstance",
+    "in_R10": true,
+    "in_K3": true,
+    "in_K4": false
+   }
+  ],
+  "R6_deleted_classes": [
+   [
+    "FamilyInstance",
+    29
+   ],
+   [
+    "StairsPathElement",
+    1
+   ],
+   [
+    "ImageInstance",
+    1
+   ]
+  ]
+ },
+ "stream_identity": {
+  "BasicFileInfo": {
+   "K1==R5": true,
+   "K1==R9": true
+  },
+  "Contents": {
+   "K1==R5": true,
+   "K1==R9": true
+  },
+  "Formats/Latest": {
+   "K1==R5": true,
+   "K1==R9": true
+  },
+  "Global/ContentDocuments": {
+   "K1==R5": true,
+   "K1==R9": true
+  },
+  "Global/DocumentIncrementTable": {
+   "K1==R5": true,
+   "K1==R9": true
+  },
+  "Global/ElemTable": {
+   "K1==R5": false,
+   "K1==R9": false
+  },
+  "Global/History": {
+   "K1==R5": true,
+   "K1==R9": true
+  },
+  "Global/Latest": {
+   "K1==R5": true,
+   "K1==R9": true
+  },
+  "Global/PartitionTable": {
+   "K1==R5": true,
+   "K1==R9": true
+  },
+  "Partitions/21": {
+   "K1==R5": false,
+   "K1==R9": false
+  },
+  "ProjectInformation": {
+   "K1==R5": true,
+   "K1==R9": true
+  },
+  "TransmissionData": {
+   "K1==R5": true,
+   "K1==R9": true
+  }
+ },
+ "latest_dangling": {
+  "latest_byte_identical_R5_K1": true,
+  "R5_live_ids_referenced": 6075,
+  "dangling": {
+   "R5": 0,
+   "R9": 3014,
+   "K1": 1066
+  },
+  "K1_subset_of_R9": false,
+  "K1_minus_R9": [
+   {
+    "id": 1004910,
+    "class": "RoomElem"
+   }
+  ],
+  "adocument_surface": {
+   "876569": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[2]->SymbolIdMgr.m_defCatSymIds->CategoryToIdMap.m_ids[72]",
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[81]->BasedOnTracker.m_mBasisToIdSet[76].second.m_sCommonBasisIds[0]",
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[81]->BasedOnTracker.m_mIdToBasis[76].first"
+   ],
+   "1457033": [],
+   "876493": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[81]->BasedOnTracker.m_mBasisToIdSet[0].second.m_sCommonBasisIds[0]",
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[81]->BasedOnTracker.m_mIdToBasis[0].first"
+   ],
+   "1004910": [
+    "ADocument.m_oNobleSecondaryData->NOBLE_SecondaryDataStorage.m_data[1].second.m_oData->ColorFillSecondaryData.m_collectedPrimaryDataIds[2].m_elementId",
+    "ADocument.m_oNobleSecondaryData->NOBLE_SecondaryDataStorage.m_data[2].second.m_oData->ColorFillSecondaryData.m_collectedPrimaryDataIds[1].m_elementId",
+    "ADocument.m_oNobleSecondaryData->NOBLE_SecondaryDataStorage.m_primary2SecondaryDataIdMap[42].first.m_elementId",
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[32]->ElementTrackingData.m_elems[108].m_elemIdSet[0]",
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[42]->RoomTracking.m_areaIds[0]"
+   ]
+  }
+ },
+ "census": {
+  "R5": {
+   "elements": 8657,
+   "save_units": 53,
+   "contentdocs_entries": 52,
+   "contenttable_records": 52,
+   "familymgr_entries": 50,
+   "familymgr_doc_guids": 52,
+   "adocument_clean": true
+  },
+  "K1": {
+   "elements": 6540,
+   "save_units": 53,
+   "contentdocs_entries": 52,
+   "contenttable_records": 52,
+   "familymgr_entries": 50,
+   "familymgr_doc_guids": 52,
+   "adocument_clean": true
+  },
+  "R9": {
+   "elements": 3709,
+   "save_units": 53,
+   "contentdocs_entries": 52,
+   "contenttable_records": 52,
+   "familymgr_entries": 50,
+   "familymgr_doc_guids": 52,
+   "adocument_clean": true
+  }
+ },
+ "seconds": 2.2,
+ "recomposition_proof": {
+  "recomposed_deleted": 2117,
+  "ids_only_in_recomposed": 0,
+  "ids_only_in_K1": 0,
+  "records_differing": 0,
+  "identical": true
+ },
+ "unlock_table": {
+  "validation": {
+   "K1a_editfree": {
+    "real_deleted": 599,
+    "simulated_deleted": 599,
+    "match": true
+   },
+   "K1b_sheets": {
+    "real_deleted": 607,
+    "simulated_deleted": 607,
+    "match": true
+   },
+   "K1c_viewmaps": {
+    "real_deleted": 859,
+    "simulated_deleted": 859,
+    "match": true
+   },
+   "K1d_schedule": {
+    "real_deleted": 969,
+    "simulated_deleted": 969,
+    "match": true
+   },
+   "K1e_orphaning": {
+    "real_deleted": 677,
+    "simulated_deleted": 677,
+    "match": true
+   },
+   "K1f_topology": {
+    "real_deleted": 600,
+    "simulated_deleted": 600,
+    "match": true
+   },
+   "K1z_persistent": {
+    "real_deleted": 2117,
+    "simulated_deleted": 2117,
+    "match": true
+   }
+  },
+  "singles": {
+   "G4_orphaning": {
+    "deleted": 677,
+    "unlocked_vs_editfree": 78
+   },
+   "G3_schedule": {
+    "deleted": 969,
+    "unlocked_vs_editfree": 370
+   },
+   "G5_topology": {
+    "deleted": 600,
+    "unlocked_vs_editfree": 1
+   },
+   "G2_viewmaps": {
+    "deleted": 859,
+    "unlocked_vs_editfree": 260
+   },
+   "G1_sheets": {
+    "deleted": 607,
+    "unlocked_vs_editfree": 8
+   }
+  },
+  "pairs": {
+   "G4_orphaning+G3_schedule": {
+    "deleted": 1047,
+    "interaction_unlock": 0
+   },
+   "G4_orphaning+G5_topology": {
+    "deleted": 678,
+    "interaction_unlock": 0
+   },
+   "G4_orphaning+G2_viewmaps": {
+    "deleted": 955,
+    "interaction_unlock": 18
+   },
+   "G4_orphaning+G1_sheets": {
+    "deleted": 685,
+    "interaction_unlock": 0
+   },
+   "G3_schedule+G5_topology": {
+    "deleted": 970,
+    "interaction_unlock": 0
+   },
+   "G3_schedule+G2_viewmaps": {
+    "deleted": 1257,
+    "interaction_unlock": 28
+   },
+   "G3_schedule+G1_sheets": {
+    "deleted": 977,
+    "interaction_unlock": 0
+   },
+   "G5_topology+G2_viewmaps": {
+    "deleted": 860,
+    "interaction_unlock": 0
+   },
+   "G5_topology+G1_sheets": {
+    "deleted": 608,
+    "interaction_unlock": 0
+   },
+   "G2_viewmaps+G1_sheets": {
+    "deleted": 867,
+    "interaction_unlock": 0
+   }
+  },
+  "all5": 2117,
+  "editfree": 599,
+  "union_of_singles": 1316,
+  "interaction_only": 801
+ },
+ "k1z_persistent_equivalence": {
+  "built": "R5 + the 12 PERSISTENT referrer classes (G1..G5) neutralised, NO transient G6 (CurveElem/LinearDimString/Alignment) edits, then maxgc",
+  "result": "RECORD-FOR-RECORD IDENTICAL to K1.rvt: identical 2,117-id deletion set and identical 23 surviving edited records (only gzip block layout / md5 differs)",
+  "implication": "the transient G6 pin-cutting is REDUNDANT -- the five persistent groups edits alone unlock all 2,117 deletions; G6 exonerated; K1z is a twin of the failing subject and is NOT a probe (files removed)"
+ }
+}

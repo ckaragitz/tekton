@@ -1,0 +1,14 @@
+{
+ "name": "D_2024_constraint_dim",
+ "ids": [
+  699327,
+  699381,
+  763366,
+  763420
+ ],
+ "policy": "maxgc",
+ "purpose": "genesis-base",
+ "notes": [
+  "the locked-EQ constraint LinearDimString + the reference planes whose EQ constraint names it (they leave together; delete-with-content) -- maxgc-proven pin-free on this chain."
+ ]
+}

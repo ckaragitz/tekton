@@ -1,0 +1,2026 @@
+{
+ "rung": "P_pal_thermal_v2",
+ "label": "ONLY the 11 CORRECTED thermal assets",
+ "kind": "inplace",
+ "stream": "genesis-residue-B",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; one our-record per residue slot",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/palette_fix/CTRL_Y9_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+  "md5": "aa5952bceeb5830790f289af0d7cee27",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y9.rvt",
+ "parent_rung": "BASE",
+ "out": "experiments/genesis/subst_k4/palette_fix/P_pal_thermal_v2.rvt",
+ "description": "Bisection C corrected: the thermal sub-class re-valued over its slots' skeletons.",
+ "tests": "Whether the corrected thermal constructor loads.",
+ "if_PASS": "The corrected thermal-asset constructor is reader-accepted.",
+ "if_FAIL": "A thermal-asset shape issue survives the D1 fix -- diff slot 174516 of P_pal_thermal_v2 vs Y9 field by field.",
+ "stages": [],
+ "group_b_classes": {},
+ "parent_context": {
+  "host_elements": 3342,
+  "watermark": 1472524,
+  "protected_slots_from_earlier_rungs": 1333
+ },
+ "candidates_old_by_class": {
+  "PropertySetElement": 11
+ },
+ "our_records_by_class": {
+  "PropertySetElement": 11
+ },
+ "build_notes": [
+  "property sets: 11 THERMAL assets <- CORRECTED (same method, F7 block)"
+ ],
+ "build_info": {
+  "thermal_v2": 11,
+  "revalue_traces": [
+   {
+    "slot": 174488,
+    "role": "thermal",
+    "spec_key": "plywood",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "wood",
+    "our_family": "wood",
+    "family_match": true
+   },
+   {
+    "slot": 174510,
+    "role": "thermal",
+    "spec_key": "soil",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "mineral",
+    "our_family": "mineral",
+    "family_match": true
+   },
+   {
+    "slot": 174516,
+    "role": "thermal",
+    "spec_key": "concrete",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "concrete",
+    "our_family": "concrete",
+    "family_match": true
+   },
+   {
+    "slot": 174566,
+    "role": "thermal",
+    "spec_key": "steel",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "metal",
+    "our_family": "metal",
+    "family_match": true
+   },
+   {
+    "slot": 174578,
+    "role": "thermal",
+    "spec_key": "pvc",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "plastic",
+    "our_family": "plastic",
+    "family_match": true
+   },
+   {
+    "slot": 174581,
+    "role": "thermal",
+    "spec_key": "wood_sw",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "wood",
+    "our_family": "wood",
+    "family_match": true
+   },
+   {
+    "slot": 174590,
+    "role": "thermal",
+    "spec_key": "copper",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "metal",
+    "our_family": "metal",
+    "family_match": true
+   },
+   {
+    "slot": 174593,
+    "role": "thermal",
+    "spec_key": "steel",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "metal",
+    "our_family": "metal",
+    "family_match": true
+   },
+   {
+    "slot": 174596,
+    "role": "thermal",
+    "spec_key": "stainless",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "metal",
+    "our_family": "metal",
+    "family_match": true
+   },
+   {
+    "slot": 174599,
+    "role": "thermal",
+    "spec_key": "aluminum",
+    "shape": "thermal",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "metal",
+    "our_family": "metal",
+    "family_match": true
+   },
+   {
+    "slot": 600685,
+    "role": "thermal",
+    "spec_key": "concrete_lw",
+    "shape": "thermal-uw",
+    "ours": [
+     [
+      "m_pDoubleParams",
+      -1152330
+     ],
+     [
+      "m_pDoubleParams",
+      -1152329
+     ],
+     [
+      "m_pDoubleParams",
+      -1152328
+     ],
+     [
+      "m_pDoubleParams",
+      -1152327
+     ],
+     [
+      "m_pDoubleParams",
+      -1152320
+     ],
+     [
+      "m_pDoubleParams",
+      -1152313
+     ],
+     [
+      "m_pDoubleParams",
+      -1152312
+     ],
+     [
+      "m_pDoubleParams",
+      -1152311
+     ],
+     [
+      "m_pDoubleParams",
+      -1152310
+     ],
+     [
+      "m_pDoubleParams",
+      -1152309
+     ],
+     [
+      "m_pDoubleParams",
+      -1152308
+     ],
+     [
+      "m_pDoubleParams",
+      -1140309
+     ],
+     [
+      "m_pAStringParams",
+      -1152341
+     ],
+     [
+      "m_pAStringParams",
+      -1152340
+     ],
+     [
+      "m_pAStringParams",
+      -1152337
+     ],
+     [
+      "m_pAStringParams",
+      -1150481
+     ],
+     [
+      "m_pAStringParams",
+      -1150466
+     ],
+     [
+      "m_pAStringParams",
+      -1150465
+     ]
+    ],
+    "kept": [
+     [
+      "m_pIntParams",
+      -1152338
+     ],
+     [
+      "m_pIntParams",
+      -1152326
+     ],
+     [
+      "m_pIntParams",
+      -1150464
+     ],
+     [
+      "m_pIntParams",
+      -1140322
+     ],
+     [
+      "m_pAStringParams",
+      -1152342
+     ]
+    ],
+    "swapped_ints_in_output": 0,
+    "ascending": {
+     "m_pDoubleParams": true,
+     "m_pIntParams": true,
+     "m_pAStringParams": true
+    },
+    "elementid_set_present": true,
+    "slot_family": "concrete",
+    "our_family": "concrete",
+    "family_match": true
+   }
+  ]
+ },
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 11,
+  "by_match": {
+   "role": 11
+  },
+  "landed_by_class": {
+   "PropertySetElement": 11
+  },
+  "dropped_ours": 0,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 0,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 11,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 11,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.3
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   174488,
+   174510,
+   174516,
+   174566,
+   174578,
+   174581,
+   174590,
+   174593,
+   174596,
+   174599,
+   600685
+  ],
+  "records_changed_count": 11,
+  "records_changed_by_seq": {
+   "102": 11
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 11,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 174488,
+    "len_ours": 785,
+    "len_parent": 645,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PropertySetElement",
+      "class_parent": "PropertySetElement"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[2].m_value",
+      "ours": "''",
+      "parent": "'Autodesk'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[3].m_value",
+      "ours": "'0C4C8A3B-78AC-5F40-B40E-9B90A294457B'",
+      "parent": "'AD121259-C03E-4A1D-92D8-59A22B4807AD'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[4].m_value",
+      "ours": "'GEN Plywood Panel (thermal) -- published thermophysical constants'",
+      "parent": "'Plywood'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[5].m_value",
+      "ours": "'GEN Plywood Panel (thermal)'",
+      "parent": "'Plywood'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_value",
+      "ours": "3.5314666e+16",
+      "parent": "353146667.21488583"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_value",
+      "ours": "0.0",
+      "parent": "1.3030200000000002e-11"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_value",
+      "ours": "0.9",
+      "parent": "0.85"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_value",
+      "ours": "15.432681397",
+      "parent": "15.630899318784003"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_value",
+      "ours": "16145.86562505",
+      "parent": "15284.752791727804"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_value",
+      "ours": "0.42650920000000003",
+      "parent": "0.34776902887139105"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_value",
+      "ours": "0.42650920000000003",
+      "parent": "0.34776902887139105"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_value",
+      "ours": "0.42650920000000003",
+      "parent": "0.34776902887139105"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_value",
+      "ours": "0.42650920000000003",
+      "parent": "0.34776902887139105"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 174510,
+    "len_ours": 833,
+    "len_parent": 695,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PropertySetElement",
+      "class_parent": "PropertySetElement"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[2].m_value",
+      "ours": "''",
+      "parent": "'Autodesk'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[3].m_value",
+      "ours": "'0C4C8A3B-78AC-5F40-B40E-9B90A294457B'",
+      "parent": "'AD121259-C03E-4A1D-92D8-59A22B4807AD'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[4].m_value",
+      "ours": "'GEN Soil, Compacted Fill (thermal) -- published thermophysical constants'",
+      "parent": "'Soil (Average Properties)'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[5].m_value",
+      "ours": "'GEN Soil, Compacted Fill (thermal)'",
+      "parent": "'Soil'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[6].m_value",
+      "ours": "'Basic'",
+      "parent": "'Earth'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_value",
+      "ours": "35314666000.0",
+      "parent": "5297.200008223288"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_value",
+      "ours": "0.9",
+      "parent": "0.38"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_value",
+      "ours": "45.30695456",
+      "parent": "36.811900569600006"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_value",
+      "ours": "10763.9104167",
+      "parent": "11259.050295878369"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_value",
+      "ours": "2.6246720000000003",
+      "parent": "2.746062992125984"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_value",
+      "ours": "2.6246720000000003",
+      "parent": "2.746062992125984"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_value",
+      "ours": "2.6246720000000003",
+      "parent": "2.746062992125984"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_value",
+      "ours": "2.6246720000000003",
+      "parent": "2.746062992125984"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 174516,
+    "len_ours": 821,
+    "len_parent": 679,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PropertySetElement",
+      "class_parent": "PropertySetElement"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[2].m_value",
+      "ours": "''",
+      "parent": "'Autodesk'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[3].m_value",
+      "ours": "'0C4C8A3B-78AC-5F40-B40E-9B90A294457B'",
+      "parent": "'05AB8C01-9E15-4D19-8791-5CD982F715F4'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[4].m_value",
+      "ours": "'GEN Concrete, Normal Weight (thermal) -- published thermophysical constants'",
+      "parent": "'Concrete, stone aggregate'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[5].m_value",
+      "ours": "'GEN Concrete, Normal Weight (thermal)'",
+      "parent": "'Concrete'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_value",
+      "ours": "35314666000.0",
+      "parent": "70629333.44297718"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[3].m_value",
+      "ours": "0.0",
+      "parent": "5.5595520000000006e-11"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_value",
+      "ours": "0.94",
+      "parent": "0.95"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_value",
+      "ours": "65.12874718",
+      "parent": "65.1287471616"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_value",
+      "ours": "9472.241166696",
+      "parent": "7071.889143778287"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_value",
+      "ours": "5.577427999999999",
+      "parent": "3.431758530183727"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_value",
+      "ours": "5.577427999999999",
+      "parent": "3.431758530183727"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_value",
+      "ours": "5.577427999999999",
+      "parent": "3.431758530183727"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_value",
+      "ours": "5.577427999999999",
+      "parent": "3.431758530183727"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 174566,
+    "len_ours": 775,
+    "len_parent": 641,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PropertySetElement",
+      "class_parent": "PropertySetElement"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[2].m_value",
+      "ours": "''",
+      "parent": "'Autodesk'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[3].m_value",
+      "ours": "'0C4C8A3B-78AC-5F40-B40E-9B90A294457B'",
+      "parent": "'05AB8C01-9E15-4D19-8791-5CD982F715F4'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[4].m_value",
+      "ours": "'GEN Steel, Carbon (thermal) -- published thermophysical constants'",
+      "parent": "'Steel, sheet'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pAStringParams.value.m_paramSet[5].m_value",
+      "ours": "'GEN Steel, Carbon (thermal)'",
+      "parent": "'Steel'"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[0].m_value",
+      "ours": "50.499972379999996",
+      "parent": "35.314666721488585"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[4].m_value",
+      "ours": "0.79",
+      "parent": "0.4"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[5].m_value",
+      "ours": "222.28724581",
+      "parent": "222.28724574720005"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[6].m_value",
+      "ours": "5274.316104183",
+      "parent": "5166.677000020666"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[7].m_value",
+      "ours": "147.6378",
+      "parent": "147.63779527559055"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[8].m_value",
+      "ours": "147.6378",
+      "parent": "147.63779527559055"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[9].m_value",
+      "ours": "147.6378",
+      "parent": "147.63779527559055"
+     },
+     {
+      "path": ".m_oParamSet.value.m_pDoubleParams.value.m_paramSet[10].m_value",
+      "ours": "147.6378",
+      "parent": "147.63779527559055"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 13,
+    "blocks_out": 13
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 11,
+  "slots_with_registry_surface": 11,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 174488,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174510,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174516,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174566,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174578,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174581,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174590,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174593,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PropertySetElementTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 11,
+  "pairs_ok": 11,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 174488,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174510,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174516,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174566,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174578,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 174581,
+   "class": "PropertySetElement",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 564,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/palette_fix/P_pal_thermal_v2.rvt",
+  "elements": 3342,
+  "file_size": 778240,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500000,
+   "slot": 174488,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 174510,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 174516,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 174566,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 174578,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500005,
+   "slot": 174581,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 174590,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500007,
+   "slot": 174593,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500008,
+   "slot": 174596,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500009,
+   "slot": 174599,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500010,
+   "slot": 600685,
+   "class": "PropertySetElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  }
+ ],
+ "landed_slots": [
+  {
+   "slot": 174488,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 174510,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 174516,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 174566,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 174578,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 174581,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 174590,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 174593,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500007
+  },
+  {
+   "slot": 174596,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500008
+  },
+  {
+   "slot": 174599,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500009
+  },
+  {
+   "slot": 600685,
+   "class": "PropertySetElement",
+   "match": "role",
+   "ours_tmp": 1500010
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": []
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {}
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 778240,
+ "seconds": 2.2
+}

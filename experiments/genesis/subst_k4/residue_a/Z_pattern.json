@@ -1,0 +1,740 @@
+{
+ "rung": "Z_pattern",
+ "label": "the surplus fill / line patterns -> our extra house patterns, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+  "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y9.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a/Z_pattern.rvt",
+ "landed_by_class": {
+  "FillPatternElem": 4,
+  "LinePatternElem": 3
+ },
+ "notes": [
+  "surplus patterns: 4 fill + 3 line -> our extra house patterns ['GEN Brick Coursing 75mm', 'GEN Steel Section Hatch 1.5mm', 'GEN Gypsum Stipple 2mm', 'GEN Vertical Lines 4mm', 'GEN Dash Dot 6mm', 'GEN Phantom 12mm', 'GEN Border 10mm']"
+ ],
+ "info": {
+  "fill": [
+   {
+    "slot": 442,
+    "old_name": "Concrete",
+    "our_name": "GEN Brick Coursing 75mm",
+    "target": "drafting"
+   },
+   {
+    "slot": 448,
+    "old_name": "Sand - Dense",
+    "our_name": "GEN Steel Section Hatch 1.5mm",
+    "target": "drafting"
+   },
+   {
+    "slot": 449,
+    "old_name": "Steel",
+    "our_name": "GEN Gypsum Stipple 2mm",
+    "target": "drafting"
+   },
+   {
+    "slot": 6473,
+    "old_name": "Diagonal crosshatch",
+    "our_name": "GEN Vertical Lines 4mm",
+    "target": "drafting"
+   }
+  ],
+  "line": [
+   {
+    "slot": 16,
+    "old_name": "Dash dot",
+    "our_name": "GEN Dash Dot 6mm"
+   },
+   {
+    "slot": 942,
+    "old_name": "Aligning Line",
+    "our_name": "GEN Phantom 12mm"
+   },
+   {
+    "slot": 6553,
+    "old_name": "Center",
+    "our_name": "GEN Border 10mm"
+   }
+  ]
+ },
+ "residue_left_in_place": {},
+ "record_selfcheck": {
+  "objects": 7,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.3
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   16,
+   442,
+   448,
+   449,
+   942,
+   6473,
+   6553
+  ],
+  "records_changed_count": 7,
+  "records_changed_by_seq": {
+   "102": 7
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 7,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 16,
+    "len_ours": 229,
+    "len_parent": 233,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "LinePatternElem",
+      "class_parent": "LinePatternElem"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_name",
+      "ours": "'GEN Dash Dot 6mm'",
+      "parent": "'Dash dot'"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_segs[0].m_data",
+      "ours": "0.01968503937007874",
+      "parent": "0.020833333333333332"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_segs[1].m_data",
+      "ours": "0.006561679790026247",
+      "parent": "0.015625"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_segs[3].m_data",
+      "ours": "0.006561679790026247",
+      "parent": "0.015625"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 442,
+    "len_ours": 352,
+    "len_parent": 1193,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FillPatternElem",
+      "class_parent": "FillPatternElem"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[len]",
+      "ours": 2,
+      "parent": 13
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_angle",
+      "ours": "0.0",
+      "parent": "0.8726646259971639"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_deltas[0]",
+      "ours": "0.0",
+      "parent": "0.013765833333333331"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_deltas[1]",
+      "ours": "0.024606299212598423",
+      "parent": "-0.019659649999999997"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_segs[len]",
+      "ours": 0,
+      "parent": 2
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_angle",
+      "ours": "1.5707963267948966",
+      "parent": "6.195918844579864"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_deltas[0]",
+      "ours": "0.0",
+      "parent": "-0.006792706666666665"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_deltas[1]",
+      "ours": "0.07381889763779527",
+      "parent": "0.02457455833333333"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_segs[0]",
+      "ours": "0.024606299212598423",
+      "parent": "0.0019999999999999996"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_segs[1]",
+      "ours": "0.07381889763779527",
+      "parent": "0.021999999999999995"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_name",
+      "ours": "'GEN Brick Coursing 75mm'",
+      "parent": "'Concrete'"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_windowSize",
+      "ours": "0.008202099737532808",
+      "parent": "0.015996777922682"
+     },
+     {
+      "path": ".m_pGeomTable",
+      "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_refPntMirrored': False, 'm_ta",
+      "parent": "None"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 448,
+    "len_ours": 364,
+    "len_parent": 653,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FillPatternElem",
+      "class_parent": "FillPatternElem"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[len]",
+      "ours": 2,
+      "parent": 3
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_angle",
+      "ours": "0.7853981633974483",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_deltas[0]",
+      "ours": "0.0",
+      "parent": "0.01333333333333333"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_deltas[1]",
+      "ours": "0.004921259842519685",
+      "parent": "0.0033333333333333327"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_segs[len]",
+      "ours": 0,
+      "parent": 12
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_angle",
+      "ours": "0.7853981633974483",
+      "parent": "2.0943951023931935"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_deltas[0]",
+      "ours": "0.0024606299212598425",
+      "parent": "0.01333333333333333"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_deltas[1]",
+      "ours": "0.004921259842519685",
+      "parent": "0.0033333333333333327"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_origin[0]",
+      "ours": "0.0",
+      "parent": "0.004999999999999998"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_origin[1]",
+      "ours": "0.0",
+      "parent": "0.0016666666666666663"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_segs[len]",
+      "ours": 2,
+      "parent": 12
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_segs[0]",
+      "ours": "0.0024606299212598425",
+      "parent": "0.0011"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_segs[1]",
+      "ours": "0.0024606299212598425",
+      "parent": "0.008899999999999996"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_name",
+      "ours": "'GEN Steel Section Hatch 1.5mm'",
+      "parent": "'Sand - Dense'"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_windowSize",
+      "ours": "0.008202099737532808",
+      "parent": "0.008459246205645629"
+     },
+     {
+      "path": ".m_pGeomTable",
+      "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_refPntMirrored': False, 'm_ta",
+      "parent": "None"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 449,
+    "len_ours": 366,
+    "len_parent": 301,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FillPatternElem",
+      "class_parent": "FillPatternElem"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_angle",
+      "ours": "0.0",
+      "parent": "0.7853981633974475"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_deltas[1]",
+      "ours": "0.006561679790026247",
+      "parent": "0.011666666666666665"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[0].value.m_segs[len]",
+      "ours": 2,
+      "parent": 0
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_angle",
+      "ours": "1.5707963267948966",
+      "parent": "0.7853981633974475"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_deltas[1]",
+      "ours": "0.006561679790026247",
+      "parent": "0.011666666666666665"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_origin[1]",
+      "ours": "0.0",
+      "parent": "0.012499999999999997"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_gridsArr[1].value.m_segs[len]",
+      "ours": 2,
+      "parent": 0
+     },
+     {
+      "path": ".m_pFillPattern.value.m_name",
+      "ours": "'GEN Gypsum Stipple 2mm'",
+      "parent": "'Steel'"
+     },
+     {
+      "path": ".m_pFillPattern.value.m_windowSize",
+      "ours": "0.008202099737532808",
+      "parent": "0.008567708333333333"
+     },
+     {
+      "path": ".m_pGeomTable",
+      "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_refPntMirrored': False, 'm_ta",
+      "parent": "None"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 13,
+    "blocks_out": 13
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 7,
+  "slots_with_registry_surface": 7,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 16,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LinePatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 442,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->FillPatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 448,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->FillPatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 449,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->FillPatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 942,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LinePatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 6473,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->FillPatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 6553,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LinePatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 7,
+  "pairs_ok": 7,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 16,
+   "class": "LinePatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 442,
+   "class": "FillPatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 448,
+   "class": "FillPatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 449,
+   "class": "FillPatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 942,
+   "class": "LinePatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 12,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 6473,
+   "class": "FillPatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 33,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a/Z_pattern.rvt",
+  "elements": 3342,
+  "file_size": 774144,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "FillPatternElem": {
+   "slots": 4,
+   "differing_field_paths": {
+    "m_cellList": 4,
+    "m_pFillPattern.value.m_name": 4,
+    "m_pFillPattern.value.m_windowSize": 4,
+    "m_pGeomTable": 4,
+    "m_pFillPattern.value.m_gridsArr.#len": 3,
+    "m_pFillPattern.value.m_gridsArr.[0].value.m_angle": 1,
+    "m_pFillPattern.value.m_gridsArr.[0].value.m_deltas.[1]": 1,
+    "m_pFillPattern.value.m_gridsArr.[0].value.m_segs.#len": 1,
+    "m_pFillPattern.value.m_gridsArr.[1].value.m_angle": 1,
+    "m_pFillPattern.value.m_gridsArr.[1].value.m_deltas.[1]": 1,
+    "m_pFillPattern.value.m_gridsArr.[1].value.m_origin.[1]": 1,
+    "m_pFillPattern.value.m_gridsArr.[1].value.m_segs.#len": 1
+   },
+   "declared_ours": [
+    "m_pFillPattern (name / grids / scale)"
+   ]
+  },
+  "LinePatternElem": {
+   "slots": 3,
+   "differing_field_paths": {
+    "m_pLinePattern.value.m_name": 3,
+    "m_cellList": 2,
+    "m_pLinePattern.value.m_segs.#len": 2,
+    "m_pLinePattern.value.m_segs.[0].m_data": 1,
+    "m_pLinePattern.value.m_segs.[1].m_data": 1,
+    "m_pLinePattern.value.m_segs.[3].m_data": 1
+   },
+   "declared_ours": [
+    "m_pLinePattern (name / segments)"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 16,
+   "class": "LinePatternElem"
+  },
+  {
+   "slot": 442,
+   "class": "FillPatternElem"
+  },
+  {
+   "slot": 448,
+   "class": "FillPatternElem"
+  },
+  {
+   "slot": 449,
+   "class": "FillPatternElem"
+  },
+  {
+   "slot": 942,
+   "class": "LinePatternElem"
+  },
+  {
+   "slot": 6473,
+   "class": "FillPatternElem"
+  },
+  {
+   "slot": 6553,
+   "class": "LinePatternElem"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 16,
+   "class": "LinePatternElem",
+   "notes": [
+    "replaces line pattern 'Dash dot' with 'GEN Dash Dot 6mm'"
+   ]
+  },
+  {
+   "slot": 442,
+   "class": "FillPatternElem",
+   "notes": [
+    "replaces fill pattern 'Concrete' (drafting) with 'GEN Brick Coursing 75mm'"
+   ]
+  },
+  {
+   "slot": 448,
+   "class": "FillPatternElem",
+   "notes": [
+    "replaces fill pattern 'Sand - Dense' (drafting) with 'GEN Steel Section Hatch 1.5mm'"
+   ]
+  },
+  {
+   "slot": 449,
+   "class": "FillPatternElem",
+   "notes": [
+    "replaces fill pattern 'Steel' (drafting) with 'GEN Gypsum Stipple 2mm'"
+   ]
+  },
+  {
+   "slot": 942,
+   "class": "LinePatternElem",
+   "notes": [
+    "replaces line pattern 'Aligning Line' with 'GEN Phantom 12mm'"
+   ]
+  },
+  {
+   "slot": 6473,
+   "class": "FillPatternElem",
+   "notes": [
+    "replaces fill pattern 'Diagonal crosshatch' (drafting) with 'GEN Vertical Lines 4mm'"
+   ]
+  },
+  {
+   "slot": 6553,
+   "class": "LinePatternElem",
+   "notes": [
+    "replaces line pattern 'Center' with 'GEN Border 10mm'"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 774144,
+ "seconds": 1.8
+}

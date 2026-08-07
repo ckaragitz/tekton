@@ -1,0 +1,279 @@
+{
+ "subject": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "elements": 3342,
+ "landed_ours": 1806,
+ "residue_elements": 1536,
+ "residue_classes": 66,
+ "residue_by_class": {
+  "ParamElemExternal": {
+   "count": 466,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "ParamBinding": {
+   "count": 209,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "HVACLoadSpaceTypeElem": {
+   "count": 125,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "ParamElemElectricalLoadClassification": {
+   "count": 108,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "DBViewType": {
+   "count": 72,
+   "disposition": "Group A NON-INPLACE (curtain constellation / placed content) -- removal queue"
+  },
+  "CategoryElem": {
+   "count": 40,
+   "disposition": "Group A claimed class -- family-scoped remainder (curtain constellation)"
+  },
+  "GStyleElem": {
+   "count": 40,
+   "disposition": "Group A claimed class -- family-scoped remainder (curtain constellation)"
+  },
+  "HVACLoadBuildingTypeElem": {
+   "count": 33,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "SketchPlane": {
+   "count": 30,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "PropertySetElement": {
+   "count": 28,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "HVACLoadScheduleElem": {
+   "count": 27,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "BuildingOperatingYearSchedule": {
+   "count": 27,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "RbsWireInsulationType": {
+   "count": 26,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "FontElem": {
+   "count": 24,
+   "disposition": "Group A claimed class -- family-scoped remainder (curtain constellation)"
+  },
+  "ElectricalDemandFactorDefinition": {
+   "count": 21,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "RefPlane": {
+   "count": 21,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "ElectricalLoadClassification": {
+   "count": 18,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "PipeSegment": {
+   "count": 15,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "RbsPipeScheduleType": {
+   "count": 13,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "SectionAttributes": {
+   "count": 10,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "ColorFillSchema": {
+   "count": 10,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "MaterialElem": {
+   "count": 10,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "Family": {
+   "count": 8,
+   "disposition": "Group A NON-INPLACE (curtain constellation / placed content) -- removal queue"
+  },
+  "FamilySurrogate": {
+   "count": 8,
+   "disposition": "Group A NON-INPLACE (curtain constellation / placed content) -- removal queue"
+  },
+  "AreaTypeElem": {
+   "count": 8,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "ParamElemProject": {
+   "count": 8,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "CalloutTag": {
+   "count": 8,
+   "disposition": "Group A claimed class -- family-scoped remainder (curtain constellation)"
+  },
+  "InteriorElevAttributes": {
+   "count": 8,
+   "disposition": "Group A claimed class -- family-scoped remainder (curtain constellation)"
+  },
+  "LoadNatureElem": {
+   "count": 8,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "LoadCaseElem": {
+   "count": 8,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "RbsPipeConnectionType": {
+   "count": 8,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "DimensionStyle": {
+   "count": 8,
+   "disposition": "Group A claimed class -- family-scoped remainder (curtain constellation)"
+  },
+  "PenWidthTableElem": {
+   "count": 8,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "ParameterFilterElement": {
+   "count": 7,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "AreaSchemePlanTopologies": {
+   "count": 6,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "BrowserOrganization": {
+   "count": 5,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "RbsPipeMaterialType": {
+   "count": 5,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "ConduitStandardType": {
+   "count": 5,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "CurveElem": {
+   "count": 5,
+   "disposition": "Group A NON-INPLACE (curtain constellation / placed content) -- removal queue"
+  },
+  "RbsWireMaterialType": {
+   "count": 4,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "LegendComponent": {
+   "count": 4,
+   "disposition": "Group A NON-INPLACE (curtain constellation / placed content) -- removal queue"
+  },
+  "RbsWireTemperatureRatingType": {
+   "count": 3,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "SunAnnotationElem": {
+   "count": 3,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "NumberingSchema": {
+   "count": 3,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "Viewport": {
+   "count": 3,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "PrintSettings": {
+   "count": 2,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "ViewportAttributes": {
+   "count": 1,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "AreaReportSettingsElem": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "ConduitSizesElem": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "CableTraySizesElem": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "WorksharingViewModeSettings": {
+   "count": 1,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "BasicWallType": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "LinearDimString": {
+   "count": 1,
+   "disposition": "Group A NON-INPLACE (curtain constellation / placed content) -- removal queue"
+  },
+  "LevelRoomPlan": {
+   "count": 1,
+   "disposition": "Group A NON-INPLACE (curtain constellation / placed content) -- removal queue"
+  },
+  "RoomElem": {
+   "count": 1,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "FloorAttributes": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "AssemblyCodeTable": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "RvtLinkSymbol": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "RvtLinkInstance": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "FabricWireType": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "FabricSheetType": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "DataStorage": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "SlaveSymbolTrackerElem": {
+   "count": 1,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "DBViewDrafting": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  },
+  "Viewer": {
+   "count": 1,
+   "disposition": "GROUP B (M..Z counterpart / definitions / other families)"
+  },
+  "DBDrawing": {
+   "count": 1,
+   "disposition": "outside both charters (product data / catalog rungs / misc machinery / external link)"
+  }
+ },
+ "totals_by_disposition": {
+  "GROUP B (M..Z counterpart / definitions / other families)": 936,
+  "Group A claimed class -- family-scoped remainder (curtain constellation)": 128,
+  "outside both charters (product data / catalog rungs / misc machinery / external link)": 373,
+  "Group A NON-INPLACE (curtain constellation / placed content) -- removal queue": 99
+ }
+}

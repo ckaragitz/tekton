@@ -1,0 +1,233 @@
+{
+ "route": "prompt+rfa->rfa (rvt.convert.modify_family)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "experiments/frontdoor/ifc-electrical-room-2500a/families/dp1_eaton_prl2x_400a_42sp_480y_277.rfa",
+  "sha256": "92beca2f2251537313917023ee0c0c7a15262439310e214b82f34e3d10edcc12",
+  "release": 2026,
+  "family_name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+  "types": [
+   "400A MCB 42ckt"
+  ]
+ },
+ "edit": "rename the type to 225A MCB 42ckt; set BusRating 225 A; set MainsRating 225; set PanelName DP-7",
+ "parsed": {
+  "ops": [
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "400A MCB 42ckt",
+    "name": "225A MCB 42ckt"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1025,
+    "caption": "BusRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225 A"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1027,
+    "caption": "MainsRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1021,
+    "caption": "PanelName",
+    "carrier": "m_str",
+    "spec": "autodesk.spec:spec.string-1.0.0",
+    "value": "DP-7",
+    "raw": "DP-7"
+   }
+  ],
+  "source": "text",
+  "understood": [
+   {
+    "clause": "rename the type to 225A MCB 42ckt",
+    "op": {
+     "op": "rename-type",
+     "type_index": 0,
+     "old": "400A MCB 42ckt",
+     "name": "225A MCB 42ckt"
+    }
+   },
+   {
+    "clause": "set BusRating 225 A",
+    "op": {
+     "op": "set-param",
+     "param_id": 1025,
+     "caption": "BusRating",
+     "carrier": "m_value",
+     "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+     "value": 225.0,
+     "raw": "225 A"
+    }
+   },
+   {
+    "clause": "set MainsRating 225",
+    "op": {
+     "op": "set-param",
+     "param_id": 1027,
+     "caption": "MainsRating",
+     "carrier": "m_value",
+     "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+     "value": 225.0,
+     "raw": "225"
+    }
+   },
+   {
+    "clause": "set PanelName DP-7",
+    "op": {
+     "op": "set-param",
+     "param_id": 1021,
+     "caption": "PanelName",
+     "carrier": "m_str",
+     "spec": "autodesk.spec:spec.string-1.0.0",
+     "value": "DP-7",
+     "raw": "DP-7"
+    }
+   }
+  ],
+  "unparsed": [],
+  "notes": [],
+  "vocabulary": "rvt.convert.modify_family (built-in; merges into the shared rvt.convert.edit_family vocabulary when that sibling module lands)"
+ },
+ "files": {
+  "rfa": "experiments/convert_combo/C1_modify_own/dp1_eaton_prl2x_400a_42sp_480y_277.edited.rfa"
+ },
+ "stamps": [
+  "PROOF-ONLY, NOT-DELIVERABLE (P0: identity/counsel gates G2-G3 open; every tekton output is an internal proof)"
+ ],
+ "degradations": [],
+ "errors": [],
+ "apply": {
+  "applied": [
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "400A MCB 42ckt",
+    "name": "225A MCB 42ckt"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1025,
+    "caption": "BusRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225 A"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1027,
+    "caption": "MainsRating",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:current-1.0.0",
+    "value": 225.0,
+    "raw": "225"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1021,
+    "caption": "PanelName",
+    "carrier": "m_str",
+    "spec": "autodesk.spec:spec.string-1.0.0",
+    "value": "DP-7",
+    "raw": "DP-7"
+   }
+  ],
+  "record_changes": {
+   "m_pFamilyTypes.value.m_pairs[0].name": "225A MCB 42ckt",
+   "m_pFamilyTypes.value.m_pairs[0].params.m_params[7].m_value": 225.0,
+   "m_familyParams.value.m_params[7].m_value": 225.0,
+   "m_pFamilyTypes.value.m_pairs[0].params.m_params[9].m_value": 225.0,
+   "m_familyParams.value.m_params[9].m_value": 225.0,
+   "m_pFamilyTypes.value.m_pairs[0].params.m_params[3].m_str": "DP-7",
+   "m_familyParams.value.m_params[3].m_str": "DP-7"
+  },
+  "commit": {
+   "out": "experiments/convert_combo/C1_modify_own/dp1_eaton_prl2x_400a_42sp_480y_277.edited.rfa",
+   "blocks": null
+  },
+  "structural_verify": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "stamps_ok": true,
+   "elemtable_count": 41,
+   "header_count": 41
+  },
+  "structural_ok": true,
+  "partatom": {
+   "changed": true,
+   "replaced": [
+    {
+     "old": "400A MCB 42ckt",
+     "new": "225A MCB 42ckt",
+     "occurrences": 1
+    }
+   ],
+   "bytes": 881
+  }
+ },
+ "validation": {
+  "rfa": {
+   "family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 0
+   },
+   "release": {
+    "input": 2026,
+    "output": 2026,
+    "preserved": true
+   },
+   "reread": [
+    {
+     "op": "rename-type",
+     "want": "225A MCB 42ckt",
+     "got": "225A MCB 42ckt",
+     "ok": true
+    },
+    {
+     "op": "set-param",
+     "caption": "BusRating",
+     "want": 225.0,
+     "got": 225.0,
+     "ok": true
+    },
+    {
+     "op": "set-param",
+     "caption": "MainsRating",
+     "want": 225.0,
+     "got": 225.0,
+     "ok": true
+    },
+    {
+     "op": "set-param",
+     "caption": "PanelName",
+     "want": "DP-7",
+     "got": "DP-7",
+     "ok": true
+    }
+   ],
+   "self_checks_ok": true
+  }
+ },
+ "seconds": 0.4,
+ "deliverables": {
+  "rfa": {
+   "path": "experiments/convert_combo/C1_modify_own/dp1_eaton_prl2x_400a_42sp_480y_277.edited.rfa",
+   "bytes": 270336,
+   "sha256": "a21d0035061ef2bf88652256ea2f548239f229e93f298dd9834548a32b22ab31"
+  }
+ }
+}

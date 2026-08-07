@@ -1,0 +1,699 @@
+{
+ "generated": "2026-08-05T08:05:40-0500",
+ "tool": "tools/catchain.py mine",
+ "files": {
+  "SUB_ALL": {
+   "file": "experiments/subtractive/SUB_ALL.rvt",
+   "sf_categoryId": -2001330,
+   "sf_partType": -1,
+   "type_table": {
+    "m_idx": 1,
+    "pairs": [
+     {
+      "name": " ",
+      "n_rows": 18
+     },
+     {
+      "name": "300 x 300mm",
+      "n_rows": 18
+     },
+     {
+      "name": "450 x 450mm",
+      "n_rows": 18
+     },
+     {
+      "name": "600 x 600mm",
+      "n_rows": 18
+     },
+     {
+      "name": "750 x 750mm",
+      "n_rows": 18
+     }
+    ],
+    "pair0_rows_equal_familyParams": true
+   },
+   "familyParams_rows": [
+    {
+     "m_paramId": -1005500,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": 1177727,
+     "m_instance": true
+    },
+    {
+     "m_paramId": 1474542,
+     "m_value": 1.6666666666666667,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474543,
+     "m_value": 4.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474544,
+     "m_value": 0.4791666666666667,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474545,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "PP-1",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474546,
+     "m_value": 5166.677000020666,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474547,
+     "m_value": 0.0,
+     "m_int": 3,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474548,
+     "m_value": 0.0,
+     "m_int": 4,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474549,
+     "m_value": 225.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474550,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "MLO",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474551,
+     "m_value": 225.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474552,
+     "m_value": 14.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474553,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "surface",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474554,
+     "m_value": 0.0,
+     "m_int": 42,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1474555,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "100%",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": -1010103,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "PRL2X",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": -1010104,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "Eaton",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": -1010109,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "480Y/277 V, 3-phase 4-wire, 225 A main-lugs-only panelboard, 42 circuits, surface mounted (box 20 W x 48 H x 5.75 D in; generated from catalog facts)",
+     "m_elemId": -1,
+     "m_instance": false
+    }
+   ],
+   "locked": [
+    -1001205,
+    1474542,
+    1474543,
+    1474544
+   ],
+   "refTypeIds": [
+    4
+   ],
+   "fsdos": [
+    {
+     "ptr_class": "MaterialFSDO",
+     "pid": -1,
+     "value": {
+      "m_categoryId": -2001330,
+      "m_materialId": 1177727,
+      "m_famParamId": -1005500
+     }
+    }
+   ],
+   "nextAbsorbedIndex": 3165,
+   "predefinedLimitIdx": 1963,
+   "cell_groups": [
+    {
+     "group": "autodesk.parameter.group:materials-1.0.0",
+     "param_ids": [
+      -1005500
+     ]
+    },
+    {
+     "group": "autodesk.parameter.group:dimensions-1.0.0",
+     "param_ids": [
+      1474542,
+      1474543,
+      1474544
+     ]
+    },
+    {
+     "group": "autodesk.parameter.group:identityData-1.0.0",
+     "param_ids": [
+      -1152384,
+      -1140422,
+      -1010109,
+      -1010108,
+      -1010105,
+      -1010104,
+      -1010103,
+      -1002500,
+      -1001205,
+      -1005554,
+      1474545,
+      1474553
+     ]
+    },
+    {
+     "group": "autodesk.parameter.group:electrical-1.0.0",
+     "param_ids": [
+      1474546,
+      1474547,
+      1474548,
+      1474549,
+      1474550,
+      1474551,
+      1474552,
+      1474554,
+      1474555
+     ]
+    }
+   ],
+   "hdr_deletion_nonelement_in_order": [
+    -2001330,
+    -1005500,
+    -1001205,
+    1177727
+   ],
+   "features": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 18,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "Family,Viewer,DBViewProject,DBDrawing,Viewport,UnitsElem,LevelAttributes,Level",
+    "adoc_bytes": 19830,
+    "adoc_bytes_per_row": 483.7,
+    "adoc_deep": true,
+    "max_familyIds_index_gap": 3160
+   }
+  },
+  "B7": {
+   "file": "experiments/famdoc_blobs/B7.rvt",
+   "sf_categoryId": -2001330,
+   "sf_partType": -1,
+   "type_table": {
+    "m_idx": 1,
+    "pairs": [
+     {
+      "name": " ",
+      "n_rows": 2
+     },
+     {
+      "name": "300 x 300mm",
+      "n_rows": 2
+     },
+     {
+      "name": "450 x 450mm",
+      "n_rows": 2
+     },
+     {
+      "name": "600 x 600mm",
+      "n_rows": 2
+     },
+     {
+      "name": "750 x 750mm",
+      "n_rows": 2
+     }
+    ],
+    "pair0_rows_equal_familyParams": true
+   },
+   "familyParams_rows": [
+    {
+     "m_paramId": 1472660,
+     "m_value": 0.984251968503937,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": -1005500,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": 1177727,
+     "m_instance": true
+    }
+   ],
+   "locked": [
+    -1001205,
+    1472660
+   ],
+   "refTypeIds": [
+    4
+   ],
+   "fsdos": [
+    {
+     "ptr_class": "MaterialFSDO",
+     "pid": -1,
+     "value": {
+      "m_categoryId": -2001330,
+      "m_materialId": 1177727,
+      "m_famParamId": -1005500
+     }
+    }
+   ],
+   "nextAbsorbedIndex": 3165,
+   "predefinedLimitIdx": 1963,
+   "cell_groups": [
+    {
+     "group": "autodesk.parameter.group:materials-1.0.0",
+     "param_ids": [
+      -1005500
+     ]
+    },
+    {
+     "group": "autodesk.parameter.group:dimensions-1.0.0",
+     "param_ids": [
+      1472660
+     ]
+    },
+    {
+     "group": "autodesk.parameter.group:identityData-1.0.0",
+     "param_ids": [
+      -1152384,
+      -1140422,
+      -1010109,
+      -1010108,
+      -1010105,
+      -1010104,
+      -1010103,
+      -1002500,
+      -1001205,
+      -1005554
+     ]
+    }
+   ],
+   "hdr_deletion_nonelement_in_order": [
+    -2001330,
+    -1005500,
+    -1001205,
+    1177727
+   ],
+   "features": {
+    "n_elements": 417,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 2,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18057,
+    "adoc_bytes_per_row": 43.3,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   }
+  },
+  "B0": {
+   "file": "experiments/famdoc_blobs/B0.rvt",
+   "sf_categoryId": -2001040,
+   "sf_partType": 14,
+   "type_table": {
+    "m_idx": 0,
+    "pairs": [
+     {
+      "name": "225A MLO 42ckt",
+      "n_rows": 17
+     }
+    ],
+    "pair0_rows_equal_familyParams": true
+   },
+   "familyParams_rows": [
+    {
+     "m_paramId": 1472543,
+     "m_value": 1.6666666666666667,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472544,
+     "m_value": 4.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472545,
+     "m_value": 0.4791666666666667,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472546,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "PP-1",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472547,
+     "m_value": 5166.677000020666,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472548,
+     "m_value": 0.0,
+     "m_int": 3,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472549,
+     "m_value": 0.0,
+     "m_int": 4,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472550,
+     "m_value": 225.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472551,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "MLO",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472552,
+     "m_value": 225.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472553,
+     "m_value": 14.0,
+     "m_int": 0,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472554,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "surface",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472555,
+     "m_value": 0.0,
+     "m_int": 42,
+     "m_str": "",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": 1472556,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "100%",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": -1010103,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "PRL2X",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": -1010104,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "Eaton",
+     "m_elemId": -1,
+     "m_instance": false
+    },
+    {
+     "m_paramId": -1010109,
+     "m_value": 0.0,
+     "m_int": 0,
+     "m_str": "480Y/277 V, 3-phase 4-wire, 225 A main-lugs-only panelboard, 42 circuits, surface mounted (box 20 W x 48 H x 5.75 D in; generated from catalog facts)",
+     "m_elemId": -1,
+     "m_instance": false
+    }
+   ],
+   "locked": [
+    1472543,
+    1472544,
+    1472545
+   ],
+   "refTypeIds": [],
+   "fsdos": [],
+   "nextAbsorbedIndex": 40,
+   "predefinedLimitIdx": 35,
+   "cell_groups": [
+    {
+     "group": "autodesk.parameter.group:dimensions-1.0.0",
+     "param_ids": [
+      1472543,
+      1472544,
+      1472545
+     ]
+    },
+    {
+     "group": "autodesk.parameter.group:identityData-1.0.0",
+     "param_ids": [
+      1472546,
+      1472554
+     ]
+    },
+    {
+     "group": "autodesk.parameter.group:electrical-1.0.0",
+     "param_ids": [
+      1472547,
+      1472548,
+      1472549,
+      1472550,
+      1472551,
+      1472552,
+      1472553,
+      1472555,
+      1472556
+     ]
+    },
+    {
+     "group": "autodesk.parameter.group:identityData-1.0.0",
+     "param_ids": [
+      -1010109,
+      -1010104,
+      -1010103
+     ]
+    }
+   ],
+   "hdr_deletion_nonelement_in_order": [],
+   "features": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 40,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 0,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   }
+  }
+ },
+ "generic_model_category": {
+  "id": -2000151,
+  "verified_in_schema": "rvt.famgen.skeleton.OST_GENERIC_MODEL [VERIFIED from the specimens' m_categoryId + the shared BIC list]",
+  "verified_on_host": {
+   "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "gstyle_rows_(id, m_gstyleType)": [
+    [
+     118,
+     1
+    ],
+    [
+     119,
+     2
+    ]
+   ],
+   "projection_gstyle_present": true
+  }
+ },
+ "laws": {
+  "types5": "donor famdoc table = leading blank ' ' pair whose rows == m_familyParams rows, then the real types; m_idx = 1 [SUB_ALL and B7 both: 5 pairs, idx 1]",
+  "bip": "-1001205 in m_locked (sorts first) + the identityData palette of the order cell; NO value row [SUB_ALL locked [-1001205, 3 dims]; B7 locked [-1001205, 1 dim]]",
+  "materials": "-1005500 INSTANCE value row on every type + current values (m_elemId = material, MAY dangle outside the unit [SUB_ALL: 1177727 not a unit id, PASS]); MaterialFSDO {category, material, famParam}; materials group FIRST in the order cell",
+  "counters": "m_nextAbsorbedIndex 3165 / m_predefinedLimitIdx 1963 (sparse edit history; index pairs stay dense = the M4 morph surface)",
+  "deletion": "header m_deletion opens with the non-element parents [category, -1005500, -1001205, <material elem>] before the element ids",
+  "refTypeIds": "[4] on SUB_ALL and B7; [] on B0",
+  "category": "the donor famdoc is structural-column -2001330 with partType -1; the GM probe authors -2000151 + partType -1 (partType follows the category; 14 is the electrical panelboard value)"
+ }
+}

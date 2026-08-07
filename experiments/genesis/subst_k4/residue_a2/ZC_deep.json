@@ -1,0 +1,2676 @@
+{
+ "rung": "ZC_deep",
+ "label": "ZA_deep + ALL of this stream's groups (HVAC web, electrical catalog, conduit catalogs, system types, analysis machinery, browser + sheet), IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+  "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a2/ZC_deep.rvt",
+ "landed_by_class": {
+  "HVACLoadSpaceTypeElem": 125,
+  "HVACLoadBuildingTypeElem": 33,
+  "HVACLoadScheduleElem": 27,
+  "BuildingOperatingYearSchedule": 27,
+  "ElectricalDemandFactorDefinition": 21,
+  "ElectricalLoadClassification": 18,
+  "ColorFillSchema": 10,
+  "AreaTypeElem": 8,
+  "LoadCaseElem": 8,
+  "LoadNatureElem": 8,
+  "ConduitStandardType": 5,
+  "AreaSchemePlanTopologies": 5,
+  "BrowserOrganization": 5,
+  "ConduitSizesElem": 1,
+  "CableTraySizesElem": 1,
+  "BasicWallType": 1,
+  "FloorAttributes": 1,
+  "FabricWireType": 1,
+  "FabricSheetType": 1,
+  "AreaReportSettingsElem": 1,
+  "AssemblyCodeTable": 1,
+  "DBViewDrafting": 1,
+  "DBDrawing": 1
+ },
+ "notes": [
+  "[ZC_hvac] day schedules 27 -> OUR schedule library (27 named 24-hour profiles: off, on24, half24, occ_office, occ_classroom, occ_assembly, occ_transit24, occ_shop, ...); the sample's schedule NAMES are free content (the German file localizes them) -> ours",
+  "[ZC_elec] load classifications 18 -> OUR library (3 reserved roles by the slot's m_signitureType: motor 1 / other 2 / spare 3 -- exactly one each per project, 6/6 samples -- + 15 of our regular classes); each keeps its slot's demand-slot id and its six ParamElemElectricalLoadClassification companion ids (Group B's ZB1_defs, id-wired both sides -- the cleanest cross-group web, endgame section 2 row 6)",
+  "[ZC_conduit] conduit standards 5 -> OURS: ['GEN EMT', 'GEN IMC', 'GEN RMC', 'GEN PVC Schedule 40', 'GEN PVC Schedule 80'] (the standard names are trade designations; the SELECTION is ours)",
+  "[ZC_systype] wall type -> 'GEN Wall - Interior Partition 121mm', floor type -> 'GEN Floor - Concrete Slab 150mm': our layer make-up over OUR palette materials looked up by name in the parent (ALL FOUND); each type's LegendComponent preview id is KEPT (the preview then displays OUR type -- a type-preview leaves only with its type, deletion finding 3)",
+  "[ZC_analysis] AreaTypeElem 8: PURE MACHINERY (m_areaSchemeId -> OUR area schemes + the built-in area-type enum m_eSpaceType, no name / no free value) -> REPRODUCED byte-identical",
+  "[ZC_browse] RvtLinkSymbol [1250029]: DELETE-WITH-CONTENT (clean-header rung first) -- a genesis file links NO model: the symbol names an external Autodesk sample file ('rac_basic_sample_project.rvt' + a relative path) -- nothing of ours to express at the slot.  The deletion stream (docs/inbox/genesis-deletion.md, finding 1) measured it NOT delete-reachable on ZA_deep: OUR OWN Y2/Y9 view slots' inherited seq-101 headers list it as a deletion parent, and this stream's ZC_browse sheet-view constructor REMOVES its remaining seq-102 pin (the drafting/sheet view's RvtLinkOverrides display map).  Retirement = the clean-header rung (seqs 101+102 on our views) then one maxgc deletion of {symbol + drafting-view constellation} -- the substitution stream's queue."
+ ],
+ "info": {
+  "ZC_hvac": {
+   "slots": 212,
+   "by_class": {
+    "HVACLoadSpaceTypeElem": 125,
+    "HVACLoadBuildingTypeElem": 33,
+    "HVACLoadScheduleElem": 27,
+    "BuildingOperatingYearSchedule": 27
+   }
+  },
+  "ZC_elec": {
+   "slots": 39,
+   "by_class": {
+    "ElectricalDemandFactorDefinition": 21,
+    "ElectricalLoadClassification": 18
+   }
+  },
+  "ZC_conduit": {
+   "slots": 7,
+   "by_class": {
+    "ConduitStandardType": 5,
+    "ConduitSizesElem": 1,
+    "CableTraySizesElem": 1
+   }
+  },
+  "ZC_systype": {
+   "slots": 4,
+   "by_class": {
+    "BasicWallType": 1,
+    "FloorAttributes": 1,
+    "FabricWireType": 1,
+    "FabricSheetType": 1
+   }
+  },
+  "ZC_analysis": {
+   "slots": 41,
+   "by_class": {
+    "ColorFillSchema": 10,
+    "AreaTypeElem": 8,
+    "LoadCaseElem": 8,
+    "LoadNatureElem": 8,
+    "AreaSchemePlanTopologies": 5,
+    "AreaReportSettingsElem": 1,
+    "AssemblyCodeTable": 1
+   }
+  },
+  "ZC_browse": {
+   "slots": 7,
+   "by_class": {
+    "BrowserOrganization": 5,
+    "DBViewDrafting": 1,
+    "DBDrawing": 1
+   }
+  }
+ },
+ "residue_left_in_place": {
+  "AreaSchemePlanTopologies(room)": {
+   "count": 1,
+   "ids": [
+    9744
+   ],
+   "reason": "DELETE-WITH-CONTENT (with the room constellation) -- topology 9744 CONTAINS the placed room's LevelRoomPlan + boundary curves (deletion stream finding 2: the constellation is held together by 9744 and PINNED by OUR AreaMeasureElem 9490's kept wiring) -- it leaves with the room, atomically; left byte-identical here."
+  },
+  "DataStorage(vendor ES blob)": {
+   "count": 1,
+   "ids": [
+    1382860
+   ],
+   "reason": "DELETE (leaf) -- an Extensible-Storage container whose ESEntity blob is a VENDOR schema this project's decoder does not read (the arbiter's one standing warning): there is nothing of ours to express, and reproducing it would keep an undecoded third-party blob -- a zero-referrer leaf for the deletion set (endgame step 24)."
+  },
+  "RvtLinkSymbol(external link)": {
+   "count": 1,
+   "ids": [
+    1250029
+   ],
+   "reason": "DELETE-WITH-CONTENT (clean-header rung first) -- a genesis file links NO model: the symbol names an external Autodesk sample file ('rac_basic_sample_project.rvt' + a relative path) -- nothing of ours to express at the slot.  The deletion stream (docs/inbox/genesis-deletion.md, finding 1) measured it NOT delete-reachable on ZA_deep: OUR OWN Y2/Y9 view slots' inherited seq-101 headers list it as a deletion parent, and this stream's ZC_browse sheet-view constructor REMOVES its remaining seq-102 pin (the drafting/sheet view's RvtLinkOverrides display map).  Retirement = the clean-header rung (seqs 101+102 on our views) then one maxgc deletion of {symbol + drafting-view constellation} -- the substitution stream's queue."
+  },
+  "RvtLinkInstance(external link)": {
+   "count": 1,
+   "ids": [
+    1250030
+   ],
+   "reason": "DELETE-WITH-CONTENT (emitted: deletion stream D_links) -- the placed instance of the link; the deletion stream's D_links probe deletes it with OUR CopyWatchProperties 1250031 (delete-with-content of our own referrer, EDIT-FREE)."
+  }
+ },
+ "record_selfcheck": {
+  "objects": 310,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.0
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   26013,
+   26014,
+   26015,
+   26016,
+   26017,
+   51438,
+   51439,
+   51440,
+   51441,
+   51442,
+   51443,
+   51444,
+   51445,
+   51446,
+   51447,
+   51448,
+   51449,
+   51450,
+   51451,
+   51452,
+   51453,
+   69707,
+   99859,
+   99860,
+   99861,
+   99864,
+   102898,
+   102899,
+   103627,
+   103635,
+   105532,
+   105533,
+   105534,
+   105535,
+   105536,
+   105537,
+   105538,
+   105539,
+   105540,
+   105541,
+   105542,
+   105543,
+   105544,
+   105545,
+   105546,
+   105547,
+   105548,
+   105549,
+   105550,
+   105551,
+   105552,
+   105553,
+   105554,
+   105555,
+   105556,
+   105557,
+   105558,
+   105559,
+   105560,
+   105561,
+   105562,
+   105563,
+   105564,
+   105565,
+   105566,
+   105567,
+   105568,
+   105569,
+   105570,
+   105571,
+   105572,
+   105573,
+   105574,
+   105575,
+   105576,
+   105577,
+   105578,
+   105579,
+   105580,
+   105581,
+   105582,
+   105583,
+   105584,
+   105585,
+   105586,
+   105587,
+   105588,
+   105589,
+   105590,
+   105591,
+   105592,
+   105593,
+   105594,
+   105595,
+   105596,
+   105597,
+   105598,
+   105599,
+   105600,
+   105601,
+   105602,
+   105603,
+   105604,
+   105605,
+   105606,
+   105607,
+   105608,
+   105609,
+   105610,
+   105611,
+   105612,
+   105613,
+   105614,
+   105615,
+   105616,
+   105617,
+   105618,
+   105619,
+   105620,
+   105621,
+   105622,
+   105623,
+   105624,
+   105625,
+   105626,
+   105627,
+   105628,
+   105629,
+   105630,
+   105631,
+   105632,
+   105633,
+   105634,
+   105635,
+   105636,
+   105637,
+   105638,
+   105639,
+   105640,
+   105641,
+   105642,
+   105643,
+   105644,
+   105645,
+   105646,
+   105647,
+   105648,
+   105649,
+   105650,
+   105651,
+   105652,
+   105653,
+   105654,
+   105655,
+   105656,
+   105657,
+   105658,
+   105659,
+   105660,
+   105661,
+   105662,
+   105663,
+   105664,
+   105665,
+   105666,
+   105667,
+   105668,
+   105669,
+   105670,
+   105671,
+   105672,
+   105673,
+   105674,
+   105675,
+   105676,
+   105677,
+   105678,
+   105679,
+   105680,
+   105681,
+   105682,
+   105683,
+   105684,
+   105685,
+   105686,
+   105687,
+   105688,
+   105689,
+   105690,
+   105691,
+   105692,
+   105693,
+   105694,
+   105695,
+   105696,
+   105697,
+   105698,
+   105699,
+   105700,
+   105701,
+   105702,
+   105703,
+   105704,
+   105705,
+   105706,
+   105707,
+   105708,
+   105709,
+   105710,
+   105711,
+   105712,
+   105713,
+   105714,
+   113159,
+   113160,
+   113161,
+   113162,
+   113164,
+   113165,
+   113166,
+   113168,
+   113169,
+   113943,
+   113944,
+   113945,
+   113946,
+   121660,
+   121661,
+   121663,
+   121664,
+   135866,
+   237138,
+   237139,
+   237140,
+   297988,
+   297989,
+   298001,
+   298002,
+   298003,
+   298004,
+   298005,
+   301084,
+   372504,
+   372505,
+   600634,
+   713027,
+   713142,
+   713143,
+   967234,
+   967235,
+   999054,
+   999055,
+   1053891,
+   1053892,
+   1053896,
+   1053897,
+   1053898,
+   1053899,
+   1053900,
+   1053901,
+   1053902,
+   1053903,
+   1053904,
+   1201129,
+   1218726,
+   1352718,
+   1352719,
+   1457028,
+   1472456
+  ],
+  "records_changed_count": 269,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 310,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 41,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 26013,
+    "len_ours": 255,
+    "len_parent": 257,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_folderDefinitions[len]",
+      "ours": 1,
+      "parent": 2
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_parameter.m_paramIdPath[0]",
+      "ours": "-1005113",
+      "parent": "-1005163"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Views - Level'",
+      "parent": "'Discipline'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 26014,
+    "len_ours": 291,
+    "len_parent": 267,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Views - Family and Type'",
+      "parent": "'Type/Discipline'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 26015,
+    "len_ours": 287,
+    "len_parent": 257,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_folderDefinitions[len]",
+      "ours": 1,
+      "parent": 2
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_numCharsToUse",
+      "ours": "1",
+      "parent": "0"
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_parameter.m_paramIdPath[0]",
+      "ours": "-1007401",
+      "parent": "-1006322"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Sheets - Series (1 Character)'",
+      "parent": "'Issue Date'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 26016,
+    "len_ours": 267,
+    "len_parent": 253,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_folderDefinitions[len]",
+      "ours": 1,
+      "parent": 2
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_parameter.m_paramIdPath[0]",
+      "ours": "-1006322",
+      "parent": "-1007404"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Sheets - Issue Date'",
+      "parent": "'Drawn By'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 11,
+    "blocks_out": 10
+   },
+   {
+    "what": "41 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     9492,
+     9493,
+     9496,
+     9497,
+     9498,
+     9499,
+     9500,
+     9501,
+     9745,
+     581529,
+     581530,
+     711934,
+     711935,
+     1457031,
+     1471979,
+     1471980,
+     1471981,
+     1471982,
+     1471983,
+     1471984,
+     1471985,
+     1471986,
+     1471987,
+     1471988,
+     1471989,
+     1471990,
+     1471991,
+     1471992,
+     1471993,
+     1471994,
+     1471995,
+     1471996,
+     1471997,
+     1471998,
+     1471999,
+     1472000,
+     1472001,
+     1472002,
+     1472003,
+     1472004
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 310,
+  "slots_with_registry_surface": 290,
+  "positional_uet_slots": [
+   {
+    "slot": 113168,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[67]"
+    ]
+   },
+   {
+    "slot": 113169,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[66]"
+    ]
+   },
+   {
+    "slot": 1218726,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[64]"
+    ]
+   }
+  ],
+  "surface_examples": [
+   {
+    "slot": 9492,
+    "paths": [
+     "ADocument.m_oNobleSecondaryData->NOBLE_SecondaryDataStorage.m_data[*].second.m_oData->ColorFillSecondaryData.m_colorFillResults[*].m_paramStorage.m_elemId"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 26013,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26014,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26015,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26016,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26017,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 51439,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LoadCaseElemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 51441,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LoadCaseElemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 310,
+  "pairs_ok": 310,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 9492,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 9493,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 9496,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 9497,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 9498,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 9499,
+   "class": "AreaTypeElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 15,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 49637
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a2/ZC_deep.rvt",
+  "elements": 3342,
+  "file_size": 606208,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "HVACLoadScheduleElem": {
+   "slots": 27,
+   "differing_field_paths": {
+    "m_strName": 27,
+    "m_24HourSchedules.[12]": 25,
+    "m_24HourSchedules.[9]": 24,
+    "m_24HourSchedules.[10]": 24,
+    "m_24HourSchedules.[11]": 24,
+    "m_24HourSchedules.[13]": 24,
+    "m_24HourSchedules.[14]": 24,
+    "m_24HourSchedules.[15]": 24,
+    "m_24HourSchedules.[17]": 24,
+    "m_24HourSchedules.[7]": 23,
+    "m_24HourSchedules.[16]": 23,
+    "m_24HourSchedules.[18]": 23,
+    "m_24HourSchedules.[19]": 23,
+    "m_24HourSchedules.[8]": 22,
+    "m_24HourSchedules.[21]": 22,
+    "m_24HourSchedules.[20]": 21,
+    "m_24HourSchedules.[22]": 21,
+    "m_24HourSchedules.[0]": 20,
+    "m_24HourSchedules.[1]": 20,
+    "m_24HourSchedules.[3]": 20,
+    "m_24HourSchedules.[5]": 20,
+    "m_24HourSchedules.[23]": 20,
+    "m_24HourSchedules.[2]": 19,
+    "m_24HourSchedules.[4]": 19
+   },
+   "declared_ours": [
+    "m_24HourSchedules",
+    "m_strName"
+   ]
+  },
+  "HVACLoadSpaceTypeElem": {
+   "slots": 125,
+   "differing_field_paths": {
+    "m_coolingSetPoint": 125,
+    "m_dEquipmentRadiant": 125,
+    "m_dInfiltration": 125,
+    "m_dPlenumLighting": 125,
+    "m_dehumidificationSetPoint": 125,
+    "m_heatingSetPoint": 125,
+    "m_LightingLoadDensity": 124,
+    "m_PowerLoadDensity": 124,
+    "m_dAreaPerPerson": 124,
+    "m_dLatentHeatGainPerPerson": 124,
+    "m_dSensibleHeatGainPerPerson": 124,
+    "m_idLightingSchedule": 124,
+    "m_idOccupancySchedule": 123,
+    "m_idPowerSchedule": 123,
+    "m_dOutdoorAirPerArea": 45,
+    "m_dOutdoorAirPerPerson": 42,
+    "m_bCarpeting": 35,
+    "m_dAirChangesPerHour": 11
+   },
+   "declared_ours": [
+    "m_LightingLoadDensity",
+    "m_PowerLoadDensity",
+    "m_bCarpeting",
+    "m_coolingSetPoint",
+    "m_dAirChangesPerHour",
+    "m_dAreaPerPerson",
+    "m_dEquipmentRadiant",
+    "m_dInfiltration",
+    "m_dLatentHeatGainPerPerson",
+    "m_dOutdoorAirPerArea",
+    "m_dOutdoorAirPerPerson",
+    "m_dPlenumLighting",
+    "m_dSensibleHeatGainPerPerson",
+    "m_dehumidificationSetPoint",
+    "m_heatingSetPoint",
+    "m_humidificationSetPoint",
+    "m_idLightingSchedule",
+    "m_idOccupancySchedule",
+    "m_idPowerSchedule",
+    "m_isPlenum"
+   ]
+  },
+  "HVACLoadBuildingTypeElem": {
+   "slots": 33,
+   "differing_field_paths": {
+    "m_LightingLoadDensity": 33,
+    "m_PowerLoadDensity": 33,
+    "m_coolingSetPoint": 33,
+    "m_dAreaPerPerson": 33,
+    "m_dCoolingSetPoint": 33,
+    "m_dEquipmentRadiant": 33,
+    "m_dInfiltration": 33,
+    "m_dLatentHeatGainPerPerson": 33,
+    "m_dPlenumLighting": 33,
+    "m_dSensibleHeatGainPerPerson": 33,
+    "m_dehumidificationSetPoint": 33,
+    "m_heatingSetPoint": 33,
+    "m_idLightingSchedule": 33,
+    "m_idOccupancySchedule": 33,
+    "m_idPowerSchedule": 33,
+    "m_strEquipmentStartTime": 30,
+    "m_strEquipmentEndTime": 26,
+    "m_bCarpeting": 10,
+    "m_dOutdoorAirPerArea": 8,
+    "m_dOutdoorAirPerPerson": 8,
+    "m_dAirChangesPerHour": 1
+   },
+   "declared_ours": [
+    "m_LightingLoadDensity",
+    "m_PowerLoadDensity",
+    "m_bCarpeting",
+    "m_coolingSetPoint",
+    "m_dAirChangesPerHour",
+    "m_dAreaPerPerson",
+    "m_dCoolingSetPoint",
+    "m_dEquipmentRadiant",
+    "m_dInfiltration",
+    "m_dLatentHeatGainPerPerson",
+    "m_dOutdoorAirPerArea",
+    "m_dOutdoorAirPerPerson",
+    "m_dPlenumLighting",
+    "m_dSensibleHeatGainPerPerson",
+    "m_dehumidificationSetPoint",
+    "m_heatingSetPoint",
+    "m_humidificationSetPoint",
+    "m_idLightingSchedule",
+    "m_idOccupancySchedule",
+    "m_idPowerSchedule",
+    "m_strEquipmentEndTime",
+    "m_strEquipmentStartTime"
+   ]
+  },
+  "ElectricalLoadClassification": {
+   "slots": 18,
+   "differing_field_paths": {
+    "m_abbreviation": 18,
+    "m_actualElectricalLoadLabel": 18,
+    "m_loadSummaryDemandFactorLabel": 18,
+    "m_name": 18,
+    "m_panelConnectedCurrentLabel": 18,
+    "m_panelConnectedLabel": 18,
+    "m_panelEstimatedCurrentLabel": 18,
+    "m_panelEstimatedLabel": 18,
+    "m_spaceLoadClass": 9
+   },
+   "declared_ours": [
+    "m_abbreviation",
+    "m_name",
+    "m_signitureType(role)",
+    "m_spaceLoadClass",
+    "the six label templates"
+   ]
+  },
+  "ElectricalDemandFactorDefinition": {
+   "slots": 21,
+   "differing_field_paths": {
+    "m_name": 21,
+    "m_ruleType": 10,
+    "m_values.#len": 7,
+    "m_values.[0].m_factor": 5,
+    "m_values.[0].m_maxRange": 1,
+    "m_values.[1].m_factor": 1,
+    "m_values.[1].m_minRange": 1
+   },
+   "declared_ours": [
+    "m_additionalLoad",
+    "m_includeAdditionalLoad",
+    "m_name",
+    "m_ruleType",
+    "m_values"
+   ]
+  },
+  "ConduitStandardType": {
+   "slots": 5,
+   "differing_field_paths": {
+    "m_symbolInfo.value.m_name": 5
+   },
+   "declared_ours": [
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "ConduitSizesElem": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_sizes.[0].second.m_sizeData.[0].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[0].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[0].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[0].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[1].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[1].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[1].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[1].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[2].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[2].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[2].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[2].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[3].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[3].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[3].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[3].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[4].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[4].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[4].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[4].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[5].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[5].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[5].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[5].m_dSize": 1
+   },
+   "declared_ours": [
+    "m_sizes"
+   ]
+  },
+  "CableTraySizesElem": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_sizes.m_sizeData.#len": 1
+   },
+   "declared_ours": [
+    "m_sizes"
+   ]
+  },
+  "BasicWallType": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_function": 1,
+    "m_pCompoundStructure.value.m_coarseScaleFillColor": 1,
+    "m_pCompoundStructure.value.m_coarseScaleFillPatternElemId": 1,
+    "m_pCompoundStructure.value.m_layers.#len": 1,
+    "m_pCompoundStructure.value.m_numShellLayersExt": 1,
+    "m_pCompoundStructure.value.m_numShellLayersInt": 1,
+    "m_pCompoundStructure.value.m_oVertRegStructure.value.m_cutOffHeight": 1,
+    "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions.#len": 1,
+    "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments.#len": 1,
+    "m_pCompoundStructure.value.m_oVertRegStructure.value.m_regionToLayerMap.#len": 1,
+    "m_pCompoundStructure.value.m_openingWrapping": 1,
+    "m_pCompoundStructure.value.m_segRefFaceKeys.[1].m_id": 1,
+    "m_pCompoundStructure.value.m_structuralMaterialLayerIndex": 1,
+    "m_symbolInfo.value.m_name": 1
+   },
+   "declared_ours": [
+    "m_function",
+    "m_pCompoundStructure (our layers)",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "FloorAttributes": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_pCompoundStructure.value.m_layers.#len": 1,
+    "m_pCompoundStructure.value.m_structuralMaterialLayerIndex": 1,
+    "m_symbolInfo.value.m_name": 1
+   },
+   "declared_ours": [
+    "m_pCompoundStructure (our layers)",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "FabricWireType": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_bendDiameter": 1,
+    "m_symbolInfo.value.m_name": 1,
+    "m_wireDiameter": 1
+   },
+   "declared_ours": [
+    "m_bendDiameter",
+    "m_symbolInfo.value.m_name",
+    "m_wireDiameter"
+   ]
+  },
+  "FabricSheetType": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_majorEndOverhang": 1,
+    "m_majorLapSpliceLength": 1,
+    "m_majorNumberOfWires": 1,
+    "m_majorSpacing": 1,
+    "m_majorStartOverhang": 1,
+    "m_minorEndOverhang": 1,
+    "m_minorLapSpliceLength": 1,
+    "m_minorNumberOfWires": 1,
+    "m_minorSpacing": 1,
+    "m_minorStartOverhang": 1,
+    "m_overallLength": 1,
+    "m_overallWidth": 1,
+    "m_symbolInfo.value.m_name": 1,
+    "m_userEnteredSheetMass": 1
+   },
+   "declared_ours": [
+    "lap splices",
+    "m_symbolInfo.value.m_name",
+    "overhangs",
+    "sheet mass",
+    "sheet size",
+    "spacings",
+    "wire counts"
+   ]
+  },
+  "AreaReportSettingsElem": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_allSettings.[0].m_fontSize.[0]": 1,
+    "m_allSettings.[0].m_fontSize.[1]": 1,
+    "m_allSettings.[0].m_prefixArcSector": 1
+   },
+   "declared_ours": [
+    "m_allSettings[*].m_fontAnotName/m_fontTagName",
+    "m_allSettings[*].m_fontSize",
+    "m_allSettings[*].m_prefixArcSector/m_prefixTriangle"
+   ]
+  },
+  "AssemblyCodeTable": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_cellList.value.m_cells.[1].value.m_externalResourceReferences.#len": 1,
+    "m_cellList.value.m_cells.[1].value.m_externalResourceReferencesExpanded.#len": 1,
+    "m_oKeyBasedTreeEntries.value.m_keyBasedTreeEntrySet.#len": 1,
+    "m_oKeyBasedTreeEntries.value.m_orphans.#len": 1
+   },
+   "declared_ours": [
+    "EMPTY table (no classification rows, no external references)"
+   ]
+  },
+  "ColorFillSchema": {
+   "slots": 10,
+   "differing_field_paths": {
+    "m_strName": 10,
+    "m_title": 10,
+    "m_colorFillArr.#len": 5
+   },
+   "declared_ours": [
+    "m_colorFillArr (our entries / colours)",
+    "m_strName",
+    "m_title"
+   ]
+  },
+  "LoadCaseElem": {
+   "slots": 8,
+   "differing_field_paths": {
+    "m_name": 8,
+    "m_pParamValueSetAString.value.m_paramSet.[0].m_value": 8,
+    "m_number": 5
+   },
+   "declared_ours": [
+    "m_name",
+    "m_number",
+    "m_pParamValueSetAString(-1015250)"
+   ]
+  },
+  "LoadNatureElem": {
+   "slots": 8,
+   "differing_field_paths": {
+    "m_name": 8,
+    "m_pParamValueSetAString.value.m_paramSet.[0].m_value": 8
+   },
+   "declared_ours": [
+    "m_name",
+    "m_pParamValueSetAString(-1015254)"
+   ]
+  },
+  "BrowserOrganization": {
+   "slots": 5,
+   "differing_field_paths": {
+    "m_symbolInfo.value.m_name": 5,
+    "m_folderDefinitions.#len": 3,
+    "m_folderDefinitions.[0].m_numCharsToUse": 1,
+    "m_folderDefinitions.[0].m_parameter.m_paramIdPath.[0]": 1
+   },
+   "declared_ours": [
+    "m_bDefault",
+    "m_bSortOrderAsc",
+    "m_folderDefinitions",
+    "m_sortParameter",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "DBViewDrafting": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_approvedBy": 1,
+    "m_checkedBy": 1,
+    "m_date": 1,
+    "m_designedBy": 1,
+    "m_drawnBy": 1,
+    "m_issueDate": 1,
+    "m_pRvtLinkOverrides.value.m_displaySettingsMap.#len": 1,
+    "m_sheetNumber": 1,
+    "m_viewName": 1
+   },
+   "declared_ours": [
+    "m_approvedBy",
+    "m_checkedBy",
+    "m_date",
+    "m_designedBy",
+    "m_drawnBy",
+    "m_issueDate",
+    "m_pRvtLinkOverrides.value.m_displaySettingsMap (EMPTIED)",
+    "m_sheetNumber",
+    "m_viewName"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 9492,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9493,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9496,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9497,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9498,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9499,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9500,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9501,
+   "class": "AreaTypeElem"
+  },
+  {
+   "slot": 9745,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 26013,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 26014,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 26015,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 26016,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 26017,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 51438,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51439,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51440,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51441,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51442,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51443,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51444,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51445,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51446,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51447,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51448,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51449,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51450,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51451,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 51452,
+   "class": "LoadNatureElem"
+  },
+  {
+   "slot": 51453,
+   "class": "LoadCaseElem"
+  },
+  {
+   "slot": 69707,
+   "class": "AreaReportSettingsElem"
+  },
+  {
+   "slot": 99859,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 99860,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 99861,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 99864,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 102898,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 102899,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 103627,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 103635,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 105532,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105533,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105534,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105535,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105536,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105537,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105538,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105539,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105540,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105541,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105542,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105543,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105544,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105545,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105546,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105547,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105548,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105549,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105550,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105551,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105552,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105553,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105554,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105555,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105556,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 105557,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105558,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105559,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105560,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105561,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105562,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105563,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105564,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105565,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105566,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105567,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105568,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105569,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105570,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105571,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105572,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105573,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105574,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105575,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105576,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105577,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105578,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105579,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105580,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105581,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105582,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105583,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105584,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105585,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105586,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105587,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105588,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105589,
+   "class": "HVACLoadBuildingTypeElem"
+  },
+  {
+   "slot": 105590,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105591,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105592,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105593,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105594,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105595,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105596,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105597,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105598,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105599,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105600,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105601,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105602,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105603,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105604,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105605,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105606,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105607,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105608,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105609,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105610,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105611,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105612,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105613,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105614,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105615,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105616,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105617,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105618,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105619,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105620,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105621,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105622,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105623,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105624,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105625,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105626,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105627,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105628,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105629,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105630,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105631,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105632,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105633,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105634,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105635,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105636,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105637,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105638,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105639,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105640,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105641,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105642,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105643,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105644,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105645,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105646,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105647,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105648,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105649,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105650,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105651,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105652,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105653,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105654,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105655,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105656,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105657,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105658,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105659,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105660,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105661,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105662,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105663,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105664,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105665,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105666,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105667,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105668,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105669,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105670,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105671,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105672,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105673,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105674,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105675,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105676,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105677,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105678,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105679,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105680,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105681,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105682,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105683,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105684,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105685,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105686,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105687,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105688,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105689,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105690,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105691,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105692,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105693,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105694,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105695,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105696,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105697,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105698,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105699,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105700,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105701,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105702,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105703,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105704,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105705,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105706,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105707,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105708,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105709,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105710,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105711,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105712,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105713,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 105714,
+   "class": "HVACLoadSpaceTypeElem"
+  },
+  {
+   "slot": 113159,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 113160,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 113161,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 113162,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 113164,
+   "class": "ConduitStandardType"
+  },
+  {
+   "slot": 113165,
+   "class": "ConduitStandardType"
+  },
+  {
+   "slot": 113166,
+   "class": "ConduitStandardType"
+  },
+  {
+   "slot": 113168,
+   "class": "ConduitSizesElem"
+  },
+  {
+   "slot": 113169,
+   "class": "CableTraySizesElem"
+  },
+  {
+   "slot": 113943,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 113944,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 113945,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 113946,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 121660,
+   "class": "ConduitStandardType"
+  },
+  {
+   "slot": 121661,
+   "class": "ConduitStandardType"
+  },
+  {
+   "slot": 121663,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 121664,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 135866,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 237138,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 237139,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 237140,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 297988,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 297989,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 298001,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 298002,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 298003,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 298004,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 298005,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 301084,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 372504,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 372505,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 581529,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 581530,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 600634,
+   "class": "BasicWallType"
+  },
+  {
+   "slot": 711934,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 711935,
+   "class": "AreaSchemePlanTopologies"
+  },
+  {
+   "slot": 713027,
+   "class": "ColorFillSchema"
+  },
+  {
+   "slot": 713142,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 713143,
+   "class": "HVACLoadScheduleElem"
+  },
+  {
+   "slot": 967234,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 967235,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 999054,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 999055,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053891,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 1053892,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053896,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 1053897,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 1053898,
+   "class": "ElectricalLoadClassification"
+  },
+  {
+   "slot": 1053899,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053900,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053901,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053902,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053903,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1053904,
+   "class": "ElectricalDemandFactorDefinition"
+  },
+  {
+   "slot": 1201129,
+   "class": "FloorAttributes"
+  },
+  {
+   "slot": 1218726,
+   "class": "AssemblyCodeTable"
+  },
+  {
+   "slot": 1352718,
+   "class": "FabricWireType"
+  },
+  {
+   "slot": 1352719,
+   "class": "FabricSheetType"
+  },
+  {
+   "slot": 1457028,
+   "class": "DBViewDrafting"
+  },
+  {
+   "slot": 1457031,
+   "class": "DBDrawing"
+  },
+  {
+   "slot": 1471979,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471980,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471981,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471982,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471983,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471984,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471985,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471986,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471987,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471988,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471989,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471990,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471991,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471992,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471993,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471994,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471995,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471996,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471997,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471998,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1471999,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472000,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472001,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472002,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472003,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472004,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472005,
+   "class": "BuildingOperatingYearSchedule"
+  },
+  {
+   "slot": 1472456,
+   "class": "ColorFillSchema"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 9492,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9493,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9496,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9497,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9498,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9499,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9500,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9501,
+   "class": "AreaTypeElem",
+   "notes": [
+    "REPRODUCED machinery (built-in area-type enum row: only its area-scheme wiring (OUR AreaMeasureElems) + the m_eSpaceType enum -- no free value) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 9745,
+   "class": "AreaSchemePlanTopologies",
+   "notes": [
+    "REPRODUCED machinery (empty plan-topology holder (scheme x option) -- machinery) -- byte-identical, nothing of ours to reject"
+   ]
+  },
+  {
+   "slot": 26013,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Views - Level' (tree type 0, folders ['BIP_VIEW_ASSOCIATED_LEVEL'], sort BIP_VIEW_NAME)"
+   ]
+  },
+  {
+   "slot": 26014,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Views - Family and Type' (tree type 0, folders ['BIP_VIEW_FAMILY_AND_TYPE', 'BIP_VIEW_DISCIPLINE'], sort BIP_VIEW_NAME)"
+   ]
+  },
+  {
+   "slot": 26015,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Sheets - Series (1 Character)' (tree type 1, folders [{'param': 'BIP_SHEET_NUMBER', 'chars': 1}], sort BIP_SHEET_NUMBER)"
+   ]
+  },
+  {
+   "slot": 26016,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Sheets - Issue Date' (tree type 1, folders ['BIP_SHEET_ISSUE_DATE'], sort BIP_SHEET_NUMBER)"
+   ]
+  },
+  {
+   "slot": 26017,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Sheets - Name' (tree type 1, folders ['BIP_SHEET_NAME'], sort BIP_SHEET_NUMBER)"
+   ]
+  },
+  {
+   "slot": 51438,
+   "class": "LoadNatureElem",
+   "notes": [
+    "our load nature 'GEN Dead (D)'"
+   ]
+  },
+  {
+   "slot": 51439,
+   "class": "LoadCaseElem",
+   "notes": [
+    "our load case 'GEN D-1 Self Weight and Superimposed Dead' #1; category -2005211 + nature slot 51438 kept"
+   ]
+  },
+  {
+   "slot": 51440,
+   "class": "LoadNatureElem",
+   "notes": [
+    "our load nature 'GEN Live (L)'"
+   ]
+  },
+  {
+   "slot": 51441,
+   "class": "LoadCaseElem",
+   "notes": [
+    "our load case 'GEN L-1 Occupancy Live' #2; category -2005212 + nature slot 51440 kept"
+   ]
+  },
+  {
+   "slot": 51442,
+   "class": "LoadNatureElem",
+   "notes": [
+    "our load nature 'GEN Wind (W)'"
+   ]
+  },
+  {
+   "slot": 51443,
+   "class": "LoadCaseElem",
+   "notes": [
+    "our load case 'GEN W-1 Wind (Primary Direction)' #5; category -2005213 + nature slot 51442 kept"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 606208,
+ "seconds": 1.6,
+ "reached_by_other_streams_not_reauthored": {
+  "RbsWireInsulationType": "GROUP B ZB2_mepcat (viewer PASS, batch 17) -- our wire catalog",
+  "RbsWireMaterialType": "GROUP B ZB2_mepcat",
+  "RbsWireTemperatureRatingType": "GROUP B ZB2_mepcat",
+  "RbsPipeScheduleType": "GROUP B ZB2_mepcat -- our piping catalog",
+  "RbsPipeConnectionType": "GROUP B ZB2_mepcat",
+  "RbsPipeMaterialType": "GROUP B ZB2_mepcat",
+  "PipeSegment": "GROUP B ZB2_mepcat",
+  "CategoryElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation, D_curtain)",
+  "GStyleElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "FontElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "DimensionStyle": "GROUP A ZA_deep (family-scoped remainder)",
+  "CalloutTag": "GROUP A ZA_deep (family-scoped remainder)",
+  "InteriorElevAttributes": "GROUP A ZA_deep (family-scoped remainder)",
+  "DBViewType": "curtain constellation (deletion stream D_curtain)",
+  "Family": "curtain constellation (D_curtain)",
+  "FamilySurrogate": "curtain constellation (D_curtain)",
+  "CurveElem": "room constellation (deletion stream, blocked -> D_room after the wiring fix)",
+  "LegendComponent": "type previews (2 curtain-owned in D_curtain; 2 owned by our residue types)",
+  "LevelRoomPlan": "room constellation",
+  "LinearDimString": "constraint-dimension group (deletion stream D_content)",
+  "RoomElem": "GROUP B ZB8_content (identity) / room constellation deletion",
+  "MaterialElem": "GROUP B ZB5_palette (surplus materials)",
+  "ParamElemExternal": "GROUP B ZB1_defs",
+  "ParamBinding": "GROUP B ZB1_defs",
+  "ParamElemElectricalLoadClassification": "GROUP B ZB1_defs (the 6-per-class companions of our ZC_elec classifications -- id-wired both sides)",
+  "ParamElemProject": "GROUP B ZB1_defs",
+  "PenWidthTableElem": "GROUP B ZB3_pens",
+  "SectionAttributes": "GROUP B ZB4_annot",
+  "ViewportAttributes": "GROUP B ZB4_annot",
+  "PropertySetElement": "GROUP B ZB5_palette",
+  "ParameterFilterElement": "GROUP B ZB6_filters",
+  "SunAnnotationElem": "GROUP B ZB7_machinery",
+  "NumberingSchema": "GROUP B ZB7_machinery",
+  "SlaveSymbolTrackerElem": "GROUP B ZB7_machinery",
+  "WorksharingViewModeSettings": "GROUP B ZB7_machinery",
+  "PrintSettings": "GROUP B ZB7_machinery",
+  "Viewer": "GROUP B ZB7_machinery (the sheet's viewer 1457029)",
+  "Viewport": "GROUP B ZB7_machinery (the sheet's viewports 1457030/1457043/1457044)",
+  "RefPlane": "GROUP B ZB8_content",
+  "SketchPlane": "GROUP B ZB8_content"
+ },
+ "stream": "genesis-residue-A2 (remaining unsubstituted classes, in place, from ZA_deep)"
+}

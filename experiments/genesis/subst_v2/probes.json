@@ -1,0 +1,213 @@
+{
+ "stream": "genesis-fixer (2026-08-03)",
+ "record": "docs/inbox/genesis-fixer.md",
+ "what_changed": "rvt.genesis.settings pen table: the model-pen scale set is now the six-sample format constant (10, 20, 50, 100, 200, 500) -- our old 24..768 ladder put a scale (768) NO specimen of 3,494 corpus pen tables carries into the table; widths stay our ISO-128 series.  rvt.genesis.catalog: the object-styles table is now SHAPED per (category, style-type) by the frozen structural profile (builtin_style_profile.json): per-category ElementHeader flag word (low byte 0x0E vs 0x1E is a per-CATEGORY compiled-in property; ~668 of our rows carried a flag byte outside their category's observed set), 380 pattern-null cells, 40 pen-null cells, 48 screen-sized keys, 32 built-in material ids -- 2,560 fields the linter method convicted, now 0.",
+ "reading_the_results": {
+  "X_cat PASS + X_pen PASS": "our two convicted CONSTRUCTORS are reader-accepted objects; the constructed-base defect lives in the ADD PATH (the controls' X0 half of the matrix) -- genesis proceeds by fixing the add path / minting rows in place.",
+  "X_cat FAIL": "our catalog objects are still rejected after the shape fix: the residual is a VALUE constraint (colour palette? pen assignment?) or an unmeasured field -- read the card message, upload X_cat_obj, then bisect by profile class.",
+  "X_pen FAIL": "our pen table object is rejected: upload X_pen_obj; if that PASSES the defect is our ElementHeader for PenWidthTableElem.",
+  "v2 ladder": "X1..X6a re-emitted through the add-path route with the fixed constructors; only informative once X_pen/X_cat read PASS (then the FIRST failing v2 rung convicts the add path of that rung's class)."
+ },
+ "upload_order": [
+  "X_cat",
+  "X_pen",
+  "X_cat_obj",
+  "X_pen_obj",
+  "X1",
+  "X2",
+  "X3",
+  "X4",
+  "X5",
+  "X10",
+  "X6a"
+ ],
+ "probes": [
+  {
+   "file": "experiments/genesis/subst_v2/X_cat.rvt",
+   "rung": "X_cat",
+   "kind": "in-place substitution (records of EXISTING ids replaced)",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "OUR built-in object-styles catalog OBJECT PAYLOAD alone (records replaced IN PLACE at K1's existing ids; no add path, no registry edits, Global/Latest byte-identical to K1's)",
+   "passing_sibling": "K1.rvt (viewer PASS; byte-identical except the 1,407 style-row records)",
+   "PASS_means": "our catalog objects (fixed per-key structural profile: per-category header flag byte, pattern/pen null cells, screen-sized flag, built-in material ids; our pens/colours) are reader-accepted => X6a/K6/R2's residual defect is the ADD PATH (new ids / re-pointing / R2's dangling embedded-document refs), not our rows",
+   "FAIL_means": "our catalog OBJECTS themselves are rejected -> diff the FIRST failing key class: read the card message; bisect X_cat_obj (object only, K1 headers kept) then by profile class (null-pattern / screen-sized / built-in-material keys)",
+   "read_order_note": "highest information value: attributes R2/X6a/K6 in one file",
+   "bytes": 4485120
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X_pen.rvt",
+   "rung": "X_pen",
+   "kind": "in-place substitution (records of EXISTING ids replaced)",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "OUR PenWidthTableElem OBJECT PAYLOAD alone (id 2's header + object replaced in place; scale set 10/20/50/100/200/500 = the six-sample format constant, our ISO-128 widths)",
+   "passing_sibling": "K1.rvt (viewer PASS; byte-identical except element id 2's records)",
+   "PASS_means": "our pen table constructor is reader-accepted; the pen table is retired from the constructed-base suspect list (X1's remaining variable is the add path)",
+   "FAIL_means": "our pen table object is rejected -> read the card message; compare X_pen_obj (K1 header kept) to separate our header from our object body",
+   "read_order_note": "second: the census's #1 singleton suspect, one 2-record change",
+   "bytes": 4489216
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X_cat_obj.rvt",
+   "rung": "X_cat_obj",
+   "kind": "in-place substitution (records of EXISTING ids replaced)",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "the same catalog substitution with K1's seq-101 ElementHeaders KEPT (object bodies only; rows whose kept header carries the cell-list era bit 0x800 also keep the parent's own CellList so the pair stays internally consistent -- the body VALUES are ours)",
+   "passing_sibling": "X_cat / K1.rvt",
+   "PASS_means": "our catalog object BODIES load with Autodesk's headers => if X_cat FAILED, our profiled header flag word is the defect; if X_cat PASSED too, both are fine",
+   "FAIL_means": "our object BODIES are rejected regardless of the header",
+   "read_order_note": "follow-up to X_cat (attributes header vs body)",
+   "bytes": 4485120
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X_pen_obj.rvt",
+   "rung": "X_pen_obj",
+   "kind": "in-place substitution (records of EXISTING ids replaced)",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "the same pen-table substitution with K1's seq-101 ElementHeader KEPT (object body only)",
+   "passing_sibling": "X_pen / K1.rvt",
+   "PASS_means": "our pen table BODY loads with Autodesk's header (attributes an X_pen FAIL to our header)",
+   "FAIL_means": "our pen table BODY is rejected regardless of the header",
+   "read_order_note": "follow-up to X_pen",
+   "bytes": 4489216
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X1.rvt",
+   "rung": "X1",
+   "kind": "substitute",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "Whether the reader accepts OUR pen table in the exact registry slot the sample's occupied, on the otherwise-Autodesk skeleton (S1 tested our pen table on the FAILING G1 base and could not attribute the FAIL).",
+   "passing_sibling": "K1 (its passing parent rung)",
+   "PASS_means": "Our PenWidthTableElem constructor + its registry wiring are reader-accepted; the pen table is retired from the constructed-base suspect list; X2 reads cleanly.",
+   "FAIL_means": "Our pen table (or its registration) is what the reader rejects -- the first named defect in OUR constructors: diff our record vs Autodesk's id 2 field by field.",
+   "read_order_note": "the cumulative v2 ladder (add-path route) re-emitted with the FIXED constructors; read in derivation order X1 -> X2 -> X3 -> X4 -> X5 -> X10 -> X6a",
+   "bytes": 4489216
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X2.rvt",
+   "rung": "X2",
+   "kind": "substitute",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "Whether the reader accepts OUR browser-organization scheme + OUR MEP system-navigator view constellation (K5b's classes) in place of the sample's, with every registry that indexed the originals re-pointed.",
+   "passing_sibling": "X1 (its passing parent rung)",
+   "PASS_means": "Our browser / navigator constructors and their four registries (BrowserOrganizationTracking, DBViewInfo, DBDrawingInfo, AppInfoSystemFamiliesNames) are reader-accepted.",
+   "FAIL_means": "One of our browser / navigator constructions is rejected -- bisect: an X2a with only the browser organizations replaced (navigator kept) vs an X2b with only the navigator replaced.",
+   "read_order_note": "the cumulative v2 ladder (add-path route) re-emitted with the FIXED constructors; read in derivation order X1 -> X2 -> X3 -> X4 -> X5 -> X10 -> X6a",
+   "bytes": 4481024
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X3.rvt",
+   "rung": "X3",
+   "kind": "substitute",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "Whether the reader accepts our structural / join / keynote / start-view singletons (incl. an EMPTY keynote table) in their exact registry slots.",
+   "passing_sibling": "X2 (its passing parent rung)",
+   "PASS_means": "The named singleton constructors are reader-accepted (and an empty keynote table is legal).",
+   "FAIL_means": "One of these five constructors is rejected -- bisect X3a (keynote pair only) / X3b (StructSettings only) / X3c (the rest).",
+   "read_order_note": "the cumulative v2 ladder (add-path route) re-emitted with the FIXED constructors; read in derivation order X1 -> X2 -> X3 -> X4 -> X5 -> X10 -> X6a",
+   "bytes": 4407296
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X4.rvt",
+   "rung": "X4",
+   "kind": "substitute",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "Whether the reader accepts our MEP settings singletons and OUR size-table DATA in the settings singletons' registry slots.",
+   "passing_sibling": "X3 (its passing parent rung)",
+   "PASS_means": "Our MEP settings / sizes constructors are reader-accepted.",
+   "FAIL_means": "One of the eight is rejected -- bisect settings vs sizes vs the conduit/cable-tray pair.",
+   "read_order_note": "the cumulative v2 ladder (add-path route) re-emitted with the FIXED constructors; read in derivation order X1 -> X2 -> X3 -> X4 -> X5 -> X10 -> X6a",
+   "bytes": 4407296
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X5.rvt",
+   "rung": "X5",
+   "kind": "substitute",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "Whether the reader accepts the WHOLE our-settings constellation on the otherwise-Autodesk skeleton -- the S5-set question, now attributable because everything else in the file already loads.",
+   "passing_sibling": "X4 (its passing parent rung)",
+   "PASS_means": "Every settings constructor we own is reader-accepted; what remains is the residue list (constructors we do not have yet).",
+   "FAIL_means": "A constructor added at X5 is rejected -- bisect X5 by the constellation's tiers (mep / trackers / revisions / view types).",
+   "read_order_note": "the cumulative v2 ladder (add-path route) re-emitted with the FIXED constructors; read in derivation order X1 -> X2 -> X3 -> X4 -> X5 -> X10 -> X6a",
+   "bytes": 4407296
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X10.rvt",
+   "rung": "X10",
+   "kind": "removal",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "K4's zero-family / zero-document operation, re-applied to OUR partially-substituted base: does the coherent removal still open when the settings layer is already ours?",
+   "passing_sibling": "X5 (its passing parent rung)",
+   "PASS_means": "The family/document removal composes with our settings layer; the catalog rungs (X6..) are now buildable (nothing embedded pins the catalog).",
+   "FAIL_means": "(K4 itself PASSED on the pure sample) => an interaction between the removal and one of our X1..X5 substitutions -- re-check the usage referrers we own (our StructSettings' bc symbols, our navigator's style refs).",
+   "read_order_note": "the cumulative v2 ladder (add-path route) re-emitted with the FIXED constructors; read in derivation order X1 -> X2 -> X3 -> X4 -> X5 -> X10 -> X6a",
+   "bytes": 1441792
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X6a.rvt",
+   "rung": "X6a",
+   "kind": "substitute",
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "tests_one_thing": "Whether the reader accepts OUR object-styles table -- the S4/K6 question -- when everything else that must reference it is re-pointed correctly (S4 tested our catalog on the FAILING base and could not attribute the FAIL).",
+   "passing_sibling": "X10 (its passing parent rung)",
+   "PASS_means": "Our complete built-in style catalog + its CategoryTracking registration are reader-accepted: the catalog counsel item (a full table over their enum, our values) is the only remaining decision, no longer an engineering unknown.",
+   "FAIL_means": "Our catalog is what the reader rejects -- the FIRST viewer verdict that attributes a FAIL to our catalog specifically. Candidates in order: a (category, type) row we emit that a real project never carries (see 'ours_only_keys'), a value the reader validates (pen index range, colour), or the CategoryTracking row shape.",
+   "read_order_note": "the cumulative v2 ladder (add-path route) re-emitted with the FIXED constructors; read in derivation order X1 -> X2 -> X3 -> X4 -> X5 -> X10 -> X6a",
+   "bytes": 1433600
+  }
+ ]
+}

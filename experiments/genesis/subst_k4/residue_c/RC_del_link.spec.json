@@ -1,0 +1,11 @@
+{
+ "name": "RC_del_link",
+ "ids": [
+  1250029
+ ],
+ "policy": "maxgc",
+ "purpose": "genesis-base",
+ "notes": [
+  "retire the RvtLinkSymbol: a genesis file links NO model; the symbol names an external Autodesk sample file + an Autodesk employee's Dropbox path (identity leak) -- both leave with it. Delete-reachable only after the RC_hdr clean-header rung."
+ ]
+}

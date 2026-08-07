@@ -1,0 +1,501 @@
+{
+ "stream": "genesis-residue-A (RESIDUE CONSTRUCTORS, GROUP A -- datum / annotation / type-layer buckets)",
+ "situation": "ORCHESTRATOR VERDICT #17 (2026-08-04): the substitution ladder rebased on the CERTIFIED family-free base K4 as PURE IN-PLACE substitution took K4 to Y9 -- settings + catalog + palette + datum + view constellations ALL our constructors' output -- and Y9 / Y1 / Y_cat ALL LOAD.  The residue census (Yn) lists 2,009 K4 elements still Autodesk's in 11 buckets.  THIS batch retires Group A's buckets (classes sorting A..L in the datum / annotation / type-layer families): each rung substitutes ONE residue class layer of the CERTIFIED Y9 in place with OUR constructors' objects; ZA_deep is all of them at once.",
+ "the_operation": "In-place substitution (rvt.regadd.substitute_elements): our constructor's OBJECT record (seq-102) replaces the sample's at the SAME element id -- same ElemTable row, same record position, same registry slots; Global/Latest + Global/ElemTable BYTE-IDENTICAL to Y9; nothing added, nothing deleted.  Every rung asserts validator 0 errors, the structural proof, four-registry coherence, registry parity (by construction), a rvt.regdiff registration-diff sample, the regadd byte-delta table (ONLY the landed slots' object records change) AND a per-class FIELD-DELTA table naming which object fields carry OUR value vs the slot's own machinery / wiring.",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  },
+  "lineage": "Y9 = the certified deepest rung of the rebased in-place ladder: K4 (certified family-free base) + our settings / catalog / palette / datum / view constructors in place -- viewer PASS (docs/coverage/viewer-certified.json)"
+ },
+ "standing_control": {
+  "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+  "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  }
+ },
+ "controls_discipline": "Upload the batch with the certified CONTROL (a byte-identical copy of a certified file: CTRL_K4_base.rvt is staged next to the Y probes; tools/probe_batch.py stage adds one automatically). If the CONTROL fails, the batch is VOID and nothing about our constructors is read from it.",
+ "upload_order_bisection_first": [
+  "ZA_deep",
+  "Z_subcat",
+  "Z_annot",
+  "Z_datum",
+  "Z_pattern",
+  "Z_asset"
+ ],
+ "reading_the_results": {
+  "how": "ZA_deep is the cumulative rung: PASS => every Group-A residue constructor (subcategory vocabulary, annotation types + fonts, grids + levels, extra patterns, appearance assets) loads at Autodesk's registrations, and only the listed content / curtain removal queues + Group B remain.  ZA_deep FAIL => read the singles: the first FAIL whose parent (Y9) PASSED convicts exactly that rung's class layer (named in 'class_layer_substituted'), every registration variable already eliminated by construction.",
+  "Z_subcat FAIL": "our sub-category NAMES / pens / colours at Autodesk's sub-category registrations are the objection (the X6b layer, isolated).",
+  "Z_annot FAIL": "one of our annotation-type constructors (secret dim styles / arrowheads / grid head / elevation marker / callout head / fonts) is rejected -- bisect fonts vs the types (two single-layer probes).",
+  "Z_datum FAIL": "our grid line objects (datum-plane geometry) or our level names / elevations are rejected -- bisect grids vs levels.",
+  "Z_pattern FAIL": "our extra fill / line pattern objects are rejected (the palette question, extended).",
+  "Z_asset FAIL": "our Protein GenericSchema appearance-asset objects are rejected -- the frozen property skeleton or a free value; the counsel item stays open either way."
+ },
+ "curtain_constellation_removal_candidate": {
+  "count": 232,
+  "families": [
+   "Rectangular Mullion",
+   "Circular Mullion",
+   "L Corner Mullion",
+   "V Corner Mullion",
+   "Trapezoid Corner Mullion",
+   "Quad Corner Mullion",
+   "System Panel",
+   "Empty System Panel"
+  ],
+  "by_class": {
+   "Family": 8,
+   "FontElem": 24,
+   "DBViewType": 72,
+   "SectionAttributes": 8,
+   "CategoryElem": 40,
+   "GStyleElem": 40,
+   "CalloutTag": 8,
+   "InteriorElevAttributes": 8,
+   "FamilySurrogate": 8,
+   "PenWidthTableElem": 8,
+   "DimensionStyle": 8
+  },
+  "note": "coherent-removal candidate (K4's certified family-removal operation on the 8 curtain SYSTEM families) -- NOT an in-place substitution; the removal must also reconcile the FamilyMgr / ContentTable registries exactly as K4's did"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "ZA_deep",
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "class_layer_substituted": "Y9 + ALL Group-A residue layers (subcategory + annotation types/fonts + datum + patterns + appearance assets), IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "passing_sibling": "Y9 (the certified deepest rung, this probe's parent) -- PASS-parent + FAIL-here convicts exactly THIS class layer",
+   "the_ONE_thing_it_tests": "Whether the reader accepts ALL Group-A residue constructors at once: our sub-category vocabulary, our annotation types + every project font, our grids + surplus levels, our extra patterns, our appearance assets -- at Autodesk's own registrations, in the certified Y9.",
+   "if_PASS": "EVERY Group-A residue constructor loads: the datum / annotation / type-layer buckets of Yn are retired; what remains of Group A is the curtain-constellation removal queue + the content-removal queue (both listed with exact ids).",
+   "if_FAIL": "Read the five singles (all from Y9): the failing single names the rejected constructor.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 473,
+    "by_class": {
+     "GStyleElem": 246,
+     "CategoryElem": 169,
+     "AppearanceAssetElem": 18,
+     "FontElem": 11,
+     "Level": 7,
+     "LeaderStyle": 5,
+     "DimensionStyle": 4,
+     "FillPatternElem": 4,
+     "Grid": 3,
+     "LinePatternElem": 3,
+     "GridAttributes": 1,
+     "InteriorElevAttributes": 1,
+     "CalloutTag": 1
+    }
+   },
+   "residue_left_in_place": {
+    "CategoryElem(family-scoped)": 40,
+    "GStyleElem(family-scoped)": 40,
+    "DimensionStyle(family-scoped)": 8,
+    "LeaderStyle(family-scoped)": 0,
+    "GridAttributes(family-scoped)": 0,
+    "InteriorElevAttributes(family-scoped)": 8,
+    "CalloutTag(family-scoped)": 8,
+    "FontElem(family-scoped)": 24,
+    "LinearDimString(content)": 1,
+    "CurveElem(content)": 5,
+    "LegendComponent(content)": 4,
+    "LevelRoomPlan(content)": 1
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 431,
+    "expected_slots": 473,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 626688,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+    "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+    "certification": {
+     "file": "experiments/genesis/triage/K4.rvt",
+     "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a/ZA_deep.json"
+  },
+  {
+   "order": 2,
+   "rung": "Z_subcat",
+   "file": "experiments/genesis/subst_k4/residue_a/Z_subcat.rvt",
+   "class_layer_substituted": "the project SUB-CATEGORY layer (CategoryElem + GStyle rows) -> OUR vocabulary, IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "passing_sibling": "Y9 (the certified deepest rung, this probe's parent) -- PASS-parent + FAIL-here convicts exactly THIS class layer",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR project SUB-CATEGORY layer (169 CategoryElems + 246 GStyle rows: our names, our pens / colours) at Autodesk's sub-category registrations -- the X6b gap, isolated on a certified base.",
+   "if_PASS": "Our sub-category vocabulary + graphics are reader-accepted: the X6b gap is closed on a certified base.",
+   "if_FAIL": "Our sub-category NAMES or pen / colour values are the objection: diff a rejected row vs the base's (report field_delta_by_class) -- names are the only new variable (structural profile + wiring are the slot's).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 415,
+    "by_class": {
+     "GStyleElem": 246,
+     "CategoryElem": 169
+    }
+   },
+   "residue_left_in_place": {
+    "CategoryElem(family-scoped)": 40,
+    "GStyleElem(family-scoped)": 40
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 374,
+    "expected_slots": 415,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 778240,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+    "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+    "certification": {
+     "file": "experiments/genesis/triage/K4.rvt",
+     "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a/Z_subcat.json"
+  },
+  {
+   "order": 3,
+   "rung": "Z_annot",
+   "file": "experiments/genesis/subst_k4/residue_a/Z_annot.rvt",
+   "class_layer_substituted": "the project annotation-attribute types (dim styles / arrowheads / grid head / elevation marker / callout head) + ALL project fonts -> OURS, IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "passing_sibling": "Y9 (the certified deepest rung, this probe's parent) -- PASS-parent + FAIL-here convicts exactly THIS class layer",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR annotation-attribute TYPES (4 secret internal dimension styles + 5 arrowheads + grid head + interior-elevation marker + callout head) and OUR 11 project fonts at Autodesk's registrations.",
+   "if_PASS": "Our annotation-type + font constructors are reader-accepted (family-free annotation heads legal).",
+   "if_FAIL": "One of the annotation-type / font constructors is rejected -- the report's per-class field-delta names the candidate fields; bisect fonts vs types next.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 23,
+    "by_class": {
+     "FontElem": 11,
+     "LeaderStyle": 5,
+     "DimensionStyle": 4,
+     "GridAttributes": 1,
+     "InteriorElevAttributes": 1,
+     "CalloutTag": 1
+    }
+   },
+   "residue_left_in_place": {
+    "DimensionStyle(family-scoped)": 8,
+    "LeaderStyle(family-scoped)": 0,
+    "GridAttributes(family-scoped)": 0,
+    "InteriorElevAttributes(family-scoped)": 8,
+    "CalloutTag(family-scoped)": 8,
+    "FontElem(family-scoped)": 24,
+    "LinearDimString(content)": 1
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 22,
+    "expected_slots": 23,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+    "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+    "certification": {
+     "file": "experiments/genesis/triage/K4.rvt",
+     "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a/Z_annot.json"
+  },
+  {
+   "order": 4,
+   "rung": "Z_datum",
+   "file": "experiments/genesis/subst_k4/residue_a/Z_datum.rvt",
+   "class_layer_substituted": "the residue GRIDS -> our gridline bay + the 7 surplus levels -> our datum vocabulary, IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "passing_sibling": "Y9 (the certified deepest rung, this probe's parent) -- PASS-parent + FAIL-here convicts exactly THIS class layer",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR datum CONTENT objects: 3 grid lines (our datum-plane geometry constructor) + 7 renamed surplus levels.",
+   "if_PASS": "Our grid constructor (datum-plane content) + our level naming are reader-accepted -- grids are the first CONTENT class our constructors own.",
+   "if_FAIL": "Our grid datum-plane objects or the renamed / re-elevated levels are rejected -- bisect grids vs levels; a grid FAIL points at our new_grid geometry constructor.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 10,
+    "by_class": {
+     "Level": 7,
+     "Grid": 3
+    }
+   },
+   "residue_left_in_place": {
+    "CurveElem(content)": 5,
+    "LegendComponent(content)": 4,
+    "LevelRoomPlan(content)": 1
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 10,
+    "expected_slots": 10,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+    "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+    "certification": {
+     "file": "experiments/genesis/triage/K4.rvt",
+     "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a/Z_datum.json"
+  },
+  {
+   "order": 5,
+   "rung": "Z_pattern",
+   "file": "experiments/genesis/subst_k4/residue_a/Z_pattern.rvt",
+   "class_layer_substituted": "the surplus fill / line patterns -> our extra house patterns, IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "passing_sibling": "Y9 (the certified deepest rung, this probe's parent) -- PASS-parent + FAIL-here convicts exactly THIS class layer",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR extra fill / line pattern objects at the sample's surplus pattern registrations.",
+   "if_PASS": "Our extra pattern objects are reader-accepted (the palette layer extends freely).",
+   "if_FAIL": "Our extra pattern objects are rejected -- diff vs Y7's accepted palette patterns.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 7,
+    "by_class": {
+     "FillPatternElem": 4,
+     "LinePatternElem": 3
+    }
+   },
+   "residue_left_in_place": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 7,
+    "expected_slots": 7,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+    "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+    "certification": {
+     "file": "experiments/genesis/triage/K4.rvt",
+     "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a/Z_pattern.json"
+  },
+  {
+   "order": 6,
+   "rung": "Z_asset",
+   "file": "experiments/genesis/subst_k4/residue_a/Z_asset.rvt",
+   "class_layer_substituted": "the material appearance-asset companions -> our generic appearance palette, IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "passing_sibling": "Y9 (the certified deepest rung, this probe's parent) -- PASS-parent + FAIL-here convicts exactly THIS class layer",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR Protein GenericSchema appearance-asset objects (frozen property skeleton + our colour / gloss values) at the sample's asset registrations.",
+   "if_PASS": "Our appearance-asset constructor (Protein GenericSchema skeleton + our values) is reader-accepted.",
+   "if_FAIL": "Our appearance-asset objects are rejected -- the frozen skeleton misses a required property or a free value's grammar; the asset-descriptor counsel item stays open.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 18,
+    "by_class": {
+     "AppearanceAssetElem": 18
+    }
+   },
+   "residue_left_in_place": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 18,
+    "expected_slots": 18,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 626688,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+    "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+    "certification": {
+     "file": "experiments/genesis/triage/K4.rvt",
+     "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a/Z_asset.json"
+  }
+ ],
+ "derivation_chain": [
+  "ZA_deep <- Y9 (all layers)",
+  "Z_subcat <- Y9 (single layer)",
+  "Z_annot <- Y9 (single layer)",
+  "Z_datum <- Y9 (single layer)",
+  "Z_pattern <- Y9 (single layer)",
+  "Z_asset <- Y9 (single layer)"
+ ]
+}

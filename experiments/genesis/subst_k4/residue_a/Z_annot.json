@@ -1,0 +1,967 @@
+{
+ "rung": "Z_annot",
+ "label": "the project annotation-attribute types (dim styles / arrowheads / grid head / elevation marker / callout head) + ALL project fonts -> OURS, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+  "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y9.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a/Z_annot.rvt",
+ "landed_by_class": {
+  "FontElem": 11,
+  "LeaderStyle": 5,
+  "DimensionStyle": 4,
+  "GridAttributes": 1,
+  "InteriorElevAttributes": 1,
+  "CalloutTag": 1
+ },
+ "notes": [
+  "DimensionStyle: 4 project = the SECRET INTERNAL temporary-dimension styles (roles ['SecretInternalLinAngDimSty', 'SecretInternalRadDimStyle5', 'SecretInternalTypePreviewD', 'SecretInternalDiameterDimS']) -> our name tokens + our annotation values on the format machinery (overlay); 8 family-scoped 'Diameter' styles left (curtain)",
+  "LeaderStyle: 5 project arrowheads -> ours (4 secret internal keep their role token, the rest become 'GEN Arrow Filled 20 Degree')",
+  "grid head types 1 -> 'GEN Grid Head - 8mm Circle'; interior-elevation markers 1 -> 'GEN Elevation Marker - 10mm Circle'; callout heads 1 -> 'GEN Callout Head - 2mm Radius' (family symbols -1: family-free base); family-scoped 16 left (curtain)",
+  "FontElem: 11 project fonts -> our face 'Arial' at our per-owner sizes (owners {'DimensionStyle': 4, 'LevelAttributes': 1, 'GridAttributes': 1, 'InteriorElevAttributes': 1, 'SectionAttributes': 2, 'AreaReportSettingsElem': 2}); the 24 family-scoped fonts (3 per curtain family) left",
+  "LinearDimString [763420]: ONE locked EQ-constraint dimension (category OST_Constraints -2000262, typed by the secret internal LinAng dimension style 277) tying three project reference planes -- CONSTRAINT CONTENT: it leaves with the reference planes it constrains (Group B's ref-plane content rung); a constraint's 'value' is the geometry it constrains -- nothing of ours"
+ ],
+ "info": {
+  "font_owner_classes": {
+   "DimensionStyle": 4,
+   "LevelAttributes": 1,
+   "GridAttributes": 1,
+   "InteriorElevAttributes": 1,
+   "SectionAttributes": 2,
+   "AreaReportSettingsElem": 2
+  },
+  "roles_dim": [
+   "SecretInternalLinAngDimStyle",
+   "SecretInternalRadDimStyle54q",
+   "SecretInternalTypePreviewDim",
+   "SecretInternalDiameterDimSty"
+  ],
+  "roles_arrow": [
+   "SecretInternalLinAngArrowhead5",
+   "SecretInternalRadArrowhead5473",
+   "SecretInternalTypePreviewgArro",
+   "SecretInternalDiameterArrowhea",
+   "MEP - Arrow Filled 15 Degree"
+  ]
+ },
+ "residue_left_in_place": {
+  "DimensionStyle(family-scoped)": {
+   "count": 8,
+   "ids": [
+    907054,
+    907062,
+    907070,
+    907078,
+    907086,
+    907094,
+    907102,
+    907110
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "LeaderStyle(family-scoped)": {
+   "count": 0,
+   "ids": [],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "GridAttributes(family-scoped)": {
+   "count": 0,
+   "ids": [],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "InteriorElevAttributes(family-scoped)": {
+   "count": 8,
+   "ids": [
+    49589,
+    49607,
+    49625,
+    49643,
+    49661,
+    49679,
+    49697,
+    49715
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "CalloutTag(family-scoped)": {
+   "count": 8,
+   "ids": [
+    49583,
+    49601,
+    49619,
+    49637,
+    49655,
+    49673,
+    49691,
+    49709
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "FontElem(family-scoped)": {
+   "count": 24,
+   "ids": [
+    49582,
+    49592,
+    49600,
+    49610,
+    49618,
+    49628,
+    49636,
+    49646,
+    49654,
+    49664,
+    49672,
+    49682,
+    49690,
+    49700,
+    49708,
+    49718,
+    907057,
+    907065,
+    907073,
+    907081,
+    907089,
+    907097,
+    907105,
+    907113
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "LinearDimString(content)": {
+   "count": 1,
+   "ids": [
+    763420
+   ],
+   "reason": "ONE locked EQ-constraint dimension (category OST_Constraints -2000262, typed by the secret internal LinAng dimension style 277) tying three project reference planes -- CONSTRAINT CONTENT: it leaves with the reference planes it constrains (Group B's ref-plane content rung); a constraint's 'value' is the geometry it constrains -- nothing of ours"
+  }
+ },
+ "record_selfcheck": {
+  "objects": 23,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.3
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   277,
+   280,
+   285,
+   288,
+   291,
+   296,
+   308,
+   341,
+   344,
+   357,
+   360,
+   23763,
+   23766,
+   23773,
+   26032,
+   29091,
+   49508,
+   69708,
+   69709,
+   1468016,
+   1468024,
+   1471069
+  ],
+  "records_changed_count": 22,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 23,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 1,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 277,
+    "len_ours": 1235,
+    "len_parent": 1233,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "DimensionStyle",
+      "class_parent": "DimensionStyle"
+     },
+     {
+      "path": ".m_dimLineSnapDist",
+      "ours": "0.026246719160104987",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_leaderShoulderLength",
+      "ours": "0.00984251968503937",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[1].m_value",
+      "ours": "0.008202099737532808",
+      "parent": "0.007812499999999999"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[3].m_value",
+      "ours": "0.0032808398950131233",
+      "parent": "0.010416666666666664"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[4].m_value",
+      "ours": "0.006561679790026247",
+      "parent": "0.005208333333333332"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[5].m_value",
+      "ours": "0.008202099737532808",
+      "parent": "0.007812499999999999"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[6].m_value",
+      "ours": "0.006561679790026247",
+      "parent": "0.002604166666666666"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'SecretInternalLinAngDimStyle714q616180'",
+      "parent": "'SecretInternalLinAngDimStyle5p4736185'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 280,
+    "len_ours": 203,
+    "len_parent": 203,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FontElem",
+      "class_parent": "FontElem"
+     },
+     {
+      "path": ".m_pFont.value.m_size",
+      "ours": "0.008202099737532808",
+      "parent": "0.007812499999999999"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 285,
+    "len_ours": 341,
+    "len_parent": 339,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "LeaderStyle",
+      "class_parent": "LeaderStyle"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[0].m_paramId",
+      "ours": "-1006414",
+      "parent": "-1006426"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[0].m_value",
+      "ours": "0.2617993877991494",
+      "parent": "0.5235987755982984"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[1].m_paramId",
+      "ours": "-1006426",
+      "parent": "-1006414"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[1].m_value",
+      "ours": "0.008202099737532808",
+      "parent": "0.001302083333333333"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'SecretInternalLinAngArrowhead148q039326'",
+      "parent": "'SecretInternalLinAngArrowhead547r36186'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 288,
+    "len_ours": 1229,
+    "len_parent": 1227,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "DimensionStyle",
+      "class_parent": "DimensionStyle"
+     },
+     {
+      "path": ".m_dimLineSnapDist",
+      "ours": "0.026246719160104987",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_leaderShoulderLength",
+      "ours": "0.00984251968503937",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[1].m_value",
+      "ours": "0.008202099737532808",
+      "parent": "0.007812499999999999"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[3].m_value",
+      "ours": "0.0032808398950131233",
+      "parent": "0.001302083333333333"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[4].m_value",
+      "ours": "0.006561679790026247",
+      "parent": "0.005208333333333332"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[5].m_value",
+      "ours": "0.008202099737532808",
+      "parent": "0.007812499999999999"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[6].m_value",
+      "ours": "0.006561679790026247",
+      "parent": "0.002604166666666666"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'SecretInternalRadDimStyle353q963863'",
+      "parent": "'SecretInternalRadDimStyle54q736186'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 13,
+    "blocks_out": 13
+   },
+   {
+    "what": "1 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     1468019
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 23,
+  "slots_with_registry_surface": 12,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 277,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 285,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 288,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 296,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 341,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 357,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewTagTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 4
+   },
+   {
+    "slot": 23763,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 23773,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 23,
+  "pairs_ok": 23,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 277,
+   "class": "DimensionStyle",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 280,
+   "class": "FontElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": 277,
+    "id_band": "<5k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 285,
+   "class": "LeaderStyle",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 288,
+   "class": "DimensionStyle",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 291,
+   "class": "FontElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": 288,
+    "id_band": "<5k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 296,
+   "class": "LeaderStyle",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a/Z_annot.rvt",
+  "elements": 3342,
+  "file_size": 774144,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "DimensionStyle": {
+   "slots": 4,
+   "differing_field_paths": {
+    "m_dimLineSnapDist": 4,
+    "m_leaderShoulderLength": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[1].m_value": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[3].m_value": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[4].m_value": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[5].m_value": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[6].m_value": 4,
+    "m_symbolInfo.value.m_name": 4,
+    "m_radiusDiameterPrefixText": 1
+   },
+   "declared_ours": [
+    "changed param ids [-1006433, -1006431, -1006407, -1006405, -1006404, -1006401, -1006327]",
+    "m_dimLineSnapDist",
+    "m_equalityText / m_radiusDiameterPrefixText / prefixes",
+    "m_leaderShoulderLength",
+    "m_oLinFormatOptions.accuracy (our 1 mm) / m_oAngFormatOptions.accuracy",
+    "m_symbolInfo.value.m_name",
+    "paramSet[-1006327] (width factor)",
+    "paramSet[-1006401] (witness offset)",
+    "paramSet[-1006404] (text size)",
+    "paramSet[-1006405] (witness extension)",
+    "paramSet[-1006407] (text offset)",
+    "paramSet[-1006431] (line extension)",
+    "paramSet[-1006433] (tick size)"
+   ]
+  },
+  "LeaderStyle": {
+   "slots": 5,
+   "differing_field_paths": {
+    "m_pParamValueSetDouble.value.m_paramSet.[0].m_paramId": 5,
+    "m_pParamValueSetDouble.value.m_paramSet.[0].m_value": 5,
+    "m_pParamValueSetDouble.value.m_paramSet.[1].m_paramId": 5,
+    "m_pParamValueSetDouble.value.m_paramSet.[1].m_value": 5,
+    "m_symbolInfo.value.m_name": 5,
+    "m_tickType": 2,
+    "m_arrowClosed": 1
+   },
+   "declared_ours": [
+    "m_arrowCentered",
+    "m_arrowClosed",
+    "m_arrowFilled",
+    "m_symbolInfo.value.m_name",
+    "m_tickType",
+    "param -1006414 (angle)",
+    "param -1006426 (size)",
+    "param -1006447 (width pen)"
+   ]
+  },
+  "GridAttributes": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_bubbleAtEnd1": 1,
+    "m_endSegmentsLength": 1,
+    "m_symbolInfo.value.m_name": 1
+   },
+   "declared_ours": [
+    "m_bubbleAtEnd1",
+    "m_bubbleAtEnd2",
+    "m_centerSegmentStyle",
+    "m_endSegmentsLength",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "InteriorElevAttributes": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_ahAngleDouble": 1,
+    "m_orderedSubIndices.#len": 1,
+    "m_symbolInfo.value.m_name": 1,
+    "m_width": 1
+   },
+   "declared_ours": [
+    "m_ahAngleDouble",
+    "m_ahFilled",
+    "m_orderedSubIndices",
+    "m_shape",
+    "m_showViewName",
+    "m_symbolInfo.value.m_name",
+    "m_textPos",
+    "m_viewNamePos",
+    "m_width"
+   ]
+  },
+  "CalloutTag": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_cornerRadius": 1,
+    "m_symbolInfo.value.m_name": 1
+   },
+   "declared_ours": [
+    "m_cornerRadius",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "FontElem": {
+   "slots": 11,
+   "differing_field_paths": {
+    "m_pFont.value.m_size": 10,
+    "m_pFont.value.m_color": 2
+   },
+   "declared_ours": [
+    "m_pFont.value.m_color",
+    "m_pFont.value.m_name",
+    "m_pFont.value.m_size"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 277,
+   "class": "DimensionStyle"
+  },
+  {
+   "slot": 280,
+   "class": "FontElem"
+  },
+  {
+   "slot": 285,
+   "class": "LeaderStyle"
+  },
+  {
+   "slot": 288,
+   "class": "DimensionStyle"
+  },
+  {
+   "slot": 291,
+   "class": "FontElem"
+  },
+  {
+   "slot": 296,
+   "class": "LeaderStyle"
+  },
+  {
+   "slot": 308,
+   "class": "FontElem"
+  },
+  {
+   "slot": 341,
+   "class": "GridAttributes"
+  },
+  {
+   "slot": 344,
+   "class": "FontElem"
+  },
+  {
+   "slot": 357,
+   "class": "InteriorElevAttributes"
+  },
+  {
+   "slot": 360,
+   "class": "FontElem"
+  },
+  {
+   "slot": 23763,
+   "class": "DimensionStyle"
+  },
+  {
+   "slot": 23766,
+   "class": "FontElem"
+  },
+  {
+   "slot": 23773,
+   "class": "LeaderStyle"
+  },
+  {
+   "slot": 26032,
+   "class": "FontElem"
+  },
+  {
+   "slot": 29091,
+   "class": "FontElem"
+  },
+  {
+   "slot": 49508,
+   "class": "CalloutTag"
+  },
+  {
+   "slot": 69708,
+   "class": "FontElem"
+  },
+  {
+   "slot": 69709,
+   "class": "FontElem"
+  },
+  {
+   "slot": 1468016,
+   "class": "DimensionStyle"
+  },
+  {
+   "slot": 1468019,
+   "class": "FontElem"
+  },
+  {
+   "slot": 1468024,
+   "class": "LeaderStyle"
+  },
+  {
+   "slot": 1471069,
+   "class": "LeaderStyle"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 277,
+   "class": "DimensionStyle",
+   "notes": [
+    "secret internal dimension style role LinAngDimStyle: our name token + our annotation values overlaid on the unit-format / param-set MACHINERY of the slot (overlay constructor -- said so); field delta ['m_dimLineSnapDist', 'm_leaderShoulderLength', 'm_pParamValueSetDouble.value.m_paramSet.[1].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[3].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[4].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[5].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[6].m_value', 'm_symbolInfo.value.m_name']"
+   ]
+  },
+  {
+   "slot": 280,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 277 + cells = wiring",
+    "replaces font Arial @ owner 277"
+   ]
+  },
+  {
+   "slot": 285,
+   "class": "LeaderStyle",
+   "notes": [
+    "our arrowhead 'SecretInternalLinAngArrowhead148q039326': tick 0, filled 0, angle 15.0 deg, size 2.5 mm; category 286 + cells = wiring"
+   ]
+  },
+  {
+   "slot": 288,
+   "class": "DimensionStyle",
+   "notes": [
+    "secret internal dimension style role RadDimStyle: our name token + our annotation values overlaid on the unit-format / param-set MACHINERY of the slot (overlay constructor -- said so); field delta ['m_dimLineSnapDist', 'm_leaderShoulderLength', 'm_pParamValueSetDouble.value.m_paramSet.[1].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[3].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[4].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[5].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[6].m_value', 'm_symbolInfo.value.m_name']"
+   ]
+  },
+  {
+   "slot": 291,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 288 + cells = wiring",
+    "replaces font Arial @ owner 288"
+   ]
+  },
+  {
+   "slot": 296,
+   "class": "LeaderStyle",
+   "notes": [
+    "our arrowhead 'SecretInternalRadArrowhead640d780868': tick 0, filled 0, angle 15.0 deg, size 2.5 mm; category 297 + cells = wiring"
+   ]
+  },
+  {
+   "slot": 308,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 3.5 mm, colour 0x1000000; owner 305 + cells = wiring",
+    "replaces font Arial @ owner 305"
+   ]
+  },
+  {
+   "slot": 341,
+   "class": "GridAttributes",
+   "notes": [
+    "our grid type 'GEN Grid Head - 8mm Circle': bubbles both ends, continuous line, end segments 1200.0 mm; font / line / leader / centre-segment categories = the type's owned constellation (wiring); familyTagId -1 (family-free base, corpus-null-legal)"
+   ]
+  },
+  {
+   "slot": 344,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 3.5 mm, colour 0x1000000; owner 341 + cells = wiring",
+    "replaces font Arial @ owner 341"
+   ]
+  },
+  {
+   "slot": 357,
+   "class": "InteriorElevAttributes",
+   "notes": [
+    "our elevation marker 'GEN Elevation Marker - 10mm Circle': shape 1, width 10.0 mm, arrows 45.0 deg filled; symbol id -1 (family-free); sub-indices [] (corpus-legal empty)"
+   ]
+  },
+  {
+   "slot": 360,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 357 + cells = wiring",
+    "replaces font Arial @ owner 357"
+   ]
+  },
+  {
+   "slot": 23763,
+   "class": "DimensionStyle",
+   "notes": [
+    "secret internal dimension style role TypePreviewDimStyle: our name token + our annotation values overlaid on the unit-format / param-set MACHINERY of the slot (overlay constructor -- said so); field delta ['m_dimLineSnapDist', 'm_leaderShoulderLength', 'm_pParamValueSetDouble.value.m_paramSet.[1].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[3].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[4].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[5].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[6].m_value', 'm_symbolInfo.value.m_name']"
+   ]
+  },
+  {
+   "slot": 23766,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 23763 + cells = wiring",
+    "replaces font Arial @ owner 23763"
+   ]
+  },
+  {
+   "slot": 23773,
+   "class": "LeaderStyle",
+   "notes": [
+    "our arrowhead 'SecretInternalTypePreviewgArrowhead461q950683': tick 0, filled 0, angle 15.0 deg, size 2.5 mm; category 23774 + cells = wiring"
+   ]
+  },
+  {
+   "slot": 26032,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 26029 + cells = wiring",
+    "replaces font Arial @ owner 26029"
+   ]
+  },
+  {
+   "slot": 29091,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 29088 + cells = wiring",
+    "replaces font Arial @ owner 29088"
+   ]
+  },
+  {
+   "slot": 49508,
+   "class": "CalloutTag",
+   "notes": [
+    "our callout head 'GEN Callout Head - 2mm Radius': corner radius 2.0 mm; familyTagId -1 (family-free)"
+   ]
+  },
+  {
+   "slot": 69708,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 69707 + cells = wiring",
+    "replaces font Arial @ owner 69707"
+   ]
+  },
+  {
+   "slot": 69709,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 69707 + cells = wiring",
+    "replaces font Arial @ owner 69707"
+   ]
+  },
+  {
+   "slot": 1468016,
+   "class": "DimensionStyle",
+   "notes": [
+    "secret internal dimension style role DiameterDimStyle: our name token + our annotation values overlaid on the unit-format / param-set MACHINERY of the slot (overlay constructor -- said so); field delta ['m_dimLineSnapDist', 'm_leaderShoulderLength', 'm_pParamValueSetDouble.value.m_paramSet.[1].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[3].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[4].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[5].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[6].m_value', 'm_radiusDiameterPrefixText', 'm_symbolInfo.value.m_name']"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 774144,
+ "seconds": 1.8
+}

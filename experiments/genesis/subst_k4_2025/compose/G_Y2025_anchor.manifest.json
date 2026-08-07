@@ -1,0 +1,1397 @@
+{
+ "op": "compose",
+ "base": {
+  "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+  "sha256": "276be333493b6c5c5db82665143fa2fa63a8883b6f8739112af522ef93faf4ec",
+  "bytes": 851968,
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  },
+  "host_elements": 3333,
+  "watermark": 1472448,
+  "partition": "Partitions/20"
+ },
+ "out": {
+  "file": "experiments/genesis/subst_k4_2025/compose/G_Y2025_anchor.rvt",
+  "md5": "79c310409848ef2932eb7e86f5b0e781",
+  "sha256": "e1af354935132738cfc6d8b68f7ba6d71457ce94136d65264fd77298071e408d",
+  "bytes": 749568
+ },
+ "phase_1_inplace": {
+  "merge": {
+   "laws": {
+    "disjoint": true,
+    "collisions": [],
+    "all_slots_exist": true,
+    "missing_slots": [],
+    "same_class": true,
+    "class_mismatch": [],
+    "parent_coherent": true,
+    "incoherent_slots": [],
+    "deletion_overlap": [],
+    "on_overlap": "refuse"
+   },
+   "rungs": [
+    {
+     "name": "Y2025:Y1_2025",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2025/Y1_2025.rvt",
+     "source_md5": "cab8bec193e856d3a2d22430a892ca0c",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "report_file": "experiments/genesis/subst_k4_2025/Y1_2025.json",
+     "slots": 1,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "PenWidthTableElem": 1
+     },
+     "landed_slots": 1,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 1
+    },
+    {
+     "name": "Y2025:Y2_2025",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2025/Y2_2025.rvt",
+     "source_md5": "34653be8acf59999e78a15b2ba8e60e9",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2025/Y1_2025.rvt",
+     "report_file": "experiments/genesis/subst_k4_2025/Y2_2025.json",
+     "slots": 9,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "BrowserOrganization": 5,
+      "RbsDbViewSystemNavigator": 1,
+      "Viewport": 1,
+      "ReconcileBrowserSettingsElem": 1,
+      "ConstructionSetProject": 1
+     },
+     "landed_slots": 12,
+     "landed_but_byte_identical": 3,
+     "notes": [],
+     "merged_slots": 9
+    },
+    {
+     "name": "Y2025:Y3_2025",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2025/Y3_2025.rvt",
+     "source_md5": "b8007b720f690ca50d67cc1fcc1e7f6a",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2025/Y2_2025.rvt",
+     "report_file": "experiments/genesis/subst_k4_2025/Y3_2025.json",
+     "slots": 2,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "KeynoteTable": 1,
+      "StructSettingsElem": 1
+     },
+     "landed_slots": 5,
+     "landed_but_byte_identical": 3,
+     "notes": [],
+     "merged_slots": 2
+    },
+    {
+     "name": "Y2025:Y4_2025",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2025/Y4_2025.rvt",
+     "source_md5": "f5de718ae6c254dfbcb43944797cb1cb",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2025/Y3_2025.rvt",
+     "report_file": "experiments/genesis/subst_k4_2025/Y4_2025.json",
+     "slots": 8,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "RbsDuctSizesElem": 1,
+      "RbsDuctSettingsElem": 1,
+      "RbsPipeSettingsElem": 1,
+      "RbsWireSettingsElem": 1,
+      "RbsPipeSizesElem": 1,
+      "RbsWireSizesElem": 1,
+      "CableTraySettingsElem": 1,
+      "ConduitSettingsElem": 1
+     },
+     "landed_slots": 8,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 8
+    },
+    {
+     "name": "Y2025:Y5_2025",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2025/Y5_2025.rvt",
+     "source_md5": "a5f8ce1c3ac803e9b839242bf38b139f",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2025/Y4_2025.rvt",
+     "report_file": "experiments/genesis/subst_k4_2025/Y5_2025.json",
+     "slots": 11,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "AreaMeasureElem": 2,
+      "AllProjectRevisions": 1,
+      "CoordinateSystemDisplayElem": 1,
+      "PrintSettings": 1,
+      "ProjectRevision": 1,
+      "EnergyDataSettings": 1,
+      "ElectricalSetting": 1,
+      "WorksharingViewModeSettings": 1,
+      "ReinforcementSettings": 1,
+      "CopyWatchProperties": 1
+     },
+     "landed_slots": 51,
+     "landed_but_byte_identical": 40,
+     "notes": [],
+     "merged_slots": 11
+    },
+    {
+     "name": "Y2025:Y6_2025",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2025/Y6_2025.rvt",
+     "source_md5": "0348dc743ef43d84e85cc6d38062370a",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2025/Y5_2025.rvt",
+     "report_file": "experiments/genesis/subst_k4_2025/Y6_2025.json",
+     "slots": 1165,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "GStyleElem": 1165
+     },
+     "landed_slots": 1165,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 1165
+    },
+    {
+     "name": "Y2025:Y7_2025",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2025/Y7_2025.rvt",
+     "source_md5": "0fb00c07049022f3b859220faa14088f",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2025/Y6_2025.rvt",
+     "report_file": "experiments/genesis/subst_k4_2025/Y7_2025.json",
+     "slots": 60,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "PropertySetElement": 28,
+      "MaterialElem": 23,
+      "FillPatternElem": 5,
+      "LinePatternElem": 4
+     },
+     "landed_slots": 60,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 60
+    },
+    {
+     "name": "Y2025:Y8_2025",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2025/Y8_2025.rvt",
+     "source_md5": "d0cadbe2105a00abf6403657ecf2b968",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2025/Y7_2025.rvt",
+     "report_file": "experiments/genesis/subst_k4_2025/Y8_2025.json",
+     "slots": 16,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "Level": 2,
+      "BasePoint": 2,
+      "ProjectPhase": 2,
+      "GeoLocation": 2,
+      "GeoSite": 2,
+      "ProjectInfo": 1,
+      "AllProjectPhases": 1,
+      "LevelAttributes": 1,
+      "PhaseFilterElem": 1,
+      "TrueNorth": 1,
+      "UnitsElem": 1
+     },
+     "landed_slots": 16,
+     "landed_but_byte_identical": 0,
+     "notes": [],
+     "merged_slots": 16
+    },
+    {
+     "name": "Y2025:Y9_2025",
+     "group": "Y",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4_2025/Y9_2025.rvt",
+     "source_md5": "79c310409848ef2932eb7e86f5b0e781",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4_2025/Y8_2025.rvt",
+     "report_file": "experiments/genesis/subst_k4_2025/Y9_2025.json",
+     "slots": 36,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "DBViewType": 19,
+      "SunAndShadowSettings": 4,
+      "Viewport": 3,
+      "DBViewPlan": 2,
+      "Viewer": 2,
+      "ExtentElem": 2,
+      "DBViewProject": 1,
+      "SketchPlane": 1,
+      "Viewer3d": 1,
+      "DBView3d": 1
+     },
+     "landed_slots": 46,
+     "landed_but_byte_identical": 10,
+     "notes": [],
+     "merged_slots": 36
+    }
+   ],
+   "resolutions": [],
+   "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "merged_slots": 1308,
+   "merged_seqs": [
+    102
+   ],
+   "merged_by_class": {
+    "GStyleElem": 1165,
+    "PropertySetElement": 28,
+    "MaterialElem": 23,
+    "DBViewType": 19,
+    "BrowserOrganization": 5,
+    "FillPatternElem": 5,
+    "Viewport": 4,
+    "LinePatternElem": 4,
+    "SunAndShadowSettings": 4,
+    "AreaMeasureElem": 2,
+    "Level": 2,
+    "BasePoint": 2,
+    "ProjectPhase": 2,
+    "GeoLocation": 2,
+    "GeoSite": 2,
+    "DBViewPlan": 2,
+    "Viewer": 2,
+    "ExtentElem": 2,
+    "PenWidthTableElem": 1,
+    "RbsDbViewSystemNavigator": 1,
+    "ReconcileBrowserSettingsElem": 1,
+    "ConstructionSetProject": 1,
+    "KeynoteTable": 1,
+    "StructSettingsElem": 1,
+    "RbsDuctSizesElem": 1,
+    "RbsDuctSettingsElem": 1,
+    "RbsPipeSettingsElem": 1,
+    "RbsWireSettingsElem": 1,
+    "RbsPipeSizesElem": 1,
+    "RbsWireSizesElem": 1,
+    "CableTraySettingsElem": 1,
+    "ConduitSettingsElem": 1,
+    "AllProjectRevisions": 1,
+    "CoordinateSystemDisplayElem": 1,
+    "PrintSettings": 1,
+    "ProjectRevision": 1,
+    "EnergyDataSettings": 1,
+    "ElectricalSetting": 1,
+    "WorksharingViewModeSettings": 1,
+    "ReinforcementSettings": 1,
+    "CopyWatchProperties": 1,
+    "ProjectInfo": 1,
+    "AllProjectPhases": 1,
+    "LevelAttributes": 1,
+    "PhaseFilterElem": 1,
+    "TrueNorth": 1,
+    "UnitsElem": 1,
+    "DBViewProject": 1,
+    "SketchPlane": 1,
+    "Viewer3d": 1,
+    "DBView3d": 1
+   }
+  },
+  "emit": {
+   "op": "substitute_elements",
+   "verdict": "VALID",
+   "problems": [],
+   "seqs_replaced": [
+    102
+   ],
+   "elemtable_rewritten": false,
+   "latest_rewritten": false,
+   "streams_replaced": [
+    "Partitions/20"
+   ],
+   "seconds": 4.6
+  },
+  "validator": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 2,
+   "error_messages": [],
+   "stats": {
+    "streams": 12,
+    "partition_blocks": 17,
+    "records": 10002,
+    "elements_decoded": 3333,
+    "decode_failures": 1,
+    "refs_checked": 51061
+   }
+  },
+  "structural": {
+   "ok": true,
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": [],
+   "counts_match": true,
+   "seq_id_sets_equal": true,
+   "stamps_bad": 0,
+   "isize_identity_ok": true
+  },
+  "byte_delta": {
+   "layer": "in-place",
+   "streams_differing": [
+    "Partitions/20"
+   ],
+   "only_partition_differs": true,
+   "records_changed_count": 1308,
+   "records_changed_by_seq": {
+    "102": 12
+   },
+   "expected_slots": 1308,
+   "unexpected_changed_ids": [],
+   "records_added_ids": [],
+   "records_removed_ids": [],
+   "landed_but_unchanged_slots": 0,
+   "id_order_identical_per_seq": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "block_partition_identical_per_seq": {
+    "101": true,
+    "102": false,
+    "103": true
+   },
+   "elemtable_identical": true,
+   "adocument_identical": true,
+   "embedded_units_identical": true,
+   "field_diff_examples": [
+    {
+     "seq": 102,
+     "id": 1,
+     "len_ours": 1029,
+     "len_parent": 1029,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "AllProjectPhases",
+       "class_parent": "AllProjectPhases"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oGMaterialOverrider.value.m_materialId",
+       "ours": "137436",
+       "parent": "105007"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutFillColor.value.m_color",
+       "ours": "13158600",
+       "parent": "8355711"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutFillPattern.value.m_fillPatternId",
+       "ours": "4",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutLinePattern.value.m_linePatternId",
+       "ours": "-3000010",
+       "parent": "-1"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutPenColor.value.m_color",
+       "ours": "9211020",
+       "parent": "8355711"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+       "ours": "2",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oProjLinePattern.value.m_linePatternId",
+       "ours": "-3000010",
+       "parent": "-1"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oProjPenColor.value.m_color",
+       "ours": "9211020",
+       "parent": "8355711"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oProjPenNumber.value.m_penNumber",
+       "ours": "1",
+       "parent": "2"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oGMaterialOverrider.value.m_materialId",
+       "ours": "417",
+       "parent": "105006"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutFillColor.value.m_color",
+       "ours": "16777215",
+       "parent": "16777216"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutLinePattern.value.m_linePatternId",
+       "ours": "20",
+       "parent": "21"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutPenColor.value.m_color",
+       "ours": "7237230",
+       "parent": "0"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+       "ours": "1",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oProjLinePattern.value.m_linePatternId",
+       "ours": "20",
+       "parent": "21"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oProjPenColor.value.m_color",
+       "ours": "7237230",
+       "parent": "0"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[2].value.m_oGMaterialOverrider.value.m_materialId",
+       "ours": "519",
+       "parent": "8798"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[2].value.m_oOverrideGraphicSettings.value.m_oCutFillPattern.value.m_fillPatternId",
+       "ours": "4",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[2].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+       "ours": "4",
+       "parent": "5"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[2].value.m_oOverrideGraphicSettings.value.m_oProjPenNumber.value.m_penNumber",
+       "ours": "1",
+       "parent": "4"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oGMaterialOverrider.value.m_materialId",
+       "ours": "8798",
+       "parent": "29"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutFillColor.value.m_color",
+       "ours": "14470600",
+       "parent": "8323072"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutLinePattern.value.m_linePatternId",
+       "ours": "20",
+       "parent": "11"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutPenColor.value.m_color",
+       "ours": "9198150",
+       "parent": "8323072"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+       "ours": "1",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oProjLinePattern.value.m_linePatternId",
+       "ours": "20",
+       "parent": "11"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oProjPenColor.value.m_color",
+       "ours": "9198150",
+       "parent": "8323072"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 2,
+     "len_ours": 1223,
+     "len_parent": 1223,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "PenWidthTableElem",
+       "class_parent": "PenWidthTableElem"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[0]",
+       "ours": "0.00042650918635170603",
+       "parent": "0.00032808398950131233"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[2]",
+       "ours": "0.0008202099737532808",
+       "parent": "0.0008202099737532807"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[3]",
+       "ours": "0.0011482939632545932",
+       "parent": "0.001148293963254593"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[4]",
+       "ours": "0.0016404199475065617",
+       "parent": "0.0016404199475065614"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[5]",
+       "ours": "0.0022965879265091863",
+       "parent": "0.002296587926509186"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[6]",
+       "ours": "0.0032808398950131233",
+       "parent": "0.003280839895013123"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[7]",
+       "ours": "0.004593175853018373",
+       "parent": "0.004593175853018372"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[8]",
+       "ours": "0.006561679790026247",
+       "parent": "0.006561679790026246"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[9]",
+       "ours": "0.008202099737532808",
+       "parent": "0.009186351706036744"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[10]",
+       "ours": "0.00984251968503937",
+       "parent": "0.013123359580052492"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[11]",
+       "ours": "0.013123359580052493",
+       "parent": "0.016404199475065617"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[12]",
+       "ours": "0.016404199475065617",
+       "parent": "0.01968503937007874"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[13]",
+       "ours": "0.01968503937007874",
+       "parent": "0.022965879265091863"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[14]",
+       "ours": "0.022965879265091863",
+       "parent": "0.026246719160104983"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[15]",
+       "ours": "0.026246719160104987",
+       "parent": "0.03280839895013123"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[0]",
+       "ours": "0.00042650918635170603",
+       "parent": "0.0005905511811023622"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[1]",
+       "ours": "0.0005905511811023622",
+       "parent": "0.0008202099737532807"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[2]",
+       "ours": "0.0008202099737532808",
+       "parent": "0.001148293963254593"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[3]",
+       "ours": "0.0011482939632545932",
+       "parent": "0.002296587926509186"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[4]",
+       "ours": "0.0016404199475065617",
+       "parent": "0.003280839895013123"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[5]",
+       "ours": "0.0022965879265091863",
+       "parent": "0.004593175853018372"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[6]",
+       "ours": "0.0032808398950131233",
+       "parent": "0.006561679790026246"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[7]",
+       "ours": "0.004593175853018373",
+       "parent": "0.009186351706036744"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[8]",
+       "ours": "0.006561679790026247",
+       "parent": "0.013123359580052492"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[9]",
+       "ours": "0.008202099737532808",
+       "parent": "0.016404199475065617"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[10]",
+       "ours": "0.00984251968503937",
+       "parent": "0.01968503937007874"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[11]",
+       "ours": "0.013123359580052493",
+       "parent": "0.022965879265091863"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[12]",
+       "ours": "0.016404199475065617",
+       "parent": "0.026246719160104983"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[13]",
+       "ours": "0.01968503937007874",
+       "parent": "0.029527559055118106"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[14]",
+       "ours": "0.022965879265091863",
+       "parent": "0.029527559055118106"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 3,
+     "len_ours": 352,
+     "len_parent": 211,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "FillPatternElem",
+       "class_parent": "FillPatternElem"
+      },
+      {
+       "path": ".m_cellList",
+       "ours": "None",
+       "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+      },
+      {
+       "path": ".m_pFillPattern.value.m_gridsArr[len]",
+       "ours": 2,
+       "parent": 0
+      },
+      {
+       "path": ".m_pFillPattern.value.m_name",
+       "ours": "'GEN Diagonal Crosshatch 3mm'",
+       "parent": "'Solid fill'"
+      },
+      {
+       "path": ".m_pFillPattern.value.m_windowSize",
+       "ours": "0.008202099737532808",
+       "parent": "0.0"
+      },
+      {
+       "path": ".m_pGeomTable",
+       "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_maxSafeTag': -1, 'm_lastCheck",
+       "parent": "None"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 4,
+     "len_ours": 226,
+     "len_parent": 243,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "FillPatternElem",
+       "class_parent": "FillPatternElem"
+      },
+      {
+       "path": ".m_pFillPattern.value.m_gridsArr[len]",
+       "ours": 0,
+       "parent": 1
+      },
+      {
+       "path": ".m_pFillPattern.value.m_name",
+       "ours": "'GEN Solid Fill'",
+       "parent": "'Diagonal up'"
+      },
+      {
+       "path": ".m_pFillPattern.value.m_windowSize",
+       "ours": "0.008202099737532808",
+       "parent": "0.009842519685039372"
+      },
+      {
+       "path": ".m_pGeomTable",
+       "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_maxSafeTag': -1, 'm_lastCheck",
+       "parent": "None"
+      }
+     ]
+    }
+   ],
+   "exceptions": [
+    {
+     "what": "seq-102 block partition re-flowed",
+     "reason": "our objects differ in byte length from the parent's, so the certified re-blocker (rvt.reduce.reblock) re-chunked the unit-0 seq-102 run; record ORDER unchanged",
+     "blocks_parent": 18,
+     "blocks_out": 12
+    }
+   ],
+   "problems": [],
+   "assertion_holds": true
+  },
+  "in_place_law": {
+   "ok": true,
+   "landed": 1308,
+   "changed": 1308,
+   "unchanged_landed": 0,
+   "stray_changed": [],
+   "seq_violations": {},
+   "added": [],
+   "removed": [],
+   "problems": [],
+   "law": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed."
+  },
+  "rung_fidelity": {
+   "all_ok": true,
+   "per_rung": [
+    {
+     "rung": "Y2025:Y1_2025",
+     "slots": 1,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2025:Y2_2025",
+     "slots": 9,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2025:Y3_2025",
+     "slots": 2,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2025:Y4_2025",
+     "slots": 8,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2025:Y5_2025",
+     "slots": 11,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2025:Y6_2025",
+     "slots": 1165,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2025:Y7_2025",
+     "slots": 60,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2025:Y8_2025",
+     "slots": 16,
+     "fidelity_ok": true,
+     "mismatches": []
+    },
+    {
+     "rung": "Y2025:Y9_2025",
+     "slots": 36,
+     "fidelity_ok": true,
+     "mismatches": []
+    }
+   ]
+  },
+  "four_registry": {
+   "save_units": 1,
+   "contentdocs_entries": 0,
+   "contenttable_records": 0,
+   "familymgr_entries": 9,
+   "coherent": true,
+   "coherent_counts": true,
+   "coherent_guids": true,
+   "adocument_clean": true
+  },
+  "registry_parity": {
+   "global_latest_identical": true,
+   "global_elemtable_identical": true,
+   "statement": "100% by construction: Global/Latest and Global/ElemTable are byte-identical to the base, so every registry leaf that indexed a slot still indexes the same id (now carrying OUR object) -- ASSERTED via the stream byte-diff, not assumed"
+  },
+  "registration_diff_sample": [
+   {
+    "slot": 1,
+    "class": "AllProjectPhases",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 2,
+    "class": "PenWidthTableElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 3,
+    "class": "FillPatternElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 29
+   },
+   {
+    "slot": 4,
+    "class": "FillPatternElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 5,
+    "class": "FillPatternElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 11,
+    "class": "LinePatternElem",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   }
+  ]
+ },
+ "phase_2_deletions": null,
+ "invariants": {
+  "in_place_first_then_deletions": true,
+  "registry_parity": {
+   "global_latest_identical": true,
+   "global_elemtable_identical": true,
+   "statement": "100% by construction: Global/Latest and Global/ElemTable are byte-identical to the base, so every registry leaf that indexed a slot still indexes the same id (now carrying OUR object) -- ASSERTED via the stream byte-diff, not assumed"
+  },
+  "byte_delta_in_place": {
+   "layer": "in-place",
+   "streams_differing": [
+    "Partitions/20"
+   ],
+   "only_partition_differs": true,
+   "records_changed_count": 1308,
+   "records_changed_by_seq": {
+    "102": 12
+   },
+   "expected_slots": 1308,
+   "unexpected_changed_ids": [],
+   "records_added_ids": [],
+   "records_removed_ids": [],
+   "landed_but_unchanged_slots": 0,
+   "id_order_identical_per_seq": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "block_partition_identical_per_seq": {
+    "101": true,
+    "102": false,
+    "103": true
+   },
+   "elemtable_identical": true,
+   "adocument_identical": true,
+   "embedded_units_identical": true,
+   "field_diff_examples": [
+    {
+     "seq": 102,
+     "id": 1,
+     "len_ours": 1029,
+     "len_parent": 1029,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "AllProjectPhases",
+       "class_parent": "AllProjectPhases"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oGMaterialOverrider.value.m_materialId",
+       "ours": "137436",
+       "parent": "105007"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutFillColor.value.m_color",
+       "ours": "13158600",
+       "parent": "8355711"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutFillPattern.value.m_fillPatternId",
+       "ours": "4",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutLinePattern.value.m_linePatternId",
+       "ours": "-3000010",
+       "parent": "-1"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutPenColor.value.m_color",
+       "ours": "9211020",
+       "parent": "8355711"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+       "ours": "2",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oProjLinePattern.value.m_linePatternId",
+       "ours": "-3000010",
+       "parent": "-1"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oProjPenColor.value.m_color",
+       "ours": "9211020",
+       "parent": "8355711"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oProjPenNumber.value.m_penNumber",
+       "ours": "1",
+       "parent": "2"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oGMaterialOverrider.value.m_materialId",
+       "ours": "417",
+       "parent": "105006"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutFillColor.value.m_color",
+       "ours": "16777215",
+       "parent": "16777216"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutLinePattern.value.m_linePatternId",
+       "ours": "20",
+       "parent": "21"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutPenColor.value.m_color",
+       "ours": "7237230",
+       "parent": "0"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+       "ours": "1",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oProjLinePattern.value.m_linePatternId",
+       "ours": "20",
+       "parent": "21"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oProjPenColor.value.m_color",
+       "ours": "7237230",
+       "parent": "0"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[2].value.m_oGMaterialOverrider.value.m_materialId",
+       "ours": "519",
+       "parent": "8798"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[2].value.m_oOverrideGraphicSettings.value.m_oCutFillPattern.value.m_fillPatternId",
+       "ours": "4",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[2].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+       "ours": "4",
+       "parent": "5"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[2].value.m_oOverrideGraphicSettings.value.m_oProjPenNumber.value.m_penNumber",
+       "ours": "1",
+       "parent": "4"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oGMaterialOverrider.value.m_materialId",
+       "ours": "8798",
+       "parent": "29"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutFillColor.value.m_color",
+       "ours": "14470600",
+       "parent": "8323072"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutLinePattern.value.m_linePatternId",
+       "ours": "20",
+       "parent": "11"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutPenColor.value.m_color",
+       "ours": "9198150",
+       "parent": "8323072"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+       "ours": "1",
+       "parent": "3"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oProjLinePattern.value.m_linePatternId",
+       "ours": "20",
+       "parent": "11"
+      },
+      {
+       "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oProjPenColor.value.m_color",
+       "ours": "9198150",
+       "parent": "8323072"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 2,
+     "len_ours": 1223,
+     "len_parent": 1223,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "PenWidthTableElem",
+       "class_parent": "PenWidthTableElem"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[0]",
+       "ours": "0.00042650918635170603",
+       "parent": "0.00032808398950131233"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[2]",
+       "ours": "0.0008202099737532808",
+       "parent": "0.0008202099737532807"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[3]",
+       "ours": "0.0011482939632545932",
+       "parent": "0.001148293963254593"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[4]",
+       "ours": "0.0016404199475065617",
+       "parent": "0.0016404199475065614"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[5]",
+       "ours": "0.0022965879265091863",
+       "parent": "0.002296587926509186"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[6]",
+       "ours": "0.0032808398950131233",
+       "parent": "0.003280839895013123"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[7]",
+       "ours": "0.004593175853018373",
+       "parent": "0.004593175853018372"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[8]",
+       "ours": "0.006561679790026247",
+       "parent": "0.006561679790026246"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[9]",
+       "ours": "0.008202099737532808",
+       "parent": "0.009186351706036744"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[10]",
+       "ours": "0.00984251968503937",
+       "parent": "0.013123359580052492"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[11]",
+       "ours": "0.013123359580052493",
+       "parent": "0.016404199475065617"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[12]",
+       "ours": "0.016404199475065617",
+       "parent": "0.01968503937007874"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[13]",
+       "ours": "0.01968503937007874",
+       "parent": "0.022965879265091863"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[14]",
+       "ours": "0.022965879265091863",
+       "parent": "0.026246719160104983"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[15]",
+       "ours": "0.026246719160104987",
+       "parent": "0.03280839895013123"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[0]",
+       "ours": "0.00042650918635170603",
+       "parent": "0.0005905511811023622"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[1]",
+       "ours": "0.0005905511811023622",
+       "parent": "0.0008202099737532807"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[2]",
+       "ours": "0.0008202099737532808",
+       "parent": "0.001148293963254593"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[3]",
+       "ours": "0.0011482939632545932",
+       "parent": "0.002296587926509186"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[4]",
+       "ours": "0.0016404199475065617",
+       "parent": "0.003280839895013123"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[5]",
+       "ours": "0.0022965879265091863",
+       "parent": "0.004593175853018372"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[6]",
+       "ours": "0.0032808398950131233",
+       "parent": "0.006561679790026246"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[7]",
+       "ours": "0.004593175853018373",
+       "parent": "0.009186351706036744"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[8]",
+       "ours": "0.006561679790026247",
+       "parent": "0.013123359580052492"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[9]",
+       "ours": "0.008202099737532808",
+       "parent": "0.016404199475065617"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[10]",
+       "ours": "0.00984251968503937",
+       "parent": "0.01968503937007874"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[11]",
+       "ours": "0.013123359580052493",
+       "parent": "0.022965879265091863"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[12]",
+       "ours": "0.016404199475065617",
+       "parent": "0.026246719160104983"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[13]",
+       "ours": "0.01968503937007874",
+       "parent": "0.029527559055118106"
+      },
+      {
+       "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[14]",
+       "ours": "0.022965879265091863",
+       "parent": "0.029527559055118106"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 3,
+     "len_ours": 352,
+     "len_parent": 211,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "FillPatternElem",
+       "class_parent": "FillPatternElem"
+      },
+      {
+       "path": ".m_cellList",
+       "ours": "None",
+       "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+      },
+      {
+       "path": ".m_pFillPattern.value.m_gridsArr[len]",
+       "ours": 2,
+       "parent": 0
+      },
+      {
+       "path": ".m_pFillPattern.value.m_name",
+       "ours": "'GEN Diagonal Crosshatch 3mm'",
+       "parent": "'Solid fill'"
+      },
+      {
+       "path": ".m_pFillPattern.value.m_windowSize",
+       "ours": "0.008202099737532808",
+       "parent": "0.0"
+      },
+      {
+       "path": ".m_pGeomTable",
+       "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_maxSafeTag': -1, 'm_lastCheck",
+       "parent": "None"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 4,
+     "len_ours": 226,
+     "len_parent": 243,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "FillPatternElem",
+       "class_parent": "FillPatternElem"
+      },
+      {
+       "path": ".m_pFillPattern.value.m_gridsArr[len]",
+       "ours": 0,
+       "parent": 1
+      },
+      {
+       "path": ".m_pFillPattern.value.m_name",
+       "ours": "'GEN Solid Fill'",
+       "parent": "'Diagonal up'"
+      },
+      {
+       "path": ".m_pFillPattern.value.m_windowSize",
+       "ours": "0.008202099737532808",
+       "parent": "0.009842519685039372"
+      },
+      {
+       "path": ".m_pGeomTable",
+       "ours": "{'ptr_class': 'GeomTable', 'pid': -1, 'value': {'m_maxSafeTag': -1, 'm_lastCheck",
+       "parent": "None"
+      }
+     ]
+    }
+   ],
+   "exceptions": [
+    {
+     "what": "seq-102 block partition re-flowed",
+     "reason": "our objects differ in byte length from the parent's, so the certified re-blocker (rvt.reduce.reblock) re-chunked the unit-0 seq-102 run; record ORDER unchanged",
+     "blocks_parent": 18,
+     "blocks_out": 12
+    }
+   ],
+   "problems": [],
+   "assertion_holds": true
+  },
+  "in_place_law": {
+   "ok": true,
+   "landed": 1308,
+   "changed": 1308,
+   "unchanged_landed": 0,
+   "stray_changed": [],
+   "seq_violations": {},
+   "added": [],
+   "removed": [],
+   "problems": [],
+   "law": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed."
+  },
+  "reduce_law_deletions": null,
+  "four_registry_final": {
+   "save_units": 1,
+   "contentdocs_entries": 0,
+   "contenttable_records": 0,
+   "familymgr_entries": 9,
+   "coherent": true,
+   "coherent_counts": true,
+   "coherent_guids": true,
+   "adocument_clean": true
+  },
+  "validator_final": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 2,
+   "error_messages": [],
+   "stats": {
+    "streams": 12,
+    "partition_blocks": 17,
+    "records": 10002,
+    "elements_decoded": 3333,
+    "decode_failures": 1,
+    "refs_checked": 51061
+   }
+  }
+ },
+ "problems": [],
+ "warnings": [],
+ "verdict": "COMPOSED-VALID",
+ "manifest_file": "experiments/genesis/subst_k4_2025/compose/G_Y2025_anchor.manifest.json",
+ "seconds": 6.3,
+ "anchor": null
+}

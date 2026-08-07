@@ -1,0 +1,35 @@
+{
+ "groups": [
+  "G2"
+ ],
+ "equivalence_map": {
+  "1410872": 1472525,
+  "1411008": 1472526,
+  "1410913": 1472529,
+  "1410912": 1472530,
+  "1410914": 1472532,
+  "1410915": 1472531,
+  "1410875": 1472528,
+  "1410877": 1472534,
+  "1411145": 1472566,
+  "1411146": 1472567
+ },
+ "swapped": [
+  {
+   "role": "units",
+   "our_id": 1472526,
+   "donor_id": 1411008,
+   "class": "UnitsElem",
+   "owner_adopted": 1472525,
+   "owner_was": -1,
+   "owner_changed": true
+  }
+ ],
+ "imports": [],
+ "self_family_disposition": null,
+ "donor_block_residual": 0,
+ "donor_block": [
+  1410865,
+  1471962
+ ]
+}

@@ -1,0 +1,1659 @@
+{
+ "generated": "2026-08-05T04:19:29-0500",
+ "tool": "tools/terminal_diff.py enumerate",
+ "charter": "terminal-diff: the exhaustive H12-vs-native whole-file diff, every layer, every item classified",
+ "pair": {
+  "native": "samples/rstbasicsampleproject.rvt",
+  "native_md5": "b3235ad2743f19bcfff243654fec35dd",
+  "target": "experiments/regcorner/probes/H12.rvt",
+  "target_md5": "80321ae42263331fa47e3b26cc5760d0"
+ },
+ "crosscheck_pair": {
+  "target": "experiments/hostpair/H10.rvt",
+  "target_md5": "e28952e7a10dce3f20c1937fa62dd0d4",
+  "meaning": "H10 PASSES with our envelope uninstanced; shared envelope axes are exonerated-uninstanced-ONLY (ranked, not excluded -- an envelope feature may be walked only when instanced)"
+ },
+ "cfb": {
+  "native": {
+   "minor": 62,
+   "major": 4,
+   "byte_order": 65534,
+   "sector_shift": 12,
+   "mini_shift": 6,
+   "sector_size": 4096,
+   "num_dir_sectors": 1,
+   "num_fat_sectors": 2,
+   "first_dir_sector": 1,
+   "transaction_sig": 0,
+   "mini_cutoff": 4096,
+   "first_minifat_sector": 2,
+   "num_minifat_sectors": 1,
+   "first_difat_sector": 4294967294,
+   "num_difat_sectors": 0,
+   "header_difat": [
+    0,
+    50
+   ],
+   "n_sectors": 1628,
+   "dir_sectors": [
+    1
+   ]
+  },
+  "target": {
+   "minor": 62,
+   "major": 4,
+   "byte_order": 65534,
+   "sector_shift": 12,
+   "mini_shift": 6,
+   "sector_size": 4096,
+   "num_dir_sectors": 1,
+   "num_fat_sectors": 2,
+   "first_dir_sector": 2,
+   "transaction_sig": 0,
+   "mini_cutoff": 4096,
+   "first_minifat_sector": 3,
+   "num_minifat_sectors": 1,
+   "first_difat_sector": 4294967294,
+   "num_difat_sectors": 0,
+   "header_difat": [
+    0,
+    1
+   ],
+   "n_sectors": 1645,
+   "dir_sectors": [
+    2
+   ]
+  },
+  "diff": {
+   "header_field_diffs": {
+    "first_dir_sector": {
+     "native": 1,
+     "target": 2
+    },
+    "first_minifat_sector": {
+     "native": 2,
+     "target": 3
+    },
+    "n_sectors": {
+     "native": 1628,
+     "target": 1645
+    },
+    "dir_sectors": {
+     "native": [
+      1
+     ],
+     "target": [
+      2
+     ]
+    }
+   },
+   "sid_order_identical": true,
+   "entry_field_diffs": [
+    {
+     "sid": 0,
+     "name": "Root Entry",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 0,
+     "name": "Root Entry",
+     "field": "child",
+     "native": 1,
+     "target": 3
+    },
+    {
+     "sid": 0,
+     "name": "Root Entry",
+     "field": "start",
+     "native": 3,
+     "target": 4
+    },
+    {
+     "sid": 0,
+     "name": "Root Entry",
+     "field": "size",
+     "native": 8640,
+     "target": 8256
+    },
+    {
+     "sid": 1,
+     "name": "Formats",
+     "field": "right",
+     "native": 3,
+     "target": 4
+    },
+    {
+     "sid": 3,
+     "name": "Partitions",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 3,
+     "name": "Partitions",
+     "field": "left",
+     "native": 4,
+     "target": 1
+    },
+    {
+     "sid": 4,
+     "name": "Contents",
+     "field": "start",
+     "native": 110,
+     "target": 0
+    },
+    {
+     "sid": 5,
+     "name": "TransmissionData",
+     "field": "start",
+     "native": 50,
+     "target": 4
+    },
+    {
+     "sid": 6,
+     "name": "BasicFileInfo",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 6,
+     "name": "BasicFileInfo",
+     "field": "start",
+     "native": 16,
+     "target": 64
+    },
+    {
+     "sid": 6,
+     "name": "BasicFileInfo",
+     "field": "size",
+     "native": 2171,
+     "target": 1879
+    },
+    {
+     "sid": 7,
+     "name": "ProjectInformation",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 7,
+     "name": "ProjectInformation",
+     "field": "start",
+     "native": 0,
+     "target": 94
+    },
+    {
+     "sid": 8,
+     "name": "21",
+     "field": "start",
+     "native": 51,
+     "target": 7
+    },
+    {
+     "sid": 8,
+     "name": "21",
+     "field": "size",
+     "native": 6003729,
+     "target": 6062527
+    },
+    {
+     "sid": 9,
+     "name": "DocumentIncrementTable",
+     "field": "start",
+     "native": 117,
+     "target": 110
+    },
+    {
+     "sid": 9,
+     "name": "DocumentIncrementTable",
+     "field": "size",
+     "native": 1096,
+     "target": 967
+    },
+    {
+     "sid": 10,
+     "name": "History",
+     "field": "start",
+     "native": 1622,
+     "target": 1488
+    },
+    {
+     "sid": 11,
+     "name": "PartitionTable",
+     "field": "start",
+     "native": 114,
+     "target": 126
+    },
+    {
+     "sid": 12,
+     "name": "ContentDocuments",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 12,
+     "name": "ContentDocuments",
+     "field": "start",
+     "native": 1567,
+     "target": 1493
+    },
+    {
+     "sid": 12,
+     "name": "ContentDocuments",
+     "field": "size",
+     "native": 224661,
+     "target": 231314
+    },
+    {
+     "sid": 13,
+     "name": "ElemTable",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 13,
+     "name": "ElemTable",
+     "field": "start",
+     "native": 1549,
+     "target": 1550
+    },
+    {
+     "sid": 13,
+     "name": "ElemTable",
+     "field": "size",
+     "native": 72440,
+     "target": 72562
+    },
+    {
+     "sid": 14,
+     "name": "Latest",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 14,
+     "name": "Latest",
+     "field": "start",
+     "native": 1517,
+     "target": 1568
+    },
+    {
+     "sid": 15,
+     "name": "Latest",
+     "field": "start",
+     "native": 5,
+     "target": 1600
+    }
+   ],
+   "tree_shape_differs": true,
+   "colors_differ": true
+  },
+  "crosscheck_h10_diff": {
+   "header_field_diffs": {
+    "first_dir_sector": {
+     "native": 1,
+     "target": 2
+    },
+    "first_minifat_sector": {
+     "native": 2,
+     "target": 3
+    },
+    "n_sectors": {
+     "native": 1628,
+     "target": 1643
+    },
+    "dir_sectors": {
+     "native": [
+      1
+     ],
+     "target": [
+      2
+     ]
+    }
+   },
+   "sid_order_identical": true,
+   "entry_field_diffs": [
+    {
+     "sid": 0,
+     "name": "Root Entry",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 0,
+     "name": "Root Entry",
+     "field": "child",
+     "native": 1,
+     "target": 3
+    },
+    {
+     "sid": 0,
+     "name": "Root Entry",
+     "field": "start",
+     "native": 3,
+     "target": 4
+    },
+    {
+     "sid": 0,
+     "name": "Root Entry",
+     "field": "size",
+     "native": 8640,
+     "target": 8320
+    },
+    {
+     "sid": 1,
+     "name": "Formats",
+     "field": "right",
+     "native": 3,
+     "target": 4
+    },
+    {
+     "sid": 3,
+     "name": "Partitions",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 3,
+     "name": "Partitions",
+     "field": "left",
+     "native": 4,
+     "target": 1
+    },
+    {
+     "sid": 4,
+     "name": "Contents",
+     "field": "start",
+     "native": 110,
+     "target": 0
+    },
+    {
+     "sid": 5,
+     "name": "TransmissionData",
+     "field": "start",
+     "native": 50,
+     "target": 4
+    },
+    {
+     "sid": 6,
+     "name": "BasicFileInfo",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 6,
+     "name": "BasicFileInfo",
+     "field": "start",
+     "native": 16,
+     "target": 64
+    },
+    {
+     "sid": 6,
+     "name": "BasicFileInfo",
+     "field": "size",
+     "native": 2171,
+     "target": 1935
+    },
+    {
+     "sid": 7,
+     "name": "ProjectInformation",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 7,
+     "name": "ProjectInformation",
+     "field": "start",
+     "native": 0,
+     "target": 95
+    },
+    {
+     "sid": 8,
+     "name": "21",
+     "field": "start",
+     "native": 51,
+     "target": 7
+    },
+    {
+     "sid": 8,
+     "name": "21",
+     "field": "size",
+     "native": 6003729,
+     "target": 6062016
+    },
+    {
+     "sid": 9,
+     "name": "DocumentIncrementTable",
+     "field": "start",
+     "native": 117,
+     "target": 111
+    },
+    {
+     "sid": 9,
+     "name": "DocumentIncrementTable",
+     "field": "size",
+     "native": 1096,
+     "target": 967
+    },
+    {
+     "sid": 10,
+     "name": "History",
+     "field": "start",
+     "native": 1622,
+     "target": 1487
+    },
+    {
+     "sid": 11,
+     "name": "PartitionTable",
+     "field": "start",
+     "native": 114,
+     "target": 127
+    },
+    {
+     "sid": 12,
+     "name": "ContentDocuments",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 12,
+     "name": "ContentDocuments",
+     "field": "start",
+     "native": 1567,
+     "target": 1492
+    },
+    {
+     "sid": 12,
+     "name": "ContentDocuments",
+     "field": "size",
+     "native": 224661,
+     "target": 227732
+    },
+    {
+     "sid": 13,
+     "name": "ElemTable",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 13,
+     "name": "ElemTable",
+     "field": "start",
+     "native": 1549,
+     "target": 1548
+    },
+    {
+     "sid": 13,
+     "name": "ElemTable",
+     "field": "size",
+     "native": 72440,
+     "target": 72562
+    },
+    {
+     "sid": 14,
+     "name": "Latest",
+     "field": "color",
+     "native": 0,
+     "target": 1
+    },
+    {
+     "sid": 14,
+     "name": "Latest",
+     "field": "start",
+     "native": 1517,
+     "target": 1566
+    },
+    {
+     "sid": 15,
+     "name": "Latest",
+     "field": "start",
+     "native": 5,
+     "target": 1598
+    }
+   ],
+   "tree_shape_differs": true,
+   "colors_differ": true
+  },
+  "native_stream_slack": [
+   {
+    "sid": 0,
+    "name": "Root Entry",
+    "size": 8640,
+    "sectors": 3,
+    "slack_bytes": 3648,
+    "slack_nonzero": 0,
+    "chain_first": 3,
+    "chain_is_contiguous": false
+   },
+   {
+    "sid": 8,
+    "name": "21",
+    "size": 6003729,
+    "sectors": 1466,
+    "slack_bytes": 1007,
+    "slack_nonzero": 1007,
+    "chain_first": 51,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 10,
+    "name": "History",
+    "size": 17144,
+    "sectors": 5,
+    "slack_bytes": 3336,
+    "slack_nonzero": 0,
+    "chain_first": 1622,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 12,
+    "name": "ContentDocuments",
+    "size": 224661,
+    "sectors": 55,
+    "slack_bytes": 619,
+    "slack_nonzero": 0,
+    "chain_first": 1567,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 13,
+    "name": "ElemTable",
+    "size": 72440,
+    "sectors": 18,
+    "slack_bytes": 1288,
+    "slack_nonzero": 1288,
+    "chain_first": 1549,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 14,
+    "name": "Latest",
+    "size": 129986,
+    "sectors": 32,
+    "slack_bytes": 1086,
+    "slack_nonzero": 1086,
+    "chain_first": 1517,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 15,
+    "name": "Latest",
+    "size": 182953,
+    "sectors": 45,
+    "slack_bytes": 1367,
+    "slack_nonzero": 1367,
+    "chain_first": 5,
+    "chain_is_contiguous": true
+   }
+  ],
+  "target_stream_slack": [
+   {
+    "sid": 0,
+    "name": "Root Entry",
+    "size": 8256,
+    "sectors": 3,
+    "slack_bytes": 4032,
+    "slack_nonzero": 0,
+    "chain_first": 4,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 8,
+    "name": "21",
+    "size": 6062527,
+    "sectors": 1481,
+    "slack_bytes": 3649,
+    "slack_nonzero": 0,
+    "chain_first": 7,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 10,
+    "name": "History",
+    "size": 17144,
+    "sectors": 5,
+    "slack_bytes": 3336,
+    "slack_nonzero": 0,
+    "chain_first": 1488,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 12,
+    "name": "ContentDocuments",
+    "size": 231314,
+    "sectors": 57,
+    "slack_bytes": 2158,
+    "slack_nonzero": 0,
+    "chain_first": 1493,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 13,
+    "name": "ElemTable",
+    "size": 72562,
+    "sectors": 18,
+    "slack_bytes": 1166,
+    "slack_nonzero": 0,
+    "chain_first": 1550,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 14,
+    "name": "Latest",
+    "size": 129986,
+    "sectors": 32,
+    "slack_bytes": 1086,
+    "slack_nonzero": 0,
+    "chain_first": 1568,
+    "chain_is_contiguous": true
+   },
+   {
+    "sid": 15,
+    "name": "Latest",
+    "size": 182953,
+    "sectors": 45,
+    "slack_bytes": 1367,
+    "slack_nonzero": 0,
+    "chain_first": 1600,
+    "chain_is_contiguous": true
+   }
+  ],
+  "free_sectors": {
+   "native": [],
+   "target": []
+  }
+ },
+ "streams": {
+  "only_in_native": [],
+  "only_in_target": [],
+  "streams": {
+   "BasicFileInfo": {
+    "raw_size": {
+     "native": 2171,
+     "target": 1879
+    },
+    "byte_equal": false,
+    "first_raw_divergence": 66
+   },
+   "Contents": {
+    "raw_size": {
+     "native": 212,
+     "target": 212
+    },
+    "byte_equal": true,
+    "ecc": {
+     "native_roundtrip_exact": true,
+     "target_roundtrip_exact": true,
+     "data_len": {
+      "native": 168,
+      "target": 168
+     }
+    },
+    "members": {
+     "count": {
+      "native": 1,
+      "target": 1
+     },
+     "header_10B": {
+      "native": [
+       "1f8b080000000000000b"
+      ],
+      "target": [
+       "1f8b080000000000000b"
+      ]
+     },
+     "recipe": {
+      "native": [
+       "adsk-global (sync+02 0c 00)"
+      ],
+      "target": [
+       "adsk-global (sync+02 0c 00)"
+      ]
+     }
+    },
+    "data_junk_after_members": {
+     "native": 0,
+     "target": 0
+    }
+   },
+   "Formats/Latest": {
+    "raw_size": {
+     "native": 182953,
+     "target": 182953
+    },
+    "byte_equal": true,
+    "ecc": {
+     "native_roundtrip_exact": true,
+     "target_roundtrip_exact": true,
+     "data_len": {
+      "native": 181543,
+      "target": 181543
+     }
+    },
+    "members": {
+     "count": {
+      "native": 1,
+      "target": 1
+     },
+     "header_10B": {
+      "native": [
+       "1f8b080000000000000b"
+      ],
+      "target": [
+       "1f8b080000000000000b"
+      ]
+     },
+     "recipe": {
+      "native": [
+       "adsk-global (sync+02 0c 00)"
+      ],
+      "target": [
+       "adsk-global (sync+02 0c 00)"
+      ]
+     }
+    },
+    "data_junk_after_members": {
+     "native": 0,
+     "target": 0
+    }
+   },
+   "Global/ContentDocuments": {
+    "raw_size": {
+     "native": 224661,
+     "target": 231314
+    },
+    "byte_equal": false,
+    "ecc": {
+     "native_roundtrip_exact": true,
+     "target_roundtrip_exact": true,
+     "data_len": {
+      "native": 223002,
+      "target": 229712
+     }
+    },
+    "members": {
+     "count": {
+      "native": 1,
+      "target": 1
+     },
+     "header_10B": {
+      "native": [
+       "1f8b080000000000000b"
+      ],
+      "target": [
+       "1f8b080000000000000b"
+      ]
+     },
+     "recipe": {
+      "native": [
+       "adsk-global (sync+02 0c 00)"
+      ],
+      "target": [
+       "ours (sync+finish)"
+      ]
+     }
+    },
+    "data_junk_after_members": {
+     "native": 0,
+     "target": 0
+    },
+    "first_raw_divergence": 179480
+   },
+   "Global/DocumentIncrementTable": {
+    "raw_size": {
+     "native": 1096,
+     "target": 967
+    },
+    "byte_equal": false,
+    "ecc": {
+     "native_roundtrip_exact": true,
+     "target_roundtrip_exact": true,
+     "data_len": {
+      "native": 1017,
+      "target": 903
+     }
+    },
+    "members": {
+     "count": {
+      "native": 1,
+      "target": 1
+     },
+     "header_10B": {
+      "native": [
+       "1f8b080000000000000b"
+      ],
+      "target": [
+       "1f8b080000000000000b"
+      ]
+     },
+     "recipe": {
+      "native": [
+       "adsk-global (sync+02 0c 00)"
+      ],
+      "target": [
+       "ours (sync+finish)"
+      ]
+     }
+    },
+    "data_junk_after_members": {
+     "native": 0,
+     "target": 0
+    },
+    "first_raw_divergence": 19
+   },
+   "Global/ElemTable": {
+    "raw_size": {
+     "native": 72440,
+     "target": 72562
+    },
+    "byte_equal": false,
+    "ecc": {
+     "native_roundtrip_exact": true,
+     "target_roundtrip_exact": true,
+     "data_len": {
+      "native": 71993,
+      "target": 72118
+     }
+    },
+    "members": {
+     "count": {
+      "native": 1,
+      "target": 1
+     },
+     "header_10B": {
+      "native": [
+       "1f8b080000000000000b"
+      ],
+      "target": [
+       "1f8b080000000000000b"
+      ]
+     },
+     "recipe": {
+      "native": [
+       "adsk-global (sync+02 0c 00)"
+      ],
+      "target": [
+       "ours (sync+finish)"
+      ]
+     }
+    },
+    "data_junk_after_members": {
+     "native": 0,
+     "target": 0
+    },
+    "first_raw_divergence": 30
+   },
+   "Global/History": {
+    "raw_size": {
+     "native": 17144,
+     "target": 17144
+    },
+    "byte_equal": true,
+    "ecc": {
+     "native_roundtrip_exact": true,
+     "target_roundtrip_exact": true,
+     "data_len": {
+      "native": 16875,
+      "target": 16875
+     }
+    },
+    "members": {
+     "count": {
+      "native": 1,
+      "target": 1
+     },
+     "header_10B": {
+      "native": [
+       "1f8b080000000000000b"
+      ],
+      "target": [
+       "1f8b080000000000000b"
+      ]
+     },
+     "recipe": {
+      "native": [
+       "adsk-global (sync+02 0c 00)"
+      ],
+      "target": [
+       "adsk-global (sync+02 0c 00)"
+      ]
+     }
+    },
+    "data_junk_after_members": {
+     "native": 0,
+     "target": 0
+    }
+   },
+   "Global/Latest": {
+    "raw_size": {
+     "native": 129986,
+     "target": 129986
+    },
+    "byte_equal": false,
+    "ecc": {
+     "native_roundtrip_exact": true,
+     "target_roundtrip_exact": true,
+     "data_len": {
+      "native": 128870,
+      "target": 128931
+     }
+    },
+    "members": {
+     "count": {
+      "native": 1,
+      "target": 1
+     },
+     "header_10B": {
+      "native": [
+       "1f8b080000000000000b"
+      ],
+      "target": [
+       "1f8b080000000000000b"
+      ]
+     },
+     "recipe": {
+      "native": [
+       "adsk-global (sync+02 0c 00)"
+      ],
+      "target": [
+       "ours (sync+finish)"
+      ]
+     }
+    },
+    "data_junk_after_members": {
+     "native": 0,
+     "target": 0
+    },
+    "first_raw_divergence": 33
+   },
+   "Global/PartitionTable": {
+    "raw_size": {
+     "native": 134,
+     "target": 134
+    },
+    "byte_equal": true,
+    "ecc": {
+     "native_roundtrip_exact": true,
+     "target_roundtrip_exact": true,
+     "data_len": {
+      "native": 97,
+      "target": 97
+     }
+    },
+    "members": {
+     "count": {
+      "native": 1,
+      "target": 1
+     },
+     "header_10B": {
+      "native": [
+       "1f8b080000000000000b"
+      ],
+      "target": [
+       "1f8b080000000000000b"
+      ]
+     },
+     "recipe": {
+      "native": [
+       "adsk-global (sync+02 0c 00)"
+      ],
+      "target": [
+       "adsk-global (sync+02 0c 00)"
+      ]
+     }
+    },
+    "data_junk_after_members": {
+     "native": 0,
+     "target": 0
+    }
+   },
+   "Partitions/21": {
+    "raw_size": {
+     "native": 6003729,
+     "target": 6062527
+    },
+    "byte_equal": false,
+    "ecc": {
+     "native_roundtrip_exact": true,
+     "target_roundtrip_exact": true,
+     "data_len": {
+      "native": 5971195,
+      "target": 6029706
+     }
+    },
+    "first_raw_divergence": 14
+   },
+   "ProjectInformation": {
+    "raw_size": {
+     "native": 969,
+     "target": 969
+    },
+    "byte_equal": true
+   },
+   "TransmissionData": {
+    "raw_size": {
+     "native": 3838,
+     "target": 3838
+    },
+    "byte_equal": true
+   }
+  }
+ },
+ "partitions": {
+  "prefix_u64": {
+   "native": "0900000000000000",
+   "target": "0900000000000000"
+  },
+  "header": {
+   "native": {
+    "version": 9,
+    "zero0": 0,
+    "class_ordinal": 931,
+    "zero1": 0,
+    "elem_table_count": 13936,
+    "size": 18
+   },
+   "target": {
+    "version": 9,
+    "zero0": 0,
+    "class_ordinal": 931,
+    "zero1": 0,
+    "elem_table_count": 13959,
+    "size": 18
+   }
+  },
+  "units": {
+   "native": 53,
+   "target": 54
+  },
+  "blocks": {
+   "native": 414,
+   "target": 418
+  },
+  "aligned_blocks": {
+   "byte_equal": 0,
+   "compression_ending_only": 411,
+   "content_diff": [
+    {
+     "aligned_index": 21,
+     "unit": 0,
+     "seq": 101,
+     "records": {
+      "native": 345,
+      "target": 368
+     }
+    },
+    {
+     "aligned_index": 148,
+     "unit": 0,
+     "seq": 102,
+     "records": {
+      "native": 292,
+      "target": 315
+     }
+    },
+    {
+     "aligned_index": 212,
+     "unit": 0,
+     "seq": 103,
+     "records": {
+      "native": 589,
+      "target": 612
+     }
+    }
+   ]
+  },
+  "new_unit": {
+   "index": 53,
+   "counter": 417,
+   "guid": "e7a6aace6c04a24cb069c06d26cea622",
+   "blocks": [
+    {
+     "index": 414,
+     "unit": 53,
+     "seq": 101,
+     "flags": 4,
+     "records": 418,
+     "recipe": "ours (sync+finish)"
+    },
+    {
+     "index": 415,
+     "unit": 53,
+     "seq": 102,
+     "flags": 4,
+     "records": 146,
+     "recipe": "ours (sync+finish)"
+    },
+    {
+     "index": 416,
+     "unit": 53,
+     "seq": 102,
+     "flags": 4,
+     "records": 272,
+     "recipe": "ours (sync+finish)"
+    },
+    {
+     "index": 417,
+     "unit": 53,
+     "seq": 103,
+     "flags": 4,
+     "records": 418,
+     "recipe": "ours (sync+finish)"
+    }
+   ],
+   "footer_blob_len": 0,
+   "footer_text_equal_native_form": true
+  },
+  "aligned_separators_equal": true,
+  "aligned_footer_blobs_equal": true,
+  "native_footer_blob_lens": [
+   64
+  ],
+  "end_record": {
+   "native_total": 10,
+   "target_total": 581,
+   "true_len": 10,
+   "target_junk_after_end": 571,
+   "native_junk_after_end": 0,
+   "target_starts_with_native": true
+  }
+ },
+ "partitions_crosscheck_h10": {
+  "prefix_u64": {
+   "native": "0900000000000000",
+   "target": "0900000000000000"
+  },
+  "header": {
+   "native": {
+    "version": 9,
+    "zero0": 0,
+    "class_ordinal": 931,
+    "zero1": 0,
+    "elem_table_count": 13936,
+    "size": 18
+   },
+   "target": {
+    "version": 9,
+    "zero0": 0,
+    "class_ordinal": 931,
+    "zero1": 0,
+    "elem_table_count": 13958,
+    "size": 18
+   }
+  },
+  "units": {
+   "native": 53,
+   "target": 54
+  },
+  "blocks": {
+   "native": 414,
+   "target": 418
+  },
+  "aligned_blocks": {
+   "byte_equal": 0,
+   "compression_ending_only": 411,
+   "content_diff": [
+    {
+     "aligned_index": 21,
+     "unit": 0,
+     "seq": 101,
+     "records": {
+      "native": 345,
+      "target": 367
+     }
+    },
+    {
+     "aligned_index": 148,
+     "unit": 0,
+     "seq": 102,
+     "records": {
+      "native": 292,
+      "target": 314
+     }
+    },
+    {
+     "aligned_index": 212,
+     "unit": 0,
+     "seq": 103,
+     "records": {
+      "native": 589,
+      "target": 611
+     }
+    }
+   ]
+  },
+  "new_unit": {
+   "index": 53,
+   "counter": 417,
+   "guid": "dae80c7e27e88b449bbb672dcdcd5c38",
+   "blocks": [
+    {
+     "index": 414,
+     "unit": 53,
+     "seq": 101,
+     "flags": 4,
+     "records": 418,
+     "recipe": "ours (sync+finish)"
+    },
+    {
+     "index": 415,
+     "unit": 53,
+     "seq": 102,
+     "flags": 4,
+     "records": 146,
+     "recipe": "ours (sync+finish)"
+    },
+    {
+     "index": 416,
+     "unit": 53,
+     "seq": 102,
+     "flags": 4,
+     "records": 272,
+     "recipe": "ours (sync+finish)"
+    },
+    {
+     "index": 417,
+     "unit": 53,
+     "seq": 103,
+     "flags": 4,
+     "records": 418,
+     "recipe": "ours (sync+finish)"
+    }
+   ],
+   "footer_blob_len": 0,
+   "footer_text_equal_native_form": true
+  },
+  "aligned_separators_equal": true,
+  "aligned_footer_blobs_equal": true,
+  "native_footer_blob_lens": [
+   64
+  ],
+  "end_record": {
+   "native_total": 10,
+   "target_total": 160,
+   "true_len": 10,
+   "target_junk_after_end": 150,
+   "native_junk_after_end": 0,
+   "target_starts_with_native": true
+  }
+ },
+ "record_delta": {
+  "basic_file_info": [
+   {
+    "path": "bfi.author",
+    "native": "Autodesk Revit",
+    "target": "rvt-writer"
+   },
+   {
+    "path": "bfi.client_app_name",
+    "native": "RevitApplication",
+    "target": "rvt-writer"
+   },
+   {
+    "path": "bfi.last_save_path",
+    "native": "C:\\Users\\hansonje\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+    "target": "H12.rvt"
+   }
+  ],
+  "increment_table": {
+   "row_count": {
+    "native": 22,
+    "target": 22
+   },
+   "leaf_diffs": 44,
+   "all_diffs_are_username_blanking": true,
+   "sample": [
+    {
+     "path": "dit.records[0].username",
+     "native": "zhangg",
+     "target": ""
+    },
+    {
+     "path": "dit.records[1].username",
+     "native": "xuew",
+     "target": ""
+    },
+    {
+     "path": "dit.records[2].username",
+     "native": "loboarch",
+     "target": ""
+    },
+    {
+     "path": "dit.records[3].username",
+     "native": "loboarch",
+     "target": ""
+    }
+   ]
+  },
+  "elem_table": {
+   "rows": {
+    "native": 13936,
+    "target": 13959
+   },
+   "added_ids": [
+    1472942,
+    1472943,
+    1472944,
+    1472945,
+    1472946,
+    1472947,
+    1472948,
+    1472949,
+    1472950,
+    1472951,
+    1472952,
+    1472953,
+    1472954,
+    1472955,
+    1472956,
+    1472957,
+    1472958,
+    1472959,
+    1472960,
+    1472961,
+    1472962,
+    1472963,
+    1472964
+   ],
+   "removed_ids": []
+  },
+  "content_documents": {
+   "entries": {
+    "native": 52,
+    "target": 53
+   },
+   "added_guids": [
+    "ceaaa6e7-046c-4ca2-b069-c06d26cea622"
+   ],
+   "removed_guids": [],
+   "changed_common_entries": [],
+   "end_record_equal": true
+  },
+  "global_latest": {
+   "leaf_diffs": 3,
+   "buckets": {
+    "m_oContentTable.value": 1,
+    "m_pAppInfoManager.value": 2
+   },
+   "sample": [
+    {
+     "path": "adoc.m_oContentTable.value.m_ContentRecSet#len",
+     "native": "52",
+     "target": "53"
+    },
+    {
+     "path": "adoc.m_pAppInfoManager.value.m_appInfoArr[0].value.m_arrLoadedFamilyInfo#len",
+     "native": "50",
+     "target": "51"
+    },
+    {
+     "path": "adoc.m_pAppInfoManager.value.m_appInfoArr[32].value.m_symbols[44].m_elemIdSet#len",
+     "native": "3",
+     "target": "4"
+    }
+   ],
+   "keyed": {
+    "contenttable": {
+     "rows": {
+      "native": 52,
+      "target": 53
+     },
+     "added_keys": 1,
+     "removed_keys": 0,
+     "changed_common_rows": []
+    },
+    "familymgr": {
+     "entries": {
+      "native": 50,
+      "target": 51
+     },
+     "added_surrogates": [
+      1472943
+     ],
+     "removed_surrogates": [],
+     "changed_common_entries": []
+    },
+    "etd_symbols_row44": {
+     "category": -2001330,
+     "added_ids": [
+      1472961
+     ],
+     "removed_ids": []
+    }
+   }
+  }
+ },
+ "axes": [
+  {
+   "id": "P1",
+   "layer": "gzip-envelope",
+   "difference": "10-byte gzip member headers (mtime 0, XFL 0, OS 0x0b): identical constant on every member of both files",
+   "classification": "PARITY",
+   "evidence": "stream_report members.header_10B"
+  },
+  {
+   "id": "P2",
+   "layer": "ecc",
+   "difference": "ECC page layer: ecc.unframe/frame round-trips BOTH files byte-exactly (same algorithm, zero-filled pads in both)",
+   "classification": "PARITY",
+   "evidence": "stream_report ecc.*_roundtrip_exact all true"
+  },
+  {
+   "id": "P3",
+   "layer": "stream-inventory",
+   "difference": "same 12 streams, no stream only in one file",
+   "classification": "PARITY",
+   "evidence": "only_in_native=[] only_in_target=[]"
+  },
+  {
+   "id": "P4",
+   "layer": "partition-frame",
+   "difference": "Partitions header form (v9/0x3a3), u64 prefix, block flags 4, the new unit's block segmentation == the donor's (418/146+272/418), separators + footer text + terminator forms, 53 aligned unit separators and footer blobs byte-equal",
+   "classification": "PARITY",
+   "evidence": "partition_envelope aligned_* fields"
+  },
+  {
+   "id": "P5",
+   "layer": "cfb",
+   "difference": "CFB v4 header constants (4096 sectors, cutoff, 0 DIFAT), 16 directory entries in the same SID order, storage/root timestamps copied, clsids/state zero",
+   "classification": "PARITY",
+   "evidence": "cfb_diff sid_order_identical"
+  },
+  {
+   "id": "P6",
+   "layer": "stream-bytes",
+   "difference": "byte-equal streams: Contents, Formats/Latest, Global/History, Global/PartitionTable, ProjectInformation, TransmissionData",
+   "classification": "PARITY",
+   "evidence": "stream_report byte_equal"
+  },
+  {
+   "id": "D1",
+   "layer": "records",
+   "difference": "registration row content (ContentTable/FamilyMgr rows famload authors; the Global/Latest decoded delta)",
+   "classification": "TESTED-DEAD",
+   "verdict": "H11 + H11x12 FAIL (genesis-audit VERDICTS #35, b40); row forensics exonerated row content (#34 note)"
+  },
+  {
+   "id": "D2",
+   "layer": "records",
+   "difference": "inline ContentDocuments ADocument population (0/239 vs 131/239)",
+   "classification": "TESTED-DEAD",
+   "verdict": "H12 FAIL (#35); H6 FAIL (b37, #33)"
+  },
+  {
+   "id": "D3",
+   "layer": "records",
+   "difference": "famdoc content of the new unit (verbatim Autodesk famdoc)",
+   "classification": "TESTED-DEAD",
+   "verdict": "H7 FAIL (#33); byte-copies in H9 (#34)"
+  },
+  {
+   "id": "D4",
+   "layer": "records",
+   "difference": "host Family/FamilySymbol constellation (22-element native byte-copies)",
+   "classification": "TESTED-DEAD",
+   "verdict": "H9 FAIL + H10 PASS (#34)"
+  },
+  {
+   "id": "D5",
+   "layer": "records",
+   "difference": "CategoryTracking index totality (appinfo slot 28)",
+   "classification": "TESTED-DEAD",
+   "verdict": "H13 FAIL (#35, b41-as-uploaded-with-b40)"
+  },
+  {
+   "id": "D6",
+   "layer": "records",
+   "difference": "symbol geometry form (no-solid / corpus-lawful hostfix forms)",
+   "classification": "TESTED-DEAD",
+   "verdict": "BXns FAIL (#32, b34); BXhf FAIL (#34, b39)"
+  },
+  {
+   "id": "D7",
+   "layer": "records",
+   "difference": "the instance record itself (V20-certified template shape)",
+   "classification": "TESTED-DEAD",
+   "verdict": "V20 PASS on a native unit (#31-era); the instance is the TRIGGER of the audit walk, not the defect (invariant table)"
+  },
+  {
+   "id": "D8",
+   "layer": "records",
+   "difference": "ElemTable adds + watermark mechanics (added ids 23)",
+   "classification": "TESTED-DEAD",
+   "verdict": "H10 +22 rows PASS uninstanced (#34); V20 +1 row PASS instanced-on-native; mechanics exonerated both ways"
+  },
+  {
+   "id": "U1",
+   "layer": "partition-unit-envelope",
+   "difference": "the new unit's 0x0f3f footer blob is EMPTY (0 B); all 53 native units carry 64 high-entropy bytes, distinct per unit (not a plain hash of unit bytes/GUID -- opaque). famgen build_family_save_unit writes blen=0",
+   "classification": "UNTESTED",
+   "rank": 1,
+   "probe": "E1 (donor unit 36's blob copied verbatim) + E1b (random 64 B) -- the pair splits content-verified vs presence-checked",
+   "h10_shares": true,
+   "exoneration": "H10 PASSES with the same empty blob UNINSTANCED only; V20's units are all native (blob present)",
+   "why_ranked_first": "the ONLY remaining opaque unmodeled bytes in the file; unit-scoped (exactly the new unit lacks it); distinct per unit = plausibly content/identity-derived, exactly what an instance-walk cross-check could consult"
+  },
+  {
+   "id": "U2",
+   "layer": "partition-stream-tail",
+   "difference": "571 bytes of high-entropy junk baked as DATA after the 10-byte end record (accumulated depage tail junk re-framed as data by every emit hop; native: 0, H10: 150)",
+   "classification": "UNTESTED",
+   "rank": 2,
+   "probe": "E6 (truncate the logical at the true end record)",
+   "h10_shares": true,
+   "exoneration": "H10 (150 B) + V15/V20 lineage pass with nonzero junk uninstanced / instanced-on-native",
+   "why_ranked_second": "physically adjacent to the new unit (the junk sits right after the end record that FOLLOWS our unit); grows per hop so H12 carries 3.8x H10's"
+  },
+  {
+   "id": "U3",
+   "layer": "gzip-envelope",
+   "difference": "EVERY gzip member our pipeline wrote ends sync+finish (...00 00 ff ff 03 00) where Autodesk ends partial+finish (partitions) / sync+02 0c 00 (other streams): all 418 partition blocks + 4 rewritten global members deviate; 411 of 414 aligned blocks differ ONLY by this",
+   "classification": "UNTESTED",
+   "rank": 3,
+   "probe": "E3 (re-emit every member with the exact Autodesk recipe; untouched blocks become byte-identical to native)",
+   "h10_shares": true,
+   "exoneration": "V15 (whole file our gzip) PASS; H10 PASS; V20's rewritten unit-0 blocks PASS instanced-on-native"
+  },
+  {
+   "id": "U4",
+   "layer": "records-out-of-registry",
+   "difference": "BasicFileInfo identity strings: author 'Autodesk Revit'->'rvt-writer', client_app_name 'RevitApplication'->'rvt-writer', last_save_path native path->'H12.rvt'",
+   "classification": "UNTESTED",
+   "rank": 4,
+   "probe": "E4 (restore the native strings; BFI becomes byte-equal to native)",
+   "h10_shares": true,
+   "exoneration": "H10 passes with the same rebrand uninstanced; V20's BFI is untouched native",
+   "note": "OUTSIDE the four-registry model -- never covered by #34/#35; 'unaudited record surface' is the honest classification"
+  },
+  {
+   "id": "U5",
+   "layer": "records-out-of-registry",
+   "difference": "DocumentIncrementTable: every one of the 44 rows' username scrubbed to '' (zhangg/xuew/loboarch/hansonje/... -> '')",
+   "classification": "UNTESTED",
+   "rank": 5,
+   "probe": "E5 (restore the native usernames)",
+   "h10_shares": true,
+   "exoneration": "H10 passes scrubbed uninstanced; V20's DIT untouched",
+   "note": "also outside the four-registry model"
+  },
+  {
+   "id": "U6",
+   "layer": "cfb",
+   "difference": "CFB directory red-black tree: Root's child tree differs (root child Formats vs Partitions, sibling links), node colors (native mixed red/black incl. red Root Entry vs our all-black); Global's subtree links happen to match",
+   "classification": "UNTESTED",
+   "rank": 6,
+   "probe": "E2 (patch the directory sector to native tree links+colors)",
+   "h10_shares": true,
+   "exoneration": "V15/V20/H10 all carry our tree shape and pass"
+  },
+  {
+   "id": "U7",
+   "layer": "cfb",
+   "difference": "sector allocation layout: start sectors, chain order, first_dir/minifat header fields, ministream packing differ (content-equal, layout-different)",
+   "classification": "UNTESTED",
+   "rank": 7,
+   "probe": "DEFERRED (no probe this round): Revit reads via the layout-agnostic Structured Storage API; V15/V20/H10 pass with our layout; revisit only if E2 moves the needle",
+   "h10_shares": true
+  },
+  {
+   "id": "U8",
+   "layer": "cfb",
+   "difference": "slack content: our zero-fill vs native heap-garbage slack (measured HERE: native final-sector slack is nonzero for Partitions/21 (1,007 B), ElemTable (1,288), Global/Latest (1,086), Formats/Latest (1,367); every target slack byte is zero)",
+   "classification": "UNTESTED",
+   "rank": 8,
+   "probe": "DEFERRED (no probe this round): slack is invisible to the Structured Storage API; V15/V20/H10 pass zero-filled",
+   "h10_shares": true
+  },
+  {
+   "id": "N1",
+   "layer": "save-story",
+   "difference": "NOT A DIFF (recorded for completeness): H12 records NO new save (BFI increments 22 == native, History/Contents byte-equal, no new DIT row) -- a unit appears with no save episode recording it. Identical to native on every compared byte, so not in the diff list; the semantic oddity is noted for the desktop-Revit kit",
+   "classification": "NOT-A-DIFF"
+  }
+ ],
+ "summary": {
+  "untested_axes": [
+   "U1",
+   "U2",
+   "U3",
+   "U4",
+   "U5",
+   "U6",
+   "U7",
+   "U8"
+  ],
+  "tested_dead_axes": [
+   "D1",
+   "D2",
+   "D3",
+   "D4",
+   "D5",
+   "D6",
+   "D7",
+   "D8"
+  ],
+  "parity_axes": [
+   "P1",
+   "P2",
+   "P3",
+   "P4",
+   "P5",
+   "P6"
+  ],
+  "elapsed_s": 33.3
+ }
+}

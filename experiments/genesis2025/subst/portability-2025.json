@@ -1,0 +1,6598 @@
+{
+ "generator": "rvt.genesis.port2025.portability_table",
+ "method": "docs/writer/genesis-2025-plan.md section 6, re-run: own-field signatures by type NAME + flattened parent-first chain + class versions, 2026 pin vs rvt.versions.schema_2025 pin",
+ "universe": {
+  "harvested": 328,
+  "with_chain_expansion": 404
+ },
+ "counts": {
+  "IDENTICAL": 362,
+  "LAYOUT-DELTA": 32,
+  "MISSING-2025": 8,
+  "VERSION-ONLY": 2
+ },
+ "corrections_vs_plan_table": {
+  "layout_deltas_the_plan_missed": [
+   "DBView (m_viewPositionId, base of every constructed view class)",
+   "DBViewDrafting (m_sheetTitleBlockId)",
+   "Viewport (m_viewPosition + m_viewAnchor, v13->10)",
+   "BrowserOrganizationTracking (type->org map -> three ElementId fields)"
+  ],
+  "value_corrections": [
+   "GeomTable extra ints corpus default is (-1,-1), not 0/0",
+   "ReinforcementSettings.m_numberVaryingLengthRebarsIndividually sample default True",
+   "RbsWireType.m_strMaxConductorSize is the bare size label ('2000' in the sample; ours resolve the cell name)"
+  ]
+ },
+ "mined_constants": {
+  "WIRE_SETTINGS_2025": {
+   "m_dMaxVoltageBranchSizing": 0.02,
+   "m_dMaxVoltageFeederSizing": 0.03,
+   "m_dAmbientTemperature": 303.15000000000003
+  },
+  "GEOMTABLE_2025": {
+   "m_maxSafeTag": -1,
+   "m_lastCheckedKingsUserModificationDate": -1
+  },
+  "NUMBERING_SCHEMA_TYPE_GUIDS_2025": {
+   "-2009000": "e0bc59cf-a1aa-48ae-83a2-637780af923d",
+   "-2009060": "396c2ee8-a554-4fed-bf44-c2e648dec011",
+   "-2009016": "f90085e5-ffbd-4dea-aadc-837c93df2943"
+  },
+  "USE_GDI_2025": false,
+  "REINF_NUMBER_INDIVIDUALLY_2025": true,
+  "WIRE_MAX_SIZE_FALLBACK_2025": "2000"
+ },
+ "classes": {
+  "AProperties": {
+   "class": "AProperties",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "AProperties"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AProperty": {
+   "class": "AProperty",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "APropertyBoolean": {
+   "class": "APropertyBoolean",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "APropertyBoolean"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "APropertyDouble1": {
+   "class": "APropertyDouble1",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "APropertyDouble1"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "APropertyDouble2": {
+   "class": "APropertyDouble2",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "APropertyDouble2"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "APropertyDouble4": {
+   "class": "APropertyDouble4",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "APropertyDouble4"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "APropertyEnum": {
+   "class": "APropertyEnum",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "APropertyEnum"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "APropertyFloat": {
+   "class": "APropertyFloat",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "APropertyFloat"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "APropertyInteger": {
+   "class": "APropertyInteger",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "APropertyInteger"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "APropertyString": {
+   "class": "APropertyString",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "APropertyString"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AStringWrapper": {
+   "class": "AStringWrapper",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "AStringWrapper"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AbbreviationItem": {
+   "class": "AbbreviationItem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "AbbreviationItem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AbsCurveType": {
+   "class": "AbsCurveType",
+   "version_2026": 10,
+   "version_2025": 10,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "AbsCurveType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AbsSysCircSweepProfile": {
+   "class": "AbsSysCircSweepProfile",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AbsSysSweepProfile",
+    "AbsSysCircSweepProfile"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AbsSysSweepProfile": {
+   "class": "AbsSysSweepProfile",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AbsSysSweepProfile"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ActiveGeoLocationTrackingElement": {
+   "class": "ActiveGeoLocationTrackingElement",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ActiveGeoLocationTrackingElement"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AdHocOverrides": {
+   "class": "AdHocOverrides",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "AdHocOverrides"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AllProjectPhases": {
+   "class": "AllProjectPhases",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "AllProjectPhases"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AllProjectRevisions": {
+   "class": "AllProjectRevisions",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "AllProjectRevisions"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AlphanumericRevisionSettings": {
+   "class": "AlphanumericRevisionSettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "RevisionSettingsForNumberType",
+    "AlphanumericRevisionSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AnalyticalPropertiesCell": {
+   "class": "AnalyticalPropertiesCell",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "CellInterface",
+    "Cell",
+    "AnalyticalPropertiesCell"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AnalyticalToPhysicalRelationManager": {
+   "class": "AnalyticalToPhysicalRelationManager",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "AnalyticalToPhysicalRelationManager"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AnnotationCropOffsets": {
+   "class": "AnnotationCropOffsets",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AnnotationCropOffsets"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AppInfo": {
+   "class": "AppInfo",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "AppInfo"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AppInfoSystemFamiliesNames": {
+   "class": "AppInfoSystemFamiliesNames",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "AppInfo",
+    "AppInfoSystemFamiliesNames"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AppearanceAsset": {
+   "class": "AppearanceAsset",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "PropertySetBase",
+    "AppearanceAsset"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AppearanceAssetElem": {
+   "class": "AppearanceAssetElem",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "AppearanceAssetElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AreaMeasureElem": {
+   "class": "AreaMeasureElem",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "AreaMeasureElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AreaPlanTopologiesInterface": {
+   "class": "AreaPlanTopologiesInterface",
+   "version_2026": 14,
+   "version_2025": 14,
+   "chain": [
+    "Element",
+    "AreaPlanTopologiesInterface"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AreaReportSettingsElem": {
+   "class": "AreaReportSettingsElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "AreaReportSettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AreaSchemePlanTopologies": {
+   "class": "AreaSchemePlanTopologies",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "AreaPlanTopologiesInterface",
+    "AreaSchemePlanTopologies"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AreaSettingsElem": {
+   "class": "AreaSettingsElem",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "AreaSettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AreaTypeElem": {
+   "class": "AreaTypeElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "AreaTypeElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AssemblyCodeTable": {
+   "class": "AssemblyCodeTable",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "KeyBasedTreeEntryTable",
+    "AssemblyCodeTable"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "AssemblyCodeTable",
+     "version": "4->4",
+     "only_2026": [
+      "m_hasUserCustomizedAssemblyCode"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "AssemblyInstance": {
+   "class": "AssemblyInstance",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "AssemblyInstance"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AssemblyTracker": {
+   "class": "AssemblyTracker",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "Element",
+    "AssemblyTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AssemblyType": {
+   "class": "AssemblyType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "AssemblyType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Asset": {
+   "class": "Asset",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AProperty",
+    "AProperties",
+    "Asset"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AutoCamSettingsElem": {
+   "class": "AutoCamSettingsElem",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "UniqueElement",
+    "AutoCamSettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "AutoJoinTracker": {
+   "class": "AutoJoinTracker",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "UniqueElement",
+    "AutoJoinTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "BasePoint": {
+   "class": "BasePoint",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "CoordinateElemBase",
+    "BasePoint"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "BasicWallType": {
+   "class": "BasicWallType",
+   "version_2026": 16,
+   "version_2025": 16,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "WallType",
+    "BasicWallType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Box": {
+   "class": "Box",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "BoxBase",
+    "Box"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "BoxBase": {
+   "class": "BoxBase",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "Element",
+    "BoxBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "BrowserOrganization": {
+   "class": "BrowserOrganization",
+   "version_2026": 6,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "Symbol",
+    "BrowserOrganization"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "BrowserOrganization",
+     "version": "6->5",
+     "only_2026": [
+      "m_sortParameter"
+     ],
+     "only_2025": [
+      "m_sortParamId"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_sortParamId"
+   ]
+  },
+  "BrowserOrganizationTracking": {
+   "class": "BrowserOrganizationTracking",
+   "version_2026": 6,
+   "version_2025": 5,
+   "chain": [
+    "AppInfo",
+    "ElemSetTracking",
+    "BrowserOrganizationTracking"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "BrowserOrganizationTracking",
+     "version": "6->5",
+     "only_2026": [
+      "m_currentBrOrgTypeToBrOrgMap"
+     ],
+     "only_2025": [
+      "m_currentBrOrgSchedules",
+      "m_currentBrOrgSheets",
+      "m_currentBrOrgViews"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_currentBrOrgSchedules",
+    "m_currentBrOrgSheets",
+    "m_currentBrOrgViews"
+   ]
+  },
+  "BuildingOperatingYearSchedule": {
+   "class": "BuildingOperatingYearSchedule",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "BuildingOperatingYearSchedule"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CableTraySettingsElem": {
+   "class": "CableTraySettingsElem",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "CableTraySettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CableTraySizesElem": {
+   "class": "CableTraySizesElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "CableTraySizesElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CalloutTag": {
+   "class": "CalloutTag",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "CalloutTag"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Category": {
+   "class": "Category",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Category"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CategoryElem": {
+   "class": "CategoryElem",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "CategoryElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CategoryTracking": {
+   "class": "CategoryTracking",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "AppInfo",
+    "CategoryTracking"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Ceiling": {
+   "class": "Ceiling",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "HostObj",
+    "CeilingAndFloor",
+    "Ceiling"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CeilingAndFloor": {
+   "class": "CeilingAndFloor",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "HostObj",
+    "CeilingAndFloor"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Cell": {
+   "class": "Cell",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "CellInterface",
+    "Cell"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CellInterface": {
+   "class": "CellInterface",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "CellInterface"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CellList": {
+   "class": "CellList",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "CellList"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CircuitNamingTypeSetting": {
+   "class": "CircuitNamingTypeSetting",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "CircuitNamingTypeSetting"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ClassificationEntries": {
+   "class": "ClassificationEntries",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "KeyBasedTreeEntries",
+    "ClassificationEntries"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ColorFillSchema": {
+   "class": "ColorFillSchema",
+   "version_2026": 36,
+   "version_2025": 36,
+   "chain": [
+    "Element",
+    "ColorFillSchema"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ColorFillSchemaSetting": {
+   "class": "ColorFillSchemaSetting",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "ColorFillSchemaSetting"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CompoundCeilingType": {
+   "class": "CompoundCeilingType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "CompoundCeilingType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CompoundStructure": {
+   "class": "CompoundStructure",
+   "version_2026": 23,
+   "version_2025": 23,
+   "chain": [
+    "CompoundStructure"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ConduitSettingsElem": {
+   "class": "ConduitSettingsElem",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "ConduitSettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ConduitSizesElem": {
+   "class": "ConduitSizesElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ConduitSizesElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ConduitStandardType": {
+   "class": "ConduitStandardType",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "Element",
+    "Symbol",
+    "ConduitStandardType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ConstructionSetBase": {
+   "class": "ConstructionSetBase",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "Symbol",
+    "ConstructionSetBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ConstructionSetProject": {
+   "class": "ConstructionSetProject",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Symbol",
+    "ConstructionSetBase",
+    "ConstructionSetProject"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CoordinateElemBase": {
+   "class": "CoordinateElemBase",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "CoordinateElemBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CoordinateElemBaseGeomStep": {
+   "class": "CoordinateElemBaseGeomStep",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "GeomGenerator",
+    "GeomStep",
+    "CoordinateElemBaseGeomStep"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "GeomStep",
+     "version": "17->16",
+     "only_2026": [
+      "m_oExtraDatas"
+     ],
+     "only_2025": [
+      "m_oExtraData"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_oExtraData"
+   ]
+  },
+  "CoordinateSystemDisplayElem": {
+   "class": "CoordinateSystemDisplayElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "CoordinateElemBase",
+    "CoordinateSystemDisplayElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CopyWatchProperties": {
+   "class": "CopyWatchProperties",
+   "version_2026": 13,
+   "version_2025": 13,
+   "chain": [
+    "Element",
+    "CopyWatchProperties"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CurtaSystemFaceManager": {
+   "class": "CurtaSystemFaceManager",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "CurtaSystemFaceManager"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CurveElem": {
+   "class": "CurveElem",
+   "version_2026": 29,
+   "version_2025": 29,
+   "chain": [
+    "Element",
+    "CurveElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "CustomElement": {
+   "class": "CustomElement",
+   "verdict": "MISSING-2025",
+   "version_2026": 1
+  },
+  "CustomElementData": {
+   "class": "CustomElementData",
+   "verdict": "MISSING-2025",
+   "version_2026": 1
+  },
+  "DBDrawing": {
+   "class": "DBDrawing",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "DBDrawing"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DBDrawingInfo": {
+   "class": "DBDrawingInfo",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "AppInfo",
+    "DBDrawingInfo"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DBView": {
+   "class": "DBView",
+   "version_2026": 99,
+   "version_2025": 99,
+   "chain": [
+    "Element",
+    "DBView"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "DBView",
+     "version": "99->99",
+     "only_2026": [
+      "m_viewPositionId"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "DBView3d": {
+   "class": "DBView3d",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "DBView",
+    "DBView3d"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "DBView",
+     "version": "99->99",
+     "only_2026": [
+      "m_viewPositionId"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "DBViewDrafting": {
+   "class": "DBViewDrafting",
+   "version_2026": 12,
+   "version_2025": 12,
+   "chain": [
+    "Element",
+    "DBView",
+    "DBViewDrafting"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "DBView",
+     "version": "99->99",
+     "only_2026": [
+      "m_viewPositionId"
+     ],
+     "only_2025": [],
+     "changed": []
+    },
+    {
+     "base": "DBViewDrafting",
+     "version": "12->12",
+     "only_2026": [
+      "m_sheetTitleBlockId"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "DBViewInfo": {
+   "class": "DBViewInfo",
+   "version_2026": 12,
+   "version_2025": 12,
+   "chain": [
+    "AppInfo",
+    "DBViewInfo"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DBViewPlan": {
+   "class": "DBViewPlan",
+   "version_2026": 39,
+   "version_2025": 39,
+   "chain": [
+    "Element",
+    "DBView",
+    "DBViewPlan"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "DBView",
+     "version": "99->99",
+     "only_2026": [
+      "m_viewPositionId"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "DBViewProject": {
+   "class": "DBViewProject",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "DBView",
+    "DBViewProject"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "DBView",
+     "version": "99->99",
+     "only_2026": [
+      "m_viewPositionId"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "DBViewSection": {
+   "class": "DBViewSection",
+   "version_2026": 13,
+   "version_2025": 13,
+   "chain": [
+    "Element",
+    "DBView",
+    "DBViewSection"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "DBView",
+     "version": "99->99",
+     "only_2026": [
+      "m_viewPositionId"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "DBViewType": {
+   "class": "DBViewType",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "Symbol",
+    "DBViewType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DataStorage": {
+   "class": "DataStorage",
+   "version_2026": 3,
+   "version_2025": 0,
+   "chain": [
+    "Element",
+    "DataStorage"
+   ],
+   "verdict": "VERSION-ONLY"
+  },
+  "DatumPlane": {
+   "class": "DatumPlane",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "Element",
+    "DatumPlane"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DatumPlaneGeomStep": {
+   "class": "DatumPlaneGeomStep",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "GeomGenerator",
+    "GeomStep",
+    "DatumPlaneGeomStep"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "GeomStep",
+     "version": "17->16",
+     "only_2026": [
+      "m_oExtraDatas"
+     ],
+     "only_2025": [
+      "m_oExtraData"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_oExtraData"
+   ]
+  },
+  "DaylightSourceIdSet": {
+   "class": "DaylightSourceIdSet",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "DaylightSourceIdSet"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DefaultDivideSettings": {
+   "class": "DefaultDivideSettings",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "DefaultDivideSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DesignOptionDrawFilter": {
+   "class": "DesignOptionDrawFilter",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "DrawFilter",
+    "DesignOptionDrawFilter"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DesignOptionViewSettings": {
+   "class": "DesignOptionViewSettings",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "DesignOptionViewSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DimWithSegRefs": {
+   "class": "DimWithSegRefs",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "Dimension",
+    "DimWithSegRefs"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Dimension": {
+   "class": "Dimension",
+   "version_2026": 27,
+   "version_2025": 27,
+   "chain": [
+    "Element",
+    "Dimension"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DimensionStyle": {
+   "class": "DimensionStyle",
+   "version_2026": 37,
+   "version_2025": 37,
+   "chain": [
+    "Element",
+    "Symbol",
+    "DimensionStyle"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DirectContext3DHandleOverrides": {
+   "class": "DirectContext3DHandleOverrides",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "DirectContext3DHandleOverrides"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DocumentIncrementTable": {
+   "class": "DocumentIncrementTable",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "DocumentIncrementTable"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DrawFilter": {
+   "class": "DrawFilter",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "DrawFilter"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DrawOrderMgr": {
+   "class": "DrawOrderMgr",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "DrawOrderMgrBase",
+    "DrawOrderMgr"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DrawOrderMgrBase": {
+   "class": "DrawOrderMgrBase",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "DrawOrderMgrBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "DummyPlaneRef": {
+   "class": "DummyPlaneRef",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Ref",
+    "PlaneRef",
+    "DummyPlaneRef"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Dwg2dExportUserSettingsData": {
+   "class": "Dwg2dExportUserSettingsData",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "Element",
+    "UniqueElement",
+    "Dwg2dExportUserSettingsData"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElectricalCustomElementData": {
+   "class": "ElectricalCustomElementData",
+   "verdict": "MISSING-2025",
+   "version_2026": 1
+  },
+  "ElectricalDemandFactorDefinition": {
+   "class": "ElectricalDemandFactorDefinition",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ElectricalDemandFactorDefinition"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElectricalLoadClassification": {
+   "class": "ElectricalLoadClassification",
+   "version_2026": 7,
+   "version_2025": 7,
+   "chain": [
+    "Element",
+    "ElectricalLoadClassification"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElectricalSetting": {
+   "class": "ElectricalSetting",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "ElectricalSetting"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElemSetTracking": {
+   "class": "ElemSetTracking",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "AppInfo",
+    "ElemSetTracking"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElemTable": {
+   "class": "ElemTable",
+   "version_2026": 10,
+   "version_2025": 10,
+   "chain": [
+    "ElemTable"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Element": {
+   "class": "Element",
+   "version_2026": 21,
+   "version_2025": 21,
+   "chain": [
+    "Element"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElementFilterData": {
+   "class": "ElementFilterData",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ElementFilterData"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElementHeader": {
+   "class": "ElementHeader",
+   "version_2026": 25,
+   "version_2025": 25,
+   "chain": [
+    "ElementHeader"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElementLogicalFilterData": {
+   "class": "ElementLogicalFilterData",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ElementFilterData",
+    "ElementLogicalFilterData"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElementParents": {
+   "class": "ElementParents",
+   "version_2026": 13,
+   "version_2025": 13,
+   "chain": [
+    "ElementParents"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElementTrackingData": {
+   "class": "ElementTrackingData",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "AppInfo",
+    "ElementTrackingData"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ElementsOnSheetsTrackerBase": {
+   "class": "ElementsOnSheetsTrackerBase",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ElementsOnSheetsTrackerBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "EnergyDataSettings": {
+   "class": "EnergyDataSettings",
+   "version_2026": 15,
+   "version_2025": 15,
+   "chain": [
+    "Element",
+    "EnergyDataSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "EnergyModelOverrides": {
+   "class": "EnergyModelOverrides",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "EnergyModelOverrides"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ExtentElem": {
+   "class": "ExtentElem",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "ExtentElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ExternalFileReferenceCell": {
+   "class": "ExternalFileReferenceCell",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "CellInterface",
+    "Cell",
+    "ExternalFileReferenceCell"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ExternalParamLock": {
+   "class": "ExternalParamLock",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "Element",
+    "ExternalParamLock"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ExternalResourceReferenceCell": {
+   "class": "ExternalResourceReferenceCell",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "CellInterface",
+    "Cell",
+    "ExternalResourceReferenceCell"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FabricSheetType": {
+   "class": "FabricSheetType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "FabricSheetType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FabricWireType": {
+   "class": "FabricWireType",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Symbol",
+    "FabricWireType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FabricationDatabase": {
+   "class": "FabricationDatabase",
+   "version_2026": 11,
+   "version_2025": 11,
+   "chain": [
+    "FabricationDatabase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FabricationPart": {
+   "class": "FabricationPart",
+   "version_2026": 15,
+   "version_2025": 15,
+   "chain": [
+    "Element",
+    "FabricationPart"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FabricationServiceSettings": {
+   "class": "FabricationServiceSettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "FabricationServiceSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FabricationSettings": {
+   "class": "FabricationSettings",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "FabricationSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FabricationSettingsElement": {
+   "class": "FabricationSettingsElement",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "FabricationSettingsElement"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Face": {
+   "class": "Face",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "GNode",
+    "GFace",
+    "Face"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FamDimConstrMgr": {
+   "class": "FamDimConstrMgr",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "FamDimConstrMgr"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FamDimConstrMgrImpl": {
+   "class": "FamDimConstrMgrImpl",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "FamDimConstrMgr",
+    "FamDimConstrMgrImpl"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Family": {
+   "class": "Family",
+   "version_2026": 19,
+   "version_2025": 19,
+   "chain": [
+    "Element",
+    "FamilyBase",
+    "Family"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "FamilyBase",
+     "version": "48->47",
+     "only_2026": [
+      "m_classificationDescription"
+     ],
+     "only_2025": [
+      "m_bAdHoc"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "FamilyBase": {
+   "class": "FamilyBase",
+   "version_2026": 48,
+   "version_2025": 47,
+   "chain": [
+    "Element",
+    "FamilyBase"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "FamilyBase",
+     "version": "48->47",
+     "only_2026": [
+      "m_classificationDescription"
+     ],
+     "only_2025": [
+      "m_bAdHoc"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "FamilyInstance": {
+   "class": "FamilyInstance",
+   "version_2026": 39,
+   "version_2025": 39,
+   "chain": [
+    "Element",
+    "Instance",
+    "InsertableInst",
+    "FamilyInstance"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FamilySurrogate": {
+   "class": "FamilySurrogate",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "Surrogate",
+    "FamilySurrogateBase",
+    "FamilySurrogate"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FamilySurrogateBase": {
+   "class": "FamilySurrogateBase",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Surrogate",
+    "FamilySurrogateBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FillGrid": {
+   "class": "FillGrid",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "FillGrid"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FillPattern": {
+   "class": "FillPattern",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "FillPattern"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FillPatternElem": {
+   "class": "FillPatternElem",
+   "version_2026": 10,
+   "version_2025": 10,
+   "chain": [
+    "Element",
+    "FillPatternElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FilterCategoryRule": {
+   "class": "FilterCategoryRule",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "FilterRule",
+    "FilterCategoryRule"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FilterElement": {
+   "class": "FilterElement",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "FilterElement"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FilterOverrides": {
+   "class": "FilterOverrides",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "FilterOverrides"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FilterRule": {
+   "class": "FilterRule",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "FilterRule"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Floor": {
+   "class": "Floor",
+   "version_2026": 20,
+   "version_2025": 20,
+   "chain": [
+    "Element",
+    "HostObj",
+    "CeilingAndFloor",
+    "Floor"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FloorAttributes": {
+   "class": "FloorAttributes",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "FloorAttributes"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Font": {
+   "class": "Font",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Font"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "FontElem": {
+   "class": "FontElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "FontElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GBRep": {
+   "class": "GBRep",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "GNode",
+    "GBRep"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GBitmap": {
+   "class": "GBitmap",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "GNode",
+    "GBitmap"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GCSTracker": {
+   "class": "GCSTracker",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "UniqueElement",
+    "GCSTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GElement": {
+   "class": "GElement",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "GNode",
+    "GGroup",
+    "GRep",
+    "GElement"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GFace": {
+   "class": "GFace",
+   "version_2026": 10,
+   "version_2025": 10,
+   "chain": [
+    "GNode",
+    "GFace"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GFillColorOverrider": {
+   "class": "GFillColorOverrider",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "GFillColorOverrider"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GFillPatternOverrider": {
+   "class": "GFillPatternOverrider",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "GFillPatternOverrider"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GGroup": {
+   "class": "GGroup",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "GNode",
+    "GGroup"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GLinePatternOverrider": {
+   "class": "GLinePatternOverrider",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "GLinePatternOverrider"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GMaterialOverrider": {
+   "class": "GMaterialOverrider",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "GMaterialOverrider"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GNode": {
+   "class": "GNode",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "GNode"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GPenNumberOverrider": {
+   "class": "GPenNumberOverrider",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "GPenNumberOverrider"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GPoint": {
+   "class": "GPoint",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "GNode",
+    "GPoint"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GRenderSettings": {
+   "class": "GRenderSettings",
+   "version_2026": 11,
+   "version_2025": 11,
+   "chain": [
+    "GRenderSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GRep": {
+   "class": "GRep",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "GNode",
+    "GGroup",
+    "GRep"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GStyle": {
+   "class": "GStyle",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "GStyle"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GStyleColorOverrider": {
+   "class": "GStyleColorOverrider",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "GStyleColorOverrider"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GStyleElem": {
+   "class": "GStyleElem",
+   "version_2026": 7,
+   "version_2025": 7,
+   "chain": [
+    "Element",
+    "GStyleElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GSurfacesTransparencyOverrider": {
+   "class": "GSurfacesTransparencyOverrider",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "GSurfacesTransparencyOverrider"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GenericCutterBase": {
+   "class": "GenericCutterBase",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "GenericCutterBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GenericPlaneCutter": {
+   "class": "GenericPlaneCutter",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "GenericCutterBase",
+    "GenericPlaneCutter"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GeoLocation": {
+   "class": "GeoLocation",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "Instance",
+    "GeoLocation"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GeoSite": {
+   "class": "GeoSite",
+   "version_2026": 11,
+   "version_2025": 11,
+   "chain": [
+    "Element",
+    "Symbol",
+    "GeoSite"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GeomGenerator": {
+   "class": "GeomGenerator",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "GeomGenerator"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GeomStep": {
+   "class": "GeomStep",
+   "version_2026": 17,
+   "version_2025": 16,
+   "chain": [
+    "GeomGenerator",
+    "GeomStep"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "GeomStep",
+     "version": "17->16",
+     "only_2026": [
+      "m_oExtraDatas"
+     ],
+     "only_2025": [
+      "m_oExtraData"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_oExtraData"
+   ]
+  },
+  "GeomStepList": {
+   "class": "GeomStepList",
+   "version_2026": 10,
+   "version_2025": 10,
+   "chain": [
+    "GeomStepList"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GeomTable": {
+   "class": "GeomTable",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "GeomTable"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "GeomTable",
+     "version": "3->3",
+     "only_2026": [],
+     "only_2025": [
+      "m_maxSafeTag",
+      "m_lastCheckedKingsUserModificationDate"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_lastCheckedKingsUserModificationDate",
+    "m_maxSafeTag"
+   ]
+  },
+  "Geometry": {
+   "class": "Geometry",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "GNode",
+    "GBRep",
+    "Geometry"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GraphicOverrides": {
+   "class": "GraphicOverrides",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "GraphicOverrides"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GraphicsCache": {
+   "class": "GraphicsCache",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "GraphicsCache"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Grid": {
+   "class": "Grid",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "DatumPlane",
+    "Grid"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "GridAttributes": {
+   "class": "GridAttributes",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LineAndTextAttrSymbol",
+    "GridAttributes"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HVACLoadBuildingTypeElem": {
+   "class": "HVACLoadBuildingTypeElem",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "HVACLoadTypeElem",
+    "HVACLoadBuildingTypeElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HVACLoadScheduleElem": {
+   "class": "HVACLoadScheduleElem",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "HVACLoadScheduleElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HVACLoadSpaceTypeElem": {
+   "class": "HVACLoadSpaceTypeElem",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "HVACLoadTypeElem",
+    "HVACLoadSpaceTypeElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HVACLoadTypeElem": {
+   "class": "HVACLoadTypeElem",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "HVACLoadTypeElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HalftoneUnderlaySettings": {
+   "class": "HalftoneUnderlaySettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "HalftoneUnderlaySettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HiddenElementsViewSettings": {
+   "class": "HiddenElementsViewSettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "HiddenElementsViewSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HideElementsDrawFilter": {
+   "class": "HideElementsDrawFilter",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "DrawFilter",
+    "HideElementsDrawFilter"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HideElementsMgr": {
+   "class": "HideElementsMgr",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "HideElementsMgr"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HostObj": {
+   "class": "HostObj",
+   "version_2026": 12,
+   "version_2025": 12,
+   "chain": [
+    "Element",
+    "HostObj"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "HostObjAttr": {
+   "class": "HostObjAttr",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "IckyExcludedCategoriesSetPtrWrapper": {
+   "class": "IckyExcludedCategoriesSetPtrWrapper",
+   "version_2026": 18,
+   "version_2025": 18,
+   "chain": [
+    "DrawFilter",
+    "IckyExcludedCategoriesSetPtrWrapper"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Identifier": {
+   "class": "Identifier",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Identifier"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "IndependentTag": {
+   "class": "IndependentTag",
+   "version_2026": 22,
+   "version_2025": 22,
+   "chain": [
+    "Element",
+    "IndependentTag"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "InitialViewSettings": {
+   "class": "InitialViewSettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "InitialViewSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "InsertableInst": {
+   "class": "InsertableInst",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Instance",
+    "InsertableInst"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "InstInfoBase": {
+   "class": "InstInfoBase",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "InstInfoBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Instance": {
+   "class": "Instance",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Instance"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "InstanceInfo": {
+   "class": "InstanceInfo",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "InstInfoBase",
+    "InstanceInfo"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Insulation": {
+   "class": "Insulation",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "CellInterface",
+    "UserElemCurveData",
+    "Insulation"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "InteriorElevAttributes": {
+   "class": "InteriorElevAttributes",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LineAndTextAttrSymbol",
+    "InteriorElevAttributes"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "KeyBasedTreeEntries": {
+   "class": "KeyBasedTreeEntries",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "KeyBasedTreeEntries"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "KeyBasedTreeEntry": {
+   "class": "KeyBasedTreeEntry",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "KeyBasedTreeEntry"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "KeyBasedTreeEntryTable": {
+   "class": "KeyBasedTreeEntryTable",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "KeyBasedTreeEntryTable"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "KeynoteEntry": {
+   "class": "KeynoteEntry",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "KeyBasedTreeEntry",
+    "KeynoteEntry"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "KeynoteEntryTable": {
+   "class": "KeynoteEntryTable",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "KeyBasedTreeEntries",
+    "KeynoteEntryTable"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "KeynoteTable": {
+   "class": "KeynoteTable",
+   "version_2026": 11,
+   "version_2025": 11,
+   "chain": [
+    "Element",
+    "KeyBasedTreeEntryTable",
+    "KeynoteTable"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "KeynoteTable",
+     "version": "11->11",
+     "only_2026": [
+      "m_hasUserCustomizedKeynote"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "KeynoteTag": {
+   "class": "KeynoteTag",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "IndependentTag",
+    "KeynoteTag"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "KeynoteTagsOnSheetsTracker": {
+   "class": "KeynoteTagsOnSheetsTracker",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ElementsOnSheetsTrackerBase",
+    "KeynoteTagsOnSheetsTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "KeynotingSystem": {
+   "class": "KeynotingSystem",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "KeynotingSystem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LadderSweepProfile": {
+   "class": "LadderSweepProfile",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AbsSysSweepProfile",
+    "LadderSweepProfile"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LayoutNode": {
+   "class": "LayoutNode",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "LayoutNode"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LayoutNodesTracker": {
+   "class": "LayoutNodesTracker",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "LayoutNodesTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LeaderStyle": {
+   "class": "LeaderStyle",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LeaderStyle"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LegendComponent": {
+   "class": "LegendComponent",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "LegendComponent"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Level": {
+   "class": "Level",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "DatumPlane",
+    "Level"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LevelAttributes": {
+   "class": "LevelAttributes",
+   "version_2026": 10,
+   "version_2025": 10,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LineAndTextAttrSymbol",
+    "LevelAttributes"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LevelRoomPlan": {
+   "class": "LevelRoomPlan",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "Element",
+    "LevelRoomPlan"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LightScheme": {
+   "class": "LightScheme",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "LightScheme"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LightSchemeElement": {
+   "class": "LightSchemeElement",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "LightSchemeElement"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LineAndTextAttrSymbol": {
+   "class": "LineAndTextAttrSymbol",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LineAndTextAttrSymbol"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LinePattern": {
+   "class": "LinePattern",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "LinePattern"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LinePatternElem": {
+   "class": "LinePatternElem",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "LinePatternElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LinearConstraint": {
+   "class": "LinearConstraint",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "Dimension",
+    "DimWithSegRefs",
+    "LinearConstraint"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LinearDimString": {
+   "class": "LinearDimString",
+   "version_2026": 7,
+   "version_2025": 7,
+   "chain": [
+    "Element",
+    "Dimension",
+    "DimWithSegRefs",
+    "LinearConstraint",
+    "LinearDimString"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LinkInstance": {
+   "class": "LinkInstance",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "Element",
+    "Instance",
+    "LinkInstance"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LinkType": {
+   "class": "LinkType",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LinkType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LoadCaseElem": {
+   "class": "LoadCaseElem",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "LoadMiscBaseElem",
+    "LoadCaseElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LoadMiscBaseElem": {
+   "class": "LoadMiscBaseElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "LoadMiscBaseElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LoadNatureElem": {
+   "class": "LoadNatureElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "LoadMiscBaseElem",
+    "LoadNatureElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "LogicalAndFilterData": {
+   "class": "LogicalAndFilterData",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ElementFilterData",
+    "ElementLogicalFilterData",
+    "LogicalAndFilterData"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "MEPComponentTracker": {
+   "class": "MEPComponentTracker",
+   "version_2026": 11,
+   "version_2025": 11,
+   "chain": [
+    "Element",
+    "MEPComponentTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "MEPHiddenLineSettingsElem": {
+   "class": "MEPHiddenLineSettingsElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "MEPHiddenLineSettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "MEPNetworkDataElem": {
+   "class": "MEPNetworkDataElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "MEPNetworkDataElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "MEPNetworkTracker": {
+   "class": "MEPNetworkTracker",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "MEPNetworkTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "MEPSystemTracker": {
+   "class": "MEPSystemTracker",
+   "version_2026": 15,
+   "version_2025": 15,
+   "chain": [
+    "Element",
+    "MEPSystemTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "MakeCutterForPlanRegionsGStep": {
+   "class": "MakeCutterForPlanRegionsGStep",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "GeomGenerator",
+    "GeomStep",
+    "MakeCutterForPlanRegionsGStepBase",
+    "MakeCutterForPlanRegionsGStep"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "GeomStep",
+     "version": "17->16",
+     "only_2026": [
+      "m_oExtraDatas"
+     ],
+     "only_2025": [
+      "m_oExtraData"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_oExtraData"
+   ]
+  },
+  "MakeCutterForPlanRegionsGStepBase": {
+   "class": "MakeCutterForPlanRegionsGStepBase",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "GeomGenerator",
+    "GeomStep",
+    "MakeCutterForPlanRegionsGStepBase"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "GeomStep",
+     "version": "17->16",
+     "only_2026": [
+      "m_oExtraDatas"
+     ],
+     "only_2025": [
+      "m_oExtraData"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_oExtraData"
+   ]
+  },
+  "Material": {
+   "class": "Material",
+   "version_2026": 13,
+   "version_2025": 13,
+   "chain": [
+    "Material"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "MaterialElem": {
+   "class": "MaterialElem",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "MaterialElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Matrix": {
+   "class": "Matrix",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Matrix"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "MechanicalEquipmentSet": {
+   "class": "MechanicalEquipmentSet",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "MechanicalEquipmentSet"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ModelClipBox": {
+   "class": "ModelClipBox",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "BoxBase",
+    "Box",
+    "ModelClipBox"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ModelGraphicsStyle": {
+   "class": "ModelGraphicsStyle",
+   "version_2026": 7,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "ModelGraphicsStyle"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "ModelGraphicsStyle",
+     "version": "7->6",
+     "only_2026": [],
+     "only_2025": [
+      "m_bUseGDI"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_bUseGDI"
+   ]
+  },
+  "MultipleValuesIndicationSettings": {
+   "class": "MultipleValuesIndicationSettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "MultipleValuesIndicationSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "NamingCell": {
+   "class": "NamingCell",
+   "verdict": "MISSING-2025",
+   "version_2026": 0
+  },
+  "NumberingSchema": {
+   "class": "NumberingSchema",
+   "version_2026": 8,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "NumberingSchema"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "NumberingSchema",
+     "version": "8->5",
+     "only_2026": [
+      "m_formatSettings",
+      "m_inInterfaceName",
+      "m_matchingParams",
+      "m_outputParamBindings",
+      "m_partitioningParams",
+      "m_useBuiltInMatchingForCategories",
+      "m_priority",
+      "m_secondaryDataGUID",
+      "m_builtIn",
+      "m_hasRoomRelatedParameters",
+      "m_enabled",
+      "m_matchGeometry",
+      "m_usingNOBLE"
+     ],
+     "only_2025": [
+      "m_oPartitionDescriptionCreator",
+      "m_minimumNumberOfDigits",
+      "schemaTypeGuid",
+      "m_isMatchingEnabled"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_isMatchingEnabled",
+    "m_minimumNumberOfDigits",
+    "m_oPartitionDescriptionCreator",
+    "schemaTypeGuid"
+   ]
+  },
+  "NumericRevisionSettings": {
+   "class": "NumericRevisionSettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "RevisionSettingsForNumberType",
+    "NumericRevisionSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "OnDBViewPlaneRef": {
+   "class": "OnDBViewPlaneRef",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Ref",
+    "PlaneRef",
+    "OneElementMovablePlaneRef",
+    "OnDBViewPlaneRef"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "OnDatumPlaneRef": {
+   "class": "OnDatumPlaneRef",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Ref",
+    "PlaneRef",
+    "OneElementMovablePlaneRef",
+    "OnDatumPlaneRef"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "OneElementMovablePlaneRef": {
+   "class": "OneElementMovablePlaneRef",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Ref",
+    "PlaneRef",
+    "OneElementMovablePlaneRef"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Outline": {
+   "class": "Outline",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Outline"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "OverrideGraphicSettings": {
+   "class": "OverrideGraphicSettings",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "OverrideGraphicSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamBinding": {
+   "class": "ParamBinding",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ParamBinding"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDef": {
+   "class": "ParamDef",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "ParamDef"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefBrowseEdit": {
+   "class": "ParamDefBrowseEdit",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "ParamDef",
+    "ParamDefString",
+    "ParamDefBrowseEdit"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefCombo": {
+   "class": "ParamDefCombo",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "ParamDef",
+    "ParamDefCombo"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefFamType": {
+   "class": "ParamDefFamType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ParamDef",
+    "ParamDefCombo",
+    "ParamDefFamTypeBase",
+    "ParamDefFamType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefFamTypeBase": {
+   "class": "ParamDefFamTypeBase",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "ParamDef",
+    "ParamDefCombo",
+    "ParamDefFamTypeBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefInt": {
+   "class": "ParamDefInt",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ParamDef",
+    "ParamDefInt"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefMaterialBrowse": {
+   "class": "ParamDefMaterialBrowse",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ParamDef",
+    "ParamDefString",
+    "ParamDefBrowseEdit",
+    "ParamDefMaterialBrowse"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefNoOfPoles": {
+   "class": "ParamDefNoOfPoles",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "ParamDef",
+    "ParamDefInt",
+    "ParamDefNoOfPoles"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefString": {
+   "class": "ParamDefString",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "ParamDef",
+    "ParamDefString"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefURL": {
+   "class": "ParamDefURL",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "ParamDef",
+    "ParamDefString",
+    "ParamDefBrowseEdit",
+    "ParamDefURL"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefValue": {
+   "class": "ParamDefValue",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ParamDef",
+    "ParamDefValue"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamDefYesNo": {
+   "class": "ParamDefYesNo",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "ParamDef",
+    "ParamDefCombo",
+    "ParamDefYesNo"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamElem": {
+   "class": "ParamElem",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "ParamElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamElemElectricalLoadClassification": {
+   "class": "ParamElemElectricalLoadClassification",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "ParamElem",
+    "ParamElemElectricalLoadClassification"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamElemExternal": {
+   "class": "ParamElemExternal",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "ParamElem",
+    "ParamElemExternal"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamElemProject": {
+   "class": "ParamElemProject",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "ParamElem",
+    "ParamElemProject"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamSet": {
+   "class": "ParamSet",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "PropertySetBase",
+    "ParamSet"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamValueSetAString": {
+   "class": "ParamValueSetAString",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ParamValueSetAString"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamValueSetDouble": {
+   "class": "ParamValueSetDouble",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ParamValueSetDouble"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamValueSetElementId": {
+   "class": "ParamValueSetElementId",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ParamValueSetElementId"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParamValueSetInt": {
+   "class": "ParamValueSetInt",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ParamValueSetInt"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ParameterFilterElement": {
+   "class": "ParameterFilterElement",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "FilterElement",
+    "ParameterFilterElement"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PartitionTable": {
+   "class": "PartitionTable",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "PartitionTableInterface",
+    "PartitionTable"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PartitionTableInterface": {
+   "class": "PartitionTableInterface",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "PartitionTableInterface"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PartitionVisibilityDrawFilter": {
+   "class": "PartitionVisibilityDrawFilter",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "DrawFilter",
+    "PartitionVisibilityDrawFilter"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PatternHelper": {
+   "class": "PatternHelper",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "CellInterface",
+    "Cell",
+    "PatternHelper"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PenWidthTable": {
+   "class": "PenWidthTable",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "PenWidthTable"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PenWidthTableElem": {
+   "class": "PenWidthTableElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "PenWidthTableElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PhaseFilterElem": {
+   "class": "PhaseFilterElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "PhaseFilterElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PhasingDrawFilter": {
+   "class": "PhasingDrawFilter",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "DrawFilter",
+    "PhasingDrawFilter"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PhasingOverrides": {
+   "class": "PhasingOverrides",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "PhasingOverrides"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PipeSegment": {
+   "class": "PipeSegment",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "RbsSegment",
+    "PipeSegment"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PlanViewRange": {
+   "class": "PlanViewRange",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "PlanViewRange"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PlanViewRange2": {
+   "class": "PlanViewRange2",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "PlanViewRange2"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Plane": {
+   "class": "Plane",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Surface",
+    "Plane"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PlaneRef": {
+   "class": "PlaneRef",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "Ref",
+    "PlaneRef"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PointCloudOverrides": {
+   "class": "PointCloudOverrides",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "PointCloudOverrides"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PointElement": {
+   "class": "PointElement",
+   "version_2026": 13,
+   "version_2025": 13,
+   "chain": [
+    "Element",
+    "PointElement"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PrintSettings": {
+   "class": "PrintSettings",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "PrintSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ProjectCopySettingsElem": {
+   "class": "ProjectCopySettingsElem",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "UniqueElement",
+    "ProjectCopySettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ProjectInfo": {
+   "class": "ProjectInfo",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "ProjectInfo"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ProjectPhase": {
+   "class": "ProjectPhase",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ProjectPhase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ProjectRevision": {
+   "class": "ProjectRevision",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "ProjectRevision"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PropertySetBase": {
+   "class": "PropertySetBase",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "PropertySetBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "PropertySetElement": {
+   "class": "PropertySetElement",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "PropertySetElement"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsCableTrayType": {
+   "class": "RbsCableTrayType",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "AbsCurveType",
+    "RbsCableTrayType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsConductorInsulationMaterial": {
+   "class": "RbsConductorInsulationMaterial",
+   "verdict": "MISSING-2025",
+   "version_2026": 1
+  },
+  "RbsConductorMaterial": {
+   "class": "RbsConductorMaterial",
+   "verdict": "MISSING-2025",
+   "version_2026": 1
+  },
+  "RbsConductorSize": {
+   "class": "RbsConductorSize",
+   "verdict": "MISSING-2025",
+   "version_2026": 4
+  },
+  "RbsConductorTemperatureRating": {
+   "class": "RbsConductorTemperatureRating",
+   "verdict": "MISSING-2025",
+   "version_2026": 1
+  },
+  "RbsConduitType": {
+   "class": "RbsConduitType",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "AbsCurveType",
+    "RbsConduitType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsCurve": {
+   "class": "RbsCurve",
+   "version_2026": 11,
+   "version_2025": 11,
+   "chain": [
+    "Element",
+    "HostObj",
+    "RbsCurve"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsDbViewSystemNavigator": {
+   "class": "RbsDbViewSystemNavigator",
+   "version_2026": 39,
+   "version_2025": 39,
+   "chain": [
+    "Element",
+    "DBView",
+    "RbsDbViewSystemNavigator"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "DBView",
+     "version": "99->99",
+     "only_2026": [
+      "m_viewPositionId"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "RbsDistributionSysType": {
+   "class": "RbsDistributionSysType",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsDistributionSysType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsDuctSettingsElem": {
+   "class": "RbsDuctSettingsElem",
+   "version_2026": 15,
+   "version_2025": 15,
+   "chain": [
+    "Element",
+    "RbsDuctSettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsDuctSizesElem": {
+   "class": "RbsDuctSizesElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "RbsDuctSizesElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsFlexPipeType": {
+   "class": "RbsFlexPipeType",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "AbsCurveType",
+    "RbsFlexPipeType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsFluidType": {
+   "class": "RbsFluidType",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsFluidType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsPipeConnectionType": {
+   "class": "RbsPipeConnectionType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsPipeConnectionType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsPipeMaterialType": {
+   "class": "RbsPipeMaterialType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsPipeMaterialType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsPipeScheduleType": {
+   "class": "RbsPipeScheduleType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsPipeScheduleType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsPipeSettingsElem": {
+   "class": "RbsPipeSettingsElem",
+   "version_2026": 15,
+   "version_2025": 15,
+   "chain": [
+    "Element",
+    "RbsPipeSettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsPipeSizesElem": {
+   "class": "RbsPipeSizesElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "RbsPipeSizesElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsPipeType": {
+   "class": "RbsPipeType",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "AbsCurveType",
+    "RbsPipeType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsPipingSystemType": {
+   "class": "RbsPipingSystemType",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsSystemType",
+    "RbsPipingSystemType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsSegment": {
+   "class": "RbsSegment",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "RbsSegment"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsSystem": {
+   "class": "RbsSystem",
+   "version_2026": 21,
+   "version_2025": 21,
+   "chain": [
+    "Element",
+    "RbsSystem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsSystemType": {
+   "class": "RbsSystemType",
+   "version_2026": 7,
+   "version_2025": 7,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsSystemType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsVoltageType": {
+   "class": "RbsVoltageType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsVoltageType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsWireInsulationType": {
+   "class": "RbsWireInsulationType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsWireInsulationType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsWireMaterialType": {
+   "class": "RbsWireMaterialType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsWireMaterialType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsWireSettingsElem": {
+   "class": "RbsWireSettingsElem",
+   "version_2026": 13,
+   "version_2025": 12,
+   "chain": [
+    "Element",
+    "RbsWireSettingsElem"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "RbsWireSettingsElem",
+     "version": "13->12",
+     "only_2026": [],
+     "only_2025": [
+      "m_dMaxVoltageBranchSizing",
+      "m_dMaxVoltageFeederSizing",
+      "m_dAmbientTemperature"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_dAmbientTemperature",
+    "m_dMaxVoltageBranchSizing",
+    "m_dMaxVoltageFeederSizing"
+   ]
+  },
+  "RbsWireSizesElem": {
+   "class": "RbsWireSizesElem",
+   "version_2026": 8,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "RbsWireSizesElem"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "RbsWireSizesElem",
+     "version": "8->3",
+     "only_2026": [
+      "m_bInitialized"
+     ],
+     "only_2025": [],
+     "changed": [],
+     "order_differs": true
+    }
+   ],
+   "hooked": []
+  },
+  "RbsWireTemperatureRatingType": {
+   "class": "RbsWireTemperatureRatingType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsWireTemperatureRatingType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RbsWireType": {
+   "class": "RbsWireType",
+   "version_2026": 5,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Symbol",
+    "RbsWireType"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "RbsWireType",
+     "version": "5->2",
+     "only_2026": [
+      "m_idMaxConductorSize"
+     ],
+     "only_2025": [
+      "m_strMaxConductorSize"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_strMaxConductorSize"
+   ]
+  },
+  "ReactionsUpToDateElem": {
+   "class": "ReactionsUpToDateElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ReactionsUpToDateElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Rebar": {
+   "class": "Rebar",
+   "version_2026": 57,
+   "version_2025": 56,
+   "chain": [
+    "Element",
+    "Rebar"
+   ],
+   "verdict": "VERSION-ONLY"
+  },
+  "ReconcileBrowserSettingsElem": {
+   "class": "ReconcileBrowserSettingsElem",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "UniqueElement",
+    "ReconcileBrowserSettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Ref": {
+   "class": "Ref",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Ref"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RefPlane": {
+   "class": "RefPlane",
+   "version_2026": 7,
+   "version_2025": 7,
+   "chain": [
+    "Element",
+    "DatumPlane",
+    "RefPlaneBase",
+    "RefPlane"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RefPlaneBase": {
+   "class": "RefPlaneBase",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "DatumPlane",
+    "RefPlaneBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ReferencePoint": {
+   "class": "ReferencePoint",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "PointElement",
+    "ReferencePoint"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ReinforcementSettings": {
+   "class": "ReinforcementSettings",
+   "version_2026": 4,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "UniqueElement",
+    "ReinforcementSettings"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "ReinforcementSettings",
+     "version": "4->3",
+     "only_2026": [
+      "m_numberingMethod"
+     ],
+     "only_2025": [
+      "m_numberVaryingLengthRebarsIndividually"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_numberVaryingLengthRebarsIndividually"
+   ]
+  },
+  "RetouchTable": {
+   "class": "RetouchTable",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "RetouchTable"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RevisionCloud": {
+   "class": "RevisionCloud",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "RevisionCloud"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RevisionCloudsOnSheetsTracker": {
+   "class": "RevisionCloudsOnSheetsTracker",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ElementsOnSheetsTrackerBase",
+    "RevisionCloudsOnSheetsTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RevisionNumberingSequence": {
+   "class": "RevisionNumberingSequence",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "RevisionNumberingSequence"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RevisionSettingsForNumberType": {
+   "class": "RevisionSettingsForNumberType",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "RevisionSettingsForNumberType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Roof": {
+   "class": "Roof",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "HostObj",
+    "RoofBase",
+    "Roof"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RoofAttributes": {
+   "class": "RoofAttributes",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "RoofAttributesBase",
+    "RoofAttributes"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RoofAttributesBase": {
+   "class": "RoofAttributesBase",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "RoofAttributesBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RoofBase": {
+   "class": "RoofBase",
+   "version_2026": 7,
+   "version_2025": 7,
+   "chain": [
+    "Element",
+    "HostObj",
+    "RoofBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RoomElem": {
+   "class": "RoomElem",
+   "version_2026": 57,
+   "version_2025": 57,
+   "chain": [
+    "Element",
+    "RoomElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RouteAnalysisSettings": {
+   "class": "RouteAnalysisSettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "RouteAnalysisSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RvtLinkDrawFilter": {
+   "class": "RvtLinkDrawFilter",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "DrawFilter",
+    "RvtLinkDrawFilter"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RvtLinkInstance": {
+   "class": "RvtLinkInstance",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "Element",
+    "Instance",
+    "LinkInstance",
+    "RvtLinkInstance"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RvtLinkInstanceAppearanceParentElem": {
+   "class": "RvtLinkInstanceAppearanceParentElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "RvtLinkInstanceAppearanceParentElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RvtLinkOverrides": {
+   "class": "RvtLinkOverrides",
+   "version_2026": 8,
+   "version_2025": 8,
+   "chain": [
+    "RvtLinkOverrides"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "RvtLinkSymbol": {
+   "class": "RvtLinkSymbol",
+   "version_2026": 28,
+   "version_2025": 28,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LinkType",
+    "RvtLinkSymbol"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SSEPointVisibilitySettings": {
+   "class": "SSEPointVisibilitySettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "SSEPointVisibilitySettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "STEPExportSettings": {
+   "class": "STEPExportSettings",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "Element",
+    "STEPExportSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Section": {
+   "class": "Section",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "Element",
+    "Viewer",
+    "SectionGraphics",
+    "Section"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "SectionGraphics",
+     "version": "13->13",
+     "only_2026": [
+      "m_referenceLabel"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "SectionAttributes": {
+   "class": "SectionAttributes",
+   "version_2026": 12,
+   "version_2025": 12,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LineAndTextAttrSymbol",
+    "SectionAttributes"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SectionGraphics": {
+   "class": "SectionGraphics",
+   "version_2026": 13,
+   "version_2025": 13,
+   "chain": [
+    "Element",
+    "Viewer",
+    "SectionGraphics"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "SectionGraphics",
+     "version": "13->13",
+     "only_2026": [
+      "m_referenceLabel"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "SerializedDummy": {
+   "class": "SerializedDummy",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "SerializedDummy"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SharedSlaveSymbolTrackerCell": {
+   "class": "SharedSlaveSymbolTrackerCell",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "CellInterface",
+    "Cell",
+    "SlaveTrackerCell",
+    "SharedSlaveSymbolTrackerCell"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SheetCollection": {
+   "class": "SheetCollection",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "SheetCollection"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SheetsInSheetCollectionTracker": {
+   "class": "SheetsInSheetCollectionTracker",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "Element",
+    "SheetsInSheetCollectionTracker"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SketchGridAppearanceParentElem": {
+   "class": "SketchGridAppearanceParentElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "SketchGridAppearanceParentElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SketchPlane": {
+   "class": "SketchPlane",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "SketchPlane"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SlaveSymbolTrackerElem": {
+   "class": "SlaveSymbolTrackerElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "SlaveSymbolTrackerElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SlaveTrackerCell": {
+   "class": "SlaveTrackerCell",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "CellInterface",
+    "Cell",
+    "SlaveTrackerCell"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Stairs": {
+   "class": "Stairs",
+   "version_2026": 24,
+   "version_2025": 24,
+   "chain": [
+    "Element",
+    "Stairs"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "StructSettingsElem": {
+   "class": "StructSettingsElem",
+   "version_2026": 25,
+   "version_2025": 25,
+   "chain": [
+    "Element",
+    "StructSettingsElem"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "StructSettingsElem",
+     "version": "25->25",
+     "only_2026": [
+      "m_boundarySetbackDisabledForSteelElements"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "StructuralConnectionSettings": {
+   "class": "StructuralConnectionSettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "UniqueElement",
+    "StructuralConnectionSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SunAndShadowSettings": {
+   "class": "SunAndShadowSettings",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "SunAndShadowSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SunAnnotationElem": {
+   "class": "SunAnnotationElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "SunAnnotationElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Surface": {
+   "class": "Surface",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Surface"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Surrogate": {
+   "class": "Surrogate",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "Surrogate"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Symbol": {
+   "class": "Symbol",
+   "version_2026": 3,
+   "version_2025": 3,
+   "chain": [
+    "Element",
+    "Symbol"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SymbolIdMgr": {
+   "class": "SymbolIdMgr",
+   "version_2026": 39,
+   "version_2025": 39,
+   "chain": [
+    "AppInfo",
+    "SymbolIdMgr"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "SymbolInfo": {
+   "class": "SymbolInfo",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "SymbolInfo"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "TaperableWallTypeAngleParametersCell": {
+   "class": "TaperableWallTypeAngleParametersCell",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "CellInterface",
+    "Cell",
+    "TaperableWallTypeCellBase",
+    "TaperableWallTypeAngleParametersCell"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "TaperableWallTypeCellBase": {
+   "class": "TaperableWallTypeCellBase",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "CellInterface",
+    "Cell",
+    "TaperableWallTypeCellBase"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "TaperableWallTypeWidthAtParametersCell": {
+   "class": "TaperableWallTypeWidthAtParametersCell",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "CellInterface",
+    "Cell",
+    "TaperableWallTypeCellBase",
+    "TaperableWallTypeWidthAtParametersCell"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "TextElementAttributes": {
+   "class": "TextElementAttributes",
+   "version_2026": 5,
+   "version_2025": 5,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LineAndTextAttrSymbol",
+    "TextElementAttributes"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "TextNoteAttributes": {
+   "class": "TextNoteAttributes",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "Symbol",
+    "LineAndTextAttrSymbol",
+    "TextElementAttributes",
+    "TextNoteAttributes"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Trf": {
+   "class": "Trf",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Trf"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "TrueNorth": {
+   "class": "TrueNorth",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "Element",
+    "TrueNorth"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "UShapeSweepProfile": {
+   "class": "UShapeSweepProfile",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "AbsSysSweepProfile",
+    "UShapeSweepProfile"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "UniqueElement": {
+   "class": "UniqueElement",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "UniqueElement"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "UniqueElementsTracking": {
+   "class": "UniqueElementsTracking",
+   "version_2026": 15,
+   "version_2025": 15,
+   "chain": [
+    "AppInfo",
+    "UniqueElementsTracking"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "UnitsElem": {
+   "class": "UnitsElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "UnitsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "UserElemCurveData": {
+   "class": "UserElemCurveData",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "CellInterface",
+    "UserElemCurveData"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "VertCompoundStructureGStep": {
+   "class": "VertCompoundStructureGStep",
+   "version_2026": 2,
+   "version_2025": 2,
+   "chain": [
+    "GeomGenerator",
+    "GeomStep",
+    "VertCompoundStructureGStep"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "GeomStep",
+     "version": "17->16",
+     "only_2026": [
+      "m_oExtraDatas"
+     ],
+     "only_2025": [
+      "m_oExtraData"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_oExtraData"
+   ]
+  },
+  "VerticalRegionsStructure": {
+   "class": "VerticalRegionsStructure",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "VerticalRegionsStructure"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ViewDisplayMgr": {
+   "class": "ViewDisplayMgr",
+   "version_2026": 35,
+   "version_2025": 34,
+   "chain": [
+    "ViewDisplayMgr"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "ViewDisplayMgr",
+     "version": "35->34",
+     "only_2026": [],
+     "only_2025": [
+      "m_useGDI"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_useGDI"
+   ]
+  },
+  "ViewLayout": {
+   "class": "ViewLayout",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "ViewLayout"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ViewSheetSet": {
+   "class": "ViewSheetSet",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "ViewSheetSet"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Viewer": {
+   "class": "Viewer",
+   "version_2026": 13,
+   "version_2025": 13,
+   "chain": [
+    "Element",
+    "Viewer"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "Viewer3d": {
+   "class": "Viewer3d",
+   "version_2026": 15,
+   "version_2025": 15,
+   "chain": [
+    "Element",
+    "Viewer",
+    "Viewer3d"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ViewerGStep": {
+   "class": "ViewerGStep",
+   "version_2026": 0,
+   "version_2025": 0,
+   "chain": [
+    "GeomGenerator",
+    "GeomStep",
+    "ViewerGStep"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "GeomStep",
+     "version": "17->16",
+     "only_2026": [
+      "m_oExtraDatas"
+     ],
+     "only_2025": [
+      "m_oExtraData"
+     ],
+     "changed": []
+    }
+   ],
+   "hooked": [
+    "m_oExtraData"
+   ]
+  },
+  "Viewport": {
+   "class": "Viewport",
+   "version_2026": 13,
+   "version_2025": 10,
+   "chain": [
+    "Element",
+    "Viewport"
+   ],
+   "verdict": "LAYOUT-DELTA",
+   "deltas": [
+    {
+     "base": "Viewport",
+     "version": "13->10",
+     "only_2026": [
+      "m_viewPosition",
+      "m_viewAnchor"
+     ],
+     "only_2025": [],
+     "changed": []
+    }
+   ],
+   "hooked": []
+  },
+  "ViewportAttributes": {
+   "class": "ViewportAttributes",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "Symbol",
+    "ViewportAttributes"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "WallJoinDefaultSetting": {
+   "class": "WallJoinDefaultSetting",
+   "version_2026": 4,
+   "version_2025": 4,
+   "chain": [
+    "Element",
+    "WallJoinDefaultSetting"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "WallType": {
+   "class": "WallType",
+   "version_2026": 9,
+   "version_2025": 9,
+   "chain": [
+    "Element",
+    "Symbol",
+    "HostObjAttr",
+    "WallType"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "WorksetVisibilitySettingsElem": {
+   "class": "WorksetVisibilitySettingsElem",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "UniqueElement",
+    "WorksetVisibilitySettingsElem"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "WorksetVisibilityViewSettings": {
+   "class": "WorksetVisibilityViewSettings",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "WorksetVisibilityViewSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "WorksharingViewModeSettings": {
+   "class": "WorksharingViewModeSettings",
+   "version_2026": 6,
+   "version_2025": 6,
+   "chain": [
+    "Element",
+    "WorksharingViewModeSettings"
+   ],
+   "verdict": "IDENTICAL"
+  },
+  "ZoneScheme": {
+   "class": "ZoneScheme",
+   "version_2026": 1,
+   "version_2025": 1,
+   "chain": [
+    "Element",
+    "ZoneScheme"
+   ],
+   "verdict": "IDENTICAL"
+  }
+ },
+ "harvest_provenance": {
+  "APropertyBoolean": [
+   "residue_a.py:1383"
+  ],
+  "APropertyDouble1": [
+   "residue_a.py:1384",
+   "skeleton.py:1065"
+  ],
+  "APropertyDouble2": [
+   "residue_a.py:1385"
+  ],
+  "APropertyDouble4": [
+   "residue_a.py:1386"
+  ],
+  "APropertyEnum": [
+   "residue_a.py:1386"
+  ],
+  "APropertyFloat": [
+   "skeleton.py:1060",
+   "skeleton.py:1061"
+  ],
+  "APropertyInteger": [
+   "residue_a.py:1384",
+   "skeleton.py:1058",
+   "skeleton.py:1059",
+   "skeleton.py:1062"
+  ],
+  "APropertyString": [
+   "residue_a.py:1383"
+  ],
+  "AStringWrapper": [
+   "settings.py:2441",
+   "settings.py:2442",
+   "settings.py:2447"
+  ],
+  "AbbreviationItem": [
+   "settings.py:2440"
+  ],
+  "AbsSysCircSweepProfile": [
+   "types.py:1205"
+  ],
+  "ActiveGeoLocationTrackingElement": [
+   "settings.py:160",
+   "settings.py:1931",
+   "settings.py:2581"
+  ],
+  "AdHocOverrides": [
+   "skeleton.py:1194"
+  ],
+  "AllProjectPhases": [
+   "skeleton.py:131",
+   "skeleton.py:749",
+   "skeleton.py:752"
+  ],
+  "AllProjectRevisions": [
+   "settings.py:154",
+   "settings.py:2118",
+   "settings.py:240",
+   "settings.py:241",
+   "settings.py:2574"
+  ],
+  "AlphanumericRevisionSettings": [
+   "settings.py:2073"
+  ],
+  "AnalyticalPropertiesCell": [
+   "types.py:348"
+  ],
+  "AnalyticalToPhysicalRelationManager": [
+   "settings.py:1725",
+   "settings.py:176",
+   "settings.py:2588",
+   "settings.py:2994"
+  ],
+  "AnnotationCropOffsets": [
+   "skeleton.py:1332"
+  ],
+  "AppInfoSystemFamiliesNames": [
+   "settings.py:2806"
+  ],
+  "AppearanceAsset": [
+   "residue_a.py:1455",
+   "residue_a.py:1460"
+  ],
+  "AppearanceAssetElem": [
+   "residue_a.py:1444",
+   "residue_a.py:1463",
+   "residue_a.py:175",
+   "residue_a.py:1833",
+   "residue_a.py:205",
+   "residue_a.py:421",
+   "y2025_b.py:416"
+  ],
+  "AreaMeasureElem": [
+   "settings.py:179",
+   "settings.py:2307",
+   "settings.py:2591",
+   "y2025_b.py:792"
+  ],
+  "AreaReportSettingsElem": [
+   "residue_a.py:1654",
+   "residue_a2.py:1450",
+   "residue_a2.py:170",
+   "residue_a2.py:1885"
+  ],
+  "AreaSchemePlanTopologies": [
+   "residue_a2.py:170",
+   "residue_a2.py:1874",
+   "residue_a2.py:1880",
+   "residue_a2.py:1924",
+   "residue_a2.py:2044",
+   "residue_a2.py:2332",
+   "y2025_b.py:774"
+  ],
+  "AreaSettingsElem": [
+   "settings.py:178",
+   "settings.py:2052",
+   "settings.py:242",
+   "settings.py:2590"
+  ],
+  "AreaTypeElem": [
+   "residue_a2.py:170",
+   "residue_a2.py:1867",
+   "residue_a2.py:1869"
+  ],
+  "AssemblyCodeTable": [
+   "residue_a2.py:1469",
+   "residue_a2.py:1480",
+   "residue_a2.py:171",
+   "residue_a2.py:1888"
+  ],
+  "AssemblyInstance": [
+   "settings.py:238"
+  ],
+  "AssemblyTracker": [
+   "settings.py:168",
+   "settings.py:1704",
+   "settings.py:238",
+   "settings.py:2614",
+   "settings.py:2990"
+  ],
+  "AssemblyType": [
+   "settings.py:238"
+  ],
+  "Asset": [
+   "residue_a.py:1446"
+  ],
+  "AutoCamSettingsElem": [
+   "port2023.py:1540",
+   "port2023.py:1560",
+   "port2023.py:653",
+   "port2024.py:1124",
+   "port2024.py:1144",
+   "port2024.py:413",
+   "settings.py:149",
+   "settings.py:1811",
+   "settings.py:2568"
+  ],
+  "AutoJoinTracker": [
+   "settings.py:135",
+   "settings.py:228",
+   "settings.py:2557",
+   "settings.py:970"
+  ],
+  "BasePoint": [
+   "house_standard.py:1153",
+   "skeleton.py:951",
+   "skeleton.py:979"
+  ],
+  "BasicWallType": [
+   "port2023.py:1556",
+   "port2024.py:1140",
+   "residue_a2.py:1297",
+   "residue_a2.py:169",
+   "residue_a2.py:1828",
+   "settings.py:227",
+   "types.py:120",
+   "types.py:845",
+   "types.py:876"
+  ],
+  "BrowserOrganization": [
+   "port2023.py:1558",
+   "port2023.py:629",
+   "port2024.py:1142",
+   "port2024.py:393",
+   "residue_a2.py:1573",
+   "residue_a2.py:172",
+   "residue_a2.py:1960",
+   "settings.py:131",
+   "settings.py:2550",
+   "settings.py:2724",
+   "settings.py:557",
+   "settings.py:582"
+  ],
+  "BrowserOrganizationTracking": [
+   "port2023.py:638",
+   "port2023.py:640",
+   "port2023.py:642",
+   "port2024.py:402",
+   "port2024.py:404",
+   "port2024.py:406",
+   "settings.py:2726"
+  ],
+  "BuildingOperatingYearSchedule": [
+   "port2023.py:668",
+   "port2024.py:199",
+   "residue_a2.py:165",
+   "residue_a2.py:1661",
+   "residue_a2.py:934",
+   "residue_c.py:302",
+   "residue_c.py:434",
+   "y2025_b.py:739"
+  ],
+  "CableTraySettingsElem": [
+   "settings.py:1252",
+   "settings.py:1263",
+   "settings.py:148",
+   "settings.py:2567"
+  ],
+  "CableTraySizesElem": [
+   "residue_a2.py:1254",
+   "residue_a2.py:168",
+   "residue_a2.py:1796",
+   "types.py:1279",
+   "types.py:1284",
+   "types.py:135"
+  ],
+  "CalloutTag": [
+   "residue_a.py:1159",
+   "residue_a.py:1165",
+   "residue_a.py:1636",
+   "residue_a.py:172",
+   "residue_a.py:269",
+   "residue_a2.py:219"
+  ],
+  "Category": [
+   "types.py:1619"
+  ],
+  "CategoryElem": [
+   "residue_a.py:1544",
+   "residue_a.py:170",
+   "residue_a.py:2422",
+   "residue_a.py:811",
+   "residue_a.py:932",
+   "residue_a2.py:215",
+   "settings.py:2627",
+   "settings.py:2833",
+   "types.py:132",
+   "types.py:1616",
+   "types.py:1625"
+  ],
+  "CategoryTracking": [
+   "settings.py:2822"
+  ],
+  "Ceiling": [
+   "residue_a.py:546"
+  ],
+  "CeilingAndFloor": [
+   "settings.py:228"
+  ],
+  "CellList": [
+   "residue_a2.py:1472",
+   "residue_a2.py:890",
+   "residue_b.py:1737",
+   "residue_b.py:355",
+   "settings.py:1060",
+   "settings.py:216",
+   "settings.py:2386",
+   "skeleton.py:427",
+   "types.py:1395",
+   "types.py:358"
+  ],
+  "CircuitNamingTypeSetting": [
+   "settings.py:1740",
+   "settings.py:188",
+   "settings.py:2600",
+   "settings.py:2986"
+  ],
+  "ClassificationEntries": [
+   "residue_a2.py:1476"
+  ],
+  "ColorFillSchema": [
+   "residue_a2.py:1517",
+   "residue_a2.py:171",
+   "residue_a2.py:1891"
+  ],
+  "ColorFillSchemaSetting": [
+   "skeleton.py:1215"
+  ],
+  "CompoundCeilingType": [
+   "types.py:121",
+   "types.py:947"
+  ],
+  "CompoundStructure": [
+   "types.py:755"
+  ],
+  "ConduitSettingsElem": [
+   "settings.py:1223",
+   "settings.py:1234",
+   "settings.py:147",
+   "settings.py:2566"
+  ],
+  "ConduitSizesElem": [
+   "residue_a2.py:1241",
+   "residue_a2.py:168",
+   "residue_a2.py:1795",
+   "types.py:1175",
+   "types.py:1196",
+   "types.py:134"
+  ],
+  "ConduitStandardType": [
+   "residue_a2.py:1218",
+   "residue_a2.py:168",
+   "residue_a2.py:1794",
+   "types.py:1156",
+   "types.py:1159",
+   "types.py:122"
+  ],
+  "ConstructionSetProject": [
+   "settings.py:140",
+   "settings.py:2559",
+   "settings.py:697",
+   "settings.py:705"
+  ],
+  "CoordinateElemBaseGeomStep": [
+   "skeleton.py:925"
+  ],
+  "CoordinateSystemDisplayElem": [
+   "settings.py:159",
+   "settings.py:1912",
+   "settings.py:2580"
+  ],
+  "CopyWatchProperties": [
+   "settings.py:163",
+   "settings.py:2006",
+   "settings.py:2584",
+   "y2025_b.py:737"
+  ],
+  "CurtaSystemFaceManager": [
+   "settings.py:1737",
+   "settings.py:193",
+   "settings.py:2605",
+   "settings.py:3007"
+  ],
+  "CurveElem": [
+   "residue_a.py:1782",
+   "residue_a.py:191",
+   "residue_a2.py:224",
+   "y2025_b.py:142",
+   "y2025_b.py:785"
+  ],
+  "CustomElement": [
+   "house_standard.py:1167",
+   "port2023.py:663",
+   "port2024.py:194",
+   "types.py:134",
+   "types.py:1391",
+   "types.py:1397"
+  ],
+  "DBDrawing": [
+   "residue_a2.py:172",
+   "residue_a2.py:1979",
+   "residue_a2.py:1983",
+   "settings.py:201",
+   "skeleton.py:1435",
+   "skeleton.py:1438"
+  ],
+  "DBDrawingInfo": [
+   "settings.py:2758"
+  ],
+  "DBView": [
+   "settings.py:238"
+  ],
+  "DBView3d": [
+   "port2023.py:1391",
+   "skeleton.py:1695",
+   "skeleton.py:1698"
+  ],
+  "DBViewDrafting": [
+   "port2023.py:1390",
+   "port2023.py:1562",
+   "port2024.py:1146",
+   "residue_a2.py:1605",
+   "residue_a2.py:172",
+   "residue_a2.py:1978",
+   "settings.py:237",
+   "y2025_b.py:761",
+   "y2025_b.py:764"
+  ],
+  "DBViewInfo": [
+   "settings.py:2749"
+  ],
+  "DBViewPlan": [
+   "port2023.py:1390",
+   "settings.py:242",
+   "skeleton.py:1808",
+   "skeleton.py:1811"
+  ],
+  "DBViewProject": [
+   "house_standard.py:1157",
+   "port2023.py:1390",
+   "skeleton.py:1609",
+   "skeleton.py:1611"
+  ],
+  "DBViewSection": [
+   "port2023.py:1391",
+   "settings.py:242"
+  ],
+  "DBViewType": [
+   "residue_a.py:180",
+   "residue_a.py:2391",
+   "residue_a2.py:221",
+   "settings.py:199",
+   "settings.py:2619",
+   "skeleton.py:1290",
+   "skeleton.py:1292"
+  ],
+  "DataStorage": [
+   "residue_a2.py:1918",
+   "residue_a2.py:192",
+   "residue_a2.py:1945",
+   "residue_a2.py:2046",
+   "residue_a2.py:2330",
+   "residue_a2.py:2382",
+   "residue_a2.py:2400",
+   "residue_a2.py:2402",
+   "y2025_b.py:738"
+  ],
+  "DatumPlaneGeomStep": [
+   "residue_a.py:1271",
+   "skeleton.py:502"
+  ],
+  "DaylightSourceIdSet": [
+   "settings.py:152",
+   "settings.py:1729",
+   "settings.py:1744",
+   "settings.py:2572",
+   "settings.py:2998"
+  ],
+  "DefaultDivideSettings": [
+   "settings.py:161",
+   "settings.py:1948",
+   "settings.py:2582"
+  ],
+  "DesignOptionDrawFilter": [
+   "skeleton.py:1148"
+  ],
+  "DesignOptionViewSettings": [
+   "skeleton.py:1197"
+  ],
+  "DimensionStyle": [
+   "residue_a.py:1245",
+   "residue_a.py:1583",
+   "residue_a.py:1653",
+   "residue_a.py:171",
+   "residue_a.py:268",
+   "residue_a2.py:218",
+   "types.py:131"
+  ],
+  "DirectContext3DHandleOverrides": [
+   "skeleton.py:1199"
+  ],
+  "DocumentIncrementTable": [
+   "skeleton.py:1903",
+   "skeleton.py:2090",
+   "skeleton.py:2110"
+  ],
+  "DrawOrderMgr": [
+   "skeleton.py:1217"
+  ],
+  "DummyPlaneRef": [
+   "residue_b.py:1975",
+   "residue_b.py:2640"
+  ],
+  "Dwg2dExportUserSettingsData": [
+   "settings.py:164",
+   "settings.py:1731",
+   "settings.py:2585",
+   "settings.py:3001"
+  ],
+  "ElectricalDemandFactorDefinition": [
+   "residue_a2.py:1042",
+   "residue_a2.py:167",
+   "residue_a2.py:1765",
+   "types.py:128",
+   "types.py:1497",
+   "types.py:1504"
+  ],
+  "ElectricalLoadClassification": [
+   "port2023.py:1427",
+   "port2023.py:1563",
+   "port2023.py:649",
+   "port2023.py:650",
+   "residue_a2.py:1075",
+   "residue_a2.py:167",
+   "residue_a2.py:1764",
+   "types.py:127",
+   "types.py:1528",
+   "types.py:1549"
+  ],
+  "ElectricalSetting": [
+   "types.py:135",
+   "types.py:1576",
+   "types.py:1594"
+  ],
+  "ElemTable": [
+   "skeleton.py:2047",
+   "skeleton.py:2088",
+   "skeleton.py:2108"
+  ],
+  "Element": [
+   "port2023.py:765",
+   "port2024.py:507",
+   "settings.py:228",
+   "settings.py:235",
+   "settings.py:239",
+   "types.py:254"
+  ],
+  "ElementHeader": [
+   "port2023.py:833",
+   "port2023.py:853",
+   "port2024.py:568",
+   "port2024.py:585",
+   "residue_b.py:3020",
+   "residue_c.py:539",
+   "skeleton.py:55",
+   "types.py:379",
+   "types.py:448"
+  ],
+  "ElementParents": [
+   "skeleton.py:362",
+   "types.py:392"
+  ],
+  "ElementTrackingData": [
+   "settings.py:2767"
+  ],
+  "EnergyDataSettings": [
+   "settings.py:180",
+   "settings.py:2379",
+   "settings.py:2592"
+  ],
+  "EnergyModelOverrides": [
+   "settings.py:2351"
+  ],
+  "ExtentElem": [
+   "skeleton.py:1481",
+   "skeleton.py:1483"
+  ],
+  "ExternalFileReferenceCell": [
+   "residue_a2.py:1473",
+   "settings.py:1050",
+   "settings.py:2387"
+  ],
+  "ExternalParamLock": [
+   "settings.py:153",
+   "settings.py:1728",
+   "settings.py:1744",
+   "settings.py:2573",
+   "settings.py:2997"
+  ],
+  "ExternalResourceReferenceCell": [
+   "residue_a2.py:1474",
+   "settings.py:1051",
+   "settings.py:2388"
+  ],
+  "FabricSheetType": [
+   "residue_a2.py:1353",
+   "residue_a2.py:1380",
+   "residue_a2.py:169",
+   "residue_a2.py:1835"
+  ],
+  "FabricWireType": [
+   "residue_a2.py:1329",
+   "residue_a2.py:1338",
+   "residue_a2.py:169",
+   "residue_a2.py:1832"
+  ],
+  "FabricationDatabase": [
+   "settings.py:2255"
+  ],
+  "FabricationPart": [
+   "settings.py:233",
+   "settings.py:235"
+  ],
+  "FabricationServiceSettings": [
+   "port2023.py:670",
+   "settings.py:1736",
+   "settings.py:186",
+   "settings.py:2598",
+   "settings.py:3006"
+  ],
+  "FabricationSettings": [
+   "settings.py:185",
+   "settings.py:2254",
+   "settings.py:2597"
+  ],
+  "FabricationSettingsElement": [
+   "settings.py:187",
+   "settings.py:2270",
+   "settings.py:2599"
+  ],
+  "Face": [
+   "residue_a.py:1331",
+   "residue_b.py:1891",
+   "skeleton.py:551"
+  ],
+  "FamDimConstrMgrImpl": [
+   "residue_c.py:174"
+  ],
+  "Family": [
+   "residue_a.py:186",
+   "residue_a.py:2391",
+   "residue_a.py:343",
+   "residue_a2.py:222"
+  ],
+  "FamilyInstance": [
+   "settings.py:228",
+   "settings.py:229",
+   "settings.py:231",
+   "settings.py:234",
+   "settings.py:235"
+  ],
+  "FamilySurrogate": [
+   "residue_a.py:190",
+   "residue_a.py:2391",
+   "residue_a.py:358",
+   "residue_a2.py:223",
+   "y2025_b.py:746"
+  ],
+  "FillGrid": [
+   "types.py:1058"
+  ],
+  "FillPattern": [
+   "types.py:1071"
+  ],
+  "FillPatternElem": [
+   "port2023.py:1557",
+   "port2024.py:1141",
+   "residue_a.py:174",
+   "residue_a.py:1799",
+   "residue_a.py:1805",
+   "types.py:1064",
+   "types.py:1076",
+   "types.py:130"
+  ],
+  "FilterCategoryRule": [
+   "residue_b.py:1632"
+  ],
+  "FilterOverrides": [
+   "skeleton.py:1202"
+  ],
+  "Floor": [
+   "residue_a.py:546"
+  ],
+  "FloorAttributes": [
+   "port2023.py:1556",
+   "port2024.py:1140",
+   "residue_a2.py:1317",
+   "residue_a2.py:169",
+   "residue_a2.py:1830",
+   "types.py:120",
+   "types.py:922"
+  ],
+  "Font": [
+   "residue_a.py:977",
+   "types.py:1701"
+  ],
+  "FontElem": [
+   "residue_a.py:1650",
+   "residue_a.py:172",
+   "residue_a.py:974",
+   "residue_a.py:980",
+   "residue_a2.py:217",
+   "residue_c.py:249",
+   "types.py:131",
+   "types.py:1698",
+   "types.py:1703"
+  ],
+  "GBitmap": [
+   "skeleton.py:968"
+  ],
+  "GCSTracker": [
+   "settings.py:167",
+   "settings.py:1706",
+   "settings.py:1790",
+   "settings.py:229",
+   "settings.py:2615"
+  ],
+  "GElement": [
+   "port2023.py:857",
+   "port2023.py:859",
+   "port2024.py:589",
+   "port2024.py:591",
+   "skeleton.py:57",
+   "types.py:440",
+   "types.py:444",
+   "types.py:805"
+  ],
+  "GFillColorOverrider": [
+   "skeleton.py:656"
+  ],
+  "GFillPatternOverrider": [
+   "skeleton.py:654"
+  ],
+  "GLinePatternOverrider": [
+   "skeleton.py:652"
+  ],
+  "GMaterialOverrider": [
+   "house_standard.py:1777",
+   "skeleton.py:717"
+  ],
+  "GPenNumberOverrider": [
+   "skeleton.py:651"
+  ],
+  "GPoint": [
+   "settings.py:1907",
+   "skeleton.py:942",
+   "skeleton.py:964"
+  ],
+  "GRenderSettings": [
+   "skeleton.py:1067"
+  ],
+  "GStyle": [
+   "types.py:1650"
+  ],
+  "GStyleColorOverrider": [
+   "skeleton.py:653"
+  ],
+  "GStyleElem": [
+   "catalog.py:200",
+   "catalog.py:87",
+   "house_standard.py:1171",
+   "port2023.py:1122",
+   "port2023.py:1163",
+   "port2023.py:1561",
+   "port2024.py:1145",
+   "port2024.py:838",
+   "port2024.py:878",
+   "residue_a.py:1545",
+   "residue_a.py:170",
+   "residue_a.py:2423",
+   "residue_a.py:841",
+   "residue_a2.py:216",
+   "settings.py:2626",
+   "settings.py:2826",
+   "types.py:132",
+   "types.py:1648",
+   "types.py:1662"
+  ],
+  "GSurfacesTransparencyOverrider": [
+   "skeleton.py:676"
+  ],
+  "GenericPlaneCutter": [
+   "skeleton.py:1775",
+   "skeleton.py:1786"
+  ],
+  "GeoLocation": [
+   "skeleton.py:1039",
+   "skeleton.py:1042"
+  ],
+  "GeoSite": [
+   "skeleton.py:1015",
+   "skeleton.py:1017"
+  ],
+  "GeomStepList": [
+   "residue_a.py:1270",
+   "skeleton.py:1305",
+   "skeleton.py:1759",
+   "skeleton.py:501",
+   "skeleton.py:924",
+   "types.py:780",
+   "types.py:791"
+  ],
+  "GeomTable": [
+   "port2023.py:619",
+   "port2023.py:620",
+   "port2024.py:383",
+   "port2024.py:384",
+   "residue_a.py:1327",
+   "residue_b.py:1876",
+   "skeleton.py:1029",
+   "skeleton.py:542",
+   "skeleton.py:939",
+   "types.py:1066",
+   "types.py:1069",
+   "types.py:1725",
+   "types.py:1728"
+  ],
+  "Geometry": [
+   "types.py:798",
+   "types.py:809"
+  ],
+  "GraphicOverrides": [
+   "skeleton.py:1203"
+  ],
+  "GraphicsCache": [
+   "settings.py:1727",
+   "settings.py:196",
+   "settings.py:2608",
+   "settings.py:2996"
+  ],
+  "Grid": [
+   "residue_a.py:1323",
+   "residue_a.py:1351",
+   "residue_a.py:1692",
+   "residue_a.py:173",
+   "settings.py:229"
+  ],
+  "GridAttributes": [
+   "residue_a.py:1081",
+   "residue_a.py:1096",
+   "residue_a.py:1600",
+   "residue_a.py:1651",
+   "residue_a.py:171",
+   "residue_a.py:268"
+  ],
+  "HVACLoadBuildingTypeElem": [
+   "residue_a2.py:1008",
+   "residue_a2.py:1018",
+   "residue_a2.py:166",
+   "residue_a2.py:1663",
+   "residue_a2.py:299"
+  ],
+  "HVACLoadScheduleElem": [
+   "residue_a2.py:165",
+   "residue_a2.py:1660",
+   "residue_a2.py:917",
+   "residue_a2.py:922"
+  ],
+  "HVACLoadSpaceTypeElem": [
+   "residue_a2.py:166",
+   "residue_a2.py:1662",
+   "residue_a2.py:296",
+   "residue_a2.py:985",
+   "residue_a2.py:993"
+  ],
+  "HalftoneUnderlaySettings": [
+   "settings.py:150",
+   "settings.py:1822",
+   "settings.py:2569"
+  ],
+  "HiddenElementsViewSettings": [
+   "skeleton.py:1212"
+  ],
+  "HideElementsDrawFilter": [
+   "skeleton.py:1150"
+  ],
+  "HideElementsMgr": [
+   "skeleton.py:1219"
+  ],
+  "IckyExcludedCategoriesSetPtrWrapper": [
+   "house_standard.py:1409",
+   "skeleton.py:1140"
+  ],
+  "Identifier": [
+   "port2023.py:276"
+  ],
+  "InitialViewSettings": [
+   "settings.py:1088",
+   "settings.py:138",
+   "settings.py:2554"
+  ],
+  "InstanceInfo": [
+   "skeleton.py:1032"
+  ],
+  "Insulation": [
+   "house_standard.py:429"
+  ],
+  "InteriorElevAttributes": [
+   "residue_a.py:1124",
+   "residue_a.py:1141",
+   "residue_a.py:1617",
+   "residue_a.py:1652",
+   "residue_a.py:172",
+   "residue_a.py:269",
+   "residue_a2.py:220"
+  ],
+  "KeynoteEntry": [
+   "settings.py:1001"
+  ],
+  "KeynoteEntryTable": [
+   "settings.py:1033"
+  ],
+  "KeynoteTable": [
+   "port2023.py:1559",
+   "port2024.py:1143",
+   "settings.py:1031",
+   "settings.py:1061",
+   "settings.py:136",
+   "settings.py:2552"
+  ],
+  "KeynoteTag": [
+   "settings.py:230"
+  ],
+  "KeynoteTagsOnSheetsTracker": [
+   "settings.py:1709",
+   "settings.py:173",
+   "settings.py:230",
+   "settings.py:2616",
+   "settings.py:2991"
+  ],
+  "KeynotingSystem": [
+   "settings.py:1074",
+   "settings.py:137",
+   "settings.py:2553"
+  ],
+  "LadderSweepProfile": [
+   "types.py:1206"
+  ],
+  "LayoutNode": [
+   "settings.py:233"
+  ],
+  "LayoutNodesTracker": [
+   "settings.py:169",
+   "settings.py:1712",
+   "settings.py:1774",
+   "settings.py:239",
+   "settings.py:2613"
+  ],
+  "LeaderStyle": [
+   "residue_a.py:1011",
+   "residue_a.py:1024",
+   "residue_a.py:1592",
+   "residue_a.py:171",
+   "residue_a.py:268"
+  ],
+  "LegendComponent": [
+   "residue_a.py:1782",
+   "residue_a.py:197",
+   "residue_a2.py:225",
+   "y2025_b.py:741"
+  ],
+  "Level": [
+   "residue_a.py:1728",
+   "residue_a.py:173",
+   "residue_a.py:1767",
+   "residue_b.py:2634",
+   "settings.py:2800",
+   "skeleton.py:574",
+   "skeleton.py:578"
+  ],
+  "LevelAttributes": [
+   "residue_a.py:1653",
+   "skeleton.py:614",
+   "skeleton.py:616"
+  ],
+  "LevelRoomPlan": [
+   "residue_a.py:1782",
+   "residue_a.py:195",
+   "residue_a2.py:226",
+   "y2025_b.py:142",
+   "y2025_b.py:785"
+  ],
+  "LightScheme": [
+   "skeleton.py:1554"
+  ],
+  "LightSchemeElement": [
+   "skeleton.py:1555",
+   "skeleton.py:1558"
+  ],
+  "LinePattern": [
+   "types.py:1038"
+  ],
+  "LinePatternElem": [
+   "port2023.py:1556",
+   "port2024.py:1140",
+   "residue_a.py:1531",
+   "residue_a.py:174",
+   "residue_a.py:1811",
+   "residue_a.py:1816",
+   "types.py:1036",
+   "types.py:1041",
+   "types.py:129"
+  ],
+  "LinearDimString": [
+   "residue_a.py:1666",
+   "residue_a.py:1669",
+   "residue_a.py:200",
+   "residue_a2.py:227",
+   "y2025_b.py:797"
+  ],
+  "LoadCaseElem": [
+   "residue_a2.py:1420",
+   "residue_a2.py:1429",
+   "residue_a2.py:171",
+   "residue_a2.py:1895"
+  ],
+  "LoadNatureElem": [
+   "residue_a2.py:1404",
+   "residue_a2.py:1410",
+   "residue_a2.py:171",
+   "residue_a2.py:1896"
+  ],
+  "LogicalAndFilterData": [
+   "residue_b.py:1634"
+  ],
+  "MEPComponentTracker": [
+   "settings.py:171",
+   "settings.py:1713",
+   "settings.py:1773",
+   "settings.py:233",
+   "settings.py:2611"
+  ],
+  "MEPHiddenLineSettingsElem": [
+   "settings.py:184",
+   "settings.py:2240",
+   "settings.py:2596"
+  ],
+  "MEPNetworkDataElem": [
+   "port2023.py:1642",
+   "port2023.py:667",
+   "port2024.py:1224",
+   "port2024.py:198",
+   "settings.py:1724",
+   "settings.py:1781",
+   "settings.py:197",
+   "settings.py:2609"
+  ],
+  "MEPNetworkTracker": [
+   "port2023.py:1542",
+   "port2023.py:1543",
+   "port2023.py:1561",
+   "port2023.py:1615",
+   "port2023.py:646",
+   "port2024.py:1126",
+   "port2024.py:1127",
+   "port2024.py:1145",
+   "port2024.py:1197",
+   "port2024.py:410",
+   "settings.py:1715",
+   "settings.py:172",
+   "settings.py:1779",
+   "settings.py:235",
+   "settings.py:2612"
+  ],
+  "MEPSystemTracker": [
+   "settings.py:170",
+   "settings.py:1717",
+   "settings.py:1775",
+   "settings.py:231",
+   "settings.py:2610",
+   "settings.py:2984"
+  ],
+  "MakeCutterForPlanRegionsGStep": [
+   "skeleton.py:1760"
+  ],
+  "Material": [
+   "types.py:1000",
+   "types.py:979"
+  ],
+  "MaterialElem": [
+   "port2023.py:1556",
+   "port2024.py:1140",
+   "residue_a.py:210",
+   "residue_a2.py:1266",
+   "residue_a2.py:229",
+   "residue_b.py:135",
+   "residue_b.py:2405",
+   "residue_b.py:2431",
+   "residue_b.py:2448",
+   "residue_b.py:278",
+   "residue_b2.py:134",
+   "residue_b2.py:662",
+   "residue_b2.py:864",
+   "types.py:1004",
+   "types.py:129",
+   "types.py:976"
+  ],
+  "Matrix": [
+   "residue_c.py:192"
+  ],
+  "MechanicalEquipmentSet": [
+   "settings.py:231"
+  ],
+  "ModelClipBox": [
+   "house_standard.py:1175",
+   "skeleton.py:1419",
+   "skeleton.py:1422"
+  ],
+  "ModelGraphicsStyle": [
+   "port2023.py:1375",
+   "port2023.py:1388",
+   "port2023.py:1389",
+   "port2023.py:630",
+   "port2024.py:394",
+   "settings.py:166",
+   "settings.py:2033",
+   "settings.py:2587"
+  ],
+  "MultipleValuesIndicationSettings": [
+   "settings.py:151",
+   "settings.py:1836",
+   "settings.py:2571"
+  ],
+  "NamingCell": [
+   "port2023.py:663",
+   "port2024.py:194",
+   "types.py:1396"
+  ],
+  "NumberingSchema": [
+   "port2023.py:1415",
+   "port2023.py:1558",
+   "port2023.py:634",
+   "port2023.py:635",
+   "port2023.py:636",
+   "port2023.py:637",
+   "port2024.py:1142",
+   "port2024.py:398",
+   "port2024.py:399",
+   "port2024.py:400",
+   "port2024.py:401",
+   "residue_a.py:214",
+   "residue_a2.py:237",
+   "residue_b.py:139",
+   "residue_b.py:1692",
+   "residue_b.py:1718",
+   "residue_b.py:2516",
+   "residue_b.py:2528",
+   "residue_b.py:299"
+  ],
+  "NumericRevisionSettings": [
+   "settings.py:2067"
+  ],
+  "OnDBViewPlaneRef": [
+   "skeleton.py:1492"
+  ],
+  "OnDatumPlaneRef": [
+   "residue_b.py:1936",
+   "residue_b.py:2631"
+  ],
+  "Outline": [
+   "settings.py:1916",
+   "skeleton.py:401"
+  ],
+  "OverrideGraphicSettings": [
+   "skeleton.py:658"
+  ],
+  "ParamBinding": [
+   "residue_a.py:213",
+   "residue_a2.py:230",
+   "residue_b.py:122",
+   "residue_b.py:210",
+   "residue_b.py:2192",
+   "residue_b.py:795",
+   "residue_b.py:801"
+  ],
+  "ParamDef": [
+   "port2023.py:648"
+  ],
+  "ParamDefFamType": [
+   "residue_b.py:396",
+   "residue_b.py:584"
+  ],
+  "ParamDefInt": [
+   "residue_b.py:395",
+   "residue_b.py:568"
+  ],
+  "ParamDefMaterialBrowse": [
+   "residue_b.py:396",
+   "residue_b.py:573"
+  ],
+  "ParamDefNoOfPoles": [
+   "residue_b.py:397",
+   "residue_b.py:588"
+  ],
+  "ParamDefString": [
+   "residue_b.py:2100",
+   "residue_b.py:2101",
+   "residue_b.py:2102",
+   "residue_b.py:2103",
+   "residue_b.py:2104",
+   "residue_b.py:2107",
+   "residue_b.py:395",
+   "residue_b.py:532",
+   "residue_b.py:685"
+  ],
+  "ParamDefURL": [
+   "residue_b.py:396",
+   "residue_b.py:580"
+  ],
+  "ParamDefValue": [
+   "residue_b.py:2135",
+   "residue_b.py:395",
+   "residue_b.py:400",
+   "residue_b.py:477",
+   "residue_b.py:627",
+   "residue_b.py:761",
+   "residue_b.py:773"
+  ],
+  "ParamDefYesNo": [
+   "residue_b.py:2105",
+   "residue_b.py:2106",
+   "residue_b.py:395",
+   "residue_b.py:557"
+  ],
+  "ParamElemElectricalLoadClassification": [
+   "port2023.py:1445",
+   "residue_a.py:213",
+   "residue_a2.py:231",
+   "residue_b.py:123",
+   "residue_b.py:216",
+   "residue_b.py:2176",
+   "residue_b.py:757",
+   "residue_b.py:777"
+  ],
+  "ParamElemExternal": [
+   "port2023.py:1444",
+   "port2023.py:1562",
+   "residue_a.py:212",
+   "residue_a2.py:230",
+   "residue_b.py:121",
+   "residue_b.py:197",
+   "residue_b.py:2131",
+   "residue_b.py:655",
+   "residue_b.py:677"
+  ],
+  "ParamElemProject": [
+   "port2023.py:1444",
+   "residue_a.py:213",
+   "residue_a2.py:233",
+   "residue_b.py:124",
+   "residue_b.py:2159",
+   "residue_b.py:226",
+   "residue_b.py:703",
+   "residue_b.py:724"
+  ],
+  "ParamSet": [
+   "residue_b.py:1358",
+   "residue_b.py:1479"
+  ],
+  "ParamValueSetAString": [
+   "residue_b.py:362",
+   "residue_b2.py:188",
+   "settings.py:2012",
+   "skeleton.py:467",
+   "types.py:314"
+  ],
+  "ParamValueSetDouble": [
+   "residue_b.py:369",
+   "residue_b2.py:164",
+   "settings.py:2010",
+   "skeleton.py:472",
+   "types.py:297",
+   "types.py:312"
+  ],
+  "ParamValueSetElementId": [
+   "residue_b2.py:196",
+   "skeleton.py:462",
+   "types.py:315"
+  ],
+  "ParamValueSetInt": [
+   "residue_b.py:374",
+   "residue_b2.py:183",
+   "settings.py:2011",
+   "skeleton.py:457",
+   "types.py:313"
+  ],
+  "ParameterFilterElement": [
+   "residue_a.py:214",
+   "residue_a2.py:236",
+   "residue_b.py:137",
+   "residue_b.py:1628",
+   "residue_b.py:1637",
+   "residue_b.py:2481",
+   "residue_b.py:293"
+  ],
+  "PartitionTable": [
+   "skeleton.py:1922",
+   "skeleton.py:2091",
+   "skeleton.py:2111"
+  ],
+  "PartitionVisibilityDrawFilter": [
+   "skeleton.py:1146"
+  ],
+  "PatternHelper": [
+   "residue_a2.py:891",
+   "residue_b.py:356",
+   "settings.py:1058",
+   "settings.py:217",
+   "skeleton.py:428",
+   "types.py:350"
+  ],
+  "PenWidthTable": [
+   "settings.py:420",
+   "settings.py:455",
+   "settings.py:457"
+  ],
+  "PenWidthTableElem": [
+   "port2023.py:1249",
+   "port2023.py:1551",
+   "port2023.py:1560",
+   "port2024.py:1135",
+   "port2024.py:1144",
+   "port2024.py:963",
+   "residue_a.py:210",
+   "residue_a2.py:234",
+   "residue_b.py:132",
+   "residue_b.py:2322",
+   "residue_b.py:263",
+   "settings.py:130",
+   "settings.py:2549",
+   "settings.py:404",
+   "settings.py:422",
+   "skeleton.py:132"
+  ],
+  "PhaseFilterElem": [
+   "skeleton.py:780",
+   "skeleton.py:782"
+  ],
+  "PhasingDrawFilter": [
+   "skeleton.py:1147"
+  ],
+  "PhasingOverrides": [
+   "house_standard.py:1774",
+   "skeleton.py:710"
+  ],
+  "PipeSegment": [
+   "residue_a.py:214",
+   "residue_a2.py:214",
+   "residue_b.py:1045",
+   "residue_b.py:1060",
+   "residue_b.py:131",
+   "residue_b.py:2272",
+   "residue_b.py:257"
+  ],
+  "PlanViewRange": [
+   "skeleton.py:1779"
+  ],
+  "PlanViewRange2": [
+   "skeleton.py:1781"
+  ],
+  "Plane": [
+   "residue_a.py:1286",
+   "skeleton.py:482"
+  ],
+  "PointCloudOverrides": [
+   "skeleton.py:1234"
+  ],
+  "PrintSettings": [
+   "residue_a.py:212",
+   "residue_a2.py:238",
+   "residue_b.py:142",
+   "residue_b.py:2550",
+   "residue_b.py:313",
+   "settings.py:194",
+   "settings.py:2180",
+   "settings.py:2606"
+  ],
+  "ProjectCopySettingsElem": [
+   "settings.py:162",
+   "settings.py:1980",
+   "settings.py:2583"
+  ],
+  "ProjectInfo": [
+   "skeleton.py:138",
+   "skeleton.py:817",
+   "skeleton.py:819"
+  ],
+  "ProjectPhase": [
+   "skeleton.py:631",
+   "skeleton.py:634"
+  ],
+  "ProjectRevision": [
+   "settings.py:155",
+   "settings.py:2093",
+   "settings.py:241",
+   "settings.py:2575"
+  ],
+  "PropertySetElement": [
+   "port2023.py:1299",
+   "port2023.py:1562",
+   "port2024.py:1012",
+   "port2024.py:1146",
+   "residue_a.py:214",
+   "residue_a2.py:235",
+   "residue_b.py:1355",
+   "residue_b.py:136",
+   "residue_b.py:1365",
+   "residue_b.py:1476",
+   "residue_b.py:1486",
+   "residue_b.py:2436",
+   "residue_b.py:282",
+   "residue_b2.py:134",
+   "residue_b2.py:1343",
+   "residue_b2.py:1345",
+   "residue_b2.py:630",
+   "residue_b2.py:833",
+   "residue_b2.py:888"
+  ],
+  "RbsCableTrayType": [
+   "types.py:123",
+   "types.py:1307",
+   "types.py:1336"
+  ],
+  "RbsConductorInsulationMaterial": [
+   "port2023.py:664",
+   "port2024.py:195",
+   "types.py:1418"
+  ],
+  "RbsConductorMaterial": [
+   "port2023.py:663",
+   "port2024.py:194",
+   "types.py:1404"
+  ],
+  "RbsConductorSize": [
+   "port2023.py:665",
+   "port2024.py:196",
+   "types.py:1426"
+  ],
+  "RbsConductorTemperatureRating": [
+   "port2023.py:664",
+   "port2024.py:195",
+   "types.py:1411"
+  ],
+  "RbsConduitType": [
+   "types.py:122",
+   "types.py:1230",
+   "types.py:1262"
+  ],
+  "RbsCurve": [
+   "settings.py:231",
+   "settings.py:233"
+  ],
+  "RbsDbViewSystemNavigator": [
+   "settings.py:132",
+   "settings.py:2551",
+   "settings.py:2748",
+   "settings.py:781",
+   "settings.py:782",
+   "settings.py:787",
+   "settings.py:788"
+  ],
+  "RbsDistributionSysType": [
+   "port2023.py:1561",
+   "port2024.py:1145",
+   "types.py:1128",
+   "types.py:1138",
+   "types.py:126"
+  ],
+  "RbsDuctSettingsElem": [
+   "port2023.py:1560",
+   "port2023.py:645",
+   "port2024.py:1144",
+   "port2024.py:409",
+   "settings.py:1402",
+   "settings.py:145",
+   "settings.py:1450",
+   "settings.py:2564"
+  ],
+  "RbsDuctSizesElem": [
+   "settings.py:146",
+   "settings.py:1493",
+   "settings.py:1502",
+   "settings.py:2565"
+  ],
+  "RbsFlexPipeType": [
+   "residue_b.py:2302"
+  ],
+  "RbsFluidType": [
+   "residue_b.py:2302"
+  ],
+  "RbsPipeConnectionType": [
+   "residue_a2.py:212",
+   "residue_b.py:129",
+   "residue_b.py:2257",
+   "residue_b.py:249",
+   "residue_b.py:906",
+   "residue_c.py:249"
+  ],
+  "RbsPipeMaterialType": [
+   "residue_a2.py:213",
+   "residue_b.py:130",
+   "residue_b.py:2263",
+   "residue_b.py:253",
+   "residue_b.py:920",
+   "residue_b.py:925"
+  ],
+  "RbsPipeScheduleType": [
+   "residue_a2.py:211",
+   "residue_b.py:128",
+   "residue_b.py:2250",
+   "residue_b.py:245",
+   "residue_b.py:899",
+   "residue_c.py:249"
+  ],
+  "RbsPipeSettingsElem": [
+   "settings.py:1318",
+   "settings.py:1360",
+   "settings.py:143",
+   "settings.py:2562"
+  ],
+  "RbsPipeSizesElem": [
+   "settings.py:144",
+   "settings.py:1521",
+   "settings.py:1546",
+   "settings.py:2563"
+  ],
+  "RbsPipeType": [
+   "residue_b.py:2302"
+  ],
+  "RbsPipingSystemType": [
+   "residue_b.py:2302"
+  ],
+  "RbsSystem": [
+   "settings.py:232"
+  ],
+  "RbsSystemType": [
+   "settings.py:232"
+  ],
+  "RbsVoltageType": [
+   "types.py:1099",
+   "types.py:1105",
+   "types.py:126"
+  ],
+  "RbsWireInsulationType": [
+   "residue_a2.py:208",
+   "residue_b.py:125",
+   "residue_b.py:2244",
+   "residue_b.py:237",
+   "residue_b.py:851",
+   "residue_c.py:248",
+   "settings.py:2625",
+   "types.py:124",
+   "types.py:1369"
+  ],
+  "RbsWireMaterialType": [
+   "residue_a2.py:209",
+   "residue_b.py:126",
+   "residue_b.py:2236",
+   "residue_b.py:234",
+   "residue_b.py:845",
+   "residue_c.py:248",
+   "settings.py:2623",
+   "types.py:124",
+   "types.py:1361"
+  ],
+  "RbsWireSettingsElem": [
+   "port2023.py:1349",
+   "port2023.py:1557",
+   "port2023.py:622",
+   "port2023.py:624",
+   "port2023.py:626",
+   "port2024.py:1141",
+   "port2024.py:386",
+   "port2024.py:388",
+   "port2024.py:390",
+   "settings.py:1183",
+   "settings.py:1201",
+   "settings.py:141",
+   "settings.py:2560"
+  ],
+  "RbsWireSizesElem": [
+   "port2023.py:1558",
+   "port2024.py:1142",
+   "settings.py:142",
+   "settings.py:1607",
+   "settings.py:1653",
+   "settings.py:2561",
+   "types.py:136"
+  ],
+  "RbsWireTemperatureRatingType": [
+   "residue_a2.py:210",
+   "residue_b.py:127",
+   "residue_b.py:2241",
+   "residue_b.py:241",
+   "residue_b.py:858",
+   "residue_c.py:248",
+   "settings.py:2624",
+   "types.py:125",
+   "types.py:1378"
+  ],
+  "RbsWireType": [
+   "port2023.py:1409",
+   "port2023.py:1557",
+   "port2023.py:628",
+   "port2024.py:1141",
+   "port2024.py:392",
+   "types.py:123",
+   "types.py:1450",
+   "types.py:1465"
+  ],
+  "ReactionsUpToDateElem": [
+   "settings.py:1726",
+   "settings.py:177",
+   "settings.py:2589",
+   "settings.py:2995"
+  ],
+  "Rebar": [
+   "residue_a.py:543"
+  ],
+  "ReconcileBrowserSettingsElem": [
+   "settings.py:139",
+   "settings.py:2558",
+   "settings.py:647",
+   "settings.py:656"
+  ],
+  "RefPlane": [
+   "residue_a.py:211",
+   "residue_a2.py:241",
+   "residue_b.py:145",
+   "residue_b.py:1914",
+   "residue_b.py:1916",
+   "residue_b.py:2605",
+   "residue_b.py:325",
+   "y2025_b.py:798"
+  ],
+  "ReferencePoint": [
+   "settings.py:229"
+  ],
+  "ReinforcementSettings": [
+   "port2023.py:1399",
+   "port2023.py:1559",
+   "port2023.py:632",
+   "port2024.py:1143",
+   "port2024.py:396",
+   "settings.py:182",
+   "settings.py:2445",
+   "settings.py:2594"
+  ],
+  "RetouchTable": [
+   "skeleton.py:1221"
+  ],
+  "RevisionCloud": [
+   "settings.py:236"
+  ],
+  "RevisionCloudsOnSheetsTracker": [
+   "settings.py:1710",
+   "settings.py:174",
+   "settings.py:236",
+   "settings.py:2617",
+   "settings.py:2992"
+  ],
+  "RevisionNumberingSequence": [
+   "settings.py:156",
+   "settings.py:2066",
+   "settings.py:2072",
+   "settings.py:240",
+   "settings.py:2576"
+  ],
+  "Roof": [
+   "residue_a.py:546"
+  ],
+  "RoofAttributes": [
+   "types.py:121",
+   "types.py:935"
+  ],
+  "RoomElem": [
+   "residue_a.py:211",
+   "residue_a2.py:228",
+   "residue_b.py:147",
+   "residue_b.py:2017",
+   "residue_b.py:2018",
+   "residue_b.py:2660",
+   "residue_b.py:333",
+   "y2025_b.py:142",
+   "y2025_b.py:785"
+  ],
+  "RouteAnalysisSettings": [
+   "settings.py:183",
+   "settings.py:2217",
+   "settings.py:2595"
+  ],
+  "RvtLinkDrawFilter": [
+   "skeleton.py:1149"
+  ],
+  "RvtLinkInstance": [
+   "residue_a2.py:188",
+   "residue_a2.py:1987",
+   "residue_a2.py:2048",
+   "residue_a2.py:2330",
+   "residue_a2.py:2382",
+   "residue_a2.py:2400",
+   "residue_a2.py:2402",
+   "residue_b.py:149",
+   "residue_b.py:343",
+   "y2025_b.py:736"
+  ],
+  "RvtLinkInstanceAppearanceParentElem": [
+   "settings.py:1734",
+   "settings.py:191",
+   "settings.py:2603",
+   "settings.py:3004"
+  ],
+  "RvtLinkOverrides": [
+   "skeleton.py:1225"
+  ],
+  "RvtLinkSymbol": [
+   "residue_a2.py:178",
+   "residue_a2.py:1987",
+   "residue_a2.py:2047",
+   "residue_a2.py:2330",
+   "residue_a2.py:2382",
+   "residue_a2.py:2400",
+   "residue_a2.py:2402",
+   "residue_b.py:148",
+   "residue_b.py:339",
+   "y2025_b.py:735"
+  ],
+  "SSEPointVisibilitySettings": [
+   "port2023.py:670",
+   "settings.py:189",
+   "settings.py:2288",
+   "settings.py:2601"
+  ],
+  "STEPExportSettings": [
+   "port2023.py:1643",
+   "port2023.py:668",
+   "port2024.py:1225",
+   "port2024.py:199",
+   "settings.py:165",
+   "settings.py:1732",
+   "settings.py:2586",
+   "settings.py:3002"
+  ],
+  "Section": [
+   "settings.py:2480"
+  ],
+  "SectionAttributes": [
+   "residue_a.py:1654",
+   "residue_a.py:210",
+   "residue_a2.py:234",
+   "residue_b.py:1124",
+   "residue_b.py:1138",
+   "residue_b.py:133",
+   "residue_b.py:2349",
+   "residue_b.py:267"
+  ],
+  "SerializedDummy": [
+   "port2023.py:861",
+   "port2024.py:593",
+   "skeleton.py:56",
+   "types.py:440",
+   "types.py:444",
+   "types.py:475"
+  ],
+  "SharedSlaveSymbolTrackerCell": [
+   "residue_b.py:1734",
+   "residue_b.py:1738"
+  ],
+  "SheetCollection": [
+   "port2023.py:667",
+   "port2024.py:198",
+   "settings.py:237"
+  ],
+  "SheetsInSheetCollectionTracker": [
+   "port2023.py:1641",
+   "port2023.py:667",
+   "port2024.py:1223",
+   "port2024.py:198",
+   "settings.py:1711",
+   "settings.py:175",
+   "settings.py:237",
+   "settings.py:2618",
+   "settings.py:2993"
+  ],
+  "SketchGridAppearanceParentElem": [
+   "settings.py:1735",
+   "settings.py:192",
+   "settings.py:2604",
+   "settings.py:3005"
+  ],
+  "SketchPlane": [
+   "residue_a.py:211",
+   "residue_a2.py:241",
+   "residue_b.py:146",
+   "residue_b.py:1948",
+   "residue_b.py:1950",
+   "residue_b.py:1985",
+   "residue_b.py:1987",
+   "residue_b.py:2620",
+   "residue_b.py:2653",
+   "residue_b.py:329",
+   "skeleton.py:1505",
+   "skeleton.py:1508",
+   "y2025_b.py:785"
+  ],
+  "SlaveSymbolTrackerElem": [
+   "residue_a.py:210",
+   "residue_a.py:358",
+   "residue_a.py:362",
+   "residue_a.py:366",
+   "residue_a2.py:237",
+   "residue_b.py:140",
+   "residue_b.py:1732",
+   "residue_b.py:1740",
+   "residue_b.py:2530",
+   "residue_b.py:305"
+  ],
+  "Stairs": [
+   "house_standard.py:789"
+  ],
+  "StructSettingsElem": [
+   "port2023.py:1559",
+   "port2024.py:1143",
+   "settings.py:133",
+   "settings.py:2555",
+   "settings.py:900",
+   "settings.py:944"
+  ],
+  "StructuralConnectionSettings": [
+   "settings.py:1739",
+   "settings.py:190",
+   "settings.py:2602",
+   "settings.py:3008"
+  ],
+  "SunAndShadowSettings": [
+   "house_standard.py:1735",
+   "skeleton.py:1543",
+   "skeleton.py:1546"
+  ],
+  "SunAnnotationElem": [
+   "residue_a.py:211",
+   "residue_a2.py:236",
+   "residue_b.py:138",
+   "residue_b.py:1658",
+   "residue_b.py:1662",
+   "residue_b.py:2509",
+   "residue_b.py:296"
+  ],
+  "Symbol": [
+   "settings.py:2799"
+  ],
+  "SymbolIdMgr": [
+   "settings.py:2792"
+  ],
+  "SymbolInfo": [
+   "residue_a.py:726",
+   "skeleton.py:450",
+   "types.py:338"
+  ],
+  "TaperableWallTypeAngleParametersCell": [
+   "types.py:353"
+  ],
+  "TaperableWallTypeWidthAtParametersCell": [
+   "types.py:356"
+  ],
+  "TextNoteAttributes": [
+   "types.py:130",
+   "types.py:1719",
+   "types.py:1738"
+  ],
+  "Trf": [
+   "residue_b.py:1944",
+   "residue_b.py:1982",
+   "skeleton.py:1500"
+  ],
+  "TrueNorth": [
+   "skeleton.py:906",
+   "skeleton.py:908"
+  ],
+  "UShapeSweepProfile": [
+   "types.py:1206"
+  ],
+  "UniqueElementsTracking": [
+   "settings.py:2666"
+  ],
+  "UnitsElem": [
+   "skeleton.py:137",
+   "skeleton.py:885",
+   "skeleton.py:887"
+  ],
+  "VertCompoundStructureGStep": [
+   "types.py:774",
+   "types.py:783"
+  ],
+  "VerticalRegionsStructure": [
+   "types.py:681"
+  ],
+  "ViewDisplayMgr": [
+   "port2023.py:1376",
+   "port2023.py:1381",
+   "port2023.py:631",
+   "port2024.py:395",
+   "skeleton.py:1087"
+  ],
+  "ViewLayout": [
+   "skeleton.py:1346"
+  ],
+  "ViewSheetSet": [
+   "settings.py:195",
+   "settings.py:2152",
+   "settings.py:2607"
+  ],
+  "Viewer": [
+   "house_standard.py:1163",
+   "residue_a.py:211",
+   "residue_a2.py:239",
+   "residue_b.py:143",
+   "residue_b.py:2558",
+   "residue_b.py:317",
+   "settings.py:200",
+   "settings.py:807",
+   "settings.py:808",
+   "settings.py:810",
+   "settings.py:811",
+   "skeleton.py:1368",
+   "skeleton.py:1371",
+   "skeleton.py:1627",
+   "skeleton.py:1629"
+  ],
+  "Viewer3d": [
+   "skeleton.py:1400",
+   "skeleton.py:1404"
+  ],
+  "ViewerGStep": [
+   "skeleton.py:1306"
+  ],
+  "Viewport": [
+   "residue_a.py:212",
+   "residue_a2.py:240",
+   "residue_b.py:144",
+   "residue_b.py:2564",
+   "residue_b.py:321",
+   "settings.py:202",
+   "skeleton.py:1466",
+   "skeleton.py:1469"
+  ],
+  "ViewportAttributes": [
+   "residue_a.py:211",
+   "residue_a2.py:235",
+   "residue_b.py:1157",
+   "residue_b.py:1168",
+   "residue_b.py:134",
+   "residue_b.py:2374",
+   "residue_b.py:274"
+  ],
+  "WallJoinDefaultSetting": [
+   "settings.py:134",
+   "settings.py:227",
+   "settings.py:2556",
+   "settings.py:957"
+  ],
+  "WorksetVisibilitySettingsElem": [
+   "settings.py:157",
+   "settings.py:1730",
+   "settings.py:1845",
+   "settings.py:2577",
+   "settings.py:2999"
+  ],
+  "WorksetVisibilityViewSettings": [
+   "skeleton.py:1238"
+  ],
+  "WorksharingViewModeSettings": [
+   "residue_a.py:212",
+   "residue_a2.py:238",
+   "residue_b.py:141",
+   "residue_b.py:2540",
+   "residue_b.py:2541",
+   "residue_b.py:309",
+   "settings.py:158",
+   "settings.py:1881",
+   "settings.py:2578"
+  ],
+  "ZoneScheme": [
+   "settings.py:1733",
+   "settings.py:1744",
+   "settings.py:181",
+   "settings.py:2593",
+   "settings.py:3003"
+  ]
+ }
+}

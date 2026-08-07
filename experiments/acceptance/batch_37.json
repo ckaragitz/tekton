@@ -1,0 +1,129 @@
+{
+ "batch": 37,
+ "created": "2026-08-05T02:22:44-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "famdoc-bisect: the hybrid family-document ladder. Donor body = the rst sample's own M_Concrete-Square-Column famdoc (V20's certified instance target); each rung = untouched rst + ONE loaded famdoc + ONE instance, varying ONE axis of OUR grammar (H7 control-A, H1 geometry, H2 params, H3 datum, H4 views, H5 connector, H6 inline-ADocument, H8 our-famdoc FAIL anchor). Read experiments/famdoc_bisect/probes.json reading_the_matrix; the ranked per-element diff is famdoc_diff.json.",
+ "reading_order": [
+  "CTRL_rstbasicsampleproject_b37.rvt",
+  "H7.rvt",
+  "H1.rvt",
+  "H2.rvt",
+  "H3.rvt",
+  "H4.rvt",
+  "H5.rvt",
+  "H6.rvt",
+  "H8.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_rstbasicsampleproject_b37.rvt",
+   "staged_as": "experiments/acceptance/CTRL_rstbasicsampleproject_b37.rvt",
+   "md5": "b3235ad2743f19bcfff243654fec35dd",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/rstbasicsampleproject.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 1,
+   "file": "experiments/famdoc_bisect/H7.rvt",
+   "staged_as": "experiments/acceptance/H7.rvt",
+   "md5": "149f5772123036e5a98bb66677c194a1",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/famdoc_bisect/probes.json entry 'H7' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 2,
+   "file": "experiments/famdoc_bisect/H1.rvt",
+   "staged_as": "experiments/acceptance/H1.rvt",
+   "md5": "bfe5dc60c7ab1bc223309e85c39b650c",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/famdoc_bisect/probes.json entry 'H1' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 3,
+   "file": "experiments/famdoc_bisect/H2.rvt",
+   "staged_as": "experiments/acceptance/H2.rvt",
+   "md5": "8ffc571394069c0da32decabed0c9dbe",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/famdoc_bisect/probes.json entry 'H2' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 4,
+   "file": "experiments/famdoc_bisect/H3.rvt",
+   "staged_as": "experiments/acceptance/H3.rvt",
+   "md5": "cd412cfcc9a995c5121837204281d062",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/famdoc_bisect/probes.json entry 'H3' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 5,
+   "file": "experiments/famdoc_bisect/H4.rvt",
+   "staged_as": "experiments/acceptance/H4.rvt",
+   "md5": "1d275931fafe7aee5c1e67921a193e19",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/famdoc_bisect/probes.json entry 'H4' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 6,
+   "file": "experiments/famdoc_bisect/H5.rvt",
+   "staged_as": "experiments/acceptance/H5.rvt",
+   "md5": "534773e7bdaeca3b91648ba1049cf657",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/famdoc_bisect/probes.json entry 'H5' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 7,
+   "file": "experiments/famdoc_bisect/H6.rvt",
+   "staged_as": "experiments/acceptance/H6.rvt",
+   "md5": "a1099ab6d7a4cf165a5736fcc10f9dd5",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/famdoc_bisect/probes.json entry 'H6' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 8,
+   "file": "experiments/famdoc_bisect/H8.rvt",
+   "staged_as": "experiments/acceptance/H8.rvt",
+   "md5": "ea18a034bb7500d4a6ba3f32e7547f65",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/famdoc_bisect/probes.json entry 'H8' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  }
+ ]
+}

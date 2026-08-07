@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "vendor": "lithonia",
+  "line": "blt-led-troffer",
+  "product_line": "Lithonia Lighting (Acuity Brands) BLT Series low-profile recessed LED troffer (2BLT4 = nominal 2x4, 2BLT2 = nominal 2x2)",
+  "category": "luminaire",
+  "revit_category": "OST_LightingFixtures",
+  "license_note": "Dimensional / electrical / photometric-summary FACTS only. NO Acuity .rfa, IES/photometric files, cut-sheet drawings, images or prose are stored or redistributed. Photometry is REFERENCED by manufacturer URL only. See ../LICENSE_NOTES.md.",
+  "collection_posture": {
+    "summary": "Acuity Brands' site terms limit use to personal / non-commercial and restrict automated collection and collateral use (docs/product/content-strategy.md rows 10 and section 5.2). We therefore did NOT fetch acuitybrands.com pages or spec sheets. Facts were read from an independent electrical-distributor listing that republishes the manufacturer's specifications (one page read directly); the Acuity spec sheet URL is recorded UNVERIFIED for a human to confirm. Photometric (IES) data is referenced by the manufacturer's own download location and is never copied into this repo.",
+    "primary_reachable": true,
+    "primary_deliberately_not_fetched": true,
+    "method": "one distributor listing read directly; manufacturer pages recorded, not fetched"
+  },
+  "sources": {
+    "S1": {
+      "url": "https://www.lbclightingpro.com/products/lithonia-2blt4-2x4-38w-led-basket-lensed-troffer-nominal-4600-lm-curved-ribbed-diffuser-80-cri-4000k",
+      "doc": "LBC Lighting distributor listing - Lithonia 2BLT4 2x4 38 W LED basket lensed troffer",
+      "publisher": "LBC Lighting (distributor)",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "VERIFIED",
+      "note": "Directly read: actual dims 47-3/4 in L x 23-3/4 in W x 2-3/8 in H; 38 W; nominal 4600 lm (5039 lm listed at 4000 K); 4000 K; CRI 82; 120-277 V; damp location; CSA / DLC listings shown."
+    },
+    "S2": {
+      "url": "https://www.acuitybrands.com/products/detail/1149917/lithonia-lighting/blt-series/blt-low-profile-recessed-led-luminaire",
+      "doc": "Acuity Brands - BLT low-profile recessed LED luminaire product page (spec sheet + IES downloads)",
+      "publisher": "Acuity Brands / Lithonia Lighting",
+      "doc_date": null,
+      "accessed": null,
+      "verification": "UNVERIFIED",
+      "note": "PRIMARY - deliberately NOT fetched (Acuity ToU collection posture). The .ies photometric files and the official spec sheet live here; a human designer opens them in their own browser. IES files are REFERENCED by this URL only, never stored."
+    }
+  },
+  "line_facts": {
+    "nominal_sizes": {"value": ["2x2 (2BLT2)", "2x4 (2BLT4)"], "provenance": "fact", "source": "S1", "note": "2BLT4 read directly; 2BLT2 is the same series' 2x2 member (naming convention) - the 2x2 member's dims are given as 'assumed' below."},
+    "voltage_input_v": {"value": [120, 277], "provenance": "fact", "source": "S1", "note": "120-277 V universal (MVOLT) driver input."},
+    "cct_options_k": {"value": [3000, 3500, 4000, 5000], "provenance": "assumed", "source": "S1", "note": "4000 K read directly; 3000 / 3500 / 5000 K listed by the same distributor family of pages (search summary) - flagged 'assumed'."},
+    "cri_min": {"value": 80, "provenance": "fact", "source": "S1", "note": "CRI 82 listed for the 38 W / 4000 K model; '80+ CRI' in the model title. 90 CRI (LP9xx) variants exist per search results (assumed)."},
+    "location_rating": {"value": "damp location", "provenance": "fact", "source": "S1", "note": "Damp-location approved per the listing."},
+    "plenum_use": {"value": true, "provenance": "assumed", "source": "S2", "note": "Recessed troffers of this type are IC/plenum-suitable per manufacturer literature (search summary describes the 2-3/8 in low profile as suited to restrictive plenum applications) - flagged 'assumed' until the spec sheet's 'plenum rated' / air-handling statement is read by a human."},
+    "photometry_reference": {"value": "IES LM-63 photometric files published by the manufacturer at S2 (BLT product page downloads); referenced by URL, never redistributed", "provenance": "fact", "source": "S2", "note": "Policy: the family carries an 'IES file (URL reference)' text parameter pointing at S2; the customer downloads the .ies under their own license (docs/product/content-strategy.md Pipeline 3)."},
+    "weights": {"value": null, "provenance": "assumed", "source": null, "note": "NOT SOURCED - do not emit a weight parameter."}
+  },
+  "variants": [
+    {
+      "model": "2BLT4-38W",
+      "aliases": ["2BLT4", "2BLT4 46L", "BLT 2x4"],
+      "role": "2 ft x 4 ft low-profile recessed LED troffer, ~4600-5000 lm class",
+      "ratings": {
+        "input_watts": 38,
+        "delivered_lumens_nominal": 4600,
+        "delivered_lumens_listed": 5039.18,
+        "cct_k": 4000,
+        "cri": 82,
+        "voltage_v": [120, 277],
+        "efficacy_lm_per_w": 121.9
+      },
+      "dims_in": {"w": 23.75, "h": 2.375, "d": 47.75},
+      "dims_note": "L 47-3/4 in x W 23-3/4 in x H (housing height) 2-3/8 in. For the family: length = 47.75, width = 23.75, height above ceiling plane = 2.375. dims_in.d holds the LENGTH (47.75) to fit the w/h/d schema; dims_in.h is the housing height.",
+      "options": {"lens": "curved ribbed (basket) diffuser", "mounting": "recessed grid ceiling (nominal 2x4 opening)", "location": "damp"},
+      "source": {"url": "https://www.lbclightingpro.com/products/lithonia-2blt4-2x4-38w-led-basket-lensed-troffer-nominal-4600-lm-curved-ribbed-diffuser-80-cri-4000k", "doc": "LBC Lighting distributor listing (republishes Lithonia spec)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.input_watts": "fact",
+        "ratings.delivered_lumens_nominal": "fact",
+        "ratings.delivered_lumens_listed": "fact",
+        "ratings.cct_k": "fact",
+        "ratings.cri": "fact",
+        "ratings.voltage_v": "fact",
+        "ratings.efficacy_lm_per_w": "assumed",
+        "dims_in.w": "fact",
+        "dims_in.h": "fact",
+        "dims_in.d": "fact",
+        "options.lens": "fact",
+        "options.mounting": "assumed",
+        "options.location": "fact"
+      },
+      "notes": "efficacy = 4600 lm / 38 W computed by us, hence 'assumed' (derived, not stated). Other lumen packages of the series per search results: 32 W / ~4000 lm and 34 W / ~4032 lm (not read directly - not tabulated as variants)."
+    },
+    {
+      "model": "2BLT2",
+      "aliases": ["BLT 2x2"],
+      "role": "2 ft x 2 ft low-profile recessed LED troffer",
+      "ratings": {
+        "voltage_v": [120, 277],
+        "input_watts": null,
+        "delivered_lumens_nominal": null
+      },
+      "dims_in": {"w": 23.75, "h": 2.375, "d": 23.75},
+      "dims_note": "Nominal 2x2 member of the same series: 23-3/4 in square is INFERRED from the 2x4 member's width and the series naming - 'assumed', not read.",
+      "options": {"mounting": "recessed grid ceiling (nominal 2x2 opening)"},
+      "source": {"url": "https://www.acuitybrands.com/products/detail/1149917/lithonia-lighting/blt-series/blt-low-profile-recessed-led-luminaire", "doc": "Acuity BLT product page (NOT fetched - collection posture)", "accessed": null},
+      "field_provenance": {
+        "ratings.voltage_v": "assumed",
+        "ratings.input_watts": "assumed",
+        "ratings.delivered_lumens_nominal": "assumed",
+        "dims_in.w": "assumed",
+        "dims_in.h": "assumed",
+        "dims_in.d": "assumed",
+        "options.mounting": "assumed"
+      },
+      "notes": "Placeholder variant proving the loader handles a not-yet-sourced record: every field 'assumed', wattage/lumens null. Promote after the spec sheet is read by a human."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+ "path": "/Users/ck/dev/things/rev-revit/experiments/job/create_hosted.rvt",
+ "ok": true,
+ "layers": [
+  "structure",
+  "consistency",
+  "semantic"
+ ],
+ "counts": {
+  "error": 0,
+  "warning": 2,
+  "info": 2
+ },
+ "stats": {
+  "streams": 13,
+  "pages_checked": 506,
+  "gzip_members": 8,
+  "partition_blocks": 2050,
+  "records": 427503,
+  "elements_decoded": 142195,
+  "decode_failures": 1171,
+  "refs_checked": 2571314,
+  "connector_edges": 15351,
+  "circuits": 190
+ },
+ "timings": {
+  "structure": 0.631,
+  "consistency": 0.211,
+  "semantic": 11.318,
+  "total": 12.161
+ },
+ "findings": [
+  {
+   "severity": "info",
+   "layer": "structure",
+   "where": "Formats/Latest",
+   "message": "canonical Revit 2026 archive schema (byte-identical)"
+  },
+  {
+   "severity": "warning",
+   "layer": "structure",
+   "where": "Partitions/14",
+   "message": "3 block(s) whose header counters A/C violate the corpus identity hdr_len(seq)*A + C + adj(flags) == inflated length (payload CRC-valid; tolerated by Revit's reader \u2014 proven by the accepted V20-V29 \u2014 but a writer counter defect; strict makes it an error)"
+  },
+  {
+   "severity": "warning",
+   "layer": "semantic",
+   "where": "objects",
+   "message": "1171/142195 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+  },
+  {
+   "severity": "info",
+   "layer": "semantic",
+   "where": "connectors",
+   "message": "2137 connector edge(s) point at elements that did not decode cleanly (back-link unverifiable)"
+  }
+ ]
+}

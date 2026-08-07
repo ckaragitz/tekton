@@ -1,0 +1,7 @@
+# tekton-native engine deps. The engine itself is the `rvt` package bundled in
+# the plugin at plugin/lib -- install it FIRST (from the plugin root):
+#     pip install ./lib
+# It pulls in olefile automatically. This file exists so a bare
+# `pip install -r requirements.txt` also satisfies the one third-party dep
+# when the scripts fall back to importing the bundled source directly.
+olefile>=0.47

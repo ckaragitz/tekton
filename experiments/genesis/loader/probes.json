@@ -1,0 +1,633 @@
+{
+ "purpose": "THE K4-FAIL BRANCH: if the reader REQUIRES embedded family documents (K4 FAIL with KD1/K3 PASS), the genesis base needs OUR families loaded as coherent embedded documents.  These probes exercise the loader (rvt.famload) that does that: L1a = the mechanism on a passing base; L1b = our head families as the ACTIVE heads of a passing sample (the content question); L3/L3b = the K4-FAIL FIX CANDIDATE (the constructed base G1_candidate + our loaded heads); L2 = the head-family replacement on Autodesk's full skeleton K1. The twelve head_*.rfa are the standalone family form of the same families (family-editor acceptance).",
+ "read_order": "L1a first (loader mechanism), then L1b (family content), then L3/L3b (the genesis fix), then L2 (skeleton replacement).  A card message DIFFERENT from 'Revit-DocumentCorruption' on any file is a spotlight.",
+ "reading_the_results": {
+  "L1a PASS": "loader mechanism reader-accepted; the four registries + host records are right",
+  "L1a FAIL": "loader defect (registry / record shape); everything else moot",
+  "L1a PASS & L1b PASS": "our skeleton head families are acceptable ACTIVE heads -- family-document content is not required",
+  "L1a PASS & L1b FAIL": "a referenced head needs real content (detail geometry / label / view constellation) -- the head-content ladder is next; L3 cannot pass yet",
+  "L3 PASS": "embedded family documents were the K4-FAIL fix: the genesis base opens with OUR loaded families",
+  "L3 FAIL (L1a/L1b PASS)": "family documents alone do not fix the base -- the residual is other skeleton content (K5x/K6 verdicts) -- read the card message",
+  "L2 PASS": "our heads substitute on the full Autodesk skeleton (K1)",
+  "L2 FAIL (K1 PASS, L1b PASS)": "the Autodesk head-family REMOVAL took a needed family-scoped row -- bisect vs L1b"
+ },
+ "coherence_rule": "a document GUID lives in FOUR places -- the Partitions save-unit separator, the Global/ContentDocuments entry, the ADocument ContentTable.m_ContentRecSet record and the ADocument FamilyMgr.m_arrLoadedFamilyInfo entry (AppInfo slot 0).  Every emitted file is COHERENT (four_registry_census) and rvt_validate VALID with 0 errors -- see each L*.json.",
+ "probes": [
+  {
+   "file": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+   "probe": "L1a",
+   "self_checks_ok": true,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_verdict": "sample (viewer PASS)",
+   "tests": "Does the reader accept a project into which OUR family document was LOADED (four registries coherent, host Family / symbol / surrogates / twins ours, embedded document ours), the family referenced by nothing?  The pure loader proof.",
+   "if_PASS": "The load mechanism is reader-accepted: an OUR-authored embedded family document coexists with the sample's.  L1b / L3 read cleanly on top of it.",
+   "if_FAIL": "The loader corrupts a passing file: one of the four registries or a host record shape is wrong -- bisect with the four-registry census + the acceptance list (H1-H6); L3's verdict is moot until this passes.",
+   "families": [
+    {
+     "key": "level_head",
+     "guid": "bee1932a-8bd8-4d8d-8c5d-af2913c9813d",
+     "host_family": 1472546,
+     "symbols": [
+      1472552
+     ],
+     "twins": 3,
+     "unit_records": 21,
+     "doc_ids": [
+      1472525,
+      1472545
+     ]
+    }
+   ],
+   "registries_after": {
+    "save_units": 54,
+    "contentdocs_entries": 53,
+    "contenttable_records": 53,
+    "familymgr_entries": 51,
+    "coherent": true,
+    "ours_in_all_four": true,
+    "units_added": 1
+   },
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": [],
+    "warnings": [
+     "[semantic] objects: 7/32039 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+    ]
+   },
+   "report": "L1a.json"
+  },
+  {
+   "file": "experiments/genesis/loader/L1b_rstbasic_our_heads_active.rvt",
+   "probe": "L1b",
+   "self_checks_ok": true,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_verdict": "sample (viewer PASS)",
+   "tests": "Our twelve head family DOCUMENTS become the project's ACTIVE heads (LevelAttributes / GridAttributes / SectionAttributes head+tail / CalloutTag / ViewportAttributes / InteriorElevAttributes / StructSettingsElem usage fields all name OUR symbols; the Autodesk heads remain loaded but unreferenced).  Is an annotation-skeleton family (no detail geometry / label) an acceptable REFERENCED head?",
+   "if_PASS": "Our head family documents satisfy the reader as active heads: family-document CONTENT (the head shape / label) is NOT required by the reader -- L3's remaining variable is the constructed base itself.",
+   "if_FAIL": "(with L1a PASSING) the reader requires MORE content in a referenced head family document than our skeleton carries (detail geometry / label / the annotation view constellation) -- the head CONTENT ladder is the next stream; L3 cannot pass with these families.",
+   "families": [
+    {
+     "key": "section_head_open",
+     "guid": "1e2cbeed-351b-4434-a084-88b4ca6c9cec",
+     "host_family": 1472544,
+     "symbols": [
+      1472548
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1472525,
+      1472543
+     ]
+    },
+    {
+     "key": "section_head_filled",
+     "guid": "5bbb4a7e-541e-4280-9118-cfb0f569ba0e",
+     "host_family": 1472620,
+     "symbols": [
+      1472624
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1472601,
+      1472619
+     ]
+    },
+    {
+     "key": "section_tail_filled",
+     "guid": "96b22da3-9454-4f84-a8c9-eb2cd5b1d15d",
+     "host_family": 1472721,
+     "symbols": [
+      1472726
+     ],
+     "twins": 2,
+     "unit_records": 20,
+     "doc_ids": [
+      1472701,
+      1472720
+     ]
+    },
+    {
+     "key": "section_tail_horizontal",
+     "guid": "88ffc7b6-993d-46b8-8f9d-8826c25a45e0",
+     "host_family": 1472821,
+     "symbols": [
+      1472826
+     ],
+     "twins": 2,
+     "unit_records": 20,
+     "doc_ids": [
+      1472801,
+      1472820
+     ]
+    },
+    {
+     "key": "level_head",
+     "guid": "c4f72671-540e-4a19-a275-61683887e009",
+     "host_family": 1472922,
+     "symbols": [
+      1472928
+     ],
+     "twins": 3,
+     "unit_records": 21,
+     "doc_ids": [
+      1472901,
+      1472921
+     ]
+    },
+    {
+     "key": "grid_head",
+     "guid": "2180b613-0c7d-4b63-bcd6-15a2ed79e27e",
+     "host_family": 1473021,
+     "symbols": [
+      1473026
+     ],
+     "twins": 2,
+     "unit_records": 20,
+     "doc_ids": [
+      1473001,
+      1473020
+     ]
+    },
+    {
+     "key": "callout_head",
+     "guid": "0ce992c9-803c-4244-809f-a19afac40151",
+     "host_family": 1473120,
+     "symbols": [
+      1473124
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1473101,
+      1473119
+     ]
+    },
+    {
+     "key": "elevation_body",
+     "guid": "3314705a-71c5-40fa-9ea5-21e03b659085",
+     "host_family": 1473220,
+     "symbols": [
+      1473224
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1473201,
+      1473219
+     ]
+    },
+    {
+     "key": "elevation_pointer_1",
+     "guid": "998c4c44-a9d8-466d-a744-ef9980efaaf5",
+     "host_family": 1473320,
+     "symbols": [
+      1473324
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1473301,
+      1473319
+     ]
+    },
+    {
+     "key": "elevation_pointer_2",
+     "guid": "f635b1a6-103b-4a08-b17f-50994a2a160d",
+     "host_family": 1473420,
+     "symbols": [
+      1473424
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1473401,
+      1473419
+     ]
+    },
+    {
+     "key": "view_title",
+     "guid": "42a45df4-94f4-4607-99ae-bc0fe418ffe3",
+     "host_family": 1473520,
+     "symbols": [
+      1473524
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1473501,
+      1473519
+     ]
+    },
+    {
+     "key": "boundary_condition",
+     "guid": "3f1ee649-77af-4bac-9a85-6bcf10b33c53",
+     "host_family": 1473622,
+     "symbols": [
+      1473628
+     ],
+     "twins": 3,
+     "unit_records": 21,
+     "doc_ids": [
+      1473601,
+      1473621
+     ]
+    }
+   ],
+   "registries_after": {
+    "save_units": 65,
+    "contentdocs_entries": 64,
+    "contenttable_records": 64,
+    "familymgr_entries": 62,
+    "coherent": true,
+    "ours_in_all_four": true,
+    "units_added": 12
+   },
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": [],
+    "warnings": [
+     "[semantic] objects: 7/32313 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+    ]
+   },
+   "report": "L1b.json"
+  },
+  {
+   "file": "experiments/genesis/loader/L3_G1_candidate_our_heads.rvt",
+   "probe": "L3",
+   "self_checks_ok": true,
+   "base": "experiments/genesis/G1_candidate.rvt",
+   "base_verdict": "constructed genesis base (viewer FAIL: 'Revit-DocumentCorruption')",
+   "tests": "The constructed base G1_candidate (234-element house-standard inventory, OUR ADocument, ZERO family documents) + our twelve head family document(s) loaded through all four registries, and its level type's m_familyTagId pointed at our level-head symbol.  = the K4-FAIL fix: the base now carries coherent embedded family documents.",
+   "if_PASS": "Embedded family documents were the missing skeleton class: the genesis base + OUR loaded families opens -- G1 has its K4-FAIL fix and the loader is the genesis-2 base's family route.",
+   "if_FAIL": "Family documents alone do not fix the constructed base: read the card message -- if L1a/L1b PASS, the residual is the base's OTHER missing skeleton content (settings singletons / catalogs, the K5x/K6 verdicts) or the head CONTENT (if L1b failed).",
+   "families": [
+    {
+     "key": "section_head_open",
+     "guid": "7f4ac4af-c319-48f7-b8bd-e8e3f0710649",
+     "host_family": 1500253,
+     "symbols": [
+      1500257
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1500234,
+      1500252
+     ]
+    },
+    {
+     "key": "section_head_filled",
+     "guid": "b5c0d04b-bbf7-4265-b1e7-2e2bb816615e",
+     "host_family": 1500320,
+     "symbols": [
+      1500324
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1500301,
+      1500319
+     ]
+    },
+    {
+     "key": "section_tail_filled",
+     "guid": "669f1341-b982-4d2f-a4a9-7b2da0d0f580",
+     "host_family": 1500421,
+     "symbols": [
+      1500426
+     ],
+     "twins": 2,
+     "unit_records": 20,
+     "doc_ids": [
+      1500401,
+      1500420
+     ]
+    },
+    {
+     "key": "section_tail_horizontal",
+     "guid": "f8e5aecf-762e-4901-b75f-1cd5a553207e",
+     "host_family": 1500521,
+     "symbols": [
+      1500526
+     ],
+     "twins": 2,
+     "unit_records": 20,
+     "doc_ids": [
+      1500501,
+      1500520
+     ]
+    },
+    {
+     "key": "level_head",
+     "guid": "0061ff21-0d33-491d-865c-077a49e15f08",
+     "host_family": 1500622,
+     "symbols": [
+      1500628
+     ],
+     "twins": 3,
+     "unit_records": 21,
+     "doc_ids": [
+      1500601,
+      1500621
+     ]
+    },
+    {
+     "key": "grid_head",
+     "guid": "4e22fd69-a2da-49e8-acb3-29f4f6cf8d96",
+     "host_family": 1500721,
+     "symbols": [
+      1500726
+     ],
+     "twins": 2,
+     "unit_records": 20,
+     "doc_ids": [
+      1500701,
+      1500720
+     ]
+    },
+    {
+     "key": "callout_head",
+     "guid": "496aceb2-d885-47a1-bf00-3a506305dbd9",
+     "host_family": 1500820,
+     "symbols": [
+      1500824
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1500801,
+      1500819
+     ]
+    },
+    {
+     "key": "elevation_body",
+     "guid": "07181b25-200f-4496-97dd-aecb6bc2ac94",
+     "host_family": 1500920,
+     "symbols": [
+      1500924
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1500901,
+      1500919
+     ]
+    },
+    {
+     "key": "elevation_pointer_1",
+     "guid": "596eea0d-1cdd-488a-852c-dda35814f7b0",
+     "host_family": 1501020,
+     "symbols": [
+      1501024
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1501001,
+      1501019
+     ]
+    },
+    {
+     "key": "elevation_pointer_2",
+     "guid": "0ef7c125-4aed-4199-aac2-eb05d1a9dec6",
+     "host_family": 1501120,
+     "symbols": [
+      1501124
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1501101,
+      1501119
+     ]
+    },
+    {
+     "key": "view_title",
+     "guid": "67341fc9-86c3-4408-abbb-0b79c8c0ad0f",
+     "host_family": 1501220,
+     "symbols": [
+      1501224
+     ],
+     "twins": 1,
+     "unit_records": 19,
+     "doc_ids": [
+      1501201,
+      1501219
+     ]
+    },
+    {
+     "key": "boundary_condition",
+     "guid": "1da2395d-fce8-4941-9199-6d4b9cfbdf9a",
+     "host_family": 1501322,
+     "symbols": [
+      1501328
+     ],
+     "twins": 3,
+     "unit_records": 21,
+     "doc_ids": [
+      1501301,
+      1501321
+     ]
+    }
+   ],
+   "registries_after": {
+    "save_units": 13,
+    "contentdocs_entries": 12,
+    "contenttable_records": 12,
+    "familymgr_entries": 12,
+    "coherent": true,
+    "ours_in_all_four": true,
+    "units_added": 12
+   },
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 0,
+    "errors": [],
+    "warnings": []
+   },
+   "report": "L3.json"
+  },
+  {
+   "file": "experiments/genesis/loader/L3b_G1_candidate_our_heads.rvt",
+   "probe": "L3b",
+   "self_checks_ok": true,
+   "base": "experiments/genesis/G1_candidate.rvt",
+   "base_verdict": "constructed genesis base (viewer FAIL: 'Revit-DocumentCorruption')",
+   "tests": "The constructed base G1_candidate (234-element house-standard inventory, OUR ADocument, ZERO family documents) + our level-head head family document(s) loaded through all four registries, and its level type's m_familyTagId pointed at our level-head symbol.  = the K4-FAIL fix: the base now carries coherent embedded family documents.",
+   "if_PASS": "Embedded family documents were the missing skeleton class: the genesis base + OUR loaded families opens -- G1 has its K4-FAIL fix and the loader is the genesis-2 base's family route.",
+   "if_FAIL": "Family documents alone do not fix the constructed base: read the card message -- if L1a/L1b PASS, the residual is the base's OTHER missing skeleton content (settings singletons / catalogs, the K5x/K6 verdicts) or the head CONTENT (if L1b failed).",
+   "families": [
+    {
+     "key": "level_head",
+     "guid": "435675c9-0093-4ae2-8c02-9599b50ce536",
+     "host_family": 1500255,
+     "symbols": [
+      1500261
+     ],
+     "twins": 3,
+     "unit_records": 21,
+     "doc_ids": [
+      1500234,
+      1500254
+     ]
+    }
+   ],
+   "registries_after": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 1,
+    "coherent": true,
+    "ours_in_all_four": true,
+    "units_added": 1
+   },
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 0,
+    "errors": [],
+    "warnings": []
+   },
+   "report": "L3b.json"
+  },
+  {
+   "file": "experiments/genesis/loader/L2_K1_our_heads.rvt",
+   "probe": "L2",
+   "self_checks_ok": true,
+   "base": "experiments/genesis/triage/K1.rvt",
+   "base_verdict": "Autodesk empty-project skeleton (viewer verdict PENDING)",
+   "tests": "K1 (Autodesk's own empty-project skeleton, every catalog / singleton / view type intact) with its annotation-head families (level / grid / section / callout / elevation / view-title / boundary-condition heads: the like categories of our set) REPLACED by our twelve -- loaded through all four registries, every head usage field naming OUR symbols, the Autodesk head families + their documents removed coherently.  Tags / spot elevations / view references / the title block / curtain families STAY.",
+   "if_PASS": "Our head families are acceptable substitutes on the FULL Autodesk skeleton: the head-family layer of a genesis base can be ours.",
+   "if_FAIL": "(with K1 / K3 / KD1 PASSING and L1b PASSING) a head-family REMOVAL side effect broke the file (a family-scoped host child / catalog row the removal took) -- bisect against L1b (same load, no removal).",
+   "families": {
+    "section_head_open": 1472544,
+    "section_head_filled": 1472620,
+    "section_tail_filled": 1472721,
+    "section_tail_horizontal": 1472821,
+    "level_head": 1472922,
+    "grid_head": 1473021,
+    "callout_head": 1473120,
+    "elevation_body": 1473220,
+    "elevation_pointer_1": 1473320,
+    "elevation_pointer_2": 1473420,
+    "view_title": 1473520,
+    "boundary_condition": 1473622
+   },
+   "registries_after": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_entries": 51,
+    "coherent": true
+   },
+   "validate": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 275,
+     "records": 64281,
+     "elements_decoded": 21374,
+     "decode_failures": 7,
+     "refs_checked": 341729
+    }
+   },
+   "report": "L2.json"
+  }
+ ],
+ "standalone_families": [
+  {
+   "file": "experiments/genesis/loader/head_section_head_open.rfa",
+   "key": "section_head_open",
+   "name": "RW Section Head - Open",
+   "category": -2000400,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_section_head_filled.rfa",
+   "key": "section_head_filled",
+   "name": "RW Section Head - Filled",
+   "category": -2000400,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_section_tail_filled.rfa",
+   "key": "section_tail_filled",
+   "name": "RW Section Tail - Filled",
+   "category": -2000400,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_section_tail_horizontal.rfa",
+   "key": "section_tail_horizontal",
+   "name": "RW Section Tail - Horizontal",
+   "category": -2000400,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_level_head.rfa",
+   "key": "level_head",
+   "name": "RW Level Head - Circle",
+   "category": -2006020,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_grid_head.rfa",
+   "key": "grid_head",
+   "name": "RW Grid Head - Circle",
+   "category": -2006040,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_callout_head.rfa",
+   "key": "callout_head",
+   "name": "RW Callout Head",
+   "category": -2000538,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_elevation_body.rfa",
+   "key": "elevation_body",
+   "name": "RW Elevation Mark Body",
+   "category": -2006045,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_elevation_pointer_1.rfa",
+   "key": "elevation_pointer_1",
+   "name": "RW Elevation Mark Pointer",
+   "category": -2006045,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_elevation_pointer_2.rfa",
+   "key": "elevation_pointer_2",
+   "name": "RW Elevation Mark Pointer 2",
+   "category": -2006045,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_view_title.rfa",
+   "key": "view_title",
+   "name": "RW View Title",
+   "category": -2000515,
+   "validate_family": "VALID"
+  },
+  {
+   "file": "experiments/genesis/loader/head_boundary_condition.rfa",
+   "key": "boundary_condition",
+   "name": "RW Boundary Condition - Fixed",
+   "category": -2005301,
+   "validate_family": "VALID"
+  }
+ ]
+}

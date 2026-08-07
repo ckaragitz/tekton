@@ -1,0 +1,93 @@
+{
+ "stage": "L(nosolid)",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "order": [
+  "PP-1",
+  "PP-2",
+  "PP-3",
+  "PP-4",
+  "PP-5",
+  "PP-6"
+ ],
+ "loads": [
+  {
+   "tag": "PP-1",
+   "in": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L0_base.rvt",
+   "out": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L1_pp1.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "content_guid": "25cc138c-e27b-471c-8c9f-c18f702b73f8",
+   "symbol_rep": "SerializedDummy (symbol_solid=False)",
+   "product_solid": true,
+   "seconds": 1.4
+  },
+  {
+   "tag": "PP-2",
+   "in": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L1_pp1.rvt",
+   "out": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L2_pp2.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "symbol_id": 1472641,
+   "family_id": 1472625,
+   "content_guid": "1687cfb0-4c0b-47e5-9ec0-53fcc205cdce",
+   "symbol_rep": "SerializedDummy (symbol_solid=False)",
+   "product_solid": true,
+   "seconds": 1.4
+  },
+  {
+   "tag": "PP-3",
+   "in": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L2_pp2.rvt",
+   "out": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L3_pp3.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "symbol_id": 1472700,
+   "family_id": 1472684,
+   "content_guid": "5adc5221-2d3e-4a44-bb85-43b6dac36d6d",
+   "symbol_rep": "SerializedDummy (symbol_solid=False)",
+   "product_solid": true,
+   "seconds": 1.5
+  },
+  {
+   "tag": "PP-4",
+   "in": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L3_pp3.rvt",
+   "out": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L4_pp4.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "symbol_id": 1472759,
+   "family_id": 1472743,
+   "content_guid": "0cd47adf-6471-44fa-84b4-91d98a6af47e",
+   "symbol_rep": "SerializedDummy (symbol_solid=False)",
+   "product_solid": true,
+   "seconds": 1.5
+  },
+  {
+   "tag": "PP-5",
+   "in": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L4_pp4.rvt",
+   "out": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L5_pp5.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "symbol_id": 1472818,
+   "family_id": 1472802,
+   "content_guid": "b851879c-256e-4fcb-b372-0729026ee9fc",
+   "symbol_rep": "SerializedDummy (symbol_solid=False)",
+   "product_solid": true,
+   "seconds": 1.5
+  },
+  {
+   "tag": "PP-6",
+   "in": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L5_pp5.rvt",
+   "out": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L6_pp6.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "symbol_id": 1472877,
+   "family_id": 1472861,
+   "content_guid": "43e54330-c204-4e6a-91b3-48ed466f580c",
+   "symbol_rep": "SerializedDummy (symbol_solid=False)",
+   "product_solid": true,
+   "seconds": 1.5
+  }
+ ],
+ "final": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L6_pp6.rvt"
+}

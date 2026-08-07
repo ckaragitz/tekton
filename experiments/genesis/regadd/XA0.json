@@ -1,0 +1,293 @@
+{
+ "op": "add_element_like_original",
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XA0.rvt",
+ "elem_id": 2,
+ "class_name": "PenWidthTableElem",
+ "replaced_old_id": 2,
+ "elemtable_row": {
+  "original_id": 2,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 2,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "corpus_rule": {
+  "creation_ep": "birth",
+  "id_band": "<5k",
+  "modified_ep": "any",
+  "usermod": "episode",
+  "owner": null,
+  "owns": [],
+  "support": "7/7 project pen tables ce==0, id 2/3/11 (m8); the 58 family-scoped copies are owned by @Family, late episodes"
+ },
+ "rule_violations": [],
+ "placement": {
+  "policy": "auto",
+  "per_seq": {
+   "101": {
+    "index": 2516,
+    "of": 6540,
+    "policy": "same-id-in-place",
+    "reason": "re-inserted at the deleted element's own position (zero motion)",
+    "neighbourhood_after": [
+     {
+      "pos": 2512,
+      "id": 1182566,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2513,
+      "id": 1455333,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2514,
+      "id": 1455335,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2515,
+      "id": 1,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2516,
+      "id": 2,
+      "class": "ElementHeader",
+      "HERE": true
+     },
+     {
+      "pos": 2517,
+      "id": 3,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2518,
+      "id": 4,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2519,
+      "id": 5,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2520,
+      "id": 6,
+      "class": "ElementHeader"
+     }
+    ]
+   },
+   "102": {
+    "index": 2516,
+    "of": 6540,
+    "policy": "same-id-in-place",
+    "reason": "re-inserted at the deleted element's own position (zero motion)",
+    "neighbourhood_after": [
+     {
+      "pos": 2512,
+      "id": 1182566,
+      "class": "ExtentElem"
+     },
+     {
+      "pos": 2513,
+      "id": 1455333,
+      "class": "FamilySurrogate"
+     },
+     {
+      "pos": 2514,
+      "id": 1455335,
+      "class": "FamSymSurrogate"
+     },
+     {
+      "pos": 2515,
+      "id": 1,
+      "class": "AllProjectPhases"
+     },
+     {
+      "pos": 2516,
+      "id": 2,
+      "class": "PenWidthTableElem",
+      "HERE": true
+     },
+     {
+      "pos": 2517,
+      "id": 3,
+      "class": "FillPatternElem"
+     },
+     {
+      "pos": 2518,
+      "id": 4,
+      "class": "FillPatternElem"
+     },
+     {
+      "pos": 2519,
+      "id": 5,
+      "class": "FillPatternElem"
+     },
+     {
+      "pos": 2520,
+      "id": 6,
+      "class": "FillPatternElem"
+     }
+    ]
+   },
+   "103": {
+    "index": 2516,
+    "of": 6540,
+    "policy": "same-id-in-place",
+    "reason": "re-inserted at the deleted element's own position (zero motion)",
+    "neighbourhood_after": [
+     {
+      "pos": 2512,
+      "id": 1182566,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2513,
+      "id": 1455333,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2514,
+      "id": 1455335,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2515,
+      "id": 1,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2516,
+      "id": 2,
+      "class": "SerializedDummy",
+      "HERE": true
+     },
+     {
+      "pos": 2517,
+      "id": 3,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2518,
+      "id": 4,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2519,
+      "id": 5,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2520,
+      "id": 6,
+      "class": "SerializedDummy"
+     }
+    ]
+   }
+  }
+ },
+ "owned_children_wired": [],
+ "registry": {
+  "latest_touched": false,
+  "note": "same-id re-insert: Global/Latest untouched (byte-identical); every registry slot naming 2 indexes the re-added element"
+ },
+ "emit": {
+  "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XA0.rvt",
+  "partition": "Partitions/21",
+  "unit0_blocks_after": {
+   "101": 8,
+   "102": 47,
+   "103": 25
+  },
+  "elemtable_count": 6540,
+  "elemtable_rewritten": true,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Global/ElemTable",
+   "Partitions/21"
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "notes": [
+  "deleted old element 2 (records at {101: 2516, 102: 2516, 103: 2516}, row {'original_id': 2, 'creation_ep': 0, 'modified_ep': 976, 'user_modified_ep': 976, 'elem_id': 2, 'owner_id': -1, 'partition_id': 0})",
+  "ElemTable row COPIED from element 2: (orig 2, ce 0, me 976, ue 976, owner -1)"
+ ],
+ "diff_summary": {
+  "streams_differing": [],
+  "streams_identical_count": 12,
+  "partition_logical_identical": true,
+  "records_added": 0,
+  "records_removed": 0,
+  "records_changed": 0,
+  "changed_ids": [],
+  "id_order_identical": true,
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "latest_identical": true,
+  "embedded_units_identical": true
+ },
+ "probe": "XA0",
+ "role": "add-path NULL (delete + verbatim re-add at the same id)",
+ "one_change_vs_K1": "NONE by content: Autodesk's exact records re-added at id 2",
+ "raw_stream_identity_vs_K1": {
+  "identical": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "Partitions/21",
+   "ProjectInformation",
+   "TransmissionData"
+  ],
+  "differing": [],
+  "all_identical": true
+ },
+ "the_assertion": "byte-identical to K1 in every stream: the fixed add path with unchanged registration is a no-op",
+ "if_PASS": "the add path's mechanics are zero-motion (with XR_null PASSING)",
+ "if_FAIL": "(with XR_null PASSING) impossible unless the assertion above failed at build time -- see rule_violations / diff_summary",
+ "seconds": 9.1
+}

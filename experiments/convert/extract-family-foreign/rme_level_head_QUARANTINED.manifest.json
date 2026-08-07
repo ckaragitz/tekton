@@ -1,0 +1,91 @@
+{
+ "route": "rvt->rfa (rvt.convert.extract_family)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "samples/rmebasicsampleproject.rvt",
+  "sha256": "37127cf55f7488f16124c6149c0d46e974faf64fe1a87d541149c8715f3ead94",
+  "provenance": {
+   "author": "Autodesk Revit",
+   "format": "2026",
+   "lineage": "foreign (native Revit save lineage)",
+   "foreign": true,
+   "quarantined": true
+  }
+ },
+ "family": {
+  "selector": "M_Level Head - Circle",
+  "family_id": 88459,
+  "family_name": "M_Level Head - Circle",
+  "unit": 265,
+  "category": -2006020,
+  "types": [
+   "M_Level Head - Circle"
+  ]
+ },
+ "files": {
+  "rfa": "experiments/convert/extract-family-foreign/rme_level_head_QUARANTINED.rfa"
+ },
+ "stamps": [
+  "FOREIGN DESIGN CONTENT: the source model was not authored by tekton -- the extracted .rfa carries THAT model's family (their geometry, their parameters, their type values). Dev/interop artifact for the file's owner; never shipped as tekton content.",
+  "QUARANTINED SOURCE (dev-only): research-corpus / third-party content; the extraction stays in experiments/."
+ ],
+ "degradations": [
+  "self-checks did not all pass -- the file is delivered with this label; see validation",
+  "the family document references HOST-side resources (categories / styles / materials) that have no embedded twin in this unit (they are not in the host Family's big2SmallMap2 either) -- a project-hosted family is not fully self-contained. Standalone extraction of such a family needs HOST-RESOURCE REPATRIATION (copy those host records into the unit and remap the references): a named follow-up, not built in v1. Our own generated families are self-contained and extract clean."
+ ],
+ "errors": [],
+ "assembly": {
+  "size": 319488,
+  "partition_stream": "Partitions/0",
+  "elements": 236,
+  "document_guid": "2fb123e2-37cd-4a5e-a8a1-a34b5d112c94",
+  "adoc_mode": "candidate",
+  "adoc_bytes": 1359437,
+  "ours": [
+   "partition framing + unit footer nonce + end record",
+   "Global/{ElemTable,History,DocumentIncrementTable,PartitionTable,ContentDocuments,Latest}",
+   "Contents",
+   "BasicFileInfo (rvt.identity)",
+   "TransmissionData",
+   "PartAtom",
+   "CFB container / gzip / CRCIO framing"
+  ],
+  "carried": [
+   "the family document's OWN records (verbatim; the content being extracted)",
+   "Formats/Latest from the SOURCE file (per-release schema constant -- format, not content)"
+  ],
+  "verify": {
+   "gzip_crc_failures": 0,
+   "ecc_mismatch": 0,
+   "walker_errors": [],
+   "n_units": 1,
+   "record_counts": {
+    "101": 237,
+    "102": 237,
+    "103": 237
+   }
+  }
+ },
+ "validation": {
+  "family_mode": {
+   "verdict": "INVALID",
+   "n_errors": 1,
+   "n_warnings": 0,
+   "errors": [
+    "semantic references: 19 dangling ElementId reference(s) to elements that do not exist (by field: m_categoryId x12, m_invisibleGStyleId x2, m_notSilhouetteGStyleId x2, m_fillPatternElemId x2, m_pocheMatId x1). e.g. element 753466 RetouchTable.m_invisibleGStyleId=201; element 753466 RetouchTable.m_notSilhouetteGStyleId=55150; element 753472 RetouchTable.m_invisibleGStyleId=201; element 753472 RetouchTable.m_notSilhouetteGStyleId=55150"
+   ]
+  },
+  "records_decode_clean": true,
+  "ids_match_source_unit": true,
+  "self_checks_ok": false
+ },
+ "seconds": 12.5,
+ "deliverables": {
+  "rfa": {
+   "path": "experiments/convert/extract-family-foreign/rme_level_head_QUARANTINED.rfa",
+   "bytes": 319488,
+   "sha256": "afc722cab27f03f3d40168c775c6a313c257a13a71543f17b955c31b32af1785"
+  }
+ }
+}

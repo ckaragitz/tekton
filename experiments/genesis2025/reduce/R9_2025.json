@@ -1,0 +1,378 @@
+{
+ "rung": "R9_2025",
+ "ladder": "2025",
+ "release": 2025,
+ "recipe": "the certified 2026 R9 seed (rvt_reduce.stage_seed_v2) re-run on samples/2025/rstbasicsampleproject.rvt under rvt.versions.reading + context_2025",
+ "parent": "samples/2025/rstbasicsampleproject.rvt",
+ "parent_rung": "sample",
+ "out": "experiments/genesis2025/reduce/R9_2025.rvt",
+ "file_size": 3293184,
+ "seed": 10984,
+ "seed_kept_pinned": 820,
+ "deleted": 10164,
+ "surviving_elements": 3697,
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4346
+  ],
+  [
+   "LinearDimString",
+   709
+  ],
+  [
+   "GStyleElem",
+   649
+  ],
+  [
+   "FamilyInstance",
+   497
+  ],
+  [
+   "CategoryElem",
+   332
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "SketchPlane",
+   177
+  ],
+  [
+   "FontElem",
+   167
+  ],
+  [
+   "LinePatternElem",
+   143
+  ],
+  [
+   "VarSketch",
+   140
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "AppearanceAssetElem",
+   113
+  ],
+  [
+   "FillPatternElem",
+   107
+  ],
+  [
+   "ParamElemFamily",
+   107
+  ],
+  [
+   "LegendComponent",
+   91
+  ],
+  [
+   "FamilySymbol",
+   90
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "SunAndShadowSettings",
+   86
+  ],
+  [
+   "Viewport",
+   71
+  ],
+  [
+   "MaterialElem",
+   70
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "TextNoteAttributes",
+   65
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "DBDrawing",
+   53
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "LeaderStyle",
+   42
+  ],
+  [
+   "SketchGrid",
+   40
+  ],
+  [
+   "TagNoteAttributes",
+   40
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "ExtentElem",
+   36
+  ],
+  [
+   "ConceptualConstructionType",
+   36
+  ],
+  [
+   "LineLoad",
+   35
+  ],
+  [
+   "FamSymSurrogate",
+   34
+  ],
+  [
+   "RoomElem",
+   30
+  ],
+  [
+   "Viewer",
+   29
+  ],
+  [
+   "FamilySurrogate",
+   29
+  ]
+ ],
+ "structural_ok": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 230,
+   "records": 65475,
+   "elements_decoded": 21772,
+   "decode_failures": 1,
+   "refs_checked": 333725
+  }
+ },
+ "reduce_law": {
+  "verdict": "EDIT-FREE",
+  "ok": true,
+  "removed": 10164,
+  "added": 0,
+  "common": 21772,
+  "survivors_edited": 0,
+  "summary": "[EDIT-FREE] R9_2025 vs rstbasic-2025 (sample): removed 10,164, added 0, common 21,772, SURVIVORS EDITED 0 (vindicated 0)"
+ },
+ "census": {
+  "path": "experiments/genesis2025/reduce/R9_2025.rvt",
+  "elements": 3697,
+  "classes": {
+   "GStyleElem": 1526,
+   "ParamElemExternal": 466,
+   "CategoryElem": 284,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "FontElem": 96,
+   "DBViewType": 91,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "TextNoteAttributes": 25,
+   "MaterialElem": 23,
+   "Family": 21,
+   "FamilySurrogate": 21,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "TagNoteAttributes": 20,
+   "LeaderStyle": 19,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "FamilySymbol": 16,
+   "FilledRegionAttributes": 16,
+   "FamSymSurrogate": 16,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "ParamElemFamily": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 10,
+   "SectionAttributes": 10,
+   "PenWidthTableElem": 9,
+   "FillPatternElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "ColorFillSchema": 9,
+   "Viewport": 8,
+   "AreaTypeElem": 8,
+   "ParamElemProject": 8,
+   "LoadNatureElem": 8,
+   "LoadCaseElem": 8,
+   "RbsPipeConnectionType": 8,
+   "LinePatternElem": 7,
+   "ParameterFilterElement": 7,
+   "DBDrawing": 6,
+   "AreaSchemePlanTopologies": 6,
+   "Viewer": 5,
+   "RbsPipeMaterialType": 5,
+   "ConduitStandardType": 5,
+   "LegendComponent": 5,
+   "CurveElem": 5,
+   "SunAndShadowSettings": 4,
+   "RbsWireMaterialType": 4,
+   "PrintSettings": 3,
+   "RbsWireTemperatureRatingType": 3,
+   "Grid": 3,
+   "ExtentElem": 3,
+   "SunAnnotationElem": 3,
+   "NumberingSchema": 3,
+   "ImageSymbol": 3,
+   "ImageHolder": 3,
+   "AreaMeasureElem": 2,
+   "ProjectPhase": 2,
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "ModelGraphicsStyle": 2,
+   "BasePoint": 2,
+   "WorksharingViewModeSettings": 2,
+   "DBViewPlan": 2,
+   "RevisionNumberingSequence": 2,
+   "AllProjectPhases": 1,
+   "DBViewProject": 1,
+   "LevelAttributes": 1,
+   "ViewportAttributes": 1,
+   "GridAttributes": 1,
+   "PhaseFilterElem": 1,
+   "TrueNorth": 1,
+   "DaylightSourceIdSet": 1,
+   "UnitsElem": 1,
+   "ExternalParamLock": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "ProjectInfo": 1,
+   "StructSettingsElem": 1,
+   "AreaReportSettingsElem": 1,
+   "RbsDbViewSystemNavigator": 1,
+   "AreaSettingsElem": 1,
+   "ReactionsUpToDateElem": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "KeynoteTable": 1,
+   "KeynotingSystem": 1,
+   "ConstructionSetProject": 1,
+   "WallJoinDefaultSetting": 1,
+   "RbsDuctSizesElem": 1,
+   "RbsDuctSettingsElem": 1,
+   "RbsPipeSettingsElem": 1,
+   "RbsWireSettingsElem": 1,
+   "RbsPipeSizesElem": 1,
+   "RbsWireSizesElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "ZoneScheme": 1,
+   "AutoJoinTracker": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "ConduitSizesElem": 1,
+   "CableTraySizesElem": 1,
+   "CableTraySettingsElem": 1,
+   "ConduitSettingsElem": 1,
+   "ProjectCopySettingsElem": 1,
+   "EnergyDataSettings": 1,
+   "ReconcileBrowserSettingsElem": 1,
+   "ElectricalSetting": 1,
+   "MEPSystemTracker": 1,
+   "AssemblyTracker": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "ReinforcementSettings": 1,
+   "CurtaSystemFaceManager": 1,
+   "BasicWallType": 1,
+   "LinearDimString": 1,
+   "DefaultDivideSettings": 1,
+   "MEPComponentTracker": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "LevelRoomPlan": 1,
+   "RoomElem": 1,
+   "FloorAttributes": 1,
+   "LayoutNodesTracker": 1,
+   "AssemblyCodeTable": 1,
+   "FabricationSettings": 1,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "CopyWatchProperties": 1,
+   "FabricWireType": 1,
+   "FabricSheetType": 1,
+   "DataStorage": 1,
+   "Viewer3d": 1,
+   "ModelClipBox": 1,
+   "DBView3d": 1,
+   "LightSchemeElement": 1,
+   "SlaveSymbolTrackerElem": 1,
+   "DBViewDrafting": 1,
+   "FabricationSettingsElement": 1,
+   "StructuralConnectionSettings": 1,
+   "MEPNetworkTracker": 1,
+   "RouteAnalysisSettings": 1,
+   "CircuitNamingTypeSetting": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "GraphicsCache": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "MEPNetworkDataElem": 1,
+   "FabricationServiceSettings": 1,
+   "SSEPointVisibilitySettings": 1,
+   "STEPExportSettings": 1,
+   "SheetsInSheetCollectionTracker": 1
+  },
+  "file_size": 3293184,
+  "save_units": 53,
+  "contentdocs_entries": 52,
+  "contentdocs_clean_tail": true,
+  "contenttable_records": 52,
+  "adocument_clean": true,
+  "familymgr_entries": 50,
+  "familymgr_doc_guids": 52,
+  "four_registry_coherent": true
+ },
+ "latest_dangling": 3049,
+ "seconds": 9.2
+}

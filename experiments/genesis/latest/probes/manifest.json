@@ -1,0 +1,426 @@
+{
+  "generated": "2026-08-03T20:59:09Z",
+  "tool": "tools/latest_probes.py",
+  "purpose": "Reader-tolerance probes of Global/Latest: what does Autodesk's reader actually REQUIRE of the ADocument?  Each file edits ONLY Global/Latest (length-preserving); a viewer PASS/FAIL attributes to one class of content.",
+  "bases": {
+    "rst": {
+      "base": "rst",
+      "path": "samples/rstbasicsampleproject.rvt",
+      "latest_inflated_bytes": 1586246,
+      "latest_sha256": "3cf64f8f4b375ba8a67553f1e351097914b6ebf460e078a12c00acdf274e590d",
+      "prefix_hex": "0500000000000000",
+      "string_classes": {
+        "build": 7,
+        "machinery": 405,
+        "category": 413,
+        "project.naming": 33,
+        "user": 2,
+        "forge.typeid": 1315,
+        "forge.json": 1142,
+        "lb-map": 102,
+        "lb-json": 103,
+        "project.room": 11,
+        "project.material": 2
+      },
+      "forge_pairs": 1315,
+      "forge_bytes": 1333340,
+      "id_ref_hits": 9602,
+      "id_distinct": 6175,
+      "id_dangling_in_this_file": 0,
+      "id_hits_adjacent": 5215
+    },
+    "G0": {
+      "base": "G0",
+      "path": "experiments/genesis/G0.rvt",
+      "latest_inflated_bytes": 1586246,
+      "latest_sha256": "3cf64f8f4b375ba8a67553f1e351097914b6ebf460e078a12c00acdf274e590d",
+      "prefix_hex": "0500000000000000",
+      "string_classes": {
+        "build": 7,
+        "machinery": 405,
+        "category": 413,
+        "project.naming": 33,
+        "user": 2,
+        "forge.typeid": 1315,
+        "forge.json": 1142,
+        "lb-map": 102,
+        "lb-json": 103,
+        "project.room": 11,
+        "project.material": 2
+      },
+      "forge_pairs": 1315,
+      "forge_bytes": 1333340,
+      "id_ref_hits": 9602,
+      "id_distinct": 6175,
+      "id_dangling_in_this_file": 6175,
+      "id_hits_adjacent": 5215
+    }
+  },
+  "viewer_queue": [
+    {
+      "file": "experiments/genesis/latest/probes/P0_control.rvt",
+      "probe": "P0_control",
+      "base": "rst",
+      "order": [
+        0,
+        0
+      ],
+      "title": "control: Latest re-encoded by us (gzip level 3 + sync-flush, real ECC), payload byte-identical",
+      "question": "Is OUR re-encoding of Global/Latest (nothing else) accepted?  (V15 whole-file precedent says yes.)",
+      "unlocks": "Nothing new \u2014 this is the yardstick.  If it FAILS the whole set is void and the fault is our Latest framing, not content.",
+      "validator_ok": true,
+      "queue_position": 1
+    },
+    {
+      "file": "experiments/genesis/latest/probes/P1_names.rvt",
+      "probe": "P1_names",
+      "base": "rst",
+      "order": [
+        0,
+        1
+      ],
+      "title": "every PROJECT-data name string replaced by same-length neutral text",
+      "question": "Can the sample project's authored names (rooms, sheet nos/names, view names, assembly, materials, usernames) be renamed inside the ADocument without an encoder?",
+      "unlocks": "PASS => genesis can strip ALL sample naming from Latest by length-preserving substitution TODAY (retires audit exhibit B2 'the sample's room/sheet names survive').  Bonus tell: if the sheet list still shows 'FOUNDATION-2700'/'S206', the Latest name registry is not the display source.",
+      "validator_ok": true,
+      "queue_position": 2
+    },
+    {
+      "file": "experiments/genesis/latest/probes/P4_ids_null.rvt",
+      "probe": "P4_ids_null",
+      "base": "rst",
+      "order": [
+        0,
+        1
+      ],
+      "title": "every ElementId reference (i64) into the sample lineage remapped to -1 (invalid)",
+      "question": "Are the ADocument's ~6,175 element-id references (registries / tables) load-bearing?  In G0 all are dangling; in rst all are live.",
+      "unlocks": "G0_P4 PASS while G0 FAILS => the dangling ids were the killer and nulling them is the fix.  rst P4 PASS => id registries can be nulled wholesale (a -1 is tolerated even for live objects).  Both PASS => the id arrays are inert.",
+      "validator_ok": true,
+      "queue_position": 3
+    },
+    {
+      "file": "experiments/genesis/latest/probes/P3a_forge_stub.rvt",
+      "probe": "P3a_forge_stub",
+      "base": "rst",
+      "order": [
+        0,
+        2
+      ],
+      "title": "every Forge (typeid, json) document body -> length-identical minimal valid JSON self-stub {\"typeid\": ...}; keys intact",
+      "question": "Is the CONTENT of the ~1.3 MB Autodesk Forge unit/spec/parameter-group JSON corpus load-bearing, or a cache the reader ignores/rebuilds?",
+      "unlocks": "PASS => the Forge corpus is NOT expression we must carry: genesis can regenerate it as trivial self-stubs (retires the audit's 78 % Forge byte share and counsel item (a)).  FAIL => document content is validated; test P3b next only if P3a passes.",
+      "validator_ok": true,
+      "queue_position": 4
+    },
+    {
+      "file": "experiments/genesis/latest/probes/P5_combined.rvt",
+      "probe": "P5_combined",
+      "base": "rst",
+      "order": [
+        0,
+        2
+      ],
+      "title": "P1 (names -> neutral) + P4 (ids -> -1) combined",
+      "question": "Do the two most likely genesis operations compose?",
+      "unlocks": "PASS => genesis-2 can ship a Latest with OUR names and NO sample-id references immediately (the whole 'sample lineage' complaint minus the Forge corpus).",
+      "validator_ok": true,
+      "queue_position": 5
+    },
+    {
+      "file": "experiments/genesis/latest/probes/P2_names_blank.rvt",
+      "probe": "P2_names_blank",
+      "base": "rst",
+      "order": [
+        0,
+        3
+      ],
+      "title": "the same project strings replaced by same-length SPACES",
+      "question": "Must names be non-blank / unique, or is the text irrelevant?",
+      "unlocks": "PASS => names need not even be meaningful (blank is fine).  FAIL while P1 passes => a non-empty / uniqueness rule exists; genesis must emit distinct neutral names, not blanks.",
+      "validator_ok": true,
+      "queue_position": 6
+    },
+    {
+      "file": "experiments/genesis/latest/probes/P3b_forge_blank.rvt",
+      "probe": "P3b_forge_blank",
+      "base": "rst",
+      "order": [
+        0,
+        4
+      ],
+      "title": "every Forge JSON body -> same-length SPACES (invalid JSON); keys intact",
+      "question": "Are the JSON bodies PARSED at all at open time?",
+      "unlocks": "PASS => bodies are never parsed (pure inert bytes) => the corpus can be blanked outright.  FAIL while P3a passes => JSON must be well-formed but content is free.",
+      "validator_ok": true,
+      "queue_position": 7
+    },
+    {
+      "file": "experiments/genesis/latest/probes/P6_all.rvt",
+      "probe": "P6_all",
+      "base": "rst",
+      "order": [
+        0,
+        5
+      ],
+      "title": "MAXIMAL sanitization: names blanked + Forge corpus blanked (typeids scrubbed too) + ids nulled + LB reconcile map (keys + JSON records) scrubbed",
+      "question": "Can the ENTIRE Autodesk/sample expression inside Latest be removed length-preservingly with no encoder at all?",
+      "unlocks": "PASS => the genesis-2 assembler needs NO ADocument encoder to close audit sections B1/B2 for Latest \u2014 a scrubbed Latest is shippable now.  FAIL with P1/P3b/P4 passing => the interaction or the typeid/LB scrub is at fault; bisect.",
+      "validator_ok": true,
+      "queue_position": 8
+    },
+    {
+      "file": "experiments/genesis/latest/probes/G0_P0_control.rvt",
+      "probe": "P0_control",
+      "base": "G0",
+      "order": [
+        1,
+        0
+      ],
+      "title": "control: Latest re-encoded by us (gzip level 3 + sync-flush, real ECC), payload byte-identical",
+      "question": "Is OUR re-encoding of Global/Latest (nothing else) accepted?  (V15 whole-file precedent says yes.)",
+      "unlocks": "Nothing new \u2014 this is the yardstick.  If it FAILS the whole set is void and the fault is our Latest framing, not content.",
+      "validator_ok": true,
+      "queue_position": 9
+    },
+    {
+      "file": "experiments/genesis/latest/probes/G0_P1_names.rvt",
+      "probe": "P1_names",
+      "base": "G0",
+      "order": [
+        1,
+        1
+      ],
+      "title": "every PROJECT-data name string replaced by same-length neutral text",
+      "question": "Can the sample project's authored names (rooms, sheet nos/names, view names, assembly, materials, usernames) be renamed inside the ADocument without an encoder?",
+      "unlocks": "PASS => genesis can strip ALL sample naming from Latest by length-preserving substitution TODAY (retires audit exhibit B2 'the sample's room/sheet names survive').  Bonus tell: if the sheet list still shows 'FOUNDATION-2700'/'S206', the Latest name registry is not the display source.",
+      "validator_ok": true,
+      "queue_position": 10
+    },
+    {
+      "file": "experiments/genesis/latest/probes/G0_P4_ids_null.rvt",
+      "probe": "P4_ids_null",
+      "base": "G0",
+      "order": [
+        1,
+        1
+      ],
+      "title": "every ElementId reference (i64) into the sample lineage remapped to -1 (invalid)",
+      "question": "Are the ADocument's ~6,175 element-id references (registries / tables) load-bearing?  In G0 all are dangling; in rst all are live.",
+      "unlocks": "G0_P4 PASS while G0 FAILS => the dangling ids were the killer and nulling them is the fix.  rst P4 PASS => id registries can be nulled wholesale (a -1 is tolerated even for live objects).  Both PASS => the id arrays are inert.",
+      "validator_ok": true,
+      "queue_position": 11
+    },
+    {
+      "file": "experiments/genesis/latest/probes/G0_P3a_forge_stub.rvt",
+      "probe": "P3a_forge_stub",
+      "base": "G0",
+      "order": [
+        1,
+        2
+      ],
+      "title": "every Forge (typeid, json) document body -> length-identical minimal valid JSON self-stub {\"typeid\": ...}; keys intact",
+      "question": "Is the CONTENT of the ~1.3 MB Autodesk Forge unit/spec/parameter-group JSON corpus load-bearing, or a cache the reader ignores/rebuilds?",
+      "unlocks": "PASS => the Forge corpus is NOT expression we must carry: genesis can regenerate it as trivial self-stubs (retires the audit's 78 % Forge byte share and counsel item (a)).  FAIL => document content is validated; test P3b next only if P3a passes.",
+      "validator_ok": true,
+      "queue_position": 12
+    },
+    {
+      "file": "experiments/genesis/latest/probes/G0_P5_combined.rvt",
+      "probe": "P5_combined",
+      "base": "G0",
+      "order": [
+        1,
+        2
+      ],
+      "title": "P1 (names -> neutral) + P4 (ids -> -1) combined",
+      "question": "Do the two most likely genesis operations compose?",
+      "unlocks": "PASS => genesis-2 can ship a Latest with OUR names and NO sample-id references immediately (the whole 'sample lineage' complaint minus the Forge corpus).",
+      "validator_ok": true,
+      "queue_position": 13
+    },
+    {
+      "file": "experiments/genesis/latest/probes/G0_P2_names_blank.rvt",
+      "probe": "P2_names_blank",
+      "base": "G0",
+      "order": [
+        1,
+        3
+      ],
+      "title": "the same project strings replaced by same-length SPACES",
+      "question": "Must names be non-blank / unique, or is the text irrelevant?",
+      "unlocks": "PASS => names need not even be meaningful (blank is fine).  FAIL while P1 passes => a non-empty / uniqueness rule exists; genesis must emit distinct neutral names, not blanks.",
+      "validator_ok": true,
+      "queue_position": 14
+    },
+    {
+      "file": "experiments/genesis/latest/probes/G0_P3b_forge_blank.rvt",
+      "probe": "P3b_forge_blank",
+      "base": "G0",
+      "order": [
+        1,
+        4
+      ],
+      "title": "every Forge JSON body -> same-length SPACES (invalid JSON); keys intact",
+      "question": "Are the JSON bodies PARSED at all at open time?",
+      "unlocks": "PASS => bodies are never parsed (pure inert bytes) => the corpus can be blanked outright.  FAIL while P3a passes => JSON must be well-formed but content is free.",
+      "validator_ok": true,
+      "queue_position": 15
+    },
+    {
+      "file": "experiments/genesis/latest/probes/G0_P6_all.rvt",
+      "probe": "P6_all",
+      "base": "G0",
+      "order": [
+        1,
+        5
+      ],
+      "title": "MAXIMAL sanitization: names blanked + Forge corpus blanked (typeids scrubbed too) + ids nulled + LB reconcile map (keys + JSON records) scrubbed",
+      "question": "Can the ENTIRE Autodesk/sample expression inside Latest be removed length-preservingly with no encoder at all?",
+      "unlocks": "PASS => the genesis-2 assembler needs NO ADocument encoder to close audit sections B1/B2 for Latest \u2014 a scrubbed Latest is shippable now.  FAIL with P1/P3b/P4 passing => the interaction or the typeid/LB scrub is at fault; bisect.",
+      "validator_ok": true,
+      "queue_position": 16
+    }
+  ],
+  "decision_table": [
+    {
+      "if": "P0_control PASSES",
+      "then": "our Latest re-encode is sound (expected: whole-file V15 precedent); every other verdict is about CONTENT"
+    },
+    {
+      "if": "P1_names PASSES",
+      "then": "genesis can RENAME every project string in Latest by length-preserving substitution today \u2014 no encoder needed to retire the sample's room/sheet/view/material names and usernames (audit B2/B3 naming exhibits)"
+    },
+    {
+      "if": "P2_names_blank PASSES",
+      "then": "names carry no reader rule at all (blank is fine); if P2 FAILS but P1 PASSES, names must merely be non-empty/distinct"
+    },
+    {
+      "if": "P3a_forge_stub PASSES",
+      "then": "the ~1.3 MB Forge unit/spec/parameter-group JSON corpus is NOT load-bearing content: it can be regenerated as trivial self-stubs (retires the audit's 78 % Forge byte share; counsel question (a) shrinks to 'may we emit stubs naming Autodesk typeids')"
+    },
+    {
+      "if": "P3b_forge_blank PASSES",
+      "then": "the JSON bodies are never parsed at open \u2014 the corpus can be blanked outright (stronger than P3a)"
+    },
+    {
+      "if": "P4_ids_null PASSES",
+      "then": "the ADocument's element-id registries can be NULLED (-1) wholesale; on G0 this removes all 6,175 dangling sample-id references \u2014 the last id lineage into the sample"
+    },
+    {
+      "if": "G0_P4 PASSES while G0 (unmodified) FAILS",
+      "then": "dangling ids were G0's blocker and nulling is the fix"
+    },
+    {
+      "if": "P5_combined PASSES",
+      "then": "the two headline genesis operations compose: OUR names + NO sample-id references in one Latest"
+    },
+    {
+      "if": "P6_all PASSES",
+      "then": "MAXIMAL sanitization is accepted: genesis-2 needs NO ADocument encoder to close the Latest stream ledger \u2014 ship the scrubbed Latest, defer the encoder"
+    },
+    {
+      "if": "everything FAILS but P0 passes",
+      "then": "the ADocument content is validated in detail => the ADocument decoder->encoder (genesis.md 6.3) is unavoidably the critical path"
+    }
+  ],
+  "prerequisite": "Upload G0.rvt itself as the CONTROL for the G0_ set: no G-rung has a recorded viewer verdict.  The rst set needs no control beyond P0 (rstbasic is a known-good sample; the whole-file rewrite V15 already passed).",
+  "probes": {
+    "P0_control.rvt": {
+      "file": "experiments/genesis/latest/probes/P0_control.rvt",
+      "edits": 0,
+      "bytes_changed": 0,
+      "validator_ok": true
+    },
+    "P1_names.rvt": {
+      "file": "experiments/genesis/latest/probes/P1_names.rvt",
+      "edits": 48,
+      "bytes_changed": 230,
+      "validator_ok": true
+    },
+    "P2_names_blank.rvt": {
+      "file": "experiments/genesis/latest/probes/P2_names_blank.rvt",
+      "edits": 48,
+      "bytes_changed": 219,
+      "validator_ok": true
+    },
+    "P3a_forge_stub.rvt": {
+      "file": "experiments/genesis/latest/probes/P3a_forge_stub.rvt",
+      "edits": 1315,
+      "bytes_changed": 512059,
+      "validator_ok": true
+    },
+    "P3b_forge_blank.rvt": {
+      "file": "experiments/genesis/latest/probes/P3b_forge_blank.rvt",
+      "edits": 1315,
+      "bytes_changed": 511074,
+      "validator_ok": true
+    },
+    "P4_ids_null.rvt": {
+      "file": "experiments/genesis/latest/probes/P4_ids_null.rvt",
+      "edits": 9602,
+      "bytes_changed": 76765,
+      "validator_ok": true
+    },
+    "P5_combined.rvt": {
+      "file": "experiments/genesis/latest/probes/P5_combined.rvt",
+      "edits": 9650,
+      "bytes_changed": 76995,
+      "validator_ok": true
+    },
+    "P6_all.rvt": {
+      "file": "experiments/genesis/latest/probes/P6_all.rvt",
+      "edits": 12485,
+      "bytes_changed": 655178,
+      "validator_ok": true
+    },
+    "G0_P0_control.rvt": {
+      "file": "experiments/genesis/latest/probes/G0_P0_control.rvt",
+      "edits": 0,
+      "bytes_changed": 0,
+      "validator_ok": true
+    },
+    "G0_P1_names.rvt": {
+      "file": "experiments/genesis/latest/probes/G0_P1_names.rvt",
+      "edits": 48,
+      "bytes_changed": 230,
+      "validator_ok": true
+    },
+    "G0_P2_names_blank.rvt": {
+      "file": "experiments/genesis/latest/probes/G0_P2_names_blank.rvt",
+      "edits": 48,
+      "bytes_changed": 219,
+      "validator_ok": true
+    },
+    "G0_P3a_forge_stub.rvt": {
+      "file": "experiments/genesis/latest/probes/G0_P3a_forge_stub.rvt",
+      "edits": 1315,
+      "bytes_changed": 512059,
+      "validator_ok": true
+    },
+    "G0_P3b_forge_blank.rvt": {
+      "file": "experiments/genesis/latest/probes/G0_P3b_forge_blank.rvt",
+      "edits": 1315,
+      "bytes_changed": 511074,
+      "validator_ok": true
+    },
+    "G0_P4_ids_null.rvt": {
+      "file": "experiments/genesis/latest/probes/G0_P4_ids_null.rvt",
+      "edits": 9602,
+      "bytes_changed": 76765,
+      "validator_ok": true
+    },
+    "G0_P5_combined.rvt": {
+      "file": "experiments/genesis/latest/probes/G0_P5_combined.rvt",
+      "edits": 9650,
+      "bytes_changed": 76995,
+      "validator_ok": true
+    },
+    "G0_P6_all.rvt": {
+      "file": "experiments/genesis/latest/probes/G0_P6_all.rvt",
+      "edits": 12485,
+      "bytes_changed": 655178,
+      "validator_ok": true
+    }
+  }
+}

@@ -1,0 +1,777 @@
+{
+ "parent": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "landed_slots": 1806,
+ "classes": {
+  "AreaReportSettingsElem": {
+   "residue": 1,
+   "ids": [
+    69707
+   ],
+   "rung": "ZC_analysis",
+   "constant_fields": 90,
+   "varying_fields": []
+  },
+  "AreaSchemePlanTopologies": {
+   "residue": 6,
+   "ids": [
+    9744,
+    9745,
+    581529,
+    581530,
+    711934,
+    711935
+   ],
+   "rung": "ZC_analysis",
+   "constant_fields": 54,
+   "varying_fields": [
+    "m_areaSchemeElemId",
+    "m_id",
+    "m_pSet.value.m_set[len]",
+    "m_varyInOption[0].first.m_linkInstOrHostId",
+    "m_varyInOption[len]"
+   ]
+  },
+  "AreaTypeElem": {
+   "residue": 8,
+   "ids": [
+    9492,
+    9493,
+    9496,
+    9497,
+    9498,
+    9499,
+    9500,
+    9501
+   ],
+   "rung": "ZC_analysis",
+   "constant_fields": 25,
+   "varying_fields": [
+    "m_areaSchemeId",
+    "m_eSpaceType",
+    "m_id"
+   ]
+  },
+  "AssemblyCodeTable": {
+   "residue": 1,
+   "ids": [
+    1218726
+   ],
+   "rung": "ZC_analysis",
+   "constant_fields": 107,
+   "varying_fields": []
+  },
+  "BasicWallType": {
+   "residue": 1,
+   "ids": [
+    600634
+   ],
+   "rung": "ZC_systype",
+   "constant_fields": 159,
+   "varying_fields": []
+  },
+  "BrowserOrganization": {
+   "residue": 5,
+   "ids": [
+    26013,
+    26014,
+    26015,
+    26016,
+    26017
+   ],
+   "rung": "ZC_browse",
+   "constant_fields": 37,
+   "varying_fields": [
+    "m_folderDefinitions[0].m_numCharsToUse",
+    "m_folderDefinitions[0].m_parameter.m_paramIdPath[0]",
+    "m_folderDefinitions[1].m_parameter.m_paramIdPath[0]",
+    "m_folderDefinitions[len]",
+    "m_id",
+    "m_sortParameter.m_paramIdPath[0]",
+    "m_symbolInfo.value.m_name",
+    "m_type"
+   ]
+  },
+  "BuildingOperatingYearSchedule": {
+   "residue": 27,
+   "ids": [
+    1471979,
+    1471980,
+    1471981,
+    1471982,
+    1471983,
+    1471984,
+    1471985,
+    1471986,
+    1471987,
+    1471988,
+    1471989,
+    1471990,
+    1471991,
+    1471992,
+    1471993,
+    1471994,
+    1471995,
+    1471996,
+    1471997,
+    1471998,
+    1471999,
+    1472000,
+    1472001,
+    1472002,
+    1472003,
+    1472004,
+    1472005
+   ],
+   "rung": "ZC_hvac",
+   "constant_fields": 20,
+   "varying_fields": [
+    "m_daySchedules[0]",
+    "m_daySchedules[1]",
+    "m_daySchedules[2]",
+    "m_id",
+    "m_scheduleName"
+   ]
+  },
+  "CableTraySizesElem": {
+   "residue": 1,
+   "ids": [
+    113169
+   ],
+   "rung": "ZC_conduit",
+   "constant_fields": 36,
+   "varying_fields": []
+  },
+  "ColorFillSchema": {
+   "residue": 10,
+   "ids": [
+    99859,
+    99860,
+    99861,
+    99864,
+    102898,
+    102899,
+    103627,
+    103635,
+    713027,
+    1472456
+   ],
+   "rung": "ZC_analysis",
+   "constant_fields": 63,
+   "varying_fields": [
+    "m_areaSchemeId",
+    "m_bByRange",
+    "m_bIncludeLinkedFiles",
+    "m_categoryId",
+    "m_colorFillArr[0].m_bByRange",
+    "m_colorFillArr[0].m_bColorManually",
+    "m_colorFillArr[0].m_bInUse",
+    "m_colorFillArr[0].m_caption",
+    "m_colorFillArr[0].m_paramStorage.m_elemId",
+    "m_colorFillArr[0].m_paramStorage.m_storageType",
+    "m_colorFillArr[0].m_paramStorage.m_str.m_str",
+    "m_colorFillArr[1].m_bByRange",
+    "m_colorFillArr[1].m_bColorManually",
+    "m_colorFillArr[1].m_bInUse",
+    "m_colorFillArr[1].m_caption",
+    "m_colorFillArr[1].m_paramStorage.m_dbl",
+    "m_colorFillArr[1].m_paramStorage.m_storageType",
+    "m_colorFillArr[1].m_paramStorage.m_str.m_str",
+    "m_colorFillArr[2].m_bByRange",
+    "m_colorFillArr[2].m_bColorManually",
+    "m_colorFillArr[2].m_bInUse",
+    "m_colorFillArr[2].m_caption",
+    "m_colorFillArr[2].m_paramStorage.m_dbl",
+    "m_colorFillArr[2].m_paramStorage.m_storageType",
+    "m_colorFillArr[2].m_paramStorage.m_str.m_str",
+    "m_colorFillArr[len]",
+    "m_id",
+    "m_paramId",
+    "m_strName",
+    "m_title",
+    "m_zoneSchemeId"
+   ]
+  },
+  "ConduitSizesElem": {
+   "residue": 1,
+   "ids": [
+    113168
+   ],
+   "rung": "ZC_conduit",
+   "constant_fields": 81,
+   "varying_fields": []
+  },
+  "ConduitStandardType": {
+   "residue": 5,
+   "ids": [
+    113164,
+    113165,
+    113166,
+    121660,
+    121661
+   ],
+   "rung": "ZC_conduit",
+   "constant_fields": 31,
+   "varying_fields": [
+    "m_id",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "DBDrawing": {
+   "residue": 1,
+   "ids": [
+    1457031
+   ],
+   "rung": "ZC_browse",
+   "constant_fields": 25,
+   "varying_fields": []
+  },
+  "DBViewDrafting": {
+   "residue": 1,
+   "ids": [
+    1457028
+   ],
+   "rung": "ZC_browse",
+   "constant_fields": 466,
+   "varying_fields": []
+  },
+  "DataStorage": {
+   "residue": 1,
+   "ids": [
+    1382860
+   ],
+   "rung": "DELETE (leaf)",
+   "constant_fields": 26,
+   "varying_fields": []
+  },
+  "ElectricalDemandFactorDefinition": {
+   "residue": 21,
+   "ids": [
+    113159,
+    113161,
+    113943,
+    121663,
+    135866,
+    237138,
+    237139,
+    237140,
+    297988,
+    298001,
+    301084,
+    372505,
+    967235,
+    999055,
+    1053892,
+    1053899,
+    1053900,
+    1053901,
+    1053902,
+    1053903,
+    1053904
+   ],
+   "rung": "ZC_elec",
+   "constant_fields": 31,
+   "varying_fields": [
+    "m_designOptionId",
+    "m_id",
+    "m_name",
+    "m_ruleType",
+    "m_values[0].m_factor",
+    "m_values[0].m_maxRange",
+    "m_values[1].m_factor",
+    "m_values[1].m_maxRange",
+    "m_values[1].m_minRange",
+    "m_values[len]"
+   ]
+  },
+  "ElectricalLoadClassification": {
+   "residue": 18,
+   "ids": [
+    113160,
+    113162,
+    113944,
+    113945,
+    113946,
+    121664,
+    297989,
+    298002,
+    298003,
+    298004,
+    298005,
+    372504,
+    967234,
+    999054,
+    1053891,
+    1053896,
+    1053897,
+    1053898
+   ],
+   "rung": "ZC_elec",
+   "constant_fields": 32,
+   "varying_fields": [
+    "m_actualSpaceLoadParamElemId",
+    "m_demandFactorId",
+    "m_demandFactorParamElemId",
+    "m_designOptionId",
+    "m_estCurrentParamElemId",
+    "m_estLoadParamElemId",
+    "m_id",
+    "m_name",
+    "m_signitureType",
+    "m_spaceLoadClass",
+    "m_totalCurrentParamElemId",
+    "m_totalLoadParamElemId"
+   ]
+  },
+  "FabricSheetType": {
+   "residue": 1,
+   "ids": [
+    1352719
+   ],
+   "rung": "ZC_systype",
+   "constant_fields": 66,
+   "varying_fields": []
+  },
+  "FabricWireType": {
+   "residue": 1,
+   "ids": [
+    1352718
+   ],
+   "rung": "ZC_systype",
+   "constant_fields": 27,
+   "varying_fields": []
+  },
+  "FloorAttributes": {
+   "residue": 1,
+   "ids": [
+    1201129
+   ],
+   "rung": "ZC_systype",
+   "constant_fields": 73,
+   "varying_fields": []
+  },
+  "HVACLoadBuildingTypeElem": {
+   "residue": 33,
+   "ids": [
+    105557,
+    105558,
+    105559,
+    105560,
+    105561,
+    105562,
+    105563,
+    105564,
+    105565,
+    105566,
+    105567,
+    105568,
+    105569,
+    105570,
+    105571,
+    105572,
+    105573,
+    105574,
+    105575,
+    105576,
+    105577,
+    105578,
+    105579,
+    105580,
+    105581,
+    105582,
+    105583,
+    105584,
+    105585,
+    105586,
+    105587,
+    105588,
+    105589
+   ],
+   "rung": "ZC_hvac",
+   "constant_fields": 32,
+   "varying_fields": [
+    "m_LightingLoadDensity",
+    "m_PowerLoadDensity",
+    "m_bCarpeting",
+    "m_coolingSetPoint",
+    "m_dAirChangesPerHour",
+    "m_dAreaPerPerson",
+    "m_dEquipmentRadiant",
+    "m_dLatentHeatGainPerPerson",
+    "m_dOutdoorAirPerArea",
+    "m_dOutdoorAirPerPerson",
+    "m_dSensibleHeatGainPerPerson",
+    "m_eBuildingType",
+    "m_heatingSetPoint",
+    "m_id",
+    "m_idLightingSchedule",
+    "m_idOccupancySchedule",
+    "m_idPowerSchedule",
+    "m_name",
+    "m_strEquipmentEndTime",
+    "m_strEquipmentStartTime"
+   ]
+  },
+  "HVACLoadScheduleElem": {
+   "residue": 27,
+   "ids": [
+    105532,
+    105533,
+    105534,
+    105535,
+    105536,
+    105537,
+    105538,
+    105539,
+    105540,
+    105541,
+    105542,
+    105543,
+    105544,
+    105545,
+    105546,
+    105547,
+    105548,
+    105549,
+    105550,
+    105551,
+    105552,
+    105553,
+    105554,
+    105555,
+    105556,
+    713142,
+    713143
+   ],
+   "rung": "ZC_hvac",
+   "constant_fields": 27,
+   "varying_fields": [
+    "m_24HourSchedules[0]",
+    "m_24HourSchedules[1]",
+    "m_24HourSchedules[2]",
+    "m_id",
+    "m_strName"
+   ]
+  },
+  "HVACLoadSpaceTypeElem": {
+   "residue": 125,
+   "ids": [
+    105590,
+    105591,
+    105592,
+    105593,
+    105594,
+    105595,
+    105596,
+    105597,
+    105598,
+    105599,
+    105600,
+    105601,
+    105602,
+    105603,
+    105604,
+    105605,
+    105606,
+    105607,
+    105608,
+    105609,
+    105610,
+    105611,
+    105612,
+    105613,
+    105614,
+    105615,
+    105616,
+    105617,
+    105618,
+    105619,
+    105620,
+    105621,
+    105622,
+    105623,
+    105624,
+    105625,
+    105626,
+    105627,
+    105628,
+    105629,
+    105630,
+    105631,
+    105632,
+    105633,
+    105634,
+    105635,
+    105636,
+    105637,
+    105638,
+    105639,
+    105640,
+    105641,
+    105642,
+    105643,
+    105644,
+    105645,
+    105646,
+    105647,
+    105648,
+    105649
+   ],
+   "rung": "ZC_hvac",
+   "constant_fields": 30,
+   "varying_fields": [
+    "m_LightingLoadDensity",
+    "m_PowerLoadDensity",
+    "m_bCarpeting",
+    "m_coolingSetPoint",
+    "m_dAirChangesPerHour",
+    "m_dAreaPerPerson",
+    "m_dEquipmentRadiant",
+    "m_dInfiltration",
+    "m_dLatentHeatGainPerPerson",
+    "m_dOutdoorAirPerArea",
+    "m_dOutdoorAirPerPerson",
+    "m_dSensibleHeatGainPerPerson",
+    "m_eSpaceType",
+    "m_heatingSetPoint",
+    "m_id",
+    "m_idLightingSchedule",
+    "m_idOccupancySchedule",
+    "m_idPowerSchedule",
+    "m_isPlenum",
+    "m_name"
+   ]
+  },
+  "LoadCaseElem": {
+   "residue": 8,
+   "ids": [
+    51439,
+    51441,
+    51443,
+    51445,
+    51447,
+    51449,
+    51451,
+    51453
+   ],
+   "rung": "ZC_analysis",
+   "constant_fields": 32,
+   "varying_fields": [
+    "m_categoryId",
+    "m_id",
+    "m_name",
+    "m_natureId",
+    "m_number",
+    "m_pParamValueSetAString.value.m_paramSet[0].m_value"
+   ]
+  },
+  "LoadNatureElem": {
+   "residue": 8,
+   "ids": [
+    51438,
+    51440,
+    51442,
+    51444,
+    51446,
+    51448,
+    51450,
+    51452
+   ],
+   "rung": "ZC_analysis",
+   "constant_fields": 28,
+   "varying_fields": [
+    "m_id",
+    "m_name",
+    "m_pParamValueSetAString.value.m_paramSet[0].m_value"
+   ]
+  },
+  "RvtLinkInstance": {
+   "residue": 1,
+   "ids": [
+    1250030
+   ],
+   "rung": "DELETE-WITH-CONTENT (emitted: deletion stream D_links)",
+   "constant_fields": 56,
+   "varying_fields": []
+  },
+  "RvtLinkSymbol": {
+   "residue": 1,
+   "ids": [
+    1250029
+   ],
+   "rung": "DELETE-WITH-CONTENT (clean-header rung first)",
+   "constant_fields": 94,
+   "varying_fields": []
+  }
+ },
+ "reached_by_other_streams_on_this_base": {
+  "RbsWireInsulationType": {
+   "count": 26,
+   "owner": "GROUP B ZB2_mepcat (viewer PASS, batch 17) -- our wire catalog"
+  },
+  "RbsWireMaterialType": {
+   "count": 4,
+   "owner": "GROUP B ZB2_mepcat"
+  },
+  "RbsWireTemperatureRatingType": {
+   "count": 3,
+   "owner": "GROUP B ZB2_mepcat"
+  },
+  "RbsPipeScheduleType": {
+   "count": 13,
+   "owner": "GROUP B ZB2_mepcat -- our piping catalog"
+  },
+  "RbsPipeConnectionType": {
+   "count": 8,
+   "owner": "GROUP B ZB2_mepcat"
+  },
+  "RbsPipeMaterialType": {
+   "count": 5,
+   "owner": "GROUP B ZB2_mepcat"
+  },
+  "PipeSegment": {
+   "count": 15,
+   "owner": "GROUP B ZB2_mepcat"
+  },
+  "CategoryElem": {
+   "count": 40,
+   "owner": "GROUP A ZA_deep (family-scoped remainder = curtain constellation, D_curtain)"
+  },
+  "GStyleElem": {
+   "count": 40,
+   "owner": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)"
+  },
+  "FontElem": {
+   "count": 24,
+   "owner": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)"
+  },
+  "DimensionStyle": {
+   "count": 8,
+   "owner": "GROUP A ZA_deep (family-scoped remainder)"
+  },
+  "CalloutTag": {
+   "count": 8,
+   "owner": "GROUP A ZA_deep (family-scoped remainder)"
+  },
+  "InteriorElevAttributes": {
+   "count": 8,
+   "owner": "GROUP A ZA_deep (family-scoped remainder)"
+  },
+  "DBViewType": {
+   "count": 72,
+   "owner": "curtain constellation (deletion stream D_curtain)"
+  },
+  "Family": {
+   "count": 8,
+   "owner": "curtain constellation (D_curtain)"
+  },
+  "FamilySurrogate": {
+   "count": 8,
+   "owner": "curtain constellation (D_curtain)"
+  },
+  "CurveElem": {
+   "count": 5,
+   "owner": "room constellation (deletion stream, blocked -> D_room after the wiring fix)"
+  },
+  "LegendComponent": {
+   "count": 4,
+   "owner": "type previews (2 curtain-owned in D_curtain; 2 owned by our residue types)"
+  },
+  "LevelRoomPlan": {
+   "count": 1,
+   "owner": "room constellation"
+  },
+  "LinearDimString": {
+   "count": 1,
+   "owner": "constraint-dimension group (deletion stream D_content)"
+  },
+  "RoomElem": {
+   "count": 1,
+   "owner": "GROUP B ZB8_content (identity) / room constellation deletion"
+  },
+  "MaterialElem": {
+   "count": 10,
+   "owner": "GROUP B ZB5_palette (surplus materials)"
+  },
+  "ParamElemExternal": {
+   "count": 466,
+   "owner": "GROUP B ZB1_defs"
+  },
+  "ParamBinding": {
+   "count": 209,
+   "owner": "GROUP B ZB1_defs"
+  },
+  "ParamElemElectricalLoadClassification": {
+   "count": 108,
+   "owner": "GROUP B ZB1_defs (the 6-per-class companions of our ZC_elec classifications -- id-wired both sides)"
+  },
+  "ParamElemProject": {
+   "count": 8,
+   "owner": "GROUP B ZB1_defs"
+  },
+  "PenWidthTableElem": {
+   "count": 8,
+   "owner": "GROUP B ZB3_pens"
+  },
+  "SectionAttributes": {
+   "count": 10,
+   "owner": "GROUP B ZB4_annot"
+  },
+  "ViewportAttributes": {
+   "count": 1,
+   "owner": "GROUP B ZB4_annot"
+  },
+  "PropertySetElement": {
+   "count": 28,
+   "owner": "GROUP B ZB5_palette"
+  },
+  "ParameterFilterElement": {
+   "count": 7,
+   "owner": "GROUP B ZB6_filters"
+  },
+  "SunAnnotationElem": {
+   "count": 3,
+   "owner": "GROUP B ZB7_machinery"
+  },
+  "NumberingSchema": {
+   "count": 3,
+   "owner": "GROUP B ZB7_machinery"
+  },
+  "SlaveSymbolTrackerElem": {
+   "count": 1,
+   "owner": "GROUP B ZB7_machinery"
+  },
+  "WorksharingViewModeSettings": {
+   "count": 1,
+   "owner": "GROUP B ZB7_machinery"
+  },
+  "PrintSettings": {
+   "count": 2,
+   "owner": "GROUP B ZB7_machinery"
+  },
+  "Viewer": {
+   "count": 1,
+   "owner": "GROUP B ZB7_machinery (the sheet's viewer 1457029)"
+  },
+  "Viewport": {
+   "count": 3,
+   "owner": "GROUP B ZB7_machinery (the sheet's viewports 1457030/1457043/1457044)"
+  },
+  "RefPlane": {
+   "count": 21,
+   "owner": "GROUP B ZB8_content"
+  },
+  "SketchPlane": {
+   "count": 30,
+   "owner": "GROUP B ZB8_content"
+  }
+ },
+ "totals": {
+  "claimed": 311,
+  "not_in_place_able": {
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "DataStorage": 1
+  },
+  "reached_elsewhere": 1222
+ }
+}

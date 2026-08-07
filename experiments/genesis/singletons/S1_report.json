@@ -1,0 +1,73 @@
+{
+ "rung": "S1",
+ "base": "experiments/genesis/G1_candidate.rvt",
+ "file": "experiments/genesis/singletons/S1.rvt",
+ "content": {
+  "tier": "pen",
+  "settings_records": 1,
+  "records": 1,
+  "id_range": [
+   1600000,
+   1600000
+  ],
+  "roundtrip_failures": 0
+ },
+ "by_class": {
+  "PenWidthTableElem": 1
+ },
+ "stages": [
+  {
+   "op": "commit our elements + re-block",
+   "new_elements": 1,
+   "elemtable_after": 235,
+   "watermark_after": 1600000,
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "new_records_clean": 3
+   },
+   "reblock": {
+    "blocks_before": 3,
+    "blocks_after": 3
+   },
+   "seconds": 0.1
+  },
+  {
+   "op": "repopulate ADocument registries over the new ids",
+   "registry_report": {
+    "applied": {
+     "appinfo": 1
+    },
+    "skipped": []
+   },
+   "latest_payload_before": 1360923,
+   "latest_payload_after": 1360923,
+   "adoc_element_refs": 206,
+   "adoc_dangling_ids": [],
+   "adoc_dangling_count": 0,
+   "our_ids_referenced": 1,
+   "seconds": 0.1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "error_messages": [],
+  "warning_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 3,
+   "records": 708,
+   "elements_decoded": 235,
+   "decode_failures": 0,
+   "refs_checked": 2948
+  },
+  "seconds": 0.1
+ },
+ "bytes": 331776,
+ "seconds": 0.4,
+ "verdict": "VALID"
+}

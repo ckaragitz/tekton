@@ -1,0 +1,872 @@
+{
+ "stream": "render-instances: (A) INSTANCE-RENDER probes -- do placed instances of OUR families produce viewable geometry (LOAD IS NOT RENDER); (B) THE ROOM'S FAMILY LAYER BISECTED under a real audit (one F_ file per room family, the walls as the audit-forcing agent).  All on the certified genesis base ZA_deep.",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "ZA_deep = certified deep genesis rung (ORCHESTRATOR VERDICTS #18: ZA_deep PASS); re-confirmed as the ifc-room control in batches 20/21 -- the family-free base every probe here declares"
+  }
+ },
+ "standing_control": {
+  "file": "experiments/ifc_room/render_probes/CTRL_ZA_deep_render.rvt",
+  "identical_to": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "purpose": "byte-identical copy of the certified base under a new name -- read FIRST; a control FAIL voids the round (oracle / environment)"
+ },
+ "critical_premise_correction": {
+  "recorded_verdict_22_claim": "'walls + ONE loaded family + a PLACED instance (stage_L8_lp4) PASSES => the FULL-family stage failing means ONE family is defective'",
+  "measured_fact": "stage_L8_lp4.rvt = ZA_deep + ALL 8 room families (incl. the 2500 A house switchboard), NO walls, NO instances (build_record stage L: chained load_family_into_project(place=False) x8; the file's bytes: 9 save units / 8 ContentDocuments / 0 SWall / 0 FamilyInstance). 'lp4' is only the LAST of the 8 chained loads.  Its viewer verdict was 'Design is empty' -- a symbol-only file the extractor short-circuits, NOT an audited pass of the family layer.",
+  "the_real_delta": "stage_W_loaded_walls (FAIL) minus stage_L8_lp4 (empty-design PASS) = EXACTLY the 4 wall records (byte-identical, modulo id, to the PASSING walls_only walls) + 4 ElemTable rows + BasicFileInfo identity; the 8 embedded family units and all 3,486 existing records are UNCHANGED (measured record-by-record this session).  The walls PASS alone on ZA_deep; the same walls FAIL when the loaded family layer is present.  => the loaded family layer has never survived a real audit on the genesis base; the walls only FORCED one.  There is NO evidence that a single family is defective, and NO family is exonerated.",
+  "consequence": "(i) instance PLACEMENT on the genesis base is UNPROVEN (the only file with placed instances, electrical_room_2500a, FAILED); the R_inst probes are the first clean instance-on-genesis tests.  (ii) 'rvt.mutate creation proven on the genesis lineage' holds for WALLS only."
+ },
+ "read_order": "CTRL first (round validity); R_inst_box (the purest render + first clean instance-on-genesis test); R_inst_panel (the room's own family placed); F_lp4 (ONE loaded family under a real audit -- the walls as forcer); then F_msb (the switchboard the void verdict blamed) and the rest of the F_ set as budget allows; R_inst_downlight (IFC-derived family, a second loader) last.",
+ "reading_the_matrix": {
+  "control FAIL": "oracle / environment problem -- every verdict VOID",
+  "R_inst_box PASS + tree shows the instance": "baked family solids DO render through the instance path; RENDER becomes a real gate; and add_family_instance is proven on the genesis base for the first time",
+  "R_inst_box translates but tree = level only": "LOAD but no RENDER for instances too -> the extractor does not draw our symbol geometry (SerializedDummy symbol rep / family-solid path); the render track needs baked GElement geometry",
+  "R_inst_box FAIL (audit)": "the loaded family layer (or the instance) fails the audit with NO walls present -> the defect is the family/loader layer on the genesis base, not a wall interaction",
+  "F_x: exactly ONE fails": "THAT family is defective (the charter's original hypothesis)",
+  "F_x: ALL fail": "no single family is guilty: the loader-on-genesis-base output fails the audit for ANY family once an audit-forcing element is present -- cross-read R_inst (family + instance, no walls) to name it as the family layer vs the wall x family interaction",
+  "F_x: ALL pass": "each family survives alone -> the failure needs the multi-family load or is specific to stage_W's exact construction; upload the existing stage_W_loaded_walls twin as the confirming control",
+  "R_inst_panel PASS but F_lp4 FAIL": "the SAME family passes with an instance and fails with walls -> a wall x loaded-family interaction (the wall commit over a file carrying embedded family documents)",
+  "RENDER A/B (box+panel vs downlight)": "box + panel carry BAKED symbol geometry (a GElement symbol rep + geom table, the rvt.famgen loader); the downlight's symbol is a SerializedDummy (rvt.famload).  Box/panel RENDER + downlight NOT = symbol geometry must be BAKED (no regeneration in the extractor); all three render = the extractor draws from the family document / regenerates; none render = the render path needs baked geometry on the INSTANCE rep or the symbol GElement grammar is off"
+ },
+ "probes": [
+  {
+   "file": "experiments/ifc_room/render_probes/R_inst_box.rvt",
+   "probe": "R_inst_box",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "c21f390e4baeb779d69c8335f4a9245b",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3350,
+    "SWall": 0,
+    "FamilyInstance": 1,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472558": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {
+      "1472560": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 300
+      }
+     },
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 28,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE loaded family + ONE placed free-standing instance, NO walls -- the instance is the render subject AND the model element that forces the corruption audit",
+   "expected_model_tree": {
+    "if_RENDER": "model tree: level node 'L1 - Ground Floor [311]' -> a CATEGORY node 'Electrical Equipment' -> family 'Render Probe Box' -> type 'standard' -> ONE instance node with an eye toggle; the 3D view shows one 2 x 2 x 3 ft solid box standing on the floor near (2 m, -2 m) (position (2.0, -2.0, 0.0) m)",
+    "if_LOAD_but_no_render": "the file translates but the tree still holds ONLY the level node ('Design is empty' or datum-only) -> the instance's symbol graphics were NOT drawn: the family document's baked solid does not survive to the extractor, or the FamilySymbol geometry (SerializedDummy) is not regenerated by the viewer",
+    "if_FAIL": "PROCESSING FAILED with Revit-DocumentCorruption (-1073742517) -> the loaded-family layer (or the instance) fails the audit on the genesis base; read together with the F_ set (walls as the audit-forcer)"
+   },
+   "family": {
+    "name": "Render Probe Box",
+    "kind": "bare solid box (render probe)",
+    "connectors": 0,
+    "parameters": [
+     "Depth",
+     "Height",
+     "Width"
+    ],
+    "elements": 28
+   },
+   "placement": {
+    "elem_id": 1472560,
+    "symbol": 1472558,
+    "family": 1472553,
+    "category": -2001040,
+    "position_m": [
+     2.0,
+     -2.0,
+     0.0
+    ],
+    "position_ft": [
+     6.562,
+     -6.562,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "connector_manager": false,
+    "n_dangling": 0
+   },
+   "render_reps": {
+    "symbols": {
+     "1472558": {
+      "rep_class": "GElement",
+      "rep_body_bytes": 3095,
+      "rep_subnodes": 1,
+      "object_has_geom_table": true,
+      "object_has_geom_steps": true
+     }
+    },
+    "instances": {
+     "1472560": {
+      "rep_class": "GElement",
+      "rep_body_bytes": 300
+     }
+    },
+    "embedded_doc_solids": 1,
+    "embedded_doc_records": 28,
+    "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+   },
+   "render_prediction": "symbol geometry is BAKED (GElement + geom table, our solid) -> if the extractor draws family instances at all, THIS instance should render; a no-render here indicts the symbol GElement grammar (loader hypothesis [H]) or the instance rep, not regeneration"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/R_inst_panel.rvt",
+   "probe": "R_inst_panel",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "6d8a34afdbc849823b0b44ff7e766571",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3361,
+    "SWall": 0,
+    "FamilyInstance": 1,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {
+      "1472584": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 300
+      }
+     },
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE loaded family + ONE placed free-standing instance, NO walls -- the instance is the render subject AND the model element that forces the corruption audit",
+   "expected_model_tree": {
+    "if_RENDER": "model tree: level node 'L1 - Ground Floor [311]' -> a CATEGORY node 'Electrical Equipment' -> family 'Receptacle Panelboard LP-4 208Y/120 225A MB 42sp' -> type '225A MB 42ckt' -> ONE instance node with an eye toggle; the 3D view shows the PRL1X enclosure box (20 x 48 in face, ~5.75 in deep) standing UPRIGHT at LP-4's east-wall spot (4.455, -0.55, 1.543) m -- no wall present, the box floats where the wall would be (position (4.455, -0.55, 1.543) m)",
+    "if_LOAD_but_no_render": "the file translates but the tree still holds ONLY the level node ('Design is empty' or datum-only) -> the instance's symbol graphics were NOT drawn: the family document's baked solid does not survive to the extractor, or the FamilySymbol geometry (SerializedDummy) is not regenerated by the viewer",
+    "if_FAIL": "PROCESSING FAILED with Revit-DocumentCorruption (-1073742517) -> the loaded-family layer (or the instance) fails the audit on the genesis base; read together with the F_ set (walls as the audit-forcer)"
+   },
+   "family": {
+    "name": "Receptacle Panelboard LP-4 208Y/120 225A MB 42sp",
+    "kind": "PRL1X receptacle panelboard (LP-4)",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "connectors": 1,
+    "parameters": 14,
+    "elements": 41
+   },
+   "placement": {
+    "elem_id": 1472584,
+    "symbol": 1472582,
+    "family": 1472566,
+    "category": -2001040,
+    "position_m": [
+     4.455,
+     -0.55,
+     1.543
+    ],
+    "position_ft": [
+     14.616,
+     -1.804,
+     5.062
+    ],
+    "yaw_deg": 0.0,
+    "connector_manager": true,
+    "n_dangling": 0
+   },
+   "placement_note": "identical to the room's LP-4 placement (intent frame, upright 3x3) but with NO walls in the file",
+   "render_reps": {
+    "symbols": {
+     "1472582": {
+      "rep_class": "GElement",
+      "rep_body_bytes": 3095,
+      "rep_subnodes": 1,
+      "object_has_geom_table": true,
+      "object_has_geom_steps": true
+     }
+    },
+    "instances": {
+     "1472584": {
+      "rep_class": "GElement",
+      "rep_body_bytes": 300
+     }
+    },
+    "embedded_doc_solids": 1,
+    "embedded_doc_records": 41,
+    "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+   },
+   "render_prediction": "symbol geometry is BAKED (GElement + geom table, our solid) -> if the extractor draws family instances at all, THIS instance should render; a no-render here indicts the symbol GElement grammar (loader hypothesis [H]) or the instance rep, not regeneration"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+   "probe": "R_inst_downlight",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "2aefe4cedc98efccc6012b288a70b0de",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3367,
+    "SWall": 0,
+    "FamilyInstance": 1,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472638": {
+       "rep_class": "SerializedDummy",
+       "rep_body_bytes": 2,
+       "rep_subnodes": 0,
+       "object_has_geom_table": false,
+       "object_has_geom_steps": false
+      }
+     },
+     "instances": {
+      "1472639": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 300
+      }
+     },
+     "embedded_doc_solids": 8,
+     "embedded_doc_records": 90,
+     "symbol_geometry": "DUMMY (SerializedDummy symbol rep -- the rvt.famload loader): symbol graphics exist only if Revit REGENERATES from the family document's solids"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE loaded family + ONE placed free-standing instance, NO walls -- the instance is the render subject AND the model element that forces the corruption audit",
+   "expected_model_tree": {
+    "if_RENDER": "model tree: level node 'L1 - Ground Floor [311]' -> a CATEGORY node 'Lighting Fixtures' -> family 'Chicago plenum recessed downlight (CP-6-LED)' -> type 'CP-6-LED' -> ONE instance node with an eye toggle; the 3D view shows the downlight assembly (can, trim disc, frame plate, J-box, driver box, bar hangers -- 8 solids, ~2.2 ft across) floating at ceiling height (2.4 m) near the origin (position (0.0, -2.0, 2.4) m)",
+    "if_LOAD_but_no_render": "the file translates but the tree still holds ONLY the level node ('Design is empty' or datum-only) -> the instance's symbol graphics were NOT drawn: the family document's baked solid does not survive to the extractor, or the FamilySymbol geometry (SerializedDummy) is not regenerated by the viewer",
+    "if_FAIL": "PROCESSING FAILED with Revit-DocumentCorruption (-1073742517) -> the loaded-family layer (or the instance) fails the audit on the genesis base; read together with the F_ set (walls as the audit-forcer)"
+   },
+   "family": {
+    "name": "Chicago-plenum recessed downlight (IFC-derived)",
+    "source_rfa": "experiments/families/ifc/chicago_plenum_downlight.rfa",
+    "loader": "rvt.famload.load_family_document (its certified path)"
+   },
+   "placement": {
+    "elem_id": 1472639,
+    "symbol": 1472638,
+    "family": 1472615,
+    "category": -2001120,
+    "position_m": [
+     0.0,
+     -2.0,
+     2.4
+    ],
+    "position_ft": [
+     0.0,
+     -6.562,
+     7.874
+    ],
+    "yaw_deg": 0.0,
+    "connector_manager": false,
+    "n_dangling": 0
+   },
+   "render_reps": {
+    "symbols": {
+     "1472638": {
+      "rep_class": "SerializedDummy",
+      "rep_body_bytes": 2,
+      "rep_subnodes": 0,
+      "object_has_geom_table": false,
+      "object_has_geom_steps": false
+     }
+    },
+    "instances": {
+     "1472639": {
+      "rep_class": "GElement",
+      "rep_body_bytes": 300
+     }
+    },
+    "embedded_doc_solids": 8,
+    "embedded_doc_records": 90,
+    "symbol_geometry": "DUMMY (SerializedDummy symbol rep -- the rvt.famload loader): symbol graphics exist only if Revit REGENERATES from the family document's solids"
+   },
+   "render_prediction": "symbol rep is a SerializedDummy (needs regeneration) -> expected NOT to render if the extractor does not regenerate (the walls finding); the family document's 8 solids are the only baked geometry.  Contrast with the two GElement-symbol probes = the render A/B"
+  },
+  {
+   "probe": "R_inst_panel_wallhost",
+   "kind": "not_built",
+   "error": "A wall-hosted instance needs (1) walls in the file and (2) a face-SketchPlane specimen for rvt.hosting.add_sketchplane_on_wall / host_instance_on_wall (certified H1/H2 on the MEP sample).  On the family-free genesis base ZA_deep there are no walls and no face-SketchPlane specimen, so hosting would clone R5 templates AND require the wall stage.  Crucially, walls + a loaded family is the very combination this stream shows FAILING (stage_W_loaded_walls) -- a wall-hosted render probe would read on TWO confounded variables (the hosting AND the failing interaction) until the interaction is understood.  The free-standing R_inst probes are therefore PRIMARY; the wall-hosted question is deferred behind the F_-set bisection (and behind emitting baked wall geometry, since an instance hosted to an UN-RENDERED wall has nothing to sit on visually)."
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_msb.rvt",
+   "probe": "F_msb",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "10e6ebb3686b3a8c2158decf982f3e97",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3366,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472586": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 43,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+   "family": {
+    "name": "Switchboard MSB 2500A 480Y/277",
+    "constructor": "rvt.ifc.intent.make_house_switchboard",
+    "status": "house",
+    "connectors": 1,
+    "parameters": 16,
+    "part_type": 16,
+    "work_plane_based": false
+   },
+   "walls": {
+    "n_walls": 4,
+    "new_ids": [
+     1472588,
+     1472589,
+     1472590,
+     1472591
+    ],
+    "n_dangling_per_wall": [
+     11,
+     11,
+     11,
+     11
+    ]
+   },
+   "tests": "MSB ALONE under a real audit: this ONE family loaded on ZA_deep + the audit-forcing wall layer (identical to the certified walls_only walls, which PASSED)",
+   "if_PASS": "MSB's family document + host layer survives Revit's corruption audit on the genesis base",
+   "if_FAIL": "MSB fails the audit ALONE -> read the whole F_ set: one FAIL among passes = a defective single family; ALL F_ files FAIL = the loader-on-genesis-base / any-family defect (not this one)"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_dp1.rvt",
+   "probe": "F_dp1",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "c20eae0c653f90dc3fdd243731ac7109",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+   "family": {
+    "name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "status": "resolved",
+    "connectors": 1,
+    "parameters": 14,
+    "part_type": 14,
+    "work_plane_based": true
+   },
+   "walls": {
+    "n_walls": 4,
+    "new_ids": [
+     1472584,
+     1472585,
+     1472586,
+     1472587
+    ],
+    "n_dangling_per_wall": [
+     11,
+     11,
+     11,
+     11
+    ]
+   },
+   "tests": "DP-1 ALONE under a real audit: this ONE family loaded on ZA_deep + the audit-forcing wall layer (identical to the certified walls_only walls, which PASSED)",
+   "if_PASS": "DP-1's family document + host layer survives Revit's corruption audit on the genesis base",
+   "if_FAIL": "DP-1 fails the audit ALONE -> read the whole F_ set: one FAIL among passes = a defective single family; ALL F_ files FAIL = the loader-on-genesis-base / any-family defect (not this one)"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_dp2.rvt",
+   "probe": "F_dp2",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "ef1457ad78e6fa5f4021a10864c4049d",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+   "family": {
+    "name": "Distribution Panelboard DP-2 480Y/277 400A MB 42sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "status": "resolved",
+    "connectors": 1,
+    "parameters": 14,
+    "part_type": 14,
+    "work_plane_based": true
+   },
+   "walls": {
+    "n_walls": 4,
+    "new_ids": [
+     1472584,
+     1472585,
+     1472586,
+     1472587
+    ],
+    "n_dangling_per_wall": [
+     11,
+     11,
+     11,
+     11
+    ]
+   },
+   "tests": "DP-2 ALONE under a real audit: this ONE family loaded on ZA_deep + the audit-forcing wall layer (identical to the certified walls_only walls, which PASSED)",
+   "if_PASS": "DP-2's family document + host layer survives Revit's corruption audit on the genesis base",
+   "if_FAIL": "DP-2 fails the audit ALONE -> read the whole F_ set: one FAIL among passes = a defective single family; ALL F_ files FAIL = the loader-on-genesis-base / any-family defect (not this one)"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_lp1.rvt",
+   "probe": "F_lp1",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "84d96a248f0f39f110a3c7ef2967b125",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+   "family": {
+    "name": "Lighting Panelboard LP-1 480Y/277 100A MLO 30sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "status": "resolved",
+    "connectors": 1,
+    "parameters": 14,
+    "part_type": 14,
+    "work_plane_based": true
+   },
+   "walls": {
+    "n_walls": 4,
+    "new_ids": [
+     1472584,
+     1472585,
+     1472586,
+     1472587
+    ],
+    "n_dangling_per_wall": [
+     11,
+     11,
+     11,
+     11
+    ]
+   },
+   "tests": "LP-1 ALONE under a real audit: this ONE family loaded on ZA_deep + the audit-forcing wall layer (identical to the certified walls_only walls, which PASSED)",
+   "if_PASS": "LP-1's family document + host layer survives Revit's corruption audit on the genesis base",
+   "if_FAIL": "LP-1 fails the audit ALONE -> read the whole F_ set: one FAIL among passes = a defective single family; ALL F_ files FAIL = the loader-on-genesis-base / any-family defect (not this one)"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_lp2.rvt",
+   "probe": "F_lp2",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "40131cdf88ef334231657c0c02bd725f",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+   "family": {
+    "name": "Lighting Panelboard LP-2 480Y/277 100A MLO 30sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "status": "resolved",
+    "connectors": 1,
+    "parameters": 14,
+    "part_type": 14,
+    "work_plane_based": true
+   },
+   "walls": {
+    "n_walls": 4,
+    "new_ids": [
+     1472584,
+     1472585,
+     1472586,
+     1472587
+    ],
+    "n_dangling_per_wall": [
+     11,
+     11,
+     11,
+     11
+    ]
+   },
+   "tests": "LP-2 ALONE under a real audit: this ONE family loaded on ZA_deep + the audit-forcing wall layer (identical to the certified walls_only walls, which PASSED)",
+   "if_PASS": "LP-2's family document + host layer survives Revit's corruption audit on the genesis base",
+   "if_FAIL": "LP-2 fails the audit ALONE -> read the whole F_ set: one FAIL among passes = a defective single family; ALL F_ files FAIL = the loader-on-genesis-base / any-family defect (not this one)"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_lp3.rvt",
+   "probe": "F_lp3",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "a37b1deb5ee5c0d24134d74a5f36059b",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+   "family": {
+    "name": "Lighting Panelboard LP-3 480Y/277 100A MLO 30sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "status": "resolved",
+    "connectors": 1,
+    "parameters": 14,
+    "part_type": 14,
+    "work_plane_based": true
+   },
+   "walls": {
+    "n_walls": 4,
+    "new_ids": [
+     1472584,
+     1472585,
+     1472586,
+     1472587
+    ],
+    "n_dangling_per_wall": [
+     11,
+     11,
+     11,
+     11
+    ]
+   },
+   "tests": "LP-3 ALONE under a real audit: this ONE family loaded on ZA_deep + the audit-forcing wall layer (identical to the certified walls_only walls, which PASSED)",
+   "if_PASS": "LP-3's family document + host layer survives Revit's corruption audit on the genesis base",
+   "if_FAIL": "LP-3 fails the audit ALONE -> read the whole F_ set: one FAIL among passes = a defective single family; ALL F_ files FAIL = the loader-on-genesis-base / any-family defect (not this one)"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_t1.rvt",
+   "probe": "F_t1",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "5f6f38666d6260480212f23c4c0e1834",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3361,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472577": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 39,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+   "family": {
+    "name": "Dry Type Transformer T1 150kVA 480-208Y/120",
+    "constructor": "rvt.famgen.factory.make_transformer",
+    "status": "resolved",
+    "connectors": 2,
+    "parameters": 11,
+    "part_type": 15,
+    "work_plane_based": false
+   },
+   "walls": {
+    "n_walls": 4,
+    "new_ids": [
+     1472579,
+     1472580,
+     1472581,
+     1472582
+    ],
+    "n_dangling_per_wall": [
+     11,
+     11,
+     11,
+     11
+    ]
+   },
+   "tests": "T1 ALONE under a real audit: this ONE family loaded on ZA_deep + the audit-forcing wall layer (identical to the certified walls_only walls, which PASSED)",
+   "if_PASS": "T1's family document + host layer survives Revit's corruption audit on the genesis base",
+   "if_FAIL": "T1 fails the audit ALONE -> read the whole F_ set: one FAIL among passes = a defective single family; ALL F_ files FAIL = the loader-on-genesis-base / any-family defect (not this one)"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_lp4.rvt",
+   "probe": "F_lp4",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "ad9dc95f543e7a84e046701b970f5df0",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "family_documents": 1,
+   "identity_gate": "PASS",
+   "content": {
+    "host_records": 3364,
+    "SWall": 4,
+    "FamilyInstance": 0,
+    "Family": 9,
+    "FamilySymbol": 1,
+    "SketchPlane": 32,
+    "family_documents": 1,
+    "save_units": 2,
+    "four_registry_coherent": true,
+    "render_reps": {
+     "symbols": {
+      "1472582": {
+       "rep_class": "GElement",
+       "rep_body_bytes": 3095,
+       "rep_subnodes": 1,
+       "object_has_geom_table": true,
+       "object_has_geom_steps": true
+      }
+     },
+     "instances": {},
+     "embedded_doc_solids": 1,
+     "embedded_doc_records": 41,
+     "symbol_geometry": "BAKED (GElement symbol rep with geom table -- the rvt.famgen loader authors it from our solid): the extractor can draw it WITHOUT regenerating"
+    }
+   },
+   "self_checks_ok": true,
+   "composition": "ZA_deep + ONE family (loaded, place=False, the stage-L loader) + the room's 4 walls (mode 'min') -- the walls are the audit-forcing agent, identical to the certified walls_only wall layer",
+   "family": {
+    "name": "Receptacle Panelboard LP-4 208Y/120 225A MB 42sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "status": "resolved",
+    "connectors": 1,
+    "parameters": 14,
+    "part_type": 14,
+    "work_plane_based": true
+   },
+   "walls": {
+    "n_walls": 4,
+    "new_ids": [
+     1472584,
+     1472585,
+     1472586,
+     1472587
+    ],
+    "n_dangling_per_wall": [
+     11,
+     11,
+     11,
+     11
+    ]
+   },
+   "tests": "LP-4 ALONE under a real audit: this ONE family loaded on ZA_deep + the audit-forcing wall layer (identical to the certified walls_only walls, which PASSED)",
+   "if_PASS": "LP-4's family document + host layer survives Revit's corruption audit on the genesis base",
+   "if_FAIL": "LP-4 fails the audit ALONE -> read the whole F_ set: one FAIL among passes = a defective single family; ALL F_ files FAIL = the loader-on-genesis-base / any-family defect (not this one)"
+  }
+ ]
+}

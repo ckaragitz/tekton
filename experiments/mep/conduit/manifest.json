@@ -1,0 +1,730 @@
+{
+ "template": "rmebasicsampleproject.rvt",
+ "files": [
+  {
+   "file": "conduit_create.rvt",
+   "kind": "create",
+   "proves": "3-segment 2\" RNC Sch-80 conduit run with TWO 90\u00b0 elbow fittings (shared geometry-symbol clone 679082 reused; connector graph mutual; each curve owns a SegmentCenterLine, each elbow a ConduitFittingCenterLine)",
+   "plan": {
+    "path_ft": [
+     [
+      -30.0,
+      26.0,
+      9.5
+     ],
+     [
+      -22.0,
+      26.0,
+      9.5
+     ],
+     [
+      -22.0,
+      32.0,
+      9.5
+     ],
+     [
+      -14.0,
+      32.0,
+      9.5
+     ]
+    ],
+    "plan": {
+     "kind": "conduit",
+     "run": 888014,
+     "curves": [
+      888015,
+      888017,
+      888019
+     ],
+     "fittings": [
+      888021,
+      888023
+     ],
+     "centerlines": [
+      888016,
+      888018,
+      888020,
+      888022,
+      888024
+     ],
+     "notes": [
+      "conduit path run 888014: 3 segment(s), 2 elbow(s) (specimen 679174 clone 679082), trim 1.0573 ft (R 0.8906 + ext 0.1667), type 662478 @ 2.000in, level z 0.3090"
+     ]
+    },
+    "notes": [
+     "conduit path run 888014: 3 segment(s), 2 elbow(s) (specimen 679174 clone 679082), trim 1.0573 ft (R 0.8906 + ext 0.1667), type 662478 @ 2.000in, level z 0.3090"
+    ],
+    "plan_graph_check": {
+     "dangling_references": {},
+     "graph_issues": [],
+     "ok": true
+    },
+    "elemtable": [
+     28132,
+     28143
+    ],
+    "bytes_added": {
+     "101": 2889,
+     "102": 8951,
+     "103": 2553
+    }
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28143,
+    "header_count": 28143,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "new_records_clean_per_seq": {
+     "101": 11,
+     "102": 11,
+     "103": 11
+    },
+    "expected": 11
+   },
+   "STRUCTURALLY_VALID": true,
+   "semantic": {
+    "run_id": 888014,
+    "member_order": [
+     [
+      888015,
+      "RbsConduitCurve"
+     ],
+     [
+      888021,
+      "FamilyInstance"
+     ],
+     [
+      888017,
+      "RbsConduitCurve"
+     ],
+     [
+      888023,
+      "FamilyInstance"
+     ],
+     [
+      888019,
+      "RbsConduitCurve"
+     ]
+    ],
+    "curve_lengths_ft": [
+     6.9427,
+     3.8854,
+     6.9427
+    ],
+    "elbows": [
+     {
+      "id": 888021,
+      "corner": [
+       -22.0,
+       26.0,
+       9.5
+      ],
+      "clone": 679082,
+      "master": 662459,
+      "connectors": {
+       "1": [
+        {
+         "m_id": 888017,
+         "m_nIndex": 0,
+         "m_connType": 1
+        }
+       ],
+       "2": [
+        {
+         "m_id": 888015,
+         "m_nIndex": 1,
+         "m_connType": 1
+        }
+       ]
+      }
+     },
+     {
+      "id": 888023,
+      "corner": [
+       -22.0,
+       32.0,
+       9.5
+      ],
+      "clone": 679082,
+      "master": 662459,
+      "connectors": {
+       "1": [
+        {
+         "m_id": 888019,
+         "m_nIndex": 0,
+         "m_connType": 1
+        }
+       ],
+       "2": [
+        {
+         "m_id": 888017,
+         "m_nIndex": 1,
+         "m_connType": 1
+        }
+       ]
+      }
+     }
+    ],
+    "ok_readback_graph": true,
+    "ok_two_elbows_reuse_clone": true,
+    "ok_run_lists_members_in_path_order": true,
+    "readback_issues": []
+   },
+   "validator": {
+    "ok": true,
+    "errors": [],
+    "n_warnings": 1,
+    "warnings": [
+     "Finding(severity='warning', layer='semantic', where='objects', message=\"1171/142185 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; t"
+    ],
+    "seconds": 12.0
+   },
+   "VALIDATOR_ZERO_ERRORS": true
+  },
+  {
+   "file": "conduit_create_straight.rvt",
+   "kind": "create",
+   "proves": "three disjoint straight conduit runs (horizontal 2\" RNC, vertical 1\" riser, sloped 3\" RMC) \u2014 the fitting-free fallback; each = curve + SegmentCenterLine + run",
+   "plan": {
+    "plans": [
+     {
+      "kind": "conduit",
+      "run": 888014,
+      "curves": [
+       888015
+      ],
+      "fittings": [],
+      "centerlines": [
+       888016
+      ],
+      "notes": [
+       "straight conduit run 888014: conduit 888015 (2.000in, type 662478) + centreline 888016, L=16.0000 ft, both ends open"
+      ]
+     },
+     {
+      "kind": "conduit",
+      "run": 888017,
+      "curves": [
+       888018
+      ],
+      "fittings": [],
+      "centerlines": [
+       888019
+      ],
+      "notes": [
+       "straight conduit run 888017: conduit 888018 (1.000in, type 662478) + centreline 888019, L=10.0000 ft, both ends open"
+      ]
+     },
+     {
+      "kind": "conduit",
+      "run": 888020,
+      "curves": [
+       888021
+      ],
+      "fittings": [],
+      "centerlines": [
+       888022
+      ],
+      "notes": [
+       "straight conduit run 888020: conduit 888021 (3.000in, type 662479) + centreline 888022, L=10.9545 ft, both ends open"
+      ]
+     }
+    ],
+    "notes": [
+     "straight conduit run 888014: conduit 888015 (2.000in, type 662478) + centreline 888016, L=16.0000 ft, both ends open",
+     "straight conduit run 888017: conduit 888018 (1.000in, type 662478) + centreline 888019, L=10.0000 ft, both ends open",
+     "straight conduit run 888020: conduit 888021 (3.000in, type 662479) + centreline 888022, L=10.9545 ft, both ends open"
+    ],
+    "plan_graph_checks": [
+     {
+      "dangling_references": {},
+      "graph_issues": [],
+      "ok": true
+     },
+     {
+      "dangling_references": {},
+      "graph_issues": [],
+      "ok": true
+     },
+     {
+      "dangling_references": {},
+      "graph_issues": [],
+      "ok": true
+     }
+    ],
+    "elemtable": [
+     28132,
+     28141
+    ]
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28141,
+    "header_count": 28141,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    }
+   },
+   "STRUCTURALLY_VALID": true,
+   "semantic": {
+    "runs": [
+     [
+      888014,
+      true,
+      [
+       [
+        888015,
+        16.0,
+        0.16666666666666666
+       ]
+      ]
+     ],
+     [
+      888017,
+      true,
+      [
+       [
+        888018,
+        10.0,
+        0.08333333333333333
+       ]
+      ]
+     ],
+     [
+      888020,
+      true,
+      [
+       [
+        888021,
+        10.9545,
+        0.25
+       ]
+      ]
+     ]
+    ],
+    "ok_all_readback": true
+   },
+   "validator": {
+    "ok": true,
+    "errors": [],
+    "n_warnings": 1,
+    "warnings": [
+     "Finding(severity='warning', layer='semantic', where='objects', message=\"1171/142183 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; t"
+    ],
+    "seconds": 11.9
+   },
+   "VALIDATOR_ZERO_ERRORS": true
+  },
+  {
+   "file": "conduit_modify.rvt",
+   "kind": "modify",
+   "proves": "RESIZE 686270 2\"->1\" (diameter + inner/outer + size label), MOVE run 679175 by (4,3,0) ft rigidly (curves, both elbows, all centre-lines), EXTEND 686514's open end +3 ft, RETYPE run 688539 -> type 662475",
+   "plan": {
+    "ops": {
+     "resize": {
+      "conduit": 686270,
+      "from_in": 2.0,
+      "to_in": 1.0,
+      "n_plans": 2
+     },
+     "move": {
+      "run": 679175,
+      "delta_ft": [
+       4.0,
+       3.0,
+       0.0
+      ]
+     },
+     "extend": {
+      "conduit": 686514,
+      "end": "p1",
+      "delta_ft": 3.0,
+      "length_before_ft": 14.0198
+     },
+     "retype": {
+      "run": 688539,
+      "from": 662478,
+      "to": 662475
+     }
+    },
+    "n_plans": 36,
+    "edited_ids": [
+     679170,
+     679171,
+     679172,
+     679174,
+     686270,
+     686514,
+     688129,
+     688538,
+     688539,
+     688547,
+     715217,
+     715229,
+     715830,
+     715831,
+     715832,
+     715840
+    ],
+    "elemtable": [
+     28132,
+     28132
+    ]
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28132,
+    "header_count": 28132,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "STRUCTURALLY_VALID": true,
+   "semantic": {
+    "resize_after": {
+     "diameter_ft": 0.08333333333333333,
+     "size_label": "25 mm\u00f8"
+    },
+    "ok_resized": true,
+    "move_delta_ft": [
+     4.0,
+     3.0,
+     0.0
+    ],
+    "moved_conduit_p0": {
+     "679170": [
+      [
+       -47.974081364829395,
+       18.954068241469813,
+       0.5589623913331745
+      ],
+      [
+       -43.974081364829395,
+       21.954068241469813,
+       0.5589623913331745
+      ]
+     ],
+     "679171": [
+      [
+       -38.06725721784771,
+       17.03477690288713,
+       -3.5550057845198726
+      ],
+      [
+       -34.06725721784771,
+       20.03477690288713,
+       -3.5550057845198726
+      ]
+     ],
+     "679172": [
+      [
+       -39.105248860087706,
+       17.235871455380973,
+       -4.612297451186554
+      ],
+      [
+       -35.105248860087706,
+       20.235871455380973,
+       -4.612297451186554
+      ]
+     ]
+    },
+    "moved_elbow_corners": {
+     "688129": [
+      [
+       -38.06725721784776,
+       17.034776902887135,
+       -4.612297451186499
+      ],
+      [
+       -34.06725721784776,
+       20.034776902887135,
+       -4.612297451186499
+      ]
+     ],
+     "679174": [
+      [
+       -47.974081364829395,
+       18.954068241469823,
+       -4.6122974511864765
+      ],
+      [
+       -43.974081364829395,
+       21.954068241469823,
+       -4.6122974511864765
+      ]
+     ]
+    },
+    "ok_moved_rigidly": true,
+    "ok_moved_graph_still_mutual": true,
+    "extend_after": {
+     "length_ft": 17.0198,
+     "p1": [
+      -38.795753000670835,
+      22.06266404199465,
+      27.572424540682547
+     ]
+    },
+    "ok_extended": true,
+    "retype_after": {
+     "conduit_688538_type": 662475,
+     "run_688539_type": 662475
+    },
+    "ok_retyped": true
+   },
+   "validator": {
+    "ok": true,
+    "errors": [],
+    "n_warnings": 1,
+    "warnings": [
+     "Finding(severity='warning', layer='semantic', where='objects', message=\"1171/142174 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; t"
+    ],
+    "seconds": 12.0
+   },
+   "VALIDATOR_ZERO_ERRORS": true
+  },
+  {
+   "file": "conduit_delete.rvt",
+   "kind": "delete",
+   "proves": "DELETE run 679090 (3 conduits + 2 elbows + 5 centre-lines + run; the transformer's surface-connector reference neutralised) and DELETE elbow 688548 (fitting + its centre-line; conduits' connector refs and run member list neutralised)",
+   "plan": {
+    "delete_run_679090_closure": [
+     678659,
+     679071,
+     679090,
+     687998,
+     688027,
+     688029,
+     715227,
+     715228,
+     715828,
+     715829,
+     715846
+    ],
+    "removed": [
+     678659,
+     679071,
+     679090,
+     687998,
+     688027,
+     688029,
+     688548,
+     715227,
+     715228,
+     715230,
+     715828,
+     715829,
+     715846
+    ],
+    "n_plans": 6,
+    "elemtable": [
+     28132,
+     28119
+    ]
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28119,
+    "header_count": 28119,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "STRUCTURALLY_VALID": true,
+   "semantic": {
+    "removed_ids": [
+     678659,
+     679071,
+     679090,
+     687998,
+     688027,
+     688029,
+     688548,
+     715227,
+     715228,
+     715230,
+     715828,
+     715829,
+     715846
+    ],
+    "referrers_edited": [
+     624416,
+     688538,
+     688539,
+     688547
+    ],
+    "ok_all_removed": true,
+    "ok_transformer_no_longer_refs_678659": true,
+    "ok_run688539_dropped_elbow": true,
+    "run_688539_members_after": [
+     688538,
+     688547
+    ],
+    "ok_conduit_688538_conn_no_longer_refs_elbow": true,
+    "ok_referrers_decode_clean": true,
+    "elemtable_count": [
+     28132,
+     28119
+    ]
+   },
+   "validator": {
+    "ok": true,
+    "errors": [],
+    "n_warnings": 1,
+    "warnings": [
+     "Finding(severity='warning', layer='semantic', where='objects', message=\"1171/142161 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; t"
+    ],
+    "seconds": 11.9
+   },
+   "VALIDATOR_ZERO_ERRORS": true
+  },
+  {
+   "file": "cable_tray_create.rvt",
+   "kind": "create-experimental",
+   "proves": "EXPERIMENTAL: two straight cable-tray runs (Ladder 12\"x4\", Channel 6\"x3.5\") class-morphed from a conduit specimen (CableTray/CableTrayRun have NO specimen in any 2026 sample); category ids of the run/centre-line are INFERRED",
+   "plan": {
+    "plans": [
+     {
+      "kind": "cable_tray",
+      "run": 888014,
+      "curves": [
+       888015
+      ],
+      "fittings": [],
+      "centerlines": [
+       888016
+      ],
+      "notes": [
+       "EXPERIMENTAL cable-tray run 888014: tray 888015 (12.0in x 4.0in, type 643893) morphed from conduit specimen 678659; SegmentCenterLine 888016; category ids CableTrayRun=-2008147/CenterLine=-2008137 are INFERRED (no specimen in corpus)"
+      ]
+     },
+     {
+      "kind": "cable_tray",
+      "run": 888017,
+      "curves": [
+       888018
+      ],
+      "fittings": [],
+      "centerlines": [
+       888019
+      ],
+      "notes": [
+       "EXPERIMENTAL cable-tray run 888017: tray 888018 (6.0in x 3.5in, type 643892) morphed from conduit specimen 678659; SegmentCenterLine 888019; category ids CableTrayRun=-2008147/CenterLine=-2008137 are INFERRED (no specimen in corpus)"
+      ]
+     }
+    ],
+    "notes": [
+     "EXPERIMENTAL cable-tray run 888014: tray 888015 (12.0in x 4.0in, type 643893) morphed from conduit specimen 678659; SegmentCenterLine 888016; category ids CableTrayRun=-2008147/CenterLine=-2008137 are INFERRED (no specimen in corpus)",
+     "EXPERIMENTAL cable-tray run 888017: tray 888018 (6.0in x 3.5in, type 643892) morphed from conduit specimen 678659; SegmentCenterLine 888019; category ids CableTrayRun=-2008147/CenterLine=-2008137 are INFERRED (no specimen in corpus)"
+    ],
+    "plan_graph_checks": [
+     {
+      "dangling_references": {},
+      "graph_issues": [],
+      "ok": true
+     },
+     {
+      "dangling_references": {},
+      "graph_issues": [],
+      "ok": true
+     }
+    ],
+    "elemtable": [
+     28132,
+     28138
+    ]
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28138,
+    "header_count": 28138,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    }
+   },
+   "STRUCTURALLY_VALID": true,
+   "semantic": {
+    "runs": [
+     [
+      888014,
+      "CableTrayRun",
+      true
+     ],
+     [
+      888017,
+      "CableTrayRun",
+      true
+     ]
+    ],
+    "trays": [
+     {
+      "id": 888015,
+      "class": "CableTray",
+      "width_ft": 1.0,
+      "height_ft": 0.3333333333333333,
+      "length_ft": 20.0,
+      "type_id": 643893,
+      "size_label": "305 mmx102 mm"
+     },
+     {
+      "id": 888018,
+      "class": "CableTray",
+      "width_ft": 0.5,
+      "height_ft": 0.2916666666666667,
+      "length_ft": 14.0,
+      "type_id": 643892,
+      "size_label": "152 mmx89 mm"
+     }
+    ],
+    "ok_all_readback": true,
+    "ok_class_is_CableTray": true
+   },
+   "validator": {
+    "ok": true,
+    "errors": [],
+    "n_warnings": 1,
+    "warnings": [
+     "Finding(severity='warning', layer='semantic', where='objects', message=\"1171/142180 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; t"
+    ],
+    "seconds": 12.6
+   },
+   "VALIDATOR_ZERO_ERRORS": true
+  }
+ ],
+ "seconds": 341.5
+}

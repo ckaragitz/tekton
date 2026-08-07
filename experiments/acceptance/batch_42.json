@@ -1,0 +1,129 @@
+{
+ "batch": 42,
+ "created": "2026-08-05T04:25:09-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "terminal-diff: the RE-ENVELOPE probes (post-verdict-#35; the charter's 'batch 41' -- 41 was consumed by regcorner H13, so this is the next campaign-global number).  Every record-level hypothesis is dead; these probe the container envelope.  Each probe = H12 (recorded FAIL, #35) +/- exactly ONE envelope change; E_ALL = all of them (upload FIRST -- the biggest split).  E1/E1b footer blob, E3 member recipe, E6 tail junk, E4 BFI strings, E5 DIT usernames, E2 CFB tree.  Read with experiments/terminal/probes.json reading_the_matrix.",
+ "reading_order": [
+  "CTRL_rstbasicsampleproject_b42.rvt",
+  "E_ALL.rvt",
+  "E1.rvt",
+  "E1b.rvt",
+  "E3.rvt",
+  "E6.rvt",
+  "E4.rvt",
+  "E5.rvt",
+  "E2.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_rstbasicsampleproject_b42.rvt",
+   "staged_as": "experiments/acceptance/CTRL_rstbasicsampleproject_b42.rvt",
+   "md5": "b3235ad2743f19bcfff243654fec35dd",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/rstbasicsampleproject.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 1,
+   "file": "experiments/terminal/probes/E_ALL.rvt",
+   "staged_as": "experiments/acceptance/E_ALL.rvt",
+   "md5": "ee0cf7096bcb2e81411529196a949e4c",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/terminal/probes.json entry 'E_ALL' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 2,
+   "file": "experiments/terminal/probes/E1.rvt",
+   "staged_as": "experiments/acceptance/E1.rvt",
+   "md5": "6c0c49ac3f7f2f6fdc04d8e9baeb1fc9",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/terminal/probes.json entry 'E1' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 3,
+   "file": "experiments/terminal/probes/E1b.rvt",
+   "staged_as": "experiments/acceptance/E1b.rvt",
+   "md5": "04d43b5c5250d527e5d8e9d74e0a4301",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/terminal/probes.json entry 'E1b' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 4,
+   "file": "experiments/terminal/probes/E3.rvt",
+   "staged_as": "experiments/acceptance/E3.rvt",
+   "md5": "5a4f2e4cb8c5ac61d0f5db06577081ac",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/terminal/probes.json entry 'E3' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 5,
+   "file": "experiments/terminal/probes/E6.rvt",
+   "staged_as": "experiments/acceptance/E6.rvt",
+   "md5": "9b2e75500b3a4f022336086f2d9905b1",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/terminal/probes.json entry 'E6' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 6,
+   "file": "experiments/terminal/probes/E4.rvt",
+   "staged_as": "experiments/acceptance/E4.rvt",
+   "md5": "f98ed6c813f22dc068544da17a259ab1",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/terminal/probes.json entry 'E4' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 7,
+   "file": "experiments/terminal/probes/E5.rvt",
+   "staged_as": "experiments/acceptance/E5.rvt",
+   "md5": "7f86866c62cd7e14f05967ee6390bb4f",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/terminal/probes.json entry 'E5' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 8,
+   "file": "experiments/terminal/probes/E2.rvt",
+   "staged_as": "experiments/acceptance/E2.rvt",
+   "md5": "0da908ec00dfa62055dc0df6bf07abe9",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/terminal/probes.json entry 'E2' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  }
+ ]
+}

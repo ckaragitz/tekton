@@ -1,0 +1,74 @@
+{
+ "router": "rvt.frontdoor.router (perm-matrix stream)",
+ "request": {
+  "inputs": {
+   "prompt": "an eaton pow-r-line panelboard rated 400 A with 42 spaces at 480Y/277 V, main breaker, surface mounted, named DP-7"
+  },
+  "output": "rfa",
+  "opts": {}
+ },
+ "cell": {
+  "inputs": [
+   "prompt"
+  ],
+  "output": "rfa",
+  "status": "works",
+  "route": "prompt_to_rfa",
+  "stages": [
+   "prompt->intent",
+   "intent->rfa"
+  ],
+  "evidence": [
+   "worked:experiments/frontdoor/prompt-electrical-room/families",
+   "test:tests/test_famgen_factory.py",
+   "test:tests/test_frontdoor.py"
+  ],
+  "caveats": [
+   "family generation covers the catalog-backed kinds (panelboard / transformer / luminaire / the honest house switchboard); anything without facts is REFUSED by name, never invented",
+   "every output is PROOF-ONLY, NOT-DELIVERABLE until TRACKER gates G2/G3 clear (docs/product/content-strategy.md); the manifest says so explicitly"
+  ],
+  "missing_reason": null,
+  "closest": null,
+  "hint": null
+ },
+ "route": "prompt_to_rfa",
+ "ok": true,
+ "status": "OK (2 family .rfa generated; refusals honest)",
+ "steps": [
+  {
+   "stage": "prompt->intent",
+   "impl": "rvt.frontdoor.prompt_intent:prompt_to_intent",
+   "ok": true,
+   "seconds": 0.0
+  },
+  {
+   "stage": "intent->rfa",
+   "impl": "tools/ifc_intent.py:stage_families",
+   "ok": true,
+   "seconds": 3.0
+  }
+ ],
+ "files": {
+  "intent": "experiments/routes/demo1-prompt-to-rfa/intent.json",
+  "families_dir": "experiments/routes/demo1-prompt-to-rfa/families",
+  "rfa:DP-7": "experiments/routes/demo1-prompt-to-rfa/families/dp7_eaton_prl2x_400a_42sp_480y_277.rfa",
+  "rfa:PP-1": "experiments/routes/demo1-prompt-to-rfa/families/pp1_eaton_prl2x_400a_42sp_480y_277.rfa"
+ },
+ "releases": {
+  "rfa:DP-7": 2026,
+  "rfa:PP-1": 2026
+ },
+ "stamps": [],
+ "caveats": [
+  "family generation covers the catalog-backed kinds (panelboard / transformer / luminaire / the honest house switchboard); anything without facts is REFUSED by name, never invented",
+  "every output is PROOF-ONLY, NOT-DELIVERABLE until TRACKER gates G2/G3 clear (docs/product/content-strategy.md); the manifest says so explicitly"
+ ],
+ "evidence": [
+  "worked:experiments/frontdoor/prompt-electrical-room/families",
+  "test:tests/test_famgen_factory.py",
+  "test:tests/test_frontdoor.py"
+ ],
+ "errors": [],
+ "seconds": 3.0,
+ "deliverable_rule": "gates are labels: the output files above ARE delivered; every caveat/stamp rides AFTER the delivery, never instead of it"
+}

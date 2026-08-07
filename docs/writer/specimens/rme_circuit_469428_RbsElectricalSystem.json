@@ -1,0 +1,1098 @@
+{
+ "element_id": 469428,
+ "note": "Circuit: 9 receptacles + panel 581483",
+ "elemtable": {
+  "found_in_ElemTable": true,
+  "raw_40_bytes_hex": "b4 29 07 00 00 00 00 00 46 02 00 00 16 03 00 00 d1 02 00 00 b4 29 07 00 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00",
+  "fields": {
+   "+0 u64 m_history.m_originalElementId": 469428,
+   "+8 u32 m_history.m_creationDate (EpisodeId)": 582,
+   "+12 u32 m_history.m_lastModificationDate (EpisodeId)": 790,
+   "+16 u32 m_history.m_lastUserModificationDate": 721,
+   "+20 u64 m_id": 469428,
+   "+28 u64 m_OwningElementId": -1,
+   "+36 u32 m_partitionId": 0
+  }
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 5415653,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 469428,
+  "stamp": null,
+  "psize": 335,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 333,
+  "total_record_bytes": 351,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 1b 5c e1 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "333/333",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -2008037,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -4225
+   },
+   "m_abFlags4Bytes": 4122,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "RbsElectricalSystem"
+    }
+   },
+   "m_pBBox": null,
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      466930,
+      467026,
+      467110,
+      467194,
+      467291,
+      467456,
+      467473,
+      467480,
+      467523,
+      469428,
+      581483,
+      690425,
+      887996,
+      887997
+     ],
+     "m_regenOnly": [
+      342654,
+      639116,
+      885628
+     ],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [
+      466930,
+      467026,
+      467110,
+      467194,
+      467291,
+      467456,
+      467473,
+      467480,
+      467523,
+      581483
+     ],
+     "m_deferredParents": [
+      712554
+     ],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": true
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -2008037,
+  "builtin": "OST_ElectricalCircuit(sys)"
+ },
+ "classDef": "RbsElectricalSystem",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 33542278,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 469428,
+  "stamp": 4137952553,
+  "psize": 1804,
+  "class_id_hex": "0x0d87",
+  "object_bytes": 1802,
+  "total_record_bytes": 1824,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff",
+  "class": "RbsElectricalSystem",
+  "clean": true,
+  "consumed_of_object": "1802/1802",
+  "value": {
+   "m_pParamValueSetDouble": null,
+   "m_pParamValueSetInt": null,
+   "m_pParamValueSetAString": null,
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": null,
+   "m_pGeomTable": null,
+   "m_constrInfo": [],
+   "m_cellList": {
+    "ptr_class": "CellList",
+    "pid": -1,
+    "value": {
+     "m_cells": [
+      {
+       "ptr_class": "ElectricalLoadClassificationsData",
+       "pid": -1,
+       "value": {
+        "m_apparentPowerMap": [
+         {
+          "first": 690425,
+          "second": [
+           17437.53487507,
+           0.0
+          ]
+         }
+        ],
+        "m_demandPowerMap": [],
+        "m_perPhasePowerMap": [
+         {
+          "first": 690425,
+          "second": {
+           "m_apparentPowerPhaseA": 17437.53487507,
+           "m_apparentPowerPhaseB": 0.0,
+           "m_apparentPowerPhaseC": 0.0,
+           "m_reactivePowerPhaseA": 0.0,
+           "m_reactivePowerPhaseB": 0.0,
+           "m_reactivePowerPhaseC": 0.0,
+           "m_truePowerPhaseA": 17437.53487507,
+           "m_truePowerPhaseB": 0.0,
+           "m_truePowerPhaseC": 0.0
+          }
+         }
+        ],
+        "m_trueReactivePowerMap": []
+       }
+      }
+     ]
+    }
+   },
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 469428,
+   "m_assocLevelId": -1,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_baseConnectorIdArray": [
+    {
+     "m_id": 469428,
+     "m_nIndex": 9,
+     "m_connType": 4
+    }
+   ],
+   "m_pConnectorMgr": {
+    "ptr_class": "RbsSystemConnectorManager",
+    "pid": 3,
+    "value": {
+     "m_setDeletedConnectors": [],
+     "m_connPtrArray": [
+      {
+       "ptr_class": "Connector",
+       "pid": 4,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 467291,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 0,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 4
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "Connector",
+       "pid": 5,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 467473,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 1,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 5
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "Connector",
+       "pid": 6,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 467523,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 2,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 6
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "Connector",
+       "pid": 7,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 467456,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 3,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 7
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "Connector",
+       "pid": 8,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 467480,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 4,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 8
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "Connector",
+       "pid": 9,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 467194,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 5,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 9
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "Connector",
+       "pid": 10,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 467110,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 6,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 10
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "Connector",
+       "pid": 11,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 466930,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 7,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 11
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "Connector",
+       "pid": 12,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 467026,
+          "m_nIndex": 1,
+          "m_connType": 1
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 8,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 12
+           }
+          }
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "Connector",
+       "pid": 13,
+       "value": {
+        "m_arrRefs": [
+         {
+          "m_id": 581483,
+          "m_nIndex": 50001,
+          "m_connType": 4
+         }
+        ],
+        "m_pElement": {
+         "weakref": 2
+        },
+        "m_nIndex": 9,
+        "m_mode": 4,
+        "m_modifiers": [
+         {
+          "ptr_class": "RbsSystemConnectorModifier",
+          "pid": -1,
+          "value": {
+           "m_pConnector": {
+            "weakref": 13
+           }
+          }
+         }
+        ]
+       }
+      }
+     ],
+     "m_modifiers": [
+      {
+       "ptr_class": "MEPConnectionBehaviorModifier",
+       "pid": -1,
+       "value": {
+        "m_pConnectorManager": {
+         "weakref": 3
+        }
+       }
+      }
+     ]
+    }
+   },
+   "m_rgSections": [],
+   "m_strName": "",
+   "m_typeId": -1,
+   "m_nextFreeSectionId": 1,
+   "m_numberOfElements": 0,
+   "m_numberOfElementsInNetwork": 0,
+   "m_systemState": 0,
+   "m_apparentPerPhaseData": {
+    "m_intermediateData": [],
+    "m_apparentPowerAnglePhaseA": 0.0,
+    "m_apparentPowerAnglePhaseB": 0.0,
+    "m_apparentPowerAnglePhaseC": 0.0,
+    "m_apparentPowerPhaseA": 17437.53487507,
+    "m_apparentPowerPhaseB": 0.0,
+    "m_apparentPowerPhaseC": 0.0,
+    "m_currentAnglePhaseA": 0.0,
+    "m_currentAnglePhaseB": 0.0,
+    "m_currentAnglePhaseC": 0.0,
+    "m_currentPhaseA": 0.0,
+    "m_currentPhaseB": 0.0,
+    "m_currentPhaseC": 0.0,
+    "m_truePowerPhaseA": 17437.53487507,
+    "m_truePowerPhaseB": 0.0,
+    "m_truePowerPhaseC": 0.0
+   },
+   "m_customizePathNodes": [],
+   "m_number": "1",
+   "m_pathNodes": [
+    {
+     "m_elemId": 581483,
+     "m_position": [
+      59.256374436,
+      110.202340862,
+      3.937007874
+     ],
+     "m_isVirtualNode": false
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      59.167832769,
+      110.202340862,
+      3.937007874
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      59.167832769,
+      110.089854021,
+      3.937007874
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      59.167832769,
+      110.089854021,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      64.71548593,
+      110.089854021,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      64.71548593,
+      113.58528188,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      69.004514437,
+      113.58528188,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      69.004514437,
+      119.728082976,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      69.004514437,
+      129.628681753,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      64.269843109,
+      129.628681753,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      64.269843109,
+      125.573388837,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      60.078704339,
+      125.573388837,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      60.078704339,
+      125.773602092,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      59.167832769,
+      125.773602092,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      59.167832769,
+      119.932373706,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      59.964842677,
+      119.932373706,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      59.964842677,
+      133.68526548,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      49.670309926,
+      133.68526548,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    },
+    {
+     "m_elemId": -1,
+     "m_position": [
+      49.670309926,
+      130.438941427,
+      1.634186352
+     ],
+     "m_isVirtualNode": true
+    }
+   ],
+   "m_strDescription": "Power Technology 28",
+   "m_strLoadClassifications": "Receptacles",
+   "m_strNotes": "",
+   "m_cableType": 887996,
+   "m_dApparentLoad": 17437.53487507,
+   "m_dFrame": 400.0,
+   "m_dLength": 79.903534139,
+   "m_dRating": 20.0,
+   "m_dTrueLoad": 17437.53487507,
+   "m_dVoltage": 1291.669250005,
+   "m_dVoltageDrop": 18.113168621,
+   "m_cableSizeElementId": 887997,
+   "m_pathOffset": 9.0223097,
+   "m_pathOffsetAllDevice": 30000.0,
+   "m_circuitConnType": 1,
+   "m_circuitPathMode": 2,
+   "m_circuitType": 0,
+   "m_nGroupNumber": 0,
+   "m_nNamingIndex": 0,
+   "m_nNumRuns": 1,
+   "m_nPhaseInfo": 1,
+   "m_nPoles": 1,
+   "m_nStartSlot": 1,
+   "m_systemType": 6,
+   "m_bReserved": false,
+   "m_bSlotLocked": false
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 35840442,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 469428,
+  "stamp": 6881340,
+  "psize": 2,
+  "class_id_hex": "0x0f2c",
+  "object_bytes": 0,
+  "total_record_bytes": 22,
+  "size_trailer_ok": true,
+  "payload_head_hex": "",
+  "class": "SerializedDummy",
+  "clean": true,
+  "consumed_of_object": "0/0",
+  "value": {}
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[0]",
+   "id": 466930,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[1]",
+   "id": 467026,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[2]",
+   "id": 467110,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[3]",
+   "id": 467194,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[4]",
+   "id": 467291,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[5]",
+   "id": 467456,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[6]",
+   "id": 467473,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[7]",
+   "id": 467480,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[8]",
+   "id": 467523,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[9]",
+   "id": 469428,
+   "target_class": "RbsElectricalSystem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[10]",
+   "id": 581483,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[11]",
+   "id": 690425,
+   "target_class": "ElectricalLoadClassification",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[12]",
+   "id": 887996,
+   "target_class": "RbsCableType",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[13]",
+   "id": 887997,
+   "target_class": "CustomElement",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[0]",
+   "id": 342654,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[1]",
+   "id": 639116,
+   "target_class": "ElectricalSetting",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[2]",
+   "id": 885628,
+   "target_class": "CircuitNamingTypeSetting",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[0]",
+   "id": 466930,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[1]",
+   "id": 467026,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[2]",
+   "id": 467110,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[3]",
+   "id": 467194,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[4]",
+   "id": 467291,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[5]",
+   "id": 467456,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[6]",
+   "id": 467473,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[7]",
+   "id": 467480,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[8]",
+   "id": 467523,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[9]",
+   "id": 581483,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deferredParents[0]",
+   "id": 712554,
+   "target_class": "MEPSystemTracker",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 469428,
+   "target_class": "RbsElectricalSystem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_baseConnectorIdArray[0].m_id",
+   "id": 469428,
+   "target_class": "RbsElectricalSystem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[0].value.m_arrRefs[0].m_id",
+   "id": 467291,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[1].value.m_arrRefs[0].m_id",
+   "id": 467473,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[2].value.m_arrRefs[0].m_id",
+   "id": 467523,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[3].value.m_arrRefs[0].m_id",
+   "id": 467456,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[4].value.m_arrRefs[0].m_id",
+   "id": 467480,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[5].value.m_arrRefs[0].m_id",
+   "id": 467194,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[6].value.m_arrRefs[0].m_id",
+   "id": 467110,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[7].value.m_arrRefs[0].m_id",
+   "id": 466930,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[8].value.m_arrRefs[0].m_id",
+   "id": 467026,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pConnectorMgr.value.m_connPtrArray[9].value.m_arrRefs[0].m_id",
+   "id": 581483,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_nextFreeSectionId",
+   "id": 1,
+   "target_class": "AllProjectPhases",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pathNodes[0].m_elemId",
+   "id": 581483,
+   "target_class": "FamilyInstance",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_cableSizeElementId",
+   "id": 887997,
+   "target_class": "CustomElement",
+   "in_ElemTable": true,
+   "in_partitions": true
+  }
+ ]
+}

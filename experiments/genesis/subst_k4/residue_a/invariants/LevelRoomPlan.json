@@ -1,0 +1,5154 @@
+{
+ "class": "LevelRoomPlan",
+ "cohort": "",
+ "n_specimens": 37,
+ "per_file": {
+  "rstbasicsampleproject": 1,
+  "racbasicsampleproject": 2,
+  "racadvancedsampleproject": 6,
+  "rmebasicsampleproject": 6,
+  "dach-sample-project": 22
+ },
+ "seq103_classes": {
+  "SerializedDummy": 37
+ },
+ "owned_children": {},
+ "rules": [
+  {
+   "path": "m_pParamValueSetDouble.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_pParamValueSetInt.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_pParamValueSetAString.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_pParamValueSetElementId.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_geomSteps.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_pGeomTable.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_constrInfo.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_cellList.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_docAccess.m_pDoc",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_docAccess.m_pDoc",
+   "rule": "IDENTICAL",
+   "expect": "@weakref",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_assocLevelId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_famId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_unplacedOwnerId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_ownerDBViewId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_createdPhaseId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_demolishedPhaseId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_designOptionId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_designOptionId",
+   "rule": "IDENTICAL",
+   "expect": -4,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_locked",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_moribund",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_dummy",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planId",
+   "rule": "ENUM",
+   "expect": [
+    "@AllPlanTopologies",
+    "@AreaSchemePlanTopologies"
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology.#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology.#ptr",
+   "rule": "IDENTICAL",
+   "expect": "PlanTopology",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_elevOffset",
+   "rule": "ENUM",
+   "expect": [
+    0.0,
+    0.32808398950131235,
+    1.6404199475065615,
+    3.280839895013123,
+    3.9370078740157473,
+    4.0,
+    4.921259842519684
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_topOffset",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    22.519481693252825
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_botOffset",
+   "rule": "ENUM",
+   "expect": [
+    -0.8267716535433065,
+    0.0
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_levelId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_levelId",
+   "rule": "IDENTICAL",
+   "expect": "@Level",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_levelRoomPlanId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_levelRoomPlanId",
+   "rule": "IDENTICAL",
+   "expect": "@LevelRoomPlan",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_whichElev",
+   "rule": "ENUM",
+   "expect": [
+    0,
+    2,
+    3,
+    4
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_nextCircuitId.m_id",
+   "rule": "RANGE",
+   "expect": [
+    2,
+    274
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_topBotOffsetsSet",
+   "rule": "ENUM",
+   "expect": [
+    false,
+    true
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments.#len",
+   "rule": "RANGE",
+   "expect": [
+    5,
+    322
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_key.m_item.m_linkInstOrHostId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_key.m_item.m_linkInstOrHostId",
+   "rule": "ENUM",
+   "expect": [
+    "@CurveElem",
+    "@FamilyInstance",
+    "@ProfileRoof",
+    "@Roof",
+    "@SWall"
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_key.m_item.m_linkRef.m_id64",
+   "rule": "IDENTICAL",
+   "expect": -1,
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_key.m_majorIndex",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    13
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_key.m_subIndex",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    10
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_param0",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    0.9999976499662043
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_param1",
+   "rule": "RANGE",
+   "expect": [
+    3.8120290843477096e-08,
+    1.0000000000000004
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_envelope.m_corners[0][0]",
+   "rule": "RANGE",
+   "expect": [
+    -41.88944436224503,
+    185.43660798556706
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_envelope.m_corners[0][1]",
+   "rule": "RANGE",
+   "expect": [
+    -76.55072631731299,
+    134.13806239566708
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_envelope.m_corners[1][0]",
+   "rule": "RANGE",
+   "expect": [
+    -41.889444362245,
+    185.43660798556706
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_envelope.m_corners[1][1]",
+   "rule": "RANGE",
+   "expect": [
+    -76.55072631731299,
+    134.1380623956673
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_area",
+   "rule": "RANGE",
+   "expect": [
+    -3267.9723052256136,
+    5140.579442144946
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_areaOnRight",
+   "rule": "RANGE",
+   "expect": [
+    -3267.9723052256136,
+    5140.579442144946
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_points.#len",
+   "rule": "RANGE",
+   "expect": [
+    2,
+    27
+   ],
+   "support": 4522,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_points[][0]",
+   "rule": "RANGE",
+   "expect": [
+    -41.88944436224503,
+    185.43660798556706
+   ],
+   "support": 12646,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_segments[].m_info.m_points[][1]",
+   "rule": "RANGE",
+   "expect": [
+    -76.55072631731299,
+    134.1380623956673
+   ],
+   "support": 12646,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits.#len",
+   "rule": "RANGE",
+   "expect": [
+    2,
+    88
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_area",
+   "rule": "RANGE",
+   "expect": [
+    -18672.305763586723,
+    6912.60667652858
+   ],
+   "support": 892,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_envelope.m_corners[0][0]",
+   "rule": "RANGE",
+   "expect": [
+    -41.88944436224503,
+    175.95005942913662
+   ],
+   "support": 892,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_envelope.m_corners[0][1]",
+   "rule": "RANGE",
+   "expect": [
+    -76.55072631731299,
+    128.134125388213
+   ],
+   "support": 892,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_envelope.m_corners[1][0]",
+   "rule": "RANGE",
+   "expect": [
+    -29.698160897623122,
+    185.43660798556706
+   ],
+   "support": 892,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_envelope.m_corners[1][1]",
+   "rule": "RANGE",
+   "expect": [
+    -73.77489555045891,
+    134.1380623956673
+   ],
+   "support": 892,
+   "files": 5,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_id.m_id",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    273
+   ],
+   "support": 892,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_sides.#len",
+   "rule": "RANGE",
+   "expect": [
+    2,
+    68
+   ],
+   "support": 892,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_sides[].m_item.m_linkInstOrHostId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 6789,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_sides[].m_item.m_linkInstOrHostId",
+   "rule": "ENUM",
+   "expect": [
+    "@CurveElem",
+    "@FamilyInstance",
+    "@ProfileRoof",
+    "@Roof",
+    "@SWall"
+   ],
+   "support": 6789,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_sides[].m_item.m_linkRef.m_id64",
+   "rule": "IDENTICAL",
+   "expect": -1,
+   "support": 6789,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_sides[].m_majorIndex",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    13
+   ],
+   "support": 6789,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_circuits[].m_sides[].m_subIndex",
+   "rule": "RANGE",
+   "expect": [
+    -11,
+    9
+   ],
+   "support": 6789,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_components.#len",
+   "rule": "RANGE",
+   "expect": [
+    1,
+    54
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_components[].m_circuits.#len",
+   "rule": "RANGE",
+   "expect": [
+    1,
+    40
+   ],
+   "support": 275,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_components[].m_circuits[].m_id",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    273
+   ],
+   "support": 892,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_components[].m_outerCircuit.m_id",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    273
+   ],
+   "support": 275,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_components[].m_enclosingCircuit.m_id",
+   "rule": "RANGE",
+   "expect": [
+    -1,
+    272
+   ],
+   "support": 275,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rooms.#len",
+   "rule": "RANGE",
+   "expect": [
+    1,
+    33
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rooms[]",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 384,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rooms[]",
+   "rule": "IDENTICAL",
+   "expect": "@RoomElem",
+   "support": 384,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_unusedItems.#len",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    14
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache.#len",
+   "rule": "RANGE",
+   "expect": [
+    0,
+    56
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_regenHistory.m_historyMap.#len",
+   "rule": "LEN_SET",
+   "expect": [
+    0,
+    1
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_categroryId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_familyId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_ownerViewId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_designOptionId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_unplacedOwnerId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_miscId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_viewRules.m_nVisibleViewFlags",
+   "rule": "IDENTICAL",
+   "expect": -32768,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_abFlags4Bytes",
+   "rule": "ENUM",
+   "expect": [
+    8202,
+    8218
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_classDef.m_ref",
+   "rule": "IDENTICAL",
+   "expect": "LevelRoomPlan",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "classref",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_pBBox.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents.#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents.#ptr",
+   "rule": "IDENTICAL",
+   "expect": "ElementParents",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deletion.#len",
+   "rule": "RANGE",
+   "expect": [
+    9,
+    207
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deletion[]",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 3185,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_regenOnly.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_regenWildcards.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_nonDetermRegenChildren.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_dependencyParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_appearanceParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deferredParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deferredPropagationParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_computedParametersParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_hasNonDetermRegenChildren",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "header",
+   "present": 37
+  },
+  {
+   "path": "ETR.has_owner",
+   "rule": "IDENTICAL",
+   "expect": true,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 37
+  },
+  {
+   "path": "ETR.owner_class",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "elemtable",
+   "present": 37
+  },
+  {
+   "path": "ETR.owner_class",
+   "rule": "ENUM",
+   "expect": [
+    "@AllPlanTopologies",
+    "@AreaSchemePlanTopologies"
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "elemtable",
+   "present": 37
+  },
+  {
+   "path": "ETR.owned.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "len",
+   "scope": "elemtable",
+   "present": 37
+  },
+  {
+   "path": "ETR.created_at_birth",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 37
+  },
+  {
+   "path": "ETR.id_band",
+   "rule": "ENUM",
+   "expect": [
+    "<500k",
+    "<5M"
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "classref",
+   "scope": "elemtable",
+   "present": 37
+  },
+  {
+   "path": "ETR.renumbered",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 37
+  },
+  {
+   "path": "ETR.usermod_never",
+   "rule": "ENUM",
+   "expect": [
+    false,
+    true
+   ],
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 37
+  },
+  {
+   "path": "ETR.partition_id",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "int",
+   "scope": "elemtable",
+   "present": 37
+  },
+  {
+   "path": "REP.seq103_class",
+   "rule": "IDENTICAL",
+   "expect": "SerializedDummy",
+   "support": 37,
+   "files": 5,
+   "total": 37,
+   "ftype": "classref",
+   "scope": "rep",
+   "present": 37
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].first.m_linkInstOrHostId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 275,
+   "files": 3,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].first.m_linkInstOrHostId",
+   "rule": "ENUM",
+   "expect": [
+    "@FamilyInstance",
+    "@ProfileRoof",
+    "@Roof"
+   ],
+   "support": 275,
+   "files": 3,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].first.m_linkRef.m_id64",
+   "rule": "IDENTICAL",
+   "expect": -1,
+   "support": 275,
+   "files": 3,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves.#len",
+   "rule": "LEN_SET",
+   "expect": [
+    0,
+    1,
+    14,
+    2,
+    4,
+    8
+   ],
+   "support": 275,
+   "files": 3,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[].#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 767,
+   "files": 3,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[].#ptr",
+   "rule": "PTR_CLASS_SET",
+   "expect": [
+    "GArc",
+    "GLine"
+   ],
+   "support": 767,
+   "files": 3,
+   "total": 37,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_GInfo.m_tag",
+   "rule": "ENUM",
+   "expect": [
+    13,
+    16,
+    19
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_GInfo.m_controlCommand",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_GInfo.m_flags",
+   "rule": "IDENTICAL",
+   "expect": 50855940,
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_endParams[0]",
+   "rule": "ENUM",
+   "expect": [
+    -8.881784197001252e-16,
+    0.0,
+    3.141592653589789,
+    3.1415926535897896,
+    3.14159265358979,
+    3.1415926535897905,
+    8.881784197001252e-16
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_endParams[1]",
+   "rule": "ENUM",
+   "expect": [
+    3.1415926535897896,
+    3.1415926535897905,
+    3.1415926535897913,
+    3.1415926535897922,
+    6.283185307179579,
+    6.28318530717958,
+    6.283185307179581
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_xVec[0]",
+   "rule": "ENUM",
+   "expect": [
+    -1.0,
+    1.0
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_xVec[1]",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    3.260524054783791e-15
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_xVec[2]",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_yVec[0]",
+   "rule": "RANGE",
+   "expect": [
+    -0.0,
+    3.260524054783791e-15
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_yVec[1]",
+   "rule": "ENUM",
+   "expect": [
+    -1.0,
+    1.0
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_yVec[2]",
+   "rule": "IDENTICAL",
+   "expect": -0.0,
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_radius",
+   "rule": "ENUM",
+   "expect": [
+    0.32808398950131235,
+    0.492125984251954,
+    1.6404199475065617
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_center[0]",
+   "rule": "RANGE",
+   "expect": [
+    -30.190286881875075,
+    149.14304645145873
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_center[1]",
+   "rule": "RANGE",
+   "expect": [
+    -74.26201240177825,
+    98.40465426488775
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_center[2]",
+   "rule": "RANGE",
+   "expect": [
+    0.0,
+    42.22440944493144
+   ],
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_bFilled",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 350,
+   "files": 3,
+   "total": 37,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 9
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_offset",
+   "rule": "ENUM",
+   "expect": [
+    0.0,
+    0.452
+   ],
+   "support": 275,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_width",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 275,
+   "files": 3,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_loopStarts.#len",
+   "rule": "LEN_SET",
+   "expect": [
+    0,
+    1,
+    2
+   ],
+   "support": 275,
+   "files": 3,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_loopStarts[]",
+   "rule": "ENUM",
+   "expect": [
+    0,
+    4,
+    6
+   ],
+   "support": 271,
+   "files": 3,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_regionStarts.#len",
+   "rule": "LEN_SET",
+   "expect": [
+    0,
+    1,
+    2
+   ],
+   "support": 275,
+   "files": 3,
+   "total": 37,
+   "ftype": "len",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_regionStarts[]",
+   "rule": "ENUM",
+   "expect": [
+    0,
+    1
+   ],
+   "support": 271,
+   "files": 3,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_unusedItems[].m_linkInstOrHostId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 209,
+   "files": 3,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_unusedItems[].m_linkInstOrHostId",
+   "rule": "ENUM",
+   "expect": [
+    "@CurveElem",
+    "@FamilyInstance",
+    "@ProfileRoof",
+    "@Roof",
+    "@SWall"
+   ],
+   "support": 209,
+   "files": 3,
+   "total": 37,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_unusedItems[].m_linkRef.m_id64",
+   "rule": "IDENTICAL",
+   "expect": -1,
+   "support": 209,
+   "files": 3,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 25
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_GInfo.m_tag",
+   "rule": "RANGE",
+   "expect": [
+    -1,
+    8261
+   ],
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_GInfo.m_controlCommand",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_GInfo.m_flags",
+   "rule": "IDENTICAL",
+   "expect": 50855940,
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "int",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_endParams[0]",
+   "rule": "ENUM",
+   "expect": [
+    -0.9598867110523975,
+    -0.9606821297161668,
+    0.0
+   ],
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_endParams[1]",
+   "rule": "RANGE",
+   "expect": [
+    -0.0,
+    59.76925441839363
+   ],
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_origin[0]",
+   "rule": "RANGE",
+   "expect": [
+    17.128094540193594,
+    112.52087034897568
+   ],
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_origin[1]",
+   "rule": "RANGE",
+   "expect": [
+    -46.309926237691954,
+    38.464627631231295
+   ],
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_origin[2]",
+   "rule": "RANGE",
+   "expect": [
+    -4.356955193648824,
+    52.329396321245795
+   ],
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_dirVec[0]",
+   "rule": "RANGE",
+   "expect": [
+    -1.0,
+    1.0
+   ],
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_dirVec[1]",
+   "rule": "RANGE",
+   "expect": [
+    -0.9999999878289636,
+    1.0
+   ],
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_dirVec[2]",
+   "rule": "IDENTICAL",
+   "expect": 0.0,
+   "support": 417,
+   "files": 1,
+   "total": 37,
+   "ftype": "float",
+   "scope": "body",
+   "present": 21
+  },
+  {
+   "path": "HDR.m_regenHistory.m_historyMap[].first.m_otherInt64",
+   "rule": "IDENTICAL",
+   "expect": -1,
+   "support": 18,
+   "files": 1,
+   "total": 37,
+   "ftype": "int",
+   "scope": "header",
+   "present": 18
+  },
+  {
+   "path": "HDR.m_regenHistory.m_historyMap[].first.m_nAtomType",
+   "rule": "IDENTICAL",
+   "expect": 1,
+   "support": 18,
+   "files": 1,
+   "total": 37,
+   "ftype": "int",
+   "scope": "header",
+   "present": 18
+  },
+  {
+   "path": "HDR.m_regenHistory.m_historyMap[].second.m_id",
+   "rule": "IDENTICAL",
+   "expect": 2352,
+   "support": 18,
+   "files": 1,
+   "total": 37,
+   "ftype": "int",
+   "scope": "header",
+   "present": 18
+  }
+ ],
+ "paths": {
+  "ETR.created_at_birth": {
+   "ftype": "bool",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "false": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "ETR.has_owner": {
+   "ftype": "bool",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "true": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "ETR.id_band": {
+   "ftype": "classref",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"<5M\"": 28,
+    "\"<500k\"": 9
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "ETR.owned.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "ETR.owner_class": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"@AreaSchemePlanTopologies\"": 4,
+    "\"@AllPlanTopologies\"": 33
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "ETR.partition_id": {
+   "ftype": "int",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "ETR.renumbered": {
+   "ftype": "bool",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "false": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "ETR.usermod_never": {
+   "ftype": "bool",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "false": 32,
+    "true": 5
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_abFlags4Bytes": {
+   "ftype": "int",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "8202": 25,
+    "8218": 12
+   },
+   "overflow": false,
+   "num_min": 8202,
+   "num_max": 8218,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_categroryId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_classDef.m_ref": {
+   "ftype": "classref",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"LevelRoomPlan\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_designOptionId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_familyId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_miscId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_ownerViewId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_pBBox.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_appearanceParents.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_computedParametersParents.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_deferredParents.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_deferredPropagationParents.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_deletion.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "9": 1,
+    "32": 1,
+    "38": 1,
+    "188": 1,
+    "53": 2,
+    "60": 1,
+    "48": 1,
+    "207": 1,
+    "168": 1,
+    "99": 1,
+    "122": 1,
+    "87": 1
+   },
+   "overflow": true,
+   "num_min": 9,
+   "num_max": 207,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_deletion[]": {
+   "ftype": "eid",
+   "n_seen": 3185,
+   "n_null": 0,
+   "values": {
+    "\"@AreaSchemePlanTopologies\"": 4,
+    "\"@Level\"": 37,
+    "\"@CurveElem\"": 350,
+    "\"@LevelRoomPlan\"": 37,
+    "\"@RoomElem\"": 384,
+    "\"@AllPlanTopologies\"": 33,
+    "\"@SWall\"": 2065,
+    "\"@FamilyInstance\"": 251,
+    "\"@ProfileRoof\"": 17,
+    "\"@Roof\"": 7
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_dependencyParents.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_hasNonDetermRegenChildren": {
+   "ftype": "bool",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "false": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_nonDetermRegenChildren.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_regenOnly.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents->ElementParents.m_regenWildcards.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_parents.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"ElementParents\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_regenHistory.m_historyMap.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 19,
+    "1": 18
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 1,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_regenHistory.m_historyMap[].first.m_nAtomType": {
+   "ftype": "int",
+   "n_seen": 18,
+   "n_null": 0,
+   "values": {
+    "1": 18
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 18
+  },
+  "HDR.m_regenHistory.m_historyMap[].first.m_otherElementId": {
+   "ftype": "eid",
+   "n_seen": 18,
+   "n_null": 18,
+   "values": {
+    "\"NULL\"": 18
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 18
+  },
+  "HDR.m_regenHistory.m_historyMap[].first.m_otherInt64": {
+   "ftype": "int",
+   "n_seen": 18,
+   "n_null": 0,
+   "values": {
+    "-1": 18
+   },
+   "overflow": false,
+   "num_min": -1,
+   "num_max": -1,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 18
+  },
+  "HDR.m_regenHistory.m_historyMap[].second.m_id": {
+   "ftype": "int",
+   "n_seen": 18,
+   "n_null": 0,
+   "values": {
+    "2352": 18
+   },
+   "overflow": false,
+   "num_min": 2352,
+   "num_max": 2352,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 18
+  },
+  "HDR.m_unplacedOwnerId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "HDR.m_viewRules.m_nVisibleViewFlags": {
+   "ftype": "int",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "-32768": 37
+   },
+   "overflow": false,
+   "num_min": -32768,
+   "num_max": -32768,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "REP.seq103_class": {
+   "ftype": "classref",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"SerializedDummy\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_assocLevelId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_cellList.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_constrInfo.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 37
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_createdPhaseId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_demolishedPhaseId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_designOptionId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "-4": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_docAccess.m_pDoc": {
+   "ftype": "weak",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"@weakref\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_dummy": {
+   "ftype": "bool",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "false": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_famId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_geomSteps.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_locked": {
+   "ftype": "bool",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "false": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_moribund": {
+   "ftype": "bool",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "false": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_ownerDBViewId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_pGeomTable.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_pParamValueSetAString.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_pParamValueSetDouble.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_pParamValueSetElementId.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_pParamValueSetInt.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"@AreaSchemePlanTopologies\"": 4,
+    "\"@AllPlanTopologies\"": 33
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_botOffset": {
+   "ftype": "float",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0.0": 36,
+    "-0.8267716535433065": 1
+   },
+   "overflow": false,
+   "num_min": -0.8267716535433065,
+   "num_max": 0.0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "2": 1,
+    "8": 2,
+    "12": 2,
+    "88": 2,
+    "10": 1,
+    "85": 1,
+    "32": 1,
+    "40": 1,
+    "29": 2,
+    "36": 1,
+    "27": 2,
+    "24": 2
+   },
+   "overflow": true,
+   "num_min": 2,
+   "num_max": 88,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_area": {
+   "ftype": "float",
+   "n_seen": 892,
+   "n_null": 0,
+   "values": {
+    "1299.3937570272194": 1,
+    "-1299.3937570272192": 1,
+    "-8.453955472258484": 1,
+    "22.18254378808504": 1,
+    "789.5345319164558": 1,
+    "756.9181805030362": 1,
+    "29.59559070567866": 1,
+    "55.622990485565666": 1,
+    "253.56551303381693": 1,
+    "-2204.479455411476": 1,
+    "-80.73578647157257": 1,
+    "290.315580631156": 1
+   },
+   "overflow": true,
+   "num_min": -18672.305763586723,
+   "num_max": 6912.60667652858,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_envelope.m_corners[0][0]": {
+   "ftype": "float",
+   "n_seen": 892,
+   "n_null": 0,
+   "values": {
+    "-21.453636753813534": 2,
+    "-3.0776525018450407": 1,
+    "22.837701828863615": 1,
+    "-16.201012081897584": 1,
+    "22.837701828863537": 1,
+    "27.19823203528922": 1,
+    "25.0737582593098": 1,
+    "22.506336999467308": 1,
+    "-37.69051339423349": 1,
+    "-1.437232554338406": 1,
+    "-16.03697008714697": 1,
+    "-4.521222055650859": 1
+   },
+   "overflow": true,
+   "num_min": -41.88944436224503,
+   "num_max": 175.95005942913662,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_envelope.m_corners[0][1]": {
+   "ftype": "float",
+   "n_seen": 892,
+   "n_null": 0,
+   "values": {
+    "-10.717171845740511": 2,
+    "-2.301817515031905": 1,
+    "-2.4414172525644124": 1,
+    "-10.963234837866436": 1,
+    "-49.87399599272257": 1,
+    "-2.4414172525644307": 1,
+    "-10.96323483786646": 1,
+    "-11.422552423168334": 1,
+    "-60.37924533655454": 1,
+    "48.27232946659539": 1,
+    "-10.835282081960331": 1,
+    "-10.835282081960358": 1
+   },
+   "overflow": true,
+   "num_min": -76.55072631731299,
+   "num_max": 128.134125388213,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_envelope.m_corners[1][0]": {
+   "ftype": "float",
+   "n_seen": 892,
+   "n_null": 0,
+   "values": {
+    "43.17070707820735": 2,
+    "0.20318739316808276": 1,
+    "27.19823203528923": 1,
+    "25.073758259309813": 1,
+    "43.18547085773499": 1,
+    "32.814735949598536": 2,
+    "32.81473594959853": 1,
+    "43.18547085773501": 1,
+    "72.53766677057232": 1,
+    "43.51683568713143": 1,
+    "3.484027288181221": 1,
+    "3.4840272881812067": 1
+   },
+   "overflow": true,
+   "num_min": -29.698160897623122,
+   "num_max": 185.43660798556706,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_envelope.m_corners[1][1]": {
+   "ftype": "float",
+   "n_seen": 892,
+   "n_null": 0,
+   "values": {
+    "9.401800792055008": 2,
+    "0.9790223799812185": 1,
+    "4.0630118812932645": 1,
+    "9.512486946917903": 1,
+    "-10.96323483786643": 1,
+    "4.063011881293251": 1,
+    "-2.441417252564406": 1,
+    "9.512486946911807": 1,
+    "20.62489823345063": 1,
+    "71.73033471593908": 1,
+    "9.512486946910398": 1,
+    "0.12600400727760608": 1
+   },
+   "overflow": true,
+   "num_min": -73.77489555045891,
+   "num_max": 134.1380623956673,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_id.m_id": {
+   "ftype": "int",
+   "n_seen": 892,
+   "n_null": 0,
+   "values": {
+    "0": 12,
+    "1": 13,
+    "16": 7,
+    "52": 7,
+    "58": 8,
+    "62": 7,
+    "63": 6,
+    "64": 7,
+    "65": 7,
+    "4": 19,
+    "5": 16,
+    "6": 19
+   },
+   "overflow": true,
+   "num_min": 0,
+   "num_max": 273,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_sides.#len": {
+   "ftype": "len",
+   "n_seen": 892,
+   "n_null": 0,
+   "values": {
+    "5": 114,
+    "2": 188,
+    "6": 106,
+    "15": 5,
+    "7": 46,
+    "4": 207,
+    "12": 8,
+    "29": 4,
+    "14": 3,
+    "11": 17,
+    "17": 7,
+    "9": 15
+   },
+   "overflow": true,
+   "num_min": 2,
+   "num_max": 68,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_sides[].m_item.m_linkInstOrHostId": {
+   "ftype": "eid",
+   "n_seen": 6789,
+   "n_null": 0,
+   "values": {
+    "\"@CurveElem\"": 835,
+    "\"@FamilyInstance\"": 447,
+    "\"@SWall\"": 5403,
+    "\"@ProfileRoof\"": 89,
+    "\"@Roof\"": 15
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_sides[].m_item.m_linkRef.m_id64": {
+   "ftype": "int",
+   "n_seen": 6789,
+   "n_null": 0,
+   "values": {
+    "-1": 6789
+   },
+   "overflow": false,
+   "num_min": -1,
+   "num_max": -1,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_sides[].m_majorIndex": {
+   "ftype": "int",
+   "n_seen": 6789,
+   "n_null": 0,
+   "values": {
+    "0": 6393,
+    "1": 265,
+    "2": 31,
+    "6": 12,
+    "7": 14,
+    "8": 3,
+    "9": 3,
+    "10": 3,
+    "11": 3,
+    "12": 3,
+    "13": 3,
+    "3": 39
+   },
+   "overflow": true,
+   "num_min": 0,
+   "num_max": 13,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_circuits[].m_sides[].m_subIndex": {
+   "ftype": "int",
+   "n_seen": 6789,
+   "n_null": 0,
+   "values": {
+    "-1": 1742,
+    "0": 2249,
+    "-3": 345,
+    "-2": 713,
+    "1": 665,
+    "2": 299,
+    "3": 162,
+    "-4": 174,
+    "-6": 54,
+    "-5": 102,
+    "-7": 34,
+    "4": 94
+   },
+   "overflow": true,
+   "num_min": -11,
+   "num_max": 9,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_components.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "1": 10,
+    "2": 10,
+    "54": 2,
+    "50": 1,
+    "10": 2,
+    "11": 1,
+    "9": 1,
+    "8": 2,
+    "5": 1,
+    "3": 5,
+    "4": 1,
+    "7": 1
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 54,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_components[].m_circuits.#len": {
+   "ftype": "len",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "2": 12,
+    "1": 227,
+    "7": 1,
+    "11": 2,
+    "35": 2,
+    "10": 1,
+    "12": 3,
+    "8": 1,
+    "39": 1,
+    "32": 2,
+    "40": 1,
+    "29": 2
+   },
+   "overflow": true,
+   "num_min": 1,
+   "num_max": 40,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_components[].m_circuits[].m_id": {
+   "ftype": "int",
+   "n_seen": 892,
+   "n_null": 0,
+   "values": {
+    "0": 12,
+    "1": 13,
+    "16": 7,
+    "52": 7,
+    "58": 8,
+    "62": 7,
+    "63": 6,
+    "64": 7,
+    "65": 7,
+    "4": 19,
+    "5": 16,
+    "6": 19
+   },
+   "overflow": true,
+   "num_min": 0,
+   "num_max": 273,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_components[].m_enclosingCircuit.m_id": {
+   "ftype": "int",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "-1": 82,
+    "52": 1,
+    "182": 5,
+    "183": 2,
+    "184": 2,
+    "142": 3,
+    "144": 8,
+    "173": 2,
+    "174": 4,
+    "176": 3,
+    "178": 2,
+    "114": 1
+   },
+   "overflow": true,
+   "num_min": -1,
+   "num_max": 272,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_components[].m_outerCircuit.m_id": {
+   "ftype": "int",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "1": 10,
+    "0": 10,
+    "65": 3,
+    "12": 4,
+    "2": 5,
+    "3": 3,
+    "139": 2,
+    "140": 1,
+    "141": 1,
+    "107": 1,
+    "7": 2,
+    "8": 3
+   },
+   "overflow": true,
+   "num_min": 0,
+   "num_max": 273,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_elevOffset": {
+   "ftype": "float",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0.0": 14,
+    "3.9370078740157473": 3,
+    "4.0": 4,
+    "4.921259842519684": 2,
+    "3.280839895013123": 5,
+    "1.6404199475065615": 1,
+    "0.32808398950131235": 8
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 4.921259842519684,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_levelId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"@Level\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_levelRoomPlanId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"@LevelRoomPlan\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_nextCircuitId.m_id": {
+   "ftype": "int",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "2": 1,
+    "66": 1,
+    "25": 1,
+    "185": 1,
+    "33": 1,
+    "50": 1,
+    "36": 1,
+    "130": 1,
+    "110": 1,
+    "71": 1,
+    "98": 2,
+    "74": 1
+   },
+   "overflow": true,
+   "num_min": 2,
+   "num_max": 274,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 12,
+    "1": 1,
+    "55": 2,
+    "56": 1,
+    "10": 3,
+    "4": 8,
+    "5": 2,
+    "2": 5,
+    "8": 1,
+    "9": 2
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 56,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].first.m_linkInstOrHostId": {
+   "ftype": "eid",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "\"@FamilyInstance\"": 251,
+    "\"@ProfileRoof\"": 17,
+    "\"@Roof\"": 7
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].first.m_linkRef.m_id64": {
+   "ftype": "int",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "-1": 275
+   },
+   "overflow": false,
+   "num_min": -1,
+   "num_max": -1,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves.#len": {
+   "ftype": "len",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "2": 175,
+    "14": 3,
+    "0": 15,
+    "4": 65,
+    "1": 3,
+    "8": 14
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 14,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_GInfo.m_categoryId": {
+   "ftype": "eid",
+   "n_seen": 350,
+   "n_null": 350,
+   "values": {
+    "\"NULL\"": 350
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_GInfo.m_controlCommand": {
+   "ftype": "int",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "0": 350
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_GInfo.m_flags": {
+   "ftype": "int",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "50855940": 350
+   },
+   "overflow": false,
+   "num_min": 50855940,
+   "num_max": 50855940,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_GInfo.m_tag": {
+   "ftype": "int",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "16": 175,
+    "19": 1,
+    "13": 174
+   },
+   "overflow": false,
+   "num_min": 13,
+   "num_max": 19,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_bFilled": {
+   "ftype": "bool",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "false": 350
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_center[0]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "-1.437232554338479": 2,
+    "-30.19028688187479": 6,
+    "-30.190286881874833": 6,
+    "-30.190286881874847": 6,
+    "-30.19028688187488": 6,
+    "-30.190286881874915": 6,
+    "-30.19028688187495": 6,
+    "-30.19028688187498": 6,
+    "-30.190286881875014": 6,
+    "-30.190286881875032": 6,
+    "-30.190286881875075": 6,
+    "2.4763797847925346": 6
+   },
+   "overflow": true,
+   "num_min": -30.190286881875075,
+   "num_max": 149.14304645145873,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_center[1]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "-0.6613975675253432": 2,
+    "98.40465426488775": 6,
+    "74.40465426488791": 6,
+    "63.737987598221096": 6,
+    "43.07132093155468": 6,
+    "22.404654264887967": 6,
+    "1.7379875982213235": 6,
+    "-18.928679068445447": 6,
+    "-39.59534573511259": 6,
+    "-50.262012401779245": 6,
+    "-74.26201240177771": 6,
+    "98.40465426488765": 6
+   },
+   "overflow": true,
+   "num_min": -74.26201240177825,
+   "num_max": 98.40465426488775,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_center[2]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "0.0": 2,
+    "3.9370078740157473": 110,
+    "16.40419947507057": 112,
+    "28.871391076115295": 110,
+    "4.265092071076076": 4,
+    "5.741470003201581": 4,
+    "1.6404199475065608": 4,
+    "41.96194208597161": 2,
+    "42.22440944493144": 2
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 42.22440944493144,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_endParams[0]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "-8.881784197001252e-16": 3,
+    "3.1415926535897905": 1,
+    "0.0": 116,
+    "3.1415926535897896": 114,
+    "3.14159265358979": 58,
+    "8.881784197001252e-16": 56,
+    "3.141592653589789": 2
+   },
+   "overflow": false,
+   "num_min": -8.881784197001252e-16,
+   "num_max": 3.1415926535897905,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_endParams[1]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "3.1415926535897922": 55,
+    "6.283185307179581": 167,
+    "3.1415926535897913": 110,
+    "3.1415926535897905": 4,
+    "6.283185307179579": 6,
+    "3.1415926535897896": 6,
+    "6.28318530717958": 2
+   },
+   "overflow": false,
+   "num_min": 3.1415926535897896,
+   "num_max": 6.283185307179581,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_radius": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "1.6404199475065617": 2,
+    "0.492125984251954": 332,
+    "0.32808398950131235": 16
+   },
+   "overflow": false,
+   "num_min": 0.32808398950131235,
+   "num_max": 1.6404199475065617,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_xVec[0]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "1.0": 18,
+    "-1.0": 332
+   },
+   "overflow": false,
+   "num_min": -1.0,
+   "num_max": 1.0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_xVec[1]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "0.0": 18,
+    "3.2605240547837906e-15": 36,
+    "3.169953942150908e-15": 36,
+    "3.260524054783791e-15": 24,
+    "3.194338203244368e-15": 24,
+    "3.2269334910325766e-15": 24,
+    "3.233045107492866e-15": 24,
+    "3.2269334910325774e-15": 28,
+    "3.230625005553171e-15": 24,
+    "3.2306250055531713e-15": 48,
+    "3.2020354037341168e-15": 54,
+    "3.2350823129796287e-15": 10
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 3.260524054783791e-15,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_xVec[2]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "0.0": 350
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_yVec[0]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "-0.0": 18,
+    "3.2605240547837906e-15": 36,
+    "3.169953942150908e-15": 36,
+    "3.260524054783791e-15": 24,
+    "3.194338203244368e-15": 24,
+    "3.2269334910325766e-15": 24,
+    "3.233045107492866e-15": 24,
+    "3.2269334910325774e-15": 28,
+    "3.230625005553171e-15": 24,
+    "3.2306250055531713e-15": 48,
+    "3.2020354037341168e-15": 54,
+    "3.2350823129796287e-15": 10
+   },
+   "overflow": false,
+   "num_min": -0.0,
+   "num_max": 3.260524054783791e-15,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_yVec[1]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "-1.0": 18,
+    "1.0": 332
+   },
+   "overflow": false,
+   "num_min": -1.0,
+   "num_max": 1.0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GArc.m_yVec[2]": {
+   "ftype": "float",
+   "n_seen": 350,
+   "n_null": 0,
+   "values": {
+    "-0.0": 350
+   },
+   "overflow": false,
+   "num_min": -0.0,
+   "num_max": -0.0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 9
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_GInfo.m_categoryId": {
+   "ftype": "eid",
+   "n_seen": 417,
+   "n_null": 417,
+   "values": {
+    "\"NULL\"": 417
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_GInfo.m_controlCommand": {
+   "ftype": "int",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "0": 417
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_GInfo.m_flags": {
+   "ftype": "int",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "50855940": 417
+   },
+   "overflow": false,
+   "num_min": 50855940,
+   "num_max": 50855940,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_GInfo.m_tag": {
+   "ftype": "int",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "23": 28,
+    "34": 3,
+    "32": 3,
+    "30": 25,
+    "28": 26,
+    "26": 59,
+    "54": 15,
+    "69": 3,
+    "67": 3,
+    "65": 4,
+    "63": 3,
+    "61": 5
+   },
+   "overflow": true,
+   "num_min": -1,
+   "num_max": 8261,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_dirVec[0]": {
+   "ftype": "float",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "-0.029733576279589762": 3,
+    "0.9995379919505083": 3,
+    "0.9518784328346618": 3,
+    "0.030394120469932735": 3,
+    "-0.9608217447323247": 3,
+    "-0.9995379919867006": 3,
+    "-0.9999875825594094": 3,
+    "0.21793918811039306": 3,
+    "0.9999973093567638": 3,
+    "0.00015602053472246115": 3,
+    "1.0": 27,
+    "-0.00015601946240324528": 3
+   },
+   "overflow": true,
+   "num_min": -1.0,
+   "num_max": 1.0,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_dirVec[1]": {
+   "ftype": "float",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "0.9995578594766917": 3,
+    "0.030394121924240968": 3,
+    "0.306475854031322": 3,
+    "-0.9995379919947311": 3,
+    "0.27716705224382565": 3,
+    "-0.03039412073402842": 3,
+    "0.004983445292993874": 3,
+    "0.9759623508546744": 3,
+    "0.0023197584427461135": 3,
+    "0.9999999878287963": 3,
+    "-7.0621769616830155e-15": 3,
+    "-0.9999999878289636": 3
+   },
+   "overflow": true,
+   "num_min": -0.9999999878289636,
+   "num_max": 1.0,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_dirVec[2]": {
+   "ftype": "float",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "0.0": 417
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_endParams[0]": {
+   "ftype": "float",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "0.0": 415,
+    "-0.9606821297161668": 1,
+    "-0.9598867110523975": 1
+   },
+   "overflow": false,
+   "num_min": -0.9606821297161668,
+   "num_max": 0.0,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_endParams[1]": {
+   "ftype": "float",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "3.4670543130749194": 3,
+    "0.5130620737351795": 3,
+    "0.3178590648573633": 3,
+    "3.654522428352366": 3,
+    "0.32423307437820287": 3,
+    "0.5120826925935219": 3,
+    "2.9527560220587077": 3,
+    "1.5725882366804798": 3,
+    "0.38673686710040966": 3,
+    "0.7026394645715754": 3,
+    "1.5091863449795966": 3,
+    "0.7028748239514194": 3
+   },
+   "overflow": true,
+   "num_min": -0.0,
+   "num_max": 59.76925441839363,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_origin[0]": {
+   "ftype": "float",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "55.038745480198": 3,
+    "54.93565755631471": 3,
+    "55.448482591241934": 3,
+    "55.75104577976065": 3,
+    "55.862121774708065": 3,
+    "55.550591586484074": 3,
+    "106.79233528984831": 3,
+    "103.83961593346208": 3,
+    "104.18234453699618": 3,
+    "104.56908036352566": 3,
+    "104.56918998971064": 3,
+    "106.07837633469023": 3
+   },
+   "overflow": true,
+   "num_min": 17.128094540193594,
+   "num_max": 112.52087034897568,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_origin[1]": {
+   "ftype": "float",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "5.000003998416531": 3,
+    "8.46552538628313": 3,
+    "8.48111945750694": 3,
+    "8.578535585870698": 3,
+    "4.9257015761356655": 3,
+    "5.015568301601025": 3,
+    "17.597153681406304": 3,
+    "17.611868579505792": 3,
+    "19.14665549190288": 3,
+    "19.147552628015458": 3,
+    "19.850192084035065": 3,
+    "19.850192084035054": 3
+   },
+   "overflow": true,
+   "num_min": -46.309926237691954,
+   "num_max": 38.464627631231295,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[]->GLine.m_origin[2]": {
+   "ftype": "float",
+   "n_seen": 417,
+   "n_null": 0,
+   "values": {
+    "-1.8967354463381314": 38,
+    "-2.4606297954289733": 38,
+    "-3.110236033543828": 38,
+    "4.265092071076076": 5,
+    "5.741470003201581": 5,
+    "1.6404199475065608": 5,
+    "13.123711843427778": 24,
+    "12.499999999999996": 24,
+    "12.762467358959825": 24,
+    "22.27690227675766": 32,
+    "22.539369635717488": 32,
+    "32.38188976407034": 32
+   },
+   "overflow": true,
+   "num_min": -4.356955193648824,
+   "num_max": 52.329396321245795,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 21
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_allCurves[].#ptr": {
+   "ftype": "ptr",
+   "n_seen": 767,
+   "n_null": 0,
+   "values": {
+    "\"GArc\"": 350,
+    "\"GLine\"": 417
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_loopStarts.#len": {
+   "ftype": "len",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "1": 249,
+    "2": 11,
+    "0": 15
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 2,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_loopStarts[]": {
+   "ftype": "int",
+   "n_seen": 271,
+   "n_null": 0,
+   "values": {
+    "0": 260,
+    "6": 3,
+    "4": 8
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 6,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_offset": {
+   "ftype": "float",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "0.0": 272,
+    "0.452": 3
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.452,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_regionStarts.#len": {
+   "ftype": "len",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "1": 249,
+    "2": 11,
+    "0": 15
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 2,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_regionStarts[]": {
+   "ftype": "int",
+   "n_seen": 271,
+   "n_null": 0,
+   "values": {
+    "0": 260,
+    "1": 11
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 1,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rbSeedCache[].second.m_width": {
+   "ftype": "float",
+   "n_seen": 275,
+   "n_null": 0,
+   "values": {
+    "0.0": 275
+   },
+   "overflow": false,
+   "num_min": 0.0,
+   "num_max": 0.0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_rooms.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "1": 4,
+    "6": 1,
+    "8": 2,
+    "31": 1,
+    "9": 2,
+    "7": 4,
+    "33": 2,
+    "27": 1,
+    "30": 1,
+    "24": 1,
+    "28": 1,
+    "26": 1
+   },
+   "overflow": true,
+   "num_min": 1,
+   "num_max": 33,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_rooms[]": {
+   "ftype": "eid",
+   "n_seen": 384,
+   "n_null": 0,
+   "values": {
+    "\"@RoomElem\"": 384
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "5": 1,
+    "47": 2,
+    "54": 1,
+    "291": 1,
+    "55": 1,
+    "65": 1,
+    "322": 1,
+    "271": 1,
+    "147": 1,
+    "189": 1,
+    "132": 1,
+    "133": 1
+   },
+   "overflow": true,
+   "num_min": 5,
+   "num_max": 322,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_area": {
+   "ftype": "float",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "-331.3919230156171": 1,
+    "303.79260351296244": 1,
+    "-346.0225988646024": 1,
+    "215.81256541558696": 1,
+    "-102.49239008240113": 1,
+    "-72.22757016290713": 1,
+    "-25.33492478153705": 1,
+    "-30.38957901573525": 1,
+    "-0.16783269844681897": 1,
+    "-5.202479985808124": 1,
+    "-5.311947499130129": 1,
+    "-3.1420079731283543": 1
+   },
+   "overflow": true,
+   "num_min": -3267.9723052256136,
+   "num_max": 5140.579442144946,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_areaOnRight": {
+   "ftype": "float",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "-331.3919230156171": 1,
+    "303.79260351296244": 1,
+    "-346.0225988646024": 1,
+    "215.81256541558696": 1,
+    "-102.49239008240113": 1,
+    "-76.31864296310788": 1,
+    "-26.623094684260955": 1,
+    "-31.979879559278306": 1,
+    "0.04830398565247864": 1,
+    "-5.287278072071016": 1,
+    "-5.311947499130129": 1,
+    "-3.1420079731283543": 1
+   },
+   "overflow": true,
+   "num_min": -3267.9723052256136,
+   "num_max": 5140.579442144946,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_envelope.m_corners[0][0]": {
+   "ftype": "float",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "43.11985405983469": 1,
+    "-21.453636753813534": 1,
+    "-21.453636753813505": 1,
+    "-21.45363675381353": 2,
+    "43.17070707820734": 1,
+    "22.837701828863615": 2,
+    "22.83770182886361": 1,
+    "22.837701828863604": 2,
+    "22.8377018288636": 2,
+    "-3.0776525018450407": 2,
+    "22.958336999467388": 1,
+    "22.512898679257333": 1
+   },
+   "overflow": true,
+   "num_min": -41.88944436224503,
+   "num_max": 185.43660798556706,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_envelope.m_corners[0][1]": {
+   "ftype": "float",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "-10.717171845740511": 2,
+    "9.401800792054804": 1,
+    "-10.7171718457403": 1,
+    "4.653563062395766": 1,
+    "-2.441417252564399": 1,
+    "-4.716515677754032": 1,
+    "-10.498683419769591": 1,
+    "-10.503917252564591": 1,
+    "-10.963234837866523": 1,
+    "-2.301817515031905": 1,
+    "-0.6613975675253477": 1,
+    "9.512486946910242": 2
+   },
+   "overflow": true,
+   "num_min": -76.55072631731299,
+   "num_max": 134.13806239566708,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_envelope.m_corners[1][0]": {
+   "ftype": "float",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "43.119854059834715": 1,
+    "43.17070707820735": 2,
+    "43.11985405983467": 1,
+    "-21.453636753813498": 1,
+    "22.837701828863626": 1,
+    "22.837701828863615": 1,
+    "22.837701828863608": 1,
+    "22.837701828863604": 3,
+    "0.20318739316808276": 2,
+    "33.01158634329933": 1,
+    "22.958336999467388": 1,
+    "32.814735949598536": 4
+   },
+   "overflow": true,
+   "num_min": -41.889444362245,
+   "num_max": 185.43660798556706,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_envelope.m_corners[1][1]": {
+   "ftype": "float",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "4.65356306239556": 1,
+    "9.401800792055008": 2,
+    "-10.717171845740303": 1,
+    "9.401800792054797": 1,
+    "4.0630118812932645": 3,
+    "-2.441417252564399": 1,
+    "-7.7676967801162355": 1,
+    "-10.498683419769591": 1,
+    "-10.503917252564591": 1,
+    "-0.6613975675253417": 1,
+    "0.9790223799812185": 1,
+    "9.512486946911807": 1
+   },
+   "overflow": true,
+   "num_min": -76.55072631731299,
+   "num_max": 134.1380623956673,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_param0": {
+   "ftype": "float",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "0.0": 2430,
+    "0.4328711790392703": 1,
+    "0.7873362445409807": 1,
+    "0.9690840016952079": 1,
+    "0.9694323144104734": 1,
+    "0.9575719999999922": 1,
+    "0.5629432400794068": 1,
+    "0.9879087142387365": 1,
+    "0.9757434666666674": 1,
+    "0.562943240079407": 1,
+    "0.7758796448536663": 1,
+    "0.23307436182021601": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 0.9999976499662043,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_param1": {
+   "ftype": "float",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "1.0": 2380,
+    "0.4328711790392703": 1,
+    "0.5842794759820246": 1,
+    "0.9690840016952079": 1,
+    "0.9694323144104734": 1,
+    "0.9575719999999922": 1,
+    "0.5629432400794068": 1,
+    "0.9879087142387365": 1,
+    "0.9757434666666674": 1,
+    "0.562943240079407": 1,
+    "0.7758796448536663": 1,
+    "0.9598994421482662": 1
+   },
+   "overflow": true,
+   "num_min": 3.8120290843477096e-08,
+   "num_max": 1.0000000000000004,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_points.#len": {
+   "ftype": "len",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "2": 4165,
+    "21": 2,
+    "12": 324,
+    "24": 3,
+    "4": 3,
+    "5": 3,
+    "10": 16,
+    "11": 2,
+    "26": 3,
+    "27": 1
+   },
+   "overflow": false,
+   "num_min": 2,
+   "num_max": 27,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_points[][0]": {
+   "ftype": "float",
+   "n_seen": 12646,
+   "n_null": 0,
+   "values": {
+    "43.119854059834715": 1,
+    "43.11985405983469": 1,
+    "43.17070707820735": 2,
+    "-21.453636753813534": 1,
+    "43.11985405983467": 1,
+    "-21.453636753813505": 1,
+    "-21.45363675381353": 4,
+    "-21.453636753813498": 2,
+    "43.17070707820734": 1,
+    "22.837701828863626": 2,
+    "22.837701828863615": 3,
+    "22.83770182886361": 1
+   },
+   "overflow": true,
+   "num_min": -41.88944436224503,
+   "num_max": 185.43660798556706,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_info.m_points[][1]": {
+   "ftype": "float",
+   "n_seen": 12646,
+   "n_null": 0,
+   "values": {
+    "4.65356306239556": 1,
+    "-10.717171845740511": 2,
+    "9.401800792054804": 1,
+    "9.401800792055008": 2,
+    "-10.717171845740303": 1,
+    "-10.7171718457403": 1,
+    "9.401800792054797": 1,
+    "4.653563062395766": 1,
+    "4.0630118812932645": 4,
+    "-2.441417252564399": 2,
+    "-4.716515677754032": 1,
+    "-7.7676967801162355": 1
+   },
+   "overflow": true,
+   "num_min": -76.55072631731299,
+   "num_max": 134.1380623956673,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_key.m_item.m_linkInstOrHostId": {
+   "ftype": "eid",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "\"@CurveElem\"": 526,
+    "\"@SWall\"": 3448,
+    "\"@FamilyInstance\"": 447,
+    "\"@ProfileRoof\"": 86,
+    "\"@Roof\"": 15
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_key.m_item.m_linkRef.m_id64": {
+   "ftype": "int",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "-1": 4522
+   },
+   "overflow": false,
+   "num_min": -1,
+   "num_max": -1,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_key.m_majorIndex": {
+   "ftype": "int",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "0": 4145,
+    "1": 247,
+    "2": 30,
+    "3": 39,
+    "4": 9,
+    "5": 8,
+    "6": 12,
+    "7": 14,
+    "8": 3,
+    "9": 3,
+    "10": 3,
+    "11": 3
+   },
+   "overflow": true,
+   "num_min": 0,
+   "num_max": 13,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_segments[].m_key.m_subIndex": {
+   "ftype": "int",
+   "n_seen": 4522,
+   "n_null": 0,
+   "values": {
+    "0": 2801,
+    "1": 828,
+    "2": 434,
+    "3": 197,
+    "4": 118,
+    "5": 58,
+    "6": 36,
+    "7": 23,
+    "8": 19,
+    "9": 5,
+    "10": 3
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 10,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_topBotOffsetsSet": {
+   "ftype": "bool",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "false": 7,
+    "true": 30
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_topOffset": {
+   "ftype": "float",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0.0": 7,
+    "13.123359580052494": 1,
+    "21.325459317585302": 1,
+    "12.46719160104987": 1,
+    "11.48293963254593": 1,
+    "11.811023622047244": 1,
+    "9.022309711286088": 1,
+    "9.022309711286086": 1,
+    "9.022309711286091": 1,
+    "8.458415236364377": 1,
+    "7.020997429334166": 1,
+    "8.851706036745409": 1
+   },
+   "overflow": true,
+   "num_min": 0.0,
+   "num_max": 22.519481693252825,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_unusedItems.#len": {
+   "ftype": "len",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 12,
+    "1": 1,
+    "4": 4,
+    "7": 1,
+    "3": 2,
+    "9": 4,
+    "10": 2,
+    "8": 2,
+    "11": 3,
+    "12": 5,
+    "14": 1
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 14,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology->PlanTopology.m_unusedItems[].m_linkInstOrHostId": {
+   "ftype": "eid",
+   "n_seen": 209,
+   "n_null": 0,
+   "values": {
+    "\"@SWall\"": 140,
+    "\"@CurveElem\"": 8,
+    "\"@FamilyInstance\"": 58,
+    "\"@Roof\"": 2,
+    "\"@ProfileRoof\"": 1
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_unusedItems[].m_linkRef.m_id64": {
+   "ftype": "int",
+   "n_seen": 209,
+   "n_null": 0,
+   "values": {
+    "-1": 209
+   },
+   "overflow": false,
+   "num_min": -1,
+   "num_max": -1,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject"
+   ],
+   "present": 25
+  },
+  "m_planTopology->PlanTopology.m_whichElev": {
+   "ftype": "int",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "0": 28,
+    "4": 3,
+    "2": 4,
+    "3": 2
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 4,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_planTopology.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 37,
+   "n_null": 0,
+   "values": {
+    "\"PlanTopology\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  },
+  "m_unplacedOwnerId": {
+   "ftype": "eid",
+   "n_seen": 37,
+   "n_null": 37,
+   "values": {
+    "\"NULL\"": 37
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 37
+  }
+ },
+ "notes": []
+}

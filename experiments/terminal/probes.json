@@ -1,0 +1,346 @@
+{
+ "stream": "terminal-diff",
+ "base": "samples/rstbasicsampleproject.rvt",
+ "note": "the RE-ENVELOPE probes: post-#35 every record-level hypothesis is dead; these probe the layers BELOW decoded records.  Every probe = H12 +/- exactly ONE envelope change (E_ALL = all of them).  H12's recorded verdict is FAIL (#35): any PASS here convicts its axis.",
+ "charter_note_on_batch_number": "the charter says 'stage batch 41'; batch_41.json was already consumed by regcorner H13 (uploaded inside the b40 round, genesis-audit '~04:20'), so this round takes the next campaign-global number -- the no-collision law (test_batch_manifest_number) outranks the charter's literal numeral.",
+ "upload_order_max_information_first": [
+  "E_ALL",
+  "E1",
+  "E1b",
+  "E3",
+  "E6",
+  "E4",
+  "E5",
+  "E2"
+ ],
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID",
+  "E_ALL PASS": "the objection lives in the envelope / out-of-registry layer; the singles name the axis; if every single FAILs while E_ALL passes, a conjunction is required -- bisect pairs next round",
+  "E1 PASS": "the 0x0f3f footer blob convicted; E1b splits: E1b PASS too => presence/shape check only (port: author any 64-B blob in build_family_save_unit); E1b FAIL => the blob content is VERIFIED -- crack the function (more corpus pairs) before any port",
+  "E3 PASS": "member-ending shape convicted (port: writer.gzip_member grows partial+finish / sync+02 0c 00 modes)",
+  "E6 PASS": "baked stream-tail junk convicted (port: every emit path truncates the logical at the true end record)",
+  "E4 PASS": "BFI identity strings convicted (port decision is a provenance question: 'rvt-writer' authorship is TRUTHFUL; forging 'Autodesk Revit'/'RevitApplication' in deliverables needs counsel sign-off -- same caveat as H11's author string)",
+  "E5 PASS": "DIT username scrub convicted (port: stop scrubbing, or scrub only rows our own saves author)",
+  "E2 PASS": "CFB directory tree convicted (port: cfb_writer mimics the native insertion-order red-black shape)",
+  "ALL FAIL (incl. E_ALL)": "the in-file container envelope is exonerated wholesale EXCEPT the footer-blob CONTENT function (E_ALL carries the donor's blob -- wrong if the blob digests unit content).  Remaining in-file suspects: exactly that 64-byte function.  The desktop-Revit kit (experiments/terminal/REVIT-CHECK-KIT.md) becomes the decisive instrument."
+ },
+ "probes": [
+  {
+   "name": "E_ALL",
+   "order": 0,
+   "file": "experiments/terminal/probes/E_ALL.rvt",
+   "md5": "ee0cf7096bcb2e81411529196a949e4c",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "derived_from": "experiments/regcorner/probes/H12.rvt",
+   "axis": "ALL envelope axes at once: donor blob + junk truncated + Autodesk member recipe + native BFI strings + native DIT usernames + native directory tree -- the maximally-native H12",
+   "expected": "the terminal split: PASS => the objection lives in the envelope/out-of-registry layer (singles name it; if all singles FAIL, a conjunction -- bisect next); FAIL => the in-file envelope is exonerated wholesale EXCEPT the footer-blob CONTENT function (E_ALL carries the donor's blob, which would be wrong if the blob is a content digest)",
+   "gates": {
+    "validator_errors": 0,
+    "gate": "OK",
+    "streams_changed_vs_h12": [
+     "BasicFileInfo",
+     "Global/ContentDocuments",
+     "Global/DocumentIncrementTable",
+     "Global/ElemTable",
+     "Global/Latest",
+     "Partitions/21"
+    ],
+    "decoded_identity": {
+     "elemtable_equal": true,
+     "latest_payload_equal": true,
+     "contentdocs_payload_equal": true,
+     "bfi_equal_h12": false,
+     "bfi_equal_native": true,
+     "bfi_raw_equal_native": true,
+     "dit_equal_h12": false,
+     "dit_equal_native": true
+    },
+    "partitions": {
+     "units": 54,
+     "blocks": 418,
+     "all_block_contents_equal_h12": true,
+     "new_unit_footer_blob_len": 64,
+     "junk_after_end": 0,
+     "ecc_roundtrip_exact": true,
+     "aligned_content_identical_blocks": 411,
+     "of_those_byte_identical_to_native": 411
+    }
+   }
+  },
+  {
+   "name": "E1",
+   "order": 1,
+   "file": "experiments/terminal/probes/E1.rvt",
+   "md5": "6c0c49ac3f7f2f6fdc04d8e9baeb1fc9",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "derived_from": "experiments/regcorner/probes/H12.rvt",
+   "axis": "U1: new unit's 0x0f3f footer blob 0 B -> the donor unit's own 64 B blob, verbatim",
+   "expected": "PASS convicts the footer-blob axis (presence or donor-content-tolerant check)",
+   "gates": {
+    "validator_errors": 0,
+    "gate": "OK",
+    "streams_changed_vs_h12": [
+     "Partitions/21"
+    ],
+    "decoded_identity": {
+     "elemtable_equal": true,
+     "latest_payload_equal": true,
+     "contentdocs_payload_equal": true,
+     "bfi_equal_h12": true,
+     "bfi_equal_native": false,
+     "bfi_raw_equal_native": false,
+     "dit_equal_h12": true,
+     "dit_equal_native": false
+    },
+    "partitions": {
+     "units": 54,
+     "blocks": 418,
+     "all_block_contents_equal_h12": true,
+     "new_unit_footer_blob_len": 64,
+     "junk_after_end": 571,
+     "ecc_roundtrip_exact": true,
+     "aligned_content_identical_blocks": 411,
+     "of_those_byte_identical_to_native": 0
+    }
+   }
+  },
+  {
+   "name": "E1b",
+   "order": 2,
+   "file": "experiments/terminal/probes/E1b.rvt",
+   "md5": "04d43b5c5250d527e5d8e9d74e0a4301",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "derived_from": "experiments/regcorner/probes/H12.rvt",
+   "axis": "U1-split: same edit with 64 RANDOM bytes (seeded 0x7E12)",
+   "expected": "E1 PASS + E1b FAIL => blob content is verified against something; E1 PASS + E1b PASS => presence/shape only",
+   "gates": {
+    "validator_errors": 0,
+    "gate": "OK",
+    "streams_changed_vs_h12": [
+     "Partitions/21"
+    ],
+    "decoded_identity": {
+     "elemtable_equal": true,
+     "latest_payload_equal": true,
+     "contentdocs_payload_equal": true,
+     "bfi_equal_h12": true,
+     "bfi_equal_native": false,
+     "bfi_raw_equal_native": false,
+     "dit_equal_h12": true,
+     "dit_equal_native": false
+    },
+    "partitions": {
+     "units": 54,
+     "blocks": 418,
+     "all_block_contents_equal_h12": true,
+     "new_unit_footer_blob_len": 64,
+     "junk_after_end": 571,
+     "ecc_roundtrip_exact": true,
+     "aligned_content_identical_blocks": 411,
+     "of_those_byte_identical_to_native": 0
+    }
+   }
+  },
+  {
+   "name": "E3",
+   "order": 3,
+   "file": "experiments/terminal/probes/E3.rvt",
+   "md5": "5a4f2e4cb8c5ac61d0f5db06577081ac",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "derived_from": "experiments/regcorner/probes/H12.rvt",
+   "axis": "U3: every member re-emitted with the exact Autodesk recipe (partitions partial+finish; globals sync+02 0c 00); the 411 content-identical blocks become byte-identical to native",
+   "expected": "PASS convicts the member-ending shape",
+   "gates": {
+    "validator_errors": 0,
+    "gate": "OK",
+    "streams_changed_vs_h12": [
+     "Global/ContentDocuments",
+     "Global/DocumentIncrementTable",
+     "Global/ElemTable",
+     "Global/Latest",
+     "Partitions/21"
+    ],
+    "decoded_identity": {
+     "elemtable_equal": true,
+     "latest_payload_equal": true,
+     "contentdocs_payload_equal": true,
+     "bfi_equal_h12": true,
+     "bfi_equal_native": false,
+     "bfi_raw_equal_native": false,
+     "dit_equal_h12": true,
+     "dit_equal_native": false
+    },
+    "partitions": {
+     "units": 54,
+     "blocks": 418,
+     "all_block_contents_equal_h12": true,
+     "new_unit_footer_blob_len": 0,
+     "junk_after_end": 571,
+     "ecc_roundtrip_exact": true,
+     "aligned_content_identical_blocks": 411,
+     "of_those_byte_identical_to_native": 411
+    }
+   }
+  },
+  {
+   "name": "E6",
+   "order": 4,
+   "file": "experiments/terminal/probes/E6.rvt",
+   "md5": "9b2e75500b3a4f022336086f2d9905b1",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "derived_from": "experiments/regcorner/probes/H12.rvt",
+   "axis": "U2: the 571 junk bytes after the 10-byte end record removed (logical ends exactly like native)",
+   "expected": "PASS convicts the baked stream-tail junk",
+   "gates": {
+    "validator_errors": 0,
+    "gate": "OK",
+    "streams_changed_vs_h12": [
+     "Partitions/21"
+    ],
+    "decoded_identity": {
+     "elemtable_equal": true,
+     "latest_payload_equal": true,
+     "contentdocs_payload_equal": true,
+     "bfi_equal_h12": true,
+     "bfi_equal_native": false,
+     "bfi_raw_equal_native": false,
+     "dit_equal_h12": true,
+     "dit_equal_native": false
+    },
+    "partitions": {
+     "units": 54,
+     "blocks": 418,
+     "all_block_contents_equal_h12": true,
+     "new_unit_footer_blob_len": 0,
+     "junk_after_end": 0,
+     "ecc_roundtrip_exact": true,
+     "aligned_content_identical_blocks": 411,
+     "of_those_byte_identical_to_native": 0
+    }
+   }
+  },
+  {
+   "name": "E4",
+   "order": 5,
+   "file": "experiments/terminal/probes/E4.rvt",
+   "md5": "f98ed6c813f22dc068544da17a259ab1",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "derived_from": "experiments/regcorner/probes/H12.rvt",
+   "axis": "U4: BasicFileInfo author/client_app_name/last_save_path restored to the native strings (stream becomes byte-equal to native)",
+   "expected": "PASS convicts the BFI identity rebrand",
+   "gates": {
+    "validator_errors": 0,
+    "gate": "OK",
+    "streams_changed_vs_h12": [
+     "BasicFileInfo"
+    ],
+    "decoded_identity": {
+     "elemtable_equal": true,
+     "latest_payload_equal": true,
+     "contentdocs_payload_equal": true,
+     "bfi_equal_h12": false,
+     "bfi_equal_native": true,
+     "bfi_raw_equal_native": true,
+     "dit_equal_h12": true,
+     "dit_equal_native": false
+    },
+    "partitions": {
+     "units": 54,
+     "blocks": 418,
+     "all_block_contents_equal_h12": true,
+     "new_unit_footer_blob_len": 0,
+     "junk_after_end": 571,
+     "ecc_roundtrip_exact": true,
+     "aligned_content_identical_blocks": 411,
+     "of_those_byte_identical_to_native": 0
+    }
+   }
+  },
+  {
+   "name": "E5",
+   "order": 6,
+   "file": "experiments/terminal/probes/E5.rvt",
+   "md5": "7f86866c62cd7e14f05967ee6390bb4f",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "derived_from": "experiments/regcorner/probes/H12.rvt",
+   "axis": "U5: the 44 DocumentIncrementTable usernames restored from native (decoded table becomes field-equal to native)",
+   "expected": "PASS convicts the username scrub",
+   "gates": {
+    "validator_errors": 0,
+    "gate": "OK",
+    "streams_changed_vs_h12": [
+     "Global/DocumentIncrementTable"
+    ],
+    "decoded_identity": {
+     "elemtable_equal": true,
+     "latest_payload_equal": true,
+     "contentdocs_payload_equal": true,
+     "bfi_equal_h12": true,
+     "bfi_equal_native": false,
+     "bfi_raw_equal_native": false,
+     "dit_equal_h12": false,
+     "dit_equal_native": true
+    },
+    "partitions": {
+     "units": 54,
+     "blocks": 418,
+     "all_block_contents_equal_h12": true,
+     "new_unit_footer_blob_len": 0,
+     "junk_after_end": 571,
+     "ecc_roundtrip_exact": true,
+     "aligned_content_identical_blocks": 411,
+     "of_those_byte_identical_to_native": 0
+    }
+   }
+  },
+  {
+   "name": "E2",
+   "order": 7,
+   "file": "experiments/terminal/probes/E2.rvt",
+   "md5": "0da908ec00dfa62055dc0df6bf07abe9",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "derived_from": "experiments/regcorner/probes/H12.rvt",
+   "axis": "U6: directory sector patched to the native red-black tree (colors + left/right/child per SID)",
+   "expected": "PASS convicts the CFB directory tree shape",
+   "gates": {
+    "validator_errors": 0,
+    "gate": "OK",
+    "streams_changed_vs_h12": [],
+    "decoded_identity": {
+     "elemtable_equal": true,
+     "latest_payload_equal": true,
+     "contentdocs_payload_equal": true,
+     "bfi_equal_h12": true,
+     "bfi_equal_native": false,
+     "bfi_raw_equal_native": false,
+     "dit_equal_h12": true,
+     "dit_equal_native": false
+    },
+    "partitions": {
+     "units": 54,
+     "blocks": 418,
+     "all_block_contents_equal_h12": true,
+     "new_unit_footer_blob_len": 0,
+     "junk_after_end": 571,
+     "ecc_roundtrip_exact": true,
+     "aligned_content_identical_blocks": 411,
+     "of_those_byte_identical_to_native": 0
+    }
+   }
+  }
+ ],
+ "recorded_context": {
+  "H12_verdict": "FAIL (genesis-audit VERDICTS #35, b40)",
+  "H10_verdict": "PASS (VERDICTS #34, b38)",
+  "V20_verdict": "PASS (instance of a NATIVE unit)",
+  "invariant": "newly-added unit + instance referencing it = FAIL; same file minus instance = PASS; instance of native unit = PASS"
+ }
+}

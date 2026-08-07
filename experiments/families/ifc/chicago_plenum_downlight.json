@@ -1,0 +1,857 @@
+{
+ "path": "/Users/ck/dev/things/rev-revit/experiments/families/ifc/chicago_plenum_downlight.rfa",
+ "family": {
+  "kind": "luminaire/recessed-downlight (IFC-derived)",
+  "family_name": "Chicago-Plenum Recessed Downlight 6in",
+  "category": "Lighting Fixtures",
+  "part_type": 0,
+  "detail": "standard",
+  "elements": 90,
+  "types": [
+   "CP-6-LED"
+  ],
+  "parameters": [
+   "Aperture",
+   "Aperture Diameter",
+   "Bar Hanger Span",
+   "CCEA Rating",
+   "Color Temperature",
+   "Frame Length",
+   "Frame Width",
+   "Housing",
+   "Housing Diameter",
+   "Housing Height",
+   "Lamp",
+   "Lens Diameter",
+   "Lumens",
+   "Mounting",
+   "Overall Height",
+   "Photometric Web File",
+   "Trim",
+   "Trim Diameter",
+   "Voltage",
+   "Wattage"
+  ],
+  "forms": [
+   {
+    "kind": "cylinder",
+    "role": "housing can (sealed steel can)",
+    "radius_ft": 0.305118,
+    "height_ft": 0.62336,
+    "base_z_ft": 0.019685,
+    "center": [
+     0.0,
+     0.0
+    ],
+    "rep": "solid"
+   },
+   {
+    "kind": "cylinder",
+    "role": "trim ring flange (white baffle trim, at the ceiling plane)",
+    "radius_ft": 0.3110235,
+    "height_ft": 0.065617,
+    "base_z_ft": 0.0,
+    "center": [
+     0.0,
+     0.0
+    ],
+    "rep": "solid"
+   },
+   {
+    "kind": "cylinder",
+    "role": "frosted lens disc",
+    "radius_ft": 0.191929,
+    "height_ft": 0.010416666666666666,
+    "base_z_ft": 0.19820366666666667,
+    "center": [
+     0.0,
+     0.0
+    ],
+    "rep": "solid"
+   },
+   {
+    "kind": "plate",
+    "role": "plaster / mounting frame plate",
+    "width_ft": 1.115486,
+    "depth_ft": 0.656168,
+    "height_ft": 0.005249,
+    "base_z_ft": 0.065617,
+    "center": [
+     0.18044619422572175,
+     0.0,
+     0.0
+    ],
+    "rep": "solid"
+   },
+   {
+    "kind": "box",
+    "role": "gasketed integral junction box (branch-circuit entry)",
+    "width_ft": 0.360892,
+    "depth_ft": 0.328084,
+    "height_ft": 0.19685,
+    "base_z_ft": 0.070866,
+    "center": [
+     0.5249343832020996,
+     0.0,
+     0.0
+    ],
+    "rep": "solid"
+   },
+   {
+    "kind": "box",
+    "role": "LED driver enclosure",
+    "width_ft": 0.295276,
+    "depth_ft": 0.180446,
+    "height_ft": 0.104987,
+    "base_z_ft": 0.643045,
+    "center": [
+     -0.016404199475065606,
+     0.0,
+     0.0
+    ],
+    "rep": "solid"
+   },
+   {
+    "kind": "box",
+    "role": "telescoping bar hanger (front)",
+    "width_ft": 2.165354,
+    "depth_ft": 0.039370000000000016,
+    "height_ft": 0.085302,
+    "base_z_ft": 0.070866,
+    "center": [
+     0.0,
+     -0.35105,
+     0.0
+    ],
+    "rep": "solid"
+   },
+   {
+    "kind": "box",
+    "role": "telescoping bar hanger (back)",
+    "width_ft": 2.165354,
+    "depth_ft": 0.039370000000000016,
+    "height_ft": 0.085302,
+    "base_z_ft": 0.070866,
+    "center": [
+     0.0,
+     0.35105,
+     0.0
+    ],
+    "rep": "solid"
+   }
+  ],
+  "connectors": 1,
+  "assumed_fields": [
+   "cct_k",
+   "lumens_lm",
+   "manufacturer",
+   "photometric_web",
+   "wattage_w"
+  ],
+  "unverified_fields": [
+   "cct_k",
+   "lumens_lm",
+   "manufacturer",
+   "photometric_web",
+   "voltage_v",
+   "wattage_w"
+  ],
+  "notes": [
+   "single-phase Lighting connector on the junction box TOP face (face-referenced, box template) -- where the branch circuit enters",
+   "8 form clusters composed from rvt.famgen.geometry (50 form elements) sized by the IFC facts; family frame = product frame translated by (+0.1804, -0.0000) ft so the can axis is the insertion origin",
+   "apparent load = the input wattage (0 = NOT SOURCED, the IFC states no wattage); power factor 0.95 booked; bound to the Wattage parameter",
+   "UNVERIFIED / not-sourced values surfaced as parameters: cct_k, lumens_lm, manufacturer, photometric_web, voltage_v, wattage_w",
+   "21 sub-inch hardware meshes RECORDED in the facts but NOT modelled (below family level of detail): ['frame_lip_front', 'frame_lip_back', 'frame_lip_left', 'frame_lip_right', 'nail_flag_front_a', 'nail_flag_front_b', 'nail_flag_back_a', 'nail_flag_back_b', 'jbox_gasket', 'jbox_cover', 'cover_screw_top', 'cover_screw_bottom', 'knockout_top_1', 'knockout_top_2', 'knockout_side_1', 'knockout_side_2', 'knockout_side_3', 'knockout_side_4', 'conduit_connector', 'locknut_box', 'locknut_can']"
+  ]
+ },
+ "facts": {
+  "subject": "IfcLightFixture 'Chicago-plenum recessed downlight - 6 in housing' (CP-6-LED) from chicago-plenum-downlight.ifc",
+  "catalog": "own-ifc/inputs/ifc/chicago-plenum-downlight.ifc",
+  "variant": "CP-6-LED",
+  "values": {
+   "can_diameter_ft": {
+    "value": 0.610236,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "can_diameter_in": {
+    "value": 7.322832,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "can_height_ft": {
+    "value": 0.62336,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "can_base_z_ft": {
+    "value": 0.019685,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "can_top_z_ft": {
+    "value": 0.643045,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "can_center_ft": {
+    "value": [
+     -0.18044619422572178,
+     0.0,
+     0.33136482939632544
+    ],
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "trim_diameter_ft": {
+    "value": 0.622047,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "trim_diameter_in": {
+    "value": 7.464564,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "trim_top_z_ft": {
+    "value": 0.203412,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "lens_diameter_ft": {
+    "value": 0.383858,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "lens_z_ft": {
+    "value": 0.203412,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "frame_length_ft": {
+    "value": 1.115486,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "frame_width_ft": {
+    "value": 0.656168,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "frame_z_ft": {
+    "value": 0.065617,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "frame_thickness_ft": {
+    "value": 0.005249,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "frame_center_ft": {
+    "value": [
+     0.0,
+     0.0,
+     0.06824146981627295
+    ],
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "jbox_dims_ft": {
+    "value": [
+     0.360892,
+     0.328084,
+     0.19685
+    ],
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "jbox_center_ft": {
+    "value": [
+     0.3444881889763779,
+     0.0,
+     0.16929133858267714
+    ],
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "jbox_base_z_ft": {
+    "value": 0.070866,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "driver_dims_ft": {
+    "value": [
+     0.295276,
+     0.180446,
+     0.104987
+    ],
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "driver_center_ft": {
+    "value": [
+     -0.19685039370078738,
+     0.0,
+     0.6955380577427821
+    ],
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "driver_base_z_ft": {
+    "value": 0.643045,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "hanger_span_ft": {
+    "value": 2.165354,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "hanger_bar_section_ft": {
+    "value": [
+     0.03937,
+     0.085302
+    ],
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "hanger_offset_y_ft": {
+    "value": 0.35105,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "hanger_base_z_ft": {
+    "value": 0.070866,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "MEASURED from our IFC's tessellated mesh bounding box"
+   },
+   "aperture_label": {
+    "value": "6 in (152 mm) round",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "STATED in the pset 'Aperture' label '6 in (152 mm) round'"
+   },
+   "aperture_stated_in": {
+    "value": 6.0,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "STATED in the pset 'Aperture' label '6 in (152 mm) round'"
+   },
+   "aperture_stated_mm": {
+    "value": 152.0,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "STATED in the pset 'Aperture' label '6 in (152 mm) round'"
+   },
+   "overall_height_stated_m": {
+    "value": 0.244,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "STATED pset 'OverallHeightMeters' (the tessellation measures 0.748031 ft -- both recorded)"
+   },
+   "overall_dims_ft": {
+    "value": {
+     "x": 2.185039,
+     "y": 0.807087,
+     "z": 0.748031
+    },
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "the whole product envelope MEASURED from the tessellation"
+   },
+   "overall_dims_in": {
+    "value": {
+     "x": 26.220472,
+     "y": 9.685039,
+     "z": 8.976378
+    },
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "the whole product envelope MEASURED from the tessellation"
+   },
+   "measured_height_ft": {
+    "value": 0.748031,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "the whole product envelope MEASURED from the tessellation"
+   },
+   "aperture_stated_ft": {
+    "value": 0.5,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "STATED in the pset 'Aperture' label '6 in (152 mm) round'"
+   },
+   "overall_height_stated_ft": {
+    "value": 0.800525,
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "STATED pset 'OverallHeightMeters' (the tessellation measures 0.748031 ft -- both recorded)"
+   },
+   "spec.Rating": {
+    "value": "Chicago plenum (CCEA), airtight, gasketed junction box",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "pset property 'Rating' -> family parameter 'CCEA Rating'"
+   },
+   "spec.Aperture": {
+    "value": "6 in (152 mm) round",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "pset property 'Aperture' -> family parameter 'Aperture'"
+   },
+   "spec.Housing": {
+    "value": "Sealed steel can with LED driver enclosure",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "pset property 'Housing' -> family parameter 'Housing'"
+   },
+   "spec.Trim": {
+    "value": "White baffle reflector with frosted lens",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "pset property 'Trim' -> family parameter 'Trim'"
+   },
+   "spec.Mounting": {
+    "value": "Telescoping bar hangers, 16-24 in joist spacing",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "pset property 'Mounting' -> family parameter 'Mounting'"
+   },
+   "spec.Lamp": {
+    "value": "Integrated LED module",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "pset property 'Lamp' -> family parameter 'Lamp'"
+   },
+   "model": {
+    "value": "CP-6-LED",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "IFC Tag -> the Model identity value / the family type name"
+   },
+   "product_name": {
+    "value": "Chicago-plenum recessed downlight - 6 in housing",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": ""
+   },
+   "description": {
+    "value": "6 in new-construction housing: airtight sealed steel can, gasketed integral junction box, telescoping bar hangers, white baffle trim with frosted LED lens",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "IFC Description -> the Description identity value"
+   },
+   "manufacturer": {
+    "value": null,
+    "provenance": "assumed",
+    "source": "",
+    "note": "NOT SOURCED -- the IFC is OUR design (three-d-stage authoring), it names no manufacturer; the Manufacturer identity value is deliberately not written"
+   },
+   "global_id": {
+    "value": "3ShKvoAgO_ioLP6_WZIZn8",
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": ""
+   },
+   "surface_colours": {
+    "value": {
+     "galvanized_steel": [
+      0.694118,
+      0.713725,
+      0.698039
+     ],
+     "gunmetal_steel": [
+      0.376471,
+      0.396078,
+      0.372549
+     ],
+     "zinc_hardware": [
+      0.803922,
+      0.819608,
+      0.796078
+     ],
+     "white_enamel": [
+      0.952941,
+      0.94902,
+      0.92549
+     ],
+     "frosted_lens": [
+      1.0,
+      0.964706,
+      0.894118
+     ]
+    },
+    "provenance": "fact",
+    "source": "chicago-plenum-downlight.ifc#3ShKvoAgO_ioLP6_WZIZn8",
+    "note": "IfcSurfaceStyle colours; carried in the report (no material elements are authored -- the S0 discipline: no object-style copies)"
+   },
+   "voltage_v": {
+    "value": 120.0,
+    "provenance": "given",
+    "source": "",
+    "note": "connector voltage NOT in the IFC (no electrical pset) -- 120 V single-phase DEFAULT for a residential/commercial recessed downlight; an editable, UNVERIFIED parameter"
+   },
+   "wattage_w": {
+    "value": null,
+    "provenance": "assumed",
+    "source": "",
+    "note": "NOT SOURCED -- 'Integrated LED module' carries no wattage in the IFC; the Wattage parameter is written as 0 (unset), never invented"
+   },
+   "lumens_lm": {
+    "value": null,
+    "provenance": "assumed",
+    "source": "",
+    "note": "NOT SOURCED (no photometric pset)"
+   },
+   "cct_k": {
+    "value": null,
+    "provenance": "assumed",
+    "source": "",
+    "note": "NOT SOURCED (no photometric pset)"
+   },
+   "photometric_web": {
+    "value": "",
+    "provenance": "assumed",
+    "source": "",
+    "note": "photometric web REFERENCE (path / URL) -- a parameter the user fills; the family never embeds an .ies payload (facts-store rule)"
+   }
+  },
+  "assumed_fields": [
+   "cct_k",
+   "lumens_lm",
+   "manufacturer",
+   "photometric_web",
+   "wattage_w"
+  ],
+  "notes": [
+   "Source = OUR OWN IFC document (Claude-Design authoring): every 'fact' is a measured mesh bounding box, a stated pset value or a surface colour read from that file this session; provenance is ours end to end.",
+   "Nulls (wattage / lumens / cct) are NOT SOURCED and never invented; voltage is a job DEFAULT (given). All ride as editable parameters."
+  ]
+ },
+ "product_facts": {
+  "source": "/Users/ck/dev/things/rev-revit/inputs/ifc/chicago-plenum-downlight.ifc",
+  "sha256": "60596560594272e1210c922e48eeb0c0c032cb98e117fa7d7544ed1713d77858",
+  "product": {
+   "ifc_class": "IfcLightFixture",
+   "name": "Chicago-plenum recessed downlight - 6 in housing",
+   "description": "6 in new-construction housing: airtight sealed steel can, gasketed integral junction box, telescoping bar hangers, white baffle trim with frosted LED lens",
+   "tag": "CP-6-LED",
+   "predefined_type": "POINTSOURCE",
+   "object_type": "",
+   "global_id": "3ShKvoAgO_ioLP6_WZIZn8"
+  },
+  "psets": {
+   "ChicagoPlenumSpecification": {
+    "Rating": {
+     "value": "Chicago plenum (CCEA), airtight, gasketed junction box",
+     "ifc_type": "IfcLabel"
+    },
+    "Aperture": {
+     "value": "6 in (152 mm) round",
+     "ifc_type": "IfcLabel"
+    },
+    "Housing": {
+     "value": "Sealed steel can with LED driver enclosure",
+     "ifc_type": "IfcLabel"
+    },
+    "Trim": {
+     "value": "White baffle reflector with frosted lens",
+     "ifc_type": "IfcLabel"
+    },
+    "Mounting": {
+     "value": "Telescoping bar hangers, 16-24 in joist spacing",
+     "ifc_type": "IfcLabel"
+    },
+    "Lamp": {
+     "value": "Integrated LED module",
+     "ifc_type": "IfcLabel"
+    },
+    "OverallHeightMeters": {
+     "value": 0.244,
+     "ifc_type": "IfcReal"
+    }
+   }
+  },
+  "overall_dims_ft": {
+   "x": 2.185039,
+   "y": 0.807087,
+   "z": 0.748031
+  },
+  "meshes": 29,
+  "faces": 8760
+ },
+ "emit": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/families/ifc/chicago_plenum_downlight.rfa",
+  "size": 286720,
+  "mode": "candidate",
+  "footer_mode": "nonce",
+  "elements": 90,
+  "elem_table_count": 90,
+  "partition_stream": "Partitions/0",
+  "logical_partition_bytes": 15685,
+  "footer_blob_hex": "fc7ca06ee0f092fd9587947099e75d8e2575fdbedffc005481c297eb096a5e915bdcb50a9ecae6c331779446c2563ed217a0067731bc9ffeeb1b9dcbd9b40fbf",
+  "footer_blob_len": 64,
+  "end_record_hex": "a30300000000ffffffff",
+  "document_guid": "36922b3c-c3b5-48a4-9229-9a528efc8f0f",
+  "episode_guid": "1f233a61-ddbd-49db-b571-55ec329cfe87",
+  "streams": {
+   "Partitions/0": 15779,
+   "Global/ElemTable": 591,
+   "Global/History": 130,
+   "Global/DocumentIncrementTable": 126,
+   "Global/PartitionTable": 126,
+   "Global/ContentDocuments": 82,
+   "Global/Latest": 75389,
+   "Contents": 204,
+   "BasicFileInfo": 1997,
+   "TransmissionData": 214,
+   "PartAtom": 817,
+   "Formats/Latest": 165553
+  },
+  "ours": [
+   "Global/Latest (OUR authored family ADocument)",
+   "Partitions/0 save unit (every element) + OUR unit footer blob + the universal signature string + the decoded 10-byte end record",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/DocumentIncrementTable",
+   "Global/PartitionTable",
+   "Global/ContentDocuments",
+   "Contents (prologue + payload)",
+   "BasicFileInfo (rvt.identity)",
+   "TransmissionData",
+   "PartAtom",
+   "CFB container / gzip / CRCIO framing"
+  ],
+  "carried": [
+   {
+    "stream": "Formats/Latest",
+    "inflated_bytes": 496597,
+    "sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+    "is_corpus_schema_constant": true,
+    "why": "the per-release archive class map, byte-identical in every Revit-2026 file (.rvt and .rfa) -- FORMAT, not content"
+   }
+  ],
+  "identity": {
+   "author": "rvt-writer",
+   "username": "rvt-writer",
+   "client_app_name": "rvt-writer",
+   "last_save_path": "chicago_plenum_downlight.rfa",
+   "unique_document_guid": "1f233a61-ddbd-49db-b571-55ec329cfe87",
+   "central_episode_guid": "1f233a61-ddbd-49db-b571-55ec329cfe87",
+   "via": "rvt.identity.own_identity_model + own_increment_table_payload"
+  },
+  "seconds": 0.39,
+  "notes": [
+   "luminaire (recessed downlight from OUR IFC): work-plane-based (ceiling face); insertion origin = the can / aperture axis; z 0 = the trim plane",
+   "NO ImposterLight light-source element (skeleton exposes no constructor) -- photometrics ride as parameters; the photometric web is an unset REFERENCE parameter (never an embedded .ies)",
+   "no material / object-style elements are authored (the S0 discipline); the five IFC surface colours are carried in the report only"
+  ]
+ },
+ "verify": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/families/ifc/chicago_plenum_downlight.rfa",
+  "gzip_members": 11,
+  "gzip_crc_failures": 0,
+  "ecc_full_pages": 3,
+  "ecc_mismatch": 0,
+  "streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "PartAtom",
+   "Partitions/0",
+   "TransmissionData"
+  ],
+  "walker_errors": [],
+  "n_units": 1,
+  "record_counts": {
+   "101": 91,
+   "102": 91,
+   "103": 91
+  },
+  "decode_seq102": {
+   "records": 90,
+   "clean": 90,
+   "error_classes": {}
+  },
+  "id_sets_identical_across_seqs": true,
+  "ok": true
+ },
+ "adocument_summary": {
+  "conclusion": "family ADocument CONSTRUCTED (candidate): 1,342,699 B; decodes clean, round-trips; 0 dangling ids (schema census); byte-scan donor ids = 0; our ids present in the payload = 13 (byte scan); slots populated = 131",
+  "registries": {
+   "DatumTracking.m_elemIdSet": "3 of ours (levels + ref planes)",
+   "MaterialTracking.m_elemIdSet": "0 of ours (MaterialElem -- ours has none)",
+   "LinePatternTracking.m_elemIdSet": "0 of ours (LinePatternElem -- ours has none)",
+   "FillPatternTracking.m_elemIdSet": "0 of ours (FillPatternElem -- ours has none)",
+   "AppearanceAssetTracking.m_elemIdSet": "0 of ours (AppearanceAssetElem -- ours has none)",
+   "LoadCaseElemTracking.m_elemIdSet": "0 of ours (LoadCaseElem -- ours has none)",
+   "StructConnectionTypeTracking.m_elemIdSet": "0 of ours (StructConnectionType -- ours has none)",
+   "KeynoteTableTracking.m_elemIdSet": "0 of ours (KeynoteTable -- ours has none)",
+   "TilePatternTracking.m_elemIdSet": "0 of ours (TilePatternElem -- ours has none)",
+   "PhaseFilterTracking.m_elemIdSet": "0 of ours (PhaseFilterElem -- ours has none)",
+   "PropertySetElementTracking.m_elemIdSet": "0 of ours (PropertySetElement -- ours has none)",
+   "ViewTagTracking.m_elemIdSet": "0 of ours (annotation head symbols -- ours has none)",
+   "MoribundElemTracking.m_elemIdSet": "0 of ours (moribund elements -- ours has none)",
+   "ElementTrackingData.m_elems": "4 of ours in 3 category rows {'RefPlane->-2000530': 2, 'Level->-2000240': 1, 'ElectricalLoadClassification->-2008143': 1}; the archetype's category SHELL rows kept (144 rows), donor ids purged; m_symbols = 45 rows, none ours",
+   "DBViewInfo": "project view 1004, index of 2 views, 1 sun-settings, 0 templates, no system navigator",
+   "DBDrawingInfo.m_DBDrawingsIndex": "2 drawings of ours",
+   "LevelPlanViewTracking": "1 levels -> 1 plan views",
+   "SketchPlaneInfo.m_curSPRecs": "1 view sketch-planes of ours (m_famId = our self-Family 1000); no sketch grids",
+   "UnitsTracking.m_unitsElemId": "= 1001 (our UnitsElem)",
+   "SiteMgr": "-1 (we author no TrueNorth / contour range)",
+   "PenWidthTableInfo": "-1 (we author no PenWidthTableElem)",
+   "AppearanceInfo.m_previewDBViewID": "-1 (the archetype's preview is its 3D view; our documents carry a plan view only)",
+   "DBViewTypesForNewLevel": "1 plan view type(s) of ours (the genesis-2 rule)",
+   "FamilyMgr.m_arrLoadedFamilyInfo": "1 self entry {surrogate -1, no nested family GUIDs} (a family document with no nested families)",
+   "UniqueElementsTracking.m_elemIds": "0 singletons of ours; the 93-slot table is otherwise all-null -- our documents author NONE of the family-editor settings singletons the archetype registers (73 known positions unfilled)",
+   "CategoryTracking": "EMPTY: our family documents carry no CategoryElem / GStyleElem catalogue rows (the archetype's 1,477 + 70 rows were its built-in category ballast); the family-scale analogue of the project's K6 catalogue requirement",
+   "m_storedByRevitBuild": "1 entry (the Revit-2026 product build constant; was the archetype's 9-entry 2018->2026 save lineage)",
+   "m_ownerFamilyId": "= 1000 (OUR self-Family)"
+  },
+  "residual": [
+   "UniqueElementsTracking is ALL-NULL: our family documents carry none of the settings singletons the archetype registers (AreaSettingsElem, AutoCamSettingsElem, StructSettingsElem, KeynoteTable, ...).  The family-scale analogue of the project's K5 finding (the reader REQUIRED settings singletons at project scale) -- the lead hypothesis if the standalone file is rejected while its ADocument decodes clean.",
+   "CategoryTracking is EMPTY (no built-in category / GStyle catalogue in our family documents) -- the family-scale analogue of the project's K6 finding."
+  ]
+ },
+ "validate": {
+  "family_mode": {
+   "verdict": "VALID",
+   "n_errors": 0,
+   "errors": [],
+   "n_warnings": 0,
+   "warnings": [],
+   "adjustments": [
+    "PartAtom treated as UNFRAMED (plain Atom XML)",
+    "ProjectInformation not required (a family stream set has PartAtom instead)"
+   ]
+  },
+  "arbiter_raw": {
+   "verdict": "INVALID",
+   "n_errors": 3,
+   "errors": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block (817 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+    "structure PartAtom: no gzip member found in framed stream"
+   ]
+  },
+  "donor_parity": {
+   "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+   "arbiter_raw_errors": 5,
+   "family_mode_errors": 2,
+   "arbiter_raw_error_kinds": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block (4046 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+    "structure PartAtom: no gzip member found in framed stream",
+    "consistency Global/ElemTable: ElemTable does not decode: ElemTable footer is 600 bytes / graveyard 18 \u2014 GraveyardRec wire layout not observed in corpus",
+    "consistency Global/DocumentIncrementTable: DocumentIncrementTable does not decode: unpack_from requires a buffer of at least 15903 bytes for unpacking 4 bytes at offset 15899 (actual buffer size is 15902)"
+   ]
+  },
+  "ok": true,
+  "gate_note": "the CERTIFIED family gate = rvt.validate with the two family-shape adjustments (a request to merge them as `rvt_validate --family` is on record); the raw arbiter's residual findings are project-shape calibration gaps -- the authentic Autodesk donor .rfa scores worse"
+ },
+ "provenance": {
+  "ok": true,
+  "verdict": "PROVENANCE-CLEAN: zero donor ADocument content bytes, zero donor element-id references, zero employee paths/usernames; carried = the schema constant only; footer = ours + the universal format tokens",
+  "checks": {
+   "adocument_decodes_clean": true,
+   "zero_dangling_element_refs": true,
+   "zero_donor_id_byte_hits": true,
+   "zero_donor_name_strings": true,
+   "owner_family_is_ours": true,
+   "identity_is_ours": true,
+   "footer_blob_not_donor": true,
+   "no_donor_end_parity": true,
+   "end_record_is_constant": true,
+   "signature_string_present": true,
+   "formats_latest_is_format_constant": true
+  },
+  "adocument": {
+   "inflated_bytes": 1342699,
+   "decodes_clean": true,
+   "references_to_our_elements": 9,
+   "dangling_id_refs_gt99": 0,
+   "byte_scan_donor_ids": {
+    "hits": 0,
+    "distinct": 0,
+    "examples": [],
+    "universe": 1755,
+    "must_be": 0
+   },
+   "donor_name_string_hits": [],
+   "longest_common_run_with_donor_latest": {
+    "longest_common_run_bytes": 1333534,
+    "our_offset": 8284,
+    "donor_offset": 44669,
+    "classification": "Forge unit/spec/parameter JSON corpus (per-release PRODUCT constant, C4-class)",
+    "note": "the residual identity is expected to be the Forge product corpus (candidate mode carries it; purity mode empties it) and short AppInfo shell scaffolding -- never element ids, names or memory"
+   },
+   "owner_family_id": 1000
+  },
+  "identity": {
+   "author": "rvt-writer",
+   "client_app_name": "rvt-writer",
+   "username": "rvt-writer",
+   "last_save_path": "chicago_plenum_downlight.rfa",
+   "dit_usernames": [
+    "rvt-writer"
+   ],
+   "no_windows_user_path": true,
+   "no_employee_usernames": true,
+   "employee_hits": [],
+   "no_hansonje_path": true,
+   "no_autodesk_author": true
+  },
+  "partition_footer": {
+   "units": 1,
+   "walker_errors": [],
+   "signature_string_status": "PRESENT (required universal format signature -- counsel C5: an irreducible token, written by us, never copied bytes)",
+   "end_record_is_decoded_constant": true,
+   "donor_footer_blob_present": false,
+   "donor_end_parity_present": false
+  },
+  "carried_constants": {
+   "Formats/Latest": {
+    "inflated_bytes": 496597,
+    "sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+    "is_corpus_schema_constant": true
+   },
+   "Global/Latest": "OURS (constructed family ADocument -- see 'adocument')",
+   "unit footer / end record": "OURS + universal format tokens (see 'partition_footer')"
+  }
+ },
+ "ok": true,
+ "seconds": 1.4
+}

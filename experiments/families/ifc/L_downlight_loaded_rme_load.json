@@ -1,0 +1,859 @@
+{
+ "ok": true,
+ "out_path": "experiments/families/ifc/L_downlight_loaded_rme.rvt",
+ "plans": [
+  {
+   "key": "chicago_plenum_downlight",
+   "guid": "fe0e0dc6-df7f-4805-b049-abb064c45494",
+   "fam_doc_guid": "3ec521ec-9b1c-4352-b32b-68bffa62fc26",
+   "session_guid_hex": "423513b0ca8641909ad054a5e697ebd1",
+   "family_name": "Chicago-Plenum Recessed Downlight 6in",
+   "category": -2001120,
+   "part_type": 0,
+   "type_names": [
+    "CP-6-LED"
+   ],
+   "host_family_id": 888104,
+   "surrogate_id": 888125,
+   "symbol_ids": [
+    888127
+   ],
+   "symbol_surrogate_ids": [
+    888126
+   ],
+   "twin_of": {
+    "888032": 888105,
+    "888033": 888106,
+    "888034": 888107,
+    "888035": 888108,
+    "888036": 888109,
+    "888037": 888110,
+    "888038": 888111,
+    "888039": 888112,
+    "888040": 888113,
+    "888041": 888114,
+    "888042": 888115,
+    "888043": 888116,
+    "888044": 888117,
+    "888045": 888118,
+    "888046": 888119,
+    "888047": 888120,
+    "888048": 888121,
+    "888049": 888122,
+    "888050": 888123,
+    "888051": 888124
+   },
+   "abs_index": {
+    "888015": 0,
+    "888016": 1,
+    "888019": 2,
+    "888020": 3,
+    "888021": 4,
+    "888018": 5,
+    "888022": 6,
+    "888024": 7,
+    "888025": 8,
+    "888026": 9,
+    "888027": 10,
+    "888028": 11,
+    "888029": 12,
+    "888023": 13,
+    "888017": 14,
+    "888030": 15,
+    "888031": 16,
+    "888032": 17,
+    "888033": 18,
+    "888034": 19,
+    "888035": 20,
+    "888036": 21,
+    "888037": 22,
+    "888038": 23,
+    "888039": 24,
+    "888040": 25,
+    "888041": 26,
+    "888042": 27,
+    "888043": 28,
+    "888044": 29,
+    "888045": 30,
+    "888046": 31,
+    "888047": 32,
+    "888048": 33,
+    "888049": 34,
+    "888050": 35,
+    "888051": 36,
+    "888052": 37,
+    "888053": 38,
+    "888054": 39,
+    "888055": 40,
+    "888056": 41,
+    "888057": 42,
+    "888058": 43,
+    "888059": 44,
+    "888060": 45,
+    "888061": 46,
+    "888062": 47,
+    "888063": 48,
+    "888064": 49,
+    "888065": 50,
+    "888066": 51,
+    "888067": 52,
+    "888068": 53,
+    "888069": 54,
+    "888070": 55,
+    "888071": 56,
+    "888072": 57,
+    "888073": 58,
+    "888074": 59,
+    "888075": 60,
+    "888076": 61,
+    "888077": 62,
+    "888078": 63,
+    "888079": 64,
+    "888080": 65,
+    "888081": 66,
+    "888082": 67,
+    "888083": 68,
+    "888084": 69,
+    "888085": 70,
+    "888086": 71,
+    "888087": 72,
+    "888088": 73,
+    "888089": 74,
+    "888090": 75,
+    "888091": 76,
+    "888092": 77,
+    "888093": 78,
+    "888094": 79,
+    "888095": 80,
+    "888096": 81,
+    "888097": 82,
+    "888098": 83,
+    "888099": 84,
+    "888100": 85,
+    "888101": 86,
+    "888102": 87,
+    "888103": 88
+   },
+   "core_ids": [
+    127
+   ],
+   "doc_id_range": [
+    888014,
+    888103
+   ],
+   "unit_records": 90,
+   "episode": 795,
+   "notes": [],
+   "host_ids": [
+    888104,
+    888105,
+    888106,
+    888107,
+    888108,
+    888109,
+    888110,
+    888111,
+    888112,
+    888113,
+    888114,
+    888115,
+    888116,
+    888117,
+    888118,
+    888119,
+    888120,
+    888121,
+    888122,
+    888123,
+    888124,
+    888125,
+    888126,
+    888127
+   ]
+  }
+ ],
+ "proofs": {
+  "host": {
+   "path": "samples/rmebasicsampleproject.rvt",
+   "watermark": 888013,
+   "episode": 795,
+   "partition": "Partitions/14",
+   "elements": 28132,
+   "category_gstyles": {
+    "-2001120": 127
+   },
+   "usage_referrers": {
+    "LevelAttributes": [
+     305
+    ],
+    "GridAttributes": [
+     341
+    ],
+    "CalloutTag": [
+     49508,
+     49583,
+     49601,
+     49619,
+     49637,
+     49655,
+     49673,
+     49691,
+     49709,
+     583385
+    ],
+    "ViewportAttributes": [
+     324,
+     563389,
+     583137,
+     618784
+    ],
+    "SectionAttributes": [
+     26029,
+     29088,
+     49579,
+     49597,
+     49615,
+     49633,
+     49651,
+     49669,
+     49687,
+     49705
+    ],
+    "InteriorElevAttributes": [
+     357,
+     49589,
+     49607,
+     49625,
+     49643,
+     49661,
+     49679,
+     49697,
+     49715
+    ],
+    "StructSettingsElem": [
+     54663
+    ]
+   },
+   "registries_before": {
+    "save_units": 306,
+    "contentdocs_entries": 305,
+    "contenttable_records": 305,
+    "familymgr_entries": 159,
+    "coherent": true
+   },
+   "notes": []
+  },
+  "plans": [
+   {
+    "key": "chicago_plenum_downlight",
+    "guid": "fe0e0dc6-df7f-4805-b049-abb064c45494",
+    "fam_doc_guid": "3ec521ec-9b1c-4352-b32b-68bffa62fc26",
+    "session_guid_hex": "423513b0ca8641909ad054a5e697ebd1",
+    "family_name": "Chicago-Plenum Recessed Downlight 6in",
+    "category": -2001120,
+    "part_type": 0,
+    "type_names": [
+     "CP-6-LED"
+    ],
+    "host_family_id": 888104,
+    "surrogate_id": 888125,
+    "symbol_ids": [
+     888127
+    ],
+    "symbol_surrogate_ids": [
+     888126
+    ],
+    "twin_of": {
+     "888032": 888105,
+     "888033": 888106,
+     "888034": 888107,
+     "888035": 888108,
+     "888036": 888109,
+     "888037": 888110,
+     "888038": 888111,
+     "888039": 888112,
+     "888040": 888113,
+     "888041": 888114,
+     "888042": 888115,
+     "888043": 888116,
+     "888044": 888117,
+     "888045": 888118,
+     "888046": 888119,
+     "888047": 888120,
+     "888048": 888121,
+     "888049": 888122,
+     "888050": 888123,
+     "888051": 888124
+    },
+    "abs_index": {
+     "888015": 0,
+     "888016": 1,
+     "888019": 2,
+     "888020": 3,
+     "888021": 4,
+     "888018": 5,
+     "888022": 6,
+     "888024": 7,
+     "888025": 8,
+     "888026": 9,
+     "888027": 10,
+     "888028": 11,
+     "888029": 12,
+     "888023": 13,
+     "888017": 14,
+     "888030": 15,
+     "888031": 16,
+     "888032": 17,
+     "888033": 18,
+     "888034": 19,
+     "888035": 20,
+     "888036": 21,
+     "888037": 22,
+     "888038": 23,
+     "888039": 24,
+     "888040": 25,
+     "888041": 26,
+     "888042": 27,
+     "888043": 28,
+     "888044": 29,
+     "888045": 30,
+     "888046": 31,
+     "888047": 32,
+     "888048": 33,
+     "888049": 34,
+     "888050": 35,
+     "888051": 36,
+     "888052": 37,
+     "888053": 38,
+     "888054": 39,
+     "888055": 40,
+     "888056": 41,
+     "888057": 42,
+     "888058": 43,
+     "888059": 44,
+     "888060": 45,
+     "888061": 46,
+     "888062": 47,
+     "888063": 48,
+     "888064": 49,
+     "888065": 50,
+     "888066": 51,
+     "888067": 52,
+     "888068": 53,
+     "888069": 54,
+     "888070": 55,
+     "888071": 56,
+     "888072": 57,
+     "888073": 58,
+     "888074": 59,
+     "888075": 60,
+     "888076": 61,
+     "888077": 62,
+     "888078": 63,
+     "888079": 64,
+     "888080": 65,
+     "888081": 66,
+     "888082": 67,
+     "888083": 68,
+     "888084": 69,
+     "888085": 70,
+     "888086": 71,
+     "888087": 72,
+     "888088": 73,
+     "888089": 74,
+     "888090": 75,
+     "888091": 76,
+     "888092": 77,
+     "888093": 78,
+     "888094": 79,
+     "888095": 80,
+     "888096": 81,
+     "888097": 82,
+     "888098": 83,
+     "888099": 84,
+     "888100": 85,
+     "888101": 86,
+     "888102": 87,
+     "888103": 88
+    },
+    "core_ids": [
+     127
+    ],
+    "doc_id_range": [
+     888014,
+     888103
+    ],
+    "unit_records": 90,
+    "episode": 795,
+    "notes": [],
+    "host_ids": [
+     888104,
+     888105,
+     888106,
+     888107,
+     888108,
+     888109,
+     888110,
+     888111,
+     888112,
+     888113,
+     888114,
+     888115,
+     888116,
+     888117,
+     888118,
+     888119,
+     888120,
+     888121,
+     888122,
+     888123,
+     888124,
+     888125,
+     888126,
+     888127
+    ]
+   }
+  ],
+  "host_elements": {
+   "count": 24,
+   "by_family": {
+    "chicago_plenum_downlight": [
+     {
+      "elem_id": 888104,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 888105,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888032 (Aperture Diameter)"
+      ]
+     },
+     {
+      "elem_id": 888106,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888033 (Housing Diameter)"
+      ]
+     },
+     {
+      "elem_id": 888107,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888034 (Housing Height)"
+      ]
+     },
+     {
+      "elem_id": 888108,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888035 (Overall Height)"
+      ]
+     },
+     {
+      "elem_id": 888109,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888036 (Frame Length)"
+      ]
+     },
+     {
+      "elem_id": 888110,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888037 (Frame Width)"
+      ]
+     },
+     {
+      "elem_id": 888111,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888038 (Trim Diameter)"
+      ]
+     },
+     {
+      "elem_id": 888112,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888039 (Lens Diameter)"
+      ]
+     },
+     {
+      "elem_id": 888113,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888040 (Bar Hanger Span)"
+      ]
+     },
+     {
+      "elem_id": 888114,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888041 (CCEA Rating)"
+      ]
+     },
+     {
+      "elem_id": 888115,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888042 (Aperture)"
+      ]
+     },
+     {
+      "elem_id": 888116,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888043 (Housing)"
+      ]
+     },
+     {
+      "elem_id": 888117,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888044 (Trim)"
+      ]
+     },
+     {
+      "elem_id": 888118,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888045 (Mounting)"
+      ]
+     },
+     {
+      "elem_id": 888119,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888046 (Lamp)"
+      ]
+     },
+     {
+      "elem_id": 888120,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888047 (Wattage)"
+      ]
+     },
+     {
+      "elem_id": 888121,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888048 (Voltage)"
+      ]
+     },
+     {
+      "elem_id": 888122,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888049 (Lumens)"
+      ]
+     },
+     {
+      "elem_id": 888123,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888050 (Color Temperature)"
+      ]
+     },
+     {
+      "elem_id": 888124,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 888104,
+      "notes": [
+       "twin of embedded param 888051 (Photometric Web File)"
+      ]
+     },
+     {
+      "elem_id": 888125,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 888126,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 888127,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ]
+   }
+  },
+  "roundtrip_gate": {
+   "records": 72,
+   "roundtrip_ok": 72,
+   "failed": 0,
+   "encoded_bytes": 20351,
+   "failures": []
+  },
+  "embedded": {
+   "chicago_plenum_downlight": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 4977,
+     "elem_recs": 90,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "fe0e0dc6-df7f-4805-b049-abb064c45494",
+     "records": 90,
+     "bytes": 15645,
+     "segments": {
+      "101": 17566,
+      "102": 66799,
+      "103": 34886
+     }
+    }
+   }
+  },
+  "pass1_commit": {
+   "new_element_ids": [
+    888104,
+    888105,
+    888106,
+    888107,
+    888108,
+    888109,
+    888110,
+    888111,
+    888112,
+    888113,
+    888114,
+    888115,
+    888116,
+    888117,
+    888118,
+    888119,
+    888120,
+    888121,
+    888122,
+    888123,
+    888124,
+    888125,
+    888126,
+    888127
+   ],
+   "elemtable_count_before": 28132,
+   "elemtable_count_after": 28156,
+   "watermark_after": 888127,
+   "per_seq_bytes_added": {
+    "101": 3834,
+    "102": 17477,
+    "103": 528
+   }
+  },
+  "pass2_partition_splices": {
+   "chicago_plenum_downlight": {
+    "units_before": 306,
+    "units_after": 307,
+    "walker_errors": [],
+    "our_unit_guid": "fe0e0dc6-df7f-4805-b049-abb064c45494",
+    "our_unit_records": {
+     "101": 91,
+     "102": 91,
+     "103": 91
+    },
+    "id_sets_identical": true
+   }
+  },
+  "pass2_content_documents": {
+   "entries_before": 305,
+   "entries_after": 306,
+   "ours_all_present": true,
+   "end_record_intact": true,
+   "delta_bytes": 5013
+  },
+  "pass2_adocument_registrations": {
+   "content_table_records": 306,
+   "family_mgr_entries": 160,
+   "element_tracking": {
+    "-2001120": 6
+   }
+  },
+  "pass2_adocument_reencode": {
+   "clean": true,
+   "bytes_before": 4655284,
+   "bytes_after": 4655396
+  },
+  "verify_written": {
+   "path": "experiments/families/ifc/L_downlight_loaded_rme.rvt",
+   "container": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "host_records_missing": [],
+    "host_records_unclean": []
+   },
+   "registries": {
+    "save_units": 307,
+    "contentdocs_entries": 306,
+    "contenttable_records": 306,
+    "familymgr_entries": 160,
+    "coherent": true,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "units_missing_from_contentdocs": [],
+    "units_missing_from_contenttable": [],
+    "units_missing_from_familymgr": [],
+    "contenttable_dangling": [],
+    "familymgr_dangling": [],
+    "before": {
+     "save_units": 306,
+     "contentdocs_entries": 305,
+     "contenttable_records": 305,
+     "familymgr_entries": 159,
+     "coherent": true
+    },
+    "units_added": 1,
+    "units_added_ok": true,
+    "ours_in_all_four": true
+   },
+   "elemtable": {
+    "records": 28156,
+    "watermark": 888127,
+    "our_host_ids_present": true,
+    "watermark_covers_documents": true
+   },
+   "host_linkage": {
+    "ok": true,
+    "families": [
+     {
+      "key": "chicago_plenum_downlight",
+      "family": 888104,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_888127": true,
+       "symsurrogate_888126": true,
+       "twin_888105": true,
+       "twin_888106": true,
+       "twin_888107": true,
+       "twin_888108": true,
+       "twin_888109": true,
+       "twin_888110": true,
+       "twin_888111": true,
+       "twin_888112": true,
+       "twin_888113": true,
+       "twin_888114": true,
+       "twin_888115": true,
+       "twin_888116": true,
+       "twin_888117": true,
+       "twin_888118": true,
+       "twin_888119": true,
+       "twin_888120": true,
+       "twin_888121": true,
+       "twin_888122": true,
+       "twin_888123": true,
+       "twin_888124": true
+      },
+      "ok": true
+     }
+    ]
+   },
+   "family_inventory": {
+    "total_host_families": 160,
+    "ours": [
+     {
+      "key": "chicago_plenum_downlight",
+      "found": 1,
+      "family_id": 888104,
+      "family_name": "Chicago-Plenum Recessed Downlight 6in",
+      "category": -2001120,
+      "unit": 306,
+      "n_records": 90,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 888127,
+        "name": "CP-6-LED"
+       }
+      ],
+      "big2small_count": 20,
+      "n_family_params": 20,
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": [],
+    "warnings": [
+     "[semantic] objects: 1171/142288 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+    ]
+   },
+   "ok": true
+  }
+ },
+ "acceptance": [
+  "H1: an EMBEDDED family ADocument with an all-null 239-slot AppInfoManager (the specimen carries ~110 populated family-editor registries) -- the factory's L3 open question, unchanged",
+  "H2: an annotation FamilySymbol whose seq-103 rep is a SerializedDummy and whose geometry bookkeeping (m_geomSteps / m_pGeomTable / m_refFaces / m_tagNoteData) is EMPTY -- Revit must regenerate the symbol graphics from the family document",
+  "H3: our family documents carry the S0 skeleton (self-Family, Ref. Level, origin planes, units, one plan view, parameters, one type) and NO detail geometry / label -- the head SHAPE is absent",
+  "H4: host Family.m_coreIds bind only the host's category GStyle rows (none when the host lacks that category); big2small maps only the parameter twins (our documents reference no host catalog rows)",
+  "H5: the ContentTable record's author is 'rvt-writer'; the load reuses the host's current episode (no new History row / DIT record)",
+  "H6: the host FamilyTypeTable = one blank ' ' row and the type lives as the FamilySymbol (the annotation flavour); OUR embedded document carries its single named type too (the specimen embedded head document's type table is empty)"
+ ],
+ "stop_reason": "",
+ "seconds": 104.0
+}

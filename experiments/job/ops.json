@@ -1,0 +1,15 @@
+{
+  "kind": "rev-revit.edit-ops",
+  "specVersion": "1.0",
+  "notes": "EDIT-mode end-to-end proof against samples/rmebasicsampleproject.rvt: rename a panelboard, move a transformer, delete an isolated element — every op planned by rvt.manipulate and committed in ONE commit. Element ids are the certified M-proof specimens (docs/writer/manipulation.md §7).",
+  "ops": [
+    { "op": "rename",   "id": 581483, "name": "PP-1B-JOB",
+      "why": "panelboard 'PP-1B' -> renamed via BIP_RBS_ELEC_PANEL_NAME (M3 specimen)" },
+    { "op": "set-mark", "id": 581483, "mark": "JOB-EDIT",
+      "why": "same panel's Mark (BIP_ALL_MODEL_MARK) — two plans compose on one element" },
+    { "op": "move",     "id": 624416, "delta": [5.0, 0.0, 0.0], "rotation_deg": 90,
+      "why": "free-standing 500 kVA transformer moved +5 ft X and rotated 90 deg (M4 specimen)" },
+    { "op": "delete",   "id": 430715, "cascade": false,
+      "why": "isolated air terminal, no dependents/referrers (M1 specimen)" }
+  ]
+}

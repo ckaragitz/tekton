@@ -1,0 +1,144 @@
+{
+ "rung": "RC_hdr",
+ "label": "the clean-header rung: our six view slots' seq-101 headers re-emitted without the RvtLinkSymbol deletion parent",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [101], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "out": "experiments/genesis/subst_k4/residue_c/RC_hdr.rvt",
+ "slots": [
+  230,
+  69851,
+  245443,
+  1064656,
+  1454508,
+  1457028
+ ],
+ "seqs": [
+  101
+ ],
+ "ours_by_slot": {
+  "230": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "69851": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "245443": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "1064656": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "1454508": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ],
+  "1457028": [
+   "m_parents.m_deletion (minus the RvtLinkSymbol entry)"
+  ]
+ },
+ "notes": [
+  "seq-101 substitution at OUR OWN slots (the certified in-place mechanism; the objects were already ours / adopted) -- the RvtLinkSymbol's last pins leave, enabling its lawful deletion"
+ ],
+ "new_object_reference_check": {
+  "mode": "typed",
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   101
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 14,
+   "records": 9309,
+   "elements_decoded": 3102,
+   "decode_failures": 1,
+   "refs_checked": 45872
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "byte_delta": {
+  "changed_records": 6,
+  "changed_ids": [
+   230,
+   69851,
+   245443,
+   1064656,
+   1454508,
+   1457028
+  ],
+  "expected_slot_ids": [
+   230,
+   69851,
+   245443,
+   1064656,
+   1454508,
+   1457028
+  ],
+  "expected_records_max": 6,
+  "unexpected_changed_ids": [],
+  "added_or_removed": false,
+  "landed_but_byte_identical": [],
+  "global_latest_identical": true,
+  "global_elemtable_identical": true,
+  "assertion_holds": true,
+  "diff_streams": [
+   "Partitions/21"
+  ]
+ },
+ "verdict": "VALID",
+ "md5": "c490876145e386790ee3f01976f344c7",
+ "seconds": 2.8,
+ "landed_slots": [
+  {
+   "slot": 230,
+   "class": "DBViewProject"
+  },
+  {
+   "slot": 69851,
+   "class": "RbsDbViewSystemNavigator"
+  },
+  {
+   "slot": 245443,
+   "class": "DBViewPlan"
+  },
+  {
+   "slot": 1064656,
+   "class": "DBViewPlan"
+  },
+  {
+   "slot": 1454508,
+   "class": "DBView3d"
+  },
+  {
+   "slot": 1457028,
+   "class": "DBViewDrafting"
+  }
+ ]
+}

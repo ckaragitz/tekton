@@ -1,0 +1,169 @@
+# COUNSEL BRIEF — tekton (working name; code paths still "rev-revit" / `rvt`)
+
+One page for the booked counsel meeting. This is a factual record and a list
+of questions, **not legal advice and not legal conclusions.** Every fact is
+sourced to a contemporaneous document in this repository (paths in
+brackets). The full factual record of how the format knowledge was
+obtained is `docs/legal/provenance-memo.md` (DRAFT prepared for you) — this
+brief does not restate it; it adds the questions that arose since.
+
+**What tekton is.** A pure-Python interoperability library that reads and
+writes Autodesk® Revit® `.rvt` / `.rfa` files without any Autodesk software,
+so AI-assisted tools can author project content (settings, styles, catalog,
+families, elements) as valid Revit files an engineer opens in Autodesk's own
+software. Milestone reached 2026-08-04: a project base built ENTIRELY by our
+own constructors, with no Autodesk-authored base content, loads in
+Autodesk's reader (`docs/inbox/genesis-audit.md`, verdict #24). **Nothing is
+delivered externally until the gates below clear**: every output is stamped
+`PROOF-ONLY, NOT-DELIVERABLE` by construction (`TRACKER.md` §P0).
+
+**What we need from this meeting:** rulings on C1, C4, C5; guidance on the
+format/interoperability posture; a trademark clearance opinion on the name
+"tekton"; and your read of the AI policy-layer flags (§F). C1/C4/C5 are the
+project's standing numbering for these three items.
+
+---
+
+### C1 — The authoring string (what our files may lawfully say about who wrote them)
+
+Every `.rvt` carries an author / client-application string in its
+`BasicFileInfo`. Ours defaults to the placeholder `rvt-writer`
+(`src/rvt/identity.py`, `PRODUCT_AUTHOR_PLACEHOLDER`). Engineering fact,
+tested: Autodesk's reader **does not gatekeep on this string** — a file
+declaring an honest non-Autodesk author is accepted exactly as one echoing
+`Autodesk Revit` (`docs/acceptance-log.md`, V30/V31, 2026-08-03), so a
+false-designation problem is avoidable by construction. **Ask:** the exact
+wording our files may/should assert (product name, version, any required
+"created with" / compatibility attribution), while still opening in Revit.
+
+### C4 — The two shipped product corpora (present in EVERY Revit file, per release, not sample authorship)
+
+Two data blocks are **byte-identical across every Revit file of a given
+release** and are Autodesk *product* data (installed with the product), not
+any project's authorship — and our files currently carry them because the
+reader may require them (`docs/inbox/genesis-audit.md` §R2.3–R2.4):
+
+- **`Formats/Latest`** — Autodesk's serialized class model, the schema every
+  file is decoded against.
+- **The ESSchemaStorage / Forge unit-schema corpus** — unit and
+  parameter-group definitions (in the 2026 instance, 341 carry short
+  Autodesk-authored descriptive strings); not published in any public
+  Autodesk repository (verified).
+
+Together these are ~91% of the bytes of a minimal generated 2026 file. The
+product path now targets **three Revit releases** (2026 certified; the 2025
+and 2024 authoring campaigns are running), and a version-N file must carry
+the version-N corpora — so the ruling is needed **per release**. One pinned
+constant of each corpus per release, measured in this repository and
+byte-identical across all six of that release's Autodesk sample projects
+(`docs/writer/format-2025.md` §1/§3, `docs/writer/format-2024.md` §1/§3;
+full sha256 pins there and in `experiments/genesis2024/format_facts_2024.json`
+/ `experiments/genesis2025/format_facts_2025.json`; the 2026 pins in
+`rvt.versions.KNOWN_RELEASES`, measured by the same instruments):
+
+| release | `Formats/Latest` classes / bytes / sha256 | unit-schema corpus pairs / bytes / sha256 |
+|---|---|---|
+| 2026 | 4,690 / 496,597 / `6459a9a93ebde32c…` | 1,315 / 1,333,340 / `99554c01a8695df3…` |
+| 2025 | 4,600 / 484,585 / `c964f9aa2a5f674e…` | 1,174 / 1,120,410 / `5331797d80e9a0ad…` |
+| 2024 | 4,492 / 470,502 / `0bfb947b3c9a0cec…` | 1,161 / 890,500 / `f879bf3d7283f799…` |
+
+**Asks:** (1) may we emit these product-data blocks byte-verbatim inside
+files we distribute (every genuine Revit file of that release carries them
+identically), or must we clean-room re-serialize the class model from a
+specification we write? (2) Is the class/field taxonomy itself protectable
+expression (SSO / API-copyright line), with interoperability as a defence to
+plead rather than a settled exemption? (3) For the unit-schema corpus
+specifically: the two engineering routes are *emit-verbatim* vs *read the
+schemas from the customer's own licensed install at generation time* —
+which does the provenance sentence require? (4) Please state whether the
+ruling applies uniformly to all three releases' corpora — the blocks differ
+byte-for-byte release-to-release but are the same kind of shipped product
+data, and any release certified later would add its own two constants of
+the same kind.
+
+### C5 — The "Data generated by Autodesk® Revit®" footer token
+
+A fixed UTF-16 string, `"Data generated by Autodesk® Revit®"`, terminates
+every save unit inside every `.rvt` / `.rfa`. Decoded and measured:
+**byte-identical in 2,072 of 2,073 save units across 7 files** — it is a
+universal format signature (the analogue of a file "magic"), written from a
+constant, never copied from a donor file (`docs/inbox/family-genesis.md`,
+"Counsel C5 dossier item"; forensics `experiments/families/genesis2/
+footer_forensics.json`). **Ask:** may our files carry a token that names
+Autodesk's product as the generator when tekton generated the file — as a
+required format element — or must we omit/alter it (with the engineering
+risk that the reader may key on it)? This is a format-token / false-
+designation / trademark question in one string.
+
+### D — Format & interoperability posture (the layer above C1/C4/C5)
+
+Documented in the provenance memo; the standing questions (`docs/product/
+content-strategy.md` §5.1) restated: (a) is our independently, mathematically
+re-derived writer lawful under copyright and 17 U.S.C. §1201, given the
+documented DLL-confirmation step (§2 of the memo) — including the
+**§1201(a)(2)/(b) trafficking prongs**, i.e. whether the page-checksum
+framing we reimplement is a "technological measure" (it verifies AND
+error-corrects; evidence it is ECC, not access control); (b) does any
+Autodesk EULA bind any person/machine involved — sample-file and
+update-package acquisition terms, and the effect of any Revit seat used for
+QA (the privity fact); (c) is a formal clean-room re-implementation
+advisable now that a non-DLL derivation exists and is what ships;
+(d) retention vs destruction of the quarantined `Utility.dll` (removed from
+the repo, held in a non-distributed quarantine directory —
+`docs/inbox/ecc-intel-Utility-2023_1_9.QUARANTINED.md`); (e) the ODA BimRv
+membership / APS terms as alternative postures.
+
+### F — AI policy-layer flags on automated task charters (state of record)
+
+Stated factually for your awareness; the orchestrator recorded these as
+"a governance signal intersecting the counsel review already booked"
+(`docs/inbox/genesis-audit.md`, verdicts #19 and #20, 2026-08-04):
+
+- Some automated agent tasks, whose written charters described the
+  genesis-composition work, were **declined by the AI platform's usage-
+  policy layer** (citing its acceptable-use policy). In one round, **four
+  of five sibling tasks of the same shape passed the same review** and
+  completed normally; one was declined. A subsequent composition task was
+  declined a second time.
+- The declined tasks were **not retried on the flagged wording.** They
+  were surfaced to the human owner, who reviewed the work and performed
+  the composition step directly (verdict #23) using an already-proven
+  tool (`tools/genesis_compose.py`, byte-exact-anchored).
+- The project's description of its own work — throughout, and predating
+  these flags — is **interoperability**: authoring our own content in a
+  file format so it opens in the system of record (`AGENT_BRIEF.md`;
+  provenance memo §1). No task was re-worded to obtain a different review
+  outcome by disguising its substance.
+
+**Ask:** how you weight an automated policy classifier's intermittent flag
+on a task description, alongside your own review of the same underlying
+work — and whether it changes any recommendation above.
+
+### G — Trademark clearance for the new name "tekton"
+
+Per your prior guidance the current name ("rev-revit", incorporating the
+REVIT mark) is to be replaced before any launch; the chosen replacement is
+**tekton**, applied by one scripted rename that is written but **blocked
+on your clearance** (`RENAME.md` §1). **Asks:** (1) knock-out /
+likelihood-of-confusion search on "tekton" in the AEC-software classes
+("tekton", Greek "builder", is descriptive-adjacent and in use elsewhere in
+AEC-tech — a real search, not exact-match only); (2) whether Autodesk
+asserts **"RVT"** itself as a mark or only as a file extension (decides
+whether our Python package may stay named `rvt`, format-descriptively,
+like `python-docx`); (3) approved referential language and attribution for
+"opens in Autodesk Revit" / ".rvt files"; (4) whether component names we
+show users — a skill called `revit-bridge`, commands `/revit-*` — are
+acceptable referential use or must also change.
+
+---
+
+**Out of scope for this meeting** (parked, not forgotten): manufacturer /
+aggregator content-library terms and the extraction pipeline
+(content-strategy §5.2, §5.4–5.7); pricing; hosting. **Not asked:** any
+opinion that the reader-acceptance results above establish anything
+legally — they are engineering facts about what the format requires,
+offered as evidence for questions C4/C5, nothing more.
+
+Contact for follow-ups and the full evidence base: the repository owner;
+`docs/legal/provenance-memo.md` (the record), `docs/product/content-strategy.md`
+§5 (the risk register), this brief (the agenda).

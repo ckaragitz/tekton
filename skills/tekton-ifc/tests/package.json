@@ -1,0 +1,16 @@
+{
+  "name": "tekton-ifc-ifc-export-tests",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Headless harness: builds the example model, exports IFC in auto + tessellation modes, validates with ifcopenshell",
+  "scripts": {
+    "export": "node run-export.mjs",
+    "scenarios": "node extra-scenarios.mjs",
+    "validate": "../../../.venv/bin/python validate_export.py",
+    "test": "node run-export.mjs && node extra-scenarios.mjs && ../../../.venv/bin/python validate_export.py"
+  },
+  "dependencies": {
+    "three": "0.184.0"
+  }
+}

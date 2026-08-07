@@ -1,0 +1,391 @@
+{
+ "stream": "famdoc-blobs: batch 37's famdoc hybrid bisection RE-RUN WITH BLOBS (verdict #37: the empty 0x0f3f blob alone voided every batch-37 hybrid for content attribution; the fixed writer stamps the 64-byte nonce on every emitted unit, machine-verified per probe).  Whichever hybrid FAILS with a blob names our guilty famdoc subtree.",
+ "bases": {
+  "hybrids": "samples/rstbasicsampleproject.rvt",
+  "B0": "experiments/genesis/subst_k4/compose/G_ABPD.rvt"
+ },
+ "note": "B7/B1..B6 = untouched rst sample + ONE loaded famdoc + ONE placed instance (famdoc_bisect's own hybrid machinery, output repointed; donor = the sample's own M_Concrete-Square-Column).  B0 = G_ABPD + ONE famgen family + ONE instance (the BXhf_f1i1 recipe).  EVERY probe's added unit carries the 64-byte 0x0f3f footer blob (raw-scanned + nonce-verified against famdoc_adoc.build_footer -- zero donor bytes).  PROOF-ONLY sample-derived content, quarantined, never shipped.  Fresh GUIDs are minted per rebuild -- re-hash after any rerun.",
+ "upload_order_max_information_first": [
+  "B7",
+  "B0",
+  "B1",
+  "B2",
+  "B3",
+  "B4",
+  "B5",
+  "B6"
+ ],
+ "controls": {
+  "rst": {
+   "source": "samples/rstbasicsampleproject.rvt",
+   "voids": "B7,B1..B6 on CTRL FAIL"
+  },
+  "g_abpd": {
+   "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "voids": "B0 on CTRL FAIL"
+  }
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL (either)": "round VOID (oracle/environment) -- interpret nothing; the rst control voids B1..B7, the G_ABPD control voids B0.",
+  "B7 PASS": "the famload machinery (authored host flavour + unit re-encode + id rebase + registration) is LAWFUL WITH THE BLOB on a lawful famdoc -- batch 37's H7 FAIL is fully explained by its empty blob.  B1..B6 now carry clean one-axis content information.",
+  "B7 FAIL": "even blob-carrying, famload's own treatment poisons a lawful Autodesk famdoc: content attribution of B1..B6 is VOID (they ride the same machinery).  The E-round already proved the H12 byte-copy machinery + blob PASSES, so the suspect space = exactly the delta famload authors vs H12's byte-copies (host Family/FamilySymbol flavour, inline ADocument, re-encoded unit bytes, registration row content).  B0 still reads alone (different loader).",
+  "B0 PASS": "THE PRODUCT SHAPE PASSES WITH THE BLOB: the famgen loader + our famdoc content + blob is lawful at 1 family / 1 instance.  Immediate action (this stream's charter): rebuild DEMO v6 through tools/frontdoor.py with the user's exact prompt, machine-verify blobs on all units, stage it -- v6 PASS closes the hunt; v6 FAIL localises the defect to demo-scale composition (multi-family / walls / feeders interaction), bisected next by the demo's own stages.",
+  "B0 FAIL + B7 PASS + any Bn (B1..B6) FAIL": "the round is fully bracketed and the FAILING axis rung(s) name our guilty famdoc subtree(s) -- with blobs present the conviction is clean.  Fix in deep-walk rank order B1 > B2 > B3 > B5 > B4; the fix spec starts at experiments/famdoc_bisect/famdoc_diff.json's ranked entries for that axis (headline: m_geomSteps/m_pGeomTable on our form elements).",
+  "B0 FAIL + B7 PASS + B1..B6 ALL PASS": "no single added axis reproduces the failure: the defect lives in what only B0 carries -- our WHOLE-document composition (the S0 skeleton itself, element ordering, the units/registry singletons), the famgen-loader flavour (vs famload -- B0 is the only famgen-loader rung), the G_ABPD base, or an axis interaction.  Next ladder: our famdoc through famload on rst (the old H8 with blob) to split loader vs content, then pairwise axis unions / the inverse bisection.",
+  "B6 verdict": "with B7 PASS it is corroboration (both inline-ADocument forms lawful with blobs); with B7 FAIL it splits the inline-ADocument axis from the rest of the famload flavour.",
+  "multiple axis FAILs": "each failing axis is independently convicted (the hybrids are ADD-form unions, mutually independent)."
+ },
+ "companion_evidence": {
+  "accounting": "experiments/famdoc_blobs/accounting.json",
+  "ranked_diff_checklist": "experiments/famdoc_bisect/famdoc_diff.json",
+  "per_probe_hybrid_reports": "experiments/famdoc_blobs/_h/_build/<Hn>/hybrid_report.json",
+  "b0_chain": "experiments/famdoc_blobs/_build/B0_chain/",
+  "prior_round": "experiments/famdoc_bisect/probes.json (batch 37, VOID for content attribution -- empty blobs)"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "B7",
+   "file": "experiments/famdoc_blobs/B7.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "control-A with blob: the Autodesk famdoc (id-rebased only) through famload + template instance",
+   "rebuilds": "H7",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "batch 37's H7 rebuilt through the FIXED writer: the Autodesk M_Concrete-Square-Column famdoc (id-rebased, otherwise verbatim) famload-loaded into its own rst sample + ONE template instance, the added unit NOW carrying the 64-byte 0x0f3f blob.  The ONE thing it tests: the famload machinery under an instance WITH the blob.",
+   "expected": "PASS (E1b's law: presence-only blob check; every other ingredient certified -- famdoc native, famload = L1a/L_v2, placement = V20; batch 37's H7 FAIL is attributed to its empty blob)",
+   "md5": "dd55928f7aa0f1cb5eae814aa121e639",
+   "symbol_id": 1472947,
+   "family_id": 1472942,
+   "instance_ids": [
+    1472948
+   ],
+   "immediate_parent": "experiments/famdoc_blobs/_h/_build/H7/H7_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 2,
+   "rung": "B0",
+   "file": "experiments/famdoc_blobs/B0.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "control-B with blob: the PRODUCT shape (G_ABPD + ONE famgen family + ONE instance, the BXhf_f1i1 recipe)",
+   "rebuilds": "BXhf_f1i1",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the BXhf_f1i1 recipe rebuilt through the FIXED writer: G_ABPD + ONE famgen panelboard family (the demo's PP-1, corpus-lawful symbol form) + ONE instance (product connector manager), the added unit blob-carrying.  The ONE thing it tests: OUR famdoc content at minimal product scale WITH the blob.",
+   "expected": "the product verdict rung: PASS => DEMO v6 immediately; FAIL = the residual content defect at minimal scale (v5's shape)",
+   "md5": "8e1bd4594a21f146abf0346a29505016",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/famdoc_blobs/_build/B0_chain/stage_L1_pp1.rvt",
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": null,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 3,
+   "rung": "B1",
+   "file": "experiments/famdoc_blobs/B1.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our GEOMETRY subtree added (+ blob)",
+   "rebuilds": "H1",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "B7 + OUR geometry subtree (ExtrusionElem + VarSketch + 4 CurveElems + SketchPlane) added to the donor famdoc, registered like its own members -- with blob.",
+   "expected": "the hypothesis-bearing rung: FAIL convicts our geometry grammar (prime prior: m_geomSteps/m_pGeomTable on form elements)",
+   "md5": "760a7332ffbc4f7afc4f5d846f5ec701",
+   "symbol_id": 1474568,
+   "family_id": 1474563,
+   "instance_ids": [
+    1474569
+   ],
+   "immediate_parent": "experiments/famdoc_blobs/_h/_build/H1/H1_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 4,
+   "rung": "B2",
+   "file": "experiments/famdoc_blobs/B2.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our PARAMETER/TYPE layer added (+ blob)",
+   "rebuilds": "H2",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "B7 + OUR parameter/type layer (14 ParamElemFamily + our rows in all four self-Family parameter surfaces) -- with blob.",
+   "expected": "unknown",
+   "md5": "68606f3a6ee93c588f1c857e83a5ddc4",
+   "symbol_id": 1474575,
+   "family_id": 1474556,
+   "instance_ids": [
+    1474576
+   ],
+   "immediate_parent": "experiments/famdoc_blobs/_h/_build/H2/H2_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 5,
+   "rung": "B3",
+   "file": "experiments/famdoc_blobs/B3.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our REFERENCE/DATUM layer added (+ blob)",
+   "rebuilds": "H3",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "B7 + OUR reference/datum layer (2 origin RefPlanes + Level + LevelAttributes) -- with blob.",
+   "expected": "unknown",
+   "md5": "7da3f9abfebc3f3e60310910628755e7",
+   "symbol_id": 1474547,
+   "family_id": 1474542,
+   "instance_ids": [
+    1474548
+   ],
+   "immediate_parent": "experiments/famdoc_blobs/_h/_build/H3/H3_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 6,
+   "rung": "B4",
+   "file": "experiments/famdoc_blobs/B4.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our VIEW constellation added (+ blob)",
+   "rebuilds": "H4",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "B7 + OUR plan-view constellation (8 elements) -- with blob.",
+   "expected": "unknown",
+   "md5": "329218c4dbdbeafe4d95f7895eef4efc",
+   "symbol_id": 1474545,
+   "family_id": 1474540,
+   "instance_ids": [
+    1474546
+   ],
+   "immediate_parent": "experiments/famdoc_blobs/_h/_build/H4/H4_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 7,
+   "rung": "B5",
+   "file": "experiments/famdoc_blobs/B5.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our CONNECTOR layer added (+ blob)",
+   "rebuilds": "H5",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "B7 + OUR connector layer (ConnectorElem + ElectricalLoadClassification + the apparent-load param) -- with blob.",
+   "expected": "unknown",
+   "md5": "8b29d493286fc4265c2cb8e06ddaa4fb",
+   "symbol_id": 1474571,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474572
+   ],
+   "immediate_parent": "experiments/famdoc_blobs/_h/_build/H5/H5_load.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 8,
+   "rung": "B6",
+   "file": "experiments/famdoc_blobs/B6.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "control-A with the donor's OWN inline ADocument carried (+ blob)",
+   "rebuilds": "H6",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "B7's document with the DONOR's OWN inline ADocument (131 populated registries, remapped) instead of our authored all-null one -- with blob.",
+   "expected": "PASS if B7 passes (corroboration)",
+   "md5": "e6a5495c915474fc81ed22175e04e20d",
+   "symbol_id": 1472947,
+   "family_id": 1472942,
+   "instance_ids": [
+    1472948
+   ],
+   "immediate_parent": "experiments/famdoc_blobs/_h/_build/H6/H6_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "gates_ok": true
+   }
+  }
+ ]
+}

@@ -1,0 +1,62 @@
+{
+ "link_symbols": [
+  1250029
+ ],
+ "link_instances": [
+  1250030
+ ],
+ "copywatch": [
+  1250031
+ ],
+ "vendor_datastorage": [
+  1382860
+ ],
+ "year_schedules": [],
+ "previews": [
+  907404,
+  1201130
+ ],
+ "curtain_previews": [
+  907423,
+  907424
+ ],
+ "header_slots": [
+  230,
+  69851,
+  245443,
+  1064656,
+  1454508
+ ],
+ "drafting_header_slots": [
+  1457028
+ ],
+ "link_override_slots": [
+  1457028
+ ],
+ "room_constellations": {
+  "9744": [
+   9744,
+   245433,
+   1004904,
+   1004905,
+   1004906,
+   1004907,
+   1004908,
+   1004909,
+   1004910
+  ]
+ },
+ "area_unwire": [
+  [
+   9490,
+   9744
+  ]
+ ],
+ "constraint_sets": {
+  "763420": [
+   699327,
+   699381,
+   763366
+  ]
+ }
+}

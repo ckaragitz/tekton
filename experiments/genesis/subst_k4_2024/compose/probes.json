@@ -1,0 +1,75 @@
+{
+ "stream": "y2024-compose (THE 2024 COMPOSER: tools/genesis_2024_compose.py)",
+ "release": 2024,
+ "situation": "B2024_K4 (experiments/genesis2024/reduce/B2024_K4.rvt) is viewer-CERTIFIED (VERDICTS #32: b28 all PASS).  The Y2024 substitution chain (Y1..Y9 + residue A/B/C + lawful deletions -- rvt.genesis.y2024_a/y2024_b) is BUILT on it; the composer's 2024 anchor holds (compose of the nine rung deltas == Y9_2024 byte-identical, see anchor_2024.json). This batch stages the FULL composed candidate G_ABPD_2024 plus the two chain brackets (Y9_2024, Y7_2024) for one-round bisection.",
+ "base": {
+  "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+   "when": "2026-08-05 ~02:25",
+   "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  }
+ },
+ "controls_discipline": "control = byte-identical copy of the CERTIFIED B2024_K4 (probe_batch mints CTRL_..._b<n>); if the control FAILS the round is VOID and nothing about the chain is read from it.",
+ "upload_order_bisection_first": [
+  "G_ABPD_2024",
+  "Y9_2024",
+  "Y7_2024"
+ ],
+ "flip_gate": "The 2024 data flip (registry pin + version-model flag + plugin asset) is GATED on this batch's viewer verdict AND on the file being the FULL composition; the exact diff is `tools/genesis_2024_compose.py flipdiff` and is NOT applied.",
+ "probes": [
+  {
+   "order": 1,
+   "name": "G_ABPD_2024",
+   "file": "experiments/genesis/subst_k4_2024/compose/G_ABPD_2024.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "composed_from": {
+    "y_rungs": [
+     "Y2024:Y1_2024",
+     "Y2024:Y2_2024",
+     "Y2024:Y3_2024",
+     "Y2024:Y4_2024",
+     "Y2024:Y5_2024",
+     "Y2024:Y6_2024",
+     "Y2024:Y7_2024",
+     "Y2024:Y8_2024",
+     "Y2024:Y9_2024"
+    ],
+    "residue_rungs": [
+     "R2024:Z_RA_2024",
+     "R2024:Z_RB_2024",
+     "R2024:Z_RC_2024",
+     "R2024:RC_2024_inplace"
+    ],
+    "deletion_sets": [
+     "D_2024_stragglers_full"
+    ]
+   },
+   "the_ONE_thing_it_tests": "Whether the COMPOSED 2024 candidate (every substituted layer + the residue rounds + the lawful deletion set, merged onto the certified 2024 family-free base deterministically) LOADS in Autodesk's reader -- the 2024 equivalent of the G_ABPD / G_ABPD_2025 candidacies (verdicts #24 / #31).",
+   "if_PASS": "certify + pin: fill genesis_base.json releases.2024 (sha256/bytes/status certified) + flip KNOWN_RELEASES[2024].creation_certified + bundle the asset -- the ready-to-apply diff is `tools/genesis_2024_compose.py flipdiff` (recorded in docs/inbox/y2024-compose.md); the front door's --target-version 2024 then resolves this file.",
+   "if_FAIL": "with the control passing, read Y9_2024 / Y7_2024 below: G FAIL + Y9 PASS convicts the residue/deletion layers; Y9 FAIL + Y7 PASS convicts the datum/view layer; Y7 FAIL convicts settings/catalog/palette -- then the per-half probes.json ladders (experiments/genesis/subst_k4_2024) bisect inside the guilty half."
+  },
+  {
+   "order": 2,
+   "name": "Y9_2024",
+   "file": "experiments/genesis/subst_k4_2024/Y9_2024.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "the_ONE_thing_it_tests": "the deepest VIEWS rung: settings + catalog + palette + datum + view layers at 2024 registrations, WITHOUT the residue rounds or deletions -- the bisection midpoint between Y7_2024 and G.",
+   "if_PASS": "the Y chain is clean; a G FAIL indicts residue/deletions.",
+   "if_FAIL": "with Y7_2024 passing, the datum/view layer (Y8/Y9) is indicted."
+  },
+  {
+   "order": 3,
+   "name": "Y7_2024",
+   "file": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "the_ONE_thing_it_tests": "the deepest SETTINGS rung: every settings + catalog + palette constructor at 2024 registrations -- the shallow bracket of the bisection.",
+   "if_PASS": "the settings half is clean.",
+   "if_FAIL": "even the settings half fails on 2024 -- read the per-half probes.json ladder (Y1s_2024 isolates a single object)."
+  }
+ ]
+}

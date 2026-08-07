@@ -1,0 +1,19 @@
+{
+ "name": "RC_del_room",
+ "ids": [
+  9744,
+  245433,
+  1004904,
+  1004905,
+  1004906,
+  1004907,
+  1004908,
+  1004909,
+  1004910
+ ],
+ "policy": "maxgc",
+ "purpose": "genesis-base",
+ "notes": [
+  "retire the sample-placed room constellation atomically with its containing plan topology 9744 (deletion finding 2); delete-reachable only after the RC_area wiring rung."
+ ]
+}

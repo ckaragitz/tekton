@@ -1,0 +1,284 @@
+{
+ "generated_by": "tools/genesis_controls.py --findings",
+ "P1_pen_table_doubles_not_mm_derived": {
+  "model_scale_keys": [
+   10,
+   20,
+   50,
+   100,
+   200,
+   500
+  ],
+  "pens_per_vector": 16,
+  "vectors": [
+   "model[1:10]",
+   "model[1:20]",
+   "model[1:50]",
+   "model[1:100]",
+   "model[1:200]",
+   "model[1:500]",
+   "perspective",
+   "draft(annotation)"
+  ],
+  "total_doubles": 128,
+  "distinct_displayed_mm": [
+   0.1,
+   0.18,
+   0.25,
+   0.35,
+   0.5,
+   0.7,
+   1.0,
+   1.4,
+   2.0,
+   2.8,
+   4.0,
+   5.0,
+   6.0,
+   7.0,
+   8.0,
+   9.0,
+   10.0
+  ],
+  "non_roundtripping_doubles": [
+   {
+    "vector": "model[1:10]",
+    "pen_index": 13,
+    "stored_feet": "0.029527559055118106",
+    "displayed_mm": 9.0
+   },
+   {
+    "vector": "model[1:10]",
+    "pen_index": 14,
+    "stored_feet": "0.029527559055118106",
+    "displayed_mm": 9.0
+   },
+   {
+    "vector": "model[1:10]",
+    "pen_index": 15,
+    "stored_feet": "0.029527559055118106",
+    "displayed_mm": 9.0
+   },
+   {
+    "vector": "model[1:20]",
+    "pen_index": 14,
+    "stored_feet": "0.029527559055118106",
+    "displayed_mm": 9.0
+   },
+   {
+    "vector": "model[1:20]",
+    "pen_index": 15,
+    "stored_feet": "0.029527559055118106",
+    "displayed_mm": 9.0
+   },
+   {
+    "vector": "model[1:50]",
+    "pen_index": 14,
+    "stored_feet": "0.029527559055118106",
+    "displayed_mm": 9.0
+   },
+   {
+    "vector": "model[1:50]",
+    "pen_index": 15,
+    "stored_feet": "0.029527559055118106",
+    "displayed_mm": 9.0
+   },
+   {
+    "vector": "model[1:100]",
+    "pen_index": 15,
+    "stored_feet": "0.029527559055118106",
+    "displayed_mm": 9.0
+   }
+  ],
+  "non_roundtripping_count": 8,
+  "stored_double_unreachable_from_any_mm_input": {
+   "0.029527559055118106": true
+  },
+  "verdict": "the pen table's stored doubles are NOT mm/304.8-derived: the naive parametric reproduction (feet*304.8 fed back into the mm interface) loses the last mantissa bit on the doubles listed, and for those no mm double divided by 304.8 lands on the stored value -- the constructor cannot express them; the settings stream's 'byte-exact' reproduction test proves a self-round-trip (encode->decode->encode of OUR value), not identity with the specimen"
+ },
+ "P2_pen_table_shape_header_rep_reproduced": {
+  "statement": "our pen_width_table constructor fed the specimen's exact feet reproduces element 2's HEADER (abFlags 8222, vis -32768, deletion [2], no wildcards / regenOnly), OBJECT and REP (empty SerializedDummy) BYTE-IDENTICALLY -- X1v.json carries the per-seq assertion; therefore X1v == X0 at the record level"
+ },
+ "G1_catalog_row_shape_census_K1": {
+  "file": "experiments/genesis/triage/K1.rvt",
+  "builtin_rows": 1407,
+  "header_abFlags4Bytes_histogram": {
+   "0x400081e": 645,
+   "0x400200e": 492,
+   "0x400080e": 145,
+   "0x400201e": 79,
+   "0x400000e": 31,
+   "0x400001e": 15
+  },
+  "header_abFlags_x_styletype": {
+   "0x400081e|type1": 520,
+   "0x400200e|type1": 355,
+   "0x400200e|type2": 137,
+   "0x400081e|type2": 125,
+   "0x400080e|type1": 118,
+   "0x400201e|type1": 46,
+   "0x400201e|type2": 33,
+   "0x400000e|type1": 29,
+   "0x400080e|type2": 27,
+   "0x400001e|type2": 9,
+   "0x400001e|type1": 6,
+   "0x400000e|type2": 2
+  },
+  "our_new_gstyle_header_preset": "0x400001e",
+  "cellList_present_rows": 790,
+  "cellList_null_rows": 617,
+  "cellList_cell_classes": {
+   "PatternHelper": 790
+  },
+  "cellList_x_pattern_is_null_crosstab": {
+   "cell=False|pattern_-1=False": 510,
+   "cell=True|pattern_-1=True": 288,
+   "cell=True|pattern_-1=False": 502,
+   "cell=False|pattern_-1=True": 107
+  },
+  "universal_fields_confirmed_all_rows": {
+   "header_categoryId_-1": 1407,
+   "header_vis_-32768": 1407,
+   "header_appearance_empty": 1407
+  },
+  "our_reproduction_fed_exact_values": {
+   "object_byte_identical_rows": 617,
+   "header_byte_identical_rows": 15,
+   "fully_identical_rows": 15,
+   "object_divergence_cause": "our null m_cellList vs the specimen's CellList{PatternHelper} (present on exactly the non-identical rows)",
+   "header_divergence_words_where_not_identical": {
+    "0x400081e": 645,
+    "0x400201e": 79,
+    "0x400080e": 145,
+    "0x400200e": 492,
+    "0x400000e": 31
+   },
+   "object_non_identical_examples": [
+    {
+     "row": 32,
+     "category": -2000540,
+     "style_type": 1,
+     "cellList_present": true
+    },
+    {
+     "row": 33,
+     "category": -2000540,
+     "style_type": 2,
+     "cellList_present": true
+    },
+    {
+     "row": 45,
+     "category": -2000023,
+     "style_type": 2,
+     "cellList_present": true
+    },
+    {
+     "row": 56,
+     "category": -2000541,
+     "style_type": 1,
+     "cellList_present": true
+    },
+    {
+     "row": 57,
+     "category": -2000541,
+     "style_type": 2,
+     "cellList_present": true
+    },
+    {
+     "row": 60,
+     "category": -2000542,
+     "style_type": 1,
+     "cellList_present": true
+    }
+   ]
+  }
+ },
+ "G2_catalog_row_shape_not_a_format_constant": {
+  "samples": [
+   "rstbasicsampleproject",
+   "rmebasicsampleproject",
+   "racbasicsampleproject"
+  ],
+  "common_keys": 1407,
+  "flag_word_identical_across_samples": 491,
+  "cellList_presence_identical_across_samples": 491,
+  "flag_word_disagreeing": 916,
+  "cellList_disagreeing": 916,
+  "flag_disagreement_examples": [
+   {
+    "key": [
+     -2010001,
+     1
+    ],
+    "rstbasicsampleproject": "0x400080e",
+    "rmebasicsampleproject": "0x400200e",
+    "racbasicsampleproject": "0x400080e"
+   },
+   {
+    "key": [
+     -2009656,
+     1
+    ],
+    "rstbasicsampleproject": "0x400200e",
+    "rmebasicsampleproject": "0x400200e",
+    "racbasicsampleproject": "0x400080e"
+   },
+   {
+    "key": [
+     -2009655,
+     1
+    ],
+    "rstbasicsampleproject": "0x400200e",
+    "rmebasicsampleproject": "0x400200e",
+    "racbasicsampleproject": "0x400080e"
+   },
+   {
+    "key": [
+     -2009654,
+     1
+    ],
+    "rstbasicsampleproject": "0x400200e",
+    "rmebasicsampleproject": "0x400200e",
+    "racbasicsampleproject": "0x400080e"
+   },
+   {
+    "key": [
+     -2009653,
+     1
+    ],
+    "rstbasicsampleproject": "0x400200e",
+    "rmebasicsampleproject": "0x400200e",
+    "racbasicsampleproject": "0x400080e"
+   },
+   {
+    "key": [
+     -2009652,
+     1
+    ],
+    "rstbasicsampleproject": "0x400200e",
+    "rmebasicsampleproject": "0x400200e",
+    "racbasicsampleproject": "0x400080e"
+   },
+   {
+    "key": [
+     -2009651,
+     1
+    ],
+    "rstbasicsampleproject": "0x400200e",
+    "rmebasicsampleproject": "0x400200e",
+    "racbasicsampleproject": "0x400080e"
+   },
+   {
+    "key": [
+     -2009650,
+     1
+    ],
+    "rstbasicsampleproject": "0x400200e",
+    "rmebasicsampleproject": "0x400200e",
+    "racbasicsampleproject": "0x400080e"
+   }
+  ],
+  "verdict": "the built-in object-style row's ElementHeader flag word (bits 0x10 / 0x800 / 0x2000) and its CellList{PatternHelper} are NOT per-category format constants -- the same (category, type) row carries different combinations in different accepted files (per-document creation-history artefacts); every combination our constructor emits also occurs somewhere in accepted files"
+ },
+ "seconds": 2.1
+}

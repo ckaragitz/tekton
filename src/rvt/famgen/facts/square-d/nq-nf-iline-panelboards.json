@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "vendor": "square-d",
+  "line": "nq-nf-iline-panelboards",
+  "product_line": "Square D by Schneider Electric panelboards: NQ (240 Vac), NF (600Y/347 Vac max), I-Line (600 Vac / 250 Vdc)",
+  "category": "panelboard",
+  "revit_category": "OST_ElectricalEquipment",
+  "license_note": "Dimensional and rating FACTS only. No Schneider drawings, CAD/BIM/LayoutFAST output, catalog prose or images are stored. See ../LICENSE_NOTES.md.",
+  "collection_posture": {
+    "summary": "se.com blocks non-browser clients (403 to every automated fetch; docs/product/content-strategy.md row 3). Facts were read from the Schneider Electric Digest 178 (0100CT1901) Section 9 'Panelboards', dated 9/1/2023, as a PDF hosted by an electrical distributor. One manual-equivalent read; factual figures only. Schneider's site ToU (personal / non-commercial 'license to consult'; LayoutFAST EULA unread) is recorded in content-strategy row 3 as UNKNOWN -> NEEDS COUNSEL for anything beyond bare facts.",
+    "primary_reachable": false,
+    "method": "single WebFetch of the distributor-hosted PDF + local text extraction; figures transcribed by hand"
+  },
+  "sources": {
+    "S1": {
+      "url": "https://cainelectricalsupply.com/wp-content/uploads/0100CT1901_SEC-09.pdf",
+      "canonical_url": "https://www.productinfo.se.com/nadigest/",
+      "doc": "Schneider Electric Digest 178, catalog 0100CT1901, Section 9 'Panelboards' (pages 9-1 .. 9-68), dated 9/1/2023",
+      "publisher": "Schneider Electric",
+      "doc_date": "2023-09-01",
+      "accessed": "2026-08-03",
+      "verification": "VERIFIED",
+      "note": "Read Tables 9.5 (NQ Main Lug Interiors), 9.7, NQ main-breaker interior tables, 9.46/9.47 (NF interiors), 9.86 (NF column-width), I-Line merchandised panelboard tables, and the Panelboard Series Ratings pages."
+    },
+    "S2": {
+      "url": "https://www.se.com/us/en/product-range/7267-nq-panelboards/",
+      "doc": "Schneider Electric USA - NQ Panelboards product range page",
+      "publisher": "Schneider Electric",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "UNVERIFIED",
+      "note": "PRIMARY (se.com) - not readable by automated fetch (403). Recorded for human verification only."
+    },
+    "S3": {
+      "url": "https://www.se.com/us/en/download/document/1670CT9701/",
+      "doc": "Square D NQ panelboards catalog 1670CT9701 (referenced by the Digest as the detail catalog)",
+      "publisher": "Schneider Electric",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "UNVERIFIED",
+      "note": "PRIMARY detail catalog - not read (403). The Digest section read is a summary of it."
+    }
+  },
+  "line_facts": {
+    "nq_box_width_standard_in": {"value": 20.0, "unit": "in", "provenance": "fact", "source": "S1", "note": "NQ and NF standard box 20 in W x 5.75 in D (NEMA Type 1 MHxx boxes)."},
+    "nq_box_depth_standard_in": {"value": 5.75, "unit": "in", "provenance": "fact", "source": "S1", "note": ""},
+    "nq_box_depth_deep_in": {"value": 8.75, "unit": "in", "provenance": "fact", "source": "S1", "note": "D9 suffix = 8.75 in deep box, required for PowerPacT L main breaker / switch / sub-feed breaker."},
+    "nq_box_width_wide_in": {"value": 26.0, "unit": "in", "provenance": "fact", "source": "S1", "note": "26 in W x 8.75 in D vented Type 3R / large sub-feed configurations."},
+    "nq_box_heights_in": {"value": [26, 32, 38, 44, 50, 56, 62, 68, 74, 80, 86], "unit": "in", "provenance": "fact", "source": "S1", "note": "MHxx box catalog numbers encode the height in inches (MH26 ... MH86)."},
+    "nq_narrow_mlo_width_in": {"value": 14.0, "unit": "in", "provenance": "fact", "source": "S1", "note": "A 14-inch-wide NQ main-lug option exists (Table 9.7 title)."},
+    "enclosure_types": {"value": ["NEMA Type 1", "NEMA Type 3R", "NEMA Type 5", "NEMA Type 12", "Vented Type 3R"], "provenance": "fact", "source": "S1", "note": "NEMA 3R/5/12 enclosures must be bottom fed (NQ12RDE kit)."},
+    "mounting": {"value": ["surface", "flush"], "provenance": "fact", "source": "S1", "note": "Selection procedure: 'NEMA Type-1, surface-mount' example; trim fronts flush/surface."},
+    "kaic_summary": {"value": {"integral_main_fully_rated_max_kaic": 65, "series_rated_max_kaic": 200}, "provenance": "fact", "source": "S1", "note": "'Series rated up to 200 kAIC with integral main circuit breaker - fully rated up to 65 kAIC' (NQ/NF factory-assembled feature list)."},
+    "weights": {"value": null, "provenance": "assumed", "source": null, "note": "NOT SOURCED - Section 9 does not tabulate weights. Do not emit a weight parameter."},
+    "nf_column_width_dims_in": {"value": {"box_w": 8.625, "front_w": 9.69, "d": 5.625, "heights": [59, 65, 71, 85]}, "unit": "in", "provenance": "fact", "source": "S1", "note": "NF single-row (column-width) 480Y/277: box width 8.625 in (9.69 in over the front flange) x 5.625 in deep; heights 59 (30 poles, 125 A MLO), 71 (42 poles, 225 A MLO), 65 / 85 (main-breaker interiors)."}
+  },
+  "variants": [
+    {
+      "model": "NQ",
+      "aliases": ["NQOD (legacy naming)", "NQ panelboard"],
+      "role": "lighting and appliance panelboard, 240 Vac / 48 Vdc, plug-on (QO) and bolt-on (QOB) branch breakers",
+      "ratings": {
+        "voltage_max_ac_v": 240,
+        "voltage_class": "240 Vac max, 48 Vdc",
+        "mains_ratings_a": [100, 225, 400, 600],
+        "max_branch_pole_spaces": 84,
+        "branch_pole_space_options": [18, 30, 42, 54, 72, 84],
+        "mains_options": ["main lugs only", "main circuit breaker", "through-feed lugs", "sub-feed breaker"],
+        "interrupting_ka_fully_rated_max": 65,
+        "interrupting_ka_series_rated_max": 200
+      },
+      "dims_in": {"w": 20.0, "d": 5.75, "h": "VARIABLE", "h_options": [26, 32, 38, 44, 50, 56, 62, 68, 74, 80, 86], "d_deep": 8.75, "w_wide": 26.0},
+      "options": {
+        "mlo_box_height_single_phase_3wire": [
+          {"mains_a": 100, "rows": [[18, 26, "NQ18L1"], [30, 32, "NQ30L1"]]},
+          {"mains_a": 225, "rows": [[30, 32, "NQ30L2"], [42, 38, "NQ42L2"], [72, 44, "NQ72L2"], [84, 50, "NQ84L2"]]},
+          {"mains_a": 400, "rows": [[30, 50, "NQ30L4"], [42, 50, "NQ42L4"], [54, 56, "NQ54L4"], [84, 68, "NQ84L4C"]]},
+          {"mains_a": 600, "rows": [[30, 50, null], [42, 50, null], [54, 56, null], [84, 68, "NQ84L6C"]]}
+        ],
+        "row_format": "[max pole spaces, NEMA Type 1 box height (in) for the 20 W x 5.75 D box, example interior catalog number] - the 400/600 A rows also list 62/68/80-in tall D9V (8.75 D vented 3R) enclosures",
+        "nema_types": ["Type 1", "Type 3R/5/12", "Vented Type 3R"],
+        "mounting": ["surface", "flush"]
+      },
+      "source": {"url": "https://cainelectricalsupply.com/wp-content/uploads/0100CT1901_SEC-09.pdf", "doc": "Schneider Electric Digest 178 (0100CT1901) Section 9 - NQ Panelboards-240 Vac, 48 Vdc, Table 9.5 Main Lug Interiors + main-breaker interior tables (9/1/2023)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_max_ac_v": "fact",
+        "ratings.voltage_class": "fact",
+        "ratings.mains_ratings_a": "fact",
+        "ratings.max_branch_pole_spaces": "fact",
+        "ratings.branch_pole_space_options": "fact",
+        "ratings.mains_options": "fact",
+        "ratings.interrupting_ka_fully_rated_max": "fact",
+        "ratings.interrupting_ka_series_rated_max": "fact",
+        "dims_in.w": "fact",
+        "dims_in.d": "fact",
+        "dims_in.h": "fact",
+        "dims_in.h_options": "fact",
+        "dims_in.d_deep": "fact",
+        "dims_in.w_wide": "fact",
+        "options.mlo_box_height_single_phase_3wire": "fact",
+        "options.row_format": "fact",
+        "options.nema_types": "fact",
+        "options.mounting": "fact"
+      },
+      "notes": "The 600 A row interior catalog numbers were partially masked by the layout extraction (null); heights are read. Three-phase 4-wire interiors use the same box family (heights per Table 9.5, 3-phase block - not transcribed row by row)."
+    },
+    {
+      "model": "NF",
+      "aliases": ["NF panelboard"],
+      "role": "480Y/277 Vac lighting / appliance panelboard, 600Y/347 Vac max, bolt-on E-frame branch breakers",
+      "ratings": {
+        "voltage_max_ac_v": 600,
+        "voltage_class": "600Y/347 Vac max (480Y/277 Vac typical, 3-phase 4-wire; also 240 Vac / delta up to 240 Vac - use I-Line above 240 Vac 3-phase 3-wire delta)",
+        "mains_ratings_a": [125, 225, 250, 400, 600],
+        "mains_max_a": 800,
+        "branch_pole_space_options": [30, 42, 54, 66, 84],
+        "branch_breaker_max_a": 125,
+        "mains_options": ["main lugs only", "main circuit breaker"],
+        "interrupting_ka_options_480y277": [18, 35, 65]
+      },
+      "dims_in": {"w": 20.0, "d": 5.75, "h": "VARIABLE", "h_options": [26, 32, 38, 44, 50, 56, 62, 68, 74, 80, 86], "d_deep": 8.75, "w_wide": 26.0},
+      "options": {
+        "note_800a": "800 A interiors with main circuit breaker require 8.75-in deep, 26-in wide enclosures.",
+        "min_box_depth_by_mains": {"600 A max with LG/LJ/LL/LR main": {"cu_bus_in": 5.75, "note": "some configurations require 8.75"}, "800 A max": {"in": 8.75}},
+        "column_width_series": {"box_w_in": 8.625, "front_w_in": 9.69, "d_in": 5.625, "heights_in": [59, 65, 71, 85], "mains_a": [100, 125, 225], "branch_max_a": 60},
+        "nema_types": ["Type 1", "Type 3R/5/12", "Vented Type 3R"],
+        "mounting": ["surface", "flush"]
+      },
+      "source": {"url": "https://cainelectricalsupply.com/wp-content/uploads/0100CT1901_SEC-09.pdf", "doc": "Schneider Electric Digest 178 (0100CT1901) Section 9 - NF Panelboards-600Y/347 Vac Max (Tables 9.46-9.48, 9.86) and E-frame breaker tables (9/1/2023)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_max_ac_v": "fact",
+        "ratings.voltage_class": "fact",
+        "ratings.mains_ratings_a": "fact",
+        "ratings.mains_max_a": "fact",
+        "ratings.branch_pole_space_options": "fact",
+        "ratings.branch_breaker_max_a": "fact",
+        "ratings.mains_options": "fact",
+        "ratings.interrupting_ka_options_480y277": "fact",
+        "dims_in.w": "fact",
+        "dims_in.d": "fact",
+        "dims_in.h": "fact",
+        "dims_in.h_options": "fact",
+        "dims_in.d_deep": "fact",
+        "dims_in.w_wide": "fact",
+        "options.note_800a": "fact",
+        "options.min_box_depth_by_mains": "fact",
+        "options.column_width_series": "fact",
+        "options.nema_types": "fact",
+        "options.mounting": "fact"
+      },
+      "notes": "E-frame branch breakers (EDB/EGB/EJB) rated 18 / 35 / 65 kA at 480Y/277 Vac."
+    },
+    {
+      "model": "I-Line",
+      "aliases": ["I-Line panelboard", "I-Line distribution panelboard"],
+      "role": "power distribution panelboard, 600 Vac / 250 Vdc, plug-on I-Line breaker mounting",
+      "ratings": {
+        "voltage_max_ac_v": 600,
+        "voltage_class": "600 Vac, 250 Vdc",
+        "mains_ratings_a": [400, 600, 800],
+        "mains_max_a": 1200,
+        "bus_materials": ["copper", "aluminum"],
+        "interrupting_ka_series_rated_max": 200
+      },
+      "dims_in": {"w": 32.0, "d": 8.75, "h": "VARIABLE", "h_options": [73, 86, 91], "w_options": [26.0, 32.0]},
+      "options": {
+        "enclosure_catalog_families": ["HC2686 (26 in wide, 86 in high box family)", "HC3273 / HC3291 (32 in wide, 73 / 91 in high, D9 = 8.75-in-deep vented boxes)"],
+        "interior_widths_in": [18.0, 22.5],
+        "nema_types": ["Type 1", "Type 3R", "Type 4", "Type 4X", "Type 5", "Type 12"],
+        "mounting": ["surface", "flush"]
+      },
+      "source": {"url": "https://cainelectricalsupply.com/wp-content/uploads/0100CT1901_SEC-09.pdf", "doc": "Schneider Electric Digest 178 (0100CT1901) Section 9 - I-Line Merchandised Panelboards + series ratings tables (9/1/2023)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_max_ac_v": "fact",
+        "ratings.voltage_class": "fact",
+        "ratings.mains_ratings_a": "fact",
+        "ratings.mains_max_a": "assumed",
+        "ratings.bus_materials": "fact",
+        "ratings.interrupting_ka_series_rated_max": "fact",
+        "dims_in.w": "assumed",
+        "dims_in.d": "assumed",
+        "dims_in.h": "fact",
+        "dims_in.h_options": "assumed",
+        "dims_in.w_options": "assumed",
+        "options.enclosure_catalog_families": "fact",
+        "options.interior_widths_in": "fact",
+        "options.nema_types": "assumed",
+        "options.mounting": "assumed"
+      },
+      "notes": "Enclosure W/H are INFERRED from the HC-series catalog numbering (HCwwhh) shown in the merchandised tables - flagged 'assumed' until the I-Line enclosure dimension table (a different Digest page) is read. mains_max_a 1200 A is a recollection of the line's range, not read from Section 9 - 'assumed'. NEMA 4/4X/12 availability inferred from 'NEMA Type 4, 4X, 5, or 12 enclosure. (Use I-Line)' in the NQ section - 'assumed'."
+    }
+  ]
+}

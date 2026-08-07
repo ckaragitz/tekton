@@ -1,0 +1,717 @@
+{
+ "rung": "ZC_conduit",
+ "label": "the conduit standards + size table + cable-tray sizes -> OURS (NEC / NEMA facts, our selection), IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+  "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a2/ZC_conduit.rvt",
+ "landed_by_class": {
+  "ConduitStandardType": 5,
+  "ConduitSizesElem": 1,
+  "CableTraySizesElem": 1
+ },
+ "notes": [
+  "conduit standards 5 -> OURS: ['GEN EMT', 'GEN IMC', 'GEN RMC', 'GEN PVC Schedule 40', 'GEN PVC Schedule 80'] (the standard names are trade designations; the SELECTION is ours)",
+  "conduit size table 1: 5 standards keyed by the SAME standard slots (now ours), each = the trade-size / inner / outer / bend-radius rows of NEC Chapter 9 Table 4 (published dimensional FACTS) + Table 2 bend radii",
+  "cable-tray sizes 1 -> our NEMA VE 1 width list [6.0, 9.0, 12.0, 18.0, 24.0, 30.0, 36.0] in"
+ ],
+ "info": {
+  "standard_slots": {
+   "emt": 113164,
+   "imc": 113165,
+   "rmc": 113166,
+   "pvc40": 121660,
+   "pvc80": 121661
+  }
+ },
+ "residue_left_in_place": {},
+ "record_selfcheck": {
+  "objects": 7,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.0
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   113164,
+   113165,
+   113166,
+   113168,
+   113169,
+   121660,
+   121661
+  ],
+  "records_changed_count": 7,
+  "records_changed_by_seq": {
+   "102": 7
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 7,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 113164,
+    "len_ours": 191,
+    "len_parent": 183,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ConduitStandardType",
+      "class_parent": "ConduitStandardType"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN EMT'",
+      "parent": "'EMT'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 113165,
+    "len_ours": 191,
+    "len_parent": 183,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ConduitStandardType",
+      "class_parent": "ConduitStandardType"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN IMC'",
+      "parent": "'IMC'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 113166,
+    "len_ours": 191,
+    "len_parent": 183,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ConduitStandardType",
+      "class_parent": "ConduitStandardType"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN RMC'",
+      "parent": "'RMC'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 113168,
+    "len_ours": 2093,
+    "len_parent": 2059,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ConduitSizesElem",
+      "class_parent": "ConduitSizesElem"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[0].m_dBendRadius",
+      "ours": "0.3333333333333333",
+      "parent": "0.36276246719160105"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[0].m_dInnerDiameter",
+      "ours": "0.051833333333333335",
+      "parent": "0.05183727034120735"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[0].m_dOuterDiameter",
+      "ours": "0.05883333333333333",
+      "parent": "0.0588254593175853"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[0].m_dSize",
+      "ours": "0.041666666666666664",
+      "parent": "0.05249343832020997"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[1].m_dBendRadius",
+      "ours": "0.375",
+      "parent": "0.4134186351706037"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[1].m_dInnerDiameter",
+      "ours": "0.06866666666666667",
+      "parent": "0.06866797900262467"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[1].m_dOuterDiameter",
+      "ours": "0.07683333333333334",
+      "parent": "0.07683727034120735"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[1].m_dSize",
+      "ours": "0.0625",
+      "parent": "0.0688976377952756"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[2].m_dBendRadius",
+      "ours": "0.4791666666666667",
+      "parent": "0.5276246719160105"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[2].m_dInnerDiameter",
+      "ours": "0.08741666666666666",
+      "parent": "0.08740157480314961"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[2].m_dOuterDiameter",
+      "ours": "0.09691666666666666",
+      "parent": "0.09691601049868766"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[2].m_dSize",
+      "ours": "0.08333333333333333",
+      "parent": "0.08858267716535433"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[3].m_dBendRadius",
+      "ours": "0.6041666666666666",
+      "parent": "0.6670931758530184"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[3].m_dInnerDiameter",
+      "ours": "0.11499999999999999",
+      "parent": "0.09858923884514435"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[3].m_dOuterDiameter",
+      "ours": "0.12583333333333332",
+      "parent": "0.1258202099737533"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[3].m_dSize",
+      "ours": "0.10416666666666667",
+      "parent": "0.11482939632545931"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[4].m_dBendRadius",
+      "ours": "0.6875",
+      "parent": "0.7600065616797901"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[4].m_dInnerDiameter",
+      "ours": "0.13416666666666668",
+      "parent": "0.13415354330708662"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[4].m_dOuterDiameter",
+      "ours": "0.145",
+      "parent": "0.14501312335958005"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[4].m_dSize",
+      "ours": "0.125",
+      "parent": "0.13451443569553806"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[5].m_dBendRadius",
+      "ours": "0.7916666666666666",
+      "parent": "0.8832020997375327"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[5].m_dInnerDiameter",
+      "ours": "0.17225000000000001",
+      "parent": "0.17224409448818898"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[5].m_dOuterDiameter",
+      "ours": "0.18308333333333335",
+      "parent": "0.18307086614173226"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[5].m_dSize",
+      "ours": "0.16666666666666666",
+      "parent": "0.17388451443569553"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[6].m_dBendRadius",
+      "ours": "0.875",
+      "parent": "0.9948162729658794"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[6].m_dInnerDiameter",
+      "ours": "0.22758333333333333",
+      "parent": "0.22759186351706037"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[6].m_dOuterDiameter",
+      "ours": "0.23958333333333334",
+      "parent": "0.2395997375328084"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[6].m_dSize",
+      "ours": "0.20833333333333334",
+      "parent": "0.20669291338582677"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[7].m_dBendRadius",
+      "ours": "1.0833333333333333",
+      "parent": "1.2291666666666665"
+     },
+     {
+      "path": ".m_sizes[0].second.m_sizeData[7].m_dInnerDiameter",
+      "ours": "0.2796666666666667",
+      "parent": "0.27965879265091864"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 11,
+    "blocks_out": 11
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 7,
+  "slots_with_registry_surface": 7,
+  "positional_uet_slots": [
+   {
+    "slot": 113168,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[67]"
+    ]
+   },
+   {
+    "slot": 113169,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[66]"
+    ]
+   }
+  ],
+  "surface_examples": [
+   {
+    "slot": 113164,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 113165,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 113166,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 113168,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[67]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 113169,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[66]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 121660,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 121661,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 7,
+  "pairs_ok": 7,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 113164,
+   "class": "ConduitStandardType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 468,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 113165,
+   "class": "ConduitStandardType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 468,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 113166,
+   "class": "ConduitStandardType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 468,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 113168,
+   "class": "ConduitSizesElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 468,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 113169,
+   "class": "CableTraySizesElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 468,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 121660,
+   "class": "ConduitStandardType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 476,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 16,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a2/ZC_conduit.rvt",
+  "elements": 3342,
+  "file_size": 626688,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "ConduitStandardType": {
+   "slots": 5,
+   "differing_field_paths": {
+    "m_symbolInfo.value.m_name": 5
+   },
+   "declared_ours": [
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "ConduitSizesElem": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_sizes.[0].second.m_sizeData.[0].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[0].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[0].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[0].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[1].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[1].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[1].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[1].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[2].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[2].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[2].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[2].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[3].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[3].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[3].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[3].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[4].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[4].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[4].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[4].m_dSize": 1,
+    "m_sizes.[0].second.m_sizeData.[5].m_dBendRadius": 1,
+    "m_sizes.[0].second.m_sizeData.[5].m_dInnerDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[5].m_dOuterDiameter": 1,
+    "m_sizes.[0].second.m_sizeData.[5].m_dSize": 1
+   },
+   "declared_ours": [
+    "m_sizes"
+   ]
+  },
+  "CableTraySizesElem": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_sizes.m_sizeData.#len": 1
+   },
+   "declared_ours": [
+    "m_sizes"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 113164,
+   "class": "ConduitStandardType"
+  },
+  {
+   "slot": 113165,
+   "class": "ConduitStandardType"
+  },
+  {
+   "slot": 113166,
+   "class": "ConduitStandardType"
+  },
+  {
+   "slot": 113168,
+   "class": "ConduitSizesElem"
+  },
+  {
+   "slot": 113169,
+   "class": "CableTraySizesElem"
+  },
+  {
+   "slot": 121660,
+   "class": "ConduitStandardType"
+  },
+  {
+   "slot": 121661,
+   "class": "ConduitStandardType"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 113164,
+   "class": "ConduitStandardType",
+   "notes": [
+    "our conduit standard 'GEN EMT' (ANSI C80.3 / NEC Ch.9 T4)"
+   ]
+  },
+  {
+   "slot": 113165,
+   "class": "ConduitStandardType",
+   "notes": [
+    "our conduit standard 'GEN IMC' (ANSI C80.6 / NEC Ch.9 T4)"
+   ]
+  },
+  {
+   "slot": 113166,
+   "class": "ConduitStandardType",
+   "notes": [
+    "our conduit standard 'GEN RMC' (ANSI C80.1 / NEC Ch.9 T4)"
+   ]
+  },
+  {
+   "slot": 113168,
+   "class": "ConduitSizesElem",
+   "notes": [
+    "our conduit size table: 5 standards x rows [10, 10, 12, 12, 12] (NEC Ch.9 Table 4 / Table 2 facts)"
+   ]
+  },
+  {
+   "slot": 113169,
+   "class": "CableTraySizesElem",
+   "notes": [
+    "our cable-tray widths [6.0, 9.0, 12.0, 18.0, 24.0, 30.0, 36.0] in (NEMA VE 1)"
+   ]
+  },
+  {
+   "slot": 121660,
+   "class": "ConduitStandardType",
+   "notes": [
+    "our conduit standard 'GEN PVC Schedule 40' (NEMA TC-2 / NEC Ch.9 T4)"
+   ]
+  },
+  {
+   "slot": 121661,
+   "class": "ConduitStandardType",
+   "notes": [
+    "our conduit standard 'GEN PVC Schedule 80' (NEMA TC-2 / NEC Ch.9 T4)"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 626688,
+ "seconds": 1.5,
+ "reached_by_other_streams_not_reauthored": {
+  "RbsWireInsulationType": "GROUP B ZB2_mepcat (viewer PASS, batch 17) -- our wire catalog",
+  "RbsWireMaterialType": "GROUP B ZB2_mepcat",
+  "RbsWireTemperatureRatingType": "GROUP B ZB2_mepcat",
+  "RbsPipeScheduleType": "GROUP B ZB2_mepcat -- our piping catalog",
+  "RbsPipeConnectionType": "GROUP B ZB2_mepcat",
+  "RbsPipeMaterialType": "GROUP B ZB2_mepcat",
+  "PipeSegment": "GROUP B ZB2_mepcat",
+  "CategoryElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation, D_curtain)",
+  "GStyleElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "FontElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "DimensionStyle": "GROUP A ZA_deep (family-scoped remainder)",
+  "CalloutTag": "GROUP A ZA_deep (family-scoped remainder)",
+  "InteriorElevAttributes": "GROUP A ZA_deep (family-scoped remainder)",
+  "DBViewType": "curtain constellation (deletion stream D_curtain)",
+  "Family": "curtain constellation (D_curtain)",
+  "FamilySurrogate": "curtain constellation (D_curtain)",
+  "CurveElem": "room constellation (deletion stream, blocked -> D_room after the wiring fix)",
+  "LegendComponent": "type previews (2 curtain-owned in D_curtain; 2 owned by our residue types)",
+  "LevelRoomPlan": "room constellation",
+  "LinearDimString": "constraint-dimension group (deletion stream D_content)",
+  "RoomElem": "GROUP B ZB8_content (identity) / room constellation deletion",
+  "MaterialElem": "GROUP B ZB5_palette (surplus materials)",
+  "ParamElemExternal": "GROUP B ZB1_defs",
+  "ParamBinding": "GROUP B ZB1_defs",
+  "ParamElemElectricalLoadClassification": "GROUP B ZB1_defs (the 6-per-class companions of our ZC_elec classifications -- id-wired both sides)",
+  "ParamElemProject": "GROUP B ZB1_defs",
+  "PenWidthTableElem": "GROUP B ZB3_pens",
+  "SectionAttributes": "GROUP B ZB4_annot",
+  "ViewportAttributes": "GROUP B ZB4_annot",
+  "PropertySetElement": "GROUP B ZB5_palette",
+  "ParameterFilterElement": "GROUP B ZB6_filters",
+  "SunAnnotationElem": "GROUP B ZB7_machinery",
+  "NumberingSchema": "GROUP B ZB7_machinery",
+  "SlaveSymbolTrackerElem": "GROUP B ZB7_machinery",
+  "WorksharingViewModeSettings": "GROUP B ZB7_machinery",
+  "PrintSettings": "GROUP B ZB7_machinery",
+  "Viewer": "GROUP B ZB7_machinery (the sheet's viewer 1457029)",
+  "Viewport": "GROUP B ZB7_machinery (the sheet's viewports 1457030/1457043/1457044)",
+  "RefPlane": "GROUP B ZB8_content",
+  "SketchPlane": "GROUP B ZB8_content"
+ },
+ "stream": "genesis-residue-A2 (remaining unsubstituted classes, in place, from ZA_deep)"
+}

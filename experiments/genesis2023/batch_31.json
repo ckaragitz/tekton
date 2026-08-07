@@ -1,0 +1,64 @@
+{
+ "batch": 31,
+ "created": "2026-08-04T23:32:54-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "2023 campaign round 1: every entry a candidate-base (no 2023 file is certified yet); control = the untouched Autodesk 2023 rst sample, which also answers 'does the viewer read 2023 uploads?'.  2023 is the 32-bit-element-id era (records32) -- R9_2023 doubles as the first viewer-read of our 32-bit re-emit.  Read with probe_batch.read_batch_verdicts; certification cascades R9 -> K3 -> B2023_K4.",
+ "reading_order": [
+  "CTRL_rstbasicsampleproject_b31.rvt",
+  "R9_2023.rvt",
+  "K3_2023.rvt",
+  "B2023_K4.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/genesis2023/CTRL_rstbasicsampleproject_b31.rvt",
+   "staged_as": "experiments/genesis2023/CTRL_rstbasicsampleproject_b31.rvt",
+   "md5": "b76a76d115803e1c4232db8643cd21e1",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/2023/rstbasicsampleproject.rvt",
+   "base": "samples/2023/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 1,
+   "file": "experiments/genesis2023/reduce/R9_2023.rvt",
+   "staged_as": "experiments/genesis2023/R9_2023.rvt",
+   "md5": "e16021a1cfaf17254f5dbfa67b81db89",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "samples/2023/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/genesis2023/probes.json entry 'R9_2023' field 'base'",
+   "base_status": "sample (lineage informational only for a candidate-base)",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 2,
+   "file": "experiments/genesis2023/reduce/K3_2023.rvt",
+   "staged_as": "experiments/genesis2023/K3_2023.rvt",
+   "md5": "850a3d4254fc68b81fb189de1582328d",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2023/reduce/R9_2023.rvt",
+   "base_declared_by": "experiments/genesis2023/probes.json entry 'K3_2023' field 'base'",
+   "base_status": "unknown (lineage informational only for a candidate-base)",
+   "base_certification": null
+  },
+  {
+   "order": 3,
+   "file": "experiments/genesis2023/reduce/B2023_K4.rvt",
+   "staged_as": "experiments/genesis2023/B2023_K4.rvt",
+   "md5": "a46a66f33fc2decd8a4ef1c6b9ed7b45",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2023/reduce/K3_2023.rvt",
+   "base_declared_by": "experiments/genesis2023/probes.json entry 'B2023_K4' field 'base'",
+   "base_status": "unknown (lineage informational only for a candidate-base)",
+   "base_certification": null
+  }
+ ]
+}

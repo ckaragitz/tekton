@@ -1,0 +1,150 @@
+{
+ "rung": "RC_2025_inplace",
+ "label": "residue-C overlap slice (2025): landed view headers cleaned + area measures unwired (enables the lawful straggler deletions)",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [101, 102], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4_2025/Z_RC_2025.rvt",
+ "out": "experiments/genesis/subst_k4_2025/RC_2025_inplace.rvt",
+ "slots": [
+  230,
+  9490,
+  69851,
+  245443,
+  1064656,
+  1454508
+ ],
+ "seqs": [
+  101,
+  102
+ ],
+ "ours_by_slot": {
+  "230": [
+   "m_parents web (minus the RvtLinkSymbol 1250029)"
+  ],
+  "69851": [
+   "m_parents web (minus the RvtLinkSymbol 1250029)"
+  ],
+  "245443": [
+   "m_parents web (minus the RvtLinkSymbol 1250029)"
+  ],
+  "1064656": [
+   "m_parents web (minus the RvtLinkSymbol 1250029)"
+  ],
+  "1454508": [
+   "m_parents web (minus the RvtLinkSymbol 1250029)"
+  ],
+  "9490": [
+   "m_areaSchemePlanTopologyElemId (9744 -> -1)",
+   "m_parents.m_deletion (minus 9744)"
+  ]
+ },
+ "notes": [
+  "5 view slots' seq-101 headers re-emitted without the RvtLinkSymbol deletion-parent entry (slots landed by Y2/Y9 -- NOT one-call-composable; the RC_zero-2025 second-compose stage, 2026 precedent)",
+  "area measures unwired from content-bearing topologies [(9490, 9744)] (deletion finding 2's fix: the room constellation becomes delete-reachable)"
+ ],
+ "new_object_reference_check": {
+  "mode": "typed",
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   101,
+   102
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 15,
+   "records": 10002,
+   "elements_decoded": 3333,
+   "decode_failures": 1,
+   "refs_checked": 51060
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "byte_delta": {
+  "changed_records": 7,
+  "changed_ids": [
+   230,
+   9490,
+   69851,
+   245443,
+   1064656,
+   1454508
+  ],
+  "expected_slot_ids": [
+   230,
+   9490,
+   69851,
+   245443,
+   1064656,
+   1454508
+  ],
+  "expected_records_max": 7,
+  "unexpected_changed_ids": [],
+  "added_or_removed": false,
+  "landed_but_byte_identical": [],
+  "global_latest_identical": true,
+  "global_elemtable_identical": true,
+  "assertion_holds": true,
+  "diff_streams": [
+   "Partitions/20"
+  ]
+ },
+ "verdict": "VALID",
+ "md5": "8c3b5ecb51c4e48b003195ae5ac7748b",
+ "seconds": 1.2,
+ "landed_slots": [
+  {
+   "slot": 230,
+   "class": "DBViewProject"
+  },
+  {
+   "slot": 9490,
+   "class": "AreaMeasureElem"
+  },
+  {
+   "slot": 69851,
+   "class": "RbsDbViewSystemNavigator"
+  },
+  {
+   "slot": 245443,
+   "class": "DBViewPlan"
+  },
+  {
+   "slot": 1064656,
+   "class": "DBViewPlan"
+  },
+  {
+   "slot": 1454508,
+   "class": "DBView3d"
+  }
+ ],
+ "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+ "stream": "y2025-views"
+}

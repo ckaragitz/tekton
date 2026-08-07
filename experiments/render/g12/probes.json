@@ -1,0 +1,82 @@
+{
+ "stream": "genesis-12 (g12): walls+families mechanism proof + wall render on G_ABPD",
+ "mechanism_statement": "rvt.famgen.loader nulls Family.m_oFamDimConstrMgr and FamilySymbol.m_pMoveRestrictions -- forms present in 831/831 and 2710/2710 corpus specimens and in every audit-PASSED loaded-family file (rvt.famload's output); Revit's open-time corruption audit walks the family layer only when the design is non-empty, so symbol-only files short-circuit ('Design is empty') while walls+family / instance+family files FAIL (-1073742517). WF_fix vs WF_nofix isolates exactly those two records.",
+ "standing_control": {
+  "file": "experiments/render/g12/CTRL_walls_only_g12.rvt",
+  "copied_from": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+  "md5": "144b0ec172eb880c3f9600e1e636cd4d",
+  "note": "byte-identical to the certified walls-only base; read FIRST",
+  "certification": {
+   "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+   "proves": "joined room shell on ZA_deep LOADS \u2014 walls present but no baked geometry; 3D view shows only the datum"
+  }
+ },
+ "upload_order_bisection_first": [
+  "WF_nofix",
+  "WF_fix",
+  "W1_gabpd_wall_solid"
+ ],
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID",
+  "WF_nofix FAIL + WF_fix PASS": "mechanism PROVEN (the two null fields)",
+  "WF_nofix FAIL + WF_fix FAIL": "null pair insufficient -- escalate to the pre-staged next diffs in the record",
+  "WF_nofix PASS": "bug does not reproduce with the box family on walls_only -- the defect is content/order-dependent; rebuild the pair with the LP-4 panel product",
+  "W1 PASS + renders": "creation visible on the composed genesis base"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "WF_nofix",
+   "file": "experiments/render/g12/WF_nofix.rvt",
+   "base": {
+    "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+    "certification": {
+     "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+     "proves": "joined room shell on ZA_deep LOADS \u2014 walls present but no baked geometry; 3D view shows only the datum"
+    }
+   },
+   "derived_from": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+   "kind": "probe",
+   "the_ONE_thing_it_tests": "the walls+families bug REPRODUCES on the certified walls-only base: one famgen.loader family (bare box, no connector) + the certified walls => expect the audit FAIL (-1073742517)",
+   "if_FAIL": "expected -- the bug is reproduced with a one-family minimal delta",
+   "if_PASS": "the bug does NOT reproduce with the box family: the defect is family-content- or order-dependent -- diff vs F_lp4's panel next",
+   "md5": "c2b4ae0aeaff3c5d11eddf8dd4246df8"
+  },
+  {
+   "order": 2,
+   "rung": "WF_fix",
+   "file": "experiments/render/g12/WF_fix.rvt",
+   "base": {
+    "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+    "certification": {
+     "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+     "proves": "joined room shell on ZA_deep LOADS \u2014 walls present but no baked geometry; 3D view shows only the datum"
+    }
+   },
+   "derived_from": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+   "kind": "probe",
+   "the_ONE_thing_it_tests": "THE MECHANISM: byte-identical to WF_nofix except the TWO seq-102 records where the null Family.m_oFamDimConstrMgr / FamilySymbol.m_pMoveRestrictions are replaced by the corpus-lawful empty forms (present 831/831 and 2710/2710 specimens; the only CRITICAL objlint deltas between every audit-failed and every audit-passed loaded-family file)",
+   "if_PASS": "with WF_nofix FAIL: the mechanism is PROVEN -- the famgen.loader null-field pair is the walls+families bug; route the two-line fix to the famgen owner",
+   "if_FAIL": "the null pair is not (all of) the mechanism: the next diff dimensions are pre-staged in docs/inbox/genesis-12.md (FamilyTypeTable pairs, ConnectorDataCell shape, surrogate order)",
+   "md5": "aabb8eb60758e6cdafa067eb054a3d0b"
+  },
+  {
+   "order": 3,
+   "rung": "W1_gabpd_wall_solid",
+   "file": "experiments/render/g12/W1_gabpd_wall_solid.rvt",
+   "base": {
+    "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+     "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "the_ONE_thing_it_tests": "CREATION RENDERS ON THE COMPOSED GENESIS BASE: one created wall carrying the authored seq-103 GElement six-face solid (the RSOLID-certified grammar, root category -1) on G_ABPD itself",
+   "if_PASS": "read the model tree: a wall node under 'GEN L1' + a visible shaded wall = LOAD+RENDER proven on the genesis base proper",
+   "if_FAIL": "walls-only lineage renders but G_ABPD does not: the delta is the composed base's residue layers -- bisect against RSOLID_walls_A_solid (same wall grammar, walls-only base)",
+   "md5": "41cbbb4b57875b6993dbd3b57a9d4ea1"
+  }
+ ]
+}

@@ -1,0 +1,372 @@
+{
+ "stage": "R2",
+ "safe_variant": false,
+ "out": "experiments/genesis/R2.rvt",
+ "file_size": 3895296,
+ "seed": 7794,
+ "deleted": 8335,
+ "surviving_elements": 5601,
+ "elemtable_before": 13936,
+ "records_removed": {
+  "101": 8335,
+  "102": 8335,
+  "103": 8335
+ },
+ "blocks_before": 213,
+ "blocks_after": 47,
+ "structural_ok": true,
+ "verify": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "units": 53,
+  "blocks_unit0": 47,
+  "isize_identity_ok": true,
+  "elemtable_ids_without_record": 0
+ },
+ "walker_errors": [],
+ "dangling": {
+  "survivors_with_dangling_refs": 194,
+  "dangling_by_survivor_class": [
+   [
+    "CategoryElem",
+    99
+   ],
+   [
+    "GStyleElem",
+    94
+   ],
+   [
+    "DBViewType",
+    1
+   ]
+  ],
+  "external": {
+   "Global/Latest": {
+    "dangling": 1486,
+    "by_class": [
+     [
+      "FamilyInstance",
+      439
+     ],
+     [
+      "RebarInSystem",
+      224
+     ],
+     [
+      "Rebar",
+      122
+     ],
+     [
+      "CustomElement",
+      61
+     ],
+     [
+      "DBDrawing",
+      58
+     ],
+     [
+      "SunAndShadowSettings",
+      57
+     ],
+     [
+      "DPart",
+      45
+     ],
+     [
+      "RebarSystem",
+      44
+     ],
+     [
+      "SketchGrid",
+      40
+     ],
+     [
+      "LineLoad",
+      35
+     ],
+     [
+      "SketchPlane",
+      34
+     ],
+     [
+      "RoomElem",
+      31
+     ]
+    ]
+   },
+   "Global/ContentDocuments": {
+    "dangling": 0,
+    "by_class": []
+   }
+  },
+  "history_invariant_at_risk": false
+ },
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4351
+  ],
+  [
+   "LinearDimString",
+   710
+  ],
+  [
+   "FamilyInstance",
+   497
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "SketchPlane",
+   209
+  ],
+  [
+   "VarSketch",
+   140
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "LegendComponent",
+   96
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "FontElem",
+   81
+  ],
+  [
+   "Viewport",
+   79
+  ],
+  [
+   "FamilySymbol",
+   72
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "CustomElement",
+   61
+  ],
+  [
+   "DBDrawing",
+   59
+  ],
+  [
+   "SunAndShadowSettings",
+   57
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "ParamElemFamily",
+   54
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "SketchGrid",
+   40
+  ],
+  [
+   "ExtentElem",
+   39
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "LineLoad",
+   35
+  ],
+  [
+   "Viewer",
+   34
+  ],
+  [
+   "TextNoteAttributes",
+   32
+  ],
+  [
+   "SunAnnotationElem",
+   31
+  ],
+  [
+   "RoomElem",
+   31
+  ],
+  [
+   "LeaderStyle",
+   22
+  ],
+  [
+   "TagNoteAttributes",
+   22
+  ],
+  [
+   "PostedWarningElem",
+   22
+  ],
+  [
+   "DBView3d",
+   21
+  ],
+  [
+   "DBViewSection",
+   20
+  ],
+  [
+   "BoundaryConditions",
+   20
+  ],
+  [
+   "FamilySurrogate",
+   18
+  ],
+  [
+   "FamSymSurrogate",
+   18
+  ],
+  [
+   "Family",
+   18
+  ]
+ ],
+ "top_survivor_classes": [
+  [
+   "GStyleElem",
+   2183
+  ],
+  [
+   "CategoryElem",
+   616
+  ],
+  [
+   "ParamElemExternal",
+   466
+  ],
+  [
+   "ParamBinding",
+   209
+  ],
+  [
+   "FontElem",
+   182
+  ],
+  [
+   "LinePatternElem",
+   150
+  ],
+  [
+   "AppearanceAssetElem",
+   131
+  ],
+  [
+   "HVACLoadSpaceTypeElem",
+   125
+  ],
+  [
+   "FillPatternElem",
+   116
+  ],
+  [
+   "ParamElemElectricalLoadClassification",
+   108
+  ],
+  [
+   "MaterialElem",
+   93
+  ],
+  [
+   "DBViewType",
+   74
+  ],
+  [
+   "ParamElemFamily",
+   66
+  ],
+  [
+   "TextNoteAttributes",
+   58
+  ],
+  [
+   "PropertySetElement",
+   56
+  ],
+  [
+   "LeaderStyle",
+   39
+  ],
+  [
+   "TagNoteAttributes",
+   38
+  ],
+  [
+   "ConceptualConstructionType",
+   36
+  ],
+  [
+   "FamilySymbol",
+   34
+  ],
+  [
+   "SunAndShadowSettings",
+   33
+  ],
+  [
+   "HVACLoadBuildingTypeElem",
+   33
+  ],
+  [
+   "FamSymSurrogate",
+   32
+  ],
+  [
+   "Family",
+   32
+  ],
+  [
+   "FamilySurrogate",
+   32
+  ],
+  [
+   "FilledRegionAttributes",
+   32
+  ]
+ ],
+ "seconds": 6.2
+}

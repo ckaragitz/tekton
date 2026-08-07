@@ -1,0 +1,78 @@
+{
+ "route": "prompt+rfa->rfa (rvt.convert.modify_family)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+  "sha256": "00425e9d0766c3d520df344189375970c5219bd5f48e58b399484132fdb41e8d",
+  "release": 2026,
+  "family_name": "racbasicsamplefamily",
+  "types": [
+   " ",
+   "0610 x 0160mm",
+   "0762 x 0762mm",
+   "0610 x 0915mm"
+  ]
+ },
+ "edit": "rename type 0762 x 0762mm to 0800 x 0800mm; set Width 800 mm",
+ "parsed": {
+  "ops": [
+   {
+    "op": "rename-type",
+    "type_index": 2,
+    "old": "0762 x 0762mm",
+    "name": "0800 x 0800mm"
+   },
+   {
+    "op": "set-param",
+    "param_id": 4209,
+    "caption": "Width",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec:length-1.0.0",
+    "value": 2.6246719160104988,
+    "raw": "800 mm"
+   }
+  ],
+  "source": "text",
+  "understood": [
+   {
+    "clause": "rename type 0762 x 0762mm to 0800 x 0800mm",
+    "op": {
+     "op": "rename-type",
+     "type_index": 2,
+     "old": "0762 x 0762mm",
+     "name": "0800 x 0800mm"
+    }
+   },
+   {
+    "clause": "set Width 800 mm",
+    "op": {
+     "op": "set-param",
+     "param_id": 4209,
+     "caption": "Width",
+     "carrier": "m_value",
+     "spec": "autodesk.spec.aec:length-1.0.0",
+     "value": 2.6246719160104988,
+     "raw": "800 mm"
+    }
+   }
+  ],
+  "unparsed": [],
+  "notes": [
+   "Width: 800 mm -> 2.62467 ft (CAVEAT: type-table value only; the authored solid is not re-derived -- regenerate from the facts sidecar for geometry-true resizing)"
+  ],
+  "vocabulary": "rvt.convert.modify_family (built-in; merges into the shared rvt.convert.edit_family vocabulary when that sibling module lands)"
+ },
+ "files": {},
+ "stamps": [
+  "PROOF-ONLY, NOT-DELIVERABLE (P0: identity/counsel gates G2-G3 open; every tekton output is an internal proof)",
+  "QUARANTINED TARGET (dev-only proof): the target file is an Autodesk sample standing in for a user upload; this output exists to PROVE the route and is never shipped or redistributed"
+ ],
+ "degradations": [],
+ "errors": [
+  "apply failed: ValueError: ElemTable footer is 600 bytes / graveyard 18 \u2014 GraveyardRec wire layout not observed in corpus",
+  "Traceback (most recent call last):\n  File \"/Users/ck/dev/things/tekton/src/rvt/convert/modify_family.py\", line 549, in modify_family\n    rec[\"apply\"] = apply_family_edits(inv, parsed[\"ops\"], out_path)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ck/dev/things/tekton/src/rvt/convert/modify_family.py\", line 462, in apply_family_edits\n    crep = M.commit_plans(inv.path, out_path, [plan])\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ck/dev/things/tekton/src/rvt/manipulate.py\", line 1417, in commit_plans\n    model = decode_elemtable(doc.inflate(\"Global/ElemTable\"))\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/ck/dev/things/tekton/src/rvt/stream_encoders.py\", line 179, in decode_elemtable\n    raise ValueError(\nValueError: ElemTable footer is 600 bytes / graveyard 18 \u2014 GraveyardRec wire layout not observed in corpus\n"
+ ],
+ "seconds": 0.1,
+ "deliverables": {}
+}

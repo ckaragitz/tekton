@@ -1,0 +1,1104 @@
+{
+ "base": "experiments/genesis/R10b.rvt",
+ "baseline_sample": "samples/rstbasicsampleproject.rvt",
+ "scrub": "full",
+ "tag_prefix": "G0",
+ "stages": [
+  {
+   "stage": "G0a",
+   "op": "insert our content into the base + re-block",
+   "new_elements": 234,
+   "elemtable_after": 3256,
+   "watermark_after": 1500233,
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "new_records_found": 702
+   },
+   "reblock": {
+    "blocks_before": 24,
+    "blocks_after": 25
+   },
+   "seconds": 3.0
+  },
+  {
+   "stage": "G0b",
+   "op": "maximal GC delete of the Autodesk lineage",
+   "lineage_seed": 3022,
+   "deleted": 2857,
+   "lineage_kept_pinned": 165,
+   "kept_by_class": [
+    [
+     "GStyleElem",
+     58
+    ],
+    [
+     "CategoryElem",
+     36
+    ],
+    [
+     "FontElem",
+     21
+    ],
+    [
+     "TextNoteAttributes",
+     10
+    ],
+    [
+     "LeaderStyle",
+     6
+    ],
+    [
+     "TagNoteAttributes",
+     6
+    ],
+    [
+     "DimensionStyle",
+     4
+    ],
+    [
+     "FillPatternElem",
+     3
+    ],
+    [
+     "AppearanceAssetElem",
+     3
+    ],
+    [
+     "LinePatternElem",
+     3
+    ],
+    [
+     "PropertySetElement",
+     3
+    ],
+    [
+     "MaterialElem",
+     3
+    ],
+    [
+     "ImageSymbol",
+     3
+    ],
+    [
+     "ImageHolder",
+     3
+    ],
+    [
+     "FamilySurrogate",
+     1
+    ],
+    [
+     "FilledRegionAttributes",
+     1
+    ],
+    [
+     "Family",
+     1
+    ]
+   ],
+   "pin_evidence_top": [
+    "GStyleElem <- CurveElem x156",
+    "GStyleElem <- DBViewDrafting x30",
+    "GStyleElem <- FilledRegion x28",
+    "GStyleElem <- DBViewProject x28",
+    "FillPatternElem <- FilledRegionAttributes x27",
+    "GStyleElem <- DBViewSection x16",
+    "FillPatternElem <- FilledRegion x14",
+    "GStyleElem <- FamilySymbol x12",
+    "MaterialElem <- DBViewType x12",
+    "GStyleElem <- Family x10",
+    "GStyleElem <- DBViewPlan x8",
+    "FillPatternElem <- FamilySymbol x6"
+   ],
+   "elemtable_before": 3256,
+   "elemtable_after": 399,
+   "structural_ok": true,
+   "structural_notes": [],
+   "seconds": 1.9
+  },
+  {
+   "stage": "G0c",
+   "op": "remove all embedded family documents",
+   "units_before": 15,
+   "units_after": 1,
+   "removed_units": 14,
+   "removed_guids": [
+    "3563d602-3ba7-4789-a3ee-254c15adc0ce",
+    "4d39b104-087e-47c8-885b-300dde8e24e3",
+    "a0717c14-e2fc-4b34-9c27-2ff3604705e6",
+    "4f85134f-7e56-4935-9a1d-5c31503c3716",
+    "d58b645f-9df5-42f4-b770-a00aea8bb4ba",
+    "f8b30e73-e9cf-4d44-b7c8-d85fb9e63cb6",
+    "af75f67d-1060-4650-b13a-d467c0872fda",
+    "03f26a7f-f129-459a-9416-39e40d1f0b80",
+    "d4bdb58b-e63b-44a4-a882-c793b48ce304",
+    "9c8df7a4-fbfa-4a9f-97fa-8b8aa5ff3e27",
+    "36b75aa9-8fc8-4691-b3a3-bcff9df6471a",
+    "d12022c4-1496-4d94-973a-599c45ef14a8",
+    "706e2be2-3779-421f-bfa7-57ff3562cd8f",
+    "b8e18dfa-91c5-4551-a51d-17012a753412"
+   ],
+   "partition_logical_before": 559853,
+   "partition_logical_after": 129229,
+   "cd_entries_before": 14,
+   "cd_entries_after": 0,
+   "cd_payload_after": 14,
+   "structural_ok": true,
+   "seconds": 0.9
+  },
+  {
+   "stage": "G0d",
+   "op": "maximal GC delete of the Autodesk lineage",
+   "lineage_seed": 165,
+   "deleted": 165,
+   "lineage_kept_pinned": 0,
+   "kept_by_class": [],
+   "pin_evidence_top": [],
+   "elemtable_before": 399,
+   "elemtable_after": 234,
+   "structural_ok": true,
+   "structural_notes": [],
+   "seconds": 0.3
+  },
+  {
+   "stage": "G0",
+   "op": "coordinated own-save + own identity + own metadata",
+   "episode_id": 1017,
+   "episode_guid": "602e5ede-97b4-410a-b892-b98501e2cf37",
+   "document_guid": "602e5ede-97b4-410a-b892-b98501e2cf37",
+   "history_count": 1018,
+   "increments": 23,
+   "elements_restamped": 234,
+   "author": "rvt-writer",
+   "username": "rvt-writer",
+   "dit_usernames_scrubbed": 44,
+   "metadata_streams_replaced": [
+    "ProjectInformation",
+    "TransmissionData"
+   ],
+   "seconds": 0.0
+  }
+ ],
+ "files": {
+  "G0a": {
+   "file": "experiments/genesis/G0a.rvt",
+   "bytes": 1454080,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "warning_messages": [
+     "[semantic] objects: 1/7279 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. Dat"
+    ],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 73,
+     "records": 21882,
+     "elements_decoded": 7279,
+     "decode_failures": 1,
+     "refs_checked": 115263
+    },
+    "seconds": 0.5
+   },
+   "provenance": {
+    "host_elements": 3256,
+    "totals": {
+     "autodesk-sample": 3022,
+     "ours-created": 102,
+     "transitive-cloned": 132
+    },
+    "derived_total": 3154,
+    "autodesk_sample": 3022,
+    "transitive_cloned": 132,
+    "ours_created": 102,
+    "ours_modified": 0,
+    "unmatched": 0,
+    "embedded_family_documents": {
+     "count": 14,
+     "by_provenance": {
+      "autodesk-sample": 14
+     }
+    },
+    "derived_by_category": {
+     "embedded-family-documents": 14,
+     "loadable-families": 59,
+     "family-types-symbols": 7,
+     "system-family-types": 9,
+     "views-and-templates": 176,
+     "object-styles": 1914,
+     "patterns-materials": 168,
+     "text-dimension-types": 124,
+     "annotation-symbols-titleblocks": 15,
+     "parameter-definitions": 187,
+     "phases-design-options": 12,
+     "project-info-settings": 41,
+     "mep-electrical-definitions": 315,
+     "datums": 36,
+     "placed-model-content": 14,
+     "view-annotation-2d-content": 50,
+     "internal-bookkeeping": 27
+    },
+    "gate_G1": {
+     "passes": false,
+     "verdict": "FAIL \u2014 3,105 Autodesk-derived element(s) in expression-bearing categories"
+    },
+    "gap_list": [
+     {
+      "category": "embedded-family-documents",
+      "provenance": "autodesk-sample",
+      "count": 14,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "loadable-families",
+      "provenance": "autodesk-sample",
+      "count": 59,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "autodesk-sample",
+      "count": 7,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "autodesk-sample",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "transitive-cloned",
+      "count": 5,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "autodesk-sample",
+      "count": 162,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "transitive-cloned",
+      "count": 14,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "autodesk-sample",
+      "count": 1821,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "transitive-cloned",
+      "count": 93,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "autodesk-sample",
+      "count": 164,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "autodesk-sample",
+      "count": 124,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "annotation-symbols-titleblocks",
+      "provenance": "autodesk-sample",
+      "count": 15,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "parameter-definitions",
+      "provenance": "autodesk-sample",
+      "count": 187,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "autodesk-sample",
+      "count": 11,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "transitive-cloned",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "autodesk-sample",
+      "count": 38,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "mep-electrical-definitions",
+      "provenance": "autodesk-sample",
+      "count": 315,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "autodesk-sample",
+      "count": 5,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "autodesk-sample",
+      "count": 47,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ],
+    "seconds": 0.5
+   }
+  },
+  "G0b": {
+   "file": "experiments/genesis/G0b.rvt",
+   "bytes": 983040,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_messages": [],
+    "warning_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 53,
+     "records": 13311,
+     "elements_decoded": 4422,
+     "decode_failures": 0,
+     "refs_checked": 65262
+    },
+    "seconds": 0.3
+   },
+   "provenance": {
+    "host_elements": 399,
+    "totals": {
+     "autodesk-sample": 165,
+     "ours-created": 104,
+     "transitive-cloned": 130
+    },
+    "derived_total": 295,
+    "autodesk_sample": 165,
+    "transitive_cloned": 130,
+    "ours_created": 104,
+    "ours_modified": 0,
+    "unmatched": 0,
+    "embedded_family_documents": {
+     "count": 14,
+     "by_provenance": {
+      "autodesk-sample": 14
+     }
+    },
+    "derived_by_category": {
+     "embedded-family-documents": 14,
+     "loadable-families": 2,
+     "family-types-symbols": 3,
+     "system-family-types": 5,
+     "views-and-templates": 15,
+     "object-styles": 187,
+     "patterns-materials": 37,
+     "text-dimension-types": 27,
+     "parameter-definitions": 3,
+     "phases-design-options": 1,
+     "project-info-settings": 3,
+     "placed-model-content": 9,
+     "view-annotation-2d-content": 3
+    },
+    "gate_G1": {
+     "passes": false,
+     "verdict": "FAIL \u2014 309 Autodesk-derived element(s) in expression-bearing categories"
+    },
+    "gap_list": [
+     {
+      "category": "embedded-family-documents",
+      "provenance": "autodesk-sample",
+      "count": 14,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "loadable-families",
+      "provenance": "autodesk-sample",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "autodesk-sample",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "transitive-cloned",
+      "count": 5,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "autodesk-sample",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "transitive-cloned",
+      "count": 12,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "autodesk-sample",
+      "count": 94,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "transitive-cloned",
+      "count": 93,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "autodesk-sample",
+      "count": 33,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "autodesk-sample",
+      "count": 27,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "parameter-definitions",
+      "provenance": "autodesk-sample",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "transitive-cloned",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ],
+    "seconds": 0.4
+   }
+  },
+  "G0c": {
+   "file": "experiments/genesis/G0c.rvt",
+   "bytes": 495616,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_messages": [],
+    "warning_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 5,
+     "records": 1200,
+     "elements_decoded": 399,
+     "decode_failures": 0,
+     "refs_checked": 5402
+    },
+    "seconds": 0.1
+   },
+   "provenance": {
+    "host_elements": 399,
+    "totals": {
+     "autodesk-sample": 165,
+     "ours-created": 104,
+     "transitive-cloned": 130
+    },
+    "derived_total": 295,
+    "autodesk_sample": 165,
+    "transitive_cloned": 130,
+    "ours_created": 104,
+    "ours_modified": 0,
+    "unmatched": 0,
+    "embedded_family_documents": {
+     "count": 0,
+     "by_provenance": {}
+    },
+    "derived_by_category": {
+     "loadable-families": 2,
+     "family-types-symbols": 3,
+     "system-family-types": 5,
+     "views-and-templates": 15,
+     "object-styles": 187,
+     "patterns-materials": 37,
+     "text-dimension-types": 27,
+     "parameter-definitions": 3,
+     "phases-design-options": 1,
+     "project-info-settings": 3,
+     "placed-model-content": 9,
+     "view-annotation-2d-content": 3
+    },
+    "gate_G1": {
+     "passes": false,
+     "verdict": "FAIL \u2014 295 Autodesk-derived element(s) in expression-bearing categories"
+    },
+    "gap_list": [
+     {
+      "category": "loadable-families",
+      "provenance": "autodesk-sample",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "autodesk-sample",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "transitive-cloned",
+      "count": 5,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "autodesk-sample",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "transitive-cloned",
+      "count": 12,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "autodesk-sample",
+      "count": 94,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "transitive-cloned",
+      "count": 93,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "autodesk-sample",
+      "count": 33,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "autodesk-sample",
+      "count": 27,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "parameter-definitions",
+      "provenance": "autodesk-sample",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "transitive-cloned",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ],
+    "seconds": 0.4
+   }
+  },
+  "G0d": {
+   "file": "experiments/genesis/G0d.rvt",
+   "bytes": 385024,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_messages": [],
+    "warning_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 3,
+     "records": 705,
+     "elements_decoded": 234,
+     "decode_failures": 0,
+     "refs_checked": 2940
+    },
+    "seconds": 0.1
+   },
+   "provenance": {
+    "host_elements": 234,
+    "totals": {
+     "ours-created": 108,
+     "transitive-cloned": 126
+    },
+    "derived_total": 126,
+    "autodesk_sample": 0,
+    "transitive_cloned": 126,
+    "ours_created": 108,
+    "ours_modified": 0,
+    "unmatched": 0,
+    "embedded_family_documents": {
+     "count": 0,
+     "by_provenance": {}
+    },
+    "derived_by_category": {
+     "system-family-types": 2,
+     "views-and-templates": 11,
+     "object-styles": 93,
+     "patterns-materials": 4,
+     "phases-design-options": 1,
+     "project-info-settings": 3,
+     "placed-model-content": 9,
+     "view-annotation-2d-content": 3
+    },
+    "gate_G1": {
+     "passes": false,
+     "verdict": "FAIL \u2014 126 Autodesk-derived element(s) in expression-bearing categories"
+    },
+    "gap_list": [
+     {
+      "category": "system-family-types",
+      "provenance": "transitive-cloned",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "transitive-cloned",
+      "count": 11,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "transitive-cloned",
+      "count": 93,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "transitive-cloned",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ],
+    "seconds": 0.4
+   }
+  },
+  "G0": {
+   "file": "experiments/genesis/G0.rvt",
+   "bytes": 380928,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_messages": [],
+    "warning_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 3,
+     "records": 705,
+     "elements_decoded": 234,
+     "decode_failures": 0,
+     "refs_checked": 2940
+    },
+    "seconds": 0.1
+   },
+   "provenance": {
+    "host_elements": 234,
+    "totals": {
+     "ours-created": 108,
+     "transitive-cloned": 126
+    },
+    "derived_total": 126,
+    "autodesk_sample": 0,
+    "transitive_cloned": 126,
+    "ours_created": 108,
+    "ours_modified": 0,
+    "unmatched": 0,
+    "embedded_family_documents": {
+     "count": 0,
+     "by_provenance": {}
+    },
+    "derived_by_category": {
+     "system-family-types": 2,
+     "views-and-templates": 11,
+     "object-styles": 93,
+     "patterns-materials": 4,
+     "phases-design-options": 1,
+     "project-info-settings": 3,
+     "placed-model-content": 9,
+     "view-annotation-2d-content": 3
+    },
+    "gate_G1": {
+     "passes": false,
+     "verdict": "FAIL \u2014 126 Autodesk-derived element(s) in expression-bearing categories"
+    },
+    "gap_list": [
+     {
+      "category": "system-family-types",
+      "provenance": "transitive-cloned",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "transitive-cloned",
+      "count": 11,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "transitive-cloned",
+      "count": 93,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "transitive-cloned",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ],
+    "seconds": 0.4
+   }
+  }
+ },
+ "lineage_watermark": 1472524,
+ "our_id_start": 1500000,
+ "our_content": {
+  "elements": 234,
+  "id_range": [
+   1500000,
+   1500233
+  ],
+  "content_source": "rvt.genesis.house_standard.build_catalog",
+  "scrub": "full",
+  "by_kind": [
+   [
+    "object-style",
+    91
+   ],
+   [
+    "plan-view-constellation",
+    14
+   ],
+   [
+    "material",
+    13
+   ],
+   [
+    "text-type",
+    12
+   ],
+   [
+    "3d-view-constellation",
+    8
+   ],
+   [
+    "voltage-type",
+    6
+   ],
+   [
+    "load-classification",
+    6
+   ],
+   [
+    "fill-pattern",
+    5
+   ],
+   [
+    "distribution-system",
+    5
+   ],
+   [
+    "demand-factor",
+    5
+   ],
+   [
+    "conduit-type",
+    5
+   ],
+   [
+    "phase-filter",
+    5
+   ],
+   [
+    "line-pattern",
+    4
+   ],
+   [
+    "conduit-standard",
+    4
+   ],
+   [
+    "sub-category",
+    4
+   ],
+   [
+    "project-view-constellation",
+    4
+   ],
+   [
+    "wall-type",
+    3
+   ],
+   [
+    "cable-tray-type",
+    3
+   ],
+   [
+    "conductor-insulation",
+    3
+   ],
+   [
+    "wire-type",
+    3
+   ],
+   [
+    "view-type",
+    3
+   ],
+   [
+    "conductor-material",
+    2
+   ],
+   [
+    "conductor-temperature-rating",
+    2
+   ],
+   [
+    "conductor-size",
+    2
+   ],
+   [
+    "geo-site",
+    2
+   ],
+   [
+    "geo-location",
+    2
+   ],
+   [
+    "level",
+    2
+   ],
+   [
+    "phase",
+    2
+   ],
+   [
+    "floor-type",
+    1
+   ],
+   [
+    "roof-type",
+    1
+   ],
+   [
+    "ceiling-type",
+    1
+   ],
+   [
+    "electrical-setting",
+    1
+   ],
+   [
+    "conduit-sizes-table",
+    1
+   ],
+   [
+    "cable-tray-sizes-table",
+    1
+   ],
+   [
+    "units-registry",
+    1
+   ],
+   [
+    "true-north",
+    1
+   ],
+   [
+    "project-base-point",
+    1
+   ],
+   [
+    "survey-point",
+    1
+   ],
+   [
+    "level-type",
+    1
+   ],
+   [
+    "phase-set",
+    1
+   ],
+   [
+    "project-info",
+    1
+   ],
+   [
+    "document-sun-settings",
+    1
+   ]
+  ],
+  "roundtrip_ok": "234/234",
+  "dangling_references": 0
+ },
+ "content_ids": {
+  "named": {
+   "units": 1500184,
+   "level1": 1500193,
+   "level2": 1500194,
+   "phase_new": 1500197,
+   "phase_existing": 1500196,
+   "phase_set": 1500195,
+   "project_view": 1500205,
+   "view_3d": 1500212,
+   "project_info": 1500203,
+   "geo_location": 1500189,
+   "true_north": 1500185,
+   "document_sun": 1500204
+  }
+ },
+ "total_seconds": 9.5
+}

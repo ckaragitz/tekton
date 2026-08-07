@@ -1,0 +1,120 @@
+{
+ "prompt": "an electrical room rated for 250V with 6 panels",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "built": {
+  "BXfix_f1i1": {
+   "file": "experiments/instbug/fix/BXfix_f1i1.rvt",
+   "instances": [
+    1472584
+   ],
+   "md5": "edfa2748bdaa5e426271c4e2b6293573",
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "fix_assertions": {
+    "path": "/Users/ck/dev/things/tekton/experiments/instbug/fix/BXfix_f1i1.rvt",
+    "content_table_sorted": true,
+    "n_host_families": 1,
+    "n_host_symbols": 1,
+    "n_instances": 1,
+    "families_null_famdim": [],
+    "symbols_null_moverestr": [],
+    "connector_cells_below_corpus_floor": [],
+    "instances_unlawful_manager": [],
+    "instances_without_phase": [],
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true
+    },
+    "ok": true
+   },
+   "ok": true
+  },
+  "BXfix_f6i6": {
+   "file": "experiments/instbug/fix/BXfix_f6i6.rvt",
+   "instances": [
+    1472879,
+    1472880,
+    1472881,
+    1472882,
+    1472883,
+    1472884
+   ],
+   "md5": "14cfd20a10df91532250f8e99a4d8e14",
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "fix_assertions": {
+    "path": "/Users/ck/dev/things/tekton/experiments/instbug/fix/BXfix_f6i6.rvt",
+    "content_table_sorted": true,
+    "n_host_families": 6,
+    "n_host_symbols": 6,
+    "n_instances": 6,
+    "families_null_famdim": [],
+    "symbols_null_moverestr": [],
+    "connector_cells_below_corpus_floor": [],
+    "instances_unlawful_manager": [],
+    "instances_without_phase": [],
+    "census": {
+     "save_units": 7,
+     "contentdocs_entries": 6,
+     "contenttable_records": 6,
+     "familymgr_entries": 15,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true
+    },
+    "ok": true
+   },
+   "ok": true
+  },
+  "DEMO_250v_room_v2": {
+   "file": "experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+   "frontdoor_status": "PROOF-ONLY (self-checks PASS; see honesty.proof_only_stamps + status_gate)",
+   "out_dir": "experiments/instbug/fix/demo_v2",
+   "md5": "af0a370b8ca78ad970bec910e41951e7",
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": []
+   },
+   "fix_assertions": {
+    "path": "/Users/ck/dev/things/tekton/experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+    "content_table_sorted": true,
+    "n_host_families": 6,
+    "n_host_symbols": 6,
+    "n_instances": 6,
+    "families_null_famdim": [],
+    "symbols_null_moverestr": [],
+    "connector_cells_below_corpus_floor": [],
+    "instances_unlawful_manager": [],
+    "instances_without_phase": [],
+    "census": {
+     "save_units": 7,
+     "contentdocs_entries": 6,
+     "contenttable_records": 6,
+     "familymgr_entries": 15,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true
+    },
+    "ok": true
+   },
+   "ok": true
+  }
+ },
+ "all_ok": true,
+ "seconds": 51.4
+}

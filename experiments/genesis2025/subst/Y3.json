@@ -1,0 +1,605 @@
+{
+ "rung": "Y3",
+ "label": "StructSettings / wall-join / auto-join / keynote pair -> ours, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+ "base": {
+  "file": "experiments/genesis2025/B2025_K4.rvt",
+  "certification": null,
+  "lineage": ""
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+  "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+  "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+  "certification": null
+ },
+ "parent": "experiments/genesis2025/subst/Y2.rvt",
+ "parent_rung": "Y2",
+ "out": "experiments/genesis2025/subst/Y3.rvt",
+ "description": "Y2 with the named settings singletons' OBJECTS replaced in place: StructSettingsElem (our imperial structural conventions), WallJoinDefaultSetting, AutoJoinTracker, KeynoteTable (OURS = EMPTY: Autodesk's 3,840-row keynote database is NOT reproduced) + KeynotingSystem.  InitialViewSettings is NOT in K4's lineage (nothing to land it in -> listed as ours-not-landed).",
+ "tests": "Whether the reader accepts our structural / join / keynote singleton OBJECTS (incl. an EMPTY keynote table) at Autodesk's slots.",
+ "if_PASS": "The named singleton constructors are reader-accepted (an empty keynote table is legal).",
+ "if_FAIL": "One of these five objects is rejected -- bisect the keynote pair from the joins pair from StructSettings.",
+ "stages": [],
+ "parent_context": {
+  "host_elements": 3333,
+  "watermark": 1472011
+ },
+ "candidates_old_by_class": {
+  "StructSettingsElem": 1,
+  "KeynoteTable": 1,
+  "KeynotingSystem": 1,
+  "WallJoinDefaultSetting": 1,
+  "AutoJoinTracker": 1
+ },
+ "our_records_by_class": {
+  "StructSettingsElem": 1,
+  "WallJoinDefaultSetting": 1,
+  "AutoJoinTracker": 1,
+  "KeynoteTable": 1,
+  "KeynotingSystem": 1,
+  "InitialViewSettings": 1
+ },
+ "build_notes": [
+  "StructSettings wiring kept: {'hidden_level_ids': [], 'brace_above_id': -1, 'brace_below_id': -1, 'kicker_brace_id': -1, 'bc_fixed_family_id': -1, 'bc_pinned_family_id': -1, 'bc_roller_family_id': -1, 'bc_user_family_id': -1}",
+  "old keynote table carried 3840 entries (Autodesk's shipped keynote database) -> ours is EMPTY (not reproduced; a job passes its own rows)",
+  "[port2025] 6 records adapted to the Revit-2025 schema (2025 class ordinals, confirmed field maps; rvt.genesis.port2025); 0 record(s) of 2026-only classes emit nothing on 2025"
+ ],
+ "build_info": {
+  "port2025": {
+   "adapted": 6,
+   "dropped_2026_only": []
+  }
+ },
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 5,
+  "by_match": {
+   "role": 5
+  },
+  "landed_by_class": {
+   "StructSettingsElem": 1,
+   "WallJoinDefaultSetting": 1,
+   "AutoJoinTracker": 1,
+   "KeynoteTable": 1,
+   "KeynotingSystem": 1
+  },
+  "dropped_ours": 1,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "protected_slots_from_earlier_rungs": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 1,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 5,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 5,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3333,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/20"
+  ],
+  "seconds": 1.7
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/20"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   54663,
+   86291
+  ],
+  "records_changed_count": 2,
+  "records_changed_by_seq": {
+   "102": 2
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 5,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 3,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 54663,
+    "len_ours": 331,
+    "len_parent": 331,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "StructSettingsElem",
+      "class_parent": "StructSettingsElem"
+     },
+     {
+      "path": ".m_analyticalModelSnapDistance",
+      "ours": "1.0",
+      "parent": "0.984251968503937"
+     },
+     {
+      "path": ".m_bcSpacing",
+      "ours": "0.08333333333333333",
+      "parent": "0.08202099737532809"
+     },
+     {
+      "path": ".m_columnCutback",
+      "ours": "0.005208333333333333",
+      "parent": "0.004921259842519685"
+     },
+     {
+      "path": ".m_maxLoadForce",
+      "ours": "1000000.0",
+      "parent": "164041.99475065616"
+     },
+     {
+      "path": ".m_parallelBraceOffset",
+      "ours": "0.0078125",
+      "parent": "0.008202099737532808"
+     },
+     {
+      "path": ".m_scaledAreaLoadsIntensitySlope",
+      "ours": "0.003",
+      "parent": "0.0032291731250129164"
+     },
+     {
+      "path": ".m_scaledLineLoadsIntensitySlope",
+      "ours": "0.001",
+      "parent": "0.000984251968503937"
+     },
+     {
+      "path": ".m_scaledPointLoadsIntensitySlope",
+      "ours": "0.001",
+      "parent": "0.0003"
+     },
+     {
+      "path": ".m_symbolicBraceCutback",
+      "ours": "0.0078125",
+      "parent": "0.008202099737532808"
+     },
+     {
+      "path": ".m_symbolicCutback",
+      "ours": "0.0078125",
+      "parent": "0.008202099737532808"
+     },
+     {
+      "path": ".m_toleranceAutofixXY",
+      "ours": "1.0",
+      "parent": "0.984251968503937"
+     },
+     {
+      "path": ".m_toleranceAutofixZ",
+      "ours": "1.0",
+      "parent": "0.984251968503937"
+     },
+     {
+      "path": ".m_toleranceDiscrepancy",
+      "ours": "0.5",
+      "parent": "0.4921259842519685"
+     },
+     {
+      "path": ".m_toleranceSupport",
+      "ours": "1.0",
+      "parent": "0.984251968503937"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 86291,
+    "len_ours": 187,
+    "len_parent": 487225,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "KeynoteTable",
+      "class_parent": "KeynoteTable"
+     },
+     {
+      "path": ".m_cellList.value.m_cells[1].value.m_externalResourceReferences[len]",
+      "ours": 0,
+      "parent": 1
+     },
+     {
+      "path": ".m_cellList.value.m_cells[1].value.m_externalResourceReferencesExpanded[len]",
+      "ours": 0,
+      "parent": 1
+     },
+     {
+      "path": ".m_lastReadSucceeded",
+      "ours": "False",
+      "parent": "True"
+     },
+     {
+      "path": ".m_oKeyBasedTreeEntries.value.m_keyBasedTreeEntrySet[len]",
+      "ours": 0,
+      "parent": 3840
+     },
+     {
+      "path": ".m_oKeyBasedTreeEntries.value.m_orphans[len]",
+      "ours": 0,
+      "parent": 16
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 18,
+    "blocks_out": 14
+   },
+   {
+    "what": "3 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     86315,
+     102105,
+     102467
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 5,
+  "slots_with_registry_surface": 5,
+  "positional_uet_slots": [
+   {
+    "slot": 54663,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[33]"
+    ]
+   },
+   {
+    "slot": 86291,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[65]"
+    ]
+   },
+   {
+    "slot": 102105,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[7]"
+    ]
+   },
+   {
+    "slot": 102467,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[11]"
+    ]
+   }
+  ],
+  "surface_examples": [
+   {
+    "slot": 54663,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[33]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 86291,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElemsSetWithCellsTracking.m_elemIdSetMap[*].second.m_idSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElemsSetWithCellsTracking.m_elemIdSetMap[*].second.m_idSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->KeynoteTableTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[65]"
+    ],
+    "n_paths": 4
+   },
+   {
+    "slot": 86315,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->KeynotingSystemTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 102105,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[7]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 102467,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[11]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 5,
+  "pairs_ok": 5,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 54663,
+   "class": "StructSettingsElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 302,
+    "modified_ep": 999,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 86291,
+   "class": "KeynoteTable",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 366,
+    "modified_ep": 1014,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 4
+  },
+  {
+   "slot": 86315,
+   "class": "KeynotingSystem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 368,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 102105,
+   "class": "WallJoinDefaultSetting",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 408,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 102467,
+   "class": "AutoJoinTracker",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 410,
+    "modified_ep": 1014,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 19,
+   "records": 10002,
+   "elements_decoded": 3333,
+   "decode_failures": 1,
+   "refs_checked": 52257
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis2025/subst/Y3.rvt",
+  "elements": 3333,
+  "file_size": 778240,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "classes_top": {
+   "GStyleElem": 1451,
+   "ParamElemExternal": 466,
+   "CategoryElem": 209,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "MaterialElem": 23,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 10,
+   "SectionAttributes": 10,
+   "PenWidthTableElem": 9,
+   "FillPatternElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "ColorFillSchema": 9
+  }
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500000,
+   "slot": 54663,
+   "class": "StructSettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 86291,
+   "class": "KeynoteTable",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Standard"
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 86315,
+   "class": "KeynotingSystem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 102105,
+   "class": "WallJoinDefaultSetting",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 102467,
+   "class": "AutoJoinTracker",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  }
+ ],
+ "correspondence_note": "all pairs stored",
+ "landed_slots": [
+  {
+   "slot": 54663,
+   "class": "StructSettingsElem",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 102105,
+   "class": "WallJoinDefaultSetting",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 102467,
+   "class": "AutoJoinTracker",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 86291,
+   "class": "KeynoteTable",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 86315,
+   "class": "KeynotingSystem",
+   "match": "role",
+   "ours_tmp": 1500004
+  }
+ ],
+ "ours_not_landed": {
+  "count": 1,
+  "by_class": {
+   "InitialViewSettings": 1
+  },
+  "examples": [
+   {
+    "ours": 1500005,
+    "class": "InitialViewSettings",
+    "name": "",
+    "reason": "no free InitialViewSettings slot in the base (0 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   }
+  ],
+  "meaning": "our records that found NO in-place slot in the parent (the parent lacks an element of the class, or fewer than we build); landing them requires the ADD path -- deliberately NOT this ladder's variable"
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {},
+  "meaning": "the parent's candidate elements our set did not land on (surplus sample instances / companions): left EXACTLY as they were -- residue for the census"
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 778240,
+ "seconds": 2.8
+}

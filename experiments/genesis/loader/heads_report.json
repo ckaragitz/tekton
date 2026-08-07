@@ -1,0 +1,1003 @@
+{
+ "out_dir": "experiments/genesis/loader",
+ "families": {
+  "section_head_open": {
+   "name": "RW Section Head - Open",
+   "type": "Section Head - Open",
+   "category": -2000400,
+   "category_label": "Section Marks",
+   "elements": 19,
+   "params": [
+    "Radius"
+   ],
+   "roundtrip": {
+    "records": 57,
+    "ok": 57,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "SectionAttributes.m_sectionHeadFamilyTagId",
+   "stands_in_for": "M_Section Head - No Arrow (rstbasic unit 17)",
+   "notes": [
+    "stands in for M_Section Head - No Arrow (rstbasic unit 17); usage role: SectionAttributes.m_sectionHeadFamilyTagId",
+    "annotation skeleton only: no detail geometry, no label [H]",
+    "Autodesk's carries NO user parameters (its labels bind the built-in detail-number / sheet-number tokens); OURS carries our head radius"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_section_head_open.rfa",
+    "bytes": 262144,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_section_head_open.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 20,
+      "102": 20,
+      "103": 20
+     },
+     "decode_seq102": {
+      "records": 19,
+      "clean": 19,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 3917,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1989,
+     "TransmissionData": 214,
+     "PartAtom": 768
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 19,
+    "refs_checked": 313
+   }
+  },
+  "section_head_filled": {
+   "name": "RW Section Head - Filled",
+   "type": "Section Head - Filled",
+   "category": -2000400,
+   "category_label": "Section Marks",
+   "elements": 19,
+   "params": [
+    "Radius"
+   ],
+   "roundtrip": {
+    "records": 57,
+    "ok": 57,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "SectionAttributes.m_sectionHeadFamilyTagId",
+   "stands_in_for": "M_Section Head - Filled (rstbasic unit 35)",
+   "notes": [
+    "stands in for M_Section Head - Filled (rstbasic unit 35); usage role: SectionAttributes.m_sectionHeadFamilyTagId",
+    "annotation skeleton only: no detail geometry, no label [H]"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_section_head_filled.rfa",
+    "bytes": 262144,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_section_head_filled.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 20,
+      "102": 20,
+      "103": 20
+     },
+     "decode_seq102": {
+      "records": 19,
+      "clean": 19,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 3917,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1997,
+     "TransmissionData": 214,
+     "PartAtom": 778
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 19,
+    "refs_checked": 313
+   }
+  },
+  "section_tail_filled": {
+   "name": "RW Section Tail - Filled",
+   "type": "Section Tail - Filled",
+   "category": -2000400,
+   "category_label": "Section Marks",
+   "elements": 20,
+   "params": [
+    "Width",
+    "Height"
+   ],
+   "roundtrip": {
+    "records": 60,
+    "ok": 60,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "SectionAttributes.m_sectionTailFamilyTagId",
+   "stands_in_for": "M_Section Tail - Filled (rstbasic unit 44)",
+   "notes": [
+    "stands in for M_Section Tail - Filled (rstbasic unit 44); usage role: SectionAttributes.m_sectionTailFamilyTagId",
+    "annotation skeleton only: no detail geometry, no label [H]",
+    "parameter set = the sample's (Width, Height), our values"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_section_tail_filled.rfa",
+    "bytes": 266240,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_section_tail_filled.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 21,
+      "102": 21,
+      "103": 21
+     },
+     "decode_seq102": {
+      "records": 20,
+      "clean": 20,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 3998,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1997,
+     "TransmissionData": 214,
+     "PartAtom": 778
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 20,
+    "refs_checked": 329
+   }
+  },
+  "section_tail_horizontal": {
+   "name": "RW Section Tail - Horizontal",
+   "type": "Section Tail - Horizontal",
+   "category": -2000400,
+   "category_label": "Section Marks",
+   "elements": 20,
+   "params": [
+    "Width",
+    "Height"
+   ],
+   "roundtrip": {
+    "records": 60,
+    "ok": 60,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "SectionAttributes.m_sectionTailFamilyTagId",
+   "stands_in_for": "M_Section Tail - Filled Horizontal (rstbasic unit 5)",
+   "notes": [
+    "stands in for M_Section Tail - Filled Horizontal (rstbasic unit 5); usage role: SectionAttributes.m_sectionTailFamilyTagId",
+    "annotation skeleton only: no detail geometry, no label [H]"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_section_tail_horizontal.rfa",
+    "bytes": 266240,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_section_tail_horizontal.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 21,
+      "102": 21,
+      "103": 21
+     },
+     "decode_seq102": {
+      "records": 20,
+      "clean": 20,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 3998,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 2013,
+     "TransmissionData": 214,
+     "PartAtom": 798
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 20,
+    "refs_checked": 329
+   }
+  },
+  "level_head": {
+   "name": "RW Level Head - Circle",
+   "type": "Level Head - Circle",
+   "category": -2006020,
+   "category_label": "Level Heads",
+   "elements": 21,
+   "params": [
+    "Name",
+    "Elevation",
+    "Radius"
+   ],
+   "roundtrip": {
+    "records": 63,
+    "ok": 63,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "LevelAttributes.m_familyTagId",
+   "stands_in_for": "M_Level Head - Circle1 (rstbasic unit 34)",
+   "notes": [
+    "stands in for M_Level Head - Circle1 (rstbasic unit 34); usage role: LevelAttributes.m_familyTagId",
+    "annotation skeleton only: no detail geometry, no label [H]",
+    "parameter set = the sample's (Name, Elevation, Radius): the two text params are ParamDefValue with the string spec in OUR skeleton (the sample uses the ParamDefString class)"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_level_head.rfa",
+    "bytes": 262144,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_level_head.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 22,
+      "102": 22,
+      "103": 22
+     },
+     "decode_seq102": {
+      "records": 21,
+      "clean": 21,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 4087,
+     "Global/ElemTable": 228,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1961,
+     "TransmissionData": 214,
+     "PartAtom": 768
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 21,
+    "refs_checked": 343
+   }
+  },
+  "grid_head": {
+   "name": "RW Grid Head - Circle",
+   "type": "Grid Head - Circle",
+   "category": -2006040,
+   "category_label": "Grid Heads",
+   "elements": 20,
+   "params": [
+    "Radius",
+    "Name"
+   ],
+   "roundtrip": {
+    "records": 60,
+    "ok": 60,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "GridAttributes.m_familyTagId",
+   "stands_in_for": "M_Grid Head - Circle1 (rstbasic unit 23)",
+   "notes": [
+    "stands in for M_Grid Head - Circle1 (rstbasic unit 23); usage role: GridAttributes.m_familyTagId",
+    "annotation skeleton only: no detail geometry, no label [H]"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_grid_head.rfa",
+    "bytes": 262144,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_grid_head.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 21,
+      "102": 21,
+      "103": 21
+     },
+     "decode_seq102": {
+      "records": 20,
+      "clean": 20,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 4030,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1957,
+     "TransmissionData": 214,
+     "PartAtom": 763
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 20,
+    "refs_checked": 328
+   }
+  },
+  "callout_head": {
+   "name": "RW Callout Head",
+   "type": "Callout Head",
+   "category": -2000538,
+   "category_label": "Callout Heads",
+   "elements": 19,
+   "params": [
+    "Radius"
+   ],
+   "roundtrip": {
+    "records": 57,
+    "ok": 57,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "CalloutTag.m_familyTagId",
+   "stands_in_for": "M_Callout Head1 (rstbasic unit 6)",
+   "notes": [
+    "stands in for M_Callout Head1 (rstbasic unit 6); usage role: CalloutTag.m_familyTagId",
+    "annotation skeleton only: no detail geometry, no label [H]",
+    "Autodesk's carries no user parameters (built-in reference labels)"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_callout_head.rfa",
+    "bytes": 262144,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_callout_head.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 20,
+      "102": 20,
+      "103": 20
+     },
+     "decode_seq102": {
+      "records": 19,
+      "clean": 19,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 3909,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1969,
+     "TransmissionData": 214,
+     "PartAtom": 733
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 19,
+    "refs_checked": 313
+   }
+  },
+  "elevation_body": {
+   "name": "RW Elevation Mark Body",
+   "type": "Elevation Mark Body",
+   "category": -2006045,
+   "category_label": "Elevation Marks",
+   "elements": 19,
+   "params": [
+    "Radius"
+   ],
+   "roundtrip": {
+    "records": 57,
+    "ok": 57,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "InteriorElevAttributes.m_elevationSymbolId (the mark body)",
+   "stands_in_for": "M_Elevation Mark Body_Circle-12mm1 (rstbasic unit 20)",
+   "notes": [
+    "stands in for M_Elevation Mark Body_Circle-12mm1 (rstbasic unit 20); usage role: InteriorElevAttributes.m_elevationSymbolId (the mark body)",
+    "annotation skeleton only: no detail geometry, no label [H]",
+    "the sample's parameters are Yes/No + a FamType (Filled / View Name / Ref / Arrow Type) driving nested pointer families; OURS is the body circle only (no nested families)"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_elevation_body.rfa",
+    "bytes": 262144,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_elevation_body.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 20,
+      "102": 20,
+      "103": 20
+     },
+     "decode_seq102": {
+      "records": 19,
+      "clean": 19,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 3917,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1977,
+     "TransmissionData": 214,
+     "PartAtom": 768
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 19,
+    "refs_checked": 313
+   }
+  },
+  "elevation_pointer_1": {
+   "name": "RW Elevation Mark Pointer",
+   "type": "Filled Arrow",
+   "category": -2006045,
+   "category_label": "Elevation Marks",
+   "elements": 19,
+   "params": [
+    "Radius"
+   ],
+   "roundtrip": {
+    "records": 57,
+    "ok": 57,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "the elevation mark body's nested pointer family (unreferenced by the host)",
+   "stands_in_for": "M_Elevation Mark Pointer_Circle-12mm (rstbasic unit 13)",
+   "notes": [
+    "stands in for M_Elevation Mark Pointer_Circle-12mm (rstbasic unit 13); usage role: the elevation mark body's nested pointer family (unreferenced by the host)",
+    "annotation skeleton only: no detail geometry, no label [H]"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_elevation_pointer_1.rfa",
+    "bytes": 262144,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_elevation_pointer_1.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 20,
+      "102": 20,
+      "103": 20
+     },
+     "decode_seq102": {
+      "records": 19,
+      "clean": 19,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 3909,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1997,
+     "TransmissionData": 214,
+     "PartAtom": 773
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 19,
+    "refs_checked": 313
+   }
+  },
+  "elevation_pointer_2": {
+   "name": "RW Elevation Mark Pointer 2",
+   "type": "Detail Number",
+   "category": -2006045,
+   "category_label": "Elevation Marks",
+   "elements": 19,
+   "params": [
+    "Radius"
+   ],
+   "roundtrip": {
+    "records": 57,
+    "ok": 57,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "the elevation mark body's nested pointer family (unreferenced by the host)",
+   "stands_in_for": "M_Elevation Mark Pointer_Circle-12mm1 (rstbasic unit 52)",
+   "notes": [
+    "stands in for M_Elevation Mark Pointer_Circle-12mm1 (rstbasic unit 52); usage role: the elevation mark body's nested pointer family (unreferenced by the host)",
+    "annotation skeleton only: no detail geometry, no label [H]"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_elevation_pointer_2.rfa",
+    "bytes": 262144,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_elevation_pointer_2.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 20,
+      "102": 20,
+      "103": 20
+     },
+     "decode_seq102": {
+      "records": 19,
+      "clean": 19,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 3909,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1997,
+     "TransmissionData": 214,
+     "PartAtom": 782
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 19,
+    "refs_checked": 313
+   }
+  },
+  "view_title": {
+   "name": "RW View Title",
+   "type": "View Title",
+   "category": -2000515,
+   "category_label": "View Titles",
+   "elements": 19,
+   "params": [
+    "Line Length"
+   ],
+   "roundtrip": {
+    "records": 57,
+    "ok": 57,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "ViewportAttributes.m_familyTagId",
+   "stands_in_for": "M_View Title (rstbasic unit 26)",
+   "notes": [
+    "stands in for M_View Title (rstbasic unit 26); usage role: ViewportAttributes.m_familyTagId",
+    "annotation skeleton only: no detail geometry, no label [H]",
+    "Autodesk's carries no user parameters (title / scale labels bind view built-ins); OURS carries our title-line length"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_view_title.rfa",
+    "bytes": 262144,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_view_title.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 20,
+      "102": 20,
+      "103": 20
+     },
+     "decode_seq102": {
+      "records": 19,
+      "clean": 19,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 3909,
+     "Global/ElemTable": 220,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1961,
+     "TransmissionData": 214,
+     "PartAtom": 723
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 19,
+    "refs_checked": 313
+   }
+  },
+  "boundary_condition": {
+   "name": "RW Boundary Condition - Fixed",
+   "type": "Boundary Condition - Fixed",
+   "category": -2005301,
+   "category_label": "Boundary Conditions",
+   "elements": 21,
+   "params": [
+    "Radius",
+    "Width",
+    "Length"
+   ],
+   "roundtrip": {
+    "records": 63,
+    "ok": 63,
+    "failed": 0,
+    "failures": []
+   },
+   "role": "StructSettingsElem.m_bcFixedFamilyId (a structural annotation family)",
+   "stands_in_for": "M_Boundary Condition-Fixed (rstbasic unit 25)",
+   "notes": [
+    "stands in for M_Boundary Condition-Fixed (rstbasic unit 25); usage role: StructSettingsElem.m_bcFixedFamilyId (a structural annotation family)",
+    "annotation skeleton only: no detail geometry, no label [H]",
+    "parameter set = the sample's (Radius, Width, Length), our values; the sample nests three symbol families (fixed / pinned / roller), ours is the single fixed body"
+   ],
+   "rfa": {
+    "path": "experiments/genesis/loader/head_boundary_condition.rfa",
+    "bytes": 266240,
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/genesis/loader/head_boundary_condition.rfa",
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0,
+     "streams": [
+      "BasicFileInfo",
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable",
+      "PartAtom",
+      "Partitions/0",
+      "TransmissionData"
+     ],
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 22,
+      "102": 22,
+      "103": 22
+     },
+     "decode_seq102": {
+      "records": 21,
+      "clean": 21,
+      "error_classes": {}
+     },
+     "id_sets_identical_across_seqs": true,
+     "ok": true
+    },
+    "streams": {
+     "Partitions/0": 4055,
+     "Global/ElemTable": 228,
+     "Global/History": 130,
+     "Global/DocumentIncrementTable": 126,
+     "Global/PartitionTable": 126,
+     "Global/ContentDocuments": 82,
+     "Contents": 204,
+     "Formats/Latest": 165553,
+     "Global/Latest": 68508,
+     "BasicFileInfo": 1993,
+     "TransmissionData": 214,
+     "PartAtom": 803
+    }
+   },
+   "validate_family": {
+    "verdict": "VALID",
+    "errors": 0,
+    "warnings": 0,
+    "elements_decoded": 21,
+    "refs_checked": 345
+   }
+  }
+ }
+}

@@ -1,0 +1,5308 @@
+{
+ "files": [
+  {
+   "file": "M1_delete.rvt",
+   "source": "rmebasicsampleproject.rvt",
+   "proves": "DELETE a family instance with no dependents (unconnected air terminal, host document, no dependents/referrers 430715)",
+   "plan": {
+    "plan": "delete",
+    "root_id": 430715,
+    "cascade": false,
+    "ids_to_remove": [
+     430715
+    ],
+    "dependents": [],
+    "referrer_edits": [],
+    "record_edits": [
+     {
+      "seq": 101,
+      "elem_id": 430715,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 430715,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 430715,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     }
+    ],
+    "elemtable_remove": [
+     430715
+    ],
+    "warnings": [],
+    "notes": [
+     "deleting 1 element(s): [430715]; 0 referrer element(s) neutralised; ElemTable count -= 1, id watermark unchanged"
+    ]
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 28131,
+    "header_count": 28131,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {},
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_healthy": true,
+   "semantic": {
+    "deleted_id": 430715,
+    "class": "FamilyInstance",
+    "category": -2008013,
+    "ok_gone_from_unit0": true,
+    "ok_gone_from_elemtable": true,
+    "elemtable_count": [
+     28132,
+     28131
+    ],
+    "watermark_kept": true
+   }
+  },
+  {
+   "file": "M2_delete_cascade.rvt",
+   "source": "rmebasicsampleproject.rvt",
+   "proves": "DELETE an element WITH dependents (SWall hosting 2 SketchPlanes + 10 face-hosted fixtures; pipes/systems referrers 573703): DependentsError report + cascade run",
+   "plan": {
+    "plan": "delete",
+    "root_id": 573703,
+    "cascade": true,
+    "ids_to_remove": [
+     380523,
+     543273,
+     543313,
+     543319,
+     543332,
+     543372,
+     543393,
+     543403,
+     543504,
+     543513,
+     573703,
+     585296,
+     585297,
+     585416,
+     585417,
+     593903,
+     593910,
+     595054
+    ],
+    "dependents": [
+     {
+      "id": 380523,
+      "depth": 1,
+      "class": "RoomTag",
+      "relation": "deletion-parent",
+      "via": "ElementHeader.m_parents.m_deletion"
+     },
+     {
+      "id": 585296,
+      "depth": 1,
+      "class": "LinearDimString",
+      "relation": "deletion-parent",
+      "via": "ElementHeader.m_parents.m_deletion"
+     },
+     {
+      "id": 585297,
+      "depth": 1,
+      "class": "LinearDimString",
+      "relation": "deletion-parent",
+      "via": "ElementHeader.m_parents.m_deletion"
+     },
+     {
+      "id": 585416,
+      "depth": 1,
+      "class": "LinearDimString",
+      "relation": "deletion-parent",
+      "via": "ElementHeader.m_parents.m_deletion"
+     },
+     {
+      "id": 585417,
+      "depth": 1,
+      "class": "LinearDimString",
+      "relation": "deletion-parent",
+      "via": "ElementHeader.m_parents.m_deletion"
+     },
+     {
+      "id": 593910,
+      "depth": 1,
+      "class": "SketchPlane",
+      "relation": "hosted",
+      "via": "m_oPlaneRef.m_geomRef.m_elemId"
+     },
+     {
+      "id": 595054,
+      "depth": 1,
+      "class": "SketchPlane",
+      "relation": "hosted",
+      "via": "m_oPlaneRef.m_geomRef.m_elemId"
+     },
+     {
+      "id": 543273,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 543313,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 543319,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 543332,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 543372,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 543393,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 543403,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 543504,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 543513,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 593903,
+      "depth": 2,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     }
+    ],
+    "referrer_edits": [
+     {
+      "id": 380014,
+      "class": "LevelRoomPlan",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[69]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_planTopology.value.m_segments[83]",
+         "action": "drop-entry",
+         "before": "{\"m_key\": {\"m_item\": {\"m_linkInstOrHostId\": 573703, \"m_linkRef\": {\"m_id64\": -1}}, \"m_majorIndex\": 0, \"m_subIndex\": 0}, \"..."
+        },
+        {
+         "path": "m_planTopology.value.m_circuits[4]",
+         "action": "drop-entry",
+         "before": "{\"m_area\": 184.0866600636154, \"m_envelope\": {\"m_corners\": [[14.34077355854177, -41.8266553769972], [22.870957285041214, ..."
+        },
+        {
+         "path": "m_planTopology.value.m_circuits[5]",
+         "action": "drop-entry",
+         "before": "{\"m_area\": 174.20744413028203, \"m_envelope\": {\"m_corners\": [[22.870957285041214, -41.82665537699719], [30.74497303341645..."
+        }
+       ]
+      }
+     },
+     {
+      "id": 380522,
+      "class": "RoomElem",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[7]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pPlacement.value.m_ref0",
+         "action": "set-invalid",
+         "before": 573703
+        }
+       ]
+      }
+     },
+     {
+      "id": 543599,
+      "class": "RbsPipingSystem",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[1]",
+         "action": "remove-id",
+         "before": 543273
+        },
+        {
+         "path": "m_parents.value.m_deletion[2]",
+         "action": "remove-id",
+         "before": 543313
+        },
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543319
+        },
+        {
+         "path": "m_parents.value.m_deletion[4]",
+         "action": "remove-id",
+         "before": 543332
+        },
+        {
+         "path": "m_parents.value.m_deletion[5]",
+         "action": "remove-id",
+         "before": 543372
+        },
+        {
+         "path": "m_parents.value.m_deletion[7]",
+         "action": "remove-id",
+         "before": 543393
+        },
+        {
+         "path": "m_parents.value.m_deletion[8]",
+         "action": "remove-id",
+         "before": 543403
+        },
+        {
+         "path": "m_parents.value.m_deletion[9]",
+         "action": "remove-id",
+         "before": 543504
+        },
+        {
+         "path": "m_parents.value.m_deletion[10]",
+         "action": "remove-id",
+         "before": 543513
+        },
+        {
+         "path": "m_parents.value.m_deletion[21]",
+         "action": "remove-id",
+         "before": 593903
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[0].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543273, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[1].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543313, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[2].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543319, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[3].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543332, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[4].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543372, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[6].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543393, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[7].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543403, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[8].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543504, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[9].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543513, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[12].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 593903, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[6].value.m_rgSection[3]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543273, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[7].value.m_rgSection[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 593903, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[15].value.m_rgSection[7]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543513, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[17].value.m_rgSection[3]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543403, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[20].value.m_rgSection[7]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543504, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[22].value.m_rgSection[3]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543393, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[23].value.m_rgSection[3]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543332, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[25].value.m_rgSection[3]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543372, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[26].value.m_rgSection[3]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543313, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[28].value.m_rgSection[7]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543319, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 545537,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543393
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543393, \"m_nIndex\": 3, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 545541,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543403
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543403, \"m_nIndex\": 3, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 545546,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543504
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543504, \"m_nIndex\": 3, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 545553,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543513
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543513, \"m_nIndex\": 3, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 573663,
+      "class": "SWall",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[14]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_geomSteps.value.m_bRepTweakGList[0].value.m_affectedEdgesTags[7]",
+         "action": "drop-entry",
+         "before": "{\"first\": 573703, \"second\": {\"m_tags\": [1043, 1100, 1104, 1105, 1110, 1111]}}"
+        },
+        {
+         "path": "m_pCurveDriver.value.m_sideJoins[5].value.m_info[1]",
+         "action": "drop-entry",
+         "before": "{\"m_elemId\": 573703, \"m_joinedEnd\": 1, \"m_bTangent\": false}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 575437,
+      "class": "RoomElem",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pPlacement.value.m_ref0",
+         "action": "set-invalid",
+         "before": 573703
+        }
+       ]
+      }
+     },
+     {
+      "id": 575438,
+      "class": "RoomElem",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pPlacement.value.m_ref0",
+         "action": "set-invalid",
+         "before": 573703
+        }
+       ]
+      }
+     },
+     {
+      "id": 576035,
+      "class": "SWall",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[6]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_geomSteps.value.m_bRepTweakGList[0].value.m_affectedEdgesTags[2]",
+         "action": "drop-entry",
+         "before": "{\"first\": 573703, \"second\": {\"m_tags\": [110, 187]}}"
+        },
+        {
+         "path": "m_pCurveDriver.value.m_sideJoins[0].value.m_info[1]",
+         "action": "drop-entry",
+         "before": "{\"m_elemId\": 573703, \"m_joinedEnd\": 0, \"m_bTangent\": false}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 578585,
+      "class": "VarSketch",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[80]",
+         "action": "remove-id",
+         "before": 585296
+        },
+        {
+         "path": "m_parents.value.m_deletion[81]",
+         "action": "remove-id",
+         "before": 585297
+        },
+        {
+         "path": "m_parents.value.m_regenOnly[13]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_dimIds[25]",
+         "action": "remove-id",
+         "before": 585296
+        },
+        {
+         "path": "m_dimIds[26]",
+         "action": "remove-id",
+         "before": 585297
+        },
+        {
+         "path": "m_dimData[25]",
+         "action": "drop-entry",
+         "before": "{\"first\": 585296, \"second\": 0}"
+        },
+        {
+         "path": "m_dimData[26]",
+         "action": "drop-entry",
+         "before": "{\"first\": 585297, \"second\": 0}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 580603,
+      "class": "VarSketch",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[11]",
+         "action": "remove-id",
+         "before": 585416
+        },
+        {
+         "path": "m_parents.value.m_regenOnly[5]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_dimIds[2]",
+         "action": "remove-id",
+         "before": 585416
+        },
+        {
+         "path": "m_dimData[2]",
+         "action": "drop-entry",
+         "before": "{\"first\": 585416, \"second\": 0}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 580618,
+      "class": "VarSketch",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[9]",
+         "action": "remove-id",
+         "before": 585417
+        },
+        {
+         "path": "m_parents.value.m_regenOnly[5]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_dimIds[0]",
+         "action": "remove-id",
+         "before": 585417
+        },
+        {
+         "path": "m_dimData[0]",
+         "action": "drop-entry",
+         "before": "{\"first\": 585417, \"second\": 0}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 580983,
+      "class": "LevelRoomPlan",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[30]",
+         "action": "remove-id",
+         "before": 573703
+        }
+       ],
+       "102": [
+        {
+         "path": "m_planTopology.value.m_segments[71]",
+         "action": "drop-entry",
+         "before": "{\"m_key\": {\"m_item\": {\"m_linkInstOrHostId\": 573703, \"m_linkRef\": {\"m_id64\": -1}}, \"m_majorIndex\": 0, \"m_subIndex\": 0}, \"..."
+        },
+        {
+         "path": "m_planTopology.value.m_circuits[3]",
+         "action": "drop-entry",
+         "before": "{\"m_area\": 184.0866600636154, \"m_envelope\": {\"m_corners\": [[14.34077355854177, -41.8266553769972], [22.870957285041214, ..."
+        },
+        {
+         "path": "m_planTopology.value.m_circuits[4]",
+         "action": "drop-entry",
+         "before": "{\"m_area\": 174.20744413028203, \"m_envelope\": {\"m_corners\": [[22.870957285041214, -41.82665537699719], [30.74497303341645..."
+        }
+       ]
+      }
+     },
+     {
+      "id": 590306,
+      "class": "RbsPipingSystem",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[0]",
+         "action": "remove-id",
+         "before": 543393
+        },
+        {
+         "path": "m_parents.value.m_deletion[1]",
+         "action": "remove-id",
+         "before": 543403
+        },
+        {
+         "path": "m_parents.value.m_deletion[2]",
+         "action": "remove-id",
+         "before": 543504
+        },
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543513
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[0].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543504, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[1].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543403, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[2].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543513, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[3].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543393, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[0].value.m_rgSection[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543393, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[4].value.m_rgSection[7]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543513, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[5].value.m_rgSection[7]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543403, \"m_nIndex\": 2, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[6].value.m_rgSection[7]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543504, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 591775,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543403
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543403, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 591787,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543393
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543393, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 591837,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543513
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543513, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 591856,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543504
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543504, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 591892,
+      "class": "RbsPipingSystem",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[0]",
+         "action": "remove-id",
+         "before": 543273
+        },
+        {
+         "path": "m_parents.value.m_deletion[1]",
+         "action": "remove-id",
+         "before": 543313
+        },
+        {
+         "path": "m_parents.value.m_deletion[2]",
+         "action": "remove-id",
+         "before": 543319
+        },
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543332
+        },
+        {
+         "path": "m_parents.value.m_deletion[4]",
+         "action": "remove-id",
+         "before": 543372
+        },
+        {
+         "path": "m_parents.value.m_deletion[6]",
+         "action": "remove-id",
+         "before": 543393
+        },
+        {
+         "path": "m_parents.value.m_deletion[7]",
+         "action": "remove-id",
+         "before": 543403
+        },
+        {
+         "path": "m_parents.value.m_deletion[8]",
+         "action": "remove-id",
+         "before": 543504
+        },
+        {
+         "path": "m_parents.value.m_deletion[9]",
+         "action": "remove-id",
+         "before": 543513
+        },
+        {
+         "path": "m_parents.value.m_deletion[33]",
+         "action": "remove-id",
+         "before": 593903
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[0].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543513, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[1].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543403, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[2].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543393, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[3].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543504, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[5].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543372, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[6].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543313, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[7].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543319, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[8].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543273, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[9].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543332, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_pConnectorMgr.value.m_connPtrArray[12].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 593903, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[0].value.m_rgSection[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543273, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[5].value.m_rgSection[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 593903, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[7].value.m_rgSection[3]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543332, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[8].value.m_rgSection[3]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543372, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[9].value.m_rgSection[3]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543313, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[11].value.m_rgSection[11]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543319, \"m_nIndex\": 3, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[22].value.m_rgSection[15]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543403, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[24].value.m_rgSection[7]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543513, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[26].value.m_rgSection[15]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543393, \"m_nIndex\": 1, \"m_connType\": 1}"
+        },
+        {
+         "path": "m_rgSections[28].value.m_rgSection[7]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543504, \"m_nIndex\": 1, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 593660,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543319
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543319, \"m_nIndex\": 3, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 593952,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[4]",
+         "action": "remove-id",
+         "before": 593903
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 593903, \"m_nIndex\": 3, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 594001,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543372
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[1].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543372, \"m_nIndex\": 1, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 594028,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543313
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[1].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543313, \"m_nIndex\": 1, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 594076,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543273
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[1].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543273, \"m_nIndex\": 1, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 594122,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543332
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543332, \"m_nIndex\": 1, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 595349,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543332
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[0]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543332, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 595380,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543273
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543273, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 596041,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543372
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543372, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 605120,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543313
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543313, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 605338,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[4]",
+         "action": "remove-id",
+         "before": 593903
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 593903, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 606562,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543319
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543319, \"m_nIndex\": 2, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 711538,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543403
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543403, \"m_nIndex\": 1, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 711597,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543513
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543513, \"m_nIndex\": 1, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 711735,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543393
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[0].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543393, \"m_nIndex\": 1, \"m_connType\": 1}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 711783,
+      "class": "RbsPipeCurve",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 543504
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pConnectorManager.value.m_connPtrArray[1].value.m_arrRefs[1]",
+         "action": "drop-entry",
+         "before": "{\"m_id\": 543504, \"m_nIndex\": 1, \"m_connType\": 1}"
+        }
+       ]
+      }
+     }
+    ],
+    "record_edits": [
+     {
+      "seq": 101,
+      "elem_id": 380523,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 380523,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 380523,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543273,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543273,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 543273,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543313,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543313,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 543313,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543319,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543319,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 543319,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543332,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543332,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 543332,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543372,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543372,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 543372,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543393,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543393,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 543393,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543403,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543403,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 543403,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543504,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543504,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 543504,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543513,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543513,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 543513,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 573703,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 573703,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 573703,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 585296,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 585296,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 585296,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 585297,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 585297,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 585297,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 585416,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 585416,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 585416,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 585417,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 585417,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 585417,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 593903,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 593903,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 593903,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 593910,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 593910,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 593910,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 595054,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 595054,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 595054,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 380014,
+      "action": "replace",
+      "new_record_len": 1095,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 380014,
+      "action": "replace",
+      "new_record_len": 33752,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 380522,
+      "action": "replace",
+      "new_record_len": 377,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 380522,
+      "action": "replace",
+      "new_record_len": 9109,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 543599,
+      "action": "replace",
+      "new_record_len": 679,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 543599,
+      "action": "replace",
+      "new_record_len": 5739,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 545537,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 545537,
+      "action": "replace",
+      "new_record_len": 1452,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 545541,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 545541,
+      "action": "replace",
+      "new_record_len": 1452,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 545546,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 545546,
+      "action": "replace",
+      "new_record_len": 1452,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 545553,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 545553,
+      "action": "replace",
+      "new_record_len": 1452,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 573663,
+      "action": "replace",
+      "new_record_len": 337,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 573663,
+      "action": "replace",
+      "new_record_len": 19069,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 575437,
+      "action": "replace",
+      "new_record_len": 297,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 575437,
+      "action": "replace",
+      "new_record_len": 5975,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 575438,
+      "action": "replace",
+      "new_record_len": 297,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 575438,
+      "action": "replace",
+      "new_record_len": 5951,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 576035,
+      "action": "replace",
+      "new_record_len": 265,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 576035,
+      "action": "replace",
+      "new_record_len": 5350,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 578585,
+      "action": "replace",
+      "new_record_len": 1129,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 578585,
+      "action": "replace",
+      "new_record_len": 24947,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 580603,
+      "action": "replace",
+      "new_record_len": 305,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 580603,
+      "action": "replace",
+      "new_record_len": 3503,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 580618,
+      "action": "replace",
+      "new_record_len": 305,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 580618,
+      "action": "replace",
+      "new_record_len": 3503,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 580983,
+      "action": "replace",
+      "new_record_len": 991,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 580983,
+      "action": "replace",
+      "new_record_len": 30396,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 590306,
+      "action": "replace",
+      "new_record_len": 391,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 590306,
+      "action": "replace",
+      "new_record_len": 2032,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 591775,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 591775,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 591787,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 591787,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 591837,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 591837,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 591856,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 591856,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 591892,
+      "action": "replace",
+      "new_record_len": 791,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 591892,
+      "action": "replace",
+      "new_record_len": 6100,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 593660,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 593660,
+      "action": "replace",
+      "new_record_len": 1452,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 593952,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 593952,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 594001,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 594001,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 594028,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 594028,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 594076,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 594076,
+      "action": "replace",
+      "new_record_len": 1452,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 594122,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 594122,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 595349,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 595349,
+      "action": "replace",
+      "new_record_len": 1456,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 595380,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 595380,
+      "action": "replace",
+      "new_record_len": 1488,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 596041,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 596041,
+      "action": "replace",
+      "new_record_len": 1488,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 605120,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 605120,
+      "action": "replace",
+      "new_record_len": 1488,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 605338,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 605338,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 606562,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 606562,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 711538,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 711538,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 711597,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 711597,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 711735,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 711735,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 711783,
+      "action": "replace",
+      "new_record_len": 345,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 711783,
+      "action": "replace",
+      "new_record_len": 1484,
+      "reason": "neutralise reference(s) to deleted [380523, 543273, 543313, 543319]"
+     }
+    ],
+    "elemtable_remove": [
+     380523,
+     543273,
+     543313,
+     543319,
+     543332,
+     543372,
+     543393,
+     543403,
+     543504,
+     543513,
+     573703,
+     585296,
+     585297,
+     585416,
+     585417,
+     593903,
+     593910,
+     595054
+    ],
+    "warnings": [],
+    "notes": [
+     "deleting 18 element(s): [380523, 543273, 543313, 543319, 543332, 543372, 543393, 543403, 543504, 543513, 573703, 585296, 585297, 585416, 585417, 593903, 593910, 595054]; 37 referrer element(s) neutralised; ElemTable count -= 18, id watermark unchanged"
+    ]
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 28114,
+    "header_count": 28114,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "380522": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RoomElem",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "380014": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "LevelRoomPlan",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     },
+     "545537": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "545541": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "545546": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "545553": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "575437": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RoomElem",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "575438": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RoomElem",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "578585": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "VarSketch",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "580603": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "VarSketch",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "580618": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "VarSketch",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "580983": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "LevelRoomPlan",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     },
+     "591775": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "591787": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "591837": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "591856": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "593660": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "593952": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "594001": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "594028": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "594076": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "594122": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "595349": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "595380": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "596041": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "605120": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "605338": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "606562": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "711538": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "711597": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "711735": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "711783": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipeCurve",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "573663": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "SWall",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "576035": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "SWall",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "543599": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipingSystem",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     },
+     "590306": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipingSystem",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     },
+     "591892": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "RbsPipingSystem",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_healthy": true,
+   "semantic": {
+    "target": 573703,
+    "class": "SWall",
+    "fail_loud_without_cascade": true,
+    "dependents_report": [
+     [
+      380523,
+      "RoomTag",
+      "deletion-parent",
+      1
+     ],
+     [
+      585296,
+      "LinearDimString",
+      "deletion-parent",
+      1
+     ],
+     [
+      585297,
+      "LinearDimString",
+      "deletion-parent",
+      1
+     ],
+     [
+      585416,
+      "LinearDimString",
+      "deletion-parent",
+      1
+     ],
+     [
+      585417,
+      "LinearDimString",
+      "deletion-parent",
+      1
+     ],
+     [
+      593910,
+      "SketchPlane",
+      "hosted",
+      1
+     ],
+     [
+      595054,
+      "SketchPlane",
+      "hosted",
+      1
+     ],
+     [
+      543273,
+      "FamilyInstance",
+      "hosted",
+      2
+     ],
+     [
+      543313,
+      "FamilyInstance",
+      "hosted",
+      2
+     ],
+     [
+      543319,
+      "FamilyInstance",
+      "hosted",
+      2
+     ],
+     [
+      543332,
+      "FamilyInstance",
+      "hosted",
+      2
+     ],
+     [
+      543372,
+      "FamilyInstance",
+      "hosted",
+      2
+     ],
+     [
+      543393,
+      "FamilyInstance",
+      "hosted",
+      2
+     ],
+     [
+      543403,
+      "FamilyInstance",
+      "hosted",
+      2
+     ],
+     [
+      543504,
+      "FamilyInstance",
+      "hosted",
+      2
+     ],
+     [
+      543513,
+      "FamilyInstance",
+      "hosted",
+      2
+     ],
+     [
+      593903,
+      "FamilyInstance",
+      "hosted",
+      2
+     ]
+    ],
+    "cascade_ids": [
+     380523,
+     543273,
+     543313,
+     543319,
+     543332,
+     543372,
+     543393,
+     543403,
+     543504,
+     543513,
+     573703,
+     585296,
+     585297,
+     585416,
+     585417,
+     593903,
+     593910,
+     595054
+    ],
+    "referrers_neutralised": [
+     [
+      380014,
+      "LevelRoomPlan"
+     ],
+     [
+      380522,
+      "RoomElem"
+     ],
+     [
+      543599,
+      "RbsPipingSystem"
+     ],
+     [
+      545537,
+      "RbsPipeCurve"
+     ],
+     [
+      545541,
+      "RbsPipeCurve"
+     ],
+     [
+      545546,
+      "RbsPipeCurve"
+     ],
+     [
+      545553,
+      "RbsPipeCurve"
+     ],
+     [
+      573663,
+      "SWall"
+     ],
+     [
+      575437,
+      "RoomElem"
+     ],
+     [
+      575438,
+      "RoomElem"
+     ],
+     [
+      576035,
+      "SWall"
+     ],
+     [
+      578585,
+      "VarSketch"
+     ],
+     [
+      580603,
+      "VarSketch"
+     ],
+     [
+      580618,
+      "VarSketch"
+     ],
+     [
+      580983,
+      "LevelRoomPlan"
+     ],
+     [
+      590306,
+      "RbsPipingSystem"
+     ],
+     [
+      591775,
+      "RbsPipeCurve"
+     ],
+     [
+      591787,
+      "RbsPipeCurve"
+     ],
+     [
+      591837,
+      "RbsPipeCurve"
+     ],
+     [
+      591856,
+      "RbsPipeCurve"
+     ],
+     [
+      591892,
+      "RbsPipingSystem"
+     ],
+     [
+      593660,
+      "RbsPipeCurve"
+     ],
+     [
+      593952,
+      "RbsPipeCurve"
+     ],
+     [
+      594001,
+      "RbsPipeCurve"
+     ],
+     [
+      594028,
+      "RbsPipeCurve"
+     ],
+     [
+      594076,
+      "RbsPipeCurve"
+     ],
+     [
+      594122,
+      "RbsPipeCurve"
+     ],
+     [
+      595349,
+      "RbsPipeCurve"
+     ],
+     [
+      595380,
+      "RbsPipeCurve"
+     ],
+     [
+      596041,
+      "RbsPipeCurve"
+     ],
+     [
+      605120,
+      "RbsPipeCurve"
+     ],
+     [
+      605338,
+      "RbsPipeCurve"
+     ],
+     [
+      606562,
+      "RbsPipeCurve"
+     ],
+     [
+      711538,
+      "RbsPipeCurve"
+     ],
+     [
+      711597,
+      "RbsPipeCurve"
+     ],
+     [
+      711735,
+      "RbsPipeCurve"
+     ],
+     [
+      711783,
+      "RbsPipeCurve"
+     ]
+    ],
+    "ok_all_removed": true,
+    "ok_referrers_decode_clean": true,
+    "elemtable_count": [
+     28132,
+     28114
+    ]
+   }
+  },
+  {
+   "file": "M3_modify.rvt",
+   "source": "rmebasicsampleproject.rvt",
+   "proves": "MODIFY parameters: level 378118 elevation +2.0 ft + 2 text/mark edit(s) (Level 2 +2 ft; panelboard PP-1B renamed + Mark edited)",
+   "plan": {
+    "partition": "Partitions/14",
+    "removed_ids": [],
+    "replaced": [
+     [
+      102,
+      378118
+     ],
+     [
+      102,
+      581483
+     ]
+    ],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28132,
+    "watermark": 888013,
+    "blocks_before": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "blocks_after": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/manipulate/M3_modify.rvt"
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 28132,
+    "header_count": 28132,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "581483": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "378118": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "Level",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_healthy": true,
+   "semantic": {
+    "level": 378118,
+    "elevation_before": 12.46719160104952,
+    "elevation_after_reread": 14.46719160104952,
+    "ok_elevation": true,
+    "text_params": {
+     "581483:-1140078": {
+      "expected": "PP-1B-RENAMED",
+      "reread": "PP-1B-RENAMED"
+     },
+     "581483:-1001203": {
+      "expected": "15-EDITED",
+      "reread": "15-EDITED"
+     }
+    },
+    "ok_text": true
+   }
+  },
+  {
+   "file": "M4_move_retype.rvt",
+   "source": "rmebasicsampleproject.rvt",
+   "proves": "MOVE a placed instance 5 ft +X and RETYPE it (symbol 621242 -> 621232) (free-standing 500 kVA transformer -> 75 kVA sibling type)",
+   "plan": {
+    "move": {
+     "plan": "modify",
+     "kind": "move",
+     "elem_id": 624416,
+     "class": "FamilyInstance",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_pInstanceInfo.value.m_Trf.m_or",
+       "before": [
+        -49.43537612077513,
+        18.743653381857552,
+        0.30896239133315895
+       ],
+       "after": [
+        -44.43537612077513,
+        18.743653381857552,
+        0.30896239133315895
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_instOrigin",
+       "before": [
+        -49.43537612077511,
+        20.005844540221133,
+        0.0
+       ],
+       "after": [
+        -44.43537612077511,
+        20.005844540221133,
+        0.0
+       ]
+      },
+      {
+       "seq": 103,
+       "path": "GElement transforms/boxes",
+       "before": "+[5.0, 0.0, 0.0]",
+       "after": "translated"
+      },
+      {
+       "seq": 101,
+       "path": "m_pBBox.value.m_minmax",
+       "before": [
+        [
+         -51.43504803678561,
+         17.007156876179135,
+         0.3089623913331408
+        ],
+        [
+         -47.435704204764285,
+         20.005844540221766,
+         6.224316722041813
+        ]
+       ],
+       "after": [
+        [
+         -46.43504803678561,
+         17.007156876179135,
+         0.3089623913331408
+        ],
+        [
+         -42.435704204764285,
+         20.005844540221766,
+         6.224316722041813
+        ]
+       ]
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 624416,
+       "action": "replace",
+       "new_record_len": 1846,
+       "reason": "move: placement transform"
+      },
+      {
+       "seq": 103,
+       "elem_id": 624416,
+       "action": "replace",
+       "new_record_len": 474,
+       "reason": "move: cached rep"
+      },
+      {
+       "seq": 101,
+       "elem_id": 624416,
+       "action": "replace",
+       "new_record_len": 377,
+       "reason": "move: header bbox"
+      }
+     ],
+     "notes": [
+      "translated by [5.0, 0.0, 0.0] ft"
+     ]
+    },
+    "retype": {
+     "plan": "modify",
+     "kind": "retype",
+     "elem_id": 624416,
+     "class": "FamilyInstance",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_pInstanceInfo.value.m_symbolId",
+       "before": 621242,
+       "after": 621232
+      },
+      {
+       "seq": 102,
+       "path": "m_masterSymbolId",
+       "before": 621242,
+       "after": 621232
+      },
+      {
+       "seq": 103,
+       "path": "m_subNodes[*].InstanceInfo.m_symbolId",
+       "before": 621242,
+       "after": 621232
+      },
+      {
+       "seq": 101,
+       "path": "m_parents lists (symbol/family remap)",
+       "before": [
+        621242
+       ],
+       "after": [
+        621232
+       ]
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 624416,
+       "action": "replace",
+       "new_record_len": 1846,
+       "reason": "retype: symbol ids"
+      },
+      {
+       "seq": 103,
+       "elem_id": 624416,
+       "action": "replace",
+       "new_record_len": 474,
+       "reason": "retype: cached rep symbol"
+      },
+      {
+       "seq": 101,
+       "elem_id": 624416,
+       "action": "replace",
+       "new_record_len": 377,
+       "reason": "retype: header parents"
+      }
+     ],
+     "notes": [
+      "retyped 624416: symbol 621242 -> 621232"
+     ]
+    },
+    "commit": {
+     "partition": "Partitions/14",
+     "removed_ids": [],
+     "replaced": [
+      [
+       101,
+       624416
+      ],
+      [
+       102,
+       624416
+      ],
+      [
+       103,
+       624416
+      ]
+     ],
+     "elemtable_count_before": 28132,
+     "elemtable_count_after": 28132,
+     "watermark": 888013,
+     "blocks_before": {
+      "101": 54,
+      "102": 421,
+      "103": 338
+     },
+     "blocks_after": {
+      "101": 54,
+      "102": 421,
+      "103": 338
+     },
+     "out_path": "/Users/ck/dev/things/rev-revit/experiments/manipulate/M4_move_retype.rvt"
+    }
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 28132,
+    "header_count": 28132,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "624416": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_healthy": true,
+   "semantic": {
+    "instance": 624416,
+    "before": {
+     "m_or": [
+      -49.43537612077513,
+      18.743653381857552,
+      0.30896239133315895
+     ],
+     "m_3x3": [
+      [
+       1.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "m_symbolId": 621242,
+     "m_masterSymbolId": 621242,
+     "m_hostId": -1
+    },
+    "after": {
+     "m_or": [
+      -44.43537612077513,
+      18.743653381857552,
+      0.30896239133315895
+     ],
+     "m_3x3": [
+      [
+       1.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "m_symbolId": 621232,
+     "m_masterSymbolId": 621232,
+     "m_hostId": -1
+    },
+    "translation": [
+     5.0,
+     0.0,
+     0.0
+    ],
+    "ok_moved_5ft_x": true,
+    "ok_retyped": true,
+    "notes": [
+     "translated by [5.0, 0.0, 0.0] ft",
+     "retyped 624416: symbol 621242 -> 621232"
+    ]
+   }
+  },
+  {
+   "file": "M1_delete_rac.rvt",
+   "source": "racadvancedsampleproject.rvt",
+   "proves": "DELETE a family instance with no dependents (isolated structural framing instance (W-Wide Flange) 201309)",
+   "plan": {
+    "plan": "delete",
+    "root_id": 201309,
+    "cascade": false,
+    "ids_to_remove": [
+     201309
+    ],
+    "dependents": [],
+    "referrer_edits": [],
+    "record_edits": [
+     {
+      "seq": 101,
+      "elem_id": 201309,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 201309,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 201309,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     }
+    ],
+    "elemtable_remove": [
+     201309
+    ],
+    "warnings": [],
+    "notes": [
+     "deleting 1 element(s): [201309]; 0 referrer element(s) neutralised; ElemTable count -= 1, id watermark unchanged"
+    ]
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 17230,
+    "header_count": 17230,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {},
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_healthy": true,
+   "semantic": {
+    "deleted_id": 201309,
+    "class": "FamilyInstance",
+    "category": -2001320,
+    "ok_gone_from_unit0": true,
+    "ok_gone_from_elemtable": true,
+    "elemtable_count": [
+     17231,
+     17230
+    ],
+    "watermark_kept": true
+   }
+  },
+  {
+   "file": "M2_delete_cascade_rac.rvt",
+   "source": "racadvancedsampleproject.rvt",
+   "proves": "DELETE an element WITH dependents (SWall hosting door 145999 (+ its tag, a dimension, the wall's tag) 144180): DependentsError report + cascade run",
+   "plan": {
+    "plan": "delete",
+    "root_id": 144180,
+    "cascade": true,
+    "ids_to_remove": [
+     144180,
+     145958,
+     145999,
+     216514,
+     216554
+    ],
+    "dependents": [
+     {
+      "id": 145958,
+      "depth": 1,
+      "class": "LinearDimString",
+      "relation": "deletion-parent",
+      "via": "ElementHeader.m_parents.m_deletion"
+     },
+     {
+      "id": 145999,
+      "depth": 1,
+      "class": "FamilyInstance",
+      "relation": "hosted",
+      "via": "m_hostId"
+     },
+     {
+      "id": 216554,
+      "depth": 1,
+      "class": "IndependentTag",
+      "relation": "deletion-parent",
+      "via": "ElementHeader.m_parents.m_deletion"
+     },
+     {
+      "id": 216514,
+      "depth": 2,
+      "class": "IndependentTag",
+      "relation": "deletion-parent",
+      "via": "ElementHeader.m_parents.m_deletion"
+     }
+    ],
+    "referrer_edits": [
+     {
+      "id": 139857,
+      "class": "SWall",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[5]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_geomSteps.value.m_bRepTweakGList[0].value.m_affectedEdgesTags[0]",
+         "action": "drop-entry",
+         "before": "{\"first\": 144180, \"second\": {\"m_tags\": [273, 275]}}"
+        },
+        {
+         "path": "m_pCurveDriver.value.m_sideJoins[9].value.m_info[1]",
+         "action": "drop-entry",
+         "before": "{\"m_elemId\": 144180, \"m_joinedEnd\": 0, \"m_bTangent\": false}"
+        }
+       ]
+      }
+     },
+     {
+      "id": 143858,
+      "class": "SWall",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[6]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_geomSteps.value.m_bRepFormGList[2].value.m_exposedFaceMap[0]",
+         "action": "drop-entry",
+         "before": "{\"first\": 425, \"second\": {\"m_elemId\": 144180, \"m_tag\": 6}}"
+        },
+        {
+         "path": "m_geomSteps.value.m_bRepTweakGList[0].value.m_affectedEdgesTags[0]",
+         "action": "drop-entry",
+         "before": "{\"first\": 144180, \"second\": {\"m_tags\": [121, 376, 427, 428]}}"
+        },
+        {
+         "path": "m_pCurveDriver.value.m_controlJoinsSet[1]",
+         "action": "drop-entry",
+         "before": "{\"m_JoinInfo\": {\"m_cleanData\": {\"m_data\": []}, \"m_info\": [{\"m_elemId\": 148960, \"m_joinedEnd\": 0, \"m_bTangent\": false}, {..."
+        }
+       ]
+      }
+     },
+     {
+      "id": 145023,
+      "class": "SWall",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[5]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_geomSteps.value.m_bRepTweakGList[0].value.m_affectedEdgesTags[0]",
+         "action": "drop-entry",
+         "before": "{\"first\": 144180, \"second\": {\"m_tags\": [170, 301, 302]}}"
+        },
+        {
+         "path": "m_pCurveDriver.value.m_controlJoinsSet[0]",
+         "action": "drop-entry",
+         "before": "{\"m_JoinInfo\": {\"m_cleanData\": {\"m_data\": []}, \"m_info\": [{\"m_elemId\": 144180, \"m_joinedEnd\": 2, \"m_bTangent\": false}, {..."
+        }
+       ]
+      }
+     },
+     {
+      "id": 145607,
+      "class": "FamilyInstance",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[4]",
+         "action": "remove-id",
+         "before": 144180
+        },
+        {
+         "path": "m_parents.value.m_deletion[7]",
+         "action": "remove-id",
+         "before": 145958
+        }
+       ],
+       "102": [
+        {
+         "path": "m_constrInfo[0].value.m_constrId",
+         "action": "set-invalid",
+         "before": 145958
+        },
+        {
+         "path": "m_constrInfo[0].value.m_drivingElems[0]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ]
+      }
+     },
+     {
+      "id": 145683,
+      "class": "FamilyInstance",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[4]",
+         "action": "remove-id",
+         "before": 144180
+        },
+        {
+         "path": "m_parents.value.m_deletion[7]",
+         "action": "remove-id",
+         "before": 145958
+        }
+       ],
+       "102": [
+        {
+         "path": "m_constrInfo[0].value.m_constrId",
+         "action": "set-invalid",
+         "before": 145958
+        },
+        {
+         "path": "m_constrInfo[0].value.m_drivingElems[0]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ]
+      }
+     },
+     {
+      "id": 147509,
+      "class": "VarSketch",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[1]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_absorbedCurvesData[0].value.m_oAssocProp.value.m_assocId",
+         "action": "set-invalid",
+         "before": 144180
+        }
+       ]
+      }
+     },
+     {
+      "id": 147512,
+      "class": "CurveElem",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[0]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_data.m_oAssocProp.value.m_assocId",
+         "action": "set-invalid",
+         "before": 144180
+        }
+       ]
+      }
+     },
+     {
+      "id": 147517,
+      "class": "VarSketch",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[1]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_absorbedCurvesData[2].value.m_oAssocProp.value.m_assocId",
+         "action": "set-invalid",
+         "before": 144180
+        }
+       ]
+      }
+     },
+     {
+      "id": 147522,
+      "class": "CurveElem",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[0]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_data.m_oAssocProp.value.m_assocId",
+         "action": "set-invalid",
+         "before": 144180
+        }
+       ]
+      }
+     },
+     {
+      "id": 148960,
+      "class": "SWall",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[6]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pCurveDriver.value.m_controlJoinsSet[0]",
+         "action": "drop-entry",
+         "before": "{\"m_JoinInfo\": {\"m_cleanData\": {\"m_data\": []}, \"m_info\": [{\"m_elemId\": 148960, \"m_joinedEnd\": 0, \"m_bTangent\": false}, {..."
+        }
+       ]
+      }
+     },
+     {
+      "id": 177058,
+      "class": "LevelRoomPlan",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[70]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_planTopology.value.m_segments[136]",
+         "action": "drop-entry",
+         "before": "{\"m_key\": {\"m_item\": {\"m_linkInstOrHostId\": 144180, \"m_linkRef\": {\"m_id64\": -1}}, \"m_majorIndex\": 0, \"m_subIndex\": 0}, \"..."
+        },
+        {
+         "path": "m_planTopology.value.m_segments[137]",
+         "action": "drop-entry",
+         "before": "{\"m_key\": {\"m_item\": {\"m_linkInstOrHostId\": 144180, \"m_linkRef\": {\"m_id64\": -1}}, \"m_majorIndex\": 0, \"m_subIndex\": 1}, \"..."
+        },
+        {
+         "path": "m_planTopology.value.m_segments[138]",
+         "action": "drop-entry",
+         "before": "{\"m_key\": {\"m_item\": {\"m_linkInstOrHostId\": 144180, \"m_linkRef\": {\"m_id64\": -1}}, \"m_majorIndex\": 0, \"m_subIndex\": 2}, \"..."
+        },
+        {
+         "path": "m_planTopology.value.m_circuits[43]",
+         "action": "drop-entry",
+         "before": "{\"m_area\": 238.7433823478782, \"m_envelope\": {\"m_corners\": [[26.977035952771512, 80.73586206099642], [39.969161937023514,..."
+        },
+        {
+         "path": "m_planTopology.value.m_circuits[44]",
+         "action": "drop-entry",
+         "before": "{\"m_area\": 91.0918711594359, \"m_envelope\": {\"m_corners\": [[26.9770359527715, 73.01604578803061], [39.969161937023486, 80..."
+        },
+        {
+         "path": "m_planTopology.value.m_circuits[72]",
+         "action": "drop-entry",
+         "before": "{\"m_area\": 1552.0009468386193, \"m_envelope\": {\"m_corners\": [[-31.874341992594914, 73.2670300399992], [26.977035952771544..."
+        }
+       ]
+      }
+     },
+     {
+      "id": 421777,
+      "class": "CurveElem",
+      "edits": {
+       "101": [
+        {
+         "path": "m_parents.value.m_deletion[3]",
+         "action": "remove-id",
+         "before": 144180
+        }
+       ],
+       "102": [
+        {
+         "path": "m_pCurveDriver.value.m_controlJoinsSet[0]",
+         "action": "drop-entry",
+         "before": "{\"m_JoinInfo\": {\"m_cleanData\": {\"m_data\": []}, \"m_info\": [{\"m_elemId\": 144180, \"m_joinedEnd\": 3, \"m_bTangent\": false}, {..."
+        }
+       ]
+      }
+     }
+    ],
+    "record_edits": [
+     {
+      "seq": 101,
+      "elem_id": 144180,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 144180,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 144180,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 145958,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 145958,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 145958,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 145999,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 145999,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 145999,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 216514,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 216514,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 216514,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 216554,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 216554,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 216554,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 101,
+      "elem_id": 139857,
+      "action": "replace",
+      "new_record_len": 601,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 139857,
+      "action": "replace",
+      "new_record_len": 27947,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 143858,
+      "action": "replace",
+      "new_record_len": 385,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 143858,
+      "action": "replace",
+      "new_record_len": 20263,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 145023,
+      "action": "replace",
+      "new_record_len": 289,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 145023,
+      "action": "replace",
+      "new_record_len": 10932,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 145607,
+      "action": "replace",
+      "new_record_len": 289,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 145607,
+      "action": "replace",
+      "new_record_len": 601,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 145683,
+      "action": "replace",
+      "new_record_len": 289,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 145683,
+      "action": "replace",
+      "new_record_len": 601,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 147509,
+      "action": "replace",
+      "new_record_len": 265,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 147509,
+      "action": "replace",
+      "new_record_len": 2520,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 147512,
+      "action": "replace",
+      "new_record_len": 249,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 147512,
+      "action": "replace",
+      "new_record_len": 690,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 147517,
+      "action": "replace",
+      "new_record_len": 265,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 147517,
+      "action": "replace",
+      "new_record_len": 2520,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 147522,
+      "action": "replace",
+      "new_record_len": 249,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 147522,
+      "action": "replace",
+      "new_record_len": 690,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 148960,
+      "action": "replace",
+      "new_record_len": 1033,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 148960,
+      "action": "replace",
+      "new_record_len": 19052,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 177058,
+      "action": "replace",
+      "new_record_len": 1623,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 177058,
+      "action": "replace",
+      "new_record_len": 84378,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 101,
+      "elem_id": 421777,
+      "action": "replace",
+      "new_record_len": 241,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     },
+     {
+      "seq": 102,
+      "elem_id": 421777,
+      "action": "replace",
+      "new_record_len": 561,
+      "reason": "neutralise reference(s) to deleted [144180, 145958, 145999, 216514]"
+     }
+    ],
+    "elemtable_remove": [
+     144180,
+     145958,
+     145999,
+     216514,
+     216554
+    ],
+    "warnings": [],
+    "notes": [
+     "deleting 5 element(s): [144180, 145958, 145999, 216514, 216554]; 12 referrer element(s) neutralised; ElemTable count -= 5, id watermark unchanged"
+    ]
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 17226,
+    "header_count": 17226,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "139857": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "SWall",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "143858": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "SWall",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "145023": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "SWall",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "145607": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "145683": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "147509": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "VarSketch",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "147512": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "CurveElem",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "147517": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "VarSketch",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "147522": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "CurveElem",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "148960": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "SWall",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "177058": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "LevelRoomPlan",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     },
+     "421777": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "CurveElem",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_healthy": true,
+   "semantic": {
+    "target": 144180,
+    "class": "SWall",
+    "fail_loud_without_cascade": true,
+    "dependents_report": [
+     [
+      145958,
+      "LinearDimString",
+      "deletion-parent",
+      1
+     ],
+     [
+      145999,
+      "FamilyInstance",
+      "hosted",
+      1
+     ],
+     [
+      216554,
+      "IndependentTag",
+      "deletion-parent",
+      1
+     ],
+     [
+      216514,
+      "IndependentTag",
+      "deletion-parent",
+      2
+     ]
+    ],
+    "cascade_ids": [
+     144180,
+     145958,
+     145999,
+     216514,
+     216554
+    ],
+    "referrers_neutralised": [
+     [
+      139857,
+      "SWall"
+     ],
+     [
+      143858,
+      "SWall"
+     ],
+     [
+      145023,
+      "SWall"
+     ],
+     [
+      145607,
+      "FamilyInstance"
+     ],
+     [
+      145683,
+      "FamilyInstance"
+     ],
+     [
+      147509,
+      "VarSketch"
+     ],
+     [
+      147512,
+      "CurveElem"
+     ],
+     [
+      147517,
+      "VarSketch"
+     ],
+     [
+      147522,
+      "CurveElem"
+     ],
+     [
+      148960,
+      "SWall"
+     ],
+     [
+      177058,
+      "LevelRoomPlan"
+     ],
+     [
+      421777,
+      "CurveElem"
+     ]
+    ],
+    "ok_all_removed": true,
+    "ok_referrers_decode_clean": true,
+    "elemtable_count": [
+     17231,
+     17226
+    ]
+   }
+  },
+  {
+   "file": "M3_modify_rac.rvt",
+   "source": "racadvancedsampleproject.rvt",
+   "proves": "MODIFY parameters: level 136342 elevation +1.0 ft + 1 text/mark edit(s) (Level '03 - Floor' +1 ft; door 147834 Mark edited)",
+   "plan": {
+    "partition": "Partitions/13",
+    "removed_ids": [],
+    "replaced": [
+     [
+      102,
+      136342
+     ],
+     [
+      102,
+      147834
+     ]
+    ],
+    "elemtable_count_before": 17231,
+    "elemtable_count_after": 17231,
+    "watermark": 438567,
+    "blocks_before": {
+     "101": 33,
+     "102": 225,
+     "103": 254
+    },
+    "blocks_after": {
+     "101": 33,
+     "102": 225,
+     "103": 254
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/manipulate/M3_modify_rac.rvt"
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 17231,
+    "header_count": 17231,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "147834": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     },
+     "136342": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "Level",
+       "clean": true
+      },
+      "103": {
+       "class": "SerializedDummy",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_healthy": true,
+   "semantic": {
+    "level": 136342,
+    "elevation_before": 24.934383202099546,
+    "elevation_after_reread": 25.934383202099546,
+    "ok_elevation": true,
+    "text_params": {
+     "147834:-1001203": {
+      "expected": "130A-EDITED",
+      "reread": "130A-EDITED"
+     }
+    },
+    "ok_text": true
+   }
+  },
+  {
+   "file": "M4_move_retype_rac.rvt",
+   "source": "racadvancedsampleproject.rvt",
+   "proves": "MOVE a placed instance 5 ft +X and RETYPE it (symbol 180235 -> 180237) (dining table (with 4 owned chairs moved rigidly) -> 1525mm type)",
+   "plan": {
+    "move": {
+     "plan": "modify",
+     "kind": "move",
+     "elem_id": 180360,
+     "class": "FamilyInstance",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_pInstanceInfo.value.m_Trf.m_or",
+       "before": [
+        -26.540293328595915,
+        89.15327901809796,
+        0.0
+       ],
+       "after": [
+        -21.540293328595915,
+        89.15327901809796,
+        0.0
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_instOrigin",
+       "before": [
+        -26.200129394169686,
+        88.54672164104883,
+        0.0
+       ],
+       "after": [
+        -21.200129394169686,
+        88.54672164104883,
+        0.0
+       ]
+      },
+      {
+       "seq": 103,
+       "path": "GElement transforms/boxes",
+       "before": "+[5.0, 0.0, 0.0]",
+       "after": "translated"
+      },
+      {
+       "seq": 101,
+       "path": "m_pBBox.value.m_minmax",
+       "before": [
+        [
+         -28.50056586367456,
+         86.24628517154396,
+         -2.551172343123742e-05
+        ],
+        [
+         -23.899692924664826,
+         90.84715811055369,
+         2.645896482507075
+        ]
+       ],
+       "after": [
+        [
+         -23.50056586367456,
+         86.24628517154396,
+         -2.551172343123742e-05
+        ],
+        [
+         -18.899692924664826,
+         90.84715811055369,
+         2.645896482507075
+        ]
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_pInstanceInfo.value.m_Trf.m_or",
+       "before": [
+        -26.199961651924088,
+        90.0412051198543,
+        0.0
+       ],
+       "after": [
+        -21.199961651924088,
+        90.0412051198543,
+        0.0
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_instOrigin",
+       "before": [
+        -0.3399961921805848,
+        2.101040855854631,
+        0.0
+       ],
+       "after": [
+        4.6600038078194155,
+        2.101040855854631,
+        0.0
+       ]
+      },
+      {
+       "seq": 103,
+       "path": "GElement transforms/boxes",
+       "before": "+[5.0, 0.0, 0.0]",
+       "after": "translated"
+      },
+      {
+       "seq": 101,
+       "path": "m_pBBox.value.m_minmax",
+       "before": [
+        [
+         -26.91783011618195,
+         89.2482536338452,
+         -2.5511723431237414e-05
+        ],
+        [
+         -25.48292865077014,
+         90.84715811055369,
+         2.6458964825070748
+        ]
+       ],
+       "after": [
+        [
+         -21.91783011618195,
+         89.2482536338452,
+         -2.5511723431237414e-05
+        ],
+        [
+         -20.48292865077014,
+         90.84715811055369,
+         2.6458964825070748
+        ]
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_pInstanceInfo.value.m_Trf.m_or",
+       "before": [
+        -27.69461287297516,
+        88.54688938329443,
+        0.0
+       ],
+       "after": [
+        -22.69461287297516,
+        88.54688938329443,
+        0.0
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_instOrigin",
+       "before": [
+        -2.101040855854632,
+        -0.33999619218057575,
+        0.0
+       ],
+       "after": [
+        2.898959144145368,
+        -0.33999619218057575,
+        0.0
+       ]
+      },
+      {
+       "seq": 103,
+       "path": "GElement transforms/boxes",
+       "before": "+[5.0, 0.0, 0.0]",
+       "after": "translated"
+      },
+      {
+       "seq": 101,
+       "path": "m_pBBox.value.m_minmax",
+       "before": [
+        [
+         -28.50056586367456,
+         87.82902091903657,
+         -2.5511723431237414e-05
+        ],
+        [
+         -26.901661386966058,
+         89.26392238444838,
+         2.6458964825070748
+        ]
+       ],
+       "after": [
+        [
+         -23.50056586367456,
+         87.82902091903657,
+         -2.5511723431237414e-05
+        ],
+        [
+         -21.901661386966058,
+         89.26392238444838,
+         2.6458964825070748
+        ]
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_pInstanceInfo.value.m_Trf.m_or",
+       "before": [
+        -24.705645915364226,
+        88.54655389880323,
+        0.0
+       ],
+       "after": [
+        -19.705645915364226,
+        88.54655389880323,
+        0.0
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_instOrigin",
+       "before": [
+        2.10104085585462,
+        0.33999619218057947,
+        0.0
+       ],
+       "after": [
+        7.10104085585462,
+        0.33999619218057947,
+        0.0
+       ]
+      },
+      {
+       "seq": 103,
+       "path": "GElement transforms/boxes",
+       "before": "+[5.0, 0.0, 0.0]",
+       "after": "translated"
+      },
+      {
+       "seq": 101,
+       "path": "m_pBBox.value.m_minmax",
+       "before": [
+        [
+         -25.498597401373328,
+         87.82952089764927,
+         -2.5511723431237414e-05
+        ],
+        [
+         -23.899692924664826,
+         89.26442236306109,
+         2.6458964825070748
+        ]
+       ],
+       "after": [
+        [
+         -20.498597401373328,
+         87.82952089764927,
+         -2.5511723431237414e-05
+        ],
+        [
+         -18.899692924664826,
+         89.26442236306109,
+         2.6458964825070748
+        ]
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_pInstanceInfo.value.m_Trf.m_or",
+       "before": [
+        -26.200297136415298,
+        87.05223816224337,
+        0.0
+       ],
+       "after": [
+        -21.200297136415298,
+        87.05223816224337,
+        0.0
+       ]
+      },
+      {
+       "seq": 102,
+       "path": "m_instOrigin",
+       "before": [
+        0.33999619218056953,
+        -2.101040855854623,
+        0.0
+       ],
+       "after": [
+        5.339996192180569,
+        -2.101040855854623,
+        0.0
+       ]
+      },
+      {
+       "seq": 103,
+       "path": "GElement transforms/boxes",
+       "before": "+[5.0, 0.0, 0.0]",
+       "after": "translated"
+      },
+      {
+       "seq": 101,
+       "path": "m_pBBox.value.m_minmax",
+       "before": [
+        [
+         -26.917330137569245,
+         86.24628517154397,
+         -2.5511723431237414e-05
+        ],
+        [
+         -25.482428672157432,
+         87.84518964825247,
+         2.6458964825070748
+        ]
+       ],
+       "after": [
+        [
+         -21.917330137569245,
+         86.24628517154397,
+         -2.5511723431237414e-05
+        ],
+        [
+         -20.482428672157432,
+         87.84518964825247,
+         2.6458964825070748
+        ]
+       ]
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 180360,
+       "action": "replace",
+       "new_record_len": 607,
+       "reason": "move: placement transform"
+      },
+      {
+       "seq": 103,
+       "elem_id": 180360,
+       "action": "replace",
+       "new_record_len": 896,
+       "reason": "move: cached rep"
+      },
+      {
+       "seq": 101,
+       "elem_id": 180360,
+       "action": "replace",
+       "new_record_len": 321,
+       "reason": "move: header bbox"
+      },
+      {
+       "seq": 102,
+       "elem_id": 180362,
+       "action": "replace",
+       "new_record_len": 559,
+       "reason": "move: placement transform"
+      },
+      {
+       "seq": 103,
+       "elem_id": 180362,
+       "action": "replace",
+       "new_record_len": 320,
+       "reason": "move: cached rep"
+      },
+      {
+       "seq": 101,
+       "elem_id": 180362,
+       "action": "replace",
+       "new_record_len": 289,
+       "reason": "move: header bbox"
+      },
+      {
+       "seq": 102,
+       "elem_id": 180363,
+       "action": "replace",
+       "new_record_len": 559,
+       "reason": "move: placement transform"
+      },
+      {
+       "seq": 103,
+       "elem_id": 180363,
+       "action": "replace",
+       "new_record_len": 320,
+       "reason": "move: cached rep"
+      },
+      {
+       "seq": 101,
+       "elem_id": 180363,
+       "action": "replace",
+       "new_record_len": 289,
+       "reason": "move: header bbox"
+      },
+      {
+       "seq": 102,
+       "elem_id": 180364,
+       "action": "replace",
+       "new_record_len": 559,
+       "reason": "move: placement transform"
+      },
+      {
+       "seq": 103,
+       "elem_id": 180364,
+       "action": "replace",
+       "new_record_len": 320,
+       "reason": "move: cached rep"
+      },
+      {
+       "seq": 101,
+       "elem_id": 180364,
+       "action": "replace",
+       "new_record_len": 289,
+       "reason": "move: header bbox"
+      },
+      {
+       "seq": 102,
+       "elem_id": 180365,
+       "action": "replace",
+       "new_record_len": 559,
+       "reason": "move: placement transform"
+      },
+      {
+       "seq": 103,
+       "elem_id": 180365,
+       "action": "replace",
+       "new_record_len": 320,
+       "reason": "move: cached rep"
+      },
+      {
+       "seq": 101,
+       "elem_id": 180365,
+       "action": "replace",
+       "new_record_len": 289,
+       "reason": "move: header bbox"
+      }
+     ],
+     "notes": [
+      "translated by [5.0, 0.0, 0.0] ft",
+      "owned child 180362 translated with it",
+      "owned child 180363 translated with it",
+      "owned child 180364 translated with it",
+      "owned child 180365 translated with it"
+     ]
+    },
+    "retype": {
+     "plan": "modify",
+     "kind": "retype",
+     "elem_id": 180360,
+     "class": "FamilyInstance",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_pInstanceInfo.value.m_symbolId",
+       "before": 180235,
+       "after": 180237
+      },
+      {
+       "seq": 102,
+       "path": "m_masterSymbolId",
+       "before": 180235,
+       "after": 180237
+      },
+      {
+       "seq": 103,
+       "path": "m_subNodes[*].InstanceInfo.m_symbolId",
+       "before": 180235,
+       "after": 180237
+      },
+      {
+       "seq": 101,
+       "path": "m_parents lists (symbol/family remap)",
+       "before": [
+        180235
+       ],
+       "after": [
+        180237
+       ]
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 180360,
+       "action": "replace",
+       "new_record_len": 607,
+       "reason": "retype: symbol ids"
+      },
+      {
+       "seq": 103,
+       "elem_id": 180360,
+       "action": "replace",
+       "new_record_len": 896,
+       "reason": "retype: cached rep symbol"
+      },
+      {
+       "seq": 101,
+       "elem_id": 180360,
+       "action": "replace",
+       "new_record_len": 321,
+       "reason": "retype: header parents"
+      }
+     ],
+     "notes": [
+      "retyped 180360: symbol 180235 -> 180237"
+     ]
+    },
+    "commit": {
+     "partition": "Partitions/13",
+     "removed_ids": [],
+     "replaced": [
+      [
+       101,
+       180360
+      ],
+      [
+       101,
+       180362
+      ],
+      [
+       101,
+       180363
+      ],
+      [
+       101,
+       180364
+      ],
+      [
+       101,
+       180365
+      ],
+      [
+       102,
+       180360
+      ],
+      [
+       102,
+       180362
+      ],
+      [
+       102,
+       180363
+      ],
+      [
+       102,
+       180364
+      ],
+      [
+       102,
+       180365
+      ],
+      [
+       103,
+       180360
+      ],
+      [
+       103,
+       180362
+      ],
+      [
+       103,
+       180363
+      ],
+      [
+       103,
+       180364
+      ],
+      [
+       103,
+       180365
+      ]
+     ],
+     "elemtable_count_before": 17231,
+     "elemtable_count_after": 17231,
+     "watermark": 438567,
+     "blocks_before": {
+      "101": 33,
+      "102": 225,
+      "103": 254
+     },
+     "blocks_after": {
+      "101": 33,
+      "102": 225,
+      "103": 254
+     },
+     "out_path": "/Users/ck/dev/things/rev-revit/experiments/manipulate/M4_move_retype_rac.rvt"
+    }
+   },
+   "structural": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "elemtable_count": 17231,
+    "header_count": 17231,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "stamps_ok": true,
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "edited": {
+     "180360": {
+      "101": {
+       "class": "ElementHeader",
+       "clean": true
+      },
+      "102": {
+       "class": "FamilyInstance",
+       "clean": true
+      },
+      "103": {
+       "class": "GElement",
+       "clean": true
+      }
+     }
+    },
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   },
+   "structural_healthy": true,
+   "semantic": {
+    "instance": 180360,
+    "before": {
+     "m_or": [
+      -26.540293328595915,
+      89.15327901809796,
+      0.0
+     ],
+     "m_3x3": [
+      [
+       1.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "m_symbolId": 180235,
+     "m_masterSymbolId": 180235,
+     "m_hostId": -1
+    },
+    "after": {
+     "m_or": [
+      -21.540293328595915,
+      89.15327901809796,
+      0.0
+     ],
+     "m_3x3": [
+      [
+       1.0,
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       1.0,
+       0.0
+      ],
+      [
+       0.0,
+       0.0,
+       1.0
+      ]
+     ],
+     "m_symbolId": 180237,
+     "m_masterSymbolId": 180237,
+     "m_hostId": -1
+    },
+    "translation": [
+     5.0,
+     0.0,
+     0.0
+    ],
+    "ok_moved_5ft_x": true,
+    "ok_retyped": true,
+    "notes": [
+     "translated by [5.0, 0.0, 0.0] ft",
+     "owned child 180362 translated with it",
+     "owned child 180363 translated with it",
+     "owned child 180364 translated with it",
+     "owned child 180365 translated with it",
+     "retyped 180360: symbol 180235 -> 180237"
+    ]
+   }
+  }
+ ],
+ "elapsed_s": 368.1
+}

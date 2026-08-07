@@ -1,0 +1,432 @@
+{
+ "element_id": 245423,
+ "note": "Level 'Level 2', elev 9.8425 ft = 3.0 m",
+ "elemtable": {
+  "found_in_ElemTable": true,
+  "raw_40_bytes_hex": "af be 03 00 00 00 00 00 40 02 00 00 41 03 00 00 ed 02 00 00 af be 03 00 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00",
+  "fields": {
+   "+0 u64 m_history.m_originalElementId": 245423,
+   "+8 u32 m_history.m_creationDate (EpisodeId)": 576,
+   "+12 u32 m_history.m_lastModificationDate (EpisodeId)": 833,
+   "+16 u32 m_history.m_lastUserModificationDate": 749,
+   "+20 u64 m_id": 245423,
+   "+28 u64 m_OwningElementId": -1,
+   "+36 u32 m_partitionId": 0
+  }
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 878668,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 245423,
+  "stamp": null,
+  "psize": 159,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 157,
+  "total_record_bytes": 175,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 90 7a e1 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "157/157",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -2000240,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -4225
+   },
+   "m_abFlags4Bytes": 10,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "Level"
+    }
+   },
+   "m_pBBox": null,
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      305,
+      245423
+     ],
+     "m_regenOnly": [
+      19236,
+      111428
+     ],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [
+      305,
+      19236
+     ],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -2000240,
+  "builtin": "OST_Levels"
+ },
+ "classDef": "Level",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 6291290,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 245423,
+  "stamp": 1208798880,
+  "psize": 736,
+  "class_id_hex": "0x09e7",
+  "object_bytes": 734,
+  "total_record_bytes": 756,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff 5e 0c ff ff ff ff f6 08 ff ff ff ff f7 08 00 00",
+  "class": "Level",
+  "clean": true,
+  "consumed_of_object": "734/734",
+  "value": {
+   "m_pParamValueSetDouble": null,
+   "m_pParamValueSetInt": null,
+   "m_pParamValueSetAString": null,
+   "m_pParamValueSetElementId": {
+    "ptr_class": "ParamValueSetElementId",
+    "pid": -1,
+    "value": {
+     "m_paramSet": [
+      {
+       "m_paramId": -1012201,
+       "m_value": -1
+      }
+     ]
+    }
+   },
+   "m_geomSteps": {
+    "ptr_class": "GeomStepList",
+    "pid": -1,
+    "value": {
+     "m_nonBRepGList": [
+      {
+       "ptr_class": "DatumPlaneGeomStep",
+       "pid": -1,
+       "value": {
+        "m_faceHistTable": [
+         {
+          "m_id": 0,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            0,
+            -1
+           ]
+          }
+         }
+        ],
+        "m_curveHistTableSet": [],
+        "m_edgeHistTable": [],
+        "m_edgeHistTableReverse": [],
+        "m_id": 1,
+        "m_version": 1,
+        "m_flags": 761725,
+        "m_pElem": {
+         "weakref": 2
+        },
+        "m_oExtraDatas": null
+       }
+      }
+     ],
+     "m_bRepFormGList": [],
+     "m_bRepAdjustGList": [],
+     "m_bRepCutOutGList": [],
+     "m_bRepPostCutOutGList": [],
+     "m_bRepTweakGList": [],
+     "m_bRepFormSnapshot": null,
+     "m_bRepAdjustSnapshot": null,
+     "m_bRepCutOutSnapshot": null,
+     "m_bRepPostCutOutSnapshot": null,
+     "m_pElem": {
+      "weakref": 2
+     },
+     "m_latestGStepTypeInPrevRegenCycle": [
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "m_idCounter": 2,
+     "m_flags": 11
+    }
+   },
+   "m_pGeomTable": {
+    "ptr_class": "GeomTable",
+    "pid": -1,
+    "value": {
+     "m_refPntMirrored": false,
+     "m_table": [
+      {
+       "m_geomGeneratorId": 1
+      }
+     ],
+     "m_bigTableOwner": null,
+     "m_materialMarkers": [],
+     "m_faceTypeMarkers": []
+    }
+   },
+   "m_constrInfo": [],
+   "m_cellList": null,
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 245423,
+   "m_assocLevelId": -1,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_text": "Level 2",
+   "m_pFace": {
+    "ptr_class": "Face",
+    "pid": 3,
+    "value": {
+     "m_GInfo": {
+      "m_categoryId": -1,
+      "m_tag": 0,
+      "m_controlCommand": 0,
+      "m_flags": 524804
+     },
+     "m_pFirstLoop": null,
+     "m_faceRegions": [],
+     "m_pGFilling": null,
+     "m_oBackgroundFilling": null,
+     "m_renderStyleId": -1,
+     "m_cutType": 0,
+     "m_faceFlags_v9": 0,
+     "m_pSurf": {
+      "ptr_class": "Plane",
+      "pid": 5,
+      "value": {
+       "m_Envelope": {
+        "m_corners": [
+         [
+          -109.287993789,
+          -78.950414322
+         ],
+         [
+          43.591389534,
+          57.079226169
+         ]
+        ]
+       },
+       "m_orientFlag": true,
+       "m_origin": [
+        27.289843762,
+        -22.604879736,
+        9.842519685
+       ],
+       "m_xVec": [
+        -0.0,
+        -1.0,
+        -0.0
+       ],
+       "m_yVec": [
+        1.0,
+        0.0,
+        -0.0
+       ]
+      }
+     }
+    }
+   },
+   "m_pSurface": {
+    "ptr_class": "Plane",
+    "pid": 4,
+    "value": {
+     "m_Envelope": {
+      "m_corners": [
+       [
+        -109.287993789,
+        -78.950414322
+       ],
+       [
+        43.591389534,
+        57.079226169
+       ]
+      ]
+     },
+     "m_orientFlag": true,
+     "m_origin": [
+      27.289843762,
+      -22.604879736,
+      9.842519685
+     ],
+     "m_xVec": [
+      -0.0,
+      -1.0,
+      -0.0
+     ],
+     "m_yVec": [
+      1.0,
+      0.0,
+      -0.0
+     ]
+    }
+   },
+   "m_pLeader": null,
+   "m_freeEnd": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "m_bubbleEnd": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "m_cutVec": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "m_refPointsForNewViews": [
+    [
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0
+    ]
+   ],
+   "m_sheetTextHeight": 0.015625,
+   "m_genDbViewId": -1,
+   "m_v2Datum": false,
+   "m_useConstVForDatumLine3dRep": true,
+   "m_roomComputationElevationOffset": 0.0,
+   "m_attrId": 305,
+   "m_isBuildingStory": true
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 13140243,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 245423,
+  "stamp": 6881340,
+  "psize": 2,
+  "class_id_hex": "0x0f2c",
+  "object_bytes": 0,
+  "total_record_bytes": 22,
+  "size_trailer_ok": true,
+  "payload_head_hex": "",
+  "class": "SerializedDummy",
+  "clean": true,
+  "consumed_of_object": "0/0",
+  "value": {}
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[0]",
+   "id": 305,
+   "target_class": "LevelAttributes",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[1]",
+   "id": 245423,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[0]",
+   "id": 19236,
+   "target_class": "UnitsElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[1]",
+   "id": 111428,
+   "target_class": "GeoLocation",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[0]",
+   "id": 305,
+   "target_class": "LevelAttributes",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[1]",
+   "id": 19236,
+   "target_class": "UnitsElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_nonBRepGList[0].value.m_id",
+   "id": 1,
+   "target_class": "AllProjectPhases",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_idCounter",
+   "id": 2,
+   "target_class": "PenWidthTableElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 245423,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_attrId",
+   "id": 305,
+   "target_class": "LevelAttributes",
+   "in_ElemTable": true,
+   "in_partitions": true
+  }
+ ]
+}

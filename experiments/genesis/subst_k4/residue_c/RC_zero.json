@@ -1,0 +1,27 @@
+{
+ "out": "experiments/genesis/subst_k4/residue_c/RC_zero.rvt",
+ "md5": "c599554c82893310901c428b2a0cf208",
+ "composer_verdict": "COMPOSED-VALID",
+ "composer_problems": [],
+ "deletion_specs": [
+  "experiments/genesis/subst_k4/residue_c/RC_del_link.spec.json",
+  "experiments/genesis/subst_k4/residue_c/RC_del_datastorage.spec.json",
+  "experiments/genesis/subst_k4/residue_c/RC_del_room.spec.json"
+ ],
+ "stragglers_expected_gone": [
+  9744,
+  245433,
+  1004904,
+  1004905,
+  1004906,
+  1004907,
+  1004908,
+  1004909,
+  1004910,
+  1250029,
+  1382860
+ ],
+ "stragglers_still_present": [],
+ "host_elements_after": 3091,
+ "ok": true
+}

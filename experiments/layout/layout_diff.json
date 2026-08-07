@@ -1,0 +1,3226 @@
+{
+ "generated": "2026-08-05T07:33:47-0500",
+ "tool": "tools/layout_diff.py enumerate",
+ "charter": "layout-law: name the physical-layout law behind SUB_ALL PASS vs F1 FAIL (verdict #40)",
+ "headline": {
+  "content_equal_claim": "REFUTED at field granularity: the pair is element-roster-equal (mod 2 BrowserOrganization) and 25/41 records are byte-model-identical after id normalization, but the self-Family record + its header carry a finite kept-ours residue that separates PERFECTLY across the corpus",
+  "order_axis": "corpus-exonerated as a sole law: SUB_O1 (FAIL) carries the donor class-order convention while B7 (PASS) carries the donor's native order -- no order predicate is true in all FAIL and false in all PASS; M1/M2 remain the direct experimental test",
+  "top_ranked_candidates": [
+   "cell_dup_identity_groups",
+   "cell_no_materials_group",
+   "hdr_deletion_elements_only",
+   "hdr_deletion_lacks_category",
+   "sf_absorbed_dense (no history gap)",
+   "sf_category_is_ours_electrical",
+   "sf_locked_no_bip",
+   "sf_partType_set (not -1)",
+   "sf_predefinedLimitIdx_small",
+   "sf_refTypeIds_empty",
+   "sf_single_type_pair",
+   "sf_type_idx_zero"
+  ]
+ },
+ "matched_pair": {
+  "pair": {
+   "a": {
+    "name": "SUB_ALL",
+    "file": "experiments/subtractive/SUB_ALL.rvt",
+    "md5": "7bf5ad5af143eac824ab9e1e153b2478",
+    "unit_guid": "0ab0a4c4-2ed1-4fb1-9fe4-c9c6773acdf0",
+    "n_elements": 41
+   },
+   "b": {
+    "name": "F1",
+    "file": "experiments/famdoc_final/F1.rvt",
+    "md5": "2a1430e8e87dd0a1c429a5ddadd90a51",
+    "unit_guid": "6291403d-504d-4e38-850a-412900d19676",
+    "n_elements": 43
+   }
+  },
+  "alignment": {
+   "pairs": 41,
+   "records_fully_equal_after_id_normalization": 25
+  },
+  "items": [
+   {
+    "surface": "roster",
+    "kind": "CONTENT",
+    "path": "unit.elements",
+    "a_only": [],
+    "b_only": [
+     "BrowserOrganization#1472566",
+     "BrowserOrganization#1472567"
+    ],
+    "note": "elements with no counterpart (verdict #40's 'content equal' holds only at this-many-elements granularity)"
+   },
+   {
+    "surface": "record-order",
+    "kind": "ORDER",
+    "path": "unit.seq102.order",
+    "equal_on_common_roles": false,
+    "a": [
+     "Family#0",
+     "Viewer#0",
+     "DBViewProject#0",
+     "DBDrawing#0",
+     "Viewport#0",
+     "UnitsElem#0",
+     "LevelAttributes#0",
+     "Level#0",
+     "DBViewType#0",
+     "DBViewPlan#0",
+     "Viewer#1",
+     "SketchPlane#0",
+     "SunAndShadowSettings#0",
+     "Viewport#1",
+     "DBDrawing#1",
+     "ExtentElem#0",
+     "RefPlane#0",
+     "RefPlane#1",
+     "ParamElemFamily#0",
+     "ParamElemFamily#1",
+     "ParamElemFamily#2",
+     "ParamElemFamily#3",
+     "ParamElemFamily#4",
+     "ParamElemFamily#5",
+     "ParamElemFamily#6",
+     "ParamElemFamily#7",
+     "ParamElemFamily#8",
+     "ParamElemFamily#9",
+     "ParamElemFamily#10",
+     "ParamElemFamily#11",
+     "ParamElemFamily#12",
+     "ParamElemFamily#13",
+     "SketchPlane#1",
+     "VarSketch#0",
+     "CurveElem#0",
+     "CurveElem#1",
+     "CurveElem#2",
+     "CurveElem#3",
+     "ExtrusionElem#0",
+     "ElectricalLoadClassification#0",
+     "ConnectorElem#0"
+    ],
+    "b": [
+     "Family#0",
+     "UnitsElem#0",
+     "LevelAttributes#0",
+     "Level#0",
+     "DBViewProject#0",
+     "Viewer#0",
+     "Viewport#0",
+     "DBDrawing#0",
+     "DBViewType#0",
+     "DBViewPlan#0",
+     "Viewer#1",
+     "SketchPlane#0",
+     "SunAndShadowSettings#0",
+     "Viewport#1",
+     "DBDrawing#1",
+     "ExtentElem#0",
+     "RefPlane#0",
+     "RefPlane#1",
+     "ParamElemFamily#0",
+     "ParamElemFamily#1",
+     "ParamElemFamily#2",
+     "ParamElemFamily#3",
+     "ParamElemFamily#4",
+     "ParamElemFamily#5",
+     "ParamElemFamily#6",
+     "ParamElemFamily#7",
+     "ParamElemFamily#8",
+     "ParamElemFamily#9",
+     "ParamElemFamily#10",
+     "ParamElemFamily#11",
+     "ParamElemFamily#12",
+     "ParamElemFamily#13",
+     "SketchPlane#1",
+     "VarSketch#0",
+     "CurveElem#0",
+     "CurveElem#1",
+     "CurveElem#2",
+     "CurveElem#3",
+     "ExtrusionElem#0",
+     "ElectricalLoadClassification#0",
+     "ConnectorElem#0",
+     "BrowserOrganization#0",
+     "BrowserOrganization#1"
+    ],
+    "first_divergence": 1
+   },
+   {
+    "surface": "record-order",
+    "kind": "ORDER",
+    "path": "SUB_ALL.invariants",
+    "ascending_id": true,
+    "seq101_same_order": true,
+    "seq103_same_order": true
+   },
+   {
+    "surface": "record-order",
+    "kind": "ORDER",
+    "path": "F1.invariants",
+    "ascending_id": true,
+    "seq101_same_order": true,
+    "seq103_same_order": true
+   },
+   {
+    "surface": "packing",
+    "kind": "PACKING",
+    "path": "unit.blocks",
+    "a": {
+     "blocks": [
+      {
+       "seq": 101,
+       "flags": 4,
+       "records": 42,
+       "payload": 6983
+      },
+      {
+       "seq": 102,
+       "flags": 4,
+       "records": 42,
+       "payload": 67922
+      },
+      {
+       "seq": 103,
+       "flags": 4,
+       "records": 42,
+       "payload": 5380
+      }
+     ],
+     "footer_blob_len": 64,
+     "counter": 41,
+     "n_elements": 41
+    },
+    "b": {
+     "blocks": [
+      {
+       "seq": 101,
+       "flags": 4,
+       "records": 44,
+       "payload": 7269
+      },
+      {
+       "seq": 102,
+       "flags": 4,
+       "records": 44,
+       "payload": 63936
+      },
+      {
+       "seq": 103,
+       "flags": 4,
+       "records": 44,
+       "payload": 5424
+      }
+     ],
+     "footer_blob_len": 64,
+     "counter": 43,
+     "n_elements": 43
+    },
+    "parity": true,
+    "note": "counter == n_elements in both (roster-coupled); blob 64 B both (E1b: content-indifferent)"
+   },
+   {
+    "path": "ElementHeader.m_parents.value.m_deletion#len",
+    "kind": "FIELD",
+    "a": 45,
+    "b": 43,
+    "surface": "record",
+    "record": "ElementHeader 1472532->1472525 seq101"
+   },
+   {
+    "path": "Family.m_categoryId",
+    "kind": "FIELD",
+    "a": "-2001330",
+    "b": "-2001040",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[0].m_groupTypeId.m_typeId",
+    "kind": "FIELD",
+    "a": "autodesk.parameter.group:materials-1.0.0",
+    "b": "autodesk.parameter.group:dimensions-1.0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[0].m_paramIds#len",
+    "kind": "FIELD",
+    "a": 1,
+    "b": 3,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[1].m_groupTypeId.m_typeId",
+    "kind": "FIELD",
+    "a": "autodesk.parameter.group:dimensions-1.0.0",
+    "b": "autodesk.parameter.group:identityData-1.0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[1].m_paramIds#len",
+    "kind": "FIELD",
+    "a": 3,
+    "b": 2,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[2].m_groupTypeId.m_typeId",
+    "kind": "FIELD",
+    "a": "autodesk.parameter.group:identityData-1.0.0",
+    "b": "autodesk.parameter.group:electrical-1.0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[2].m_paramIds#len",
+    "kind": "FIELD",
+    "a": 12,
+    "b": 9,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[3].m_groupTypeId.m_typeId",
+    "kind": "FIELD",
+    "a": "autodesk.parameter.group:electrical-1.0.0",
+    "b": "autodesk.parameter.group:identityData-1.0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[3].m_paramIds#len",
+    "kind": "FIELD",
+    "a": 9,
+    "b": 3,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data#len",
+    "kind": "FIELD",
+    "a": 40,
+    "b": 42,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyParams.value.m_params#len",
+    "kind": "FIELD",
+    "a": 18,
+    "b": 17,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_lockedParameterIdsForDirectManipulation#len",
+    "kind": "FIELD",
+    "a": 4,
+    "b": 3,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_nextAbsorbedIndex",
+    "kind": "FIELD",
+    "a": "3165",
+    "b": "42",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_pFamilyTypes.value.m_idx",
+    "kind": "FIELD",
+    "a": "1",
+    "b": "0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_pFamilyTypes.value.m_pairs#len",
+    "kind": "FIELD",
+    "a": 5,
+    "b": 1,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_partType",
+    "kind": "FIELD",
+    "a": "-1",
+    "b": "14",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_predefinedLimitIdx",
+    "kind": "FIELD",
+    "a": "1963",
+    "b": "35",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_refTypeIds#len",
+    "kind": "FIELD",
+    "a": 1,
+    "b": 0,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "ElementHeader.m_parents.value.m_regenOnly#len",
+    "kind": "FIELD",
+    "a": 0,
+    "b": 2,
+    "surface": "record",
+    "record": "ElementHeader 1472573->1472529 seq101"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167fee-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a90016781f-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474542->1472543 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167fef-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167820-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474543->1472544 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff0-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167821-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474544->1472545 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff1-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167822-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474545->1472546 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff2-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167823-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474546->1472547 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff3-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167824-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474547->1472548 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff4-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167825-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474548->1472549 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff5-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167826-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474549->1472550 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff6-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167827-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474550->1472551 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff7-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167828-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474551->1472552 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff8-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a900167829-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474552->1472553 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff9-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a90016782a-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474553->1472554 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ffa-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a90016782b-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474554->1472555 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ffb-1.0.0",
+    "b": "revit.local.family:ac303ec3f15e42a7ab7eb37d60efe9a90016782c-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474555->1472556 seq102"
+   },
+   {
+    "surface": "identity",
+    "kind": "IDENTITY",
+    "path": "revit.local.family suffix",
+    "a": {
+     "params_checked": 14,
+     "suffix_matches_own_id": 14,
+     "mismatches": []
+    },
+    "b": {
+     "params_checked": 14,
+     "suffix_matches_own_id": 14,
+     "mismatches": []
+    },
+    "note": "suffix == own element id in BOTH -> the typeId delta is the family GUID only (pure identity)"
+   },
+   {
+    "surface": "inline-adoc",
+    "kind": "FIELD",
+    "path": "ContentDocuments",
+    "a": {
+     "rows": 41,
+     "ascending": true,
+     "rows_equal_unit_ids": true,
+     "m_last": 1474564,
+     "bytes": 19830
+    },
+    "b": {
+     "rows": 43,
+     "ascending": true,
+     "rows_equal_unit_ids": true,
+     "m_last": 1472567,
+     "bytes": 3097
+    },
+    "top_level_size_deltas": {
+     "m_elemTable": {
+      "a_json_bytes": 10651,
+      "b_json_bytes": 11208
+     },
+     "m_pAppInfoManager": {
+      "a_json_bytes": 72072,
+      "b_json_bytes": 1532
+     },
+     "m_storedByRevitBuild": {
+      "a_json_bytes": 141,
+      "b_json_bytes": 2
+     }
+    },
+    "note": "ElemTable rows == unit ids, ascending, m_last == max in BOTH; the byte delta is the donor's deep registries vs our authored minimal form -- the our-authored form is EXONERATED as a sole axis by B6 + U12345 (both PASS)"
+   }
+  ]
+ },
+ "base_loader_matched_pair": {
+  "pair": {
+   "a": {
+    "name": "SUB_ALL",
+    "file": "experiments/subtractive/SUB_ALL.rvt",
+    "md5": "7bf5ad5af143eac824ab9e1e153b2478",
+    "unit_guid": "0ab0a4c4-2ed1-4fb1-9fe4-c9c6773acdf0",
+    "n_elements": 41
+   },
+   "b": {
+    "name": "H8B",
+    "file": "experiments/famdoc_final/H8B.rvt",
+    "md5": "4330bfbfe8853ba802824235f05f58f1",
+    "unit_guid": "e94bcd04-9f4d-4c93-aa2e-282bb2687d6b",
+    "n_elements": 41
+   }
+  },
+  "alignment": {
+   "pairs": 41,
+   "records_fully_equal_after_id_normalization": 21
+  },
+  "items": [
+   {
+    "surface": "record-order",
+    "kind": "ORDER",
+    "path": "unit.seq102.order",
+    "equal_on_common_roles": false,
+    "a": [
+     "Family#0",
+     "Viewer#0",
+     "DBViewProject#0",
+     "DBDrawing#0",
+     "Viewport#0",
+     "UnitsElem#0",
+     "LevelAttributes#0",
+     "Level#0",
+     "DBViewType#0",
+     "DBViewPlan#0",
+     "Viewer#1",
+     "SketchPlane#0",
+     "SunAndShadowSettings#0",
+     "Viewport#1",
+     "DBDrawing#1",
+     "ExtentElem#0",
+     "RefPlane#0",
+     "RefPlane#1",
+     "ParamElemFamily#0",
+     "ParamElemFamily#1",
+     "ParamElemFamily#2",
+     "ParamElemFamily#3",
+     "ParamElemFamily#4",
+     "ParamElemFamily#5",
+     "ParamElemFamily#6",
+     "ParamElemFamily#7",
+     "ParamElemFamily#8",
+     "ParamElemFamily#9",
+     "ParamElemFamily#10",
+     "ParamElemFamily#11",
+     "ParamElemFamily#12",
+     "ParamElemFamily#13",
+     "SketchPlane#1",
+     "VarSketch#0",
+     "CurveElem#0",
+     "CurveElem#1",
+     "CurveElem#2",
+     "CurveElem#3",
+     "ExtrusionElem#0",
+     "ElectricalLoadClassification#0",
+     "ConnectorElem#0"
+    ],
+    "b": [
+     "Family#0",
+     "UnitsElem#0",
+     "LevelAttributes#0",
+     "Level#0",
+     "DBViewProject#0",
+     "Viewer#0",
+     "Viewport#0",
+     "DBDrawing#0",
+     "DBViewType#0",
+     "DBViewPlan#0",
+     "Viewer#1",
+     "SketchPlane#0",
+     "SunAndShadowSettings#0",
+     "Viewport#1",
+     "DBDrawing#1",
+     "ExtentElem#0",
+     "RefPlane#0",
+     "RefPlane#1",
+     "ParamElemFamily#0",
+     "ParamElemFamily#1",
+     "ParamElemFamily#2",
+     "ParamElemFamily#3",
+     "ParamElemFamily#4",
+     "ParamElemFamily#5",
+     "ParamElemFamily#6",
+     "ParamElemFamily#7",
+     "ParamElemFamily#8",
+     "ParamElemFamily#9",
+     "ParamElemFamily#10",
+     "ParamElemFamily#11",
+     "ParamElemFamily#12",
+     "ParamElemFamily#13",
+     "SketchPlane#1",
+     "VarSketch#0",
+     "CurveElem#0",
+     "CurveElem#1",
+     "CurveElem#2",
+     "CurveElem#3",
+     "ExtrusionElem#0",
+     "ElectricalLoadClassification#0",
+     "ConnectorElem#0"
+    ],
+    "first_divergence": 1
+   },
+   {
+    "surface": "record-order",
+    "kind": "ORDER",
+    "path": "SUB_ALL.invariants",
+    "ascending_id": true,
+    "seq101_same_order": true,
+    "seq103_same_order": true
+   },
+   {
+    "surface": "record-order",
+    "kind": "ORDER",
+    "path": "H8B.invariants",
+    "ascending_id": true,
+    "seq101_same_order": true,
+    "seq103_same_order": true
+   },
+   {
+    "surface": "packing",
+    "kind": "PACKING",
+    "path": "unit.blocks",
+    "a": {
+     "blocks": [
+      {
+       "seq": 101,
+       "flags": 4,
+       "records": 42,
+       "payload": 6983
+      },
+      {
+       "seq": 102,
+       "flags": 4,
+       "records": 42,
+       "payload": 67922
+      },
+      {
+       "seq": 103,
+       "flags": 4,
+       "records": 42,
+       "payload": 5380
+      }
+     ],
+     "footer_blob_len": 64,
+     "counter": 41,
+     "n_elements": 41
+    },
+    "b": {
+     "blocks": [
+      {
+       "seq": 101,
+       "flags": 4,
+       "records": 42,
+       "payload": 6895
+      },
+      {
+       "seq": 102,
+       "flags": 4,
+       "records": 42,
+       "payload": 29838
+      },
+      {
+       "seq": 103,
+       "flags": 4,
+       "records": 42,
+       "payload": 5380
+      }
+     ],
+     "footer_blob_len": 64,
+     "counter": 41,
+     "n_elements": 41
+    },
+    "parity": true,
+    "note": "counter == n_elements in both (roster-coupled); blob 64 B both (E1b: content-indifferent)"
+   },
+   {
+    "path": "ElementHeader.m_parents.value.m_deletion#len",
+    "kind": "FIELD",
+    "a": 45,
+    "b": 41,
+    "surface": "record",
+    "record": "ElementHeader 1472532->1472525 seq101"
+   },
+   {
+    "path": "Family.m_appVersionAtInitialLoad",
+    "kind": "FIELD",
+    "a": "2659",
+    "b": "-2",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_appVersionAtLoad",
+    "kind": "FIELD",
+    "a": "2660",
+    "b": "-2",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_bHasAnyDummyRefs",
+    "kind": "FIELD",
+    "a": "True",
+    "b": "False",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_bIsSavable",
+    "kind": "FIELD",
+    "a": "False",
+    "b": "True",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_categoryId",
+    "kind": "FIELD",
+    "a": "-2001330",
+    "b": "-2001040",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[0].m_groupTypeId.m_typeId",
+    "kind": "FIELD",
+    "a": "autodesk.parameter.group:materials-1.0.0",
+    "b": "autodesk.parameter.group:dimensions-1.0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[0].m_paramIds#len",
+    "kind": "FIELD",
+    "a": 1,
+    "b": 3,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[1].m_groupTypeId.m_typeId",
+    "kind": "FIELD",
+    "a": "autodesk.parameter.group:dimensions-1.0.0",
+    "b": "autodesk.parameter.group:identityData-1.0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[1].m_paramIds#len",
+    "kind": "FIELD",
+    "a": 3,
+    "b": 2,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[2].m_groupTypeId.m_typeId",
+    "kind": "FIELD",
+    "a": "autodesk.parameter.group:identityData-1.0.0",
+    "b": "autodesk.parameter.group:electrical-1.0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[2].m_paramIds#len",
+    "kind": "FIELD",
+    "a": 12,
+    "b": 9,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[3].m_groupTypeId.m_typeId",
+    "kind": "FIELD",
+    "a": "autodesk.parameter.group:electrical-1.0.0",
+    "b": "autodesk.parameter.group:identityData-1.0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_cellList.value.m_cells[0].value.m_sortedParams[3].m_paramIds#len",
+    "kind": "FIELD",
+    "a": 9,
+    "b": 3,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_defaultColumnHeight",
+    "kind": "FIELD",
+    "a": "8.202099737532807",
+    "b": "0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_defaultHeightAboveLevel",
+    "kind": "FIELD",
+    "a": "-1e+30",
+    "b": "0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_defaultHostThickness",
+    "kind": "FIELD",
+    "a": "-1e+30",
+    "b": "0.0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_eStructMaterialType",
+    "kind": "FIELD",
+    "a": "2",
+    "b": "4",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[0].m_elementId",
+    "kind": "FIELD",
+    "a": "1472530",
+    "b": "1472526",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[0].m_index",
+    "kind": "FIELD",
+    "a": "43",
+    "b": "0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[1].m_elementId",
+    "kind": "FIELD",
+    "a": "1472529",
+    "b": "1472527",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[1].m_index",
+    "kind": "FIELD",
+    "a": "44",
+    "b": "1",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[2].m_elementId",
+    "kind": "FIELD",
+    "a": "1472532",
+    "b": "1472530",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[2].m_index",
+    "kind": "FIELD",
+    "a": "45",
+    "b": "2",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[3].m_index",
+    "kind": "FIELD",
+    "a": "46",
+    "b": "3",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[4].m_elementId",
+    "kind": "FIELD",
+    "a": "1472526",
+    "b": "1472532",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[4].m_index",
+    "kind": "FIELD",
+    "a": "1988",
+    "b": "4",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[5].m_elementId",
+    "kind": "FIELD",
+    "a": "1472527",
+    "b": "1472529",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[5].m_index",
+    "kind": "FIELD",
+    "a": "3165",
+    "b": "5",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[6].m_elementId",
+    "kind": "FIELD",
+    "a": "1472528",
+    "b": "1472533",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[6].m_index",
+    "kind": "FIELD",
+    "a": "3166",
+    "b": "6",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[7].m_elementId",
+    "kind": "FIELD",
+    "a": "1472533",
+    "b": "1472535",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[7].m_index",
+    "kind": "FIELD",
+    "a": "3167",
+    "b": "7",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[8].m_elementId",
+    "kind": "FIELD",
+    "a": "1472534",
+    "b": "1472536",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[8].m_index",
+    "kind": "FIELD",
+    "a": "3168",
+    "b": "8",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[9].m_elementId",
+    "kind": "FIELD",
+    "a": "1472535",
+    "b": "1472537",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[9].m_index",
+    "kind": "FIELD",
+    "a": "3169",
+    "b": "9",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[10].m_elementId",
+    "kind": "FIELD",
+    "a": "1472536",
+    "b": "1472538",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[10].m_index",
+    "kind": "FIELD",
+    "a": "3170",
+    "b": "10",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[11].m_elementId",
+    "kind": "FIELD",
+    "a": "1472537",
+    "b": "1472539",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[11].m_index",
+    "kind": "FIELD",
+    "a": "3171",
+    "b": "11",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[12].m_elementId",
+    "kind": "FIELD",
+    "a": "1472538",
+    "b": "1472540",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[12].m_index",
+    "kind": "FIELD",
+    "a": "3172",
+    "b": "12",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[13].m_elementId",
+    "kind": "FIELD",
+    "a": "1472539",
+    "b": "1472534",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[13].m_index",
+    "kind": "FIELD",
+    "a": "3173",
+    "b": "13",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[14].m_elementId",
+    "kind": "FIELD",
+    "a": "1472540",
+    "b": "1472528",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[14].m_index",
+    "kind": "FIELD",
+    "a": "3174",
+    "b": "14",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[15].m_index",
+    "kind": "FIELD",
+    "a": "3175",
+    "b": "15",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[16].m_index",
+    "kind": "FIELD",
+    "a": "3176",
+    "b": "16",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[17].m_index",
+    "kind": "FIELD",
+    "a": "3177",
+    "b": "17",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[18].m_index",
+    "kind": "FIELD",
+    "a": "3178",
+    "b": "18",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[19].m_index",
+    "kind": "FIELD",
+    "a": "3179",
+    "b": "19",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[20].m_index",
+    "kind": "FIELD",
+    "a": "3180",
+    "b": "20",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[21].m_index",
+    "kind": "FIELD",
+    "a": "3181",
+    "b": "21",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[22].m_index",
+    "kind": "FIELD",
+    "a": "3182",
+    "b": "22",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[23].m_index",
+    "kind": "FIELD",
+    "a": "3183",
+    "b": "23",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[24].m_index",
+    "kind": "FIELD",
+    "a": "3184",
+    "b": "24",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[25].m_index",
+    "kind": "FIELD",
+    "a": "3185",
+    "b": "25",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[26].m_index",
+    "kind": "FIELD",
+    "a": "3186",
+    "b": "26",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[27].m_index",
+    "kind": "FIELD",
+    "a": "3187",
+    "b": "27",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[28].m_index",
+    "kind": "FIELD",
+    "a": "3188",
+    "b": "28",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[29].m_index",
+    "kind": "FIELD",
+    "a": "3189",
+    "b": "29",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[30].m_index",
+    "kind": "FIELD",
+    "a": "3190",
+    "b": "30",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[31].m_index",
+    "kind": "FIELD",
+    "a": "3191",
+    "b": "31",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[32].m_index",
+    "kind": "FIELD",
+    "a": "3192",
+    "b": "32",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[33].m_index",
+    "kind": "FIELD",
+    "a": "3193",
+    "b": "33",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[34].m_index",
+    "kind": "FIELD",
+    "a": "3194",
+    "b": "34",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[35].m_index",
+    "kind": "FIELD",
+    "a": "3195",
+    "b": "35",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[36].m_index",
+    "kind": "FIELD",
+    "a": "3196",
+    "b": "36",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[37].m_index",
+    "kind": "FIELD",
+    "a": "3197",
+    "b": "37",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[38].m_index",
+    "kind": "FIELD",
+    "a": "3198",
+    "b": "38",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyIds.value.m_data[39].m_index",
+    "kind": "FIELD",
+    "a": "3199",
+    "b": "39",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_familyParams.value.m_params#len",
+    "kind": "FIELD",
+    "a": 18,
+    "b": 17,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_fsdos#len",
+    "kind": "FIELD",
+    "a": 1,
+    "b": 0,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_isVertical",
+    "kind": "FIELD",
+    "a": "True",
+    "b": "False",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_isWorkPlaneBased",
+    "kind": "FIELD",
+    "a": "False",
+    "b": "True",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_lockedParameterIdsForDirectManipulation#len",
+    "kind": "FIELD",
+    "a": 4,
+    "b": 3,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_nextAbsorbedIndex",
+    "kind": "FIELD",
+    "a": "3165",
+    "b": "40",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_omniClassCode",
+    "kind": "FIELD",
+    "a": "23.25.30.11.14.11",
+    "b": "",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_pFamilyTypes.value.m_idx",
+    "kind": "FIELD",
+    "a": "1",
+    "b": "0",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_pFamilyTypes.value.m_pairs#len",
+    "kind": "FIELD",
+    "a": 5,
+    "b": 1,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_pParamValueSetInt",
+    "kind": "FIELD",
+    "a": "{'ptr_class': 'ParamValueSetInt', 'pid': -1, 'value': {'m_paramSet': [{'m_paramId': -1005501, 'm_value': 0}]}}",
+    "b": "None",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_partType",
+    "kind": "FIELD",
+    "a": "-1",
+    "b": "14",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_predefinedLimitIdx",
+    "kind": "FIELD",
+    "a": "1963",
+    "b": "35",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_refTypeIds#len",
+    "kind": "FIELD",
+    "a": 1,
+    "b": 0,
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_seekItemId",
+    "kind": "FIELD",
+    "a": "Concrete-Square-Column-0000-CAN-ENU",
+    "b": "",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "Family.m_shouldStayParametric",
+    "kind": "FIELD",
+    "a": "True",
+    "b": "False",
+    "surface": "record",
+    "record": "Family 1472532->1472525 seq102"
+   },
+   {
+    "path": "ElementHeader.m_abFlags4Bytes",
+    "kind": "FIELD",
+    "a": "26",
+    "b": "2074",
+    "surface": "record",
+    "record": "ElementHeader 1472572->1472530 seq101"
+   },
+   {
+    "path": "ElementHeader.m_parents.value.m_deletion#len",
+    "kind": "FIELD",
+    "a": 3,
+    "b": 2,
+    "surface": "record",
+    "record": "ElementHeader 1472572->1472530 seq101"
+   },
+   {
+    "path": "Viewer.m_boundedSpace.m_boundOffset[2][1]",
+    "kind": "FIELD",
+    "a": "0.0",
+    "b": "-100.0",
+    "surface": "record",
+    "record": "Viewer 1472572->1472530 seq102"
+   },
+   {
+    "path": "Viewer.m_cellList",
+    "kind": "FIELD",
+    "a": "None",
+    "b": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'PatternHelper', 'pid': -1, 'value': {'m_PatternPositionMap': [], 'm_substituteFaceMap'",
+    "surface": "record",
+    "record": "Viewer 1472572->1472530 seq102"
+   },
+   {
+    "path": "ElementHeader.m_abFlags4Bytes",
+    "kind": "FIELD",
+    "a": "26",
+    "b": "67610",
+    "surface": "record",
+    "record": "ElementHeader 1472573->1472529 seq101"
+   },
+   {
+    "path": "ElementHeader.m_parents.value.m_deletion#len",
+    "kind": "FIELD",
+    "a": 6,
+    "b": 3,
+    "surface": "record",
+    "record": "ElementHeader 1472573->1472529 seq101"
+   },
+   {
+    "path": "DBViewProject.m_cellList",
+    "kind": "FIELD",
+    "a": "None",
+    "b": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'PatternHelper', 'pid': -1, 'value': {'m_PatternPositionMap': [], 'm_substituteFaceMap'",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_oaDrawFilters#len",
+    "kind": "FIELD",
+    "a": 4,
+    "b": 6,
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pDetailDrawOrderMgr.ptr_class",
+    "kind": "FIELD",
+    "a": "DrawOrderMgr3dFamily",
+    "b": "DrawOrderMgr",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pDetailDrawOrderMgr.value.m_aDrawOrder",
+    "kind": "FIELD",
+    "a": "None",
+    "b": "[]",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pParamValueSetElementId",
+    "kind": "FIELD",
+    "a": "None",
+    "b": "{'ptr_class': 'ParamValueSetElementId', 'pid': -1, 'value': {'m_paramSet': [{'m_paramId': -1012103, 'm_value': -1}, {'m_paramId': -1012102, 'm_value': -1}]}}",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pRetouchTable.value.m_invisibleGStyleId",
+    "kind": "FIELD",
+    "a": "201",
+    "b": "-1",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pRetouchTable.value.m_notSilhouetteGStyleId",
+    "kind": "FIELD",
+    "a": "55150",
+    "b": "-1",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pViewDisplayMgr.value.m_background.m_groundColor",
+    "kind": "FIELD",
+    "a": "10201261",
+    "b": "10855845",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pViewDisplayMgr.value.m_lights.m_ambientLightIntensity",
+    "kind": "FIELD",
+    "a": "30",
+    "b": "0",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pViewDisplayMgr.value.m_lights.m_shadowIntensity",
+    "kind": "FIELD",
+    "a": "50",
+    "b": "60",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pViewDisplayMgr.value.m_lights.m_sunlightIntensity",
+    "kind": "FIELD",
+    "a": "0",
+    "b": "80",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pViewDisplayMgr.value.m_model.m_surfaces",
+    "kind": "FIELD",
+    "a": "1",
+    "b": "2",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_pViewDisplayMgr.value.m_oStaticRRTRenderSettings.value.m_BkIamgeSettings.m_FitType",
+    "kind": "FIELD",
+    "a": "0",
+    "b": "43",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "DBViewProject.m_scale",
+    "kind": "FIELD",
+    "a": "0.041666666666666664",
+    "b": "0.01",
+    "surface": "record",
+    "record": "DBViewProject 1472573->1472529 seq102"
+   },
+   {
+    "path": "ElementHeader.m_abFlags4Bytes",
+    "kind": "FIELD",
+    "a": "8218",
+    "b": "2074",
+    "surface": "record",
+    "record": "ElementHeader 1472574->1472532 seq101"
+   },
+   {
+    "path": "ElementHeader.m_parents.value.m_deletion#len",
+    "kind": "FIELD",
+    "a": 3,
+    "b": 2,
+    "surface": "record",
+    "record": "ElementHeader 1472574->1472532 seq101"
+   },
+   {
+    "path": "DBDrawing.m_cellList",
+    "kind": "FIELD",
+    "a": "None",
+    "b": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'PatternHelper', 'pid': -1, 'value': {'m_PatternPositionMap': [], 'm_substituteFaceMap'",
+    "surface": "record",
+    "record": "DBDrawing 1472574->1472532 seq102"
+   },
+   {
+    "path": "ElementHeader.m_abFlags4Bytes",
+    "kind": "FIELD",
+    "a": "26",
+    "b": "2074",
+    "surface": "record",
+    "record": "ElementHeader 1472575->1472531 seq101"
+   },
+   {
+    "path": "ElementHeader.m_parents.value.m_deletion#len",
+    "kind": "FIELD",
+    "a": 4,
+    "b": 3,
+    "surface": "record",
+    "record": "ElementHeader 1472575->1472531 seq101"
+   },
+   {
+    "path": "Viewport.m_cellList",
+    "kind": "FIELD",
+    "a": "None",
+    "b": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'PatternHelper', 'pid': -1, 'value': {'m_PatternPositionMap': [], 'm_substituteFaceMap'",
+    "surface": "record",
+    "record": "Viewport 1472575->1472531 seq102"
+   },
+   {
+    "path": "Viewport.m_labelOrigin[2]",
+    "kind": "FIELD",
+    "a": "-0.6835083114610672",
+    "b": "-0.16404199475065614",
+    "surface": "record",
+    "record": "Viewport 1472575->1472531 seq102"
+   },
+   {
+    "path": "ElementHeader.m_abFlags4Bytes",
+    "kind": "FIELD",
+    "a": "8218",
+    "b": "8222",
+    "surface": "record",
+    "record": "ElementHeader 1472668->1472526 seq101"
+   },
+   {
+    "path": "ElementHeader.m_parents.value.m_deletion#len",
+    "kind": "FIELD",
+    "a": 2,
+    "b": 1,
+    "surface": "record",
+    "record": "ElementHeader 1472668->1472526 seq101"
+   },
+   {
+    "path": "UnitsElem.m_cellList",
+    "kind": "FIELD",
+    "a": "None",
+    "b": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'PatternHelper', 'pid': -1, 'value': {'m_PatternPositionMap': [], 'm_substituteFaceMap'",
+    "surface": "record",
+    "record": "UnitsElem 1472668->1472526 seq102"
+   },
+   {
+    "path": "UnitsElem.m_designOptionId",
+    "kind": "FIELD",
+    "a": "-4",
+    "b": "-1",
+    "surface": "record",
+    "record": "UnitsElem 1472668->1472526 seq102"
+   },
+   {
+    "path": "UnitsElem.m_units.m_formatOptionsMap#len",
+    "kind": "FIELD",
+    "a": 136,
+    "b": 8,
+    "surface": "record",
+    "record": "UnitsElem 1472668->1472526 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167fee-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac80016781f-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474542->1472543 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167fef-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167820-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474543->1472544 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff0-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167821-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474544->1472545 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff1-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167822-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474545->1472546 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff2-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167823-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474546->1472547 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff3-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167824-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474547->1472548 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff4-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167825-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474548->1472549 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff5-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167826-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474549->1472550 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff6-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167827-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474550->1472551 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff7-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167828-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474551->1472552 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff8-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac800167829-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474552->1472553 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ff9-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac80016782a-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474553->1472554 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ffa-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac80016782b-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474554->1472555 seq102"
+   },
+   {
+    "path": "ParamElemFamily.m_pParamDef.value.m_typeId.m_typeId",
+    "kind": "IDENTITY",
+    "a": "revit.local.family:2b9d1aec377e49e1980709730e9d4d9b00167ffb-1.0.0",
+    "b": "revit.local.family:b075a1e8a6fe4cc69ad58c04361bfac80016782c-1.0.0",
+    "surface": "record",
+    "record": "ParamElemFamily 1474555->1472556 seq102"
+   },
+   {
+    "surface": "identity",
+    "kind": "IDENTITY",
+    "path": "revit.local.family suffix",
+    "a": {
+     "params_checked": 14,
+     "suffix_matches_own_id": 14,
+     "mismatches": []
+    },
+    "b": {
+     "params_checked": 14,
+     "suffix_matches_own_id": 14,
+     "mismatches": []
+    },
+    "note": "suffix == own element id in BOTH -> the typeId delta is the family GUID only (pure identity)"
+   },
+   {
+    "surface": "inline-adoc",
+    "kind": "FIELD",
+    "path": "ContentDocuments",
+    "a": {
+     "rows": 41,
+     "ascending": true,
+     "rows_equal_unit_ids": true,
+     "m_last": 1474564,
+     "bytes": 19830
+    },
+    "b": {
+     "rows": 41,
+     "ascending": true,
+     "rows_equal_unit_ids": true,
+     "m_last": 1472565,
+     "bytes": 3017
+    },
+    "top_level_size_deltas": {
+     "m_pAppInfoManager": {
+      "a_json_bytes": 72072,
+      "b_json_bytes": 1532
+     },
+     "m_storedByRevitBuild": {
+      "a_json_bytes": 141,
+      "b_json_bytes": 2
+     }
+    },
+    "note": "ElemTable rows == unit ids, ascending, m_last == max in BOTH; the byte delta is the donor's deep registries vs our authored minimal form -- the our-authored form is EXONERATED as a sole axis by B6 + U12345 (both PASS)"
+   }
+  ]
+ },
+ "host_side": {
+  "base_matched_SUB_ALL_vs_H8B": {
+   "stream_sets_equal": true,
+   "only_a": [],
+   "only_b": [],
+   "streams_differing": [
+    "BasicFileInfo",
+    "Global/ContentDocuments",
+    "Global/ElemTable",
+    "Global/Latest",
+    "Partitions/21"
+   ],
+   "elemtable_rows": {
+    "a": 13955,
+    "b": 13955
+   },
+   "elemtable_added_row_order": {
+    "a": {
+     "added_rows": 19,
+     "appended_at_tail": true,
+     "ascending": true
+    },
+    "b": {
+     "added_rows": 19,
+     "appended_at_tail": true,
+     "ascending": true
+    },
+    "note": "the charter's 'ElemTable row order for the unit': the host-side ADD rows (the famdoc unit itself contributes no host ElemTable rows -- self-contained); measured appended-at-tail ascending in SUB_ALL, H8B AND F1 -> PARITY"
+   },
+   "content_documents_entries": {
+    "a": 53,
+    "b": 53
+   }
+  },
+  "cross_base_SUB_ALL_vs_F1": {
+   "stream_sets_equal": true,
+   "only_a": [],
+   "only_b": [],
+   "streams_differing": [
+    "BasicFileInfo",
+    "Global/ContentDocuments",
+    "Global/ElemTable",
+    "Global/Latest",
+    "Partitions/21"
+   ],
+   "elemtable_rows": {
+    "a": 13955,
+    "b": 3121
+   },
+   "elemtable_added_row_order": {
+    "a": {
+     "added_rows": 19,
+     "appended_at_tail": true,
+     "ascending": true
+    },
+    "b": {
+     "added_rows": 19,
+     "appended_at_tail": true,
+     "ascending": true
+    },
+    "note": "the charter's 'ElemTable row order for the unit': the host-side ADD rows (the famdoc unit itself contributes no host ElemTable rows -- self-contained); measured appended-at-tail ascending in SUB_ALL, H8B AND F1 -> PARITY"
+   },
+   "content_documents_entries": {
+    "a": 53,
+    "b": 1
+   },
+   "classification": "BASE-COUPLED (rst vs G_ABPD): separated from layout deltas by the H8B pairing"
+  }
+ },
+ "corpus": {
+  "features": {
+   "SUB_ALL": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 18,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "Family,Viewer,DBViewProject,DBDrawing,Viewport,UnitsElem,LevelAttributes,Level",
+    "adoc_bytes": 19830,
+    "adoc_bytes_per_row": 483.7,
+    "adoc_deep": true,
+    "max_familyIds_index_gap": 3160
+   },
+   "SUB_S1": {
+    "n_elements": 433,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 8,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 35510,
+    "adoc_bytes_per_row": 82.0,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2880
+   },
+   "SUB_S2": {
+    "n_elements": 441,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 7,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 35830,
+    "adoc_bytes_per_row": 81.2,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2872
+   },
+   "SUB_S3": {
+    "n_elements": 376,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 1,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 33230,
+    "adoc_bytes_per_row": 88.4,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2937
+   },
+   "SUB_S4": {
+    "n_elements": 346,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 1,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 32030,
+    "adoc_bytes_per_row": 92.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2967
+   },
+   "SUB_S5": {
+    "n_elements": 315,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 7,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "Family,LevelAttributes,CategoryElem,Level,Viewer,DBViewPlan,DBDrawing,Viewport",
+    "adoc_bytes": 30790,
+    "adoc_bytes_per_row": 97.7,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2997
+   },
+   "SUB_S6": {
+    "n_elements": 336,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 31630,
+    "adoc_bytes_per_row": 94.1,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2865
+   },
+   "SUB_S7": {
+    "n_elements": 408,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 18,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 34510,
+    "adoc_bytes_per_row": 84.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2905
+   },
+   "SUB_S5A": {
+    "n_elements": 323,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 7,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "TagNoteAttributes,CategoryElem,Family,LevelAttributes,CategoryElem,Level,Viewer,DBViewPlan",
+    "adoc_bytes": 31110,
+    "adoc_bytes_per_row": 96.3,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2989
+   },
+   "SUB_S5B": {
+    "n_elements": 436,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,Family,LevelAttributes,CategoryElem,Level,Viewer",
+    "adoc_bytes": 35630,
+    "adoc_bytes_per_row": 81.7,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2877
+   },
+   "B1": {
+    "n_elements": 424,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 2,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18337,
+    "adoc_bytes_per_row": 43.2,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "B2": {
+    "n_elements": 431,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18617,
+    "adoc_bytes_per_row": 43.2,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "B3": {
+    "n_elements": 421,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 2,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18217,
+    "adoc_bytes_per_row": 43.3,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "B4": {
+    "n_elements": 425,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 2,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18377,
+    "adoc_bytes_per_row": 43.2,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "B5": {
+    "n_elements": 420,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 3,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18177,
+    "adoc_bytes_per_row": 43.3,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "B6": {
+    "n_elements": 417,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 2,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 34870,
+    "adoc_bytes_per_row": 83.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "B7": {
+    "n_elements": 417,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 2,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18057,
+    "adoc_bytes_per_row": 43.3,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "U12": {
+    "n_elements": 438,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18897,
+    "adoc_bytes_per_row": 43.1,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "U15": {
+    "n_elements": 427,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 3,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18457,
+    "adoc_bytes_per_row": 43.2,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "U25": {
+    "n_elements": 433,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 18697,
+    "adoc_bytes_per_row": 43.2,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "U16": {
+    "n_elements": 452,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 36270,
+    "adoc_bytes_per_row": 80.2,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "U12345": {
+    "n_elements": 452,
+    "ascending_id": true,
+    "sf_categoryId": -2001330,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 19,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 9,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001330,
+     -1005500,
+     -1001205,
+     1177727
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "DimensionStyle,CategoryElem,CategoryElem,TextNoteAttributes,CategoryElem,TagNoteAttributes,CategoryElem,Family",
+    "adoc_bytes": 19457,
+    "adoc_bytes_per_row": 43.0,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 2861
+   },
+   "F1": {
+    "n_elements": 43,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 42,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3097,
+    "adoc_bytes_per_row": 72.0,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "F2": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 40,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "F3": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 40,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 0,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "F4": {
+    "n_elements": 43,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 42,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 0,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3097,
+    "adoc_bytes_per_row": 72.0,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "H8B": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 40,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 0,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "B0": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 40,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 0,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "SUB_O1": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 40,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 0,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": true,
+    "order_first8": "Family,LevelAttributes,Level,Viewer,DBViewPlan,DBDrawing,Viewport,RefPlane",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   }
+  },
+  "verdicts": {
+   "SUB_ALL": "PASS",
+   "SUB_S1": "PASS",
+   "SUB_S2": "PASS",
+   "SUB_S3": "PASS",
+   "SUB_S4": "PASS",
+   "SUB_S5": "PASS",
+   "SUB_S6": "PASS",
+   "SUB_S7": "PASS",
+   "SUB_S5A": "PASS",
+   "SUB_S5B": "PASS",
+   "B1": "PASS",
+   "B2": "PASS",
+   "B3": "PASS",
+   "B4": "PASS",
+   "B5": "PASS",
+   "B6": "PASS",
+   "B7": "PASS",
+   "U12": "PASS",
+   "U15": "PASS",
+   "U25": "PASS",
+   "U16": "PASS",
+   "U12345": "PASS",
+   "F1": "FAIL",
+   "F2": "FAIL",
+   "F3": "FAIL",
+   "F4": "FAIL",
+   "H8B": "FAIL",
+   "B0": "FAIL",
+   "SUB_O1": "FAIL"
+  },
+  "missing_files": [],
+  "ranking": [
+   {
+    "candidate": "cell_dup_identity_groups",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "cell_no_materials_group",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "hdr_deletion_elements_only",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "hdr_deletion_lacks_category",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "sf_absorbed_dense (no history gap)",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "sf_category_is_ours_electrical",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "sf_locked_no_bip",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "sf_partType_set (not -1)",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "sf_predefinedLimitIdx_small",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "sf_refTypeIds_empty",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "sf_single_type_pair",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "sf_type_idx_zero",
+    "true_in_fail": "7/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [],
+    "separates_perfectly": true
+   },
+   {
+    "candidate": "adoc_authored_minimal",
+    "true_in_fail": "7/7",
+    "true_in_pass": "21/22",
+    "pass_offenders": [
+     "SUB_S1",
+     "SUB_S2",
+     "SUB_S3",
+     "SUB_S4",
+     "SUB_S5",
+     "SUB_S6"
+    ],
+    "fail_missers": [],
+    "separates_perfectly": false
+   },
+   {
+    "candidate": "ascending_id",
+    "true_in_fail": "7/7",
+    "true_in_pass": "22/22",
+    "pass_offenders": [
+     "SUB_ALL",
+     "SUB_S1",
+     "SUB_S2",
+     "SUB_S3",
+     "SUB_S4",
+     "SUB_S5"
+    ],
+    "fail_missers": [],
+    "separates_perfectly": false
+   },
+   {
+    "candidate": "order_view_before_viewer",
+    "true_in_fail": "6/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [
+     "SUB_O1"
+    ],
+    "separates_perfectly": false
+   },
+   {
+    "candidate": "sf_deletable_empty",
+    "true_in_fail": "7/7",
+    "true_in_pass": "1/22",
+    "pass_offenders": [
+     "SUB_ALL"
+    ],
+    "fail_missers": [],
+    "separates_perfectly": false
+   },
+   {
+    "candidate": "sf_familyParams_no_bip_row",
+    "true_in_fail": "0/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [
+     "F1",
+     "F2",
+     "F3",
+     "F4",
+     "H8B",
+     "B0"
+    ],
+    "separates_perfectly": false
+   },
+   {
+    "candidate": "sf_fsdos_empty",
+    "true_in_fail": "5/7",
+    "true_in_pass": "0/22",
+    "pass_offenders": [],
+    "fail_missers": [
+     "F1",
+     "F2"
+    ],
+    "separates_perfectly": false
+   }
+  ]
+ },
+ "decision_table": {
+  "premise_check": {
+   "verdict_40_claim": "content equal, construction different => physical layout",
+   "measured": "REFUTED at field granularity: the pair shares 25/41 byte-model-identical records but the self-Family record + header carry a kept-ours residue that separates the whole corpus perfectly; every pure ORDER predicate is already exonerated observationally (SUB_O1 FAIL with donor-convention order x B7 PASS with donor-native order)",
+   "perfectly_separating_candidates": [
+    "cell_dup_identity_groups",
+    "cell_no_materials_group",
+    "hdr_deletion_elements_only",
+    "hdr_deletion_lacks_category",
+    "sf_absorbed_dense (no history gap)",
+    "sf_category_is_ours_electrical",
+    "sf_locked_no_bip",
+    "sf_partType_set (not -1)",
+    "sf_predefinedLimitIdx_small",
+    "sf_refTypeIds_empty",
+    "sf_single_type_pair",
+    "sf_type_idx_zero"
+   ]
+  },
+  "verdict_map": {
+   "CTRL FAIL": "that base's probes VOID; re-stage.",
+   "M1 PASS (order transplant saves F1)": "record order IS audited despite SUB_O1/B7 -- port ships: layout_law.normalize_doc(order='donor_frame_first') becomes the emission default; build DEMO_250v_room_v6 through it (tools/layout_diff.py has the injection point proven by BX_layout_f1i1) and stage v6 + fresh control.",
+   "M1 FAIL + M2 PASS": "order fully exonerated BOTH directions experimentally -- the law is field residue; read M3..M6.",
+   "M2 FAIL (re-ordered SUB_ALL stops passing)": "order matters on donor content too: the lawful shape is SUB_ALL's exact artifact (frame-first + monotone) -- port as for M1 PASS but treat M2 as the stronger proof.",
+   "M3 PASS": "the duplicate identityData group key is the defect: make normalize_order_cell part of finalize (famgen fix, 1 line call), rebuild v6.",
+   "M4 PASS": "dense absorbed/limit counters are the defect: famgen fakes an edit-history gap at finalize (nextAbsorbedIndex/predefinedLimitIdx floors).",
+   "M5 PASS": "partType 14 without panel infrastructure is the defect: ship partType -1 until the panel-schedule infra is authored (deliverable stays a working panelboard family; partType is metadata).",
+   "M6 PASS": "the deletion-parent convention is the defect: finalize prepends the category id (+ measured non-element parents) to the self-Family header m_deletion.",
+   "BX_layout_f1i1": "tracks M1/M2: the port's end-to-end proof; PASS with M1 => normalize_doc is the fix vehicle as-built.",
+   "ALL SEVEN FAIL": "the residue is a conjunction or sits in the five UNPROBED separating candidates (m_categoryId itself, the single-type-pair table, m_refTypeIds, the locked/familyParams BIP row, the missing materials group). Next round builds them through the famgen chain, not byte surgery: BX_cat_gm (the B0 recipe with category=generic_model -- flips category+partType coherently through every surface), BX_types_5 (five-type table), BX_bip (the -1001205 row). The matched-pair diff proves these five + the four probed ones are the COMPLETE remaining suspect list inside the unit."
+  },
+  "v6_gate": {
+   "commissioned": "DEMO_250v_room_v6 through the layout law, speculatively",
+   "decision": "HELD, not built: 'confidently authorable' is NOT met -- the order axis the port normalizes is corpus-exonerated as a sole law before upload (SUB_O1 x B7), so v6-through-layout_law would re-test a hypothesis two existing verdicts already reject. The port + injection point are built and BX_layout_f1i1 proves them end-to-end; v6 is one command behind whichever morph verdict names the law."
+  }
+ },
+ "elapsed_s": 2.8
+}

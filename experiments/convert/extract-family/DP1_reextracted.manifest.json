@@ -1,0 +1,99 @@
+{
+ "route": "rvt->rfa (rvt.convert.extract_family)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "experiments/frontdoor/prompt-electrical-room/electrical_room_prompt.rvt",
+  "sha256": "3221ddd95ff93f667bf7751510e3379e90906a5bd41313e578a083cd15c48da7",
+  "provenance": {
+   "author": "rvt-writer",
+   "format": "2026",
+   "lineage": "tekton-authored (self-reported BasicFileInfo author)",
+   "foreign": false,
+   "quarantined": false
+  }
+ },
+ "family": {
+  "selector": "DP-1",
+  "family_id": 1472629,
+  "family_name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+  "unit": 2,
+  "category": -2001040,
+  "types": [
+   "400A MCB 42ckt"
+  ]
+ },
+ "files": {
+  "rfa": "experiments/convert/extract-family/DP1_reextracted.rfa"
+ },
+ "stamps": [],
+ "degradations": [],
+ "errors": [],
+ "assembly": {
+  "size": 299008,
+  "partition_stream": "Partitions/0",
+  "elements": 41,
+  "document_guid": "aafd7ceb-cd8c-4d6f-be05-e48df81bfe34",
+  "adoc_mode": "candidate",
+  "adoc_bytes": 1359235,
+  "ours": [
+   "partition framing + unit footer nonce + end record",
+   "Global/{ElemTable,History,DocumentIncrementTable,PartitionTable,ContentDocuments,Latest}",
+   "Contents",
+   "BasicFileInfo (rvt.identity)",
+   "TransmissionData",
+   "PartAtom",
+   "CFB container / gzip / CRCIO framing"
+  ],
+  "carried": [
+   "the family document's OWN records (verbatim; the content being extracted)",
+   "Formats/Latest from the SOURCE file (per-release schema constant -- format, not content)"
+  ],
+  "verify": {
+   "gzip_crc_failures": 0,
+   "ecc_mismatch": 0,
+   "walker_errors": [],
+   "n_units": 1,
+   "record_counts": {
+    "101": 42,
+    "102": 42,
+    "103": 42
+   }
+  }
+ },
+ "validation": {
+  "family_mode": {
+   "verdict": "VALID",
+   "n_errors": 0,
+   "n_warnings": 0,
+   "errors": []
+  },
+  "records_decode_clean": true,
+  "ids_match_source_unit": true,
+  "self_checks_ok": true
+ },
+ "seconds": 1.1,
+ "deliverables": {
+  "rfa": {
+   "path": "experiments/convert/extract-family/DP1_reextracted.rfa",
+   "bytes": 299008,
+   "sha256": "78691988cacb5141e58a2f61a31ace8e0ccd640d0bca402686bf0b35e7b939b1"
+  }
+ },
+ "reload": {
+  "ok": true,
+  "stop_reason": null,
+  "out": "experiments/convert/extract-family/DP1_reextracted.reloaded.rvt",
+  "rfa": "experiments/convert/extract-family/DP1_reextracted.rfa",
+  "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "ids": {
+   "host_family": 1472629,
+   "symbol": 1472645,
+   "surrogate": 1472644,
+   "twins": 14,
+   "content_guid": "a8e650ff-8f94-4aaa-89aa-79de93cbf4e9"
+  },
+  "elements_added": 18,
+  "report": "experiments/convert/extract-family/DP1_reextracted.reloaded.rvt.load.json"
+ }
+}

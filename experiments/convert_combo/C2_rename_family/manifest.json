@@ -1,0 +1,186 @@
+{
+ "route": "prompt+rfa->rfa (rvt.convert.modify_family)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "experiments/frontdoor/ifc-electrical-room-2500a/families/lp1_eaton_prl2x_100a_30sp_480y_277.rfa",
+  "sha256": "4a8a9eb0c8878882e7903e7c5173cbdc15702796983388a0cdda134dfc4b96f4",
+  "release": 2026,
+  "family_name": "Lighting Panelboard LP-1 480Y/277 100A MLO 30sp",
+  "types": [
+   "100A MLO 30ckt"
+  ]
+ },
+ "edit": "rename the family to Lighting Panelboard LP-9 208Y120 100A; set Voltage 208 V; rename the type to 100A MLO 30ckt 208V",
+ "parsed": {
+  "ops": [
+   {
+    "op": "rename-family",
+    "name": "Lighting Panelboard LP-9 208Y120 100A"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1022,
+    "caption": "Voltage",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:potential-1.0.0",
+    "value": 2238.893366675622,
+    "raw": "208 V"
+   },
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "100A MLO 30ckt",
+    "name": "100A MLO 30ckt 208V"
+   }
+  ],
+  "source": "text",
+  "understood": [
+   {
+    "clause": "rename the family to Lighting Panelboard LP-9 208Y120 100A",
+    "op": {
+     "op": "rename-family",
+     "name": "Lighting Panelboard LP-9 208Y120 100A"
+    }
+   },
+   {
+    "clause": "set Voltage 208 V",
+    "op": {
+     "op": "set-param",
+     "param_id": 1022,
+     "caption": "Voltage",
+     "carrier": "m_value",
+     "spec": "autodesk.spec.aec.electrical:potential-1.0.0",
+     "value": 2238.893366675622,
+     "raw": "208 V"
+    }
+   },
+   {
+    "clause": "rename the type to 100A MLO 30ckt 208V",
+    "op": {
+     "op": "rename-type",
+     "type_index": 0,
+     "old": "100A MLO 30ckt",
+     "name": "100A MLO 30ckt 208V"
+    }
+   }
+  ],
+  "unparsed": [],
+  "notes": [
+   "Voltage: 208 V -> internal x10.763910"
+  ],
+  "vocabulary": "rvt.convert.modify_family (built-in; merges into the shared rvt.convert.edit_family vocabulary when that sibling module lands)"
+ },
+ "files": {
+  "rfa": "experiments/convert_combo/C2_rename_family/Lighting Panelboard LP-9 208Y120 100A.rfa"
+ },
+ "stamps": [
+  "PROOF-ONLY, NOT-DELIVERABLE (P0: identity/counsel gates G2-G3 open; every tekton output is an internal proof)"
+ ],
+ "degradations": [
+  "Voltage: 208 V -> internal x10.763910"
+ ],
+ "errors": [],
+ "apply": {
+  "applied": [
+   {
+    "op": "rename-family",
+    "name": "Lighting Panelboard LP-9 208Y120 100A",
+    "note": "family display name = PartAtom title + the file name; the self-Family m_name is empty in generated families (left empty)"
+   },
+   {
+    "op": "set-param",
+    "param_id": 1022,
+    "caption": "Voltage",
+    "carrier": "m_value",
+    "spec": "autodesk.spec.aec.electrical:potential-1.0.0",
+    "value": 2238.893366675622,
+    "raw": "208 V"
+   },
+   {
+    "op": "rename-type",
+    "type_index": 0,
+    "old": "100A MLO 30ckt",
+    "name": "100A MLO 30ckt 208V"
+   }
+  ],
+  "record_changes": {
+   "m_pFamilyTypes.value.m_pairs[0].params.m_params[4].m_value": 2238.893366675622,
+   "m_familyParams.value.m_params[4].m_value": 2238.893366675622,
+   "m_pFamilyTypes.value.m_pairs[0].name": "100A MLO 30ckt 208V"
+  },
+  "commit": {
+   "out": "experiments/convert_combo/C2_rename_family/Lighting Panelboard LP-9 208Y120 100A.rfa",
+   "blocks": null
+  },
+  "structural_verify": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "stamps_ok": true,
+   "elemtable_count": 41,
+   "header_count": 41
+  },
+  "structural_ok": true,
+  "partatom": {
+   "changed": true,
+   "replaced": [
+    {
+     "old": "Lighting Panelboard LP-1 480Y/277 100A MLO 30sp",
+     "new": "Lighting Panelboard LP-9 208Y120 100A",
+     "occurrences": 4
+    },
+    {
+     "old": "100A MLO 30ckt",
+     "new": "100A MLO 30ckt 208V",
+     "occurrences": 1
+    }
+   ],
+   "bytes": 834
+  }
+ },
+ "validation": {
+  "rfa": {
+   "family_mode": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 0
+   },
+   "release": {
+    "input": 2026,
+    "output": 2026,
+    "preserved": true
+   },
+   "reread": [
+    {
+     "op": "rename-family",
+     "want": "Lighting Panelboard LP-9 208Y120 100A",
+     "got": "Lighting Panelboard LP-9 208Y120 100A",
+     "ok": true
+    },
+    {
+     "op": "set-param",
+     "caption": "Voltage",
+     "want": 2238.893366675622,
+     "got": 2238.893366675622,
+     "ok": true
+    },
+    {
+     "op": "rename-type",
+     "want": "100A MLO 30ckt 208V",
+     "got": "100A MLO 30ckt 208V",
+     "ok": true
+    }
+   ],
+   "self_checks_ok": true
+  }
+ },
+ "seconds": 0.5,
+ "deliverables": {
+  "rfa": {
+   "path": "experiments/convert_combo/C2_rename_family/Lighting Panelboard LP-9 208Y120 100A.rfa",
+   "bytes": 270336,
+   "sha256": "99456dd3b5c45f48ffddcc900f946216d1d64bdfa061f77e63a6854913b236ae"
+  }
+ }
+}

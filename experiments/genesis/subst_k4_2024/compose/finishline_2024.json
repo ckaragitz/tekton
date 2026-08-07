@@ -1,0 +1,31 @@
+{
+ "test": "the 2024 twin of tests/test_target2025.py's END-STATE dry run (author --target-version 2024 post-flip)",
+ "mode": "handoff-only (resolution + manifest honesty; pass --full for the whole build)",
+ "g_file": "experiments/genesis/subst_k4_2024/compose/G_ABPD_2024.rvt",
+ "g_sha256": "e4a40671d8b6c649f4c8ba2ee45c1843f6d61e722a738cc2c88bd6cdb3dd925a",
+ "flip": "IN MEMORY ONLY (nothing on disk changed)",
+ "checks": {
+  "creation_status_supported": true,
+  "release_status_certified": true,
+  "resolve_base": {
+   "path": "experiments/genesis/subst_k4_2024/compose/G_ABPD_2024.rvt",
+   "certified": true,
+   "pinned": true,
+   "detected_release": 2024
+  }
+ },
+ "author": {
+  "ok": true,
+  "errors": [],
+  "target_version": {
+   "status": "match",
+   "requested": 2024,
+   "output_release": 2024,
+   "line": null
+  },
+  "files": {}
+ },
+ "assertion_status_match": true,
+ "seconds": 0.2,
+ "verdict": "WOULD PASS post-flip"
+}

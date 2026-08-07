@@ -1,0 +1,37 @@
+{
+ "file": "experiments/genesis/subst_k4/residue_b/ZB_deep.rvt",
+ "group_b_landed_ours": {
+  "PenWidthTableElem": 9,
+  "MaterialElem": 23,
+  "Viewer": 5,
+  "Viewport": 8,
+  "ViewportAttributes": 1,
+  "SketchPlane": 32,
+  "PrintSettings": 3,
+  "ParamElemExternal": 466,
+  "ParamElemProject": 8,
+  "ParamBinding": 209,
+  "SectionAttributes": 10,
+  "RbsPipeMaterialType": 5,
+  "RbsPipeConnectionType": 8,
+  "RbsPipeScheduleType": 13,
+  "RbsWireMaterialType": 4,
+  "RbsWireInsulationType": 26,
+  "RbsWireTemperatureRatingType": 3,
+  "ParameterFilterElement": 7,
+  "ParamElemElectricalLoadClassification": 108,
+  "WorksharingViewModeSettings": 2,
+  "PipeSegment": 15,
+  "PropertySetElement": 28,
+  "SunAnnotationElem": 3,
+  "RefPlane": 21,
+  "RoomElem": 1,
+  "NumberingSchema": 3,
+  "SlaveSymbolTrackerElem": 1
+ },
+ "group_b_residue_elements": 2,
+ "by_class": {
+  "RvtLinkSymbol": 1,
+  "RvtLinkInstance": 1
+ }
+}

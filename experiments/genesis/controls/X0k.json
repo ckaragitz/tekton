@@ -1,0 +1,142 @@
+{
+ "rung": "X0k",
+ "label": "PenWidthTableElem re-inserted AT ITS OWN id (zero registry motion)",
+ "kind": "same-id-reinsert",
+ "parent": "experiments/genesis/triage/K1.rvt",
+ "out": "experiments/genesis/controls/X0k.rvt",
+ "description": "X0k -- Autodesk's exact pen table DELETED then RE-INSERTED AT ITS OWN",
+ "byte_identity_assertion": {
+  "element": 2,
+  "class": "PenWidthTableElem",
+  "verbatim_identity_at_original_id": {
+   "101": {
+    "identical": true,
+    "len_ours": 135,
+    "len_specimen": 135,
+    "differing_bytes": 0,
+    "first_divergence": -1,
+    "differing_offsets": []
+   },
+   "102": {
+    "identical": true,
+    "len_ours": 1223,
+    "len_specimen": 1223,
+    "differing_bytes": 0,
+    "first_divergence": -1,
+    "differing_offsets": []
+   },
+   "103": {
+    "identical": true,
+    "len_ours": 22,
+    "len_specimen": 22,
+    "differing_bytes": 0,
+    "first_divergence": -1,
+    "differing_offsets": []
+   }
+  },
+  "all_three_seqs_identical": true,
+  "identity_rebased_leaves": {
+   "object": [
+    "PenWidthTableElem.m_id"
+   ],
+   "header": [
+    "ElementHeader.m_parents->ElementParents.m_deletion[*]"
+   ]
+  },
+  "new_id": 2
+ },
+ "add_path": {
+  "delete": "rvt.reduce.delete_elements(K1, ., [2])",
+  "add": "rvt.commit.commit_new_elements (records appended at unit end)",
+  "elemtable_row_written": {
+   "creation_ep": 1016,
+   "modified_ep": 1016,
+   "user_modified_ep": 1016,
+   "original_id": 2,
+   "owner": -1,
+   "partition": 0
+  },
+  "specimen_elemtable_row": {
+   "elem_id": 2,
+   "original_id": 2,
+   "creation_ep": 0,
+   "modified_ep": 976,
+   "user_modified_ep": 976,
+   "owner_id": -1,
+   "partition_id": 0
+  },
+  "elemtable_after": 6540,
+  "watermark_after": 1472524,
+  "verify_written": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "stamps_ok": true
+  },
+  "new_records_found": {
+   "101": {
+    "2": {
+     "class": 1509,
+     "clean": true
+    }
+   },
+   "102": {
+    "2": {
+     "class": 3231,
+     "clean": true
+    }
+   },
+   "103": {
+    "2": {
+     "class": 3884,
+     "clean": true
+    }
+   }
+  }
+ },
+ "registry": {
+  "global_latest_byte_identical_to_K1": true,
+  "penwidthtableinfo_surface": [
+   "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PenWidthTableInfo.m_penWidthTableElemId"
+  ],
+  "elemtable_row_id2_after": [
+   2,
+   1016,
+   1016,
+   1016,
+   2,
+   18446744073709551615,
+   0
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 4489216,
+ "seconds": 19.9,
+ "tests": "Is the record-append + ElemTable-row-rewrite HALF of the add path (no id change, no registry rewrite, Global/Latest byte-identical to K1's) reader-clean for the pen table?  The pre-built bisector for an X0 FAIL.",
+ "if_PASS": "With X0 FAILING: the new-id band / ElemTable-append-with-new-id / registry-leaf-rewrite half of the add path is the corruption.  With X0 PASSING: X0k is expected to pass too (subset of X0's change).",
+ "if_FAIL": "The record-append / ElemTable-row-rewrite half itself corrupts a settings singleton (episodes (ep,ep,ep) vs K1's (0,976,976), or the record moved to the unit end): the same path every X-rung and the S/G lines use."
+}

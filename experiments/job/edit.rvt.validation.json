@@ -1,0 +1,52 @@
+{
+ "path": "/Users/ck/dev/things/rev-revit/experiments/job/edit.rvt",
+ "ok": true,
+ "layers": [
+  "structure",
+  "consistency",
+  "semantic"
+ ],
+ "counts": {
+  "error": 0,
+  "warning": 1,
+  "info": 2
+ },
+ "stats": {
+  "streams": 13,
+  "pages_checked": 506,
+  "gzip_members": 8,
+  "partition_blocks": 2050,
+  "records": 427437,
+  "elements_decoded": 142173,
+  "decode_failures": 1171,
+  "refs_checked": 2570565,
+  "connector_edges": 15339,
+  "circuits": 187
+ },
+ "timings": {
+  "structure": 0.645,
+  "consistency": 0.211,
+  "semantic": 11.313,
+  "total": 12.169
+ },
+ "findings": [
+  {
+   "severity": "info",
+   "layer": "structure",
+   "where": "Formats/Latest",
+   "message": "canonical Revit 2026 archive schema (byte-identical)"
+  },
+  {
+   "severity": "warning",
+   "layer": "semantic",
+   "where": "objects",
+   "message": "1171/142173 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+  },
+  {
+   "severity": "info",
+   "layer": "semantic",
+   "where": "connectors",
+   "message": "2137 connector edge(s) point at elements that did not decode cleanly (back-link unverifiable)"
+  }
+ ]
+}

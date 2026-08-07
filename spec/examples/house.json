@@ -1,0 +1,92 @@
+{
+  "specVersion": "0.1.0",
+  "project": {
+    "name": "Two-Storey House",
+    "number": "H-001",
+    "buildingName": "House A",
+    "author": "tekton"
+  },
+  "units": { "length": "m", "angle": "deg" },
+  "defaults": {
+    "storeyHeight": 3.0,
+    "wallThickness": 0.3,
+    "wallType": "Ext_Brick_300",
+    "interiorWallType": "Int_Stud_100",
+    "slabThickness": 0.25,
+    "roofForm": "gable",
+    "roofPitch": 30,
+    "roofOverhang": 0.5,
+    "doorType": "Single-Flush 0915 x 2134mm",
+    "windowType": "Fixed 1200 x 1200mm"
+  },
+  "levels": [
+    { "id": "L1", "name": "Level 1", "elevation": 0.0 },
+    { "id": "L2", "name": "Level 2", "elevation": 3.0 },
+    { "id": "RF", "name": "Roof", "elevation": 6.0 }
+  ],
+  "footprint": [[0, 0], [12, 0], [12, 8], [0, 8]],
+  "types": {
+    "walls": {
+      "Ext_Brick_300": {
+        "ifcType": "STANDARD",
+        "function": "exterior",
+        "layers": [
+          { "material": "Brick, Common", "thickness": 0.11, "function": "Finish1", "isCore": false },
+          { "material": "Rigid insulation", "thickness": 0.05, "function": "Insulation", "isCore": false },
+          { "material": "Concrete Masonry Units", "thickness": 0.14, "function": "Structure", "isCore": true }
+        ],
+        "revit": { "builtInSystemFamily": "BasicWall", "type": "Generic - 300mm" }
+      },
+      "Int_Stud_100": {
+        "ifcType": "PARTITIONING",
+        "function": "interior",
+        "layers": [
+          { "material": "Plasterboard", "thickness": 0.0125, "function": "Finish2", "isCore": false },
+          { "material": "Softwood, Lumber", "thickness": 0.075, "function": "Structure", "isCore": true },
+          { "material": "Plasterboard", "thickness": 0.0125, "function": "Finish2", "isCore": false }
+        ],
+        "revit": { "builtInSystemFamily": "BasicWall", "type": "Interior - 100mm Partition" }
+      }
+    },
+    "doors": {
+      "Single-Flush 0915 x 2134mm": {
+        "ifcType": "DOOR",
+        "width": 0.915,
+        "height": 2.134,
+        "revit": { "category": "OST_Doors", "family": "M_Single-Flush", "type": "0915 x 2134mm" }
+      }
+    },
+    "windows": {
+      "Fixed 1200 x 1200mm": {
+        "ifcType": "WINDOW",
+        "width": 1.2,
+        "height": 1.2,
+        "revit": { "category": "OST_Windows", "family": "M_Fixed", "type": "1200 x 1200mm" }
+      }
+    }
+  },
+  "walls": [
+    { "id": "W-part-1", "start": [6, 0], "end": [6, 8], "type": "Int_Stud_100", "level": "L1", "topLevel": "L2", "function": "interior" },
+    { "id": "W-part-2", "start": [0, 4], "end": [6, 4], "type": "Int_Stud_100", "level": "L2", "topLevel": "RF", "function": "interior" }
+  ],
+  "doors": [
+    { "id": "D-entrance", "hostWall": "auto-0", "level": "L1", "offset": 1.5, "operation": "SINGLE_SWING_LEFT" },
+    { "id": "D-hall", "hostWall": "W-part-1", "level": "L1", "fraction": 0.5 }
+  ],
+  "windows": [
+    { "id": "Win-S1", "hostWall": "auto-0", "level": "L1", "offset": 5.0, "width": 1.8, "sill": 0.9 },
+    { "id": "Win-S2", "hostWall": "auto-0", "level": "L2", "offset": 2.0 },
+    { "id": "Win-S3", "hostWall": "auto-0", "level": "L2", "offset": 8.0 },
+    { "id": "Win-N1", "hostWall": "auto-2", "level": "L1", "fraction": 0.3 },
+    { "id": "Win-N2", "hostWall": "auto-2", "level": "L2", "fraction": 0.7 }
+  ],
+  "roofs": [
+    { "id": "Roof-main", "level": "RF", "form": "gable", "pitch": 30, "ridgeAxis": "x", "overhang": 0.5 }
+  ],
+  "rooms": [
+    { "name": "Living", "level": "L1", "point": [3, 4] },
+    { "name": "Kitchen", "level": "L1", "point": [9, 4] },
+    { "name": "Bedroom 1", "level": "L2", "point": [3, 6] },
+    { "name": "Bedroom 2", "level": "L2", "point": [3, 2] }
+  ]
+}

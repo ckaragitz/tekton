@@ -1,0 +1,576 @@
+{
+ "stream": "genesis-residue-A2 (THE REMAINING UNSUBSTITUTED CLASSES -- HVAC / energy web, electrical catalog, conduit / tray catalogs, system types, analysis machinery, browser + sheet)",
+ "situation": "VERDICT #18: ZA_deep (Y9 + Group A's five layers) LOADS -- 1,806/3,342 base elements are OUR constructors' output, viewer-proven.  The residue disposition list of genesis-residue-A named the classes the first round did not reach, each with an owning rung; this batch IS those rungs: each substitutes ONE remaining class group of the CERTIFIED ZA_deep in place with OUR constructors' objects (or REPRODUCES the pure machinery); ZC_deep is all of them at once.  What genuinely cannot be substituted in place (the external link, the vendor DataStorage blob, the room's plan topology) is LISTED with its operation.",
+ "the_operation": "In-place substitution (rvt.regadd.substitute_elements, seq 102 only, keep_row): our constructor's OBJECT replaces the sample's at the SAME element id -- same ElemTable row, same record position, same registry slots; Global/Latest + Global/ElemTable BYTE-IDENTICAL to ZA_deep; nothing added, nothing deleted.  Every rung asserts validator 0 errors, the structural proof, four-registry coherence, registry parity (by construction), a rvt.regdiff registration-diff sample, the regadd byte-delta table (ONLY the landed slots' object records change) AND a per-class FIELD-DELTA table naming which object fields carry OUR value vs the slot's own machinery / wiring / interface identity.",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  },
+  "lineage": "ZA_deep = the certified Group-A residue rung: Y9 (settings / catalog / palette / datum / view constellations) + sub-category layer + annotation types & fonts + grids/levels + patterns + appearance assets -- viewer PASS (docs/coverage/viewer-certified.json, VERDICTS #18)"
+ },
+ "standing_control": {
+  "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+  "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "controls_discipline": "Upload the batch with the certified CONTROL (a byte-identical copy of ZA_deep: CTRL_ZA_deep_base.rvt is staged in this directory; tools/probe_batch.py stage adds one automatically). If the CONTROL fails, the batch is VOID and nothing about our constructors is read from it.",
+ "upload_order_bisection_first": [
+  "ZC_deep",
+  "ZC_hvac",
+  "ZC_elec",
+  "ZC_conduit",
+  "ZC_systype",
+  "ZC_analysis",
+  "ZC_browse"
+ ],
+ "reading_the_results": {
+  "how": "ZC_deep is the cumulative rung: PASS => every remaining-class constructor of this stream (our HVAC schedules / space & building type values over the interface enums, our electrical load classes + NEC demand rules, our conduit / tray catalogs, our system types + fabric, our analysis settings + empty assembly-code table + colour schemes + load standard, our browser organizations + our adopted sheet) loads at Autodesk's registrations, and only the LISTED delete-only residue remains (link pair, DataStorage, the room's topology + the deletion stream's queues + Group B's classes on this base).  ZC_deep FAIL => read the six singles: the first FAIL whose parent (ZA_deep) PASSED convicts exactly that group.",
+  "ZC_hvac FAIL": "our HVAC web is rejected: bisect schedules vs types (two further singles) -- the space-type values (magnitudes / units / schedule wiring) are the prime suspects, the reproduced year schedules cannot fail.",
+  "ZC_elec FAIL": "our load classifications / demand rules are rejected: the field-delta names the candidates (label templates, rule rows, role assignment).",
+  "ZC_conduit FAIL": "our conduit standards / size table / tray widths are rejected (a value grammar issue in the size rows).",
+  "ZC_systype FAIL": "our wall / floor / fabric types are rejected -- bisect the four slots.",
+  "ZC_analysis FAIL": "one of: the EMPTY assembly-code table shape, our colour-scheme entries, our load cases / natures, the area-report overlay (the reproduced machinery slots cannot fail) -- the field-delta bisects it.",
+  "ZC_browse FAIL": "our browser organizations or the adopted sheet (identity tokens / the emptied link overrides) are rejected -- two further singles bisect."
+ },
+ "not_in_place_able_with_operation": {
+  "RvtLinkSymbol": {
+   "operation": "DELETE-WITH-CONTENT (clean-header rung first)",
+   "reason": "a genesis file links NO model: the symbol names an external Autodesk sample file ('rac_basic_sample_project.rvt' + a relative path) -- nothing of ours to express at the slot.  The deletion stream (docs/inbox/genesis-deletion.md, finding 1) measured it NOT delete-reachable on ZA_deep: OUR OWN Y2/Y9 view slots' inherited seq-101 headers list it as a deletion parent, and this stream's ZC_browse sheet-view constructor REMOVES its remaining seq-102 pin (the drafting/sheet view's RvtLinkOverrides display map).  Retirement = the clean-header rung (seqs 101+102 on our views) then one maxgc deletion of {symbol + drafting-view constellation} -- the substitution stream's queue."
+  },
+  "RvtLinkInstance": {
+   "operation": "DELETE-WITH-CONTENT (emitted: deletion stream D_links)",
+   "reason": "the placed instance of the link; the deletion stream's D_links probe deletes it with OUR CopyWatchProperties 1250031 (delete-with-content of our own referrer, EDIT-FREE)."
+  },
+  "DataStorage": {
+   "operation": "DELETE (leaf)",
+   "reason": "an Extensible-Storage container whose ESEntity blob is a VENDOR schema this project's decoder does not read (the arbiter's one standing warning): there is nothing of ours to express, and reproducing it would keep an undecoded third-party blob -- a zero-referrer leaf for the deletion set (endgame step 24)."
+  },
+  "AreaSchemePlanTopologies(room)": {
+   "operation": "DELETE-WITH-CONTENT (with the room constellation)",
+   "reason": "topology 9744 CONTAINS the placed room's LevelRoomPlan + boundary curves (deletion stream finding 2: the constellation is held together by 9744 and PINNED by OUR AreaMeasureElem 9490's kept wiring) -- it leaves with the room, atomically; left byte-identical here."
+  }
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "ZC_deep",
+   "file": "experiments/genesis/subst_k4/residue_a2/ZC_deep.rvt",
+   "class_layer_substituted": "ZA_deep + ALL of this stream's groups (HVAC web, electrical catalog, conduit catalogs, system types, analysis machinery, browser + sheet), IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "passing_sibling": "ZA_deep (the certified parent) -- PASS-parent + FAIL-here convicts exactly THIS group",
+   "the_ONE_thing_it_tests": "Whether the reader accepts ALL of this stream's remaining-class constructors at once on the certified ZA_deep: our HVAC schedule library + space / building type values over the interface enums, our electrical load classes + NEC demand rules, our conduit / cable-tray catalogs, our wall / floor / fabric types, our analysis settings (empty assembly-code table, colour schemes, load standard) + reproduced machinery, our browser organizations + our adopted sheet.",
+   "if_PASS": "EVERY remaining-class constructor loads: the disposition list of genesis-residue-A is RETIRED in place; what remains is exactly the listed delete-only residue (link pair, DataStorage, the room's topology) + the other streams' queues (curtain / room / dim deletions; Group B's classes await the ZAB composition on this base).",
+   "if_FAIL": "Read the six singles (all from ZA_deep): the failing single names the rejected group.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 310,
+    "by_class": {
+     "HVACLoadSpaceTypeElem": 125,
+     "HVACLoadBuildingTypeElem": 33,
+     "HVACLoadScheduleElem": 27,
+     "BuildingOperatingYearSchedule": 27,
+     "ElectricalDemandFactorDefinition": 21,
+     "ElectricalLoadClassification": 18,
+     "ColorFillSchema": 10,
+     "AreaTypeElem": 8,
+     "LoadCaseElem": 8,
+     "LoadNatureElem": 8,
+     "ConduitStandardType": 5,
+     "AreaSchemePlanTopologies": 5,
+     "BrowserOrganization": 5,
+     "ConduitSizesElem": 1,
+     "CableTraySizesElem": 1,
+     "BasicWallType": 1,
+     "FloorAttributes": 1,
+     "FabricWireType": 1,
+     "FabricSheetType": 1,
+     "AreaReportSettingsElem": 1,
+     "AssemblyCodeTable": 1,
+     "DBViewDrafting": 1,
+     "DBDrawing": 1
+    }
+   },
+   "residue_left_in_place": {
+    "AreaSchemePlanTopologies(room)": 1,
+    "DataStorage(vendor ES blob)": 1,
+    "RvtLinkSymbol(external link)": 1,
+    "RvtLinkInstance(external link)": 1
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 269,
+    "expected_slots": 310,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 606208,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+    "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "md5": "56308637529a0d0a95976f5701e2615e",
+    "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a2/ZC_deep.json"
+  },
+  {
+   "order": 2,
+   "rung": "ZC_hvac",
+   "file": "experiments/genesis/subst_k4/residue_a2/ZC_hvac.rvt",
+   "class_layer_substituted": "the HVAC / energy database web (schedules + space & building types): interface enums kept, OUR schedules and OUR settings values, IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "passing_sibling": "ZA_deep (the certified parent) -- PASS-parent + FAIL-here convicts exactly THIS group",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR HVAC / energy web: 27 day schedules (our library), 27 reproduced year-schedule wrappers, 125 space types + 33 building types with the interface identity kept and every settings value ours.",
+   "if_PASS": "Our HVAC web is reader-accepted: the space / building type ENUM is confirmed as the interface and its VALUES as ours -- the energy layer is authorable.",
+   "if_FAIL": "Our HVAC web is rejected: bisect the day-schedule library vs the space / building type values (two further single-layer probes); the year-schedule wrappers are byte-identical and cannot be the cause.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 212,
+    "by_class": {
+     "HVACLoadSpaceTypeElem": 125,
+     "HVACLoadBuildingTypeElem": 33,
+     "HVACLoadScheduleElem": 27,
+     "BuildingOperatingYearSchedule": 27
+    }
+   },
+   "residue_left_in_place": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 185,
+    "expected_slots": 212,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 626688,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+    "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "md5": "56308637529a0d0a95976f5701e2615e",
+    "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a2/ZC_hvac.json"
+  },
+  {
+   "order": 3,
+   "rung": "ZC_elec",
+   "file": "experiments/genesis/subst_k4/residue_a2/ZC_elec.rvt",
+   "class_layer_substituted": "the electrical load-classification + demand-factor catalog -> OUR load classes + NEC-cited demand rules, IN PLACE (id-wired web preserved)",
+   "base": {
+    "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "passing_sibling": "ZA_deep (the certified parent) -- PASS-parent + FAIL-here convicts exactly THIS group",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR electrical load classifications (3 reserved roles + 15 regular) and OUR NEC-cited demand-factor rules at the sample's id-wired slots.",
+   "if_PASS": "Our electrical load-class + demand-factor catalog is reader-accepted at the id-wired slots.",
+   "if_FAIL": "Our classifications / demand rules are rejected: candidates = the label templates, the count / load range rows, the role assignment -- the field-delta table names the fields.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 39,
+    "by_class": {
+     "ElectricalDemandFactorDefinition": 21,
+     "ElectricalLoadClassification": 18
+    }
+   },
+   "residue_left_in_place": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 39,
+    "expected_slots": 39,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 626688,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+    "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "md5": "56308637529a0d0a95976f5701e2615e",
+    "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a2/ZC_elec.json"
+  },
+  {
+   "order": 4,
+   "rung": "ZC_conduit",
+   "file": "experiments/genesis/subst_k4/residue_a2/ZC_conduit.rvt",
+   "class_layer_substituted": "the conduit standards + size table + cable-tray sizes -> OURS (NEC / NEMA facts, our selection), IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "passing_sibling": "ZA_deep (the certified parent) -- PASS-parent + FAIL-here convicts exactly THIS group",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR conduit standards, our NEC Ch.9 conduit size table and our NEMA cable-tray width list.",
+   "if_PASS": "Our conduit / cable-tray catalogs (NEC / NEMA facts, our selection) are reader-accepted.",
+   "if_FAIL": "Our conduit / tray catalogs are rejected: the size-row grammar (units / count) is the suspect.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 7,
+    "by_class": {
+     "ConduitStandardType": 5,
+     "ConduitSizesElem": 1,
+     "CableTraySizesElem": 1
+    }
+   },
+   "residue_left_in_place": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 7,
+    "expected_slots": 7,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 626688,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+    "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "md5": "56308637529a0d0a95976f5701e2615e",
+    "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a2/ZC_conduit.json"
+  },
+  {
+   "order": 5,
+   "rung": "ZC_systype",
+   "file": "experiments/genesis/subst_k4/residue_a2/ZC_systype.rvt",
+   "class_layer_substituted": "residue system-family types (wall / floor / welded-wire fabric) -> OURS, IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "passing_sibling": "ZA_deep (the certified parent) -- PASS-parent + FAIL-here convicts exactly THIS group",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR residue system-family types: a generic interior partition, a concrete slab, and an ASTM A1064 fabric wire + sheet.",
+   "if_PASS": "Our generic system-family types + welded-wire fabric are reader-accepted.",
+   "if_FAIL": "Our system types are rejected: bisect wall / floor / fabric (three single-slot probes).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 4,
+    "by_class": {
+     "BasicWallType": 1,
+     "FloorAttributes": 1,
+     "FabricWireType": 1,
+     "FabricSheetType": 1
+    }
+   },
+   "residue_left_in_place": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 4,
+    "expected_slots": 4,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 626688,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+    "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "md5": "56308637529a0d0a95976f5701e2615e",
+    "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a2/ZC_systype.json"
+  },
+  {
+   "order": 6,
+   "rung": "ZC_analysis",
+   "file": "experiments/genesis/subst_k4/residue_a2/ZC_analysis.rvt",
+   "class_layer_substituted": "analysis / area / structural settings: area-type + topology machinery reproduced, our area-report settings, our EMPTY assembly-code table, our colour schemes, our load cases / natures, IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "passing_sibling": "ZA_deep (the certified parent) -- PASS-parent + FAIL-here convicts exactly THIS group",
+   "the_ONE_thing_it_tests": "Whether the reader accepts the reproduced area machinery, our area-report settings, OUR EMPTY assembly-code table, our colour-fill schemes, our load cases / natures.",
+   "if_PASS": "The reproduced area machinery, our area-report settings, OUR EMPTY assembly-code table, our colour schemes and our load standard are reader-accepted (the UniFormat product data + the identity leak are retired).",
+   "if_FAIL": "Bisect: EMPTY assembly-code table shape / colour-scheme entries / load cases + natures / area-report overlay -- the reproduced machinery slots cannot be the cause.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 41,
+    "by_class": {
+     "ColorFillSchema": 10,
+     "AreaTypeElem": 8,
+     "LoadCaseElem": 8,
+     "LoadNatureElem": 8,
+     "AreaSchemePlanTopologies": 5,
+     "AreaReportSettingsElem": 1,
+     "AssemblyCodeTable": 1
+    }
+   },
+   "residue_left_in_place": {
+    "AreaSchemePlanTopologies(room)": 1,
+    "DataStorage(vendor ES blob)": 1
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 28,
+    "expected_slots": 41,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 606208,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+    "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "md5": "56308637529a0d0a95976f5701e2615e",
+    "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a2/ZC_analysis.json"
+  },
+  {
+   "order": 7,
+   "rung": "ZC_browse",
+   "file": "experiments/genesis/subst_k4/residue_a2/ZC_browse.rvt",
+   "class_layer_substituted": "the surplus browser organizations -> ours + the ADOPTED sheet-view constellation (our sheet identity, link overrides emptied), IN PLACE",
+   "base": {
+    "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "passing_sibling": "ZA_deep (the certified parent) -- PASS-parent + FAIL-here convicts exactly THIS group",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR extra browser organizations and OUR adopted sheet (identity tokens ours, link overrides emptied) + its reproduced drawing.",
+   "if_PASS": "Our browser organizations + our adopted sheet are reader-accepted; the link symbol's seq-102 pin is gone -- the clean-header rung + link deletion is unblocked on the view side.",
+   "if_FAIL": "Bisect the browser organizations vs the sheet overlay (identity tokens / emptied link overrides / the reproduced drawing).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "elements_substituted_in_place": {
+    "landed": 7,
+    "by_class": {
+     "BrowserOrganization": 5,
+     "DBViewDrafting": 1,
+     "DBDrawing": 1
+    }
+   },
+   "residue_left_in_place": {
+    "RvtLinkSymbol(external link)": 1,
+    "RvtLinkInstance(external link)": 1
+   },
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 6,
+    "expected_slots": 7,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 626688,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+    "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+    "md5": "56308637529a0d0a95976f5701e2615e",
+    "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+     "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_a2/ZC_browse.json"
+  }
+ ],
+ "derivation_chain": [
+  "ZC_deep <- ZA_deep (all groups)",
+  "ZC_hvac <- ZA_deep (single group)",
+  "ZC_elec <- ZA_deep (single group)",
+  "ZC_conduit <- ZA_deep (single group)",
+  "ZC_systype <- ZA_deep (single group)",
+  "ZC_analysis <- ZA_deep (single group)",
+  "ZC_browse <- ZA_deep (single group)"
+ ]
+}

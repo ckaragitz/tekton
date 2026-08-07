@@ -1,0 +1,598 @@
+{
+ "rung": "ZC_browse",
+ "label": "the surplus browser organizations -> ours + the ADOPTED sheet-view constellation (our sheet identity, link overrides emptied), IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+  "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a2/ZC_browse.rvt",
+ "landed_by_class": {
+  "BrowserOrganization": 5,
+  "DBViewDrafting": 1,
+  "DBDrawing": 1
+ },
+ "notes": [
+  "RvtLinkSymbol [1250029]: DELETE-WITH-CONTENT (clean-header rung first) -- a genesis file links NO model: the symbol names an external Autodesk sample file ('rac_basic_sample_project.rvt' + a relative path) -- nothing of ours to express at the slot.  The deletion stream (docs/inbox/genesis-deletion.md, finding 1) measured it NOT delete-reachable on ZA_deep: OUR OWN Y2/Y9 view slots' inherited seq-101 headers list it as a deletion parent, and this stream's ZC_browse sheet-view constructor REMOVES its remaining seq-102 pin (the drafting/sheet view's RvtLinkOverrides display map).  Retirement = the clean-header rung (seqs 101+102 on our views) then one maxgc deletion of {symbol + drafting-view constellation} -- the substitution stream's queue.",
+  "RvtLinkInstance [1250030]: DELETE-WITH-CONTENT (emitted: deletion stream D_links) -- the placed instance of the link; the deletion stream's D_links probe deletes it with OUR CopyWatchProperties 1250031 (delete-with-content of our own referrer, EDIT-FREE).",
+  "browser organizations 5: the sample's surplus set (Discipline / Type-Discipline / Issue Date / Drawn By / Sheet Prefix -- the set our house standard deliberately does NOT reproduce) -> 5 MORE OF OUR organizations (['GEN Views - Level', 'GEN Views - Family and Type', 'GEN Sheets - Series (1 Character)', 'GEN Sheets - Issue Date', 'GEN Sheets - Name']) matched to the slots by tree type; folder / sort keys are BuiltInParameter interface constants",
+  "the sheet-view constellation ADOPTED (deletion stream finding 9: pinned by OUR plans -> ADOPT): DBViewDrafting [1457028] = the sheet whose drawing [1457031] places OUR two plan views + its own drafting content -> OUR sheet GEN-101 'GEN Overall Plans' (identity tokens ours, view machinery the slot's, RvtLinkOverrides display map EMPTIED -- the link symbol's seq-102 pin removed); the drawing = REPRODUCED viewport wiring; its viewer 1457029 / viewports / sketch plane are Group B's ZB7 companions (already rebuilt at the same ids on Y9)"
+ ],
+ "info": {},
+ "residue_left_in_place": {
+  "RvtLinkSymbol(external link)": {
+   "count": 1,
+   "ids": [
+    1250029
+   ],
+   "reason": "DELETE-WITH-CONTENT (clean-header rung first) -- a genesis file links NO model: the symbol names an external Autodesk sample file ('rac_basic_sample_project.rvt' + a relative path) -- nothing of ours to express at the slot.  The deletion stream (docs/inbox/genesis-deletion.md, finding 1) measured it NOT delete-reachable on ZA_deep: OUR OWN Y2/Y9 view slots' inherited seq-101 headers list it as a deletion parent, and this stream's ZC_browse sheet-view constructor REMOVES its remaining seq-102 pin (the drafting/sheet view's RvtLinkOverrides display map).  Retirement = the clean-header rung (seqs 101+102 on our views) then one maxgc deletion of {symbol + drafting-view constellation} -- the substitution stream's queue."
+  },
+  "RvtLinkInstance(external link)": {
+   "count": 1,
+   "ids": [
+    1250030
+   ],
+   "reason": "DELETE-WITH-CONTENT (emitted: deletion stream D_links) -- the placed instance of the link; the deletion stream's D_links probe deletes it with OUR CopyWatchProperties 1250031 (delete-with-content of our own referrer, EDIT-FREE)."
+  }
+ },
+ "record_selfcheck": {
+  "objects": 7,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.0
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   26013,
+   26014,
+   26015,
+   26016,
+   26017,
+   1457028
+  ],
+  "records_changed_count": 6,
+  "records_changed_by_seq": {
+   "102": 6
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 7,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 1,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 26013,
+    "len_ours": 255,
+    "len_parent": 257,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_folderDefinitions[len]",
+      "ours": 1,
+      "parent": 2
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_parameter.m_paramIdPath[0]",
+      "ours": "-1005113",
+      "parent": "-1005163"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Views - Level'",
+      "parent": "'Discipline'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 26014,
+    "len_ours": 291,
+    "len_parent": 267,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Views - Family and Type'",
+      "parent": "'Type/Discipline'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 26015,
+    "len_ours": 287,
+    "len_parent": 257,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_folderDefinitions[len]",
+      "ours": 1,
+      "parent": 2
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_numCharsToUse",
+      "ours": "1",
+      "parent": "0"
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_parameter.m_paramIdPath[0]",
+      "ours": "-1007401",
+      "parent": "-1006322"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Sheets - Series (1 Character)'",
+      "parent": "'Issue Date'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 26016,
+    "len_ours": 267,
+    "len_parent": 253,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BrowserOrganization",
+      "class_parent": "BrowserOrganization"
+     },
+     {
+      "path": ".m_folderDefinitions[len]",
+      "ours": 1,
+      "parent": 2
+     },
+     {
+      "path": ".m_folderDefinitions[0].m_parameter.m_paramIdPath[0]",
+      "ours": "-1006322",
+      "parent": "-1007404"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Sheets - Issue Date'",
+      "parent": "'Drawn By'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 11,
+    "blocks_out": 11
+   },
+   {
+    "what": "1 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     1457031
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 7,
+  "slots_with_registry_surface": 7,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 26013,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26014,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26015,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26016,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 26017,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->BrowserOrganizationTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 1457028,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 1457031,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 7,
+  "pairs_ok": 7,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 26013,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 219,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 26014,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 219,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 26015,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 219,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 26016,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 219,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 26017,
+   "class": "BrowserOrganization",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 221,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 1457028,
+   "class": "DBViewDrafting",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 982,
+    "modified_ep": 1015,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 16,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51474
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a2/ZC_browse.rvt",
+  "elements": 3342,
+  "file_size": 626688,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "BrowserOrganization": {
+   "slots": 5,
+   "differing_field_paths": {
+    "m_symbolInfo.value.m_name": 5,
+    "m_folderDefinitions.#len": 3,
+    "m_folderDefinitions.[0].m_numCharsToUse": 1,
+    "m_folderDefinitions.[0].m_parameter.m_paramIdPath.[0]": 1
+   },
+   "declared_ours": [
+    "m_bDefault",
+    "m_bSortOrderAsc",
+    "m_folderDefinitions",
+    "m_sortParameter",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "DBViewDrafting": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_approvedBy": 1,
+    "m_checkedBy": 1,
+    "m_date": 1,
+    "m_designedBy": 1,
+    "m_drawnBy": 1,
+    "m_issueDate": 1,
+    "m_pRvtLinkOverrides.value.m_displaySettingsMap.#len": 1,
+    "m_sheetNumber": 1,
+    "m_viewName": 1
+   },
+   "declared_ours": [
+    "m_approvedBy",
+    "m_checkedBy",
+    "m_date",
+    "m_designedBy",
+    "m_drawnBy",
+    "m_issueDate",
+    "m_pRvtLinkOverrides.value.m_displaySettingsMap (EMPTIED)",
+    "m_sheetNumber",
+    "m_viewName"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 26013,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 26014,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 26015,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 26016,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 26017,
+   "class": "BrowserOrganization"
+  },
+  {
+   "slot": 1457028,
+   "class": "DBViewDrafting"
+  },
+  {
+   "slot": 1457031,
+   "class": "DBDrawing"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 26013,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Views - Level' (tree type 0, folders ['BIP_VIEW_ASSOCIATED_LEVEL'], sort BIP_VIEW_NAME)"
+   ]
+  },
+  {
+   "slot": 26014,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Views - Family and Type' (tree type 0, folders ['BIP_VIEW_FAMILY_AND_TYPE', 'BIP_VIEW_DISCIPLINE'], sort BIP_VIEW_NAME)"
+   ]
+  },
+  {
+   "slot": 26015,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Sheets - Series (1 Character)' (tree type 1, folders [{'param': 'BIP_SHEET_NUMBER', 'chars': 1}], sort BIP_SHEET_NUMBER)"
+   ]
+  },
+  {
+   "slot": 26016,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Sheets - Issue Date' (tree type 1, folders ['BIP_SHEET_ISSUE_DATE'], sort BIP_SHEET_NUMBER)"
+   ]
+  },
+  {
+   "slot": 26017,
+   "class": "BrowserOrganization",
+   "notes": [
+    "our organization 'GEN Sheets - Name' (tree type 1, folders ['BIP_SHEET_NAME'], sort BIP_SHEET_NUMBER)"
+   ]
+  },
+  {
+   "slot": 1457028,
+   "class": "DBViewDrafting",
+   "notes": [
+    "OUR sheet GEN-101 'GEN Overall Plans' (identity tokens ours; override managers / draw filters / wiring = the slot's); the RvtLinkSymbol display-settings pin is REMOVED (empty link overrides)"
+   ]
+  },
+  {
+   "slot": 1457031,
+   "class": "DBDrawing",
+   "notes": [
+    "REPRODUCED machinery (the sheet's viewport list (its own drafting content + OUR two plan views' viewports) -- pure wiring) -- byte-identical, nothing of ours to reject"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 626688,
+ "seconds": 1.5,
+ "reached_by_other_streams_not_reauthored": {
+  "RbsWireInsulationType": "GROUP B ZB2_mepcat (viewer PASS, batch 17) -- our wire catalog",
+  "RbsWireMaterialType": "GROUP B ZB2_mepcat",
+  "RbsWireTemperatureRatingType": "GROUP B ZB2_mepcat",
+  "RbsPipeScheduleType": "GROUP B ZB2_mepcat -- our piping catalog",
+  "RbsPipeConnectionType": "GROUP B ZB2_mepcat",
+  "RbsPipeMaterialType": "GROUP B ZB2_mepcat",
+  "PipeSegment": "GROUP B ZB2_mepcat",
+  "CategoryElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation, D_curtain)",
+  "GStyleElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "FontElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "DimensionStyle": "GROUP A ZA_deep (family-scoped remainder)",
+  "CalloutTag": "GROUP A ZA_deep (family-scoped remainder)",
+  "InteriorElevAttributes": "GROUP A ZA_deep (family-scoped remainder)",
+  "DBViewType": "curtain constellation (deletion stream D_curtain)",
+  "Family": "curtain constellation (D_curtain)",
+  "FamilySurrogate": "curtain constellation (D_curtain)",
+  "CurveElem": "room constellation (deletion stream, blocked -> D_room after the wiring fix)",
+  "LegendComponent": "type previews (2 curtain-owned in D_curtain; 2 owned by our residue types)",
+  "LevelRoomPlan": "room constellation",
+  "LinearDimString": "constraint-dimension group (deletion stream D_content)",
+  "RoomElem": "GROUP B ZB8_content (identity) / room constellation deletion",
+  "MaterialElem": "GROUP B ZB5_palette (surplus materials)",
+  "ParamElemExternal": "GROUP B ZB1_defs",
+  "ParamBinding": "GROUP B ZB1_defs",
+  "ParamElemElectricalLoadClassification": "GROUP B ZB1_defs (the 6-per-class companions of our ZC_elec classifications -- id-wired both sides)",
+  "ParamElemProject": "GROUP B ZB1_defs",
+  "PenWidthTableElem": "GROUP B ZB3_pens",
+  "SectionAttributes": "GROUP B ZB4_annot",
+  "ViewportAttributes": "GROUP B ZB4_annot",
+  "PropertySetElement": "GROUP B ZB5_palette",
+  "ParameterFilterElement": "GROUP B ZB6_filters",
+  "SunAnnotationElem": "GROUP B ZB7_machinery",
+  "NumberingSchema": "GROUP B ZB7_machinery",
+  "SlaveSymbolTrackerElem": "GROUP B ZB7_machinery",
+  "WorksharingViewModeSettings": "GROUP B ZB7_machinery",
+  "PrintSettings": "GROUP B ZB7_machinery",
+  "Viewer": "GROUP B ZB7_machinery (the sheet's viewer 1457029)",
+  "Viewport": "GROUP B ZB7_machinery (the sheet's viewports 1457030/1457043/1457044)",
+  "RefPlane": "GROUP B ZB8_content",
+  "SketchPlane": "GROUP B ZB8_content"
+ },
+ "stream": "genesis-residue-A2 (remaining unsubstituted classes, in place, from ZA_deep)"
+}

@@ -1,0 +1,1358 @@
+{
+ "rung": "X8",
+ "label": "units + true north + sites / geo-locations + base points + project info -> ours",
+ "kind": "substitute",
+ "parent": "experiments/genesis/subst/X7.rvt",
+ "parent_rung": "X7",
+ "out": "experiments/genesis/subst/X8.rvt",
+ "description": "X7 with the document identity + site layer REPLACED: UnitsElem (our unit formats), TrueNorth (our angle / poche), the GeoSite + GeoLocation pairs (OUR site: latitude / longitude / climate; project + internal positions), the project base point + survey point, and ProjectInfo (OUR project information) -> ours from the house catalog.  Every regen-edge into the sample's units (levels, GCS tracker, navigator, views) and every geo-location reference (the base points, our X5 ActiveGeoLocationTracking) is re-pointed.",
+ "tests": "Whether the reader accepts our units registry, site/geo-location pair, base points and project-info in place of the sample's, with every regen edge into the units re-pointed.",
+ "if_PASS": "Our identity + site constructors are reader-accepted.",
+ "if_FAIL": "Bisect X8a (units only -- the highest fan-in element in the document) vs X8b (site / geo-locations / base points) vs X8c (project info).",
+ "old": {
+  "count": 9,
+  "ids": [
+   7850,
+   19236,
+   21747,
+   21748,
+   49504,
+   111426,
+   111427,
+   111428,
+   111429
+  ],
+  "by_class": {
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "BasePoint": 2,
+   "TrueNorth": 1,
+   "UnitsElem": 1,
+   "ProjectInfo": 1
+  }
+ },
+ "new": {
+  "count": 9,
+  "id_range": [
+   2200184,
+   2200203
+  ],
+  "by_class": {
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "BasePoint": 2,
+   "UnitsElem": 1,
+   "TrueNorth": 1,
+   "ProjectInfo": 1
+  }
+ },
+ "correspondence": [
+  {
+   "old": 7850,
+   "new": 2200185,
+   "old_class": "TrueNorth",
+   "new_class": "TrueNorth"
+  },
+  {
+   "old": 19236,
+   "new": 2200184,
+   "old_class": "UnitsElem",
+   "new_class": "UnitsElem"
+  },
+  {
+   "old": 21747,
+   "new": 2200186,
+   "old_class": "GeoSite",
+   "new_class": "GeoSite"
+  },
+  {
+   "old": 21748,
+   "new": 2200188,
+   "old_class": "GeoLocation",
+   "new_class": "GeoLocation"
+  },
+  {
+   "old": 49504,
+   "new": 2200203,
+   "old_class": "ProjectInfo",
+   "new_class": "ProjectInfo"
+  },
+  {
+   "old": 111426,
+   "new": 2200191,
+   "old_class": "BasePoint",
+   "new_class": "BasePoint"
+  },
+  {
+   "old": 111428,
+   "new": 2200189,
+   "old_class": "GeoLocation",
+   "new_class": "GeoLocation"
+  },
+  {
+   "old": 111429,
+   "new": 2200191,
+   "old_class": "BasePoint",
+   "new_class": "BasePoint"
+  }
+ ],
+ "unmapped_old_deleted": [
+  {
+   "id": 111427,
+   "class": "GeoSite"
+  }
+ ],
+ "new_only_registered": [],
+ "residue_left_in_place": {},
+ "build_notes": [
+  "project geo-location 111428 -> ours 2200189; internal [21748] -> 2200188; sites 21747/21747 -> 2200187/2200186",
+  "our identity/site layer: [('units-registry', 1), ('true-north', 1), ('geo-site', 2), ('geo-location', 2), ('project-base-point', 1), ('survey-point', 1), ('project-info', 1)]"
+ ],
+ "build_info": {},
+ "stages": [
+  {
+   "stage": "A: append our records (rvt.commit.commit_new_elements)",
+   "new_elements": 9,
+   "elemtable_after": 4820,
+   "watermark_after": 2200203,
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true
+   },
+   "new_records_clean": 27,
+   "seconds": 0.9
+  },
+  {
+   "stage": "B: re-point survivor referrers + delete OLD (rvt.manipulate.commit_plans)",
+   "referrers_repointed": 144,
+   "referrer_records_edited": 145,
+   "repointed_by_class": [
+    [
+     "SunAndShadowSettings",
+     90
+    ],
+    [
+     "Viewport",
+     29
+    ],
+    [
+     "Level",
+     9
+    ],
+    [
+     "DBViewDrafting",
+     8
+    ],
+    [
+     "ColorFillSchema",
+     3
+    ],
+    [
+     "ActiveGeoLocationTrackingElement",
+     2
+    ],
+    [
+     "LinearDimString",
+     1
+    ],
+    [
+     "DBViewGraphSchedColumn",
+     1
+    ],
+    [
+     "GCSViewport",
+     1
+    ],
+    [
+     "RbsDbViewSystemNavigator",
+     1
+    ]
+   ],
+   "embedded_document_referrers_uneditable": 0,
+   "old_records_removed": 9,
+   "elemtable_before": 4820,
+   "elemtable_after": 4811,
+   "verify_manipulated": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "isize_identity_mismatches": 0
+   },
+   "seconds": 0.9
+  },
+  {
+   "stage": "C: ADocument remap old->new / purge unmapped / register ours-only / re-encode",
+   "leaves_remapped": 7,
+   "remap_examples": [
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "old": 111426,
+     "new": 2200191
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "old": 111429,
+     "new": 2200191
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "old": 21748,
+     "new": 2200188
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "old": 111428,
+     "new": 2200189
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SiteMgr.m_trueNorthId",
+     "old": 7850,
+     "new": 2200185
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UnitsTracking.m_unitsElemId",
+     "old": 19236,
+     "new": 2200184
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[2]",
+     "old": 49504,
+     "new": 2200203
+    }
+   ],
+   "purge_totals": {
+    "dangling": 0,
+    "nulled": 0,
+    "elements_dropped": 0,
+    "scalars_nulled": 0
+   },
+   "purge_bodies": [],
+   "new_only_registration": {
+    "applied": {},
+    "skipped": []
+   },
+   "latest_payload_before": 1573536,
+   "latest_payload_after": 1573536,
+   "seconds": 0.7
+  }
+ ],
+ "new_records_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "referrer_repoint": {
+  "referrer_elements": 144,
+  "record_edits": [
+   {
+    "referrer": 311,
+    "class": "Level",
+    "seq": 101,
+    "remapped": 3,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 694,
+    "class": "Level",
+    "seq": 101,
+    "remapped": 3,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 54520,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 55153,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 55154,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 55156,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 55157,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 55158,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 86334,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 86335,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99829,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99830,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99831,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99832,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99833,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99834,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99835,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99836,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99837,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102898,
+    "class": "ColorFillSchema",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102899,
+    "class": "ColorFillSchema",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 116111,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 116112,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 116113,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 116115,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121763,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121764,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121765,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121766,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121767,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121768,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121769,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121770,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121771,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121772,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121773,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121774,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 121775,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 196629,
+    "class": "Level",
+    "seq": 101,
+    "remapped": 3,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 196652,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 245423,
+    "class": "Level",
+    "seq": 101,
+    "remapped": 3,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 245446,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 417275,
+    "class": "Level",
+    "seq": 101,
+    "remapped": 3,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 417298,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 511122,
+    "class": "Level",
+    "seq": 101,
+    "remapped": 3,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 511145,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 515270,
+    "class": "Level",
+    "seq": 101,
+    "remapped": 3,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 515293,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 569516,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712652,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712653,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712681,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712682,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712683,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712684,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712685,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712686,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712687,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712688,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 712689,
+    "class": "SunAndShadowSettings",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   }
+  ],
+  "embedded_document_referrers_uneditable": 0,
+  "errors": []
+ },
+ "parity": {
+  "pairs": 8,
+  "pairs_ok": 8,
+  "pairs_failed": 0,
+  "table_note": "all pairs stored",
+  "table": [
+   {
+    "old": 7850,
+    "new": 2200185,
+    "class": "TrueNorth",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SiteMgr.m_trueNorthId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SiteMgr.m_trueNorthId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 19236,
+    "new": 2200184,
+    "class": "UnitsElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UnitsTracking.m_unitsElemId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UnitsTracking.m_unitsElemId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 21747,
+    "new": 2200186,
+    "class": "GeoSite",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 21748,
+    "new": 2200188,
+    "class": "GeoLocation",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49504,
+    "new": 2200203,
+    "class": "ProjectInfo",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[2]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[2]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 111426,
+    "new": 2200191,
+    "class": "BasePoint",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 111428,
+    "new": 2200189,
+    "class": "GeoLocation",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 111429,
+    "new": 2200191,
+    "class": "BasePoint",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "parity": true
+   }
+  ],
+  "positional_uet_slots": [
+   {
+    "old": 49504,
+    "new": 2200203,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[2]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[2]"
+    ],
+    "ok": true
+   }
+  ],
+  "uet_failed": 0,
+  "old_ids_still_in_adocument": {},
+  "adocument_dangling_before": 1721,
+  "adocument_dangling_after": 1721,
+  "adocument_dangling_created": [],
+  "seconds": 0.6
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "deleted_still_present": [],
+  "isize_identity_ok": true,
+  "unit0_element_records": 4811,
+  "walker_errors": 0
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 24,
+   "records": 14436,
+   "elements_decoded": 4811,
+   "decode_failures": 8,
+   "refs_checked": 74411
+  }
+ },
+ "census": {
+  "path": "experiments/genesis/subst/X8.rvt",
+  "elements": 4811,
+  "classes": {
+   "GStyleElem": 1956,
+   "ParamElemExternal": 466,
+   "CategoryElem": 389,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "SunAndShadowSettings": 90,
+   "FontElem": 77,
+   "Viewport": 69,
+   "SketchPlane": 64,
+   "CustomElement": 61,
+   "DBDrawing": 49,
+   "ExtentElem": 39,
+   "ConceptualConstructionType": 36,
+   "HVACLoadBuildingTypeElem": 33,
+   "RbsFluidType": 28,
+   "SunAnnotationElem": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "Viewer": 24,
+   "DBView3d": 21,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "LegendComponent": 21,
+   "DBViewSection": 20,
+   "ElectricalLoadClassification": 18,
+   "TilePatternType": 17,
+   "DivisionRule": 17,
+   "DimensionStyle": 16,
+   "DBViewPlan": 16,
+   "Grid": 16,
+   "LightSchemeElement": 15,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "MaterialElem": 13,
+   "LeaderStyle": 12,
+   "AllPlanTopologies": 12,
+   "TextNoteAttributes": 12,
+   "Viewer3d": 12,
+   "ModelClipBox": 12,
+   "RbsPipingSystemType": 11,
+   "SectionAttributes": 10,
+   "ColorFillSchema": 10,
+   "ConceptualSurfaceType": 10,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "FamilySurrogate": 9,
+   "CalloutTag": 9,
+   "PenWidthTableElem": 9,
+   "Family": 8,
+   "AreaTypeElem": 8,
+   "ParamElemProject": 8,
+   "LoadNatureElem": 8,
+   "LoadCaseElem": 8,
+   "RbsPipeConnectionType": 8,
+   "Section": 8,
+   "RebarShape": 8,
+   "DBViewDrafting": 8,
+   "PhaseFilterElem": 7,
+   "ParameterFilterElement": 7,
+   "InteriorElev": 6,
+   "AreaSchemePlanTopologies": 6,
+   "ConduitStandardType": 6,
+   "CurveElem": 6,
+   "DBViewAnonDrafting": 6,
+   "BrowserOrganization": 6,
+   "FloorAttributes": 5,
+   "RbsPipeMaterialType": 5,
+   "StructConnectionType": 5,
+   "RebarHookType": 5,
+   "FillPatternElem": 5,
+   "InteriorElevArrow": 4,
+   "SpotElevationStyle": 4,
+   "RbsWireMaterialType": 4,
+   "CustomElementType": 4,
+   "LinePatternElem": 4,
+   "BasicWallType": 3,
+   "RbsWireTemperatureRatingType": 3,
+   "RbsHvacSystemType": 3,
+   "StairsLandingType": 3,
+   "StairsType": 3,
+   "StairsRunType": 3,
+   "FamSymSurrogate": 3,
+   "DesignOption": 3,
+   "AbsDuctType": 3,
+   "NumberingSchema": 3,
+   "MasterImportSymbol": 3,
+   "ImportInstance": 3,
+   "ViewportAttributes": 2,
+   "CompoundCeilingType": 2,
+   "ProjectPhase": 2,
+   "SysPanelFamSym": 2,
+   "CoverType": 2,
+   "ComponentRepeaterSlotSpecialType": 2,
+   "StairsPathType": 2,
+   "StairsSupportType": 2,
+   "AbsFlexDuctType": 2,
+   "RbsCableTrayType": 2,
+   "RbsConduitType": 2,
+   "GCSViewport": 2,
+   "RebarBarType": 2,
+   "RebarBendingDetailType": 2,
+   "MEPSystemZoneElementType": 2,
+   "ModelGraphicsStyle": 2,
+   "RevisionNumberingSequence": 2,
+   "ViewSheetSet": 2,
+   "AreaMeasureElem": 2,
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "BasePoint": 2,
+   "AllProjectPhases": 1,
+   "DBViewProject": 1,
+   "ColorFillSymbol": 1,
+   "LevelAttributes": 1,
+   "CurtainRoofAttributes": 1,
+   "GridAttributes": 1,
+   "RampAttributes": 1,
+   "TagNoteAttributes": 1,
+   "RevealAttr": 1,
+   "CorniceAttr": 1,
+   "Text3dAttrSymbol": 1,
+   "RoofSoffitType": 1,
+   "FasciaAttr": 1,
+   "GutterAttr": 1,
+   "EdgeSlabAttr": 1,
+   "ContourLabelingAttributes": 1,
+   "PropertyAttr": 1,
+   "StairsRailingAttr": 1,
+   "StairsAttributes": 1,
+   "RepeatingDetailAttributes": 1,
+   "JoistSystemAttr": 1,
+   "RevisionCloudAttr": 1,
+   "CurtaSystemAttr": 1,
+   "StackedWallType": 1,
+   "RbsWireType": 1,
+   "RbsVoltageType": 1,
+   "RbsDistributionSysType": 1,
+   "AreaReportSettingsElem": 1,
+   "ContFootingType": 1,
+   "ReferenceViewerAttributes": 1,
+   "ConduitSizesElem": 1,
+   "CableTraySizesElem": 1,
+   "ListConceptualSurfaceTypes": 1,
+   "AnalyticalLinkType": 1,
+   "HandRailType": 1,
+   "TopRailType": 1,
+   "CutMarkType": 1,
+   "SysMullionFamSym": 1,
+   "BuildingPadType": 1,
+   "NewCurtainWallType": 1,
+   "RoofAttributes": 1,
+   "StairsTriserSymbol": 1,
+   "LinearDimString": 1,
+   "DBViewTypeAreaPlan": 1,
+   "DesignOptionSet": 1,
+   "FamilySymbol": 1,
+   "RbsPipeType": 1,
+   "RbsFlexPipeType": 1,
+   "LevelRoomPlan": 1,
+   "AssemblyCodeTable": 1,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "GraphSchedColumnTable": 1,
+   "DBViewGraphSchedColumn": 1,
+   "AreaReinforcementType": 1,
+   "FabricAreaType": 1,
+   "FabricWireType": 1,
+   "FabricSheetType": 1,
+   "DataStorage": 1,
+   "FilledRegionAttributes": 1,
+   "LineLoadType": 1,
+   "AreaLoadType": 1,
+   "SlaveSymbolTrackerElem": 1,
+   "ImageHolder": 1,
+   "DBViewRendering": 1,
+   "ImageSymbol": 1,
+   "MEPAnalyticalConnectionElementType": 1,
+   "MechanicalEquipmentSetType": 1,
+   "MEPSystemZoneType": 1,
+   "ToposolidType": 1,
+   "RbsCableType": 1,
+   "ReconcileBrowserSettingsElem": 1,
+   "ConstructionSetProject": 1,
+   "RbsDbViewSystemNavigator": 1,
+   "StructSettingsElem": 1,
+   "WallJoinDefaultSetting": 1,
+   "AutoJoinTracker": 1,
+   "KeynoteTable": 1,
+   "KeynotingSystem": 1,
+   "InitialViewSettings": 1,
+   "RbsWireSettingsElem": 1,
+   "RbsWireSizesElem": 1,
+   "RbsPipeSettingsElem": 1,
+   "RbsPipeSizesElem": 1,
+   "RbsDuctSettingsElem": 1,
+   "RbsDuctSizesElem": 1,
+   "ConduitSettingsElem": 1,
+   "CableTraySettingsElem": 1,
+   "MEPComponentTracker": 1,
+   "LayoutNodesTracker": 1,
+   "MEPSystemTracker": 1,
+   "MEPNetworkDataElem": 1,
+   "MEPNetworkTracker": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "CircuitNamingTypeSetting": 1,
+   "AssemblyTracker": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "SheetsInSheetCollectionTracker": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "ReactionsUpToDateElem": 1,
+   "GraphicsCache": 1,
+   "ExternalParamLock": 1,
+   "DaylightSourceIdSet": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "STEPExportSettings": 1,
+   "ZoneScheme": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "FabricationServiceSettings": 1,
+   "CurtaSystemFaceManager": 1,
+   "StructuralConnectionSettings": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "DefaultDivideSettings": 1,
+   "ProjectCopySettingsElem": 1,
+   "AreaSettingsElem": 1,
+   "RouteAnalysisSettings": 1,
+   "FabricationSettings": 1,
+   "FabricationSettingsElement": 1,
+   "SSEPointVisibilitySettings": 1,
+   "ReinforcementSettings": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "ElectricalSetting": 1,
+   "CopyWatchProperties": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "EnergyDataSettings": 1,
+   "WorksharingViewModeSettings": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "PrintSettings": 1,
+   "UnitsElem": 1,
+   "TrueNorth": 1,
+   "ProjectInfo": 1
+  },
+  "file_size": 815104,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contentdocs_clean_tail": true,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "familymgr_entries": 9,
+  "familymgr_doc_guids": 0
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "familymgr_doc_guids": 0,
+  "coherent": true
+ },
+ "bytes": 815104,
+ "seconds": 4.5,
+ "problems": [],
+ "verdict": "VALID"
+}

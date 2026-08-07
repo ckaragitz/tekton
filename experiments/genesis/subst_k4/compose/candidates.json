@@ -1,0 +1,149 @@
+{
+ "G_A": {
+  "file": "experiments/genesis/subst_k4/compose/G_A.rvt",
+  "anchor": {
+   "claim": "compose(Y9, [A:Z_subcat, A:Z_annot, A:Z_datum, A:Z_pattern, A:Z_asset]) reproduces the certified ZA_deep.rvt BYTE-IDENTICALLY",
+   "base": "experiments/genesis/subst_k4/Y9.rvt",
+   "target": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "target_certification": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED",
+   "rung_sets": [
+    {
+     "name": "A:Z_subcat",
+     "group": "A",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4/residue_a/Z_subcat.rvt",
+     "source_md5": "b52d34bd5f96cbc52215d9719b6c1d2c",
+     "source_viewer": "PASS",
+     "parent_file": "experiments/genesis/subst_k4/Y9.rvt",
+     "report_file": "experiments/genesis/subst_k4/residue_a/Z_subcat.json",
+     "slots": 374,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "GStyleElem": 237,
+      "CategoryElem": 137
+     },
+     "landed_slots": 415,
+     "landed_but_byte_identical": 41,
+     "notes": []
+    },
+    {
+     "name": "A:Z_annot",
+     "group": "A",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4/residue_a/Z_annot.rvt",
+     "source_md5": "417e48cee2aab36f7eb69e7d8c6aff21",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4/Y9.rvt",
+     "report_file": "experiments/genesis/subst_k4/residue_a/Z_annot.json",
+     "slots": 22,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "FontElem": 10,
+      "LeaderStyle": 5,
+      "DimensionStyle": 4,
+      "GridAttributes": 1,
+      "InteriorElevAttributes": 1,
+      "CalloutTag": 1
+     },
+     "landed_slots": 23,
+     "landed_but_byte_identical": 1,
+     "notes": []
+    },
+    {
+     "name": "A:Z_datum",
+     "group": "A",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4/residue_a/Z_datum.rvt",
+     "source_md5": "77eb3ace7f37b0ff099f959912e5f82a",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4/Y9.rvt",
+     "report_file": "experiments/genesis/subst_k4/residue_a/Z_datum.json",
+     "slots": 10,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "Level": 7,
+      "Grid": 3
+     },
+     "landed_slots": 10,
+     "landed_but_byte_identical": 0,
+     "notes": []
+    },
+    {
+     "name": "A:Z_pattern",
+     "group": "A",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4/residue_a/Z_pattern.rvt",
+     "source_md5": "f6c0420ca2d75529b2c0d4be201ea21b",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4/Y9.rvt",
+     "report_file": "experiments/genesis/subst_k4/residue_a/Z_pattern.json",
+     "slots": 7,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "FillPatternElem": 4,
+      "LinePatternElem": 3
+     },
+     "landed_slots": 7,
+     "landed_but_byte_identical": 0,
+     "notes": []
+    },
+    {
+     "name": "A:Z_asset",
+     "group": "A",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4/residue_a/Z_asset.rvt",
+     "source_md5": "969f8fe52c1141cf3a8df16d736e0f98",
+     "source_viewer": "UNTESTED",
+     "parent_file": "experiments/genesis/subst_k4/Y9.rvt",
+     "report_file": "experiments/genesis/subst_k4/residue_a/Z_asset.json",
+     "slots": 18,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "AppearanceAssetElem": 18
+     },
+     "landed_slots": 18,
+     "landed_but_byte_identical": 0,
+     "notes": []
+    }
+   ],
+   "reproduction": "experiments/genesis/subst_k4/compose/G_A.rvt",
+   "md5_reproduction": "56308637529a0d0a95976f5701e2615e",
+   "md5_target": "56308637529a0d0a95976f5701e2615e",
+   "BYTE_IDENTICAL": true,
+   "meaning": "the composer's Phase I is EXACT: five independently emitted in-place rungs, merged into one call, land in precisely the file the residue stream emitted -- so a composed candidate carries each rung's proven content bit for bit",
+   "compose_verdict": "COMPOSED-VALID",
+   "compose_problems": [],
+   "seconds": 2.5
+  },
+  "viewer": "PASS (byte-identical to the certified ZA_deep.rvt)"
+ },
+ "G_AB_defs": {
+  "file": "experiments/genesis/subst_k4/compose/G_AB_defs.rvt",
+  "verdict": "COMPOSED-VALID",
+  "problems": [],
+  "manifest": "experiments/genesis/subst_k4/compose/G_AB_defs.manifest.json",
+  "landed_added": 791,
+  "viewer": "UNTESTED (staged for the gate)"
+ },
+ "control": {
+  "file": "experiments/genesis/subst_k4/compose/CTRL_ZA_deep_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "probes": "experiments/genesis/subst_k4/compose/probes.json",
+ "seconds": 4.5
+}

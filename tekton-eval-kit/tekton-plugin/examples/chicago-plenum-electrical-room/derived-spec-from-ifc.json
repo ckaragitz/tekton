@@ -1,0 +1,408 @@
+{
+  "specVersion": "1.0",
+  "project": {
+    "name": "DDOT Coolidge - Area E bus storage electrical room",
+    "description": "Derived from usecases/chicago-plenum-electrical-room/hardened.ifc by ifc_to_spec.py"
+  },
+  "units": {
+    "length": "m",
+    "angle": "deg"
+  },
+  "levels": [
+    {
+      "id": "L1",
+      "name": "Level 1",
+      "elevation": 0.0
+    }
+  ],
+  "walls": [
+    {
+      "id": "W-S",
+      "start": [
+        -5.3816,
+        -2.4384
+      ],
+      "end": [
+        5.3816,
+        -2.4384
+      ],
+      "thickness": 0.2,
+      "height": 6.246,
+      "type": "Room shell (derived from proxy footprint)",
+      "derivedFrom": "Bus storage electrical room shell \u2014 Area E"
+    },
+    {
+      "id": "W-E",
+      "start": [
+        5.3816,
+        -2.4384
+      ],
+      "end": [
+        5.3816,
+        2.6384
+      ],
+      "thickness": 0.2,
+      "height": 6.246,
+      "type": "Room shell (derived from proxy footprint)",
+      "derivedFrom": "Bus storage electrical room shell \u2014 Area E"
+    },
+    {
+      "id": "W-N",
+      "start": [
+        5.3816,
+        2.6384
+      ],
+      "end": [
+        -5.3816,
+        2.6384
+      ],
+      "thickness": 0.2,
+      "height": 6.246,
+      "type": "Room shell (derived from proxy footprint)",
+      "derivedFrom": "Bus storage electrical room shell \u2014 Area E"
+    },
+    {
+      "id": "W-W",
+      "start": [
+        -5.3816,
+        2.6384
+      ],
+      "end": [
+        -5.3816,
+        -2.4384
+      ],
+      "thickness": 0.2,
+      "height": 6.246,
+      "type": "Room shell (derived from proxy footprint)",
+      "derivedFrom": "Bus storage electrical room shell \u2014 Area E"
+    }
+  ],
+  "equipment": [
+    {
+      "kind": "panelboard",
+      "name": "B-HG4",
+      "level": "L1",
+      "position": [
+        -3.7826,
+        2.3184
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 1.0672,
+      "typeName": "Electric Distribution Board 914x508x150mm",
+      "description": "Panelboard, 480Y/277 V; fed from MDB via BS-FD1020",
+      "tag": "B-HG4",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.508,
+        "d": 0.2075,
+        "h": 2.1
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-HG4",
+          "Voltage": "480Y/277 V",
+          "FedFrom": "MDB via BS-FD1020",
+          "FeederRun": "BS-FD1020",
+          "CenterlineFromGrid16BS": 1.399032,
+          "TopOfPanelAFF": 1.9812
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "B-LR1",
+      "level": "L1",
+      "position": [
+        -2.987,
+        2.3184
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 1.0672,
+      "typeName": "Electric Distribution Board 914x508x150mm",
+      "description": "Panelboard, 208Y/120 V; fed from XFMR-LR1 via BS-FD1011",
+      "tag": "B-LR1",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.508,
+        "d": 0.2075,
+        "h": 2.1
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-LR1",
+          "Voltage": "208Y/120 V",
+          "FedFrom": "XFMR-LR1 via BS-FD1011",
+          "FeederRun": "BS-FD1011",
+          "CenterlineFromGrid16BS": 2.19456,
+          "TopOfPanelAFF": 1.9812
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "B-HQ1",
+      "level": "L1",
+      "position": [
+        -0.2743,
+        2.3184
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 1.0672,
+      "typeName": "Electric Distribution Board 914x508x150mm",
+      "description": "Panelboard, 480Y/277 V; fed from B-HD1 via BS-FD1009",
+      "tag": "B-HQ1",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.508,
+        "d": 0.2075,
+        "h": 2.1
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-HQ1",
+          "Voltage": "480Y/277 V",
+          "FedFrom": "B-HD1 via BS-FD1009",
+          "FeederRun": "BS-FD1009",
+          "CenterlineFromGrid16BS": 4.90728,
+          "TopOfPanelAFF": 1.9812
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "B-LQ1",
+      "level": "L1",
+      "position": [
+        0.4328,
+        2.3184
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 1.0672,
+      "typeName": "Electric Distribution Board 914x508x150mm",
+      "description": "Panelboard, 208Y/120 V; fed from XFMR-LQ1 via BS-FD1013",
+      "tag": "B-LQ1",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.508,
+        "d": 0.2075,
+        "h": 2.1
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-LQ1",
+          "Voltage": "208Y/120 V",
+          "FedFrom": "XFMR-LQ1 via BS-FD1013",
+          "FeederRun": "BS-FD1013",
+          "CenterlineFromGrid16BS": 5.614416,
+          "TopOfPanelAFF": 1.9812
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "B-SLQ1",
+      "level": "L1",
+      "position": [
+        1.1278,
+        2.3184
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 1.0672,
+      "typeName": "Electric Distribution Board 914x508x150mm",
+      "description": "Panelboard, 208Y/120 V (verify system); fed from XFMR-B-SLQ1 (run not in BS-EP7-00 \u2014 verify)",
+      "tag": "B-SLQ1",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.508,
+        "d": 0.2075,
+        "h": 2.1
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-SLQ1",
+          "Voltage": "208Y/120 V (verify system)",
+          "FedFrom": "XFMR-B-SLQ1 (run not in BS-EP7-00 \u2014 verify)",
+          "FeederRun": "ASSUMED",
+          "CenterlineFromGrid16BS": 6.30936,
+          "TopOfPanelAFF": 1.9812
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "B-SHQ1",
+      "level": "L1",
+      "position": [
+        3.6515,
+        2.3184
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 1.0672,
+      "typeName": "Electric Distribution Board 914x508x150mm",
+      "description": "Panelboard, 480Y/277 V (verify); fed from MDB (run not in BS-EP7-00 \u2014 verify)",
+      "tag": "B-SHQ1",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.508,
+        "d": 0.2075,
+        "h": 2.1
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "B-SHQ1",
+          "Voltage": "480Y/277 V (verify)",
+          "FedFrom": "MDB (run not in BS-EP7-00 \u2014 verify)",
+          "FeederRun": "ASSUMED",
+          "CenterlineFromGrid16BS": 8.833104,
+          "TopOfPanelAFF": 1.9812
+        }
+      }
+    },
+    {
+      "kind": "transformer",
+      "name": "XFMR-LR1",
+      "level": "L1",
+      "position": [
+        -2.987,
+        -2.0334
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.1,
+      "typeName": "Transformer 760x610x510mm",
+      "description": "45 kVA dry-type, 480 V delta \u2013 208Y/120 V, feeds B-LR1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-LR1",
+      "ifcClass": "IfcTransformer",
+      "dims": {
+        "w": 0.81,
+        "d": 0.71,
+        "h": 0.86
+      },
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-LR1",
+          "LocationStatus": "ASSUMED \u2014 VERIFY"
+        }
+      }
+    },
+    {
+      "kind": "transformer",
+      "name": "XFMR-LQ1",
+      "level": "L1",
+      "position": [
+        -0.3658,
+        -2.0334
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.1,
+      "typeName": "Transformer 760x610x510mm",
+      "description": "45 kVA dry-type, 480 V delta \u2013 208Y/120 V, feeds B-LQ1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-LQ1",
+      "ifcClass": "IfcTransformer",
+      "dims": {
+        "w": 0.81,
+        "d": 0.71,
+        "h": 0.86
+      },
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-LQ1",
+          "LocationStatus": "ASSUMED \u2014 VERIFY"
+        }
+      }
+    },
+    {
+      "kind": "transformer",
+      "name": "XFMR-B-SLQ1",
+      "level": "L1",
+      "position": [
+        1.7069,
+        -2.0334
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.1,
+      "typeName": "Transformer 760x610x510mm",
+      "description": "45 kVA dry-type, 480 V delta \u2013 208Y/120 V, feeds B-SLQ1; location assumed pending BS-EQ1-01-E callout geometry",
+      "tag": "XFMR-B-SLQ1",
+      "ifcClass": "IfcTransformer",
+      "dims": {
+        "w": 0.81,
+        "d": 0.71,
+        "h": 0.86
+      },
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 45.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "Feeds": "B-SLQ1",
+          "LocationStatus": "ASSUMED \u2014 VERIFY"
+        }
+      }
+    },
+    {
+      "kind": "proxy",
+      "name": "Trapeze hangers \u2014 1-5/8 in strut on 3/8 in rods, rack at 16 ft 6 in AFF",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "Discrete Accessory 1520x1076x60mm",
+      "description": null,
+      "tag": "HANGERS",
+      "ifcClass": "IfcDiscreteAccessory",
+      "dims": {
+        "w": 7.3752,
+        "d": 1.52,
+        "h": 1.0759
+      },
+      "psets": {
+        "SupportSchedule": {
+          "StrutSize": "1-5/8 in x 1-5/8 in, 12 ga",
+          "StrutLengthEach": 1.7,
+          "RodSize": "3/8 in-16 threaded rod",
+          "RodLengthEach": 1.03536,
+          "SpacingFt": 8.0
+        }
+      }
+    },
+    {
+      "kind": "proxy",
+      "name": "Bus storage electrical room shell \u2014 Area E",
+      "level": "L1",
+      "position": [
+        0.0,
+        2.5384
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "Building Element Proxy 10763x6096x200mm",
+      "description": "34 ft x 16 ft clear, 20 ft to structure; front wall cut away for viewing",
+      "tag": "ROOM",
+      "ifcClass": "IfcBuildingElementProxy",
+      "dims": {
+        "w": 10.7632,
+        "d": 5.0768,
+        "h": 6.246
+      },
+      "psets": {
+        "RoomInformation": {
+          "Facility": "DDOT Coolidge \u2014 bus storage / coach services",
+          "Area": "E",
+          "ConduitRackMinElevationFt": 16.0
+        }
+      }
+    }
+  ],
+  "notes": [
+    "walls synthesized from the footprint of IfcBuildingElementProxy 'Bus storage electrical room shell \u2014 Area E' (10.76 x 5.08 m, h=6.246 m)"
+  ]
+}

@@ -1,0 +1,107 @@
+{
+ "batch": 48,
+ "created": "2026-08-05T08:07:20-05:00",
+ "tool": "tools/catchain.py (via tools/probe_batch.py primitives)",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified'; the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "controls": {
+  "g_abpd": "experiments/acceptance/CTRL_G_ABPD_b48.rvt",
+  "note": "the G_ABPD control gates every probe (all ride the same base); CTRL FAIL voids the round"
+ },
+ "note": "catchain: the famgen-CHAIN residue probes (post-#41).  Reading order BX_conj (conjunction upper bound -- the biggest split) FIRST, then BX_cat_gm / BX_types_5 / BX_bip singles, then the pre-built bisection rungs BX_conj_minus_cat / BX_conj_minus_types (read only under BX_conj PASS).  Read experiments/catchain/probes.json reading_the_matrix; corpus shapes in experiments/catchain/corpus_shapes.json.",
+ "reading_order": [
+  "CTRL_G_ABPD_b48.rvt",
+  "BX_conj.rvt",
+  "BX_cat_gm.rvt",
+  "BX_types_5.rvt",
+  "BX_bip.rvt",
+  "BX_conj_minus_cat.rvt",
+  "BX_conj_minus_types.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_G_ABPD_b48.rvt",
+   "staged_as": "experiments/acceptance/CTRL_G_ABPD_b48.rvt",
+   "md5": "1f1ff65bd68415a05228d6b6ac2bf271",
+   "kind": "control",
+   "control": true,
+   "control_source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 1,
+   "file": "experiments/catchain/BX_conj.rvt",
+   "staged_as": "experiments/acceptance/BX_conj.rvt",
+   "md5": "47a68a118659f17815edfadf683e99cb",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/catchain/probes.json entry 'BX_conj' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 2,
+   "file": "experiments/catchain/BX_cat_gm.rvt",
+   "staged_as": "experiments/acceptance/BX_cat_gm.rvt",
+   "md5": "6d7ed2f3f1fa7c8b2d90ea93874909d6",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/catchain/probes.json entry 'BX_cat_gm' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 3,
+   "file": "experiments/catchain/BX_types_5.rvt",
+   "staged_as": "experiments/acceptance/BX_types_5.rvt",
+   "md5": "088530c6ea4c65fd0bf6a5ae4958a7eb",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/catchain/probes.json entry 'BX_types_5' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 4,
+   "file": "experiments/catchain/BX_bip.rvt",
+   "staged_as": "experiments/acceptance/BX_bip.rvt",
+   "md5": "8db29a11f7937a3ec3ffe6ff263b690a",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/catchain/probes.json entry 'BX_bip' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 5,
+   "file": "experiments/catchain/BX_conj_minus_cat.rvt",
+   "staged_as": "experiments/acceptance/BX_conj_minus_cat.rvt",
+   "md5": "3cd1795d0d209126f9fba8574005ebad",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/catchain/probes.json entry 'BX_conj_minus_cat' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "order": 6,
+   "file": "experiments/catchain/BX_conj_minus_types.rvt",
+   "staged_as": "experiments/acceptance/BX_conj_minus_types.rvt",
+   "md5": "70e4fa88dcc0cdad94b03c0ed8f4483e",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_declared_by": "experiments/catchain/probes.json entry 'BX_conj_minus_types' field 'base'",
+   "base_status": "certified",
+   "base_certification": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ ]
+}

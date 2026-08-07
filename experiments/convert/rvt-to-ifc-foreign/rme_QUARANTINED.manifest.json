@@ -1,0 +1,4522 @@
+{
+ "route": "rvt->ifc (rvt.convert.rvt_to_ifc)",
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "input": {
+  "path": "samples/rmebasicsampleproject.rvt",
+  "sha256": "37127cf55f7488f16124c6149c0d46e974faf64fe1a87d541149c8715f3ead94",
+  "provenance": {
+   "author": "Autodesk Revit",
+   "format": "2026",
+   "lineage": "foreign (native Revit save lineage)",
+   "foreign": true,
+   "quarantined": true
+  }
+ },
+ "files": {
+  "ifc": "experiments/convert/rvt-to-ifc-foreign/rme_QUARANTINED.ifc"
+ },
+ "stamps": [
+  "FOREIGN DESIGN CONTENT: the source model was not authored by tekton -- the exported IFC carries THAT model's design content (their walls, their equipment identities, their parameter values). Dev/interop artifact for the file's owner; never shipped as tekton content.",
+  "QUARANTINED SOURCE (dev-only): the source is research-corpus / third-party sample content; this export exists to prove the converter works on foreign files and stays in experiments/."
+ ],
+ "degradations": [
+  "round-trip survival is PARTIAL -- see roundtrip table; the IFC is still delivered (the table is the honest label)"
+ ],
+ "errors": [],
+ "extraction": {
+  "cells": {
+   "levels": {
+    "status": "works",
+    "count": 4
+   },
+   "walls": {
+    "status": "works",
+    "count": 133,
+    "detail": [
+     {
+      "elem_id": 573380,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       9.109,
+       40.7203
+      ],
+      "p1_m": [
+       9.109,
+       32.5553
+      ],
+      "thickness_m": 0.2,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573381,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       -0.991,
+       32.5553
+      ],
+      "p1_m": [
+       21.1056,
+       32.5553
+      ],
+      "thickness_m": 0.2,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573574,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       -1.5179,
+       -4.5897
+      ],
+      "p1_m": [
+       9.3711,
+       -4.5897
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573575,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       -1.5179,
+       -6.8447
+      ],
+      "p1_m": [
+       4.3711,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573576,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       1.2821,
+       -12.7488
+      ],
+      "p1_m": [
+       1.2821,
+       -4.5897
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573581,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       4.3711,
+       -6.8447
+      ],
+      "p1_m": [
+       5.9711,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573588,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6179,
+       -7.1447
+      ],
+      "p1_m": [
+       -4.4179,
+       -7.1447
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573595,
+      "type_id": 563463,
+      "type_name": "Lamelle 11.5",
+      "p0_m": [
+       9.3711,
+       -4.5597
+      ],
+      "p1_m": [
+       50.2822,
+       -4.5597
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573602,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       5.109,
+       31.9428
+      ],
+      "p1_m": [
+       21.1056,
+       31.9428
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573603,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       9.109,
+       40.7203
+      ],
+      "p1_m": [
+       9.109,
+       31.9428
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573604,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       5.109,
+       34.5903
+      ],
+      "p1_m": [
+       11.6688,
+       34.5903
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573606,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       15.109,
+       40.7203
+      ],
+      "p1_m": [
+       15.109,
+       31.9428
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573607,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       9.109,
+       38.3053
+      ],
+      "p1_m": [
+       21.1056,
+       38.3053
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573609,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       18.0038,
+       34.5903
+      ],
+      "p1_m": [
+       21.1056,
+       34.5903
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573689,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       -1.5179,
+       -4.5897
+      ],
+      "p1_m": [
+       9.3711,
+       -4.5897
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573690,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       -1.5179,
+       -6.8447
+      ],
+      "p1_m": [
+       4.3711,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573691,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       1.2821,
+       -12.7488
+      ],
+      "p1_m": [
+       1.2821,
+       -4.5897
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573696,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       4.3711,
+       -6.8447
+      ],
+      "p1_m": [
+       5.9711,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573704,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       -1.5179,
+       -4.5897
+      ],
+      "p1_m": [
+       9.3711,
+       -4.5897
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573706,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       4.3711,
+       -6.8447
+      ],
+      "p1_m": [
+       5.9711,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573715,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       -4.5453,
+       36.0253
+      ],
+      "p1_m": [
+       -0.891,
+       36.0253
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573717,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       -4.5753,
+       32.5428
+      ],
+      "p1_m": [
+       -0.891,
+       32.5428
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573719,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -0.891,
+       34.3378
+      ],
+      "p1_m": [
+       -3.2178,
+       34.3378
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573720,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -2.0544,
+       32.5428
+      ],
+      "p1_m": [
+       -2.0544,
+       36.0253
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573745,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       2.109,
+       34.2053
+      ],
+      "p1_m": [
+       4.6056,
+       34.2053
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573746,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       2.109,
+       40.7203
+      ],
+      "p1_m": [
+       2.109,
+       32.5553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573752,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       21.1056,
+       34.8553
+      ],
+      "p1_m": [
+       14.109,
+       34.8553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573755,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       17.109,
+       40.7203
+      ],
+      "p1_m": [
+       17.109,
+       32.5553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573781,
+      "type_id": 563468,
+      "type_name": "WC Trennwand 5.0",
+      "p0_m": [
+       10.4971,
+       38.3053
+      ],
+      "p1_m": [
+       10.4971,
+       34.5903
+      ],
+      "thickness_m": 0.05,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 575086,
+      "type_id": 563463,
+      "type_name": "Lamelle 11.5",
+      "p0_m": [
+       -4.5754,
+       16.5553
+      ],
+      "p1_m": [
+       -4.5754,
+       -4.6197
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 575419,
+      "type_id": 563463,
+      "type_name": "Lamelle 11.5",
+      "p0_m": [
+       9.3711,
+       -4.5597
+      ],
+      "p1_m": [
+       50.2822,
+       -4.5597
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 575883,
+      "type_id": 563463,
+      "type_name": "Lamelle 11.5",
+      "p0_m": [
+       -4.5753,
+       18.8553
+      ],
+      "p1_m": [
+       -4.5753,
+       -4.6462
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 576022,
+      "type_id": 563463,
+      "type_name": "Lamelle 11.5",
+      "p0_m": [
+       9.4711,
+       -4.5597
+      ],
+      "p1_m": [
+       50.2822,
+       -4.5597
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 576036,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       7.6586,
+       -6.8447
+      ],
+      "p1_m": [
+       9.3711,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 576038,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       7.6711,
+       -6.8447
+      ],
+      "p1_m": [
+       9.3711,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 576040,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       7.6711,
+       -6.8447
+      ],
+      "p1_m": [
+       9.3711,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 576044,
+      "type_id": 563463,
+      "type_name": "Lamelle 11.5",
+      "p0_m": [
+       -4.5753,
+       32.5428
+      ],
+      "p1_m": [
+       -4.5753,
+       -4.6462
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 576054,
+      "type_id": 563463,
+      "type_name": "Lamelle 11.5",
+      "p0_m": [
+       -0.8035,
+       32.5128
+      ],
+      "p1_m": [
+       21.1056,
+       32.5128
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 578639,
+      "type_id": 563468,
+      "type_name": "WC Trennwand 5.0",
+      "p0_m": [
+       7.1915,
+       34.2053
+      ],
+      "p1_m": [
+       7.1915,
+       36.0553
+      ],
+      "thickness_m": 0.05,
+      "height_m": 3.1,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 578640,
+      "type_id": 563468,
+      "type_name": "WC Trennwand 5.0",
+      "p0_m": [
+       4.0265,
+       34.2053
+      ],
+      "p1_m": [
+       4.0265,
+       36.0553
+      ],
+      "thickness_m": 0.05,
+      "height_m": 3.1,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 578649,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       6.3056,
+       34.2053
+      ],
+      "p1_m": [
+       9.109,
+       34.2053
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 580917,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       19.539,
+       36.7203
+      ],
+      "p1_m": [
+       21.1056,
+       36.7203
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573298,
+      "type_id": 563456,
+      "type_name": "STB 30.0 Rot",
+      "p0_m": [
+       -12.7529,
+       32.0053
+      ],
+      "p1_m": [
+       -4.5179,
+       32.0053
+      ],
+      "thickness_m": 0.3,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573299,
+      "type_id": 563404,
+      "type_name": "STB 30.0",
+      "p0_m": [
+       5.109,
+       40.7203
+      ],
+      "p1_m": [
+       5.109,
+       31.9428
+      ],
+      "thickness_m": 0.3,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573316,
+      "type_id": 563456,
+      "type_name": "STB 30.0 Rot",
+      "p0_m": [
+       -12.7529,
+       16.7053
+      ],
+      "p1_m": [
+       -4.5179,
+       16.7053
+      ],
+      "thickness_m": 0.3,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573317,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       -4.4179,
+       -4.4447
+      ],
+      "p1_m": [
+       -4.4179,
+       -12.7488
+      ],
+      "thickness_m": 0.2,
+      "height_m": 10.5058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573318,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       -1.5179,
+       -4.5897
+      ],
+      "p1_m": [
+       -1.5179,
+       -12.7488
+      ],
+      "thickness_m": 0.2,
+      "height_m": 10.5058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573319,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       4.3711,
+       -4.5897
+      ],
+      "p1_m": [
+       4.3711,
+       -12.7488
+      ],
+      "thickness_m": 0.2,
+      "height_m": 10.5058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573320,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       9.3711,
+       -4.5597
+      ],
+      "p1_m": [
+       9.3711,
+       -12.7488
+      ],
+      "thickness_m": 0.2,
+      "height_m": 10.5058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573321,
+      "type_id": 563404,
+      "type_name": "STB 30.0",
+      "p0_m": [
+       50.1322,
+       -12.6947
+      ],
+      "p1_m": [
+       52.9321,
+       -12.6947
+      ],
+      "thickness_m": 0.3,
+      "height_m": 3.7058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573322,
+      "type_id": 563404,
+      "type_name": "STB 30.0",
+      "p0_m": [
+       52.9321,
+       -4.5022
+      ],
+      "p1_m": [
+       52.9321,
+       -12.6947
+      ],
+      "thickness_m": 0.3,
+      "height_m": 3.7058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573323,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       3.3711,
+       9.5538
+      ],
+      "p1_m": [
+       7.2711,
+       9.5538
+      ],
+      "thickness_m": 0.2,
+      "height_m": 7.2058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573324,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       3.3711,
+       3.7538
+      ],
+      "p1_m": [
+       7.2711,
+       3.7538
+      ],
+      "thickness_m": 0.2,
+      "height_m": 7.2058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573325,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       21.1056,
+       40.7053
+      ],
+      "p1_m": [
+       21.1056,
+       31.9428
+      ],
+      "thickness_m": 0.2,
+      "height_m": 3.7058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573326,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       24.0056,
+       40.7053
+      ],
+      "p1_m": [
+       24.0056,
+       31.8553
+      ],
+      "thickness_m": 0.2,
+      "height_m": 3.7058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573378,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       21.1056,
+       40.8553
+      ],
+      "p1_m": [
+       21.1056,
+       32.5128
+      ],
+      "thickness_m": 0.2,
+      "height_m": 6.8,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573379,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       24.0056,
+       40.8553
+      ],
+      "p1_m": [
+       24.0056,
+       31.8553
+      ],
+      "thickness_m": 0.2,
+      "height_m": 6.8,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573382,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       -0.891,
+       38.5399
+      ],
+      "p1_m": [
+       -0.891,
+       32.5553
+      ],
+      "thickness_m": 0.2,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573383,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       28.8553
+      ],
+      "p1_m": [
+       -4.4603,
+       28.8553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573384,
+      "type_id": 563404,
+      "type_name": "STB 30.0",
+      "p0_m": [
+       -12.7678,
+       32.0053
+      ],
+      "p1_m": [
+       -12.7678,
+       40.8703
+      ],
+      "thickness_m": 0.3,
+      "height_m": 4.292,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573385,
+      "type_id": 563404,
+      "type_name": "STB 30.0",
+      "p0_m": [
+       -12.7678,
+       40.8703
+      ],
+      "p1_m": [
+       -4.041,
+       40.8703
+      ],
+      "thickness_m": 0.3,
+      "height_m": 4.322,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573386,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       -4.748,
+       38.5399
+      ],
+      "p1_m": [
+       -4.748,
+       32.4553
+      ],
+      "thickness_m": 0.2,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573387,
+      "type_id": 563404,
+      "type_name": "STB 30.0",
+      "p0_m": [
+       52.9321,
+       -4.5022
+      ],
+      "p1_m": [
+       52.9321,
+       -12.8447
+      ],
+      "thickness_m": 0.3,
+      "height_m": 7.1,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573582,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       6.0586,
+       -4.5897
+      ],
+      "p1_m": [
+       6.0586,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573585,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       7.5836,
+       -4.5897
+      ],
+      "p1_m": [
+       7.5836,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573589,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6179,
+       2.8553
+      ],
+      "p1_m": [
+       -4.5754,
+       2.8553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573590,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6179,
+       6.8553
+      ],
+      "p1_m": [
+       -4.5754,
+       6.8553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573591,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       6.9711,
+       -6.8447
+      ],
+      "p1_m": [
+       6.9711,
+       -12.7488
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573592,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       3.2711,
+       27.9357
+      ],
+      "p1_m": [
+       4.7711,
+       27.9357
+      ],
+      "thickness_m": 0.2,
+      "height_m": 10.5058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573593,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       3.2711,
+       20.11
+      ],
+      "p1_m": [
+       4.7711,
+       20.11
+      ],
+      "thickness_m": 0.2,
+      "height_m": 10.5058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573594,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       45.4711,
+       -12.5538
+      ],
+      "p1_m": [
+       45.4711,
+       -4.5597
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573605,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       11.6688,
+       38.3053
+      ],
+      "p1_m": [
+       11.6688,
+       31.9428
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573608,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       18.0038,
+       38.3053
+      ],
+      "p1_m": [
+       18.0038,
+       31.9428
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573662,
+      "type_id": 563404,
+      "type_name": "STB 30.0",
+      "p0_m": [
+       24.0056,
+       40.7053
+      ],
+      "p1_m": [
+       21.1056,
+       40.7053
+      ],
+      "thickness_m": 0.3,
+      "height_m": 3.7058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573663,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       -4.4179,
+       -12.7488
+      ],
+      "p1_m": [
+       9.3711,
+       -12.7488
+      ],
+      "thickness_m": 0.2,
+      "height_m": 10.5058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573697,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       6.0586,
+       -4.5897
+      ],
+      "p1_m": [
+       6.0586,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573700,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       7.5836,
+       -4.5897
+      ],
+      "p1_m": [
+       7.5836,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573703,
+      "type_id": 563414,
+      "type_name": "STB 20.0",
+      "p0_m": [
+       6.9711,
+       -6.8447
+      ],
+      "p1_m": [
+       6.9711,
+       -12.7488
+      ],
+      "thickness_m": 0.2,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573707,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       6.0586,
+       -4.5897
+      ],
+      "p1_m": [
+       6.0586,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573710,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       7.5836,
+       -4.5897
+      ],
+      "p1_m": [
+       7.5836,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573713,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       6.9711,
+       -6.8447
+      ],
+      "p1_m": [
+       6.9711,
+       -12.7488
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573714,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       -0.891,
+       40.7203
+      ],
+      "p1_m": [
+       -0.891,
+       32.5428
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573716,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       -4.5453,
+       36.0253
+      ],
+      "p1_m": [
+       -4.5453,
+       32.5428
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573718,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -3.2178,
+       36.0253
+      ],
+      "p1_m": [
+       -3.2178,
+       32.5428
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573727,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       19.4711,
+       -4.5597
+      ],
+      "p1_m": [
+       19.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573728,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       27.4711,
+       -4.5597
+      ],
+      "p1_m": [
+       27.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573729,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       37.4711,
+       -4.5597
+      ],
+      "p1_m": [
+       37.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573730,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       45.4711,
+       -12.5538
+      ],
+      "p1_m": [
+       45.4711,
+       -4.5597
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573731,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       17.4711,
+       -4.5597
+      ],
+      "p1_m": [
+       17.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573732,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       23.4711,
+       -4.5597
+      ],
+      "p1_m": [
+       23.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573733,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       35.4711,
+       -4.5597
+      ],
+      "p1_m": [
+       35.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573734,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       41.4711,
+       -4.5597
+      ],
+      "p1_m": [
+       41.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573735,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       27.4711,
+       -4.4447
+      ],
+      "p1_m": [
+       27.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573736,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       31.4711,
+       -4.5597
+      ],
+      "p1_m": [
+       31.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573737,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       -1.1447
+      ],
+      "p1_m": [
+       -4.5753,
+       -1.1447
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573738,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       6.8378
+      ],
+      "p1_m": [
+       -4.5753,
+       6.8378
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573739,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       18.8553
+      ],
+      "p1_m": [
+       -4.5753,
+       18.8553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573740,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       24.8553
+      ],
+      "p1_m": [
+       -6.5178,
+       24.8553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573741,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       2.109,
+       36.0553
+      ],
+      "p1_m": [
+       9.109,
+       36.0553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573742,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       5.609,
+       34.2053
+      ],
+      "p1_m": [
+       5.609,
+       36.0553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573743,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       4.6056,
+       34.2053
+      ],
+      "p1_m": [
+       4.6056,
+       32.5553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573744,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       6.3056,
+       34.2053
+      ],
+      "p1_m": [
+       6.3056,
+       32.5553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573751,
+      "type_id": 563468,
+      "type_name": "WC Trennwand 5.0",
+      "p0_m": [
+       4.0265,
+       35.1303
+      ],
+      "p1_m": [
+       7.1915,
+       35.1303
+      ],
+      "thickness_m": 0.05,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573753,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       14.109,
+       40.7203
+      ],
+      "p1_m": [
+       14.109,
+       32.5553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573754,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       15.6822,
+       34.8553
+      ],
+      "p1_m": [
+       15.6822,
+       32.5553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573756,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       19.5822,
+       34.8553
+      ],
+      "p1_m": [
+       19.5822,
+       32.5553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573763,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       17.4711,
+       -4.4447
+      ],
+      "p1_m": [
+       17.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573764,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       25.4711,
+       -4.4447
+      ],
+      "p1_m": [
+       25.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573765,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       33.4711,
+       -4.4447
+      ],
+      "p1_m": [
+       33.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573766,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       41.4711,
+       -4.4447
+      ],
+      "p1_m": [
+       41.4711,
+       -12.5538
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573767,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       -3.1447
+      ],
+      "p1_m": [
+       -4.5753,
+       -3.1447
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573768,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       6.8378
+      ],
+      "p1_m": [
+       -4.5753,
+       6.8378
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573769,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       12.8553
+      ],
+      "p1_m": [
+       -4.5753,
+       12.8553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573770,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       20.8553
+      ],
+      "p1_m": [
+       -4.5753,
+       20.8553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573771,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -12.6029,
+       28.8553
+      ],
+      "p1_m": [
+       -4.5753,
+       28.8553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573780,
+      "type_id": 563468,
+      "type_name": "WC Trennwand 5.0",
+      "p0_m": [
+       9.109,
+       36.4478
+      ],
+      "p1_m": [
+       10.4971,
+       36.4478
+      ],
+      "thickness_m": 0.05,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573782,
+      "type_id": 563468,
+      "type_name": "WC Trennwand 5.0",
+      "p0_m": [
+       10.4971,
+       37.3765
+      ],
+      "p1_m": [
+       9.109,
+       37.3765
+      ],
+      "thickness_m": 0.05,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 573786,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       5.109,
+       36.0553
+      ],
+      "p1_m": [
+       5.109,
+       40.7203
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 573787,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       7.109,
+       40.7203
+      ],
+      "p1_m": [
+       7.109,
+       32.5128
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 573788,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       13.109,
+       40.7203
+      ],
+      "p1_m": [
+       13.109,
+       32.5128
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 575020,
+      "type_id": 563404,
+      "type_name": "STB 30.0",
+      "p0_m": [
+       50.2822,
+       -12.8447
+      ],
+      "p1_m": [
+       50.2822,
+       -4.5597
+      ],
+      "thickness_m": 0.3,
+      "height_m": 10.5058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 575873,
+      "type_id": 563418,
+      "type_name": "STB 25.0 WD 12.0",
+      "p0_m": [
+       4.0411,
+       9.6538
+      ],
+      "p1_m": [
+       4.0411,
+       3.6538
+      ],
+      "thickness_m": 0.37,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 575889,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -4.4603,
+       28.8553
+      ],
+      "p1_m": [
+       -4.4603,
+       30.3553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 576035,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       6.0586,
+       -6.8447
+      ],
+      "p1_m": [
+       7.5836,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 576037,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       6.0586,
+       -6.8447
+      ],
+      "p1_m": [
+       7.5836,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 576039,
+      "type_id": 563417,
+      "type_name": "MW 17.5",
+      "p0_m": [
+       6.0586,
+       -6.8447
+      ],
+      "p1_m": [
+       7.5836,
+       -6.8447
+      ],
+      "thickness_m": 0.175,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 577952,
+      "type_id": 563468,
+      "type_name": "WC Trennwand 5.0",
+      "p0_m": [
+       9.109,
+       35.519
+      ],
+      "p1_m": [
+       10.4971,
+       35.519
+      ],
+      "thickness_m": 0.05,
+      "height_m": 3.4058,
+      "base_m": 0.0942,
+      "level_id": 378117,
+      "notes": []
+     },
+     {
+      "elem_id": 578648,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       4.6665,
+       34.2053
+      ],
+      "p1_m": [
+       6.3056,
+       34.2053
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 580916,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       19.539,
+       40.7203
+      ],
+      "p1_m": [
+       19.539,
+       36.7203
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 580926,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       19.539,
+       39.0553
+      ],
+      "p1_m": [
+       21.1056,
+       39.0553
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.3,
+      "base_m": 7.3,
+      "level_id": 378119,
+      "notes": []
+     },
+     {
+      "elem_id": 580928,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       19.639,
+       40.7203
+      ],
+      "p1_m": [
+       19.639,
+       38.7203
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 580929,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       19.639,
+       38.7203
+      ],
+      "p1_m": [
+       21.1056,
+       38.7203
+      ],
+      "thickness_m": 0.115,
+      "height_m": 3.2,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     },
+     {
+      "elem_id": 625406,
+      "type_id": 563416,
+      "type_name": "MW 11.5",
+      "p0_m": [
+       -4.5753,
+       2.8578
+      ],
+      "p1_m": [
+       -12.7679,
+       2.8578
+      ],
+      "thickness_m": 0.115,
+      "height_m": 8.0,
+      "base_m": 3.8,
+      "level_id": 378118,
+      "notes": []
+     }
+    ]
+   },
+   "equipment": {
+    "status": "works",
+    "count": 29,
+    "skipped": []
+   },
+   "feeders": {
+    "status": "works",
+    "circuits_total": 187,
+    "edges_between_equipment": 28,
+    "circuits_to_other_loads": 122,
+    "circuits_unresolved": 37
+   }
+  },
+  "not_extracted": [
+   "non-electrical-equipment categories (lighting fixtures, mechanical, doors, ...) are inventoried by rvt.inventory but not exported in v1",
+   "curved walls / curtain walls (only straight GLine-driven SWalls export)"
+  ]
+ },
+ "levels": [
+  {
+   "id": "L2",
+   "name": "Level 2",
+   "elevation": 3.8,
+   "elem_id": 378118,
+   "is_building_story": true
+  },
+  {
+   "id": "L1",
+   "name": "Level 1",
+   "elevation": 0.094172,
+   "elem_id": 378117,
+   "is_building_story": true
+  },
+  {
+   "id": "L3",
+   "name": "Level 3",
+   "elevation": 7.3,
+   "elem_id": 378119,
+   "is_building_story": true
+  },
+  {
+   "id": "L4",
+   "name": "Roof Level",
+   "elevation": 10.9,
+   "elem_id": 378120,
+   "is_building_story": true
+  }
+ ],
+ "equipment": [
+  {
+   "elem_id": 471580,
+   "tag": "EP-2",
+   "name": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    19.6397,
+    33.081,
+    5.4191
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.3462
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 243,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.3462,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.8796,
+    "30 Circuit Height": 1.651,
+    "24 Circuit Height": 1.3462,
+    "12 Circuit Height": 1.3462,
+    "PanelName": "EP-2"
+   },
+   "fed_from": "PP-2B",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 471596,
+   "tag": "PP-2B",
+   "name": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    19.6397,
+    33.7128,
+    5.4191
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.3462
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 243,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.3462,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.8796,
+    "30 Circuit Height": 1.651,
+    "24 Circuit Height": 1.3462,
+    "12 Circuit Height": 1.3462,
+    "PanelName": "PP-2B"
+   },
+   "fed_from": "PP-2A",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 471705,
+   "tag": "LP-2",
+   "name": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    19.6397,
+    34.3445,
+    4.6261
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.27
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 247,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.27,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.4224,
+    "30 Circuit Height": 1.27,
+    "18 Circuit Height": 1.27,
+    "12 Circuit Height": 1.27,
+    "PanelName": "LP-2"
+   },
+   "fed_from": "MDP-2",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 503195,
+   "tag": "PP-3B",
+   "name": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    21.0056,
+    37.2072,
+    8.9191
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.3462
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 243,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.3462,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.8796,
+    "30 Circuit Height": 1.651,
+    "24 Circuit Height": 1.3462,
+    "12 Circuit Height": 1.3462,
+    "PanelName": "PP-3B"
+   },
+   "fed_from": "PP-3A",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 503251,
+   "tag": "EP-3",
+   "name": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    21.0056,
+    37.9072,
+    8.9191
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.3462
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 243,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.3462,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.8796,
+    "30 Circuit Height": 1.651,
+    "24 Circuit Height": 1.3462,
+    "12 Circuit Height": 1.3462,
+    "PanelName": "EP-3"
+   },
+   "fed_from": "PP-3B",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 503257,
+   "tag": "LP-3",
+   "name": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    21.0056,
+    38.6072,
+    8.1261
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.27
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 247,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.27,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.4224,
+    "30 Circuit Height": 1.27,
+    "18 Circuit Height": 1.27,
+    "12 Circuit Height": 1.27,
+    "PanelName": "LP-3"
+   },
+   "fed_from": "MDP-3",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 532001,
+   "tag": "CTP",
+   "name": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    16.7661,
+    36.3602,
+    12.5739
+   ],
+   "front_normal": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.27
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 247,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.27,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.4224,
+    "30 Circuit Height": 1.27,
+    "18 Circuit Height": 1.27,
+    "12 Circuit Height": 1.27,
+    "PanelName": "CTP"
+   },
+   "fed_from": "SWB",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 532120,
+   "tag": "AHP",
+   "name": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    40.4476,
+    -4.5122,
+    12.6191
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.3462
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 243,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.3462,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.8796,
+    "30 Circuit Height": 1.651,
+    "24 Circuit Height": 1.3462,
+    "12 Circuit Height": 1.3462,
+    "PanelName": "AHP"
+   },
+   "fed_from": "PP-3A",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 581482,
+   "tag": "LP-1",
+   "name": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    18.0613,
+    34.1699,
+    1.5739
+   ],
+   "front_normal": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.27
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+   "symbol": "125 A",
+   "family_unit": 247,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.27,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.4224,
+    "30 Circuit Height": 1.27,
+    "18 Circuit Height": 1.27,
+    "12 Circuit Height": 1.27,
+    "PanelName": "LP-1"
+   },
+   "fed_from": "MDP-1",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 581483,
+   "tag": "PP-1B",
+   "name": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    18.0613,
+    33.5897,
+    0.7809
+   ],
+   "front_normal": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.3462
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 243,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.3462,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.8796,
+    "30 Circuit Height": 1.651,
+    "24 Circuit Height": 1.3462,
+    "12 Circuit Height": 1.3462,
+    "PanelName": "PP-1B"
+   },
+   "fed_from": "PP-2A",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 581484,
+   "tag": "EP-1A",
+   "name": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    18.0613,
+    33.0095,
+    0.7809
+   ],
+   "front_normal": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.3462
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 243,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.3462,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.8796,
+    "30 Circuit Height": 1.651,
+    "24 Circuit Height": 1.3462,
+    "12 Circuit Height": 1.3462,
+    "PanelName": "EP-1A"
+   },
+   "fed_from": "PP-1B",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 581485,
+   "tag": "EP-1B",
+   "name": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    18.0613,
+    32.4095,
+    0.7809
+   ],
+   "front_normal": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.3462
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "symbol": "400 A",
+   "family_unit": 243,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.3462,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.8796,
+    "30 Circuit Height": 1.651,
+    "24 Circuit Height": 1.3462,
+    "12 Circuit Height": 1.3462,
+    "PanelName": "EP-1B"
+   },
+   "fed_from": "PP-1B",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 622023,
+   "tag": "LP-1B",
+   "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -9.087,
+    6.7978,
+    1.5942
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "symbol": "100 A",
+   "family_unit": 108,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.1176,
+    "30 Circuit Height": 0.9652,
+    "18 Circuit Height": 0.8128,
+    "12 Circuit Height": 0.8128,
+    "PanelName": "LP-1B"
+   },
+   "fed_from": "MDP-1",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 622026,
+   "tag": "MP-1B",
+   "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -7.9545,
+    6.7978,
+    1.5942
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "symbol": "100 A",
+   "family_unit": 108,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.1176,
+    "30 Circuit Height": 0.9652,
+    "18 Circuit Height": 0.8128,
+    "12 Circuit Height": 0.8128,
+    "PanelName": "MP-1B"
+   },
+   "fed_from": "MDP-1",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 622027,
+   "tag": "PP-1A",
+   "name": "M_Lighting and Appliance Panelboard - 208V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -4.6329,
+    5.373,
+    1.684
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MCB - Surface",
+   "symbol": "100 A",
+   "family_unit": 30,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.4224,
+    "30 Circuit Height": 1.1176,
+    "24 Circuit Height": 1.1176,
+    "12 Circuit Height": 1.1176,
+    "PanelName": "PP-1A"
+   },
+   "fed_from": "TP-1A",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 622028,
+   "tag": "TP-1A",
+   "name": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 3R",
+   "kind": "transformer",
+   "ifc_class": "IfcTransformer",
+   "insertion_m": [
+    -4.6329,
+    6.1178,
+    1.4142
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "yaw",
+   "dims_m": {},
+   "family": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 3R",
+   "symbol": "15 kVA",
+   "family_unit": 149,
+   "contract": {
+    "Transformer Width": 0.229,
+    "Transformer Material": 0.0,
+    "Transformer Length": 0.375,
+    "Transformer Height": 0.343,
+    "Primary Voltage": 480.0,
+    "Primary Number of Poles": 0.0,
+    "Half Width": 0.1145,
+    "Half Length": 0.1875,
+    "PanelName": "TP-1A"
+   },
+   "fed_from": "MDP-1",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": [
+    "instance transform is upright-shaped but kind 'transformer' emits with the resolver's yaw convention (position = the family origin either way)",
+    "no Width/Depth/Height family params: emitter box defaults (0.6 x 0.3 x 1.2 m) apply"
+   ]
+  },
+  {
+   "elem_id": 624416,
+   "tag": "T-SVC",
+   "name": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 2",
+   "kind": "transformer",
+   "ifc_class": "IfcTransformer",
+   "insertion_m": [
+    -15.0679,
+    5.7131,
+    0.0942
+   ],
+   "front_normal": [
+    -0.0,
+    -1.0,
+    0.0
+   ],
+   "frame_kind": "yaw",
+   "dims_m": {},
+   "family": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 2",
+   "symbol": "500 kVA",
+   "family_unit": 131,
+   "contract": {
+    "Transformer Material": 0.0,
+    "Transformer Length": 0.508,
+    "Primary Voltage": 480.0,
+    "Primary Number of Poles": 0.0,
+    "Transformer Height": 0.686,
+    "Transformer Width": 0.406,
+    "PanelName": "T-SVC"
+   },
+   "fed_from": null,
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": [
+    "no Width/Depth/Height family params: emitter box defaults (0.6 x 0.3 x 1.2 m) apply"
+   ]
+  },
+  {
+   "elem_id": 625731,
+   "tag": "LP-2B",
+   "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -10.2344,
+    6.7803,
+    5.3
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "symbol": "100 A",
+   "family_unit": 108,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.1176,
+    "30 Circuit Height": 0.9652,
+    "18 Circuit Height": 0.8128,
+    "12 Circuit Height": 0.8128,
+    "PanelName": "LP-2B"
+   },
+   "fed_from": "MDP-2",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 625733,
+   "tag": "MP-2B",
+   "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -8.9344,
+    6.7803,
+    5.3
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "symbol": "100 A",
+   "family_unit": 108,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.1176,
+    "30 Circuit Height": 0.9652,
+    "18 Circuit Height": 0.8128,
+    "12 Circuit Height": 0.8128,
+    "PanelName": "MP-2B"
+   },
+   "fed_from": "MDP-2",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 625734,
+   "tag": "PP-2A",
+   "name": "M_Lighting and Appliance Panelboard - 208V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -6.7281,
+    6.7803,
+    5.3898
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MCB - Surface",
+   "symbol": "100 A",
+   "family_unit": 30,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.4224,
+    "30 Circuit Height": 1.1176,
+    "24 Circuit Height": 1.1176,
+    "12 Circuit Height": 1.1176,
+    "PanelName": "PP-2A"
+   },
+   "fed_from": "TP-2A",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 625735,
+   "tag": "TP-2A",
+   "name": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 3R",
+   "kind": "transformer",
+   "ifc_class": "IfcTransformer",
+   "insertion_m": [
+    -7.7328,
+    6.7803,
+    5.12
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "yaw",
+   "dims_m": {},
+   "family": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 3R",
+   "symbol": "15 kVA",
+   "family_unit": 149,
+   "contract": {
+    "Transformer Width": 0.229,
+    "Transformer Material": 0.0,
+    "Transformer Length": 0.375,
+    "Transformer Height": 0.343,
+    "Primary Voltage": 480.0,
+    "Primary Number of Poles": 0.0,
+    "Half Width": 0.1145,
+    "Half Length": 0.1875,
+    "PanelName": "TP-2A"
+   },
+   "fed_from": "MDP-2",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": [
+    "instance transform is upright-shaped but kind 'transformer' emits with the resolver's yaw convention (position = the family origin either way)",
+    "no Width/Depth/Height family params: emitter box defaults (0.6 x 0.3 x 1.2 m) apply"
+   ]
+  },
+  {
+   "elem_id": 626004,
+   "tag": "LP-3B",
+   "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -10.1344,
+    6.7803,
+    8.8
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "symbol": "100 A",
+   "family_unit": 108,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.1176,
+    "30 Circuit Height": 0.9652,
+    "18 Circuit Height": 0.8128,
+    "12 Circuit Height": 0.8128,
+    "PanelName": "LP-3B"
+   },
+   "fed_from": "MDP-3",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 626006,
+   "tag": "MP-3B",
+   "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -8.9344,
+    6.7803,
+    8.8
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "symbol": "100 A",
+   "family_unit": 108,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.1176,
+    "30 Circuit Height": 0.9652,
+    "18 Circuit Height": 0.8128,
+    "12 Circuit Height": 0.8128,
+    "PanelName": "MP-3B"
+   },
+   "fed_from": "MDP-3",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 626007,
+   "tag": "PP-3A",
+   "name": "M_Lighting and Appliance Panelboard - 208V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -6.6281,
+    6.7803,
+    8.8898
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 208V MCB - Surface",
+   "symbol": "100 A",
+   "family_unit": 30,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.4224,
+    "30 Circuit Height": 1.1176,
+    "24 Circuit Height": 1.1176,
+    "12 Circuit Height": 1.1176,
+    "PanelName": "PP-3A"
+   },
+   "fed_from": "TP-3A",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 626008,
+   "tag": "TP-3A",
+   "name": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 3R",
+   "kind": "transformer",
+   "ifc_class": "IfcTransformer",
+   "insertion_m": [
+    -7.6328,
+    6.7803,
+    8.62
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "yaw",
+   "dims_m": {},
+   "family": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 3R",
+   "symbol": "15 kVA",
+   "family_unit": 149,
+   "contract": {
+    "Transformer Width": 0.229,
+    "Transformer Material": 0.0,
+    "Transformer Length": 0.375,
+    "Transformer Height": 0.343,
+    "Primary Voltage": 480.0,
+    "Primary Number of Poles": 0.0,
+    "Half Width": 0.1145,
+    "Half Length": 0.1875,
+    "PanelName": "TP-3A"
+   },
+   "fed_from": "MDP-3",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": [
+    "instance transform is upright-shaped but kind 'transformer' emits with the resolver's yaw convention (position = the family origin either way)",
+    "no Width/Depth/Height family params: emitter box defaults (0.6 x 0.3 x 1.2 m) apply"
+   ]
+  },
+  {
+   "elem_id": 630241,
+   "tag": "SWB",
+   "name": "M_Circuit Breaker Switchboard",
+   "kind": "switchboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -11.3329,
+    5.4978,
+    0.0942
+   ],
+   "front_normal": [
+    -0.0,
+    -1.0,
+    0.0
+   ],
+   "frame_kind": "yaw",
+   "dims_m": {},
+   "family": "M_Circuit Breaker Switchboard",
+   "symbol": "762mmx965mm",
+   "family_unit": 103,
+   "contract": {
+    "Switchboard Width": 0.66,
+    "Switchboard Voltage": 480.0,
+    "Switchboard Material": 0.0,
+    "Switchboard Length": 0.61,
+    "Switchboard Height": 2.286,
+    "Switch Visibility": 0.0,
+    "Switch Material": 0.0,
+    "Switch Count": 0.0,
+    "Number of Poles": 0.0,
+    "Length": 0.00655,
+    "PanelName": "SWB"
+   },
+   "fed_from": "T-SVC",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": [
+    "no Width/Depth/Height family params: emitter box defaults (0.6 x 0.3 x 1.2 m) apply"
+   ]
+  },
+  {
+   "elem_id": 742670,
+   "tag": "MDP-1",
+   "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -10.2345,
+    6.7978,
+    2.2942
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "symbol": "400 A",
+   "family_unit": 108,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.1176,
+    "30 Circuit Height": 0.9652,
+    "18 Circuit Height": 0.8128,
+    "12 Circuit Height": 0.8128,
+    "PanelName": "MDP-1"
+   },
+   "fed_from": "SWB",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 745912,
+   "tag": "MDP-2",
+   "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -11.4029,
+    6.7803,
+    5.7797
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "symbol": "400 A",
+   "family_unit": 108,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.1176,
+    "30 Circuit Height": 0.9652,
+    "18 Circuit Height": 0.8128,
+    "12 Circuit Height": 0.8128,
+    "PanelName": "MDP-2"
+   },
+   "fed_from": "SWB",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  },
+  {
+   "elem_id": 746575,
+   "tag": "MDP-3",
+   "name": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "kind": "receptacle_panelboard",
+   "ifc_class": "IfcElectricDistributionBoard",
+   "insertion_m": [
+    -11.3595,
+    6.7803,
+    9.1496
+   ],
+   "front_normal": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "frame_kind": "upright",
+   "dims_m": {
+    "w": 0.508,
+    "d": 0.1461,
+    "h": 1.1176
+   },
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "symbol": "400 A",
+   "family_unit": 108,
+   "contract": {
+    "Width": 0.508,
+    "Height": 1.1176,
+    "Depth": 0.1461,
+    "42 Circuit Height": 1.1176,
+    "30 Circuit Height": 0.9652,
+    "18 Circuit Height": 0.8128,
+    "12 Circuit Height": 0.8128,
+    "PanelName": "MDP-3"
+   },
+   "fed_from": "SWB",
+   "contract_source": [
+    "self-Family current defaults (m_familyParams)",
+    "instance RBS_ELEC_PANEL_NAME"
+   ],
+   "notes": []
+  }
+ ],
+ "feeder_edges": [
+  {
+   "from": "TP-1A",
+   "to": "PP-1A",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-1",
+   "to": "TP-1A",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-1",
+   "to": "MP-1B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-1",
+   "to": "LP-1B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "TP-3A",
+   "to": "PP-3A",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-3",
+   "to": "TP-3A",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-3",
+   "to": "MP-3B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-3",
+   "to": "LP-3B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "TP-2A",
+   "to": "PP-2A",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-2",
+   "to": "TP-2A",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-2",
+   "to": "LP-2B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-2",
+   "to": "MP-2B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "T-SVC",
+   "to": "SWB",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "PP-2A",
+   "to": "PP-1B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "PP-2A",
+   "to": "PP-2B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "PP-3A",
+   "to": "PP-3B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "SWB",
+   "to": "CTP",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-1",
+   "to": "LP-1",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-3",
+   "to": "LP-3",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "MDP-2",
+   "to": "LP-2",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "PP-1B",
+   "to": "EP-1B",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "PP-1B",
+   "to": "EP-1A",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "PP-2B",
+   "to": "EP-2",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "PP-3B",
+   "to": "EP-3",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "PP-3A",
+   "to": "AHP",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "SWB",
+   "to": "MDP-1",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "SWB",
+   "to": "MDP-2",
+   "rating_a": 20.0,
+   "poles": 3
+  },
+  {
+   "from": "SWB",
+   "to": "MDP-3",
+   "rating_a": 20.0,
+   "poles": 3
+  }
+ ],
+ "roundtrip": {
+  "ran": true,
+  "equipment": [
+   {
+    "tag": "EP-2",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "PP-2B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "LP-2",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "PP-3B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "EP-3",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "LP-3",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "CTP",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "AHP",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "LP-1",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "PP-1B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "EP-1A",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "EP-1B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "LP-1B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "MP-1B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "PP-1A",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "TP-1A",
+    "kind_in": "transformer",
+    "kind_out": "transformer",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "T-SVC",
+    "kind_in": "transformer",
+    "kind_out": "transformer",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "LP-2B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "MP-2B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "PP-2A",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "TP-2A",
+    "kind_in": "transformer",
+    "kind_out": "transformer",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "LP-3B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "MP-3B",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "PP-3A",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "TP-3A",
+    "kind_in": "transformer",
+    "kind_out": "transformer",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "SWB",
+    "kind_in": "switchboard",
+    "kind_out": "switchboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "MDP-1",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "MDP-2",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   },
+   {
+    "tag": "MDP-3",
+    "kind_in": "receptacle_panelboard",
+    "kind_out": "receptacle_panelboard",
+    "kind_ok": true,
+    "dpos_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "pos_ok": true,
+    "front_ok": true,
+    "survived": true
+   }
+  ],
+  "equipment_survived": "29/29",
+  "walls_in": 133,
+  "walls_out": 80,
+  "walls_matched": "131/133",
+  "feeder_edges_in": [
+   [
+    "MDP-1",
+    "LP-1"
+   ],
+   [
+    "MDP-1",
+    "LP-1B"
+   ],
+   [
+    "MDP-1",
+    "MP-1B"
+   ],
+   [
+    "MDP-1",
+    "TP-1A"
+   ],
+   [
+    "MDP-2",
+    "LP-2"
+   ],
+   [
+    "MDP-2",
+    "LP-2B"
+   ],
+   [
+    "MDP-2",
+    "MP-2B"
+   ],
+   [
+    "MDP-2",
+    "TP-2A"
+   ],
+   [
+    "MDP-3",
+    "LP-3"
+   ],
+   [
+    "MDP-3",
+    "LP-3B"
+   ],
+   [
+    "MDP-3",
+    "MP-3B"
+   ],
+   [
+    "MDP-3",
+    "TP-3A"
+   ],
+   [
+    "PP-1B",
+    "EP-1A"
+   ],
+   [
+    "PP-1B",
+    "EP-1B"
+   ],
+   [
+    "PP-2A",
+    "PP-1B"
+   ],
+   [
+    "PP-2A",
+    "PP-2B"
+   ],
+   [
+    "PP-2B",
+    "EP-2"
+   ],
+   [
+    "PP-3A",
+    "AHP"
+   ],
+   [
+    "PP-3A",
+    "PP-3B"
+   ],
+   [
+    "PP-3B",
+    "EP-3"
+   ],
+   [
+    "SWB",
+    "CTP"
+   ],
+   [
+    "SWB",
+    "MDP-1"
+   ],
+   [
+    "SWB",
+    "MDP-2"
+   ],
+   [
+    "SWB",
+    "MDP-3"
+   ],
+   [
+    "T-SVC",
+    "SWB"
+   ],
+   [
+    "TP-1A",
+    "PP-1A"
+   ],
+   [
+    "TP-2A",
+    "PP-2A"
+   ],
+   [
+    "TP-3A",
+    "PP-3A"
+   ]
+  ],
+  "feeder_edges_out_matched": [
+   [
+    "MDP-1",
+    "LP-1"
+   ],
+   [
+    "MDP-1",
+    "LP-1B"
+   ],
+   [
+    "MDP-1",
+    "MP-1B"
+   ],
+   [
+    "MDP-1",
+    "TP-1A"
+   ],
+   [
+    "MDP-2",
+    "LP-2"
+   ],
+   [
+    "MDP-2",
+    "LP-2B"
+   ],
+   [
+    "MDP-2",
+    "MP-2B"
+   ],
+   [
+    "MDP-2",
+    "TP-2A"
+   ],
+   [
+    "MDP-3",
+    "LP-3"
+   ],
+   [
+    "MDP-3",
+    "LP-3B"
+   ],
+   [
+    "MDP-3",
+    "MP-3B"
+   ],
+   [
+    "MDP-3",
+    "TP-3A"
+   ],
+   [
+    "PP-1B",
+    "EP-1A"
+   ],
+   [
+    "PP-1B",
+    "EP-1B"
+   ],
+   [
+    "PP-2A",
+    "PP-1B"
+   ],
+   [
+    "PP-2A",
+    "PP-2B"
+   ],
+   [
+    "PP-2B",
+    "EP-2"
+   ],
+   [
+    "PP-3A",
+    "AHP"
+   ],
+   [
+    "PP-3A",
+    "PP-3B"
+   ],
+   [
+    "PP-3B",
+    "EP-3"
+   ],
+   [
+    "SWB",
+    "CTP"
+   ],
+   [
+    "SWB",
+    "MDP-1"
+   ],
+   [
+    "SWB",
+    "MDP-2"
+   ],
+   [
+    "SWB",
+    "MDP-3"
+   ],
+   [
+    "T-SVC",
+    "SWB"
+   ],
+   [
+    "TP-1A",
+    "PP-1A"
+   ],
+   [
+    "TP-2A",
+    "PP-2A"
+   ],
+   [
+    "TP-3A",
+    "PP-3A"
+   ]
+  ],
+  "feeder_edges_ok": true,
+  "all_survived": false
+ },
+ "seconds": 9.8,
+ "deliverables": {
+  "ifc": {
+   "path": "experiments/convert/rvt-to-ifc-foreign/rme_QUARANTINED.ifc",
+   "bytes": 118512,
+   "sha256": "ce4d251e992b0f8ec7b2bb78a1c7dd2d1d5dee2a429b4e63377259b4f7877642"
+  }
+ }
+}

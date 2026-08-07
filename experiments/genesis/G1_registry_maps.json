@@ -1,0 +1,1572 @@
+{
+ "CLASS_TO_DEF_GROUPS": {
+  "-1007279": [
+   0
+  ],
+  "AbsDuctType": [
+   97
+  ],
+  "AbsFlexDuctType": [
+   98
+  ],
+  "AnalyticalLinkType": [
+   136
+  ],
+  "AreaLoadType": [
+   82
+  ],
+  "AreaReinforcementType": [
+   87
+  ],
+  "BasicWallType": [
+   2
+  ],
+  "BuildingPadType": [
+   43
+  ],
+  "CalloutTag": [
+   61
+  ],
+  "ColorFillSchema": [
+   111
+  ],
+  "ColorFillSymbol": [
+   143
+  ],
+  "CompoundCeilingType": [
+   6
+  ],
+  "ConduitStandardType": [
+   124
+  ],
+  "ConstructionSetProject": [
+   110
+  ],
+  "ContFootingType": [
+   109
+  ],
+  "ContourLabelingAttributes": [
+   46
+  ],
+  "CorniceAttr": [
+   16
+  ],
+  "CoverType": [
+   93
+  ],
+  "CurtaSystemAttr": [
+   58
+  ],
+  "CustomElementType": [
+   156
+  ],
+  "DBViewType": [
+   62,
+   63,
+   64,
+   65,
+   66,
+   67,
+   68,
+   69,
+   70,
+   71,
+   72,
+   73,
+   74,
+   75,
+   76,
+   78,
+   79,
+   80,
+   81,
+   107,
+   150
+  ],
+  "DBViewTypeAreaPlan": [
+   77
+  ],
+  "DimensionStyle": [
+   10,
+   36,
+   37,
+   38,
+   39,
+   40,
+   52,
+   126,
+   148
+  ],
+  "DivisionRule": [
+   138
+  ],
+  "EdgeSlabAttr": [
+   50
+  ],
+  "ElementGroupType": [
+   32,
+   33
+  ],
+  "FasciaAttr": [
+   48
+  ],
+  "FilledRegionAttributes": [
+   35
+  ],
+  "FloorAttributes": [
+   4,
+   5
+  ],
+  "GStyleElem": [
+   41
+  ],
+  "GridAttributes": [
+   8
+  ],
+  "GutterAttr": [
+   49
+  ],
+  "InteriorElevAttributes": [
+   18,
+   44
+  ],
+  "JoistSystemAttr": [
+   54
+  ],
+  "LeaderStyle": [
+   29
+  ],
+  "Level": [
+   15
+  ],
+  "LevelAttributes": [
+   9
+  ],
+  "LineLoadType": [
+   83
+  ],
+  "MEPSystemZoneElementType": [
+   149
+  ],
+  "MaterialElem": [
+   42
+  ],
+  "MultiReferenceAnnotationType": [
+   140
+  ],
+  "MultistoryStairsType": [
+   147
+  ],
+  "PathReinforcementType": [
+   88
+  ],
+  "PointLoadType": [
+   84
+  ],
+  "PropertyAttr": [
+   51
+  ],
+  "RampAttributes": [
+   28
+  ],
+  "RbsCableTrayType": [
+   122
+  ],
+  "RbsCableType": [
+   157
+  ],
+  "RbsConduitType": [
+   123
+  ],
+  "RbsDistributionSysType": [
+   104
+  ],
+  "RbsDuctInsulationType": [
+   120
+  ],
+  "RbsDuctLiningType": [
+   121
+  ],
+  "RbsFlexPipeType": [
+   101
+  ],
+  "RbsFluidType": [
+   115
+  ],
+  "RbsPipeConnectionType": [
+   112
+  ],
+  "RbsPipeInsulationType": [
+   119
+  ],
+  "RbsPipeMaterialType": [
+   113
+  ],
+  "RbsPipeScheduleType": [
+   114
+  ],
+  "RbsPipeType": [
+   100
+  ],
+  "RbsVoltageType": [
+   103
+  ],
+  "RbsWireInsulationType": [
+   117
+  ],
+  "RbsWireMaterialType": [
+   116
+  ],
+  "RbsWireTemperatureRatingType": [
+   118
+  ],
+  "RbsWireType": [
+   102
+  ],
+  "RebarBarType": [
+   85
+  ],
+  "RebarBendingDetailType": [
+   154,
+   155
+  ],
+  "RebarHookType": [
+   86
+  ],
+  "ReferenceViewerAttributes": [
+   21
+  ],
+  "RepeatingDetailAttributes": [
+   53
+  ],
+  "RevealAttr": [
+   17
+  ],
+  "RevisionCloudAttr": [
+   56
+  ],
+  "RoofAttributes": [
+   3
+  ],
+  "RoofSoffitType": [
+   47
+  ],
+  "SectionAttributes": [
+   20,
+   23,
+   24,
+   25,
+   26,
+   27
+  ],
+  "SpotElevationStyle": [
+   11,
+   106,
+   108,
+   151
+  ],
+  "StackedWallType": [
+   57
+  ],
+  "StairsAttributes": [
+   7
+  ],
+  "StairsPathType": [
+   135
+  ],
+  "StairsRailingAttr": [
+   30
+  ],
+  "StairsType": [
+   127
+  ],
+  "SysPanelFamSym": [
+   31
+  ],
+  "TagNoteAttributes": [
+   13
+  ],
+  "Text3dAttrSymbol": [
+   14
+  ],
+  "TextNoteAttributes": [
+   12,
+   139
+  ],
+  "ToposolidType": [
+   153
+  ],
+  "ViewportAttributes": [
+   19
+  ]
+ },
+ "CLASS_TO_ETD_ELEM_CATEGORIES": {
+  "AreaLoad": [
+   -2005203
+  ],
+  "BasePoint": [
+   -2001272,
+   -2001271
+  ],
+  "BuildingOperatingYearSchedule": [
+   -2008121
+  ],
+  "ColorFillSchema": [
+   -2000552
+  ],
+  "ConduitRun": [
+   -2008149
+  ],
+  "ContFooting": [
+   -2001300
+  ],
+  "ContourLabelingElem": [
+   -2000350
+  ],
+  "ContourSpacingElem": [
+   -2001342
+  ],
+  "DPart": [
+   -2000269
+  ],
+  "ElectricalDemandFactorDefinition": [
+   -2008142
+  ],
+  "ElectricalLoadClassification": [
+   -2008143
+  ],
+  "FaceRoof": [
+   -2000035
+  ],
+  "FamilyInstance": [
+   -2009010,
+   -2008165,
+   -2008128,
+   -2008099,
+   -2008087,
+   -2008049,
+   -2008013,
+   -2008010,
+   -2005110,
+   -2001360,
+   -2001330,
+   -2001320,
+   -2001300,
+   -2001180,
+   -2001160,
+   -2001140,
+   -2001120,
+   -2001060,
+   -2001040,
+   -2000080,
+   -2000023,
+   -2000014
+  ],
+  "GeoLocation": [
+   -2000110
+  ],
+  "Grid": [
+   -2000220
+  ],
+  "HVACLoadBuildingTypeElem": [
+   -2008120
+  ],
+  "HVACLoadScheduleElem": [
+   -2008121
+  ],
+  "HVACLoadSpaceTypeElem": [
+   -2008119
+  ],
+  "IndependentTag": [
+   -2008057,
+   -2008047,
+   -2008003
+  ],
+  "Level": [
+   -2000240
+  ],
+  "LineLoad": [
+   -2005202
+  ],
+  "MassLevelData": [
+   -2003403
+  ],
+  "PanelScheduleTemplate": [
+   -2008147,
+   -2008146,
+   -2008145
+  ],
+  "ParamElemElectricalLoadClassification": [
+   -2008148
+  ],
+  "PathRein": [
+   -2009009
+  ],
+  "PathReinSpanSymbol": [
+   -2009010
+  ],
+  "Pattern": [
+   -2000091
+  ],
+  "ProfileRefPlane": [
+   -2000530
+  ],
+  "ProfileRoof": [
+   -2000035
+  ],
+  "ProjectRevision": [
+   -2006070
+  ],
+  "Property": [
+   -2001265
+  ],
+  "RbsConduitCurve": [
+   -2008132
+  ],
+  "RbsDuctCurve": [
+   -2008000
+  ],
+  "RbsElectricalSystem": [
+   -2008037
+  ],
+  "RbsFlexDuctCurve": [
+   -2008020
+  ],
+  "RbsHvacSystem": [
+   -2008015
+  ],
+  "RbsPipeCurve": [
+   -2008044
+  ],
+  "RbsPipingSystem": [
+   -2008043
+  ],
+  "RbsWireCurve": [
+   -2008039
+  ],
+  "Rebar": [
+   -2009000
+  ],
+  "RebarInSystem": [
+   -2009000
+  ],
+  "RebarSystem": [
+   -2009003
+  ],
+  "RefPlane": [
+   -2000530
+  ],
+  "Roof": [
+   -2000035
+  ],
+  "RoomElem": [
+   -2003600,
+   -2003200,
+   -2000160
+  ],
+  "RoomTag": [
+   -2005020,
+   -2000485,
+   -2000480
+  ],
+  "RvtLinkInstance": [
+   -2001352
+  ],
+  "SiteSurface": [
+   -2001340
+  ],
+  "SpanDirectionSymbol": [
+   -2005110
+  ],
+  "Stairs": [
+   -2000120
+  ],
+  "StairsElement": [
+   -2000120
+  ],
+  "TrussElement": [
+   -2001336
+  ],
+  "ZoneElement": [
+   -2008107
+  ]
+ },
+ "CLASS_TO_ETD_SYMBOL_CATEGORIES": {
+  "AreaLoadType": [
+   -2005200
+  ],
+  "AreaReinforcementType": [
+   -2009003
+  ],
+  "BasicWallType": [
+   -2000011
+  ],
+  "ColorFillSymbol": [
+   -2000550
+  ],
+  "CompoundCeilingType": [
+   -2000038
+  ],
+  "ConceptualConstructionType": [
+   -2003423,
+   -2003422,
+   -2003421,
+   -2003418,
+   -2003417,
+   -2003414
+  ],
+  "ConduitStandardType": [
+   -2008144
+  ],
+  "ConstructionSet": [
+   -2008102
+  ],
+  "ContFootingType": [
+   -2001300
+  ],
+  "CoverType": [
+   -2009014
+  ],
+  "CurtainRoofAttributes": [
+   -2000035
+  ],
+  "CutMarkType": [
+   -2000930
+  ],
+  "DivisionRule": [
+   -2008190
+  ],
+  "FabricAreaType": [
+   -2009017
+  ],
+  "FabricSheetType": [
+   -2009016
+  ],
+  "FabricWireType": [
+   -2009016
+  ],
+  "FamilySymbol": [
+   -2009010,
+   -2009005,
+   -2008165,
+   -2008013,
+   -2005110,
+   -2002000,
+   -2001360,
+   -2001330,
+   -2001320,
+   -2001300,
+   -2001180,
+   -2001140,
+   -2001120,
+   -2001040,
+   -2000080,
+   -2000023,
+   -2000014
+  ],
+  "FloorAttributes": [
+   -2001300
+  ],
+  "HandRailType": [
+   -2000947
+  ],
+  "ImageSymbol": [
+   -2000560
+  ],
+  "LineLoadType": [
+   -2005200
+  ],
+  "MEPAnalyticalConnectionElementType": [
+   -2000983
+  ],
+  "MEPSystemZoneElementType": [
+   -2001001
+  ],
+  "MEPSystemZoneType": [
+   -2001001
+  ],
+  "MechanicalEquipmentSetType": [
+   -2000985
+  ],
+  "NewCurtainWallType": [
+   -2000011
+  ],
+  "PathReinforcementType": [
+   -2009009
+  ],
+  "PointLoadType": [
+   -2005200
+  ],
+  "RbsCableTrayType": [
+   -2008130
+  ],
+  "RbsCableType": [
+   -2001119
+  ],
+  "RbsConduitType": [
+   -2008132
+  ],
+  "RbsDistributionSysType": [
+   -2008041
+  ],
+  "RbsDuctInsulationType": [
+   -2008123
+  ],
+  "RbsDuctLiningType": [
+   -2008124
+  ],
+  "RbsFluidType": [
+   -2008106
+  ],
+  "RbsHvacSystemType": [
+   -2008015
+  ],
+  "RbsPipeConnectionType": [
+   -2008103
+  ],
+  "RbsPipeInsulationType": [
+   -2008122
+  ],
+  "RbsPipeMaterialType": [
+   -2008104
+  ],
+  "RbsPipeScheduleType": [
+   -2008105
+  ],
+  "RbsPipingSystemType": [
+   -2008043
+  ],
+  "RbsWireInsulationType": [
+   -2008112
+  ],
+  "RbsWireMaterialType": [
+   -2008111
+  ],
+  "RbsWireTemperatureRatingType": [
+   -2008113
+  ],
+  "RbsWireType": [
+   -2008039
+  ],
+  "RebarBarType": [
+   -2009000
+  ],
+  "RebarHookType": [
+   -2009000
+  ],
+  "RebarShape": [
+   -2009000
+  ],
+  "RepeatingDetailAttributes": [
+   -2002000
+  ],
+  "RoofAttributes": [
+   -2000035
+  ],
+  "StairsAttributes": [
+   -2000120
+  ],
+  "StairsLandingType": [
+   -2000920
+  ],
+  "StairsPathType": [
+   -2000938
+  ],
+  "StairsRailingAttr": [
+   -2000126
+  ],
+  "StairsRunType": [
+   -2000919
+  ],
+  "StairsSupportType": [
+   -2000123
+  ],
+  "StairsType": [
+   -2000120
+  ],
+  "SysPanelFamSym": [
+   -2000170
+  ],
+  "Text3dAttrSymbol": [
+   -2000151
+  ],
+  "TopRailType": [
+   -2000946
+  ]
+ },
+ "CUSTOM_ELEMENT_DATATYPE_GUID_TO_CELL": {
+  "42a1c469-2e27-437c-8b3f-d00ee4071c45": "RbsWireConduitType",
+  "63e70361-3ec3-44b0-ab80-e3df7f9eb7b3": "RbsCableSize",
+  "77577208-31c5-42f8-9d6d-33ecec64593d": "RbsConductorSize",
+  "7e8fb965-ffe2-441d-80a8-f95cdd39b8ed": "RbsConductorInsulationMaterial",
+  "a2d847ff-e022-4c8d-88a3-b23d019d159c": "RbsConductorTemperatureRating",
+  "e5416683-6d54-4ef0-a538-03b9d8526931": "RbsConductorMaterial"
+ },
+ "DEF_GROUP_TO_CLASS": {
+  "0": "-1007279",
+  "10": "DimensionStyle",
+  "100": "RbsPipeType",
+  "101": "RbsFlexPipeType",
+  "102": "RbsWireType",
+  "103": "RbsVoltageType",
+  "104": "RbsDistributionSysType",
+  "106": "SpotElevationStyle",
+  "107": "DBViewType",
+  "108": "SpotElevationStyle",
+  "109": "ContFootingType",
+  "11": "SpotElevationStyle",
+  "110": "ConstructionSetProject",
+  "111": "ColorFillSchema",
+  "112": "RbsPipeConnectionType",
+  "113": "RbsPipeMaterialType",
+  "114": "RbsPipeScheduleType",
+  "115": "RbsFluidType",
+  "116": "RbsWireMaterialType",
+  "117": "RbsWireInsulationType",
+  "118": "RbsWireTemperatureRatingType",
+  "119": "RbsPipeInsulationType",
+  "12": "TextNoteAttributes",
+  "120": "RbsDuctInsulationType",
+  "121": "RbsDuctLiningType",
+  "122": "RbsCableTrayType",
+  "123": "RbsConduitType",
+  "124": "ConduitStandardType",
+  "126": "DimensionStyle",
+  "127": "StairsType",
+  "13": "TagNoteAttributes",
+  "135": "StairsPathType",
+  "136": "AnalyticalLinkType",
+  "138": "DivisionRule",
+  "139": "TextNoteAttributes",
+  "14": "Text3dAttrSymbol",
+  "140": "MultiReferenceAnnotationType",
+  "143": "ColorFillSymbol",
+  "147": "MultistoryStairsType",
+  "148": "DimensionStyle",
+  "149": "MEPSystemZoneElementType",
+  "15": "Level",
+  "150": "DBViewType",
+  "151": "SpotElevationStyle",
+  "153": "ToposolidType",
+  "154": "RebarBendingDetailType",
+  "155": "RebarBendingDetailType",
+  "156": "CustomElementType",
+  "157": "RbsCableType",
+  "16": "CorniceAttr",
+  "17": "RevealAttr",
+  "18": "InteriorElevAttributes",
+  "19": "ViewportAttributes",
+  "2": "BasicWallType",
+  "20": "SectionAttributes",
+  "21": "ReferenceViewerAttributes",
+  "23": "SectionAttributes",
+  "24": "SectionAttributes",
+  "25": "SectionAttributes",
+  "26": "SectionAttributes",
+  "27": "SectionAttributes",
+  "28": "RampAttributes",
+  "29": "LeaderStyle",
+  "3": "RoofAttributes",
+  "30": "StairsRailingAttr",
+  "31": "SysPanelFamSym",
+  "32": "ElementGroupType",
+  "33": "ElementGroupType",
+  "35": "FilledRegionAttributes",
+  "36": "DimensionStyle",
+  "37": "DimensionStyle",
+  "38": "DimensionStyle",
+  "39": "DimensionStyle",
+  "4": "FloorAttributes",
+  "40": "DimensionStyle",
+  "41": "GStyleElem",
+  "42": "MaterialElem",
+  "43": "BuildingPadType",
+  "44": "InteriorElevAttributes",
+  "46": "ContourLabelingAttributes",
+  "47": "RoofSoffitType",
+  "48": "FasciaAttr",
+  "49": "GutterAttr",
+  "5": "FloorAttributes",
+  "50": "EdgeSlabAttr",
+  "51": "PropertyAttr",
+  "52": "DimensionStyle",
+  "53": "RepeatingDetailAttributes",
+  "54": "JoistSystemAttr",
+  "56": "RevisionCloudAttr",
+  "57": "StackedWallType",
+  "58": "CurtaSystemAttr",
+  "6": "CompoundCeilingType",
+  "61": "CalloutTag",
+  "62": "DBViewType",
+  "63": "DBViewType",
+  "64": "DBViewType",
+  "65": "DBViewType",
+  "66": "DBViewType",
+  "67": "DBViewType",
+  "68": "DBViewType",
+  "69": "DBViewType",
+  "7": "StairsAttributes",
+  "70": "DBViewType",
+  "71": "DBViewType",
+  "72": "DBViewType",
+  "73": "DBViewType",
+  "74": "DBViewType",
+  "75": "DBViewType",
+  "76": "DBViewType",
+  "77": "DBViewTypeAreaPlan",
+  "78": "DBViewType",
+  "79": "DBViewType",
+  "8": "GridAttributes",
+  "80": "DBViewType",
+  "81": "DBViewType",
+  "82": "AreaLoadType",
+  "83": "LineLoadType",
+  "84": "PointLoadType",
+  "85": "RebarBarType",
+  "86": "RebarHookType",
+  "87": "AreaReinforcementType",
+  "88": "PathReinforcementType",
+  "9": "LevelAttributes",
+  "93": "CoverType",
+  "97": "AbsDuctType",
+  "98": "AbsFlexDuctType"
+ },
+ "ETD_ELEM_CATEGORY_CLASSES": {
+  "-2000014": [
+   "FamilyInstance"
+  ],
+  "-2000023": [
+   "FamilyInstance"
+  ],
+  "-2000035": [
+   "FaceRoof",
+   "ProfileRoof",
+   "Roof"
+  ],
+  "-2000080": [
+   "FamilyInstance"
+  ],
+  "-2000091": [
+   "Pattern"
+  ],
+  "-2000110": [
+   "GeoLocation"
+  ],
+  "-2000120": [
+   "Stairs",
+   "StairsElement"
+  ],
+  "-2000160": [
+   "RoomElem"
+  ],
+  "-2000220": [
+   "Grid"
+  ],
+  "-2000240": [
+   "Level"
+  ],
+  "-2000269": [
+   "DPart"
+  ],
+  "-2000350": [
+   "ContourLabelingElem"
+  ],
+  "-2000480": [
+   "RoomTag"
+  ],
+  "-2000485": [
+   "RoomTag"
+  ],
+  "-2000530": [
+   "ProfileRefPlane",
+   "RefPlane"
+  ],
+  "-2000552": [
+   "ColorFillSchema"
+  ],
+  "-2001040": [
+   "FamilyInstance"
+  ],
+  "-2001060": [
+   "FamilyInstance"
+  ],
+  "-2001120": [
+   "FamilyInstance"
+  ],
+  "-2001140": [
+   "FamilyInstance"
+  ],
+  "-2001160": [
+   "FamilyInstance"
+  ],
+  "-2001180": [
+   "FamilyInstance"
+  ],
+  "-2001265": [
+   "Property"
+  ],
+  "-2001271": [
+   "BasePoint"
+  ],
+  "-2001272": [
+   "BasePoint"
+  ],
+  "-2001300": [
+   "ContFooting",
+   "FamilyInstance"
+  ],
+  "-2001320": [
+   "FamilyInstance"
+  ],
+  "-2001330": [
+   "FamilyInstance"
+  ],
+  "-2001336": [
+   "TrussElement"
+  ],
+  "-2001340": [
+   "SiteSurface"
+  ],
+  "-2001342": [
+   "ContourSpacingElem"
+  ],
+  "-2001352": [
+   "RvtLinkInstance"
+  ],
+  "-2001360": [
+   "FamilyInstance"
+  ],
+  "-2003200": [
+   "RoomElem"
+  ],
+  "-2003403": [
+   "MassLevelData"
+  ],
+  "-2003600": [
+   "RoomElem"
+  ],
+  "-2005020": [
+   "RoomTag"
+  ],
+  "-2005110": [
+   "FamilyInstance",
+   "SpanDirectionSymbol"
+  ],
+  "-2005202": [
+   "LineLoad"
+  ],
+  "-2005203": [
+   "AreaLoad"
+  ],
+  "-2006070": [
+   "ProjectRevision"
+  ],
+  "-2008000": [
+   "RbsDuctCurve"
+  ],
+  "-2008003": [
+   "IndependentTag"
+  ],
+  "-2008010": [
+   "FamilyInstance"
+  ],
+  "-2008013": [
+   "FamilyInstance"
+  ],
+  "-2008015": [
+   "RbsHvacSystem"
+  ],
+  "-2008020": [
+   "RbsFlexDuctCurve"
+  ],
+  "-2008037": [
+   "RbsElectricalSystem"
+  ],
+  "-2008039": [
+   "RbsWireCurve"
+  ],
+  "-2008043": [
+   "RbsPipingSystem"
+  ],
+  "-2008044": [
+   "RbsPipeCurve"
+  ],
+  "-2008047": [
+   "IndependentTag"
+  ],
+  "-2008049": [
+   "FamilyInstance"
+  ],
+  "-2008057": [
+   "IndependentTag"
+  ],
+  "-2008087": [
+   "FamilyInstance"
+  ],
+  "-2008099": [
+   "FamilyInstance"
+  ],
+  "-2008107": [
+   "ZoneElement"
+  ],
+  "-2008119": [
+   "HVACLoadSpaceTypeElem"
+  ],
+  "-2008120": [
+   "HVACLoadBuildingTypeElem"
+  ],
+  "-2008121": [
+   "BuildingOperatingYearSchedule",
+   "HVACLoadScheduleElem"
+  ],
+  "-2008128": [
+   "FamilyInstance"
+  ],
+  "-2008132": [
+   "RbsConduitCurve"
+  ],
+  "-2008142": [
+   "ElectricalDemandFactorDefinition"
+  ],
+  "-2008143": [
+   "ElectricalLoadClassification"
+  ],
+  "-2008145": [
+   "PanelScheduleTemplate"
+  ],
+  "-2008146": [
+   "PanelScheduleTemplate"
+  ],
+  "-2008147": [
+   "PanelScheduleTemplate"
+  ],
+  "-2008148": [
+   "ParamElemElectricalLoadClassification"
+  ],
+  "-2008149": [
+   "ConduitRun"
+  ],
+  "-2008165": [
+   "FamilyInstance"
+  ],
+  "-2009000": [
+   "Rebar",
+   "RebarInSystem"
+  ],
+  "-2009003": [
+   "RebarSystem"
+  ],
+  "-2009009": [
+   "PathRein"
+  ],
+  "-2009010": [
+   "FamilyInstance",
+   "PathReinSpanSymbol"
+  ]
+ },
+ "ETD_SYMBOL_CATEGORY_CLASSES": {
+  "-2000011": [
+   "BasicWallType",
+   "NewCurtainWallType"
+  ],
+  "-2000014": [
+   "FamilySymbol"
+  ],
+  "-2000023": [
+   "FamilySymbol"
+  ],
+  "-2000035": [
+   "CurtainRoofAttributes",
+   "RoofAttributes"
+  ],
+  "-2000038": [
+   "CompoundCeilingType"
+  ],
+  "-2000080": [
+   "FamilySymbol"
+  ],
+  "-2000120": [
+   "StairsAttributes",
+   "StairsType"
+  ],
+  "-2000123": [
+   "StairsSupportType"
+  ],
+  "-2000126": [
+   "StairsRailingAttr"
+  ],
+  "-2000151": [
+   "Text3dAttrSymbol"
+  ],
+  "-2000170": [
+   "SysPanelFamSym"
+  ],
+  "-2000550": [
+   "ColorFillSymbol"
+  ],
+  "-2000560": [
+   "ImageSymbol"
+  ],
+  "-2000919": [
+   "StairsRunType"
+  ],
+  "-2000920": [
+   "StairsLandingType"
+  ],
+  "-2000930": [
+   "CutMarkType"
+  ],
+  "-2000938": [
+   "StairsPathType"
+  ],
+  "-2000946": [
+   "TopRailType"
+  ],
+  "-2000947": [
+   "HandRailType"
+  ],
+  "-2000983": [
+   "MEPAnalyticalConnectionElementType"
+  ],
+  "-2000985": [
+   "MechanicalEquipmentSetType"
+  ],
+  "-2001001": [
+   "MEPSystemZoneElementType",
+   "MEPSystemZoneType"
+  ],
+  "-2001040": [
+   "FamilySymbol"
+  ],
+  "-2001119": [
+   "RbsCableType"
+  ],
+  "-2001120": [
+   "FamilySymbol"
+  ],
+  "-2001140": [
+   "FamilySymbol"
+  ],
+  "-2001180": [
+   "FamilySymbol"
+  ],
+  "-2001300": [
+   "ContFootingType",
+   "FamilySymbol",
+   "FloorAttributes"
+  ],
+  "-2001320": [
+   "FamilySymbol"
+  ],
+  "-2001330": [
+   "FamilySymbol"
+  ],
+  "-2001360": [
+   "FamilySymbol"
+  ],
+  "-2002000": [
+   "FamilySymbol",
+   "RepeatingDetailAttributes"
+  ],
+  "-2003414": [
+   "ConceptualConstructionType"
+  ],
+  "-2003417": [
+   "ConceptualConstructionType"
+  ],
+  "-2003418": [
+   "ConceptualConstructionType"
+  ],
+  "-2003421": [
+   "ConceptualConstructionType"
+  ],
+  "-2003422": [
+   "ConceptualConstructionType"
+  ],
+  "-2003423": [
+   "ConceptualConstructionType"
+  ],
+  "-2005110": [
+   "FamilySymbol"
+  ],
+  "-2005200": [
+   "AreaLoadType",
+   "LineLoadType",
+   "PointLoadType"
+  ],
+  "-2008013": [
+   "FamilySymbol"
+  ],
+  "-2008015": [
+   "RbsHvacSystemType"
+  ],
+  "-2008039": [
+   "RbsWireType"
+  ],
+  "-2008041": [
+   "RbsDistributionSysType"
+  ],
+  "-2008043": [
+   "RbsPipingSystemType"
+  ],
+  "-2008102": [
+   "ConstructionSet"
+  ],
+  "-2008103": [
+   "RbsPipeConnectionType"
+  ],
+  "-2008104": [
+   "RbsPipeMaterialType"
+  ],
+  "-2008105": [
+   "RbsPipeScheduleType"
+  ],
+  "-2008106": [
+   "RbsFluidType"
+  ],
+  "-2008111": [
+   "RbsWireMaterialType"
+  ],
+  "-2008112": [
+   "RbsWireInsulationType"
+  ],
+  "-2008113": [
+   "RbsWireTemperatureRatingType"
+  ],
+  "-2008122": [
+   "RbsPipeInsulationType"
+  ],
+  "-2008123": [
+   "RbsDuctInsulationType"
+  ],
+  "-2008124": [
+   "RbsDuctLiningType"
+  ],
+  "-2008130": [
+   "RbsCableTrayType"
+  ],
+  "-2008132": [
+   "RbsConduitType"
+  ],
+  "-2008144": [
+   "ConduitStandardType"
+  ],
+  "-2008165": [
+   "FamilySymbol"
+  ],
+  "-2008190": [
+   "DivisionRule"
+  ],
+  "-2009000": [
+   "RebarBarType",
+   "RebarHookType",
+   "RebarShape"
+  ],
+  "-2009003": [
+   "AreaReinforcementType"
+  ],
+  "-2009005": [
+   "FamilySymbol"
+  ],
+  "-2009009": [
+   "PathReinforcementType"
+  ],
+  "-2009010": [
+   "FamilySymbol"
+  ],
+  "-2009014": [
+   "CoverType"
+  ],
+  "-2009016": [
+   "FabricSheetType",
+   "FabricWireType"
+  ],
+  "-2009017": [
+   "FabricAreaType"
+  ]
+ },
+ "PARALLEL_GROUPS": {
+  "AbsLayoutAppInfo": [
+   [
+    "m_mapDuctLevelToOffsets",
+    "m_mapPipeLevelToOffsets"
+   ]
+  ],
+  "BeamAnnotationsInfo": [
+   [
+    "m_levelBeamData",
+    "m_slopedBeamData"
+   ]
+  ],
+  "CategoryToIdMap": [
+   [
+    "m_categoryIds",
+    "m_ids"
+   ]
+  ],
+  "CopyWatchModeMgr": [
+   [
+    "m_linkCopyWatchProps",
+    "m_linkDocIds"
+   ]
+  ],
+  "CreateAssemblyViewsInfo": [
+   [
+    "m_makeViews",
+    "m_viewTemplateIds"
+   ],
+   [
+    "m_makeViews",
+    "m_viewTemplatesAssigned"
+   ],
+   [
+    "m_viewTemplateIds",
+    "m_viewTemplatesAssigned"
+   ]
+  ],
+  "NumberingAppInfo": [
+   [
+    "m_mapCategoriesToParameterIdsToSchemas",
+    "m_mapSchemaIdsToInfo"
+   ],
+   [
+    "m_mapCategoriesToParameterIdsToSchemas",
+    "m_mapSchemas"
+   ],
+   [
+    "m_mapCategoriesToParameterIdsToSchemas",
+    "m_schemaIdsToData"
+   ],
+   [
+    "m_mapSchemaIdsToInfo",
+    "m_mapSchemas"
+   ],
+   [
+    "m_mapSchemaIdsToInfo",
+    "m_schemaIdsToData"
+   ],
+   [
+    "m_mapSchemas",
+    "m_schemaIdsToData"
+   ]
+  ],
+  "SketchGridData": [
+   [
+    "m_3x3",
+    "m_or"
+   ]
+  ],
+  "SketchPlaneInfo": [
+   [
+    "m_3x3",
+    "m_or"
+   ]
+  ],
+  "SymbolIdMgr": [
+   [
+    "m_paramSetKeys",
+    "m_paramSets"
+   ]
+  ],
+  "WindowState": [
+   [
+    "m_projLeftBottom",
+    "m_projRightTop"
+   ]
+  ]
+ },
+ "SFN_TRACKED_CLASSES": [
+  "AbsDuctType",
+  "AbsFlexDuctType",
+  "AnalyticalLinkType",
+  "AreaLoadType",
+  "AreaReinforcementType",
+  "BasicWallType",
+  "BrowserOrganization",
+  "BuildingPadType",
+  "CalloutTag",
+  "ColorFillSymbol",
+  "ComponentRepeaterSlotSpecialType",
+  "CompoundCeilingType",
+  "ConceptualConstructionType",
+  "ConduitStandardType",
+  "ConstructionSet",
+  "ConstructionSetProject",
+  "ContFootingType",
+  "ContourLabelingAttributes",
+  "CorniceAttr",
+  "CoverType",
+  "CurtaSystemAttr",
+  "CurtainRoofAttributes",
+  "CustomElementType",
+  "CutMarkType",
+  "DBViewType",
+  "DBViewTypeAreaPlan",
+  "DecalType",
+  "DimensionStyle",
+  "DivisionRule",
+  "EdgeSlabAttr",
+  "ElementGroupType",
+  "FabricAreaType",
+  "FabricSheetType",
+  "FabricWireType",
+  "FasciaAttr",
+  "FilledRegionAttributes",
+  "FloorAttributes",
+  "GridAttributes",
+  "GutterAttr",
+  "HandRailType",
+  "ImageHolder",
+  "ImageSymbol",
+  "InteriorElevAttributes",
+  "JoistSystemAttr",
+  "LeaderStyle",
+  "LevelAttributes",
+  "LineLoadType",
+  "MEPAnalyticalConnectionElementType",
+  "MEPSystemZoneElementType",
+  "MEPSystemZoneType",
+  "MasterImportSymbol",
+  "MechanicalEquipmentSetType",
+  "MultiReferenceAnnotationType",
+  "MultistoryStairsType",
+  "NewCurtainWallType",
+  "PathReinforcementType",
+  "PointLoadType",
+  "PropertyAttr",
+  "RampAttributes",
+  "RbsCableTrayType",
+  "RbsCableType",
+  "RbsConduitType",
+  "RbsDistributionSysType",
+  "RbsDuctInsulationType",
+  "RbsDuctLiningType",
+  "RbsFlexPipeType",
+  "RbsFluidType",
+  "RbsHvacSystemType",
+  "RbsPipeConnectionType",
+  "RbsPipeInsulationType",
+  "RbsPipeMaterialType",
+  "RbsPipeScheduleType",
+  "RbsPipeType",
+  "RbsPipingSystemType",
+  "RbsVoltageType",
+  "RbsWireInsulationType",
+  "RbsWireMaterialType",
+  "RbsWireTemperatureRatingType",
+  "RbsWireType",
+  "RebarBarType",
+  "RebarBendingDetailType",
+  "RebarHookType",
+  "RebarShape",
+  "ReferenceViewerAttributes",
+  "RepeatingDetailAttributes",
+  "RevealAttr",
+  "RevisionCloudAttr",
+  "RoofAttributes",
+  "RoofSoffitType",
+  "RvtLinkSymbol",
+  "SectionAttributes",
+  "SlaveImportSymbol",
+  "SpotElevationStyle",
+  "StackedWallType",
+  "StairsAttributes",
+  "StairsLandingType",
+  "StairsPathType",
+  "StairsRailingAttr",
+  "StairsRunType",
+  "StairsSupportType",
+  "StairsType",
+  "TagNoteAttributes",
+  "Text3dAttrSymbol",
+  "TextNoteAttributes",
+  "TilePatternType",
+  "TopRailType",
+  "ToposolidType",
+  "ViewportAttributes"
+ ],
+ "UET_POS_TO_CLASS": {
+  "0": "ViewReferencing",
+  "10": "AutoCamSettingsElem",
+  "11": "AutoJoinTracker",
+  "15": "GCSTracker",
+  "16": "ActiveGeoLocationTrackingElement",
+  "17": "WorksetVisibilitySettingsElem",
+  "18": "ProjectCopySettingsElem",
+  "19": "EnergyDataSettings",
+  "2": "ProjectInfo",
+  "20": "ConceptualSurfaceType",
+  "21": "ConceptualSurfaceType",
+  "22": "ConceptualSurfaceType",
+  "23": "ConceptualSurfaceType",
+  "25": "ConceptualSurfaceType",
+  "26": "ConceptualSurfaceType",
+  "27": "ConceptualSurfaceType",
+  "28": "ConceptualSurfaceType",
+  "29": "ConceptualSurfaceType",
+  "3": "AreaSettingsElem",
+  "30": "ConceptualSurfaceType",
+  "31": "ListConceptualSurfaceTypes",
+  "32": "ReconcileBrowserSettingsElem",
+  "33": "StructSettingsElem",
+  "36": "MEPSystemTracker",
+  "38": "AssemblyTracker",
+  "4": "ReactionsUpToDateElem",
+  "40": "SketchGridAppearanceParentElem",
+  "41": "RvtLinkInstanceAppearanceParentElem",
+  "42": "HubsTracker",
+  "43": "InitialViewSettings",
+  "44": "RbsPipeSettingsElem",
+  "45": "RbsPipeSizesElem",
+  "46": "ComponentRepeaterSlotSpecialType",
+  "47": "ComponentRepeaterSlotSpecialType",
+  "48": "RbsDuctSizesElem",
+  "5": "CoordinateSystemDisplayElem",
+  "51": "ReinforcementSettings",
+  "53": "RbsWireSettingsElem",
+  "54": "RevisionCloudsOnSheetsTracker",
+  "55": "RbsWireSizesElem",
+  "56": "RbsDuctSettingsElem",
+  "57": "KeynoteTagsOnSheetsTracker",
+  "58": "MEPComponentTracker",
+  "59": "ElectricalSetting",
+  "60": "DefaultDivideSettings",
+  "61": "FabricationSettings",
+  "62": "AllProjectRevisions",
+  "63": "LayoutNodesTracker",
+  "64": "AssemblyCodeTable",
+  "65": "KeynoteTable",
+  "66": "CableTraySizesElem",
+  "67": "ConduitSizesElem",
+  "69": "FabricationSettingsElement",
+  "7": "WallJoinDefaultSetting",
+  "70": "StructuralConnectionSettings",
+  "71": "CableTraySettingsElem",
+  "72": "ConduitSettingsElem",
+  "73": "MEPNetworkTracker",
+  "74": "AllProjectPhases",
+  "77": "RouteAnalysisSettings",
+  "79": "CircuitNamingTypeSetting",
+  "81": "MEPHiddenLineSettingsElem",
+  "82": "MultipleValuesIndicationSettings",
+  "83": "AnalyticalToPhysicalRelationManager",
+  "84": "GraphicsCache",
+  "86": "FabricationServiceSettings",
+  "87": "SSEPointVisibilitySettings",
+  "88": "ScheduleInstanceBaseOnSheetsTracker",
+  "89": "MEPNetworkDataElem",
+  "9": "Dwg2dExportUserSettingsData",
+  "91": "SheetsInSheetCollectionTracker",
+  "92": "STEPExportSettings"
+ },
+ "derived_at": "2026-08-03T12:00:00Z",
+ "derived_from": [
+  "rstbasicsampleproject",
+  "racbasicsampleproject",
+  "rmebasicsampleproject",
+  "racadvancedsampleproject",
+  "rstadvancedsampleproject"
+ ],
+ "generator": "tools/genesis_assemble.py --only maps",
+ "note": "Registry SEMANTICS of the ADocument (position / enum tables that are compiled-in Revit constants), derived by decoding the samples' Global/Latest and attributing each id to its element class. These are format facts (like the built-in category enum), not sample expression: no id, name or value is copied \u2014 only which CLASS a slot / group / category / GUID stands for."
+}

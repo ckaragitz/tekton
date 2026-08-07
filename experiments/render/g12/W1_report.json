@@ -1,0 +1,168 @@
+{
+ "task": "G_ABPD + one created wall with baked solid",
+ "base": {
+  "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ },
+ "specimens": {
+  "source": "experiments/genesis/R5.rvt",
+  "injected_ids": [
+   1115258,
+   975217
+  ],
+  "wall_specimen": 1115258,
+  "wall_type": 600634,
+  "instance_specimen": 975217,
+  "instance_symbol": 975202,
+  "instance_category": -2000023,
+  "instance_specimen_score": [
+   0,
+   539
+  ]
+ },
+ "wall_type": 600634,
+ "level": 311,
+ "wall": {
+  "elem_id": 1472525,
+  "p0_ft": [
+   4.0,
+   -12.0
+  ],
+  "p1_ft": [
+   24.0,
+   -12.0
+  ],
+  "height_ft": 12.0,
+  "clone_cleanup": {
+   "mode": "min",
+   "face_ref_overrides_cleared": 4,
+   "join_edge_tags_cleared": 2,
+   "specimen_self_refs_repointed": 0,
+   "header_parents_dropped": {
+    "m_regenOnly": [
+     30
+    ],
+    "m_appearanceParents": [
+     30
+    ]
+   }
+  },
+  "n_dangling": 11,
+  "dangling_refs": [
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepFormGList[1].value.m_id",
+    "id": 6
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepFormGList[2].value.m_id",
+    "id": 7
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+    "id": 6
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+    "id": 7
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+    "id": 14
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepFormSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+    "id": 27
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[1].m_id",
+    "id": 6
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[2].m_id",
+    "id": 7
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[3].m_id",
+    "id": 14
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_bRepAdjustSnapshot.value.m_geomTops[0].value.m_faces[4].m_id",
+    "id": 27
+   },
+   {
+    "path": "seq102.m_geomSteps.value.m_idCounter",
+    "id": 8
+   }
+  ]
+ },
+ "commit": {
+  "elemtable_after": 3103,
+  "watermark_after": 1472525,
+  "verify_ok": true
+ },
+ "bake": {
+  "verdict": "VALID",
+  "problems": [],
+  "record_len_delta": {
+   "103": 3058
+  },
+  "mechanism": "rvt.render.brep.wall_rep_from_object -> regadd.substitute_elements(seqs=(103,)) -- the RSOLID_walls_A_solid mechanism (certified PASS + RENDERS) applied as a post-commit wrapper; rvt/mutate.py untouched",
+  "geometry": {
+   "length_ft": 20.0,
+   "thickness_ft": 0.9186,
+   "height_ft": 12.0
+  }
+ },
+ "readback": {
+  "element_id": 1472525,
+  "klass": "SWall",
+  "rep_class": "GElement",
+  "kind": "brep",
+  "has_baked_geometry": true,
+  "by_reference": false,
+  "drawable_3d": true,
+  "geometry_bytes": 3060,
+  "storage": "Partitions/<N> seq-103 record: class GElement (0x89e) -> Geometry (GBRep) faces/edges = baked B-rep solid",
+  "n_solids": 1,
+  "n_faces": 6,
+  "n_edges": 12,
+  "n_curves": 0,
+  "n_points": 0,
+  "n_meshes": 0,
+  "n_instances": 0,
+  "surface_types": {
+   "Plane": 6
+  },
+  "render_style_ids": [
+   600660
+  ],
+  "bbox": [
+   [
+    4.0,
+    -12.459317585301838,
+    0.0
+   ],
+   [
+    24.0,
+    -11.540682414698164,
+    12.0
+   ]
+  ],
+  "gelem_type": 3,
+  "category_id": -2000011,
+  "symbol_id": null,
+  "notes": []
+ },
+ "validator": {
+  "errors": 0,
+  "warnings": 1
+ },
+ "file": {
+  "file": "experiments/render/g12/W1_gabpd_wall_solid.rvt",
+  "md5": "41cbbb4b57875b6993dbd3b57a9d4ea1"
+ },
+ "seconds": 5.4
+}

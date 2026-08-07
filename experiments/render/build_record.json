@@ -1,0 +1,761 @@
+{
+ "base": "/Users/ck/dev/things/rev-revit/experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+ "finish_material": 600660,
+ "refplane_gstyle": 24925,
+ "results": [
+  {
+   "variant": "A",
+   "file": "/Users/ck/dev/things/rev-revit/experiments/render/RSOLID_walls_A_solid.rvt",
+   "verdict": "VALID",
+   "problems": [],
+   "walls": [
+    {
+     "id": 1472525,
+     "line_ft": [
+      [
+       15.0919,
+       10.1706,
+       0.0
+      ],
+      [
+       -15.0919,
+       10.1706,
+       0.0
+      ]
+     ],
+     "length_ft": 30.1837,
+     "thickness_ft": 0.9186,
+     "base_z_ft": 0.0,
+     "height_ft": 12.0079,
+     "tags": {
+      "faces": {
+       "(1, -1, -1)": 6,
+       "(2, -1, -1)": 5,
+       "(3, 0, -1)": 18,
+       "(3, 1, -1)": 10,
+       "(3, 2, -1)": 7,
+       "(3, 3, -1)": 14
+      },
+      "edges": [
+       19,
+       20,
+       11,
+       12,
+       8,
+       9,
+       15,
+       16,
+       22,
+       17,
+       13,
+       21
+      ],
+      "source": "history"
+     },
+     "ref_planes": false
+    },
+    {
+     "id": 1472526,
+     "line_ft": [
+      [
+       -15.0919,
+       10.1706,
+       0.0
+      ],
+      [
+       -15.0919,
+       -10.1706,
+       0.0
+      ]
+     ],
+     "length_ft": 20.3412,
+     "thickness_ft": 0.9186,
+     "base_z_ft": 0.0,
+     "height_ft": 12.0079,
+     "tags": {
+      "faces": {
+       "(1, -1, -1)": 6,
+       "(2, -1, -1)": 5,
+       "(3, 0, -1)": 18,
+       "(3, 1, -1)": 10,
+       "(3, 2, -1)": 7,
+       "(3, 3, -1)": 14
+      },
+      "edges": [
+       19,
+       20,
+       11,
+       12,
+       8,
+       9,
+       15,
+       16,
+       22,
+       17,
+       13,
+       21
+      ],
+      "source": "history"
+     },
+     "ref_planes": false
+    },
+    {
+     "id": 1472527,
+     "line_ft": [
+      [
+       15.0919,
+       -10.1706,
+       0.0
+      ],
+      [
+       15.0919,
+       10.1706,
+       0.0
+      ]
+     ],
+     "length_ft": 20.3412,
+     "thickness_ft": 0.9186,
+     "base_z_ft": 0.0,
+     "height_ft": 12.0079,
+     "tags": {
+      "faces": {
+       "(1, -1, -1)": 6,
+       "(2, -1, -1)": 5,
+       "(3, 0, -1)": 18,
+       "(3, 1, -1)": 10,
+       "(3, 2, -1)": 7,
+       "(3, 3, -1)": 14
+      },
+      "edges": [
+       19,
+       20,
+       11,
+       12,
+       8,
+       9,
+       15,
+       16,
+       22,
+       17,
+       13,
+       21
+      ],
+      "source": "history"
+     },
+     "ref_planes": false
+    },
+    {
+     "id": 1472528,
+     "line_ft": [
+      [
+       -15.0919,
+       -10.1706,
+       0.0
+      ],
+      [
+       15.0919,
+       -10.1706,
+       0.0
+      ]
+     ],
+     "length_ft": 30.1837,
+     "thickness_ft": 0.9186,
+     "base_z_ft": 0.0,
+     "height_ft": 12.0079,
+     "tags": {
+      "faces": {
+       "(1, -1, -1)": 6,
+       "(2, -1, -1)": 5,
+       "(3, 0, -1)": 18,
+       "(3, 1, -1)": 10,
+       "(3, 2, -1)": 7,
+       "(3, 3, -1)": 14
+      },
+      "edges": [
+       19,
+       20,
+       11,
+       12,
+       8,
+       9,
+       15,
+       16,
+       22,
+       17,
+       13,
+       21
+      ],
+      "source": "history"
+     },
+     "ref_planes": false
+    }
+   ],
+   "rows_after": [
+    {
+     "element_id": 1472525,
+     "klass": "SWall",
+     "rep_class": "GElement",
+     "kind": "brep",
+     "has_baked_geometry": true,
+     "by_reference": false,
+     "drawable_3d": true,
+     "geometry_bytes": 3060,
+     "storage": "Partitions/<N> seq-103 record: class GElement (0x89e) -> Geometry (GBRep) faces/edges = baked B-rep solid",
+     "n_solids": 1,
+     "n_faces": 6,
+     "n_edges": 12,
+     "n_curves": 0,
+     "n_points": 0,
+     "n_meshes": 0,
+     "n_instances": 0,
+     "surface_types": {
+      "Plane": 6
+     },
+     "render_style_ids": [
+      600660
+     ],
+     "bbox": [
+      [
+       -15.091863517060364,
+       9.711286089238843,
+       0.0
+      ],
+      [
+       15.091863517060364,
+       10.629921259842519,
+       12.007874015748031
+      ]
+     ],
+     "gelem_type": 3,
+     "category_id": -2000011,
+     "symbol_id": null,
+     "notes": []
+    },
+    {
+     "element_id": 1472526,
+     "klass": "SWall",
+     "rep_class": "GElement",
+     "kind": "brep",
+     "has_baked_geometry": true,
+     "by_reference": false,
+     "drawable_3d": true,
+     "geometry_bytes": 3060,
+     "storage": "Partitions/<N> seq-103 record: class GElement (0x89e) -> Geometry (GBRep) faces/edges = baked B-rep solid",
+     "n_solids": 1,
+     "n_faces": 6,
+     "n_edges": 12,
+     "n_curves": 0,
+     "n_points": 0,
+     "n_meshes": 0,
+     "n_instances": 0,
+     "surface_types": {
+      "Plane": 6
+     },
+     "render_style_ids": [
+      600660
+     ],
+     "bbox": [
+      [
+       -15.551181102362202,
+       -10.170603674540681,
+       0.0
+      ],
+      [
+       -14.632545931758528,
+       10.170603674540681,
+       12.007874015748031
+      ]
+     ],
+     "gelem_type": 3,
+     "category_id": -2000011,
+     "symbol_id": null,
+     "notes": []
+    },
+    {
+     "element_id": 1472527,
+     "klass": "SWall",
+     "rep_class": "GElement",
+     "kind": "brep",
+     "has_baked_geometry": true,
+     "by_reference": false,
+     "drawable_3d": true,
+     "geometry_bytes": 3060,
+     "storage": "Partitions/<N> seq-103 record: class GElement (0x89e) -> Geometry (GBRep) faces/edges = baked B-rep solid",
+     "n_solids": 1,
+     "n_faces": 6,
+     "n_edges": 12,
+     "n_curves": 0,
+     "n_points": 0,
+     "n_meshes": 0,
+     "n_instances": 0,
+     "surface_types": {
+      "Plane": 6
+     },
+     "render_style_ids": [
+      600660
+     ],
+     "bbox": [
+      [
+       14.632545931758528,
+       -10.170603674540681,
+       0.0
+      ],
+      [
+       15.551181102362202,
+       10.170603674540681,
+       12.007874015748031
+      ]
+     ],
+     "gelem_type": 3,
+     "category_id": -2000011,
+     "symbol_id": null,
+     "notes": []
+    },
+    {
+     "element_id": 1472528,
+     "klass": "SWall",
+     "rep_class": "GElement",
+     "kind": "brep",
+     "has_baked_geometry": true,
+     "by_reference": false,
+     "drawable_3d": true,
+     "geometry_bytes": 3060,
+     "storage": "Partitions/<N> seq-103 record: class GElement (0x89e) -> Geometry (GBRep) faces/edges = baked B-rep solid",
+     "n_solids": 1,
+     "n_faces": 6,
+     "n_edges": 12,
+     "n_curves": 0,
+     "n_points": 0,
+     "n_meshes": 0,
+     "n_instances": 0,
+     "surface_types": {
+      "Plane": 6
+     },
+     "render_style_ids": [
+      600660
+     ],
+     "bbox": [
+      [
+       -15.091863517060364,
+       -10.629921259842519,
+       0.0
+      ],
+      [
+       15.091863517060364,
+       -9.711286089238843,
+       12.007874015748031
+      ]
+     ],
+     "gelem_type": 3,
+     "category_id": -2000011,
+     "symbol_id": null,
+     "notes": []
+    }
+   ],
+   "record_len_delta": {
+    "103": 3058
+   },
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 16,
+     "records": 10041,
+     "elements_decoded": 3346,
+     "decode_failures": 1,
+     "refs_checked": 51602
+    }
+   },
+   "structural": {
+    "ok": true,
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": [],
+    "counts_match": true,
+    "seq_id_sets_equal": true,
+    "stamps_bad": 0,
+    "isize_identity_ok": true
+   }
+  },
+  {
+   "variant": "B",
+   "file": "/Users/ck/dev/things/rev-revit/experiments/render/RSOLID_walls_B_solid_refplanes.rvt",
+   "verdict": "VALID",
+   "problems": [],
+   "walls": [
+    {
+     "id": 1472525,
+     "line_ft": [
+      [
+       15.0919,
+       10.1706,
+       0.0
+      ],
+      [
+       -15.0919,
+       10.1706,
+       0.0
+      ]
+     ],
+     "length_ft": 30.1837,
+     "thickness_ft": 0.9186,
+     "base_z_ft": 0.0,
+     "height_ft": 12.0079,
+     "tags": {
+      "faces": {
+       "(1, -1, -1)": 6,
+       "(2, -1, -1)": 5,
+       "(3, 0, -1)": 18,
+       "(3, 1, -1)": 10,
+       "(3, 2, -1)": 7,
+       "(3, 3, -1)": 14
+      },
+      "edges": [
+       19,
+       20,
+       11,
+       12,
+       8,
+       9,
+       15,
+       16,
+       22,
+       17,
+       13,
+       21
+      ],
+      "source": "history"
+     },
+     "ref_planes": true
+    },
+    {
+     "id": 1472526,
+     "line_ft": [
+      [
+       -15.0919,
+       10.1706,
+       0.0
+      ],
+      [
+       -15.0919,
+       -10.1706,
+       0.0
+      ]
+     ],
+     "length_ft": 20.3412,
+     "thickness_ft": 0.9186,
+     "base_z_ft": 0.0,
+     "height_ft": 12.0079,
+     "tags": {
+      "faces": {
+       "(1, -1, -1)": 6,
+       "(2, -1, -1)": 5,
+       "(3, 0, -1)": 18,
+       "(3, 1, -1)": 10,
+       "(3, 2, -1)": 7,
+       "(3, 3, -1)": 14
+      },
+      "edges": [
+       19,
+       20,
+       11,
+       12,
+       8,
+       9,
+       15,
+       16,
+       22,
+       17,
+       13,
+       21
+      ],
+      "source": "history"
+     },
+     "ref_planes": true
+    },
+    {
+     "id": 1472527,
+     "line_ft": [
+      [
+       15.0919,
+       -10.1706,
+       0.0
+      ],
+      [
+       15.0919,
+       10.1706,
+       0.0
+      ]
+     ],
+     "length_ft": 20.3412,
+     "thickness_ft": 0.9186,
+     "base_z_ft": 0.0,
+     "height_ft": 12.0079,
+     "tags": {
+      "faces": {
+       "(1, -1, -1)": 6,
+       "(2, -1, -1)": 5,
+       "(3, 0, -1)": 18,
+       "(3, 1, -1)": 10,
+       "(3, 2, -1)": 7,
+       "(3, 3, -1)": 14
+      },
+      "edges": [
+       19,
+       20,
+       11,
+       12,
+       8,
+       9,
+       15,
+       16,
+       22,
+       17,
+       13,
+       21
+      ],
+      "source": "history"
+     },
+     "ref_planes": true
+    },
+    {
+     "id": 1472528,
+     "line_ft": [
+      [
+       -15.0919,
+       -10.1706,
+       0.0
+      ],
+      [
+       15.0919,
+       -10.1706,
+       0.0
+      ]
+     ],
+     "length_ft": 30.1837,
+     "thickness_ft": 0.9186,
+     "base_z_ft": 0.0,
+     "height_ft": 12.0079,
+     "tags": {
+      "faces": {
+       "(1, -1, -1)": 6,
+       "(2, -1, -1)": 5,
+       "(3, 0, -1)": 18,
+       "(3, 1, -1)": 10,
+       "(3, 2, -1)": 7,
+       "(3, 3, -1)": 14
+      },
+      "edges": [
+       19,
+       20,
+       11,
+       12,
+       8,
+       9,
+       15,
+       16,
+       22,
+       17,
+       13,
+       21
+      ],
+      "source": "history"
+     },
+     "ref_planes": true
+    }
+   ],
+   "rows_after": [
+    {
+     "element_id": 1472525,
+     "klass": "SWall",
+     "rep_class": "GElement",
+     "kind": "brep",
+     "has_baked_geometry": true,
+     "by_reference": false,
+     "drawable_3d": true,
+     "geometry_bytes": 6260,
+     "storage": "Partitions/<N> seq-103 record: class GElement (0x89e) -> Geometry (GBRep) faces/edges = baked B-rep solid",
+     "n_solids": 5,
+     "n_faces": 10,
+     "n_edges": 28,
+     "n_curves": 0,
+     "n_points": 0,
+     "n_meshes": 0,
+     "n_instances": 0,
+     "surface_types": {
+      "Plane": 10
+     },
+     "render_style_ids": [
+      600660
+     ],
+     "bbox": [
+      [
+       -15.091863517060364,
+       9.711286089238843,
+       0.0
+      ],
+      [
+       15.091863517060364,
+       10.629921259842519,
+       12.007874015748031
+      ]
+     ],
+     "gelem_type": 3,
+     "category_id": -2000011,
+     "symbol_id": null,
+     "notes": []
+    },
+    {
+     "element_id": 1472526,
+     "klass": "SWall",
+     "rep_class": "GElement",
+     "kind": "brep",
+     "has_baked_geometry": true,
+     "by_reference": false,
+     "drawable_3d": true,
+     "geometry_bytes": 6260,
+     "storage": "Partitions/<N> seq-103 record: class GElement (0x89e) -> Geometry (GBRep) faces/edges = baked B-rep solid",
+     "n_solids": 5,
+     "n_faces": 10,
+     "n_edges": 28,
+     "n_curves": 0,
+     "n_points": 0,
+     "n_meshes": 0,
+     "n_instances": 0,
+     "surface_types": {
+      "Plane": 10
+     },
+     "render_style_ids": [
+      600660
+     ],
+     "bbox": [
+      [
+       -15.551181102362202,
+       -10.170603674540681,
+       0.0
+      ],
+      [
+       -14.632545931758528,
+       10.170603674540681,
+       12.007874015748031
+      ]
+     ],
+     "gelem_type": 3,
+     "category_id": -2000011,
+     "symbol_id": null,
+     "notes": []
+    },
+    {
+     "element_id": 1472527,
+     "klass": "SWall",
+     "rep_class": "GElement",
+     "kind": "brep",
+     "has_baked_geometry": true,
+     "by_reference": false,
+     "drawable_3d": true,
+     "geometry_bytes": 6260,
+     "storage": "Partitions/<N> seq-103 record: class GElement (0x89e) -> Geometry (GBRep) faces/edges = baked B-rep solid",
+     "n_solids": 5,
+     "n_faces": 10,
+     "n_edges": 28,
+     "n_curves": 0,
+     "n_points": 0,
+     "n_meshes": 0,
+     "n_instances": 0,
+     "surface_types": {
+      "Plane": 10
+     },
+     "render_style_ids": [
+      600660
+     ],
+     "bbox": [
+      [
+       14.632545931758528,
+       -10.170603674540681,
+       0.0
+      ],
+      [
+       15.551181102362202,
+       10.170603674540681,
+       12.007874015748031
+      ]
+     ],
+     "gelem_type": 3,
+     "category_id": -2000011,
+     "symbol_id": null,
+     "notes": []
+    },
+    {
+     "element_id": 1472528,
+     "klass": "SWall",
+     "rep_class": "GElement",
+     "kind": "brep",
+     "has_baked_geometry": true,
+     "by_reference": false,
+     "drawable_3d": true,
+     "geometry_bytes": 6260,
+     "storage": "Partitions/<N> seq-103 record: class GElement (0x89e) -> Geometry (GBRep) faces/edges = baked B-rep solid",
+     "n_solids": 5,
+     "n_faces": 10,
+     "n_edges": 28,
+     "n_curves": 0,
+     "n_points": 0,
+     "n_meshes": 0,
+     "n_instances": 0,
+     "surface_types": {
+      "Plane": 10
+     },
+     "render_style_ids": [
+      600660
+     ],
+     "bbox": [
+      [
+       -15.091863517060364,
+       -10.629921259842519,
+       0.0
+      ],
+      [
+       15.091863517060364,
+       -9.711286089238843,
+       12.007874015748031
+      ]
+     ],
+     "gelem_type": 3,
+     "category_id": -2000011,
+     "symbol_id": null,
+     "notes": []
+    }
+   ],
+   "record_len_delta": {
+    "103": 6258
+   },
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 16,
+     "records": 10041,
+     "elements_decoded": 3346,
+     "decode_failures": 1,
+     "refs_checked": 51602
+    }
+   },
+   "structural": {
+    "ok": true,
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": [],
+    "counts_match": true,
+    "seq_id_sets_equal": true,
+    "stamps_bad": 0,
+    "isize_identity_ok": true
+   }
+  }
+ ]
+}

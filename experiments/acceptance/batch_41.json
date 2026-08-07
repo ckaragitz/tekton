@@ -1,0 +1,38 @@
+{
+ "batch": 41,
+ "created": "2026-08-05T03:40:23-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "regcorner H13: the fifth-surface patch.  The surface stream's ranking (experiments/regcorner/fifth_surface.json) names CategoryTracking (host-ADocument AppInfo slot 28: family-cluster CategoryElem/GStyleElem rows; 41/52 native units incl. the donor; absent for every famload unit; outside the four-registry model) as the top donor-covered instance-walk candidate.  H13 = H11's load (native-modeled CT row) + the donor cluster's 4+4 rows remapped for our copies at the law-derived positions + one V20-shape instance.  Read with batch 40's matrix: H13 PASS where H11 FAILED convicts the fifth surface (CategoryTracking); H13 FAIL extends the elimination to the next candidate.",
+ "reading_order": [
+  "CTRL_rstbasicsampleproject_b41.rvt",
+  "H13.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_rstbasicsampleproject_b41.rvt",
+   "staged_as": "experiments/acceptance/CTRL_rstbasicsampleproject_b41.rvt",
+   "md5": "b3235ad2743f19bcfff243654fec35dd",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/rstbasicsampleproject.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 1,
+   "file": "experiments/regcorner/probes/H13.rvt",
+   "staged_as": "experiments/acceptance/H13.rvt",
+   "md5": "ae3712ef2517ace80d005b7ff87b570e",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/regcorner/probes/probes.json entry 'H13' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  }
+ ]
+}

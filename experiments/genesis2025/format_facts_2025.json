@@ -1,0 +1,312 @@
+{
+ "generated_by": "tools/genesis_2025.py formats",
+ "primary_sample": "samples/2025/rstbasicsampleproject.rvt",
+ "formats_latest_2025": {
+  "size": 484585,
+  "sha256": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04",
+  "classes": 4600,
+  "pin_matches_rvt_versions": true,
+  "identical_across_six_samples": true,
+  "per_sample_sha256": {
+   "racadvancedsampleproject.rvt": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04",
+   "racbasicsampleproject.rvt": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04",
+   "rmeadvancedsampleproject.rvt": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04",
+   "rmebasicsampleproject.rvt": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04",
+   "rstadvancedsampleproject.rvt": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04",
+   "rstbasicsampleproject.rvt": "c964f9aa2a5f674e3ca412edb6c72fa3eb6208f6b462e836489ab9a2ea066c04"
+  }
+ },
+ "class_diff_2026_to_2025": {
+  "classes_2026": 4690,
+  "classes_2025": 4600,
+  "shared_names": 4584,
+  "renumbered_shared": 4430,
+  "same_ordinal_shared": 154,
+  "only_in_2026": [
+   "AdvancedNumberingSchemaSettings",
+   "AggregatedParameter",
+   "AnalyticalAutomationEditModeMgr",
+   "BarDataForNumbering",
+   "BooleanOpPerturbationTrfData",
+   "CachedDescriptionCreator",
+   "ChangeNumberNumberingRequestData",
+   "ChangeNumberNumberingResponseData",
+   "CrankLengthSettings",
+   "CrankSettings",
+   "CurveDrivenHostedWallCell",
+   "CustomElement",
+   "CustomElementData",
+   "CustomElementDataType",
+   "CustomElementTracking",
+   "CustomElementTypeBase",
+   "DC3DGraphicsSettings",
+   "DSTrackingItem",
+   "DirectContext3DGraphicsData",
+   "DocumentChangedNumberingRequestData",
+   "DocumentChangedNumberingResponseData",
+   "ElectricalCustomElementData",
+   "ElectricalLoadClassificationsData",
+   "EnergyAnalysisConstructionJSONData",
+   "EnergyAnalysisSpaceJSON",
+   "EnergyAnalysisWindowTypeJSON",
+   "EnergyAnalysisZoneJSONData",
+   "FacetLoop",
+   "FacetsDataCell",
+   "GeomStepExtrDataTable",
+   "GridProvenanceCell",
+   "HostedElemCell",
+   "IFCParameterTemplate",
+   "IFCPropertyMappingInfo",
+   "IFCPropertySetMappingInfo",
+   "IfcParameterTemplateTracking",
+   "JSONData",
+   "LoadClassificationPerPhaseData",
+   "MEPSystemZoneElementType",
+   "NamingCell",
+   "NumberedReferenceInfo",
+   "NumberingDataCellBase",
+   "NumberingFormatSettings",
+   "NumberingFormattedParameter",
+   "NumberingParameter",
+   "NumberingParameterIdsToSchemaIds",
+   "NumberingRequestData",
+   "NumberingResponseData",
+   "NumberingSchemaData",
+   "NumberingSchemaInfo",
+   "NumberingSchemaSecondaryData",
+   "NumberingSequenceInfo",
+   "ParamDefAssembly",
+   "ParamDefCableSizeCombo",
+   "ParamDefCableTypeCombo",
+   "ParamDefComboElementIdStatic",
+   "ParamDefComboEnum",
+   "ParamDefConductorSizeCombo",
+   "ParamDefCrankType",
+   "ParamDefListOfArrayLabel",
+   "ParamDefListOfHosts",
+   "ParamDefPanel",
+   "ParamDefSegmentOverride",
+   "ParamDefViewPosition",
+   "ParamDefWorkPlane",
+   "ParametricDescription",
+   "ParametricDescriptionAdapter",
+   "PerturbationWarning",
+   "RbsCableSize",
+   "RbsCableType",
+   "RbsConductorInsulationMaterial",
+   "RbsConductorMaterial",
+   "RbsConductorSize",
+   "RbsConductorTemperatureRating",
+   "RbsWireConduitType",
+   "RebarConstraintEditingData",
+   "RebarContainerNumberingDescriptor",
+   "RebarCrankOverrideCell",
+   "RebarDescriptionForNumberingMatchSetsWithIdenticalBars",
+   "RebarSplitSetEditingData",
+   "RemoveGapsNumberingRequestData",
+   "RemoveGapsNumberingResponseData",
+   "ReshapeTopBottomFacesFromFacetsGStep",
+   "ShiftNumberNumberingRequestData",
+   "ShiftNumberNumberingResponseData",
+   "SpacesDefinedVolumeCell",
+   "SubelementDeletionNumberingRequestData",
+   "SubelementDeletionNumberingResponseData",
+   "TemporaryArcRefForDimensionGraphics",
+   "TemporarySegRefForDimensionGraphics",
+   "ToposolidBooleanSettingAppInfo",
+   "ViewPosition",
+   "ViewPositionInfo",
+   "std::pair< AString, IFCPropertyMappingInfo >",
+   "std::pair< AString, IFCPropertySetMappingInfo >",
+   "std::pair< CustomElementDataType, DSTrackingItem >",
+   "std::pair< DirectContext3DGraphicsData, DC3DGraphicsSettings >",
+   "std::pair< ElementId, CrankSettings >",
+   "std::pair< ElementId, IFCPropertyMappingInfo >",
+   "std::pair< ElementId, LoadClassificationPerPhaseData >",
+   "std::pair< ElementId, NumberingParameterIdsToSchemaIds >",
+   "std::pair< ElementId, NumberingSchemaData >",
+   "std::pair< ElementId, NumberingSchemaInfo >",
+   "std::pair< NumberingParameter, ParameterValue >",
+   "std::pair< SubelementId, IDescription >",
+   "std::pair< int, GeomStepExtraData >"
+  ],
+  "only_in_2025": [
+   "ArcRefForCustomFieldGraphics",
+   "DBViewPlanClosedCutter",
+   "DesignOptionConfiguration",
+   "DesignOptionConfigurationMgr",
+   "DesignOptionNamedConfiguration",
+   "DesignOptionUnnamedConfiguration",
+   "ParamDefAttachment",
+   "ParamDefHorzAlign",
+   "ParamDefUniformat",
+   "ParamDefVertAlign",
+   "ParamDefViewDesignOptionCfgCombo",
+   "RebarRegenData",
+   "RvtLinkInstanceToProxyViewsMap",
+   "SegRefForCustomFieldGraphics",
+   "std::pair< ElementId, RvtLinkInstanceToProxyViewsMap >",
+   "std::pair< ElementId, std::pair< ElementId, ForeignElemRef > >"
+  ]
+ },
+ "esschema_corpus_2025": {
+  "byte_identical_across_six_samples": true,
+  "corpus_sha256": "5331797d80e9a0ad8e93ad7ab9d60fffe6333130faf6f3aca89ad2515a0c5470",
+  "total_bytes": 1120410,
+  "total_pairs": 1174,
+  "tables": [
+   {
+    "count": 889,
+    "bytes": 792210,
+    "sha256_16": "74a6551c2fd00755"
+   },
+   {
+    "count": 285,
+    "bytes": 328200,
+    "sha256_16": "d25f2fb35f3b27b4"
+   }
+  ],
+  "per_sample": {
+   "racadvancedsampleproject.rvt": {
+    "tables": [
+     {
+      "count": 889,
+      "bytes": 792210,
+      "sha256_16": "74a6551c2fd00755"
+     },
+     {
+      "count": 285,
+      "bytes": 328200,
+      "sha256_16": "d25f2fb35f3b27b4"
+     }
+    ],
+    "total_pairs": 1174,
+    "total_bytes": 1120410,
+    "corpus_sha256": "5331797d80e9a0ad8e93ad7ab9d60fffe6333130faf6f3aca89ad2515a0c5470"
+   },
+   "racbasicsampleproject.rvt": {
+    "tables": [
+     {
+      "count": 889,
+      "bytes": 792210,
+      "sha256_16": "74a6551c2fd00755"
+     },
+     {
+      "count": 285,
+      "bytes": 328200,
+      "sha256_16": "d25f2fb35f3b27b4"
+     }
+    ],
+    "total_pairs": 1174,
+    "total_bytes": 1120410,
+    "corpus_sha256": "5331797d80e9a0ad8e93ad7ab9d60fffe6333130faf6f3aca89ad2515a0c5470"
+   },
+   "rmeadvancedsampleproject.rvt": {
+    "tables": [
+     {
+      "count": 889,
+      "bytes": 792210,
+      "sha256_16": "74a6551c2fd00755"
+     },
+     {
+      "count": 285,
+      "bytes": 328200,
+      "sha256_16": "d25f2fb35f3b27b4"
+     }
+    ],
+    "total_pairs": 1174,
+    "total_bytes": 1120410,
+    "corpus_sha256": "5331797d80e9a0ad8e93ad7ab9d60fffe6333130faf6f3aca89ad2515a0c5470"
+   },
+   "rmebasicsampleproject.rvt": {
+    "tables": [
+     {
+      "count": 889,
+      "bytes": 792210,
+      "sha256_16": "74a6551c2fd00755"
+     },
+     {
+      "count": 285,
+      "bytes": 328200,
+      "sha256_16": "d25f2fb35f3b27b4"
+     }
+    ],
+    "total_pairs": 1174,
+    "total_bytes": 1120410,
+    "corpus_sha256": "5331797d80e9a0ad8e93ad7ab9d60fffe6333130faf6f3aca89ad2515a0c5470"
+   },
+   "rstadvancedsampleproject.rvt": {
+    "tables": [
+     {
+      "count": 889,
+      "bytes": 792210,
+      "sha256_16": "74a6551c2fd00755"
+     },
+     {
+      "count": 285,
+      "bytes": 328200,
+      "sha256_16": "d25f2fb35f3b27b4"
+     }
+    ],
+    "total_pairs": 1174,
+    "total_bytes": 1120410,
+    "corpus_sha256": "5331797d80e9a0ad8e93ad7ab9d60fffe6333130faf6f3aca89ad2515a0c5470"
+   },
+   "rstbasicsampleproject.rvt": {
+    "tables": [
+     {
+      "count": 889,
+      "bytes": 792210,
+      "sha256_16": "74a6551c2fd00755"
+     },
+     {
+      "count": 285,
+      "bytes": 328200,
+      "sha256_16": "d25f2fb35f3b27b4"
+     }
+    ],
+    "total_pairs": 1174,
+    "total_bytes": 1120410,
+    "corpus_sha256": "5331797d80e9a0ad8e93ad7ab9d60fffe6333130faf6f3aca89ad2515a0c5470"
+   }
+  },
+  "corpus_2026_reference": {
+   "total_pairs": 1315,
+   "total_bytes": 1333340,
+   "corpus_sha256": "99554c01a8695df301430b53f00839f4ad19c13099f5d2f3389b06c048a9776b"
+  }
+ },
+ "identity_2025": {
+  "basicfileinfo_format": "2025",
+  "basicfileinfo_build": "Development Build",
+  "elemtable_class_tag": {
+   "2025": "0x5ab",
+   "2026": "0x5c9",
+   "name": "ElemTable"
+  },
+  "elemtable_footer_tail_class": {
+   "2025": "0x93b",
+   "2026": "0x96a",
+   "name": "IdentifierSource"
+  },
+  "history_upgrade_versions": {
+   "2025_last": 2662,
+   "2025_count": 190,
+   "2026_last": 2662,
+   "2026_count": 190
+  },
+  "history_class_tag": {
+   "2025": "0x51d",
+   "2026": "0x538"
+  }
+ },
+ "framing_2025": {
+  "BLOCK_TAG": "0xed9",
+  "TRAILER_TAG": "0xed2",
+  "FOOTER_TAG": "0xeee",
+  "CONTAINER_CLASS": "0x391",
+  "UNIT_INNER_CLASS": "0x390",
+  "PT_CLASS": "0xc40"
+ },
+ "framing_matches_rvt_versions_table": true
+}

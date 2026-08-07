@@ -1,0 +1,658 @@
+{
+ "G1a": {
+  "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/G1a.rvt",
+  "gate_verdict": "FAIL \u2014 134 Autodesk-derived element(s) in expression-bearing categories; 1,386,156 byte(s) byte-identical to baseline in expression-bearing streams; 7,405 Autodesk resource identifier(s)",
+  "gate_passes": false,
+  "certifies_G1": false,
+  "layers": [
+   "elements",
+   "streams",
+   "strings",
+   "identity"
+  ],
+  "blocking": [
+   {
+    "category": "system-family-types",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "views-and-templates",
+    "provenance": "transitive-cloned",
+    "count": 12,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "object-styles",
+    "provenance": "transitive-cloned",
+    "count": 93,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "patterns-materials",
+    "provenance": "transitive-cloned",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "text-dimension-types",
+    "provenance": "transitive-cloned",
+    "count": 2,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "phases-design-options",
+    "provenance": "transitive-cloned",
+    "count": 1,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "project-info-settings",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "mep-electrical-definitions",
+    "provenance": "transitive-cloned",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "placed-model-content",
+    "provenance": "transitive-cloned",
+    "count": 9,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "view-annotation-2d-content",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "layer": "streams",
+    "category": "Global/Latest",
+    "provenance": "stream-modified-lineage",
+    "count": 1386156,
+    "why": "1,386,156 of 1,410,444 bytes byte-identical to baseline racbasicsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+   },
+   {
+    "layer": "strings",
+    "category": "autodesk-resource-refs",
+    "provenance": "autodesk-resource-refs",
+    "count": 7405,
+    "why": "7,405 Autodesk resource identifier(s) in document content (forge-typeid=7363, revit-resource-string=36, adsk-token=2, revit-server-string=2, forge-schema-corpus=1) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+   }
+  ],
+  "counsel": [
+   {
+    "item": "C4 schema-stream",
+    "stream": "Formats/Latest",
+    "identical_pct": 100.0,
+    "identical_to": [
+     "dach-sample-project:Formats/Latest",
+     "racadvancedsampleproject:Formats/Latest",
+     "racbasicsampleproject:Formats/Latest",
+     "rmebasicsampleproject:Formats/Latest",
+     "rstadvancedsampleproject:Formats/Latest",
+     "rstbasicsampleproject:Formats/Latest"
+    ],
+    "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+   }
+  ],
+  "advisory_count": 4,
+  "elements": {
+   "host": 234,
+   "totals": {
+    "ours-created": 99,
+    "transitive-cloned": 135
+   },
+   "multi_baseline": {
+    "dach-sample-project": {
+     "unmatched": 234
+    },
+    "racadvancedsampleproject": {
+     "ours-created": 105,
+     "transitive-cloned": 129
+    },
+    "racbasicsampleproject": {
+     "ours-created": 110,
+     "transitive-cloned": 124
+    },
+    "rmebasicsampleproject": {
+     "ours-created": 107,
+     "transitive-cloned": 127
+    },
+    "rstadvancedsampleproject": {
+     "ours-created": 106,
+     "transitive-cloned": 128
+    },
+    "rstbasicsampleproject": {
+     "ours-created": 108,
+     "transitive-cloned": 126
+    }
+   }
+  },
+  "bytes": {
+   "total_inflated": 2058757,
+   "identical_pct": 92.31,
+   "ours_pct": 6.38,
+   "excluding_schema_identical_pct": 89.87,
+   "excluding_schema_ours_pct": 8.4
+  },
+  "global_latest": {
+   "inflated": 1410444,
+   "class": "modified-lineage",
+   "identical_bytes": 1386156,
+   "identical_pct": 98.28,
+   "ours_bytes": 0,
+   "best_baseline": "racbasicsampleproject"
+  },
+  "resource_refs": {
+   "total": 7405,
+   "by_pattern": {
+    "forge-typeid": 7363,
+    "forge-schema-corpus": 1,
+    "autodesk-url": 1,
+    "adsk-token": 2,
+    "revit-server-string": 2,
+    "revit-resource-string": 36
+   }
+  },
+  "identity_ok": true,
+  "identity_violations": [],
+  "elapsed_s": 6.5
+ },
+ "G1_candidate": {
+  "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/G1_candidate.rvt",
+  "gate_verdict": "FAIL \u2014 134 Autodesk-derived element(s) in expression-bearing categories; 1,346,347 byte(s) byte-identical to baseline in expression-bearing streams; 7,400 Autodesk resource identifier(s)",
+  "gate_passes": false,
+  "certifies_G1": false,
+  "layers": [
+   "elements",
+   "streams",
+   "strings",
+   "identity"
+  ],
+  "blocking": [
+   {
+    "category": "system-family-types",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "views-and-templates",
+    "provenance": "transitive-cloned",
+    "count": 12,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "object-styles",
+    "provenance": "transitive-cloned",
+    "count": 93,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "patterns-materials",
+    "provenance": "transitive-cloned",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "text-dimension-types",
+    "provenance": "transitive-cloned",
+    "count": 2,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "phases-design-options",
+    "provenance": "transitive-cloned",
+    "count": 1,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "project-info-settings",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "mep-electrical-definitions",
+    "provenance": "transitive-cloned",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "placed-model-content",
+    "provenance": "transitive-cloned",
+    "count": 9,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "view-annotation-2d-content",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "layer": "streams",
+    "category": "Global/Latest",
+    "provenance": "stream-modified-lineage",
+    "count": 1346347,
+    "why": "1,346,347 of 1,360,931 bytes byte-identical to baseline racbasicsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+   },
+   {
+    "layer": "strings",
+    "category": "autodesk-resource-refs",
+    "provenance": "autodesk-resource-refs",
+    "count": 7400,
+    "why": "7,400 Autodesk resource identifier(s) in document content (forge-typeid=7363, revit-resource-string=36, forge-schema-corpus=1) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+   }
+  ],
+  "counsel": [
+   {
+    "item": "C4 schema-stream",
+    "stream": "Formats/Latest",
+    "identical_pct": 100.0,
+    "identical_to": [
+     "dach-sample-project:Formats/Latest",
+     "racadvancedsampleproject:Formats/Latest",
+     "racbasicsampleproject:Formats/Latest",
+     "rmebasicsampleproject:Formats/Latest",
+     "rstadvancedsampleproject:Formats/Latest",
+     "rstbasicsampleproject:Formats/Latest"
+    ],
+    "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+   }
+  ],
+  "advisory_count": 4,
+  "elements": {
+   "host": 234,
+   "totals": {
+    "ours-created": 99,
+    "transitive-cloned": 135
+   },
+   "multi_baseline": {
+    "dach-sample-project": {
+     "unmatched": 234
+    },
+    "racadvancedsampleproject": {
+     "ours-created": 105,
+     "transitive-cloned": 129
+    },
+    "racbasicsampleproject": {
+     "ours-created": 110,
+     "transitive-cloned": 124
+    },
+    "rmebasicsampleproject": {
+     "ours-created": 107,
+     "transitive-cloned": 127
+    },
+    "rstadvancedsampleproject": {
+     "ours-created": 106,
+     "transitive-cloned": 128
+    },
+    "rstbasicsampleproject": {
+     "ours-created": 108,
+     "transitive-cloned": 126
+    }
+   }
+  },
+  "bytes": {
+   "total_inflated": 2009280,
+   "identical_pct": 92.61,
+   "ours_pct": 6.53,
+   "excluding_schema_identical_pct": 90.18,
+   "excluding_schema_ours_pct": 8.68
+  },
+  "global_latest": {
+   "inflated": 1360931,
+   "class": "modified-lineage",
+   "identical_bytes": 1346347,
+   "identical_pct": 98.93,
+   "ours_bytes": 0,
+   "best_baseline": "racbasicsampleproject"
+  },
+  "resource_refs": {
+   "total": 7400,
+   "by_pattern": {
+    "forge-typeid": 7363,
+    "forge-schema-corpus": 1,
+    "revit-resource-string": 36
+   }
+  },
+  "identity_ok": true,
+  "identity_violations": [],
+  "elapsed_s": 6.5
+ },
+ "G1b": {
+  "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/G1b.rvt",
+  "gate_verdict": "FAIL \u2014 134 Autodesk-derived element(s) in expression-bearing categories; 11,776 byte(s) byte-identical to baseline in expression-bearing streams; 107 Autodesk resource identifier(s)",
+  "gate_passes": false,
+  "certifies_G1": false,
+  "layers": [
+   "elements",
+   "streams",
+   "strings",
+   "identity"
+  ],
+  "blocking": [
+   {
+    "category": "system-family-types",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "views-and-templates",
+    "provenance": "transitive-cloned",
+    "count": 12,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "object-styles",
+    "provenance": "transitive-cloned",
+    "count": 93,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "patterns-materials",
+    "provenance": "transitive-cloned",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "text-dimension-types",
+    "provenance": "transitive-cloned",
+    "count": 2,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "phases-design-options",
+    "provenance": "transitive-cloned",
+    "count": 1,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "project-info-settings",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "mep-electrical-definitions",
+    "provenance": "transitive-cloned",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "placed-model-content",
+    "provenance": "transitive-cloned",
+    "count": 9,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "view-annotation-2d-content",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "layer": "streams",
+    "category": "Global/Latest",
+    "provenance": "stream-modified-lineage",
+    "count": 11776,
+    "why": "11,776 of 26,110 bytes byte-identical to baseline racadvancedsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+   },
+   {
+    "layer": "strings",
+    "category": "autodesk-resource-refs",
+    "provenance": "autodesk-resource-refs",
+    "count": 107,
+    "why": "107 Autodesk resource identifier(s) in document content (forge-typeid=71, revit-resource-string=36) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+   }
+  ],
+  "counsel": [
+   {
+    "item": "C4 schema-stream",
+    "stream": "Formats/Latest",
+    "identical_pct": 100.0,
+    "identical_to": [
+     "dach-sample-project:Formats/Latest",
+     "racadvancedsampleproject:Formats/Latest",
+     "racbasicsampleproject:Formats/Latest",
+     "rmebasicsampleproject:Formats/Latest",
+     "rstadvancedsampleproject:Formats/Latest",
+     "rstbasicsampleproject:Formats/Latest"
+    ],
+    "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+   }
+  ],
+  "advisory_count": 4,
+  "elements": {
+   "host": 234,
+   "totals": {
+    "ours-created": 99,
+    "transitive-cloned": 135
+   },
+   "multi_baseline": {
+    "dach-sample-project": {
+     "unmatched": 234
+    },
+    "racadvancedsampleproject": {
+     "ours-created": 105,
+     "transitive-cloned": 129
+    },
+    "racbasicsampleproject": {
+     "ours-created": 110,
+     "transitive-cloned": 124
+    },
+    "rmebasicsampleproject": {
+     "ours-created": 107,
+     "transitive-cloned": 127
+    },
+    "rstadvancedsampleproject": {
+     "ours-created": 106,
+     "transitive-cloned": 128
+    },
+    "rstbasicsampleproject": {
+     "ours-created": 108,
+     "transitive-cloned": 126
+    }
+   }
+  },
+  "bytes": {
+   "total_inflated": 674423,
+   "identical_pct": 78.01,
+   "ours_pct": 19.46,
+   "excluding_schema_identical_pct": 16.61,
+   "excluding_schema_ours_pct": 73.81
+  },
+  "global_latest": {
+   "inflated": 26110,
+   "class": "modified-lineage",
+   "identical_bytes": 11776,
+   "identical_pct": 45.1,
+   "ours_bytes": 0,
+   "best_baseline": "racadvancedsampleproject"
+  },
+  "resource_refs": {
+   "total": 107,
+   "by_pattern": {
+    "forge-typeid": 71,
+    "revit-resource-string": 36
+   }
+  },
+  "identity_ok": true,
+  "identity_violations": [],
+  "elapsed_s": 5.9
+ },
+ "G1_candidate_safe": {
+  "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/G1_candidate_safe.rvt",
+  "gate_verdict": "FAIL \u2014 139 Autodesk-derived element(s) in expression-bearing categories; 1,346,347 byte(s) byte-identical to baseline in expression-bearing streams; 7,445 Autodesk resource identifier(s)",
+  "gate_passes": false,
+  "certifies_G1": false,
+  "layers": [
+   "elements",
+   "streams",
+   "strings",
+   "identity"
+  ],
+  "blocking": [
+   {
+    "category": "system-family-types",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "views-and-templates",
+    "provenance": "transitive-cloned",
+    "count": 15,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "object-styles",
+    "provenance": "transitive-cloned",
+    "count": 93,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "patterns-materials",
+    "provenance": "transitive-cloned",
+    "count": 6,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "text-dimension-types",
+    "provenance": "transitive-cloned",
+    "count": 2,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "phases-design-options",
+    "provenance": "transitive-cloned",
+    "count": 1,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "project-info-settings",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "mep-electrical-definitions",
+    "provenance": "transitive-cloned",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "placed-model-content",
+    "provenance": "transitive-cloned",
+    "count": 9,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "view-annotation-2d-content",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "layer": "streams",
+    "category": "Global/Latest",
+    "provenance": "stream-modified-lineage",
+    "count": 1346347,
+    "why": "1,346,347 of 1,360,931 bytes byte-identical to baseline racbasicsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+   },
+   {
+    "layer": "strings",
+    "category": "autodesk-resource-refs",
+    "provenance": "autodesk-resource-refs",
+    "count": 7445,
+    "why": "7,445 Autodesk resource identifier(s) in document content (forge-typeid=7363, asset-library-fbx=37, revit-resource-string=36, sunandsky-asset=8, forge-schema-corpus=1) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+   }
+  ],
+  "counsel": [
+   {
+    "item": "C4 schema-stream",
+    "stream": "Formats/Latest",
+    "identical_pct": 100.0,
+    "identical_to": [
+     "dach-sample-project:Formats/Latest",
+     "racadvancedsampleproject:Formats/Latest",
+     "racbasicsampleproject:Formats/Latest",
+     "rmebasicsampleproject:Formats/Latest",
+     "rstadvancedsampleproject:Formats/Latest",
+     "rstbasicsampleproject:Formats/Latest"
+    ],
+    "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+   }
+  ],
+  "advisory_count": 4,
+  "elements": {
+   "host": 234,
+   "totals": {
+    "ours-created": 94,
+    "transitive-cloned": 140
+   },
+   "multi_baseline": {
+    "dach-sample-project": {
+     "unmatched": 234
+    },
+    "racadvancedsampleproject": {
+     "ours-created": 100,
+     "transitive-cloned": 134
+    },
+    "racbasicsampleproject": {
+     "ours-created": 105,
+     "transitive-cloned": 129
+    },
+    "rmebasicsampleproject": {
+     "ours-created": 102,
+     "transitive-cloned": 132
+    },
+    "rstadvancedsampleproject": {
+     "ours-created": 102,
+     "transitive-cloned": 132
+    },
+    "rstbasicsampleproject": {
+     "ours-created": 106,
+     "transitive-cloned": 128
+    }
+   }
+  },
+  "bytes": {
+   "total_inflated": 2012125,
+   "identical_pct": 92.47,
+   "ours_pct": 6.66,
+   "excluding_schema_identical_pct": 90.01,
+   "excluding_schema_ours_pct": 8.85
+  },
+  "global_latest": {
+   "inflated": 1360931,
+   "class": "modified-lineage",
+   "identical_bytes": 1346347,
+   "identical_pct": 98.93,
+   "ours_bytes": 0,
+   "best_baseline": "racbasicsampleproject"
+  },
+  "resource_refs": {
+   "total": 7445,
+   "by_pattern": {
+    "forge-typeid": 7363,
+    "forge-schema-corpus": 1,
+    "asset-library-fbx": 37,
+    "sunandsky-asset": 8,
+    "revit-resource-string": 36
+   }
+  },
+  "identity_ok": true,
+  "identity_violations": [],
+  "elapsed_s": 6.2
+ }
+}

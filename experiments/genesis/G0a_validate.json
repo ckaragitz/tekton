@@ -1,0 +1,18 @@
+{
+ "ok": true,
+ "errors": 0,
+ "warnings": 1,
+ "error_messages": [],
+ "warning_messages": [
+  "[semantic] objects: 1/7279 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. Dat"
+ ],
+ "stats": {
+  "streams": 12,
+  "partition_blocks": 73,
+  "records": 21882,
+  "elements_decoded": 7279,
+  "decode_failures": 1,
+  "refs_checked": 115263
+ },
+ "seconds": 0.5
+}

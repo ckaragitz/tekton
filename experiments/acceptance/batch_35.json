@@ -1,0 +1,51 @@
+{
+ "batch": 35,
+ "created": "2026-08-05T00:54:00-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "build-2025 stream: the release-aware front door's first NATIVE 2025 author outputs. Control = byte-identical copy of the CERTIFIED G_ABPD_2025 (the 2025 registry base). Reading order: control -> walls-only -> full. Walls-only isolates the certified-clean subset; the full room CARRIES THE OPEN INSTANCE-AUDIT RESIDUAL by construction (release-independent; SX_f6i6 precedent) -- a full-room FAIL with walls PASS re-reads as the residual, not a 2025 regression. Five-gate emission check green on both (experiments/frontdoor2025/emission_check.py).",
+ "reading_order": [
+  "CTRL_G_ABPD_2025_b35.rvt",
+  "ROOM2025_walls.rvt",
+  "ROOM2025_full.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_G_ABPD_2025_b35.rvt",
+   "staged_as": "experiments/acceptance/CTRL_G_ABPD_2025_b35.rvt",
+   "md5": "470087732a98168af313f8a253f65edd",
+   "kind": "control",
+   "control": true,
+   "control_source": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "base_certification": "THE COMPOSED 2025 GENESIS BASE loads (batch 29; control CTRL_B2025_K4_b29 byte-identical to the certified B2025_K4 also PASSED) \u2014 certifies the whole Y1..Y9+RA/RB/RC+deletion 2025 chain by bytes; native Revit-2025 creation base"
+  },
+  {
+   "order": 1,
+   "file": "experiments/frontdoor2025/room_walls/ROOM2025_walls.rvt",
+   "staged_as": "experiments/acceptance/ROOM2025_walls.rvt",
+   "md5": "a2b207389af0bf1a3b1caee6474aceb3",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "base_declared_by": "experiments/frontdoor2025/probes.json entry 'ROOM2025_walls' field 'base'",
+   "base_status": "certified",
+   "base_certification": "THE COMPOSED 2025 GENESIS BASE loads (batch 29; control CTRL_B2025_K4_b29 byte-identical to the certified B2025_K4 also PASSED) \u2014 certifies the whole Y1..Y9+RA/RB/RC+deletion 2025 chain by bytes; native Revit-2025 creation base"
+  },
+  {
+   "order": 2,
+   "file": "experiments/frontdoor2025/room_full/ROOM2025_full.rvt",
+   "staged_as": "experiments/acceptance/ROOM2025_full.rvt",
+   "md5": "729bcebefd400ddb2a0c99a74be4164b",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "base_declared_by": "experiments/frontdoor2025/probes.json entry 'ROOM2025_full' field 'base'",
+   "base_status": "certified",
+   "base_certification": "THE COMPOSED 2025 GENESIS BASE loads (batch 29; control CTRL_B2025_K4_b29 byte-identical to the certified B2025_K4 also PASSED) \u2014 certifies the whole Y1..Y9+RA/RB/RC+deletion 2025 chain by bytes; native Revit-2025 creation base"
+  }
+ ]
+}

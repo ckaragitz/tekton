@@ -1,0 +1,1694 @@
+{
+ "base_g0": "experiments/genesis/G0.rvt",
+ "stages": [
+  {
+   "stage": "G1a",
+   "mode": "maxsafety",
+   "desc": "MAX-SAFETY: coherence only (zero-dangling purge + empty ContentTable); no repopulation, no string edits, corpus + build history carried",
+   "base": "experiments/genesis/G0.rvt",
+   "out": "experiments/genesis/G1a.rvt",
+   "latest_payload_before": 1586246,
+   "latest_payload_after": 1410436,
+   "latest_logical": 84365,
+   "latest_framed": 84952,
+   "self_decode_ok": true,
+   "coverage_after": {
+    "consumed": 1410430,
+    "total": 1410434,
+    "fraction": 0.9999971639934943,
+    "errors": 0,
+    "deferred_bodies": 595
+   },
+   "appinfo_slots_populated": 180,
+   "element_id_refs_before": 9737,
+   "element_id_refs_after": 6,
+   "our_ids_referenced_after": 0,
+   "byte_scan": {
+    "sample_ids_before": {
+     "hits": 9633,
+     "distinct": 6205,
+     "examples": [
+      1316392,
+      1372241,
+      1372482,
+      99880,
+      1353250,
+      99859,
+      713027,
+      99864,
+      1382280,
+      1382678,
+      1382768,
+      103627
+     ]
+    },
+    "sample_ids_after": {
+     "hits": 15,
+     "distinct": 13,
+     "examples": [
+      2424832,
+      6912,
+      589824,
+      9216,
+      3866624,
+      18432,
+      31232,
+      33280,
+      589823,
+      100001,
+      100000,
+      100002
+     ]
+    },
+    "our_ids_after": {
+     "hits": 0,
+     "distinct": 0,
+     "examples": []
+    },
+    "note": "independent little-endian i64 window scan of the serialized payload against the union of every sample document's ElemTable ids (>= 4700); a residual hit rate of ~0.2 % per pre-purge hit is expected coincidence (id-shaped windows in doubles / adjacent fields), not references"
+   },
+   "string_census_before": {
+    "strings": 5385,
+    "chars": 737707,
+    "sample_watchlist_hits": {
+     "FOUNDATION-2700": 1,
+     "L1 wall frame hall 5": 1,
+     "S206": 1,
+     "Elevation 1": 1,
+     "Section 1": 1,
+     "Kitchen & Dining": 1,
+     "Master Bedroom": 1,
+     "Bathroom 1": 1,
+     "Ensuite": 1,
+     "Laundry": 1,
+     "Concrete 10 MPa": 1,
+     "250 MPa": 1,
+     "liqi": 1,
+     "macalis": 1,
+     "LB_Associations": 1,
+     "Less than 40 m": 1,
+     "360 m": 2
+    },
+    "vendor_tokens": {
+     "autodesk": 2683,
+     "adsk": 4,
+     "arex": 2,
+     "revit default db server": 1,
+     "wiresizes.xml": 1
+    },
+    "forge_json_or_typeid_strings": 2630
+   },
+   "string_census_after": {
+    "strings": 3696,
+    "chars": 693041,
+    "sample_watchlist_hits": {
+     "FOUNDATION-2700": 1,
+     "L1 wall frame hall 5": 1,
+     "S206": 1,
+     "Elevation 1": 1,
+     "Section 1": 1,
+     "Concrete 10 MPa": 1,
+     "250 MPa": 1,
+     "macalis": 1,
+     "LB_Associations": 1
+    },
+    "vendor_tokens": {
+     "autodesk": 2631,
+     "adsk": 4,
+     "arex": 2,
+     "revit default db server": 1,
+     "wiresizes.xml": 1
+    },
+    "forge_json_or_typeid_strings": 2630
+   },
+   "seconds": 0.5,
+   "authoring_summary": {
+    "purge_totals": {
+     "leaves": 14810,
+     "live": 0,
+     "invalid": 4635,
+     "dangling": 10175,
+     "nulled": 138,
+     "elements_dropped": 8892,
+     "scalars_nulled": 22
+    },
+    "registries": {
+     "m_storedByRevitBuild": "KEPT the inherited 7-entry sample save lineage (max-safety)"
+    },
+    "caches": {
+     "ContentTable.m_ContentRecSet": "emptied (52 inherited 'Autodesk Revit' content records; G0 carries ZERO content documents \u2014 Global/ContentDocuments is the empty form)",
+     "BrowserOrganizationTracking.m_setExpandedNodes": "emptied (19 sample UI expand-state nodes)"
+    },
+    "forge_corpus": {
+     "action": "CARRIED",
+     "bytes": 1333338,
+     "documents": 1315,
+     "why": "product runtime data byte-identical in ALL SIX samples (Revit Unit Schemas install image) \u2014 NOT sample-project expression; NOT regenerable from any public open-source repository (docs/writer/latest-regions.md \u00a72.4 \u2014 determination (c) is FALSE); no viewer verdict yet on stubbing/blanking (probes P3a/P3b UNVERIFIED) -> carried and FLAGGED as the residual, counsel C4-class beside Formats/Latest"
+    },
+    "missing_singletons": [],
+    "skipped": []
+   }
+  },
+  {
+   "stage": "G1_candidate",
+   "mode": "candidate",
+   "desc": "CANDIDATE: purge + registries repopulated over OUR inventory + sample caches emptied + product build constant; Forge corpus carried and FLAGGED (counsel C4-class product data)",
+   "base": "experiments/genesis/G0.rvt",
+   "out": "experiments/genesis/G1_candidate.rvt",
+   "latest_payload_before": 1586246,
+   "latest_payload_after": 1360923,
+   "latest_logical": 79459,
+   "latest_framed": 79907,
+   "self_decode_ok": true,
+   "coverage_after": {
+    "consumed": 1360917,
+    "total": 1360921,
+    "fraction": 0.9999970608139634,
+    "errors": 0,
+    "deferred_bodies": 201
+   },
+   "appinfo_slots_populated": 180,
+   "element_id_refs_before": 9737,
+   "element_id_refs_after": 242,
+   "our_ids_referenced_after": 205,
+   "byte_scan": {
+    "sample_ids_before": {
+     "hits": 9633,
+     "distinct": 6205,
+     "examples": [
+      1316392,
+      1372241,
+      1372482,
+      99880,
+      1353250,
+      99859,
+      713027,
+      99864,
+      1382280,
+      1382678,
+      1382768,
+      103627
+     ]
+    },
+    "sample_ids_after": {
+     "hits": 2,
+     "distinct": 2,
+     "examples": [
+      2424832,
+      6912
+     ]
+    },
+    "our_ids_after": {
+     "hits": 269,
+     "distinct": 214,
+     "examples": [
+      1500193,
+      1500022,
+      1500027,
+      1500051,
+      1500062,
+      1500056,
+      1500034,
+      1500074,
+      1500026,
+      1500220,
+      1500227,
+      1500194
+     ]
+    },
+    "note": "independent little-endian i64 window scan of the serialized payload against the union of every sample document's ElemTable ids (>= 4700); a residual hit rate of ~0.2 % per pre-purge hit is expected coincidence (id-shaped windows in doubles / adjacent fields), not references"
+   },
+   "string_census_before": {
+    "strings": 5385,
+    "chars": 737707,
+    "sample_watchlist_hits": {
+     "FOUNDATION-2700": 1,
+     "L1 wall frame hall 5": 1,
+     "S206": 1,
+     "Elevation 1": 1,
+     "Section 1": 1,
+     "Kitchen & Dining": 1,
+     "Master Bedroom": 1,
+     "Bathroom 1": 1,
+     "Ensuite": 1,
+     "Laundry": 1,
+     "Concrete 10 MPa": 1,
+     "250 MPa": 1,
+     "liqi": 1,
+     "macalis": 1,
+     "LB_Associations": 1,
+     "Less than 40 m": 1,
+     "360 m": 2
+    },
+    "vendor_tokens": {
+     "autodesk": 2683,
+     "adsk": 4,
+     "arex": 2,
+     "revit default db server": 1,
+     "wiresizes.xml": 1
+    },
+    "forge_json_or_typeid_strings": 2630
+   },
+   "string_census_after": {
+    "strings": 2995,
+    "chars": 668447,
+    "sample_watchlist_hits": {},
+    "vendor_tokens": {
+     "autodesk": 2630,
+     "adsk": 2,
+     "arex": 1,
+     "wiresizes.xml": 1
+    },
+    "forge_json_or_typeid_strings": 2630
+   },
+   "seconds": 0.4,
+   "authoring_summary": {
+    "purge_totals": {
+     "leaves": 14810,
+     "live": 0,
+     "invalid": 4635,
+     "dangling": 10175,
+     "nulled": 138,
+     "elements_dropped": 8892,
+     "scalars_nulled": 22
+    },
+    "registries": {
+     "MaterialTracking.m_elemIdSet": "13 of ours (materials)",
+     "FillPatternTracking.m_elemIdSet": "5 of ours (fill patterns)",
+     "LinePatternTracking.m_elemIdSet": "4 of ours (line patterns)",
+     "AppearanceAssetTracking.m_elemIdSet": "0 of ours",
+     "TilePatternTracking.m_elemIdSet": "0 of ours",
+     "PropertySetElementTracking.m_elemIdSet": "0 of ours",
+     "DatumTracking.m_elemIdSet": "2 of ours (levels/datums)",
+     "PhaseFilterTracking.m_elemIdSet": "5 of ours (phase filters)",
+     "UniqueElementsTracking.m_elemIds": "5 singletons of ours: [2]=ProjectInfo, [59]=ElectricalSetting, [66]=CableTraySizesElem, [67]=ConduitSizesElem, [74]=AllProjectPhases",
+     "UnitsTracking.m_unitsElemId": "= our UnitsElem",
+     "SiteMgr.m_trueNorthId": "= our TrueNorth",
+     "DBViewInfo": "project view 1500205, index of 4 views, 4 sun-settings, 0 templates, no system navigator",
+     "DBViewTypesForNewLevel.m_newLevelDBViewTypes": "2 of ours (plan view types)",
+     "DBDrawingInfo.m_DBDrawingsIndex": "4 of ours (drawings)",
+     "LevelPlanViewTracking.m_levelIdToPlanViewIds": "2 levels -> 2 plan views",
+     "SketchPlaneInfo.m_curSPRecs": "2 view sketch-planes of ours",
+     "CategoryTracking": "94 graphic-style rows (our house standard) + 7 sub-category rows",
+     "ElementTrackingData": "symbols {'BasicWallType': 3, 'FloorAttributes': 1, 'RoofAttributes': 1, 'CompoundCeilingType': 1, 'RbsDistributionSysType': 5, 'ConduitStandardType': 4, 'RbsConduitType': 5, 'RbsCableTrayType': 3, 'RbsWireType': 3} / elems {'ElectricalDemandFactorDefinition': 5, 'ElectricalLoadClassification': 6, 'GeoLocation': 2, 'BasePoint': 2, 'Level': 2} (sample shells kept, sets purged then refilled with ours)",
+     "SymbolIdMgr.m_defElementTypeMap": "11 defaults: BasicWallType->2, CompoundCeilingType->6, ConduitStandardType->124, Level->15, LevelAttributes->9, RbsCableTrayType->122, RbsConduitType->123, RbsDistributionSysType->104, RbsVoltageType->103, RbsWireType->102, RoofAttributes->3",
+     "CustomElementTracking": "4 data types -> 9 cells",
+     "AppInfoSystemFamiliesNames": "15 system families (keys 0..14), our types",
+     "m_storedByRevitBuild": "1 entry (the Revit-2026 product build constant; was 7 entries of the SAMPLE's 2018->2026 save lineage)"
+    },
+    "caches": {
+     "ContentTable.m_ContentRecSet": "emptied (52 inherited 'Autodesk Revit' content records; G0 carries ZERO content documents \u2014 Global/ContentDocuments is the empty form)",
+     "BrowserOrganizationTracking.m_setExpandedNodes": "emptied (19 sample UI expand-state nodes)",
+     "NewItemNumber.m_items": "emptied (30 sample entries)",
+     "WorksharingDisplaySettingsTracking.m_userToSettingsMap": "emptied (0 sample entries)",
+     "TemporaryViewPropertiesMenu.m_userToRecentlyUsedTVPMap": "emptied (1 sample entries)",
+     "AppInfoElementsAssociations.m_RepoByName": "emptied (3 sample entries)",
+     "EStorageTracking.m_trackingItems": "emptied (2 sample entries)",
+     "ExternalParamTracking.m_companyNameMap": "emptied (0 sample entries)",
+     "ExternalResourceErrorAppInfo.m_addInInfos": "emptied (1 sample entries)",
+     "NOBLE.m_primary2SecondaryDataIdMap": "emptied (14 entries)",
+     "ESSchemaStorage.m_schemaUsageMap": "emptied (2 sample add-in ES schemas)",
+     "AppInfoSystemFamiliesNames": "reset (rebuilt below when repopulating)",
+     "SymbolIdMgr.m_paramSetKeys/m_paramSets": "emptied (63 last-used parameter value sets \u2014 the sample's last-typed material names lived here)",
+     "NumberingAppInfo.m_mapCategoriesToParameterIdsToSchemas": "emptied",
+     "NumberingAppInfo.m_mapSchemas": "emptied",
+     "NumberingAppInfo.m_mapSchemaIdsToInfo": "emptied",
+     "NumberingAppInfo.m_schemaIdsToData": "emptied"
+    },
+    "forge_corpus": {
+     "action": "CARRIED",
+     "bytes": 1333338,
+     "documents": 1315,
+     "why": "product runtime data byte-identical in ALL SIX samples (Revit Unit Schemas install image) \u2014 NOT sample-project expression; NOT regenerable from any public open-source repository (docs/writer/latest-regions.md \u00a72.4 \u2014 determination (c) is FALSE); no viewer verdict yet on stubbing/blanking (probes P3a/P3b UNVERIFIED) -> carried and FLAGGED as the residual, counsel C4-class beside Formats/Latest"
+    },
+    "missing_singletons": [
+     "[0] ViewReferencing",
+     "[3] AreaSettingsElem",
+     "[4] ReactionsUpToDateElem",
+     "[5] CoordinateSystemDisplayElem",
+     "[7] WallJoinDefaultSetting",
+     "[9] Dwg2dExportUserSettingsData",
+     "[10] AutoCamSettingsElem",
+     "[11] AutoJoinTracker",
+     "[15] GCSTracker",
+     "[16] ActiveGeoLocationTrackingElement",
+     "[17] WorksetVisibilitySettingsElem",
+     "[18] ProjectCopySettingsElem",
+     "[19] EnergyDataSettings",
+     "[20] ConceptualSurfaceType",
+     "[21] ConceptualSurfaceType",
+     "[22] ConceptualSurfaceType",
+     "[23] ConceptualSurfaceType",
+     "[25] ConceptualSurfaceType",
+     "[26] ConceptualSurfaceType",
+     "[27] ConceptualSurfaceType",
+     "[28] ConceptualSurfaceType",
+     "[29] ConceptualSurfaceType",
+     "[30] ConceptualSurfaceType",
+     "[31] ListConceptualSurfaceTypes",
+     "[32] ReconcileBrowserSettingsElem",
+     "[33] StructSettingsElem",
+     "[36] MEPSystemTracker",
+     "[38] AssemblyTracker",
+     "[40] SketchGridAppearanceParentElem",
+     "[41] RvtLinkInstanceAppearanceParentElem",
+     "[42] HubsTracker",
+     "[43] InitialViewSettings",
+     "[44] RbsPipeSettingsElem",
+     "[45] RbsPipeSizesElem",
+     "[46] ComponentRepeaterSlotSpecialType",
+     "[47] ComponentRepeaterSlotSpecialType",
+     "[48] RbsDuctSizesElem",
+     "[51] ReinforcementSettings",
+     "[53] RbsWireSettingsElem",
+     "[54] RevisionCloudsOnSheetsTracker",
+     "[55] RbsWireSizesElem",
+     "[56] RbsDuctSettingsElem",
+     "[57] KeynoteTagsOnSheetsTracker",
+     "[58] MEPComponentTracker",
+     "[60] DefaultDivideSettings",
+     "[61] FabricationSettings",
+     "[62] AllProjectRevisions",
+     "[63] LayoutNodesTracker",
+     "[64] AssemblyCodeTable",
+     "[65] KeynoteTable",
+     "[69] FabricationSettingsElement",
+     "[70] StructuralConnectionSettings",
+     "[71] CableTraySettingsElem",
+     "[72] ConduitSettingsElem",
+     "[73] MEPNetworkTracker",
+     "[77] RouteAnalysisSettings",
+     "[79] CircuitNamingTypeSetting",
+     "[81] MEPHiddenLineSettingsElem",
+     "[82] MultipleValuesIndicationSettings",
+     "[83] AnalyticalToPhysicalRelationManager",
+     "[84] GraphicsCache",
+     "[86] FabricationServiceSettings",
+     "[87] SSEPointVisibilitySettings",
+     "[88] ScheduleInstanceBaseOnSheetsTracker",
+     "[89] MEPNetworkDataElem",
+     "[91] SheetsInSheetCollectionTracker",
+     "[92] STEPExportSettings"
+    ],
+    "skipped": [
+     "m_defElementTypeMap DBViewType: 21 type-groups [62, 63, 64, 65, 66, 67], one class -> many usage kinds; no default set",
+     "m_defElementTypeMap FloorAttributes: 2 type-groups [4, 5], one class -> many usage kinds; no default set",
+     "m_defElementTypeMap GStyleElem: not a type-like class (group 41) \u2014 no default set",
+     "m_defElementTypeMap MaterialElem: not a type-like class (group 42) \u2014 no default set",
+     "m_defElementTypeMap TextNoteAttributes: 2 type-groups [12, 139], one class -> many usage kinds; no default set"
+    ]
+   }
+  },
+  {
+   "stage": "G1b",
+   "mode": "maxpurity",
+   "desc": "MAX-PURITY: candidate + Forge unit-schema corpora emptied + add-in/service descriptors emptied + our honest 'saved by' string",
+   "base": "experiments/genesis/G0.rvt",
+   "out": "experiments/genesis/G1b.rvt",
+   "latest_payload_before": 1586246,
+   "latest_payload_after": 26102,
+   "latest_logical": 6287,
+   "latest_framed": 6379,
+   "self_decode_ok": true,
+   "coverage_after": {
+    "consumed": 26096,
+    "total": 26100,
+    "fraction": 0.9998467432950191,
+    "errors": 0,
+    "deferred_bodies": 201
+   },
+   "appinfo_slots_populated": 180,
+   "element_id_refs_before": 9737,
+   "element_id_refs_after": 242,
+   "our_ids_referenced_after": 205,
+   "byte_scan": {
+    "sample_ids_before": {
+     "hits": 9633,
+     "distinct": 6205,
+     "examples": [
+      1316392,
+      1372241,
+      1372482,
+      99880,
+      1353250,
+      99859,
+      713027,
+      99864,
+      1382280,
+      1382678,
+      1382768,
+      103627
+     ]
+    },
+    "sample_ids_after": {
+     "hits": 2,
+     "distinct": 2,
+     "examples": [
+      2424832,
+      6912
+     ]
+    },
+    "our_ids_after": {
+     "hits": 269,
+     "distinct": 214,
+     "examples": [
+      1500193,
+      1500022,
+      1500027,
+      1500051,
+      1500062,
+      1500056,
+      1500034,
+      1500074,
+      1500026,
+      1500220,
+      1500227,
+      1500194
+     ]
+    },
+    "note": "independent little-endian i64 window scan of the serialized payload against the union of every sample document's ElemTable ids (>= 4700); a residual hit rate of ~0.2 % per pre-purge hit is expected coincidence (id-shaped windows in doubles / adjacent fields), not references"
+   },
+   "string_census_before": {
+    "strings": 5385,
+    "chars": 737707,
+    "sample_watchlist_hits": {
+     "FOUNDATION-2700": 1,
+     "L1 wall frame hall 5": 1,
+     "S206": 1,
+     "Elevation 1": 1,
+     "Section 1": 1,
+     "Kitchen & Dining": 1,
+     "Master Bedroom": 1,
+     "Bathroom 1": 1,
+     "Ensuite": 1,
+     "Laundry": 1,
+     "Concrete 10 MPa": 1,
+     "250 MPa": 1,
+     "liqi": 1,
+     "macalis": 1,
+     "LB_Associations": 1,
+     "Less than 40 m": 1,
+     "360 m": 2
+    },
+    "vendor_tokens": {
+     "autodesk": 2683,
+     "adsk": 4,
+     "arex": 2,
+     "revit default db server": 1,
+     "wiresizes.xml": 1
+    },
+    "forge_json_or_typeid_strings": 2630
+   },
+   "string_census_after": {
+    "strings": 316,
+    "chars": 5800,
+    "sample_watchlist_hits": {},
+    "vendor_tokens": {
+     "wiresizes.xml": 1
+    },
+    "forge_json_or_typeid_strings": 0
+   },
+   "seconds": 0.2,
+   "authoring_summary": {
+    "purge_totals": {
+     "leaves": 14810,
+     "live": 0,
+     "invalid": 4635,
+     "dangling": 10175,
+     "nulled": 138,
+     "elements_dropped": 8892,
+     "scalars_nulled": 22
+    },
+    "registries": {
+     "MaterialTracking.m_elemIdSet": "13 of ours (materials)",
+     "FillPatternTracking.m_elemIdSet": "5 of ours (fill patterns)",
+     "LinePatternTracking.m_elemIdSet": "4 of ours (line patterns)",
+     "AppearanceAssetTracking.m_elemIdSet": "0 of ours",
+     "TilePatternTracking.m_elemIdSet": "0 of ours",
+     "PropertySetElementTracking.m_elemIdSet": "0 of ours",
+     "DatumTracking.m_elemIdSet": "2 of ours (levels/datums)",
+     "PhaseFilterTracking.m_elemIdSet": "5 of ours (phase filters)",
+     "UniqueElementsTracking.m_elemIds": "5 singletons of ours: [2]=ProjectInfo, [59]=ElectricalSetting, [66]=CableTraySizesElem, [67]=ConduitSizesElem, [74]=AllProjectPhases",
+     "UnitsTracking.m_unitsElemId": "= our UnitsElem",
+     "SiteMgr.m_trueNorthId": "= our TrueNorth",
+     "DBViewInfo": "project view 1500205, index of 4 views, 4 sun-settings, 0 templates, no system navigator",
+     "DBViewTypesForNewLevel.m_newLevelDBViewTypes": "2 of ours (plan view types)",
+     "DBDrawingInfo.m_DBDrawingsIndex": "4 of ours (drawings)",
+     "LevelPlanViewTracking.m_levelIdToPlanViewIds": "2 levels -> 2 plan views",
+     "SketchPlaneInfo.m_curSPRecs": "2 view sketch-planes of ours",
+     "CategoryTracking": "94 graphic-style rows (our house standard) + 7 sub-category rows",
+     "ElementTrackingData": "symbols {'BasicWallType': 3, 'FloorAttributes': 1, 'RoofAttributes': 1, 'CompoundCeilingType': 1, 'RbsDistributionSysType': 5, 'ConduitStandardType': 4, 'RbsConduitType': 5, 'RbsCableTrayType': 3, 'RbsWireType': 3} / elems {'ElectricalDemandFactorDefinition': 5, 'ElectricalLoadClassification': 6, 'GeoLocation': 2, 'BasePoint': 2, 'Level': 2} (sample shells kept, sets purged then refilled with ours)",
+     "SymbolIdMgr.m_defElementTypeMap": "11 defaults: BasicWallType->2, CompoundCeilingType->6, ConduitStandardType->124, Level->15, LevelAttributes->9, RbsCableTrayType->122, RbsConduitType->123, RbsDistributionSysType->104, RbsVoltageType->103, RbsWireType->102, RoofAttributes->3",
+     "CustomElementTracking": "4 data types -> 9 cells",
+     "AppInfoSystemFamiliesNames": "15 system families (keys 0..14), our types",
+     "m_storedByRevitBuild": "1 entry \u2014 OUR authoring string 'rvt-writer genesis writer 0.1 (Revit-2026 format, sync 2662) : 20250227_1515(x64)' (was 7 sample lineage entries; reader tolerance UNVERIFIED \u2014 counsel C1)"
+    },
+    "caches": {
+     "ContentTable.m_ContentRecSet": "emptied (52 inherited 'Autodesk Revit' content records; G0 carries ZERO content documents \u2014 Global/ContentDocuments is the empty form)",
+     "BrowserOrganizationTracking.m_setExpandedNodes": "emptied (19 sample UI expand-state nodes)",
+     "NewItemNumber.m_items": "emptied (30 sample entries)",
+     "WorksharingDisplaySettingsTracking.m_userToSettingsMap": "emptied (0 sample entries)",
+     "TemporaryViewPropertiesMenu.m_userToRecentlyUsedTVPMap": "emptied (1 sample entries)",
+     "AppInfoElementsAssociations.m_RepoByName": "emptied (3 sample entries)",
+     "EStorageTracking.m_trackingItems": "emptied (2 sample entries)",
+     "ExternalParamTracking.m_companyNameMap": "emptied (0 sample entries)",
+     "ExternalResourceErrorAppInfo.m_addInInfos": "emptied (1 sample entries)",
+     "NOBLE.m_primary2SecondaryDataIdMap": "emptied (14 entries)",
+     "ESSchemaStorage.m_schemaUsageMap": "emptied (2 sample add-in ES schemas)",
+     "AppInfoSystemFamiliesNames": "reset (rebuilt below when repopulating)",
+     "SymbolIdMgr.m_paramSetKeys/m_paramSets": "emptied (63 last-used parameter value sets \u2014 the sample's last-typed material names lived here)",
+     "NumberingAppInfo.m_mapCategoriesToParameterIdsToSchemas": "emptied",
+     "NumberingAppInfo.m_mapSchemas": "emptied",
+     "NumberingAppInfo.m_mapSchemaIdsToInfo": "emptied",
+     "NumberingAppInfo.m_schemaIdsToData": "emptied",
+     "APIAppInfo.m_addInNames": "emptied (2 add-in names)",
+     "DynamicUpdateAppInfo.m_modifyingUpdaterInfos": "emptied (9 Revit updater registrations)"
+    },
+    "forge_corpus": {
+     "action": "EMPTIED",
+     "documents_removed": 1315,
+     "bytes_removed": 1333338,
+     "why": "max-purity: no Autodesk-authored schema documents carried; the reader-tolerance question this file answers (probe P3b analogue)"
+    },
+    "missing_singletons": [
+     "[0] ViewReferencing",
+     "[3] AreaSettingsElem",
+     "[4] ReactionsUpToDateElem",
+     "[5] CoordinateSystemDisplayElem",
+     "[7] WallJoinDefaultSetting",
+     "[9] Dwg2dExportUserSettingsData",
+     "[10] AutoCamSettingsElem",
+     "[11] AutoJoinTracker",
+     "[15] GCSTracker",
+     "[16] ActiveGeoLocationTrackingElement",
+     "[17] WorksetVisibilitySettingsElem",
+     "[18] ProjectCopySettingsElem",
+     "[19] EnergyDataSettings",
+     "[20] ConceptualSurfaceType",
+     "[21] ConceptualSurfaceType",
+     "[22] ConceptualSurfaceType",
+     "[23] ConceptualSurfaceType",
+     "[25] ConceptualSurfaceType",
+     "[26] ConceptualSurfaceType",
+     "[27] ConceptualSurfaceType",
+     "[28] ConceptualSurfaceType",
+     "[29] ConceptualSurfaceType",
+     "[30] ConceptualSurfaceType",
+     "[31] ListConceptualSurfaceTypes",
+     "[32] ReconcileBrowserSettingsElem",
+     "[33] StructSettingsElem",
+     "[36] MEPSystemTracker",
+     "[38] AssemblyTracker",
+     "[40] SketchGridAppearanceParentElem",
+     "[41] RvtLinkInstanceAppearanceParentElem",
+     "[42] HubsTracker",
+     "[43] InitialViewSettings",
+     "[44] RbsPipeSettingsElem",
+     "[45] RbsPipeSizesElem",
+     "[46] ComponentRepeaterSlotSpecialType",
+     "[47] ComponentRepeaterSlotSpecialType",
+     "[48] RbsDuctSizesElem",
+     "[51] ReinforcementSettings",
+     "[53] RbsWireSettingsElem",
+     "[54] RevisionCloudsOnSheetsTracker",
+     "[55] RbsWireSizesElem",
+     "[56] RbsDuctSettingsElem",
+     "[57] KeynoteTagsOnSheetsTracker",
+     "[58] MEPComponentTracker",
+     "[60] DefaultDivideSettings",
+     "[61] FabricationSettings",
+     "[62] AllProjectRevisions",
+     "[63] LayoutNodesTracker",
+     "[64] AssemblyCodeTable",
+     "[65] KeynoteTable",
+     "[69] FabricationSettingsElement",
+     "[70] StructuralConnectionSettings",
+     "[71] CableTraySettingsElem",
+     "[72] ConduitSettingsElem",
+     "[73] MEPNetworkTracker",
+     "[77] RouteAnalysisSettings",
+     "[79] CircuitNamingTypeSetting",
+     "[81] MEPHiddenLineSettingsElem",
+     "[82] MultipleValuesIndicationSettings",
+     "[83] AnalyticalToPhysicalRelationManager",
+     "[84] GraphicsCache",
+     "[86] FabricationServiceSettings",
+     "[87] SSEPointVisibilitySettings",
+     "[88] ScheduleInstanceBaseOnSheetsTracker",
+     "[89] MEPNetworkDataElem",
+     "[91] SheetsInSheetCollectionTracker",
+     "[92] STEPExportSettings"
+    ],
+    "skipped": [
+     "m_defElementTypeMap DBViewType: 21 type-groups [62, 63, 64, 65, 66, 67], one class -> many usage kinds; no default set",
+     "m_defElementTypeMap FloorAttributes: 2 type-groups [4, 5], one class -> many usage kinds; no default set",
+     "m_defElementTypeMap GStyleElem: not a type-like class (group 41) \u2014 no default set",
+     "m_defElementTypeMap MaterialElem: not a type-like class (group 42) \u2014 no default set",
+     "m_defElementTypeMap TextNoteAttributes: 2 type-groups [12, 139], one class -> many usage kinds; no default set"
+    ]
+   }
+  },
+  {
+   "stage": "G1_candidate_safe",
+   "mode": "candidate",
+   "desc": "CANDIDATE: purge + registries repopulated over OUR inventory + sample caches emptied + product build constant; Forge corpus carried and FLAGGED (counsel C4-class product data)",
+   "base": "experiments/genesis/G0_safe.rvt",
+   "out": "experiments/genesis/G1_candidate_safe.rvt",
+   "latest_payload_before": 1586246,
+   "latest_payload_after": 1360923,
+   "latest_logical": 79459,
+   "latest_framed": 79907,
+   "self_decode_ok": true,
+   "coverage_after": {
+    "consumed": 1360917,
+    "total": 1360921,
+    "fraction": 0.9999970608139634,
+    "errors": 0,
+    "deferred_bodies": 201
+   },
+   "appinfo_slots_populated": 180,
+   "element_id_refs_before": 9737,
+   "element_id_refs_after": 242,
+   "our_ids_referenced_after": 205,
+   "byte_scan": {
+    "sample_ids_before": {
+     "hits": 9633,
+     "distinct": 6205,
+     "examples": [
+      1316392,
+      1372241,
+      1372482,
+      99880,
+      1353250,
+      99859,
+      713027,
+      99864,
+      1382280,
+      1382678,
+      1382768,
+      103627
+     ]
+    },
+    "sample_ids_after": {
+     "hits": 2,
+     "distinct": 2,
+     "examples": [
+      2424832,
+      6912
+     ]
+    },
+    "our_ids_after": {
+     "hits": 269,
+     "distinct": 214,
+     "examples": [
+      1500193,
+      1500022,
+      1500027,
+      1500051,
+      1500062,
+      1500056,
+      1500034,
+      1500074,
+      1500026,
+      1500220,
+      1500227,
+      1500194
+     ]
+    },
+    "note": "independent little-endian i64 window scan of the serialized payload against the union of every sample document's ElemTable ids (>= 4700); a residual hit rate of ~0.2 % per pre-purge hit is expected coincidence (id-shaped windows in doubles / adjacent fields), not references"
+   },
+   "string_census_before": {
+    "strings": 5385,
+    "chars": 737707,
+    "sample_watchlist_hits": {
+     "FOUNDATION-2700": 1,
+     "L1 wall frame hall 5": 1,
+     "S206": 1,
+     "Elevation 1": 1,
+     "Section 1": 1,
+     "Kitchen & Dining": 1,
+     "Master Bedroom": 1,
+     "Bathroom 1": 1,
+     "Ensuite": 1,
+     "Laundry": 1,
+     "Concrete 10 MPa": 1,
+     "250 MPa": 1,
+     "liqi": 1,
+     "macalis": 1,
+     "LB_Associations": 1,
+     "Less than 40 m": 1,
+     "360 m": 2
+    },
+    "vendor_tokens": {
+     "autodesk": 2683,
+     "adsk": 4,
+     "arex": 2,
+     "revit default db server": 1,
+     "wiresizes.xml": 1
+    },
+    "forge_json_or_typeid_strings": 2630
+   },
+   "string_census_after": {
+    "strings": 2995,
+    "chars": 668447,
+    "sample_watchlist_hits": {},
+    "vendor_tokens": {
+     "autodesk": 2630,
+     "adsk": 2,
+     "arex": 1,
+     "wiresizes.xml": 1
+    },
+    "forge_json_or_typeid_strings": 2630
+   },
+   "seconds": 0.4,
+   "authoring_summary": {
+    "purge_totals": {
+     "leaves": 14810,
+     "live": 0,
+     "invalid": 4635,
+     "dangling": 10175,
+     "nulled": 138,
+     "elements_dropped": 8892,
+     "scalars_nulled": 22
+    },
+    "registries": {
+     "MaterialTracking.m_elemIdSet": "13 of ours (materials)",
+     "FillPatternTracking.m_elemIdSet": "5 of ours (fill patterns)",
+     "LinePatternTracking.m_elemIdSet": "4 of ours (line patterns)",
+     "AppearanceAssetTracking.m_elemIdSet": "0 of ours",
+     "TilePatternTracking.m_elemIdSet": "0 of ours",
+     "PropertySetElementTracking.m_elemIdSet": "0 of ours",
+     "DatumTracking.m_elemIdSet": "2 of ours (levels/datums)",
+     "PhaseFilterTracking.m_elemIdSet": "5 of ours (phase filters)",
+     "UniqueElementsTracking.m_elemIds": "5 singletons of ours: [2]=ProjectInfo, [59]=ElectricalSetting, [66]=CableTraySizesElem, [67]=ConduitSizesElem, [74]=AllProjectPhases",
+     "UnitsTracking.m_unitsElemId": "= our UnitsElem",
+     "SiteMgr.m_trueNorthId": "= our TrueNorth",
+     "DBViewInfo": "project view 1500205, index of 4 views, 4 sun-settings, 0 templates, no system navigator",
+     "DBViewTypesForNewLevel.m_newLevelDBViewTypes": "2 of ours (plan view types)",
+     "DBDrawingInfo.m_DBDrawingsIndex": "4 of ours (drawings)",
+     "LevelPlanViewTracking.m_levelIdToPlanViewIds": "2 levels -> 2 plan views",
+     "SketchPlaneInfo.m_curSPRecs": "2 view sketch-planes of ours",
+     "CategoryTracking": "94 graphic-style rows (our house standard) + 7 sub-category rows",
+     "ElementTrackingData": "symbols {'BasicWallType': 3, 'FloorAttributes': 1, 'RoofAttributes': 1, 'CompoundCeilingType': 1, 'RbsDistributionSysType': 5, 'ConduitStandardType': 4, 'RbsConduitType': 5, 'RbsCableTrayType': 3, 'RbsWireType': 3} / elems {'ElectricalDemandFactorDefinition': 5, 'ElectricalLoadClassification': 6, 'GeoLocation': 2, 'BasePoint': 2, 'Level': 2} (sample shells kept, sets purged then refilled with ours)",
+     "SymbolIdMgr.m_defElementTypeMap": "11 defaults: BasicWallType->2, CompoundCeilingType->6, ConduitStandardType->124, Level->15, LevelAttributes->9, RbsCableTrayType->122, RbsConduitType->123, RbsDistributionSysType->104, RbsVoltageType->103, RbsWireType->102, RoofAttributes->3",
+     "CustomElementTracking": "4 data types -> 9 cells",
+     "AppInfoSystemFamiliesNames": "15 system families (keys 0..14), our types",
+     "m_storedByRevitBuild": "1 entry (the Revit-2026 product build constant; was 7 entries of the SAMPLE's 2018->2026 save lineage)"
+    },
+    "caches": {
+     "ContentTable.m_ContentRecSet": "emptied (52 inherited 'Autodesk Revit' content records; G0 carries ZERO content documents \u2014 Global/ContentDocuments is the empty form)",
+     "BrowserOrganizationTracking.m_setExpandedNodes": "emptied (19 sample UI expand-state nodes)",
+     "NewItemNumber.m_items": "emptied (30 sample entries)",
+     "WorksharingDisplaySettingsTracking.m_userToSettingsMap": "emptied (0 sample entries)",
+     "TemporaryViewPropertiesMenu.m_userToRecentlyUsedTVPMap": "emptied (1 sample entries)",
+     "AppInfoElementsAssociations.m_RepoByName": "emptied (3 sample entries)",
+     "EStorageTracking.m_trackingItems": "emptied (2 sample entries)",
+     "ExternalParamTracking.m_companyNameMap": "emptied (0 sample entries)",
+     "ExternalResourceErrorAppInfo.m_addInInfos": "emptied (1 sample entries)",
+     "NOBLE.m_primary2SecondaryDataIdMap": "emptied (14 entries)",
+     "ESSchemaStorage.m_schemaUsageMap": "emptied (2 sample add-in ES schemas)",
+     "AppInfoSystemFamiliesNames": "reset (rebuilt below when repopulating)",
+     "SymbolIdMgr.m_paramSetKeys/m_paramSets": "emptied (63 last-used parameter value sets \u2014 the sample's last-typed material names lived here)",
+     "NumberingAppInfo.m_mapCategoriesToParameterIdsToSchemas": "emptied",
+     "NumberingAppInfo.m_mapSchemas": "emptied",
+     "NumberingAppInfo.m_mapSchemaIdsToInfo": "emptied",
+     "NumberingAppInfo.m_schemaIdsToData": "emptied"
+    },
+    "forge_corpus": {
+     "action": "CARRIED",
+     "bytes": 1333338,
+     "documents": 1315,
+     "why": "product runtime data byte-identical in ALL SIX samples (Revit Unit Schemas install image) \u2014 NOT sample-project expression; NOT regenerable from any public open-source repository (docs/writer/latest-regions.md \u00a72.4 \u2014 determination (c) is FALSE); no viewer verdict yet on stubbing/blanking (probes P3a/P3b UNVERIFIED) -> carried and FLAGGED as the residual, counsel C4-class beside Formats/Latest"
+    },
+    "missing_singletons": [
+     "[0] ViewReferencing",
+     "[3] AreaSettingsElem",
+     "[4] ReactionsUpToDateElem",
+     "[5] CoordinateSystemDisplayElem",
+     "[7] WallJoinDefaultSetting",
+     "[9] Dwg2dExportUserSettingsData",
+     "[10] AutoCamSettingsElem",
+     "[11] AutoJoinTracker",
+     "[15] GCSTracker",
+     "[16] ActiveGeoLocationTrackingElement",
+     "[17] WorksetVisibilitySettingsElem",
+     "[18] ProjectCopySettingsElem",
+     "[19] EnergyDataSettings",
+     "[20] ConceptualSurfaceType",
+     "[21] ConceptualSurfaceType",
+     "[22] ConceptualSurfaceType",
+     "[23] ConceptualSurfaceType",
+     "[25] ConceptualSurfaceType",
+     "[26] ConceptualSurfaceType",
+     "[27] ConceptualSurfaceType",
+     "[28] ConceptualSurfaceType",
+     "[29] ConceptualSurfaceType",
+     "[30] ConceptualSurfaceType",
+     "[31] ListConceptualSurfaceTypes",
+     "[32] ReconcileBrowserSettingsElem",
+     "[33] StructSettingsElem",
+     "[36] MEPSystemTracker",
+     "[38] AssemblyTracker",
+     "[40] SketchGridAppearanceParentElem",
+     "[41] RvtLinkInstanceAppearanceParentElem",
+     "[42] HubsTracker",
+     "[43] InitialViewSettings",
+     "[44] RbsPipeSettingsElem",
+     "[45] RbsPipeSizesElem",
+     "[46] ComponentRepeaterSlotSpecialType",
+     "[47] ComponentRepeaterSlotSpecialType",
+     "[48] RbsDuctSizesElem",
+     "[51] ReinforcementSettings",
+     "[53] RbsWireSettingsElem",
+     "[54] RevisionCloudsOnSheetsTracker",
+     "[55] RbsWireSizesElem",
+     "[56] RbsDuctSettingsElem",
+     "[57] KeynoteTagsOnSheetsTracker",
+     "[58] MEPComponentTracker",
+     "[60] DefaultDivideSettings",
+     "[61] FabricationSettings",
+     "[62] AllProjectRevisions",
+     "[63] LayoutNodesTracker",
+     "[64] AssemblyCodeTable",
+     "[65] KeynoteTable",
+     "[69] FabricationSettingsElement",
+     "[70] StructuralConnectionSettings",
+     "[71] CableTraySettingsElem",
+     "[72] ConduitSettingsElem",
+     "[73] MEPNetworkTracker",
+     "[77] RouteAnalysisSettings",
+     "[79] CircuitNamingTypeSetting",
+     "[81] MEPHiddenLineSettingsElem",
+     "[82] MultipleValuesIndicationSettings",
+     "[83] AnalyticalToPhysicalRelationManager",
+     "[84] GraphicsCache",
+     "[86] FabricationServiceSettings",
+     "[87] SSEPointVisibilitySettings",
+     "[88] ScheduleInstanceBaseOnSheetsTracker",
+     "[89] MEPNetworkDataElem",
+     "[91] SheetsInSheetCollectionTracker",
+     "[92] STEPExportSettings"
+    ],
+    "skipped": [
+     "m_defElementTypeMap DBViewType: 21 type-groups [62, 63, 64, 65, 66, 67], one class -> many usage kinds; no default set",
+     "m_defElementTypeMap FloorAttributes: 2 type-groups [4, 5], one class -> many usage kinds; no default set",
+     "m_defElementTypeMap GStyleElem: not a type-like class (group 41) \u2014 no default set",
+     "m_defElementTypeMap MaterialElem: not a type-like class (group 42) \u2014 no default set",
+     "m_defElementTypeMap TextNoteAttributes: 2 type-groups [12, 139], one class -> many usage kinds; no default set"
+    ]
+   }
+  }
+ ],
+ "files": {
+  "G1a": {
+   "file": "experiments/genesis/G1a.rvt",
+   "bytes": 335872,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_messages": [],
+    "warning_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 3,
+     "records": 705,
+     "elements_decoded": 234,
+     "decode_failures": 0,
+     "refs_checked": 2940
+    },
+    "seconds": 0.1
+   },
+   "ledger": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/G1a.rvt",
+    "gate_verdict": "FAIL \u2014 134 Autodesk-derived element(s) in expression-bearing categories; 1,386,156 byte(s) byte-identical to baseline in expression-bearing streams; 7,405 Autodesk resource identifier(s)",
+    "gate_passes": false,
+    "certifies_G1": false,
+    "layers": [
+     "elements",
+     "streams",
+     "strings",
+     "identity"
+    ],
+    "blocking": [
+     {
+      "category": "system-family-types",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "transitive-cloned",
+      "count": 12,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "transitive-cloned",
+      "count": 93,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "transitive-cloned",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "transitive-cloned",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "mep-electrical-definitions",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "layer": "streams",
+      "category": "Global/Latest",
+      "provenance": "stream-modified-lineage",
+      "count": 1386156,
+      "why": "1,386,156 of 1,410,444 bytes byte-identical to baseline racbasicsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+     },
+     {
+      "layer": "strings",
+      "category": "autodesk-resource-refs",
+      "provenance": "autodesk-resource-refs",
+      "count": 7405,
+      "why": "7,405 Autodesk resource identifier(s) in document content (forge-typeid=7363, revit-resource-string=36, adsk-token=2, revit-server-string=2, forge-schema-corpus=1) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+     }
+    ],
+    "counsel": [
+     {
+      "item": "C4 schema-stream",
+      "stream": "Formats/Latest",
+      "identical_pct": 100.0,
+      "identical_to": [
+       "dach-sample-project:Formats/Latest",
+       "racadvancedsampleproject:Formats/Latest",
+       "racbasicsampleproject:Formats/Latest",
+       "rmebasicsampleproject:Formats/Latest",
+       "rstadvancedsampleproject:Formats/Latest",
+       "rstbasicsampleproject:Formats/Latest"
+      ],
+      "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+     }
+    ],
+    "advisory_count": 4,
+    "elements": {
+     "host": 234,
+     "totals": {
+      "ours-created": 99,
+      "transitive-cloned": 135
+     },
+     "multi_baseline": {
+      "dach-sample-project": {
+       "unmatched": 234
+      },
+      "racadvancedsampleproject": {
+       "ours-created": 105,
+       "transitive-cloned": 129
+      },
+      "racbasicsampleproject": {
+       "ours-created": 110,
+       "transitive-cloned": 124
+      },
+      "rmebasicsampleproject": {
+       "ours-created": 107,
+       "transitive-cloned": 127
+      },
+      "rstadvancedsampleproject": {
+       "ours-created": 106,
+       "transitive-cloned": 128
+      },
+      "rstbasicsampleproject": {
+       "ours-created": 108,
+       "transitive-cloned": 126
+      }
+     }
+    },
+    "bytes": {
+     "total_inflated": 2058757,
+     "identical_pct": 92.31,
+     "ours_pct": 6.38,
+     "excluding_schema_identical_pct": 89.87,
+     "excluding_schema_ours_pct": 8.4
+    },
+    "global_latest": {
+     "inflated": 1410444,
+     "class": "modified-lineage",
+     "identical_bytes": 1386156,
+     "identical_pct": 98.28,
+     "ours_bytes": 0,
+     "best_baseline": "racbasicsampleproject"
+    },
+    "resource_refs": {
+     "total": 7405,
+     "by_pattern": {
+      "forge-typeid": 7363,
+      "forge-schema-corpus": 1,
+      "autodesk-url": 1,
+      "adsk-token": 2,
+      "revit-server-string": 2,
+      "revit-resource-string": 36
+     }
+    },
+    "identity_ok": true,
+    "identity_violations": [],
+    "elapsed_s": 6.5
+   }
+  },
+  "G1_candidate": {
+   "file": "experiments/genesis/G1_candidate.rvt",
+   "bytes": 331776,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_messages": [],
+    "warning_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 3,
+     "records": 705,
+     "elements_decoded": 234,
+     "decode_failures": 0,
+     "refs_checked": 2940
+    },
+    "seconds": 0.1
+   },
+   "ledger": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/G1_candidate.rvt",
+    "gate_verdict": "FAIL \u2014 134 Autodesk-derived element(s) in expression-bearing categories; 1,346,347 byte(s) byte-identical to baseline in expression-bearing streams; 7,400 Autodesk resource identifier(s)",
+    "gate_passes": false,
+    "certifies_G1": false,
+    "layers": [
+     "elements",
+     "streams",
+     "strings",
+     "identity"
+    ],
+    "blocking": [
+     {
+      "category": "system-family-types",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "transitive-cloned",
+      "count": 12,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "transitive-cloned",
+      "count": 93,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "transitive-cloned",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "transitive-cloned",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "mep-electrical-definitions",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "layer": "streams",
+      "category": "Global/Latest",
+      "provenance": "stream-modified-lineage",
+      "count": 1346347,
+      "why": "1,346,347 of 1,360,931 bytes byte-identical to baseline racbasicsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+     },
+     {
+      "layer": "strings",
+      "category": "autodesk-resource-refs",
+      "provenance": "autodesk-resource-refs",
+      "count": 7400,
+      "why": "7,400 Autodesk resource identifier(s) in document content (forge-typeid=7363, revit-resource-string=36, forge-schema-corpus=1) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+     }
+    ],
+    "counsel": [
+     {
+      "item": "C4 schema-stream",
+      "stream": "Formats/Latest",
+      "identical_pct": 100.0,
+      "identical_to": [
+       "dach-sample-project:Formats/Latest",
+       "racadvancedsampleproject:Formats/Latest",
+       "racbasicsampleproject:Formats/Latest",
+       "rmebasicsampleproject:Formats/Latest",
+       "rstadvancedsampleproject:Formats/Latest",
+       "rstbasicsampleproject:Formats/Latest"
+      ],
+      "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+     }
+    ],
+    "advisory_count": 4,
+    "elements": {
+     "host": 234,
+     "totals": {
+      "ours-created": 99,
+      "transitive-cloned": 135
+     },
+     "multi_baseline": {
+      "dach-sample-project": {
+       "unmatched": 234
+      },
+      "racadvancedsampleproject": {
+       "ours-created": 105,
+       "transitive-cloned": 129
+      },
+      "racbasicsampleproject": {
+       "ours-created": 110,
+       "transitive-cloned": 124
+      },
+      "rmebasicsampleproject": {
+       "ours-created": 107,
+       "transitive-cloned": 127
+      },
+      "rstadvancedsampleproject": {
+       "ours-created": 106,
+       "transitive-cloned": 128
+      },
+      "rstbasicsampleproject": {
+       "ours-created": 108,
+       "transitive-cloned": 126
+      }
+     }
+    },
+    "bytes": {
+     "total_inflated": 2009280,
+     "identical_pct": 92.61,
+     "ours_pct": 6.53,
+     "excluding_schema_identical_pct": 90.18,
+     "excluding_schema_ours_pct": 8.68
+    },
+    "global_latest": {
+     "inflated": 1360931,
+     "class": "modified-lineage",
+     "identical_bytes": 1346347,
+     "identical_pct": 98.93,
+     "ours_bytes": 0,
+     "best_baseline": "racbasicsampleproject"
+    },
+    "resource_refs": {
+     "total": 7400,
+     "by_pattern": {
+      "forge-typeid": 7363,
+      "forge-schema-corpus": 1,
+      "revit-resource-string": 36
+     }
+    },
+    "identity_ok": true,
+    "identity_violations": [],
+    "elapsed_s": 6.5
+   }
+  },
+  "G1b": {
+   "file": "experiments/genesis/G1b.rvt",
+   "bytes": 258048,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_messages": [],
+    "warning_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 3,
+     "records": 705,
+     "elements_decoded": 234,
+     "decode_failures": 0,
+     "refs_checked": 2940
+    },
+    "seconds": 0.1
+   },
+   "ledger": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/G1b.rvt",
+    "gate_verdict": "FAIL \u2014 134 Autodesk-derived element(s) in expression-bearing categories; 11,776 byte(s) byte-identical to baseline in expression-bearing streams; 107 Autodesk resource identifier(s)",
+    "gate_passes": false,
+    "certifies_G1": false,
+    "layers": [
+     "elements",
+     "streams",
+     "strings",
+     "identity"
+    ],
+    "blocking": [
+     {
+      "category": "system-family-types",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "transitive-cloned",
+      "count": 12,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "transitive-cloned",
+      "count": 93,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "transitive-cloned",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "transitive-cloned",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "mep-electrical-definitions",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "layer": "streams",
+      "category": "Global/Latest",
+      "provenance": "stream-modified-lineage",
+      "count": 11776,
+      "why": "11,776 of 26,110 bytes byte-identical to baseline racadvancedsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+     },
+     {
+      "layer": "strings",
+      "category": "autodesk-resource-refs",
+      "provenance": "autodesk-resource-refs",
+      "count": 107,
+      "why": "107 Autodesk resource identifier(s) in document content (forge-typeid=71, revit-resource-string=36) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+     }
+    ],
+    "counsel": [
+     {
+      "item": "C4 schema-stream",
+      "stream": "Formats/Latest",
+      "identical_pct": 100.0,
+      "identical_to": [
+       "dach-sample-project:Formats/Latest",
+       "racadvancedsampleproject:Formats/Latest",
+       "racbasicsampleproject:Formats/Latest",
+       "rmebasicsampleproject:Formats/Latest",
+       "rstadvancedsampleproject:Formats/Latest",
+       "rstbasicsampleproject:Formats/Latest"
+      ],
+      "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+     }
+    ],
+    "advisory_count": 4,
+    "elements": {
+     "host": 234,
+     "totals": {
+      "ours-created": 99,
+      "transitive-cloned": 135
+     },
+     "multi_baseline": {
+      "dach-sample-project": {
+       "unmatched": 234
+      },
+      "racadvancedsampleproject": {
+       "ours-created": 105,
+       "transitive-cloned": 129
+      },
+      "racbasicsampleproject": {
+       "ours-created": 110,
+       "transitive-cloned": 124
+      },
+      "rmebasicsampleproject": {
+       "ours-created": 107,
+       "transitive-cloned": 127
+      },
+      "rstadvancedsampleproject": {
+       "ours-created": 106,
+       "transitive-cloned": 128
+      },
+      "rstbasicsampleproject": {
+       "ours-created": 108,
+       "transitive-cloned": 126
+      }
+     }
+    },
+    "bytes": {
+     "total_inflated": 674423,
+     "identical_pct": 78.01,
+     "ours_pct": 19.46,
+     "excluding_schema_identical_pct": 16.61,
+     "excluding_schema_ours_pct": 73.81
+    },
+    "global_latest": {
+     "inflated": 26110,
+     "class": "modified-lineage",
+     "identical_bytes": 11776,
+     "identical_pct": 45.1,
+     "ours_bytes": 0,
+     "best_baseline": "racadvancedsampleproject"
+    },
+    "resource_refs": {
+     "total": 107,
+     "by_pattern": {
+      "forge-typeid": 71,
+      "revit-resource-string": 36
+     }
+    },
+    "identity_ok": true,
+    "identity_violations": [],
+    "elapsed_s": 5.9
+   }
+  },
+  "G1_candidate_safe": {
+   "file": "experiments/genesis/G1_candidate_safe.rvt",
+   "bytes": 331776,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "error_messages": [],
+    "warning_messages": [],
+    "stats": {
+     "streams": 12,
+     "partition_blocks": 3,
+     "records": 705,
+     "elements_decoded": 234,
+     "decode_failures": 0,
+     "refs_checked": 3022
+    },
+    "seconds": 0.1
+   },
+   "ledger": {
+    "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/G1_candidate_safe.rvt",
+    "gate_verdict": "FAIL \u2014 139 Autodesk-derived element(s) in expression-bearing categories; 1,346,347 byte(s) byte-identical to baseline in expression-bearing streams; 7,445 Autodesk resource identifier(s)",
+    "gate_passes": false,
+    "certifies_G1": false,
+    "layers": [
+     "elements",
+     "streams",
+     "strings",
+     "identity"
+    ],
+    "blocking": [
+     {
+      "category": "system-family-types",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "transitive-cloned",
+      "count": 15,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "transitive-cloned",
+      "count": 93,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "transitive-cloned",
+      "count": 6,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "transitive-cloned",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "transitive-cloned",
+      "count": 1,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "mep-electrical-definitions",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "placed-model-content",
+      "provenance": "transitive-cloned",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "view-annotation-2d-content",
+      "provenance": "transitive-cloned",
+      "count": 3,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "layer": "streams",
+      "category": "Global/Latest",
+      "provenance": "stream-modified-lineage",
+      "count": 1346347,
+      "why": "1,346,347 of 1,360,931 bytes byte-identical to baseline racbasicsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+     },
+     {
+      "layer": "strings",
+      "category": "autodesk-resource-refs",
+      "provenance": "autodesk-resource-refs",
+      "count": 7445,
+      "why": "7,445 Autodesk resource identifier(s) in document content (forge-typeid=7363, asset-library-fbx=37, revit-resource-string=36, sunandsky-asset=8, forge-schema-corpus=1) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+     }
+    ],
+    "counsel": [
+     {
+      "item": "C4 schema-stream",
+      "stream": "Formats/Latest",
+      "identical_pct": 100.0,
+      "identical_to": [
+       "dach-sample-project:Formats/Latest",
+       "racadvancedsampleproject:Formats/Latest",
+       "racbasicsampleproject:Formats/Latest",
+       "rmebasicsampleproject:Formats/Latest",
+       "rstadvancedsampleproject:Formats/Latest",
+       "rstbasicsampleproject:Formats/Latest"
+      ],
+      "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+     }
+    ],
+    "advisory_count": 4,
+    "elements": {
+     "host": 234,
+     "totals": {
+      "ours-created": 94,
+      "transitive-cloned": 140
+     },
+     "multi_baseline": {
+      "dach-sample-project": {
+       "unmatched": 234
+      },
+      "racadvancedsampleproject": {
+       "ours-created": 100,
+       "transitive-cloned": 134
+      },
+      "racbasicsampleproject": {
+       "ours-created": 105,
+       "transitive-cloned": 129
+      },
+      "rmebasicsampleproject": {
+       "ours-created": 102,
+       "transitive-cloned": 132
+      },
+      "rstadvancedsampleproject": {
+       "ours-created": 102,
+       "transitive-cloned": 132
+      },
+      "rstbasicsampleproject": {
+       "ours-created": 106,
+       "transitive-cloned": 128
+      }
+     }
+    },
+    "bytes": {
+     "total_inflated": 2012125,
+     "identical_pct": 92.47,
+     "ours_pct": 6.66,
+     "excluding_schema_identical_pct": 90.01,
+     "excluding_schema_ours_pct": 8.85
+    },
+    "global_latest": {
+     "inflated": 1360931,
+     "class": "modified-lineage",
+     "identical_bytes": 1346347,
+     "identical_pct": 98.93,
+     "ours_bytes": 0,
+     "best_baseline": "racbasicsampleproject"
+    },
+    "resource_refs": {
+     "total": 7445,
+     "by_pattern": {
+      "forge-typeid": 7363,
+      "forge-schema-corpus": 1,
+      "asset-library-fbx": 37,
+      "sunandsky-asset": 8,
+      "revit-resource-string": 36
+     }
+    },
+    "identity_ok": true,
+    "identity_violations": [],
+    "elapsed_s": 6.2
+   }
+  }
+ },
+ "registry_maps": "experiments/genesis/G1_registry_maps.json",
+ "inventory": {
+  "elements": 234,
+  "classes": 47,
+  "named": {
+   "units": 1500184,
+   "level1": 1500193,
+   "level2": 1500194,
+   "phase_new": 1500197,
+   "phase_existing": 1500196,
+   "phase_set": 1500195,
+   "project_view": 1500205,
+   "view_3d": 1500212,
+   "project_info": 1500203,
+   "geo_location": 1500189,
+   "true_north": 1500185,
+   "document_sun": 1500204
+  },
+  "gstyle_rows": 94,
+  "category_rows": 7,
+  "views": [
+   1500205,
+   1500212,
+   1500220,
+   1500227
+  ],
+  "suns": [
+   1500204,
+   1500215,
+   1500223,
+   1500230
+  ],
+  "drawings": [
+   1500208,
+   1500217,
+   1500225,
+   1500232
+  ],
+  "levels": {
+   "1500193": [
+    1500220
+   ],
+   "1500194": [
+    1500227
+   ]
+  },
+  "custom_element_types": {
+   "e5416683-6d54-4ef0-a538-03b9d8526931": 2,
+   "a2d847ff-e022-4c8d-88a3-b23d019d159c": 2,
+   "7e8fb965-ffe2-441d-80a8-f95cdd39b8ed": 3,
+   "77577208-31c5-42f8-9d6d-33ecec64593d": 2
+  }
+ },
+ "total_seconds": 27.7
+}

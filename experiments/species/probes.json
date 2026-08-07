@@ -1,0 +1,71 @@
+{
+ "tool": "tools/species_probe.py",
+ "stream": "species",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "forensics": "experiments/species/cd_forensics.json",
+ "probes": [
+  {
+   "probe": "T1uG",
+   "file": "experiments/species/T1uG.rvt",
+   "md5": "de51f469d7a99b5f0e3acb4ba6d643d9",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "axis": "THE DECISIVE CELL: T1u's byte-identical famdoc (standalone vendor shell + our 35-element union, famdoc_final machinery, born Global/Latest ADocument wrapper swapped in; machine-pinned against the rst PASS T1u.rvt) famloaded + one uniform instance on G_ABPD.  The ONE thing vs T1u (PASS): the base.  vs T1v (FAIL on G_ABPD): the machinery/ADocument-wrapper/offset form.",
+   "document_guid": "2b0ad111-16f3-43c6-9bac-0d1089fcb1a7",
+   "gates_ok": true
+  },
+  {
+   "probe": "TB0g",
+   "file": "experiments/species/TB0g.rvt",
+   "md5": "dab626e2ba53a5e65ebab934d2a5f261",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "axis": "embedded-born x reduced: TB0r's byte-identical famdoc (rst's own M_Pile-Steel Pipe, unit 41, embedded-born species; machine-verified against the rst PASS TB0r.rvt) famloaded + one uniform instance on G_ABPD.  The ONE thing vs TB0r (PASS): the base.  Splits species-shape from ours-content on the failing side.",
+   "document_guid": "a36040ba-9ab7-40a4-a45c-f896777d1ccd",
+   "gates_ok": true
+  },
+  {
+   "probe": "BX_v3",
+   "file": "experiments/species/BX_v3.rvt",
+   "md5": "832463fd2c6fcbd9440946b28ccd1fcc",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "axis": "B0's recipe through birthright v3: our famgen famdoc + authored birth set + in-unit render binds + the HOSTSYM lane via famload + one instance on G_ABPD.  The ONE registered surface vs SC1 (FAIL): the host symbol table (no blank-named FamSymSurrogate; instance binds a real-named symbol -- T2a's registered shape).",
+   "document_guid": "ae9f970e-aae0-4aec-8941-97245ebd78b3",
+   "gates_ok": true
+  },
+  {
+   "probe": "DEMO_250v_room_v9",
+   "file": "experiments/species/DEMO_250v_room_v9.rvt",
+   "md5": "885d5e0add335fc85b92657ef28f3cb2",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "axis": "the user's exact prompt through rvt.frontdoor.run with birthright v3: v8's recipe + version=3 (the loader half of HOSTSYM repairs v8's double-blank host Family type table with m_idx on a blank -- a shape no native host exhibits).",
+   "document_guid": null,
+   "gates_ok": true
+  }
+ ],
+ "reading_the_matrix": {
+  "knowns": {
+   "T2a": "PASS on G_ABPD (standalone-born, unmodified, no ours content) -- the only reduced-base loaded-famdoc PASS",
+   "T1v": "FAIL on G_ABPD (standalone shell + ours 35, template machinery, authored-empty ADocument, clean symbol table)",
+   "T1u/T1r": "PASS on rst (both machineries, standalone shell + ours 35)",
+   "U16g/U16gK4/U16gABP": "FAIL on every reduced substrate (embedded-donor shell + ours 35; K4 cell has byte-born ref targets)",
+   "SC1/DEMO v8": "FAIL on G_ABPD (ours + authored birth v2, self-contained, in-unit binds)",
+   "TB0r": "PASS on rst (embedded-born famdoc, own content, B7's host+path)"
+  },
+  "pre_committed": [
+   "T1uG PASS + BX_v3 PASS + DEMO v9 PASS => THE CLOSE: the standalone species shape is the law on reduced bases, our content is fine inside it, and v3 authors it -- promote birthright v3 to the famgen emission default and rebuild acceptance.",
+   "T1uG PASS + BX_v3 FAIL => v3 AUTHORING GAP: our authored famdoc still differs from T1u's registered shape by a finite list -- re-run the forensic instrument on the (T1uG, BX_v3) pair; the pre-identified candidates, in order: (1) the born-roster true-up (the +268-element layer: overlapping-class shortfall + reference-closure dropped set + the loaded-family registration block), (2) the born-wrapper ADocument (populated AppInfo registries + independent history identity + build strings -- authored equivalents, zero donor).",
+   "T1uG PASS + BX_v3 PASS + DEMO v9 FAIL => the famgen-loader lane delta list (corpus symbol GElement host binds, multi-family, walls) -- bisect v9 family-by-family through BX_v3's famload lane.",
+   "T1uG FAIL + TB0g PASS => CONTENT BIRTH is the axis: reduced bases accept only fully-BORN unit content (embedded-born AND standalone-born), rejecting any unit carrying authored content even inside a born shell.  No famdoc-side authoring closes that; route to (a) the compose-side repair (hr1 rank 1: the stripped material appearance asset + cellList + deleted-style holes on the substituted rows the walk lands on), (b) the desktop-Revit check kit.",
+   "T1uG FAIL + TB0g FAIL => reduced bases reject EVERY loaded famdoc except the unmodified standalone-born vendor file: the acceptance boundary is the T2a bytes themselves; suspicion moves to the reduced base's registration substrate (the rebuilt-empty CD stream x unit-content interplay) -- compose territory; escalate with the desktop-Revit kit.",
+   "TB0g PASS + T1uG PASS => both species shapes carry on reduced bases when byte-born or standalone-shaped; the embedded-donor U16g failures re-read as a shell-x-content interaction (informative for the map).",
+   "BX_v3 PASS + T1uG FAIL would be a SURPRISE (our authored species shape passing where the born shell + ours fails) -- re-read the round for a control/dedup problem before celebrating.",
+   "Control FAIL => every verdict in the round is VOID."
+  ],
+  "reading_order": [
+   "T1uG",
+   "TB0g",
+   "BX_v3",
+   "DEMO_250v_room_v9"
+  ]
+ },
+ "quarantine": "T1uG + TB0g embed vendor-born / Autodesk-sample content -- PROOF-ONLY, never shipped; BX_v3 + DEMO v9 carry zero donor bytes (test-enforced)"
+}

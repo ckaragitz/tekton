@@ -1,0 +1,431 @@
+{
+ "stream": "layout-law: THE MORPH ROUND on the SUB_ALL/F1 matched pair (verdict #40).  layout_diff.json measured the pair: NOT field-equal -- the self-Family kept-ours residue separates the corpus perfectly while every order predicate is already exonerated by SUB_O1 (donor order, FAIL) x B7 (donor order, PASS).  M1/M2 test order DIRECTLY by pure byte transplant; M3..M6 split the residue one field-axis at a time; BX_layout_f1i1 proves the layout_law port end-to-end.",
+ "bases": {
+  "rst": "samples/rstbasicsampleproject.rvt",
+  "g_abpd": "experiments/genesis/subst_k4/compose/G_ABPD.rvt"
+ },
+ "note": "M1/M3..M6 = byte surgery on the STAGED F1 (base G_ABPD); M2 = byte surgery on the STAGED SUB_ALL (base rst); every surgery is identity-gated (no-edit re-emission byte-exact) and roundtrip-gated (encode(decode(x)) == x before the patch).  BX_layout_f1i1 = the B0 recipe through src/rvt/famgen/layout_law.py.  Every added unit carries the 64-byte 0x0f3f blob (machine-verified).  PROOF-ONLY sample-derived content, quarantined, never shipped.",
+ "upload_order_max_information_first": [
+  "M1",
+  "BX_layout_f1i1",
+  "M2",
+  "M3",
+  "M5",
+  "M4",
+  "M6"
+ ],
+ "controls": {
+  "rst": {
+   "source": "samples/rstbasicsampleproject.rvt",
+   "voids": "M2 on CTRL FAIL"
+  },
+  "g_abpd": {
+   "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "voids": "M1/M3..M6/BX_layout_f1i1 on CTRL FAIL"
+  }
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL (either)": "that base's probes are VOID.",
+  "M1 PASS": "record order IS audited: the pure order transplant saves F1.  Contradicts the SUB_O1xB7 corpus exoneration -- re-read SUB_O1's permutation before porting.  BX_layout_f1i1 should PASS with it; the layout_law port ships and DEMO v6 goes through it.",
+  "M1 FAIL + M2 PASS": "order fully exonerated both directions (expected per the corpus): the law is in the FIELD residue -- read M3..M6.",
+  "M2 FAIL": "SUB_ALL's content stops passing when re-ordered: order is (at least part of) the law even though SUB_O1's donor-convention order failed -- the lawful order would be SUB_ALL's exact artifact shape, not the donor's native shape; port M1's convention.",
+  "M3 PASS": "the duplicate identityData group key in famgen's order cell is the defect: fix skeleton.finalize to merge built-ins into one group; v6 through the fix.",
+  "M4 PASS": "the dense absorbed/limit counters are the defect (audit expects an edit-history gap).",
+  "M5 PASS": "partType 14 without panel-schedule infrastructure is the defect: famgen either authors the infra or ships partType -1.",
+  "M6 PASS": "the deletion-parent convention (category id in m_deletion) is the defect.",
+  "ALL M FAIL": "the residue is a conjunction or lives in the untransplanted fields (m_categoryId itself, the type-table shape, the familyParams BIP row) -- next round builds the category probe through famgen (generic_model category, full-chain coherence) rather than byte surgery."
+ },
+ "probes": {
+  "M1": {
+   "probe": "M1",
+   "file": "experiments/layout/M1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "source": "experiments/famdoc_final/F1.rvt",
+   "md5": "fdd677cdb04caa9c39f9e0d81b0dcfe6",
+   "axis": "ORDER: F1's 44 records physically re-sequenced to SUB_ALL's record-order convention (self-Family, proj viewer/view/drawing/viewport, units, then content in famgen order); the 2 BrowserOrganization records (no SUB_ALL counterpart) stay last; ids, bytes, stamps, blob all untouched",
+   "content_untouched_proof": "per-seq record byte multisets asserted permutation-equal",
+   "expected": "PASS convicts record order (and contradicts the SUB_O1/B7 corpus exoneration -- re-read both); FAIL confirms order is not the law",
+   "gates": {
+    "name": "M1",
+    "file": "experiments/layout/M1.rvt",
+    "md5": "fdd677cdb04caa9c39f9e0d81b0dcfe6",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "first_errors": []
+    },
+    "walker_clean": true,
+    "footer_blob_len": 64,
+    "blob_carrying": true,
+    "unit_records_decode_clean": true,
+    "adoc_rows_equal_unit_ids": true,
+    "streams_changed_vs_source": [
+     "Partitions/21"
+    ],
+    "single_stream_delta": true,
+    "gates_ok": true
+   }
+  },
+  "M2": {
+   "probe": "M2",
+   "file": "experiments/layout/M2.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "source": "experiments/subtractive/SUB_ALL.rvt",
+   "md5": "bd2fdfcb53b5d961482fde6fbb20d613",
+   "axis": "ORDER converse: SUB_ALL's 42 records re-sequenced to the famgen roster convention (self, units, level type, level, proj view/viewer/viewport/drawing, ...); content untouched",
+   "content_untouched_proof": "per-seq record byte multisets asserted permutation-equal",
+   "expected": "FAIL convicts order (SUB_ALL's own content stops passing when re-ordered); PASS confirms order is not the law",
+   "gates": {
+    "name": "M2",
+    "file": "experiments/layout/M2.rvt",
+    "md5": "bd2fdfcb53b5d961482fde6fbb20d613",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "first_errors": []
+    },
+    "walker_clean": true,
+    "footer_blob_len": 64,
+    "blob_carrying": true,
+    "unit_records_decode_clean": true,
+    "adoc_rows_equal_unit_ids": true,
+    "streams_changed_vs_source": [
+     "Partitions/21"
+    ],
+    "single_stream_delta": true,
+    "gates_ok": true
+   }
+  },
+  "M3": {
+   "probe": "M3",
+   "file": "experiments/layout/M3.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "source": "experiments/famdoc_final/F1.rvt",
+   "md5": "0d5499f36a5ff2755b3efdedc10b7c77",
+   "patch": {
+    "eid": 1472525,
+    "cls": "Family",
+    "seq": 102,
+    "psize": {
+     "was": 3782,
+     "now": 3688
+    },
+    "change": {
+     "groups_now": [
+      "autodesk.parameter.group:dimensions-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0",
+      "autodesk.parameter.group:electrical-1.0.0"
+     ],
+     "n_groups": 3
+    }
+   },
+   "axis": "ORDER-COUPLED STRUCTURE: famgen's order cell emits TWO identityData groups (user params + built-ins split -- a duplicate group key no PASS file carries); merged into one and re-ranked dims < identity < electrical, param id sets unchanged",
+   "expected": "PASS convicts the duplicate-group-key order cell",
+   "gates": {
+    "name": "M3",
+    "file": "experiments/layout/M3.rvt",
+    "md5": "0d5499f36a5ff2755b3efdedc10b7c77",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "first_errors": []
+    },
+    "walker_clean": true,
+    "footer_blob_len": 64,
+    "blob_carrying": true,
+    "unit_records_decode_clean": true,
+    "adoc_rows_equal_unit_ids": true,
+    "streams_changed_vs_source": [
+     "Partitions/21"
+    ],
+    "single_stream_delta": true,
+    "gates_ok": true
+   }
+  },
+  "M4": {
+   "probe": "M4",
+   "file": "experiments/layout/M4.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "source": "experiments/famdoc_final/F1.rvt",
+   "md5": "9759bef3c3b4624f6947e5bf4bbeb768",
+   "patch": {
+    "eid": 1472525,
+    "cls": "Family",
+    "seq": 102,
+    "psize": {
+     "was": 3782,
+     "now": 3782
+    },
+    "change": {
+     "was": {
+      "m_nextAbsorbedIndex": 42,
+      "m_predefinedLimitIdx": 35
+     },
+     "now": {
+      "m_nextAbsorbedIndex": 3165,
+      "m_predefinedLimitIdx": 1963
+     }
+    }
+   },
+   "axis": "FIELD residue: the self-Family absorbed/limit counters set to the donor's sparse-history values (3165/1963 vs our dense 42/35) -- every PASS file carries a gap, every FAIL is gapless",
+   "expected": "PASS convicts the dense-counter shape",
+   "gates": {
+    "name": "M4",
+    "file": "experiments/layout/M4.rvt",
+    "md5": "9759bef3c3b4624f6947e5bf4bbeb768",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "first_errors": []
+    },
+    "walker_clean": true,
+    "footer_blob_len": 64,
+    "blob_carrying": true,
+    "unit_records_decode_clean": true,
+    "adoc_rows_equal_unit_ids": true,
+    "streams_changed_vs_source": [
+     "Partitions/21"
+    ],
+    "single_stream_delta": true,
+    "gates_ok": true
+   }
+  },
+  "M5": {
+   "probe": "M5",
+   "file": "experiments/layout/M5.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "source": "experiments/famdoc_final/F1.rvt",
+   "md5": "ee0d58a45eed5ae67dc763c21166922b",
+   "patch": {
+    "famdoc": {
+     "eid": 1472525,
+     "cls": "Family",
+     "seq": 102,
+     "psize": {
+      "was": 3782,
+      "now": 3782
+     },
+     "change": {
+      "m_partType": {
+       "was": 14,
+       "now": -1
+      }
+     }
+    },
+    "host": {
+     "eid": 1472568,
+     "cls": "Family",
+     "host_unit": 0,
+     "psize": {
+      "was": 5534,
+      "now": 5534
+     },
+     "change": {
+      "m_partType": {
+       "was": 14,
+       "now": -1
+      }
+     }
+    }
+   },
+   "axis": "FIELD residue: m_partType 14 (panelboard) -> -1 on the mirrored pair (famdoc self-Family + host Family) -- partType is the panel-schedule/MEP-part trigger; every PASS famdoc carries -1, every FAIL carries 14",
+   "expected": "PASS convicts partType-14-without-panel-infra",
+   "gates": {
+    "name": "M5",
+    "file": "experiments/layout/M5.rvt",
+    "md5": "ee0d58a45eed5ae67dc763c21166922b",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "first_errors": []
+    },
+    "walker_clean": true,
+    "footer_blob_len": 64,
+    "blob_carrying": true,
+    "unit_records_decode_clean": true,
+    "adoc_rows_equal_unit_ids": true,
+    "streams_changed_vs_source": [
+     "Partitions/21"
+    ],
+    "single_stream_delta": true,
+    "gates_ok": true
+   }
+  },
+  "M6": {
+   "probe": "M6",
+   "file": "experiments/layout/M6.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "source": "experiments/famdoc_final/F1.rvt",
+   "md5": "eba88e3487c7b64dc1df78c77c682436",
+   "patch": {
+    "eid": 1472525,
+    "cls": "ElementHeader",
+    "seq": 101,
+    "psize": {
+     "was": 455,
+     "now": 463
+    },
+    "change": {
+     "m_deletion_len": {
+      "was": 43,
+      "now": 44
+     },
+     "prepended_category": -2001040
+    }
+   },
+   "axis": "FIELD residue: the donor's self-Family header m_deletion list opens with non-element parents (category id, subcategory, BIP); ours lists elements only -- our category id (-2001040) prepended",
+   "expected": "PASS convicts the deletion-parent convention",
+   "gates": {
+    "name": "M6",
+    "file": "experiments/layout/M6.rvt",
+    "md5": "eba88e3487c7b64dc1df78c77c682436",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "first_errors": []
+    },
+    "walker_clean": true,
+    "footer_blob_len": 64,
+    "blob_carrying": true,
+    "unit_records_decode_clean": true,
+    "adoc_rows_equal_unit_ids": true,
+    "streams_changed_vs_source": [
+     "Partitions/21"
+    ],
+    "single_stream_delta": true,
+    "gates_ok": true
+   }
+  },
+  "BX_layout_f1i1": {
+   "probe": "BX_layout_f1i1",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "recipe": "BXhf_f1i1/B0 (famgen loader on G_ABPD under corpus_symbol_form, demo stage_equipment placement) with layout_law.normalize_doc(order='donor_frame_first') injected between build_product and the load",
+   "normalization": {
+    "n_elements": 41,
+    "n_moved": 7,
+    "class_order_before": [
+     "Family",
+     "UnitsElem",
+     "LevelAttributes",
+     "Level",
+     "DBViewProject",
+     "Viewer",
+     "Viewport",
+     "DBDrawing",
+     "DBViewType",
+     "DBViewPlan",
+     "Viewer",
+     "SketchPlane",
+     "SunAndShadowSettings",
+     "Viewport",
+     "DBDrawing",
+     "ExtentElem",
+     "RefPlane",
+     "RefPlane",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "SketchPlane",
+     "VarSketch",
+     "CurveElem",
+     "CurveElem",
+     "CurveElem",
+     "CurveElem",
+     "ExtrusionElem",
+     "ElectricalLoadClassification",
+     "ConnectorElem"
+    ],
+    "class_order_after": [
+     "Family",
+     "Viewer",
+     "DBViewProject",
+     "DBDrawing",
+     "Viewport",
+     "UnitsElem",
+     "LevelAttributes",
+     "Level",
+     "DBViewType",
+     "DBViewPlan",
+     "Viewer",
+     "SketchPlane",
+     "SunAndShadowSettings",
+     "Viewport",
+     "DBDrawing",
+     "ExtentElem",
+     "RefPlane",
+     "RefPlane",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "SketchPlane",
+     "VarSketch",
+     "CurveElem",
+     "CurveElem",
+     "CurveElem",
+     "CurveElem",
+     "ExtrusionElem",
+     "ElectricalLoadClassification",
+     "ConnectorElem"
+    ]
+   },
+   "load": {
+    "symbol_id": 1472582,
+    "family_id": 1472566,
+    "content_guid": "fa5a3a77-bc21-4ffd-9a16-e29e718ecf29",
+    "host_watermark": 1472524
+   },
+   "instance_ids": [
+    1472584
+   ],
+   "file": "experiments/layout/BX_layout_f1i1.rvt",
+   "md5": "50fd958b62c10062687f4f18bff48fb1",
+   "axis": "PORT: the famgen product rebuilt with the layout-law id-assignment normalization (self-Family, proj viewer/view/drawing/viewport, units first -- the M1 order with monotone ids, the shape SUB_ALL exhibits)",
+   "expected": "tracks M1: PASS => the port authors the convention end-to-end; FAIL alongside M1 FAIL closes the order hypothesis",
+   "gates": {
+    "name": "BX_layout_f1i1",
+    "file": "experiments/layout/BX_layout_f1i1.rvt",
+    "md5": "50fd958b62c10062687f4f18bff48fb1",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "first_errors": []
+    },
+    "walker_clean": true,
+    "footer_blob_len": 64,
+    "blob_carrying": true,
+    "unit_records_decode_clean": true,
+    "adoc_rows_equal_unit_ids": true,
+    "gates_ok": true
+   }
+  }
+ }
+}

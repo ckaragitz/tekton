@@ -1,0 +1,6254 @@
+{
+ "tool": "tools/catchain.py",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "built": {
+  "BX_bip": {
+   "probe": "BX_bip",
+   "axis": "the LOCKED/PARAM BIP axis alone: -1001205 in m_locked + the identityData palette (the donor's exact shape: no value row)",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "recipe": "B0 (G_ABPD + ONE famgen panelboard + ONE instance, famgen loader under corpus_symbol_form, demo stage_equipment placement) with the probe's recipe change applied through the chain",
+   "category_override": null,
+   "part_type": null,
+   "residues": {
+    "bip": true
+   },
+   "residue_report": {
+    "applied": [
+     "bip"
+    ],
+    "bip": {
+     "locked": [
+      -1001205,
+      1472543,
+      1472544,
+      1472545
+     ],
+     "identity_palette_gained": -1001205
+    }
+   },
+   "doc_roundtrip": {
+    "records": 123,
+    "roundtrip_ok": 123,
+    "failed": 0
+   },
+   "load": {
+    "symbol_id": 1472582,
+    "family_id": 1472566,
+    "content_guid": "4e324e8f-35ad-4b6f-bdf8-054ca7231e8c",
+    "host_watermark": 1472524,
+    "host_category": 124
+   },
+   "instance_ids": [
+    1472584
+   ],
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "immediate_parent": "experiments/catchain/_build/BX_bip_chain/stage_L1_pp1.rvt",
+   "file": "experiments/catchain/BX_bip.rvt",
+   "md5": "8db29a11f7937a3ec3ffe6ff263b690a",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "instance_header_category": -2001040,
+   "symbol_form": {
+    "1472582": {
+     "ok": true
+    }
+   },
+   "expected_instance_category": -2001040,
+   "seconds": 2.2
+  },
+  "BX_cat_gm": {
+   "probe": "BX_cat_gm",
+   "axis": "the CATEGORY axis alone: the panelboard product authored under Generic Model (-2000151) + partType -1 through every coupled surface of the chain",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "recipe": "B0 (G_ABPD + ONE famgen panelboard + ONE instance, famgen loader under corpus_symbol_form, demo stage_equipment placement) with the probe's recipe change applied through the chain",
+   "category_override": -2000151,
+   "part_type": -1,
+   "residues": {},
+   "category_patches": [
+    "rvt.famgen.skeleton.new_family_document",
+    "rvt.famgen.loader.survey_host",
+    "ifc_intent.OST_ELECTRICAL_EQUIPMENT",
+    "ifc_intent.OST_ELECTRICAL_EQUIPMENT"
+   ],
+   "doc_roundtrip": {
+    "records": 123,
+    "roundtrip_ok": 123,
+    "failed": 0
+   },
+   "load": {
+    "symbol_id": 1472582,
+    "family_id": 1472566,
+    "content_guid": "092415aa-814f-4667-bf85-9752b46a8bd2",
+    "host_watermark": 1472524,
+    "host_category": 118
+   },
+   "instance_ids": [
+    1472584
+   ],
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "immediate_parent": "experiments/catchain/_build/BX_cat_gm_chain/stage_L1_pp1.rvt",
+   "file": "experiments/catchain/BX_cat_gm.rvt",
+   "md5": "6d7ed2f3f1fa7c8b2d90ea93874909d6",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "instance_header_category": -2000151,
+   "symbol_form": {
+    "1472582": {
+     "ok": true
+    }
+   },
+   "expected_instance_category": -2000151,
+   "seconds": 2.2
+  },
+  "BX_conj": {
+   "probe": "BX_conj",
+   "axis": "CONJUNCTION upper bound: every enumerated famgen-side residue fixed at once through the chain (all 12 corpus separators flipped to the PASS side, machine-checked)",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "recipe": "B0 (G_ABPD + ONE famgen panelboard + ONE instance, famgen loader under corpus_symbol_form, demo stage_equipment placement) with the probe's recipe change applied through the chain",
+   "category_override": -2000151,
+   "part_type": -1,
+   "residues": {
+    "types5": true,
+    "bip": true,
+    "materials": true,
+    "dedup_cell": true,
+    "sparse_counters": true,
+    "deletion_prefix": true,
+    "ref_type_ids": true
+   },
+   "category_patches": [
+    "rvt.famgen.skeleton.new_family_document",
+    "rvt.famgen.loader.survey_host",
+    "ifc_intent.OST_ELECTRICAL_EQUIPMENT",
+    "ifc_intent.OST_ELECTRICAL_EQUIPMENT"
+   ],
+   "residue_report": {
+    "applied": [
+     "types5",
+     "materials",
+     "bip",
+     "dedup_cell",
+     "sparse_counters",
+     "deletion_prefix",
+     "ref_type_ids"
+    ],
+    "types5": {
+     "n_pairs": 5,
+     "names": [
+      " ",
+      "225A MLO 42ckt",
+      "100A MLO 18ckt",
+      "400A MLO 42ckt",
+      "600A MLO 42ckt"
+     ],
+     "current_type": 1,
+     "law": "donor table shape: blank ' ' current-values pair first, m_idx 1 [V SUB_ALL/B7]"
+    },
+    "material_values": {
+     "param_id": -1005500,
+     "material_elem_id": -1,
+     "types_touched": 5
+    },
+    "refinalized": true,
+    "bip": {
+     "locked": [
+      -1001205,
+      1472543,
+      1472544,
+      1472545
+     ],
+     "identity_palette_gained": -1001205
+    },
+    "materials_group": {
+     "cell_groups": [
+      "materials",
+      "dimensions",
+      "identityData",
+      "electrical",
+      "identityData"
+     ],
+     "fsdos": [
+      {
+       "ptr_class": "MaterialFSDO",
+       "pid": -1,
+       "value": {
+        "m_categoryId": -2000151,
+        "m_materialId": -1,
+        "m_famParamId": -1005500
+       }
+      }
+     ]
+    },
+    "dedup_cell": {
+     "cells": 1,
+     "merged_groups": 1,
+     "order_before": [
+      "autodesk.parameter.group:materials-1.0.0",
+      "autodesk.parameter.group:dimensions-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0",
+      "autodesk.parameter.group:electrical-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0"
+     ],
+     "order_after": [
+      "autodesk.parameter.group:materials-1.0.0",
+      "autodesk.parameter.group:dimensions-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0",
+      "autodesk.parameter.group:electrical-1.0.0"
+     ]
+    },
+    "sparse_counters": {
+     "was": {
+      "m_nextAbsorbedIndex": 40,
+      "m_predefinedLimitIdx": 35
+     },
+     "now": {
+      "m_nextAbsorbedIndex": 3165,
+      "m_predefinedLimitIdx": 1963
+     }
+    },
+    "deletion_prefix": {
+     "prefix": [
+      -2000151,
+      -1005500,
+      -1001205
+     ],
+     "len": {
+      "was": 41,
+      "now": 44
+     }
+    },
+    "ref_type_ids": {
+     "was": [],
+     "now": [
+      4
+     ]
+    }
+   },
+   "doc_roundtrip": {
+    "records": 123,
+    "roundtrip_ok": 123,
+    "failed": 0
+   },
+   "load": {
+    "symbol_id": 1472582,
+    "family_id": 1472566,
+    "content_guid": "f7195ecc-6694-4be5-a8ce-ae082fcdd7e0",
+    "host_watermark": 1472524,
+    "host_category": 118
+   },
+   "instance_ids": [
+    1472584
+   ],
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "immediate_parent": "experiments/catchain/_build/BX_conj_chain/stage_L1_pp1.rvt",
+   "file": "experiments/catchain/BX_conj.rvt",
+   "md5": "47a68a118659f17815edfadf683e99cb",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "instance_header_category": -2000151,
+   "symbol_form": {
+    "1472582": {
+     "ok": true
+    }
+   },
+   "expected_instance_category": -2000151,
+   "seconds": 2.2
+  },
+  "BX_types_5": {
+   "probe": "BX_types_5",
+   "axis": "the TYPE-TABLE axis alone: the donor's 5-pair shape (blank ' ' current-values pair first, 4 real types with distinct names/ratings, m_idx 1)",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "recipe": "B0 (G_ABPD + ONE famgen panelboard + ONE instance, famgen loader under corpus_symbol_form, demo stage_equipment placement) with the probe's recipe change applied through the chain",
+   "category_override": null,
+   "part_type": null,
+   "residues": {
+    "types5": true
+   },
+   "residue_report": {
+    "applied": [
+     "types5"
+    ],
+    "types5": {
+     "n_pairs": 5,
+     "names": [
+      " ",
+      "225A MLO 42ckt",
+      "100A MLO 18ckt",
+      "400A MLO 42ckt",
+      "600A MLO 42ckt"
+     ],
+     "current_type": 1,
+     "law": "donor table shape: blank ' ' current-values pair first, m_idx 1 [V SUB_ALL/B7]"
+    },
+    "refinalized": true
+   },
+   "doc_roundtrip": {
+    "records": 123,
+    "roundtrip_ok": 123,
+    "failed": 0
+   },
+   "load": {
+    "symbol_id": 1472582,
+    "family_id": 1472566,
+    "content_guid": "1258005e-0c90-4d90-912b-8bf8da41a43e",
+    "host_watermark": 1472524,
+    "host_category": 124
+   },
+   "instance_ids": [
+    1472584
+   ],
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "immediate_parent": "experiments/catchain/_build/BX_types_5_chain/stage_L1_pp1.rvt",
+   "file": "experiments/catchain/BX_types_5.rvt",
+   "md5": "088530c6ea4c65fd0bf6a5ae4958a7eb",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "instance_header_category": -2001040,
+   "symbol_form": {
+    "1472582": {
+     "ok": true
+    }
+   },
+   "expected_instance_category": -2001040,
+   "seconds": 2.2
+  },
+  "BX_conj_minus_cat": {
+   "probe": "BX_conj_minus_cat",
+   "axis": "BX_conj minus the category flip (bisection pre-build: category NECESSARY iff this FAILS while BX_conj PASSES)",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "recipe": "B0 (G_ABPD + ONE famgen panelboard + ONE instance, famgen loader under corpus_symbol_form, demo stage_equipment placement) with the probe's recipe change applied through the chain",
+   "category_override": null,
+   "part_type": null,
+   "residues": {
+    "types5": true,
+    "bip": true,
+    "materials": true,
+    "dedup_cell": true,
+    "sparse_counters": true,
+    "deletion_prefix": true,
+    "ref_type_ids": true
+   },
+   "residue_report": {
+    "applied": [
+     "types5",
+     "materials",
+     "bip",
+     "dedup_cell",
+     "sparse_counters",
+     "deletion_prefix",
+     "ref_type_ids"
+    ],
+    "types5": {
+     "n_pairs": 5,
+     "names": [
+      " ",
+      "225A MLO 42ckt",
+      "100A MLO 18ckt",
+      "400A MLO 42ckt",
+      "600A MLO 42ckt"
+     ],
+     "current_type": 1,
+     "law": "donor table shape: blank ' ' current-values pair first, m_idx 1 [V SUB_ALL/B7]"
+    },
+    "material_values": {
+     "param_id": -1005500,
+     "material_elem_id": -1,
+     "types_touched": 5
+    },
+    "refinalized": true,
+    "bip": {
+     "locked": [
+      -1001205,
+      1472543,
+      1472544,
+      1472545
+     ],
+     "identity_palette_gained": -1001205
+    },
+    "materials_group": {
+     "cell_groups": [
+      "materials",
+      "dimensions",
+      "identityData",
+      "electrical",
+      "identityData"
+     ],
+     "fsdos": [
+      {
+       "ptr_class": "MaterialFSDO",
+       "pid": -1,
+       "value": {
+        "m_categoryId": -2001040,
+        "m_materialId": -1,
+        "m_famParamId": -1005500
+       }
+      }
+     ]
+    },
+    "dedup_cell": {
+     "cells": 1,
+     "merged_groups": 1,
+     "order_before": [
+      "autodesk.parameter.group:materials-1.0.0",
+      "autodesk.parameter.group:dimensions-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0",
+      "autodesk.parameter.group:electrical-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0"
+     ],
+     "order_after": [
+      "autodesk.parameter.group:materials-1.0.0",
+      "autodesk.parameter.group:dimensions-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0",
+      "autodesk.parameter.group:electrical-1.0.0"
+     ]
+    },
+    "sparse_counters": {
+     "was": {
+      "m_nextAbsorbedIndex": 40,
+      "m_predefinedLimitIdx": 35
+     },
+     "now": {
+      "m_nextAbsorbedIndex": 3165,
+      "m_predefinedLimitIdx": 1963
+     }
+    },
+    "deletion_prefix": {
+     "prefix": [
+      -2001040,
+      -1005500,
+      -1001205
+     ],
+     "len": {
+      "was": 41,
+      "now": 44
+     }
+    },
+    "ref_type_ids": {
+     "was": [],
+     "now": [
+      4
+     ]
+    }
+   },
+   "doc_roundtrip": {
+    "records": 123,
+    "roundtrip_ok": 123,
+    "failed": 0
+   },
+   "load": {
+    "symbol_id": 1472582,
+    "family_id": 1472566,
+    "content_guid": "36a646b7-de97-4071-833d-e9167023c40a",
+    "host_watermark": 1472524,
+    "host_category": 124
+   },
+   "instance_ids": [
+    1472584
+   ],
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "immediate_parent": "experiments/catchain/_build/BX_conj_minus_cat_chain/stage_L1_pp1.rvt",
+   "file": "experiments/catchain/BX_conj_minus_cat.rvt",
+   "md5": "3cd1795d0d209126f9fba8574005ebad",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "instance_header_category": -2001040,
+   "symbol_form": {
+    "1472582": {
+     "ok": true
+    }
+   },
+   "expected_instance_category": -2001040,
+   "seconds": 2.2
+  },
+  "BX_conj_minus_types": {
+   "probe": "BX_conj_minus_types",
+   "axis": "BX_conj minus the 5-row table (bisection pre-build: the table shape NECESSARY iff this FAILS while BX_conj PASSES)",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "recipe": "B0 (G_ABPD + ONE famgen panelboard + ONE instance, famgen loader under corpus_symbol_form, demo stage_equipment placement) with the probe's recipe change applied through the chain",
+   "category_override": -2000151,
+   "part_type": -1,
+   "residues": {
+    "bip": true,
+    "materials": true,
+    "dedup_cell": true,
+    "sparse_counters": true,
+    "deletion_prefix": true,
+    "ref_type_ids": true
+   },
+   "category_patches": [
+    "rvt.famgen.skeleton.new_family_document",
+    "rvt.famgen.loader.survey_host",
+    "ifc_intent.OST_ELECTRICAL_EQUIPMENT",
+    "ifc_intent.OST_ELECTRICAL_EQUIPMENT"
+   ],
+   "residue_report": {
+    "applied": [
+     "materials",
+     "bip",
+     "dedup_cell",
+     "sparse_counters",
+     "deletion_prefix",
+     "ref_type_ids"
+    ],
+    "material_values": {
+     "param_id": -1005500,
+     "material_elem_id": -1,
+     "types_touched": 1
+    },
+    "refinalized": true,
+    "bip": {
+     "locked": [
+      -1001205,
+      1472543,
+      1472544,
+      1472545
+     ],
+     "identity_palette_gained": -1001205
+    },
+    "materials_group": {
+     "cell_groups": [
+      "materials",
+      "dimensions",
+      "identityData",
+      "electrical",
+      "identityData"
+     ],
+     "fsdos": [
+      {
+       "ptr_class": "MaterialFSDO",
+       "pid": -1,
+       "value": {
+        "m_categoryId": -2000151,
+        "m_materialId": -1,
+        "m_famParamId": -1005500
+       }
+      }
+     ]
+    },
+    "dedup_cell": {
+     "cells": 1,
+     "merged_groups": 1,
+     "order_before": [
+      "autodesk.parameter.group:materials-1.0.0",
+      "autodesk.parameter.group:dimensions-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0",
+      "autodesk.parameter.group:electrical-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0"
+     ],
+     "order_after": [
+      "autodesk.parameter.group:materials-1.0.0",
+      "autodesk.parameter.group:dimensions-1.0.0",
+      "autodesk.parameter.group:identityData-1.0.0",
+      "autodesk.parameter.group:electrical-1.0.0"
+     ]
+    },
+    "sparse_counters": {
+     "was": {
+      "m_nextAbsorbedIndex": 40,
+      "m_predefinedLimitIdx": 35
+     },
+     "now": {
+      "m_nextAbsorbedIndex": 3165,
+      "m_predefinedLimitIdx": 1963
+     }
+    },
+    "deletion_prefix": {
+     "prefix": [
+      -2000151,
+      -1005500,
+      -1001205
+     ],
+     "len": {
+      "was": 41,
+      "now": 44
+     }
+    },
+    "ref_type_ids": {
+     "was": [],
+     "now": [
+      4
+     ]
+    }
+   },
+   "doc_roundtrip": {
+    "records": 123,
+    "roundtrip_ok": 123,
+    "failed": 0
+   },
+   "load": {
+    "symbol_id": 1472582,
+    "family_id": 1472566,
+    "content_guid": "663c97e9-e8ab-4a88-9308-956344f0463d",
+    "host_watermark": 1472524,
+    "host_category": 118
+   },
+   "instance_ids": [
+    1472584
+   ],
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "immediate_parent": "experiments/catchain/_build/BX_conj_minus_types_chain/stage_L1_pp1.rvt",
+   "file": "experiments/catchain/BX_conj_minus_types.rvt",
+   "md5": "70e4fa88dcc0cdad94b03c0ed8f4483e",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "instance_header_category": -2000151,
+   "symbol_form": {
+    "1472582": {
+     "ok": true
+    }
+   },
+   "expected_instance_category": -2000151,
+   "seconds": 2.2
+  }
+ },
+ "accounting": {
+  "BX_bip": {
+   "probe": {
+    "rung": "BX_bip",
+    "file": "experiments/catchain/BX_bip.rvt",
+    "immediate_parent": "experiments/catchain/_build/BX_bip_chain/stage_L1_pp1.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "8db29a11f7937a3ec3ffe6ff263b690a",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "BX_bip.rvt",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "4e324e8f-35ad-4b6f-bdf8-054ca7231e8c"
+     ]
+    },
+    "census_delta": {
+     "save_units": 0,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 0,
+     "familymgr_guids": 0
+    },
+    "census_parent": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3120,
+     "rows_after": 3121,
+     "added_ids": [
+      1472584
+     ],
+     "n_added": 1,
+     "removed_ids": [],
+     "watermark_after": 1472584,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 1,
+     "common": 3161,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472584
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 1955,
+      "bytes_after": 1891,
+      "delta": -64
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 17144,
+      "bytes_after": 17144,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 204888,
+      "bytes_after": 205213,
+      "delta": 325
+     }
+    ],
+    "streams_unchanged": 9,
+    "registrations": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "row": {
+       "index_in_table": 3120,
+       "elem_id": 1472584,
+       "original_id": 1472584,
+       "creation_ep": 1016,
+       "modified_ep": 1016,
+       "user_modified_ep": 1016,
+       "owner_id": null,
+       "partition_id": 0,
+       "renumbered": false,
+       "created_at_birth": false,
+       "usermod_never": false,
+       "has_owner": false,
+       "id_band": "<5M",
+       "episodes_all_equal": true
+      },
+      "positions": {
+       "101": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 440674,
+        "block": [
+         4,
+         4
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "ElementHeader",
+        "framed_len": null,
+        "stamp": null,
+        "body_size": 209
+       },
+       "102": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 1114498,
+        "block": [
+         9,
+         9
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "FamilyInstance",
+        "framed_len": null,
+        "stamp": 2536683056,
+        "body_size": 615,
+        "run_index": 15,
+        "run_of": 16,
+        "run_span": [
+         3012,
+         3120
+        ],
+        "run_modal_modified_ep": 551,
+        "run_id_range": [
+         24945,
+         1472584
+        ]
+       },
+       "103": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 76872,
+        "block": [
+         1,
+         1
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "SerializedDummy",
+        "framed_len": null,
+        "stamp": 6881340,
+        "body_size": 2
+       }
+      },
+      "registry_surface": [],
+      "owned_rows": []
+     }
+    },
+    "added_ids_registry_surface": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "adocument_paths": []
+     }
+    },
+    "added_ids_unregistered_in_adocument": [
+     1472584
+    ],
+    "run_law": {
+     "file": "BX_bip",
+     "seq": 102,
+     "host_records": 3121,
+     "runs": 16,
+     "adjacent_id_ascending_fraction": 0.99519,
+     "runs_modal_episode_descending_violations": 0,
+     "runs_modal_episode_descending": true,
+     "first_run_modal_episode": 1015,
+     "last_run_modal_episode": 551,
+     "max_history_episode": 1016,
+     "run_summary": [
+      {
+       "pos": [
+        0,
+        17
+       ],
+       "recs": 18,
+       "ids": [
+        86291,
+        1472524
+       ],
+       "modal_modified_ep": 1015,
+       "modal_share": 0.611,
+       "top_classes": [
+        [
+         "GStyleElem",
+         8
+        ],
+        [
+         "Viewport",
+         3
+        ]
+       ]
+      },
+      {
+       "pos": [
+        18,
+        231
+       ],
+       "recs": 214,
+       "ids": [
+        102467,
+        1472011
+       ],
+       "modal_modified_ep": 1013,
+       "modal_share": 0.85,
+       "top_classes": [
+        [
+         "GStyleElem",
+         143
+        ],
+        [
+         "BuildingOperatingYearSchedule",
+         27
+        ]
+       ]
+      },
+      {
+       "pos": [
+        232,
+        280
+       ],
+       "recs": 49,
+       "ids": [
+        49031,
+        1471495
+       ],
+       "modal_modified_ep": 1011,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         44
+        ],
+        [
+         "RevisionNumberingSequence",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        281,
+        334
+       ],
+       "recs": 54,
+       "ids": [
+        86204,
+        1471229
+       ],
+       "modal_modified_ep": 1009,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         52
+        ],
+        [
+         "CoordinateSystemDisplayElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        335,
+        345
+       ],
+       "recs": 11,
+       "ids": [
+        1470379,
+        1471071
+       ],
+       "modal_modified_ep": 1007,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         7
+        ],
+        [
+         "DBViewType",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        346,
+        367
+       ],
+       "recs": 22,
+       "ids": [
+        1470179,
+        1470294
+       ],
+       "modal_modified_ep": 1004,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         21
+        ],
+        [
+         "ExtentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        368,
+        508
+       ],
+       "recs": 141,
+       "ids": [
+        230,
+        1468599
+       ],
+       "modal_modified_ep": 1003,
+       "modal_share": 0.617,
+       "top_classes": [
+        [
+         "GStyleElem",
+         36
+        ],
+        [
+         "SketchPlane",
+         32
+        ]
+       ]
+      },
+      {
+       "pos": [
+        509,
+        513
+       ],
+       "recs": 5,
+       "ids": [
+        54663,
+        1462680
+       ],
+       "modal_modified_ep": 993,
+       "modal_share": 0.8,
+       "top_classes": [
+        [
+         "MaterialElem",
+         2
+        ],
+        [
+         "AppearanceAssetElem",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        514,
+        514
+       ],
+       "recs": 1,
+       "ids": [
+        1462521,
+        1462521
+       ],
+       "modal_modified_ep": 992,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "StructuralConnectionSettings",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        515,
+        594
+       ],
+       "recs": 80,
+       "ids": [
+        29,
+        1457391
+       ],
+       "modal_modified_ep": 985,
+       "modal_share": 0.537,
+       "top_classes": [
+        [
+         "GStyleElem",
+         41
+        ],
+        [
+         "MaterialElem",
+         21
+        ]
+       ]
+      },
+      {
+       "pos": [
+        595,
+        595
+       ],
+       "recs": 1,
+       "ids": [
+        1250029,
+        1250029
+       ],
+       "modal_modified_ep": 983,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "RvtLinkSymbol",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        596,
+        597
+       ],
+       "recs": 2,
+       "ids": [
+        49504,
+        132481
+       ],
+       "modal_modified_ep": 981,
+       "modal_share": 0.5,
+       "top_classes": [
+        [
+         "ProjectInfo",
+         1
+        ],
+        [
+         "RvtLinkInstanceAppearanceParentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        598,
+        3004
+       ],
+       "recs": 2407,
+       "ids": [
+        1,
+        1454521
+       ],
+       "modal_modified_ep": 976,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         1066
+        ],
+        [
+         "ParamElemExternal",
+         466
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3005,
+        3010
+       ],
+       "recs": 6,
+       "ids": [
+        21747,
+        1353276
+       ],
+       "modal_modified_ep": 922,
+       "modal_share": 0.667,
+       "top_classes": [
+        [
+         "RbsPipeScheduleType",
+         3
+        ],
+        [
+         "GeoSite",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3011,
+        3011
+       ],
+       "recs": 1,
+       "ids": [
+        1201129,
+        1201129
+       ],
+       "modal_modified_ep": 890,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "FloorAttributes",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3012,
+        3120
+       ],
+       "recs": 109,
+       "ids": [
+        24945,
+        1472584
+       ],
+       "modal_modified_ep": 551,
+       "modal_share": 0.826,
+       "top_classes": [
+        [
+         "RbsWireInsulationType",
+         26
+        ],
+        [
+         "DBViewType",
+         18
+        ]
+       ]
+      }
+     ]
+    },
+    "seconds": 0.6,
+    "gates_ok": true
+   },
+   "hop_load": {
+    "rung": "BX_bip.hop_load",
+    "file": "experiments/catchain/_build/BX_bip_chain/stage_L1_pp1.rvt",
+    "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "4444109a9d7e56ae76a439be6ff2af9e",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "stage_L1_pp1.rvt.pass1.tmp",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "4e324e8f-35ad-4b6f-bdf8-054ca7231e8c"
+     ]
+    },
+    "census_delta": {
+     "save_units": 1,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 1,
+     "familymgr_guids": 1
+    },
+    "census_parent": {
+     "save_units": 1,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 9,
+     "familymgr_guids": 0,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3102,
+     "rows_after": 3120,
+     "added_ids": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ],
+     "n_added": 18,
+     "removed_ids": [],
+     "watermark_after": 1472583,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 59,
+     "common": 3102,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 2171,
+      "bytes_after": 1955,
+      "delta": -216
+     },
+     {
+      "stream": "Global/ContentDocuments",
+      "bytes_before": 82,
+      "bytes_after": 544,
+      "delta": 462
+     },
+     {
+      "stream": "Global/DocumentIncrementTable",
+      "bytes_before": 1096,
+      "bytes_after": 967,
+      "delta": -129
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 16567,
+      "bytes_after": 17144,
+      "delta": 577
+     },
+     {
+      "stream": "Global/Latest",
+      "bytes_before": 127939,
+      "bytes_after": 127939,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 193188,
+      "bytes_after": 204888,
+      "delta": 11700
+     }
+    ],
+    "streams_unchanged": 6,
+    "seconds": 0.5,
+    "gates_ok": true
+   },
+   "blob_proof": {
+    "file": "experiments/catchain/BX_bip.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "4e324e8f-35ad-4b6f-bdf8-054ca7231e8c",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 29854
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "blob_proof_parent": {
+    "file": "experiments/catchain/_build/BX_bip_chain/stage_L1_pp1.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "4e324e8f-35ad-4b6f-bdf8-054ca7231e8c",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 29854
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   }
+  },
+  "BX_cat_gm": {
+   "probe": {
+    "rung": "BX_cat_gm",
+    "file": "experiments/catchain/BX_cat_gm.rvt",
+    "immediate_parent": "experiments/catchain/_build/BX_cat_gm_chain/stage_L1_pp1.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "6d7ed2f3f1fa7c8b2d90ea93874909d6",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "BX_cat_gm.rvt",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "092415aa-814f-4667-bf85-9752b46a8bd2"
+     ]
+    },
+    "census_delta": {
+     "save_units": 0,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 0,
+     "familymgr_guids": 0
+    },
+    "census_parent": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3120,
+     "rows_after": 3121,
+     "added_ids": [
+      1472584
+     ],
+     "n_added": 1,
+     "removed_ids": [],
+     "watermark_after": 1472584,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 1,
+     "common": 3161,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472584
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 1955,
+      "bytes_after": 1903,
+      "delta": -52
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 17144,
+      "bytes_after": 17144,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 204880,
+      "bytes_after": 205205,
+      "delta": 325
+     }
+    ],
+    "streams_unchanged": 9,
+    "registrations": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "row": {
+       "index_in_table": 3120,
+       "elem_id": 1472584,
+       "original_id": 1472584,
+       "creation_ep": 1016,
+       "modified_ep": 1016,
+       "user_modified_ep": 1016,
+       "owner_id": null,
+       "partition_id": 0,
+       "renumbered": false,
+       "created_at_birth": false,
+       "usermod_never": false,
+       "has_owner": false,
+       "id_band": "<5M",
+       "episodes_all_equal": true
+      },
+      "positions": {
+       "101": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 440674,
+        "block": [
+         4,
+         4
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "ElementHeader",
+        "framed_len": null,
+        "stamp": null,
+        "body_size": 209
+       },
+       "102": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 1114482,
+        "block": [
+         9,
+         9
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "FamilyInstance",
+        "framed_len": null,
+        "stamp": 2536683056,
+        "body_size": 615,
+        "run_index": 15,
+        "run_of": 16,
+        "run_span": [
+         3012,
+         3120
+        ],
+        "run_modal_modified_ep": 551,
+        "run_id_range": [
+         24945,
+         1472584
+        ]
+       },
+       "103": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 76872,
+        "block": [
+         1,
+         1
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "SerializedDummy",
+        "framed_len": null,
+        "stamp": 6881340,
+        "body_size": 2
+       }
+      },
+      "registry_surface": [],
+      "owned_rows": []
+     }
+    },
+    "added_ids_registry_surface": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "adocument_paths": []
+     }
+    },
+    "added_ids_unregistered_in_adocument": [
+     1472584
+    ],
+    "run_law": {
+     "file": "BX_cat_gm",
+     "seq": 102,
+     "host_records": 3121,
+     "runs": 16,
+     "adjacent_id_ascending_fraction": 0.99519,
+     "runs_modal_episode_descending_violations": 0,
+     "runs_modal_episode_descending": true,
+     "first_run_modal_episode": 1015,
+     "last_run_modal_episode": 551,
+     "max_history_episode": 1016,
+     "run_summary": [
+      {
+       "pos": [
+        0,
+        17
+       ],
+       "recs": 18,
+       "ids": [
+        86291,
+        1472524
+       ],
+       "modal_modified_ep": 1015,
+       "modal_share": 0.611,
+       "top_classes": [
+        [
+         "GStyleElem",
+         8
+        ],
+        [
+         "Viewport",
+         3
+        ]
+       ]
+      },
+      {
+       "pos": [
+        18,
+        231
+       ],
+       "recs": 214,
+       "ids": [
+        102467,
+        1472011
+       ],
+       "modal_modified_ep": 1013,
+       "modal_share": 0.85,
+       "top_classes": [
+        [
+         "GStyleElem",
+         143
+        ],
+        [
+         "BuildingOperatingYearSchedule",
+         27
+        ]
+       ]
+      },
+      {
+       "pos": [
+        232,
+        280
+       ],
+       "recs": 49,
+       "ids": [
+        49031,
+        1471495
+       ],
+       "modal_modified_ep": 1011,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         44
+        ],
+        [
+         "RevisionNumberingSequence",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        281,
+        334
+       ],
+       "recs": 54,
+       "ids": [
+        86204,
+        1471229
+       ],
+       "modal_modified_ep": 1009,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         52
+        ],
+        [
+         "CoordinateSystemDisplayElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        335,
+        345
+       ],
+       "recs": 11,
+       "ids": [
+        1470379,
+        1471071
+       ],
+       "modal_modified_ep": 1007,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         7
+        ],
+        [
+         "DBViewType",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        346,
+        367
+       ],
+       "recs": 22,
+       "ids": [
+        1470179,
+        1470294
+       ],
+       "modal_modified_ep": 1004,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         21
+        ],
+        [
+         "ExtentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        368,
+        508
+       ],
+       "recs": 141,
+       "ids": [
+        230,
+        1468599
+       ],
+       "modal_modified_ep": 1003,
+       "modal_share": 0.617,
+       "top_classes": [
+        [
+         "GStyleElem",
+         36
+        ],
+        [
+         "SketchPlane",
+         32
+        ]
+       ]
+      },
+      {
+       "pos": [
+        509,
+        513
+       ],
+       "recs": 5,
+       "ids": [
+        54663,
+        1462680
+       ],
+       "modal_modified_ep": 993,
+       "modal_share": 0.8,
+       "top_classes": [
+        [
+         "MaterialElem",
+         2
+        ],
+        [
+         "AppearanceAssetElem",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        514,
+        514
+       ],
+       "recs": 1,
+       "ids": [
+        1462521,
+        1462521
+       ],
+       "modal_modified_ep": 992,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "StructuralConnectionSettings",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        515,
+        594
+       ],
+       "recs": 80,
+       "ids": [
+        29,
+        1457391
+       ],
+       "modal_modified_ep": 985,
+       "modal_share": 0.537,
+       "top_classes": [
+        [
+         "GStyleElem",
+         41
+        ],
+        [
+         "MaterialElem",
+         21
+        ]
+       ]
+      },
+      {
+       "pos": [
+        595,
+        595
+       ],
+       "recs": 1,
+       "ids": [
+        1250029,
+        1250029
+       ],
+       "modal_modified_ep": 983,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "RvtLinkSymbol",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        596,
+        597
+       ],
+       "recs": 2,
+       "ids": [
+        49504,
+        132481
+       ],
+       "modal_modified_ep": 981,
+       "modal_share": 0.5,
+       "top_classes": [
+        [
+         "ProjectInfo",
+         1
+        ],
+        [
+         "RvtLinkInstanceAppearanceParentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        598,
+        3004
+       ],
+       "recs": 2407,
+       "ids": [
+        1,
+        1454521
+       ],
+       "modal_modified_ep": 976,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         1066
+        ],
+        [
+         "ParamElemExternal",
+         466
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3005,
+        3010
+       ],
+       "recs": 6,
+       "ids": [
+        21747,
+        1353276
+       ],
+       "modal_modified_ep": 922,
+       "modal_share": 0.667,
+       "top_classes": [
+        [
+         "RbsPipeScheduleType",
+         3
+        ],
+        [
+         "GeoSite",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3011,
+        3011
+       ],
+       "recs": 1,
+       "ids": [
+        1201129,
+        1201129
+       ],
+       "modal_modified_ep": 890,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "FloorAttributes",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3012,
+        3120
+       ],
+       "recs": 109,
+       "ids": [
+        24945,
+        1472584
+       ],
+       "modal_modified_ep": 551,
+       "modal_share": 0.826,
+       "top_classes": [
+        [
+         "RbsWireInsulationType",
+         26
+        ],
+        [
+         "DBViewType",
+         18
+        ]
+       ]
+      }
+     ]
+    },
+    "seconds": 0.6,
+    "gates_ok": true
+   },
+   "hop_load": {
+    "rung": "BX_cat_gm.hop_load",
+    "file": "experiments/catchain/_build/BX_cat_gm_chain/stage_L1_pp1.rvt",
+    "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "827600b9eb5106e986c712027cb8302b",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "stage_L1_pp1.rvt.pass1.tmp",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "092415aa-814f-4667-bf85-9752b46a8bd2"
+     ]
+    },
+    "census_delta": {
+     "save_units": 1,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 1,
+     "familymgr_guids": 1
+    },
+    "census_parent": {
+     "save_units": 1,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 9,
+     "familymgr_guids": 0,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3102,
+     "rows_after": 3120,
+     "added_ids": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ],
+     "n_added": 18,
+     "removed_ids": [],
+     "watermark_after": 1472583,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 59,
+     "common": 3102,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 2171,
+      "bytes_after": 1955,
+      "delta": -216
+     },
+     {
+      "stream": "Global/ContentDocuments",
+      "bytes_before": 82,
+      "bytes_after": 544,
+      "delta": 462
+     },
+     {
+      "stream": "Global/DocumentIncrementTable",
+      "bytes_before": 1096,
+      "bytes_after": 967,
+      "delta": -129
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 16567,
+      "bytes_after": 17144,
+      "delta": 577
+     },
+     {
+      "stream": "Global/Latest",
+      "bytes_before": 127939,
+      "bytes_after": 127939,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 193188,
+      "bytes_after": 204880,
+      "delta": 11692
+     }
+    ],
+    "streams_unchanged": 6,
+    "seconds": 0.5,
+    "gates_ok": true
+   },
+   "blob_proof": {
+    "file": "experiments/catchain/BX_cat_gm.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "092415aa-814f-4667-bf85-9752b46a8bd2",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 29838
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "blob_proof_parent": {
+    "file": "experiments/catchain/_build/BX_cat_gm_chain/stage_L1_pp1.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "092415aa-814f-4667-bf85-9752b46a8bd2",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 29838
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   }
+  },
+  "BX_conj": {
+   "probe": {
+    "rung": "BX_conj",
+    "file": "experiments/catchain/BX_conj.rvt",
+    "immediate_parent": "experiments/catchain/_build/BX_conj_chain/stage_L1_pp1.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "47a68a118659f17815edfadf683e99cb",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "BX_conj.rvt",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "f7195ecc-6694-4be5-a8ce-ae082fcdd7e0"
+     ]
+    },
+    "census_delta": {
+     "save_units": 0,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 0,
+     "familymgr_guids": 0
+    },
+    "census_parent": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3120,
+     "rows_after": 3121,
+     "added_ids": [
+      1472584
+     ],
+     "n_added": 1,
+     "removed_ids": [],
+     "watermark_after": 1472584,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 1,
+     "common": 3161,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472584
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 1955,
+      "bytes_after": 1895,
+      "delta": -60
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 17144,
+      "bytes_after": 17144,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 205254,
+      "bytes_after": 205587,
+      "delta": 333
+     }
+    ],
+    "streams_unchanged": 9,
+    "registrations": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "row": {
+       "index_in_table": 3120,
+       "elem_id": 1472584,
+       "original_id": 1472584,
+       "creation_ep": 1016,
+       "modified_ep": 1016,
+       "user_modified_ep": 1016,
+       "owner_id": null,
+       "partition_id": 0,
+       "renumbered": false,
+       "created_at_birth": false,
+       "usermod_never": false,
+       "has_owner": false,
+       "id_band": "<5M",
+       "episodes_all_equal": true
+      },
+      "positions": {
+       "101": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 440690,
+        "block": [
+         4,
+         4
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "ElementHeader",
+        "framed_len": null,
+        "stamp": null,
+        "body_size": 209
+       },
+       "102": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 1118942,
+        "block": [
+         9,
+         9
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "FamilyInstance",
+        "framed_len": null,
+        "stamp": 2536683056,
+        "body_size": 615,
+        "run_index": 15,
+        "run_of": 16,
+        "run_span": [
+         3012,
+         3120
+        ],
+        "run_modal_modified_ep": 551,
+        "run_id_range": [
+         24945,
+         1472584
+        ]
+       },
+       "103": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 76872,
+        "block": [
+         1,
+         1
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "SerializedDummy",
+        "framed_len": null,
+        "stamp": 6881340,
+        "body_size": 2
+       }
+      },
+      "registry_surface": [],
+      "owned_rows": []
+     }
+    },
+    "added_ids_registry_surface": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "adocument_paths": []
+     }
+    },
+    "added_ids_unregistered_in_adocument": [
+     1472584
+    ],
+    "run_law": {
+     "file": "BX_conj",
+     "seq": 102,
+     "host_records": 3121,
+     "runs": 16,
+     "adjacent_id_ascending_fraction": 0.99519,
+     "runs_modal_episode_descending_violations": 0,
+     "runs_modal_episode_descending": true,
+     "first_run_modal_episode": 1015,
+     "last_run_modal_episode": 551,
+     "max_history_episode": 1016,
+     "run_summary": [
+      {
+       "pos": [
+        0,
+        17
+       ],
+       "recs": 18,
+       "ids": [
+        86291,
+        1472524
+       ],
+       "modal_modified_ep": 1015,
+       "modal_share": 0.611,
+       "top_classes": [
+        [
+         "GStyleElem",
+         8
+        ],
+        [
+         "Viewport",
+         3
+        ]
+       ]
+      },
+      {
+       "pos": [
+        18,
+        231
+       ],
+       "recs": 214,
+       "ids": [
+        102467,
+        1472011
+       ],
+       "modal_modified_ep": 1013,
+       "modal_share": 0.85,
+       "top_classes": [
+        [
+         "GStyleElem",
+         143
+        ],
+        [
+         "BuildingOperatingYearSchedule",
+         27
+        ]
+       ]
+      },
+      {
+       "pos": [
+        232,
+        280
+       ],
+       "recs": 49,
+       "ids": [
+        49031,
+        1471495
+       ],
+       "modal_modified_ep": 1011,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         44
+        ],
+        [
+         "RevisionNumberingSequence",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        281,
+        334
+       ],
+       "recs": 54,
+       "ids": [
+        86204,
+        1471229
+       ],
+       "modal_modified_ep": 1009,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         52
+        ],
+        [
+         "CoordinateSystemDisplayElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        335,
+        345
+       ],
+       "recs": 11,
+       "ids": [
+        1470379,
+        1471071
+       ],
+       "modal_modified_ep": 1007,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         7
+        ],
+        [
+         "DBViewType",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        346,
+        367
+       ],
+       "recs": 22,
+       "ids": [
+        1470179,
+        1470294
+       ],
+       "modal_modified_ep": 1004,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         21
+        ],
+        [
+         "ExtentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        368,
+        508
+       ],
+       "recs": 141,
+       "ids": [
+        230,
+        1468599
+       ],
+       "modal_modified_ep": 1003,
+       "modal_share": 0.617,
+       "top_classes": [
+        [
+         "GStyleElem",
+         36
+        ],
+        [
+         "SketchPlane",
+         32
+        ]
+       ]
+      },
+      {
+       "pos": [
+        509,
+        513
+       ],
+       "recs": 5,
+       "ids": [
+        54663,
+        1462680
+       ],
+       "modal_modified_ep": 993,
+       "modal_share": 0.8,
+       "top_classes": [
+        [
+         "MaterialElem",
+         2
+        ],
+        [
+         "AppearanceAssetElem",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        514,
+        514
+       ],
+       "recs": 1,
+       "ids": [
+        1462521,
+        1462521
+       ],
+       "modal_modified_ep": 992,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "StructuralConnectionSettings",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        515,
+        594
+       ],
+       "recs": 80,
+       "ids": [
+        29,
+        1457391
+       ],
+       "modal_modified_ep": 985,
+       "modal_share": 0.537,
+       "top_classes": [
+        [
+         "GStyleElem",
+         41
+        ],
+        [
+         "MaterialElem",
+         21
+        ]
+       ]
+      },
+      {
+       "pos": [
+        595,
+        595
+       ],
+       "recs": 1,
+       "ids": [
+        1250029,
+        1250029
+       ],
+       "modal_modified_ep": 983,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "RvtLinkSymbol",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        596,
+        597
+       ],
+       "recs": 2,
+       "ids": [
+        49504,
+        132481
+       ],
+       "modal_modified_ep": 981,
+       "modal_share": 0.5,
+       "top_classes": [
+        [
+         "ProjectInfo",
+         1
+        ],
+        [
+         "RvtLinkInstanceAppearanceParentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        598,
+        3004
+       ],
+       "recs": 2407,
+       "ids": [
+        1,
+        1454521
+       ],
+       "modal_modified_ep": 976,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         1066
+        ],
+        [
+         "ParamElemExternal",
+         466
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3005,
+        3010
+       ],
+       "recs": 6,
+       "ids": [
+        21747,
+        1353276
+       ],
+       "modal_modified_ep": 922,
+       "modal_share": 0.667,
+       "top_classes": [
+        [
+         "RbsPipeScheduleType",
+         3
+        ],
+        [
+         "GeoSite",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3011,
+        3011
+       ],
+       "recs": 1,
+       "ids": [
+        1201129,
+        1201129
+       ],
+       "modal_modified_ep": 890,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "FloorAttributes",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3012,
+        3120
+       ],
+       "recs": 109,
+       "ids": [
+        24945,
+        1472584
+       ],
+       "modal_modified_ep": 551,
+       "modal_share": 0.826,
+       "top_classes": [
+        [
+         "RbsWireInsulationType",
+         26
+        ],
+        [
+         "DBViewType",
+         18
+        ]
+       ]
+      }
+     ]
+    },
+    "seconds": 0.6,
+    "gates_ok": true
+   },
+   "hop_load": {
+    "rung": "BX_conj.hop_load",
+    "file": "experiments/catchain/_build/BX_conj_chain/stage_L1_pp1.rvt",
+    "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "1ba253d820980e7c5172591a4d8c5a07",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "stage_L1_pp1.rvt.pass1.tmp",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "f7195ecc-6694-4be5-a8ce-ae082fcdd7e0"
+     ]
+    },
+    "census_delta": {
+     "save_units": 1,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 1,
+     "familymgr_guids": 1
+    },
+    "census_parent": {
+     "save_units": 1,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 9,
+     "familymgr_guids": 0,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3102,
+     "rows_after": 3120,
+     "added_ids": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ],
+     "n_added": 18,
+     "removed_ids": [],
+     "watermark_after": 1472583,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 59,
+     "common": 3102,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 2171,
+      "bytes_after": 1955,
+      "delta": -216
+     },
+     {
+      "stream": "Global/ContentDocuments",
+      "bytes_before": 82,
+      "bytes_after": 544,
+      "delta": 462
+     },
+     {
+      "stream": "Global/DocumentIncrementTable",
+      "bytes_before": 1096,
+      "bytes_after": 967,
+      "delta": -129
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 16567,
+      "bytes_after": 17144,
+      "delta": 577
+     },
+     {
+      "stream": "Global/Latest",
+      "bytes_before": 127939,
+      "bytes_after": 127939,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 193188,
+      "bytes_after": 205254,
+      "delta": 12066
+     }
+    ],
+    "streams_unchanged": 6,
+    "seconds": 0.5,
+    "gates_ok": true
+   },
+   "blob_proof": {
+    "file": "experiments/catchain/BX_conj.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "f7195ecc-6694-4be5-a8ce-ae082fcdd7e0",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 34252
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "blob_proof_parent": {
+    "file": "experiments/catchain/_build/BX_conj_chain/stage_L1_pp1.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "f7195ecc-6694-4be5-a8ce-ae082fcdd7e0",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 34252
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   }
+  },
+  "BX_types_5": {
+   "probe": {
+    "rung": "BX_types_5",
+    "file": "experiments/catchain/BX_types_5.rvt",
+    "immediate_parent": "experiments/catchain/_build/BX_types_5_chain/stage_L1_pp1.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "088530c6ea4c65fd0bf6a5ae4958a7eb",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "BX_types_5.rvt",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "1258005e-0c90-4d90-912b-8bf8da41a43e"
+     ]
+    },
+    "census_delta": {
+     "save_units": 0,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 0,
+     "familymgr_guids": 0
+    },
+    "census_parent": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3120,
+     "rows_after": 3121,
+     "added_ids": [
+      1472584
+     ],
+     "n_added": 1,
+     "removed_ids": [],
+     "watermark_after": 1472584,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 1,
+     "common": 3161,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472584
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 1955,
+      "bytes_after": 1907,
+      "delta": -48
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 17144,
+      "bytes_after": 17144,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 205148,
+      "bytes_after": 205481,
+      "delta": 333
+     }
+    ],
+    "streams_unchanged": 9,
+    "registrations": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "row": {
+       "index_in_table": 3120,
+       "elem_id": 1472584,
+       "original_id": 1472584,
+       "creation_ep": 1016,
+       "modified_ep": 1016,
+       "user_modified_ep": 1016,
+       "owner_id": null,
+       "partition_id": 0,
+       "renumbered": false,
+       "created_at_birth": false,
+       "usermod_never": false,
+       "has_owner": false,
+       "id_band": "<5M",
+       "episodes_all_equal": true
+      },
+      "positions": {
+       "101": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 440674,
+        "block": [
+         4,
+         4
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "ElementHeader",
+        "framed_len": null,
+        "stamp": null,
+        "body_size": 209
+       },
+       "102": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 1118616,
+        "block": [
+         9,
+         9
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "FamilyInstance",
+        "framed_len": null,
+        "stamp": 2536683056,
+        "body_size": 615,
+        "run_index": 15,
+        "run_of": 16,
+        "run_span": [
+         3012,
+         3120
+        ],
+        "run_modal_modified_ep": 551,
+        "run_id_range": [
+         24945,
+         1472584
+        ]
+       },
+       "103": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 76872,
+        "block": [
+         1,
+         1
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "SerializedDummy",
+        "framed_len": null,
+        "stamp": 6881340,
+        "body_size": 2
+       }
+      },
+      "registry_surface": [],
+      "owned_rows": []
+     }
+    },
+    "added_ids_registry_surface": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "adocument_paths": []
+     }
+    },
+    "added_ids_unregistered_in_adocument": [
+     1472584
+    ],
+    "run_law": {
+     "file": "BX_types_5",
+     "seq": 102,
+     "host_records": 3121,
+     "runs": 16,
+     "adjacent_id_ascending_fraction": 0.99519,
+     "runs_modal_episode_descending_violations": 0,
+     "runs_modal_episode_descending": true,
+     "first_run_modal_episode": 1015,
+     "last_run_modal_episode": 551,
+     "max_history_episode": 1016,
+     "run_summary": [
+      {
+       "pos": [
+        0,
+        17
+       ],
+       "recs": 18,
+       "ids": [
+        86291,
+        1472524
+       ],
+       "modal_modified_ep": 1015,
+       "modal_share": 0.611,
+       "top_classes": [
+        [
+         "GStyleElem",
+         8
+        ],
+        [
+         "Viewport",
+         3
+        ]
+       ]
+      },
+      {
+       "pos": [
+        18,
+        231
+       ],
+       "recs": 214,
+       "ids": [
+        102467,
+        1472011
+       ],
+       "modal_modified_ep": 1013,
+       "modal_share": 0.85,
+       "top_classes": [
+        [
+         "GStyleElem",
+         143
+        ],
+        [
+         "BuildingOperatingYearSchedule",
+         27
+        ]
+       ]
+      },
+      {
+       "pos": [
+        232,
+        280
+       ],
+       "recs": 49,
+       "ids": [
+        49031,
+        1471495
+       ],
+       "modal_modified_ep": 1011,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         44
+        ],
+        [
+         "RevisionNumberingSequence",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        281,
+        334
+       ],
+       "recs": 54,
+       "ids": [
+        86204,
+        1471229
+       ],
+       "modal_modified_ep": 1009,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         52
+        ],
+        [
+         "CoordinateSystemDisplayElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        335,
+        345
+       ],
+       "recs": 11,
+       "ids": [
+        1470379,
+        1471071
+       ],
+       "modal_modified_ep": 1007,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         7
+        ],
+        [
+         "DBViewType",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        346,
+        367
+       ],
+       "recs": 22,
+       "ids": [
+        1470179,
+        1470294
+       ],
+       "modal_modified_ep": 1004,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         21
+        ],
+        [
+         "ExtentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        368,
+        508
+       ],
+       "recs": 141,
+       "ids": [
+        230,
+        1468599
+       ],
+       "modal_modified_ep": 1003,
+       "modal_share": 0.617,
+       "top_classes": [
+        [
+         "GStyleElem",
+         36
+        ],
+        [
+         "SketchPlane",
+         32
+        ]
+       ]
+      },
+      {
+       "pos": [
+        509,
+        513
+       ],
+       "recs": 5,
+       "ids": [
+        54663,
+        1462680
+       ],
+       "modal_modified_ep": 993,
+       "modal_share": 0.8,
+       "top_classes": [
+        [
+         "MaterialElem",
+         2
+        ],
+        [
+         "AppearanceAssetElem",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        514,
+        514
+       ],
+       "recs": 1,
+       "ids": [
+        1462521,
+        1462521
+       ],
+       "modal_modified_ep": 992,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "StructuralConnectionSettings",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        515,
+        594
+       ],
+       "recs": 80,
+       "ids": [
+        29,
+        1457391
+       ],
+       "modal_modified_ep": 985,
+       "modal_share": 0.537,
+       "top_classes": [
+        [
+         "GStyleElem",
+         41
+        ],
+        [
+         "MaterialElem",
+         21
+        ]
+       ]
+      },
+      {
+       "pos": [
+        595,
+        595
+       ],
+       "recs": 1,
+       "ids": [
+        1250029,
+        1250029
+       ],
+       "modal_modified_ep": 983,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "RvtLinkSymbol",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        596,
+        597
+       ],
+       "recs": 2,
+       "ids": [
+        49504,
+        132481
+       ],
+       "modal_modified_ep": 981,
+       "modal_share": 0.5,
+       "top_classes": [
+        [
+         "ProjectInfo",
+         1
+        ],
+        [
+         "RvtLinkInstanceAppearanceParentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        598,
+        3004
+       ],
+       "recs": 2407,
+       "ids": [
+        1,
+        1454521
+       ],
+       "modal_modified_ep": 976,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         1066
+        ],
+        [
+         "ParamElemExternal",
+         466
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3005,
+        3010
+       ],
+       "recs": 6,
+       "ids": [
+        21747,
+        1353276
+       ],
+       "modal_modified_ep": 922,
+       "modal_share": 0.667,
+       "top_classes": [
+        [
+         "RbsPipeScheduleType",
+         3
+        ],
+        [
+         "GeoSite",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3011,
+        3011
+       ],
+       "recs": 1,
+       "ids": [
+        1201129,
+        1201129
+       ],
+       "modal_modified_ep": 890,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "FloorAttributes",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3012,
+        3120
+       ],
+       "recs": 109,
+       "ids": [
+        24945,
+        1472584
+       ],
+       "modal_modified_ep": 551,
+       "modal_share": 0.826,
+       "top_classes": [
+        [
+         "RbsWireInsulationType",
+         26
+        ],
+        [
+         "DBViewType",
+         18
+        ]
+       ]
+      }
+     ]
+    },
+    "seconds": 0.6,
+    "gates_ok": true
+   },
+   "hop_load": {
+    "rung": "BX_types_5.hop_load",
+    "file": "experiments/catchain/_build/BX_types_5_chain/stage_L1_pp1.rvt",
+    "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "05cf0ba3dedb513fb6fd00a5ae533514",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "stage_L1_pp1.rvt.pass1.tmp",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "1258005e-0c90-4d90-912b-8bf8da41a43e"
+     ]
+    },
+    "census_delta": {
+     "save_units": 1,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 1,
+     "familymgr_guids": 1
+    },
+    "census_parent": {
+     "save_units": 1,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 9,
+     "familymgr_guids": 0,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3102,
+     "rows_after": 3120,
+     "added_ids": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ],
+     "n_added": 18,
+     "removed_ids": [],
+     "watermark_after": 1472583,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 59,
+     "common": 3102,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 2171,
+      "bytes_after": 1955,
+      "delta": -216
+     },
+     {
+      "stream": "Global/ContentDocuments",
+      "bytes_before": 82,
+      "bytes_after": 544,
+      "delta": 462
+     },
+     {
+      "stream": "Global/DocumentIncrementTable",
+      "bytes_before": 1096,
+      "bytes_after": 967,
+      "delta": -129
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 16567,
+      "bytes_after": 17144,
+      "delta": 577
+     },
+     {
+      "stream": "Global/Latest",
+      "bytes_before": 127939,
+      "bytes_after": 127939,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 193188,
+      "bytes_after": 205148,
+      "delta": 11960
+     }
+    ],
+    "streams_unchanged": 6,
+    "seconds": 0.5,
+    "gates_ok": true
+   },
+   "blob_proof": {
+    "file": "experiments/catchain/BX_types_5.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "1258005e-0c90-4d90-912b-8bf8da41a43e",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 33972
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "blob_proof_parent": {
+    "file": "experiments/catchain/_build/BX_types_5_chain/stage_L1_pp1.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "1258005e-0c90-4d90-912b-8bf8da41a43e",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 33972
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   }
+  },
+  "BX_conj_minus_cat": {
+   "probe": {
+    "rung": "BX_conj_minus_cat",
+    "file": "experiments/catchain/BX_conj_minus_cat.rvt",
+    "immediate_parent": "experiments/catchain/_build/BX_conj_minus_cat_chain/stage_L1_pp1.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "3cd1795d0d209126f9fba8574005ebad",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "BX_conj_minus_cat.rvt",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "36a646b7-de97-4071-833d-e9167023c40a"
+     ]
+    },
+    "census_delta": {
+     "save_units": 0,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 0,
+     "familymgr_guids": 0
+    },
+    "census_parent": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3120,
+     "rows_after": 3121,
+     "added_ids": [
+      1472584
+     ],
+     "n_added": 1,
+     "removed_ids": [],
+     "watermark_after": 1472584,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 1,
+     "common": 3161,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472584
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 1955,
+      "bytes_after": 1935,
+      "delta": -20
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 17144,
+      "bytes_after": 17144,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 205237,
+      "bytes_after": 205571,
+      "delta": 334
+     }
+    ],
+    "streams_unchanged": 9,
+    "registrations": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "row": {
+       "index_in_table": 3120,
+       "elem_id": 1472584,
+       "original_id": 1472584,
+       "creation_ep": 1016,
+       "modified_ep": 1016,
+       "user_modified_ep": 1016,
+       "owner_id": null,
+       "partition_id": 0,
+       "renumbered": false,
+       "created_at_birth": false,
+       "usermod_never": false,
+       "has_owner": false,
+       "id_band": "<5M",
+       "episodes_all_equal": true
+      },
+      "positions": {
+       "101": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 440690,
+        "block": [
+         4,
+         4
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "ElementHeader",
+        "framed_len": null,
+        "stamp": null,
+        "body_size": 209
+       },
+       "102": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 1118942,
+        "block": [
+         9,
+         9
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "FamilyInstance",
+        "framed_len": null,
+        "stamp": 2536683056,
+        "body_size": 615,
+        "run_index": 15,
+        "run_of": 16,
+        "run_span": [
+         3012,
+         3120
+        ],
+        "run_modal_modified_ep": 551,
+        "run_id_range": [
+         24945,
+         1472584
+        ]
+       },
+       "103": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 76872,
+        "block": [
+         1,
+         1
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "SerializedDummy",
+        "framed_len": null,
+        "stamp": 6881340,
+        "body_size": 2
+       }
+      },
+      "registry_surface": [],
+      "owned_rows": []
+     }
+    },
+    "added_ids_registry_surface": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "adocument_paths": []
+     }
+    },
+    "added_ids_unregistered_in_adocument": [
+     1472584
+    ],
+    "run_law": {
+     "file": "BX_conj_minus_cat",
+     "seq": 102,
+     "host_records": 3121,
+     "runs": 16,
+     "adjacent_id_ascending_fraction": 0.99519,
+     "runs_modal_episode_descending_violations": 0,
+     "runs_modal_episode_descending": true,
+     "first_run_modal_episode": 1015,
+     "last_run_modal_episode": 551,
+     "max_history_episode": 1016,
+     "run_summary": [
+      {
+       "pos": [
+        0,
+        17
+       ],
+       "recs": 18,
+       "ids": [
+        86291,
+        1472524
+       ],
+       "modal_modified_ep": 1015,
+       "modal_share": 0.611,
+       "top_classes": [
+        [
+         "GStyleElem",
+         8
+        ],
+        [
+         "Viewport",
+         3
+        ]
+       ]
+      },
+      {
+       "pos": [
+        18,
+        231
+       ],
+       "recs": 214,
+       "ids": [
+        102467,
+        1472011
+       ],
+       "modal_modified_ep": 1013,
+       "modal_share": 0.85,
+       "top_classes": [
+        [
+         "GStyleElem",
+         143
+        ],
+        [
+         "BuildingOperatingYearSchedule",
+         27
+        ]
+       ]
+      },
+      {
+       "pos": [
+        232,
+        280
+       ],
+       "recs": 49,
+       "ids": [
+        49031,
+        1471495
+       ],
+       "modal_modified_ep": 1011,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         44
+        ],
+        [
+         "RevisionNumberingSequence",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        281,
+        334
+       ],
+       "recs": 54,
+       "ids": [
+        86204,
+        1471229
+       ],
+       "modal_modified_ep": 1009,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         52
+        ],
+        [
+         "CoordinateSystemDisplayElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        335,
+        345
+       ],
+       "recs": 11,
+       "ids": [
+        1470379,
+        1471071
+       ],
+       "modal_modified_ep": 1007,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         7
+        ],
+        [
+         "DBViewType",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        346,
+        367
+       ],
+       "recs": 22,
+       "ids": [
+        1470179,
+        1470294
+       ],
+       "modal_modified_ep": 1004,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         21
+        ],
+        [
+         "ExtentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        368,
+        508
+       ],
+       "recs": 141,
+       "ids": [
+        230,
+        1468599
+       ],
+       "modal_modified_ep": 1003,
+       "modal_share": 0.617,
+       "top_classes": [
+        [
+         "GStyleElem",
+         36
+        ],
+        [
+         "SketchPlane",
+         32
+        ]
+       ]
+      },
+      {
+       "pos": [
+        509,
+        513
+       ],
+       "recs": 5,
+       "ids": [
+        54663,
+        1462680
+       ],
+       "modal_modified_ep": 993,
+       "modal_share": 0.8,
+       "top_classes": [
+        [
+         "MaterialElem",
+         2
+        ],
+        [
+         "AppearanceAssetElem",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        514,
+        514
+       ],
+       "recs": 1,
+       "ids": [
+        1462521,
+        1462521
+       ],
+       "modal_modified_ep": 992,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "StructuralConnectionSettings",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        515,
+        594
+       ],
+       "recs": 80,
+       "ids": [
+        29,
+        1457391
+       ],
+       "modal_modified_ep": 985,
+       "modal_share": 0.537,
+       "top_classes": [
+        [
+         "GStyleElem",
+         41
+        ],
+        [
+         "MaterialElem",
+         21
+        ]
+       ]
+      },
+      {
+       "pos": [
+        595,
+        595
+       ],
+       "recs": 1,
+       "ids": [
+        1250029,
+        1250029
+       ],
+       "modal_modified_ep": 983,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "RvtLinkSymbol",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        596,
+        597
+       ],
+       "recs": 2,
+       "ids": [
+        49504,
+        132481
+       ],
+       "modal_modified_ep": 981,
+       "modal_share": 0.5,
+       "top_classes": [
+        [
+         "ProjectInfo",
+         1
+        ],
+        [
+         "RvtLinkInstanceAppearanceParentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        598,
+        3004
+       ],
+       "recs": 2407,
+       "ids": [
+        1,
+        1454521
+       ],
+       "modal_modified_ep": 976,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         1066
+        ],
+        [
+         "ParamElemExternal",
+         466
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3005,
+        3010
+       ],
+       "recs": 6,
+       "ids": [
+        21747,
+        1353276
+       ],
+       "modal_modified_ep": 922,
+       "modal_share": 0.667,
+       "top_classes": [
+        [
+         "RbsPipeScheduleType",
+         3
+        ],
+        [
+         "GeoSite",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3011,
+        3011
+       ],
+       "recs": 1,
+       "ids": [
+        1201129,
+        1201129
+       ],
+       "modal_modified_ep": 890,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "FloorAttributes",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3012,
+        3120
+       ],
+       "recs": 109,
+       "ids": [
+        24945,
+        1472584
+       ],
+       "modal_modified_ep": 551,
+       "modal_share": 0.826,
+       "top_classes": [
+        [
+         "RbsWireInsulationType",
+         26
+        ],
+        [
+         "DBViewType",
+         18
+        ]
+       ]
+      }
+     ]
+    },
+    "seconds": 0.6,
+    "gates_ok": true
+   },
+   "hop_load": {
+    "rung": "BX_conj_minus_cat.hop_load",
+    "file": "experiments/catchain/_build/BX_conj_minus_cat_chain/stage_L1_pp1.rvt",
+    "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "41f12d3239ae335a04282a1a3083b5f9",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "stage_L1_pp1.rvt.pass1.tmp",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "36a646b7-de97-4071-833d-e9167023c40a"
+     ]
+    },
+    "census_delta": {
+     "save_units": 1,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 1,
+     "familymgr_guids": 1
+    },
+    "census_parent": {
+     "save_units": 1,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 9,
+     "familymgr_guids": 0,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3102,
+     "rows_after": 3120,
+     "added_ids": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ],
+     "n_added": 18,
+     "removed_ids": [],
+     "watermark_after": 1472583,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 59,
+     "common": 3102,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 2171,
+      "bytes_after": 1955,
+      "delta": -216
+     },
+     {
+      "stream": "Global/ContentDocuments",
+      "bytes_before": 82,
+      "bytes_after": 544,
+      "delta": 462
+     },
+     {
+      "stream": "Global/DocumentIncrementTable",
+      "bytes_before": 1096,
+      "bytes_after": 967,
+      "delta": -129
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 16567,
+      "bytes_after": 17144,
+      "delta": 577
+     },
+     {
+      "stream": "Global/Latest",
+      "bytes_before": 127939,
+      "bytes_after": 127939,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 193188,
+      "bytes_after": 205237,
+      "delta": 12049
+     }
+    ],
+    "streams_unchanged": 6,
+    "seconds": 0.5,
+    "gates_ok": true
+   },
+   "blob_proof": {
+    "file": "experiments/catchain/BX_conj_minus_cat.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "36a646b7-de97-4071-833d-e9167023c40a",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 34252
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "blob_proof_parent": {
+    "file": "experiments/catchain/_build/BX_conj_minus_cat_chain/stage_L1_pp1.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "36a646b7-de97-4071-833d-e9167023c40a",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 34252
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   }
+  },
+  "BX_conj_minus_types": {
+   "probe": {
+    "rung": "BX_conj_minus_types",
+    "file": "experiments/catchain/BX_conj_minus_types.rvt",
+    "immediate_parent": "experiments/catchain/_build/BX_conj_minus_types_chain/stage_L1_pp1.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "70e4fa88dcc0cdad94b03c0ed8f4483e",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "BX_conj_minus_types.rvt",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "663c97e9-e8ab-4a88-9308-956344f0463d"
+     ]
+    },
+    "census_delta": {
+     "save_units": 0,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 0,
+     "familymgr_guids": 0
+    },
+    "census_parent": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3120,
+     "rows_after": 3121,
+     "added_ids": [
+      1472584
+     ],
+     "n_added": 1,
+     "removed_ids": [],
+     "watermark_after": 1472584,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 1,
+     "common": 3161,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472584
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 1955,
+      "bytes_after": 1943,
+      "delta": -12
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 17144,
+      "bytes_after": 17144,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 204969,
+      "bytes_after": 205294,
+      "delta": 325
+     }
+    ],
+    "streams_unchanged": 9,
+    "registrations": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "row": {
+       "index_in_table": 3120,
+       "elem_id": 1472584,
+       "original_id": 1472584,
+       "creation_ep": 1016,
+       "modified_ep": 1016,
+       "user_modified_ep": 1016,
+       "owner_id": null,
+       "partition_id": 0,
+       "renumbered": false,
+       "created_at_birth": false,
+       "usermod_never": false,
+       "has_owner": false,
+       "id_band": "<5M",
+       "episodes_all_equal": true
+      },
+      "positions": {
+       "101": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 440690,
+        "block": [
+         4,
+         4
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "ElementHeader",
+        "framed_len": null,
+        "stamp": null,
+        "body_size": 209
+       },
+       "102": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 1114656,
+        "block": [
+         9,
+         9
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "FamilyInstance",
+        "framed_len": null,
+        "stamp": 2536683056,
+        "body_size": 615,
+        "run_index": 15,
+        "run_of": 16,
+        "run_span": [
+         3012,
+         3120
+        ],
+        "run_modal_modified_ep": 551,
+        "run_id_range": [
+         24945,
+         1472584
+        ]
+       },
+       "103": {
+        "index": 3120,
+        "total": 3121,
+        "seg_offset": 76872,
+        "block": [
+         1,
+         1
+        ],
+        "is_last_record": true,
+        "prev_id": 1472583,
+        "next_id": null,
+        "class": "SerializedDummy",
+        "framed_len": null,
+        "stamp": 6881340,
+        "body_size": 2
+       }
+      },
+      "registry_surface": [],
+      "owned_rows": []
+     }
+    },
+    "added_ids_registry_surface": {
+     "1472584": {
+      "class": "FamilyInstance",
+      "adocument_paths": []
+     }
+    },
+    "added_ids_unregistered_in_adocument": [
+     1472584
+    ],
+    "run_law": {
+     "file": "BX_conj_minus_types",
+     "seq": 102,
+     "host_records": 3121,
+     "runs": 16,
+     "adjacent_id_ascending_fraction": 0.99519,
+     "runs_modal_episode_descending_violations": 0,
+     "runs_modal_episode_descending": true,
+     "first_run_modal_episode": 1015,
+     "last_run_modal_episode": 551,
+     "max_history_episode": 1016,
+     "run_summary": [
+      {
+       "pos": [
+        0,
+        17
+       ],
+       "recs": 18,
+       "ids": [
+        86291,
+        1472524
+       ],
+       "modal_modified_ep": 1015,
+       "modal_share": 0.611,
+       "top_classes": [
+        [
+         "GStyleElem",
+         8
+        ],
+        [
+         "Viewport",
+         3
+        ]
+       ]
+      },
+      {
+       "pos": [
+        18,
+        231
+       ],
+       "recs": 214,
+       "ids": [
+        102467,
+        1472011
+       ],
+       "modal_modified_ep": 1013,
+       "modal_share": 0.85,
+       "top_classes": [
+        [
+         "GStyleElem",
+         143
+        ],
+        [
+         "BuildingOperatingYearSchedule",
+         27
+        ]
+       ]
+      },
+      {
+       "pos": [
+        232,
+        280
+       ],
+       "recs": 49,
+       "ids": [
+        49031,
+        1471495
+       ],
+       "modal_modified_ep": 1011,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         44
+        ],
+        [
+         "RevisionNumberingSequence",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        281,
+        334
+       ],
+       "recs": 54,
+       "ids": [
+        86204,
+        1471229
+       ],
+       "modal_modified_ep": 1009,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         52
+        ],
+        [
+         "CoordinateSystemDisplayElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        335,
+        345
+       ],
+       "recs": 11,
+       "ids": [
+        1470379,
+        1471071
+       ],
+       "modal_modified_ep": 1007,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         7
+        ],
+        [
+         "DBViewType",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        346,
+        367
+       ],
+       "recs": 22,
+       "ids": [
+        1470179,
+        1470294
+       ],
+       "modal_modified_ep": 1004,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         21
+        ],
+        [
+         "ExtentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        368,
+        508
+       ],
+       "recs": 141,
+       "ids": [
+        230,
+        1468599
+       ],
+       "modal_modified_ep": 1003,
+       "modal_share": 0.617,
+       "top_classes": [
+        [
+         "GStyleElem",
+         36
+        ],
+        [
+         "SketchPlane",
+         32
+        ]
+       ]
+      },
+      {
+       "pos": [
+        509,
+        513
+       ],
+       "recs": 5,
+       "ids": [
+        54663,
+        1462680
+       ],
+       "modal_modified_ep": 993,
+       "modal_share": 0.8,
+       "top_classes": [
+        [
+         "MaterialElem",
+         2
+        ],
+        [
+         "AppearanceAssetElem",
+         2
+        ]
+       ]
+      },
+      {
+       "pos": [
+        514,
+        514
+       ],
+       "recs": 1,
+       "ids": [
+        1462521,
+        1462521
+       ],
+       "modal_modified_ep": 992,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "StructuralConnectionSettings",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        515,
+        594
+       ],
+       "recs": 80,
+       "ids": [
+        29,
+        1457391
+       ],
+       "modal_modified_ep": 985,
+       "modal_share": 0.537,
+       "top_classes": [
+        [
+         "GStyleElem",
+         41
+        ],
+        [
+         "MaterialElem",
+         21
+        ]
+       ]
+      },
+      {
+       "pos": [
+        595,
+        595
+       ],
+       "recs": 1,
+       "ids": [
+        1250029,
+        1250029
+       ],
+       "modal_modified_ep": 983,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "RvtLinkSymbol",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        596,
+        597
+       ],
+       "recs": 2,
+       "ids": [
+        49504,
+        132481
+       ],
+       "modal_modified_ep": 981,
+       "modal_share": 0.5,
+       "top_classes": [
+        [
+         "ProjectInfo",
+         1
+        ],
+        [
+         "RvtLinkInstanceAppearanceParentElem",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        598,
+        3004
+       ],
+       "recs": 2407,
+       "ids": [
+        1,
+        1454521
+       ],
+       "modal_modified_ep": 976,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "GStyleElem",
+         1066
+        ],
+        [
+         "ParamElemExternal",
+         466
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3005,
+        3010
+       ],
+       "recs": 6,
+       "ids": [
+        21747,
+        1353276
+       ],
+       "modal_modified_ep": 922,
+       "modal_share": 0.667,
+       "top_classes": [
+        [
+         "RbsPipeScheduleType",
+         3
+        ],
+        [
+         "GeoSite",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3011,
+        3011
+       ],
+       "recs": 1,
+       "ids": [
+        1201129,
+        1201129
+       ],
+       "modal_modified_ep": 890,
+       "modal_share": 1.0,
+       "top_classes": [
+        [
+         "FloorAttributes",
+         1
+        ]
+       ]
+      },
+      {
+       "pos": [
+        3012,
+        3120
+       ],
+       "recs": 109,
+       "ids": [
+        24945,
+        1472584
+       ],
+       "modal_modified_ep": 551,
+       "modal_share": 0.826,
+       "top_classes": [
+        [
+         "RbsWireInsulationType",
+         26
+        ],
+        [
+         "DBViewType",
+         18
+        ]
+       ]
+      }
+     ]
+    },
+    "seconds": 0.6,
+    "gates_ok": true
+   },
+   "hop_load": {
+    "rung": "BX_conj_minus_types.hop_load",
+    "file": "experiments/catchain/_build/BX_conj_minus_types_chain/stage_L1_pp1.rvt",
+    "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "md5": "897dcb929c1781e5f986b9750d07b4a9",
+    "validator": {
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "known_instbug_findings": {
+      "D1_connector_manager_class": 0,
+      "D2_contenttable_guid_order": 0
+     },
+     "unexpected_errors": [],
+     "first_errors": []
+    },
+    "identity_gate": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "stage_L1_pp1.rvt.pass1.tmp",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "census": {
+     "save_units": 2,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 10,
+     "familymgr_guids": 1,
+     "coherent_counts": true,
+     "coherent_guids": true,
+     "coherent": true,
+     "unit_guids": [
+      "663c97e9-e8ab-4a88-9308-956344f0463d"
+     ]
+    },
+    "census_delta": {
+     "save_units": 1,
+     "contentdocs_entries": 1,
+     "contenttable_records": 1,
+     "familymgr_entries": 1,
+     "familymgr_guids": 1
+    },
+    "census_parent": {
+     "save_units": 1,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 9,
+     "familymgr_guids": 0,
+     "coherent": true
+    },
+    "partition_table": {
+     "count": 1,
+     "names": [
+      "Workset1"
+     ],
+     "payload_bytes": 87,
+     "rows_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "storage_index": {
+     "counters": [
+      612,
+      628,
+      628,
+      628,
+      517,
+      628,
+      629,
+      599,
+      517
+     ],
+     "counter_g": 506,
+     "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+     "payload_bytes": 240,
+     "counters_delta": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "counter_g_delta": 0,
+     "byte_identical_to_parent": true
+    },
+    "elemtable": {
+     "rows_before": 3102,
+     "rows_after": 3120,
+     "added_ids": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ],
+     "n_added": 18,
+     "removed_ids": [],
+     "watermark_after": 1472583,
+     "added_modified_episodes": [
+      1016
+     ]
+    },
+    "element_diff": {
+     "removed": 0,
+     "added": 59,
+     "common": 3102,
+     "survivors_modified": 0,
+     "modified_seq_hist": {},
+     "added_ids_host": [
+      1472566,
+      1472567,
+      1472568,
+      1472569,
+      1472570,
+      1472571,
+      1472572,
+      1472573,
+      1472574,
+      1472575,
+      1472576,
+      1472577,
+      1472578,
+      1472579,
+      1472580,
+      1472581,
+      1472582,
+      1472583
+     ]
+    },
+    "survivor_law_ok": true,
+    "streams_changed": [
+     {
+      "stream": "BasicFileInfo",
+      "bytes_before": 2171,
+      "bytes_after": 1955,
+      "delta": -216
+     },
+     {
+      "stream": "Global/ContentDocuments",
+      "bytes_before": 82,
+      "bytes_after": 544,
+      "delta": 462
+     },
+     {
+      "stream": "Global/DocumentIncrementTable",
+      "bytes_before": 1096,
+      "bytes_after": 967,
+      "delta": -129
+     },
+     {
+      "stream": "Global/ElemTable",
+      "bytes_before": 16567,
+      "bytes_after": 17144,
+      "delta": 577
+     },
+     {
+      "stream": "Global/Latest",
+      "bytes_before": 127939,
+      "bytes_after": 127939,
+      "delta": 0
+     },
+     {
+      "stream": "Partitions/21",
+      "bytes_before": 193188,
+      "bytes_after": 204969,
+      "delta": 11781
+     }
+    ],
+    "streams_unchanged": 6,
+    "seconds": 0.5,
+    "gates_ok": true
+   },
+   "blob_proof": {
+    "file": "experiments/catchain/BX_conj_minus_types.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "663c97e9-e8ab-4a88-9308-956344f0463d",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 29966
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "blob_proof_parent": {
+    "file": "experiments/catchain/_build/BX_conj_minus_types_chain/stage_L1_pp1.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "663c97e9-e8ab-4a88-9308-956344f0463d",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 29966
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   }
+  }
+ },
+ "features": {
+  "BX_bip": {
+   "features": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 40,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 0,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "separators": {
+    "cell_dup_identity_groups": true,
+    "cell_no_materials_group": true,
+    "hdr_deletion_elements_only": true,
+    "hdr_deletion_lacks_category": true,
+    "sf_absorbed_dense (no history gap)": true,
+    "sf_category_is_ours_electrical": true,
+    "sf_locked_no_bip": false,
+    "sf_partType_set (not -1)": true,
+    "sf_predefinedLimitIdx_small": true,
+    "sf_refTypeIds_empty": true,
+    "sf_single_type_pair": true,
+    "sf_type_idx_zero": true
+   },
+   "separator_mismatches": {},
+   "exact_checks": {
+    "categoryId": true,
+    "partType": true,
+    "locked_has_cost_bip": true,
+    "palette_has_cost_bip": true
+   },
+   "features_ok": true
+  },
+  "BX_cat_gm": {
+   "features": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2000151,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 40,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 0,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "separators": {
+    "cell_dup_identity_groups": true,
+    "cell_no_materials_group": true,
+    "hdr_deletion_elements_only": true,
+    "hdr_deletion_lacks_category": true,
+    "sf_absorbed_dense (no history gap)": true,
+    "sf_category_is_ours_electrical": false,
+    "sf_locked_no_bip": true,
+    "sf_partType_set (not -1)": false,
+    "sf_predefinedLimitIdx_small": true,
+    "sf_refTypeIds_empty": true,
+    "sf_single_type_pair": true,
+    "sf_type_idx_zero": true
+   },
+   "separator_mismatches": {},
+   "exact_checks": {
+    "categoryId": true,
+    "partType": true
+   },
+   "features_ok": true
+  },
+  "BX_conj": {
+   "features": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2000151,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 18,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2000151,
+     -1005500,
+     -1001205
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "separators": {
+    "cell_dup_identity_groups": false,
+    "cell_no_materials_group": false,
+    "hdr_deletion_elements_only": false,
+    "hdr_deletion_lacks_category": false,
+    "sf_absorbed_dense (no history gap)": false,
+    "sf_category_is_ours_electrical": false,
+    "sf_locked_no_bip": false,
+    "sf_partType_set (not -1)": false,
+    "sf_predefinedLimitIdx_small": false,
+    "sf_refTypeIds_empty": false,
+    "sf_single_type_pair": false,
+    "sf_type_idx_zero": false
+   },
+   "separator_mismatches": {},
+   "exact_checks": {
+    "categoryId": true,
+    "partType": true,
+    "five_pairs_idx1": true,
+    "blank_pair_first": true,
+    "blank_rows_equal_current_values": true,
+    "locked_has_cost_bip": true,
+    "palette_has_cost_bip": true,
+    "materials_group_present": true,
+    "familyParams_18_rows": true,
+    "material_fsdo": true,
+    "no_dup_cell_keys": true,
+    "donor_counters": true,
+    "deletion_nonelement_parents": true,
+    "refTypeIds_len_1": true
+   },
+   "features_ok": true
+  },
+  "BX_types_5": {
+   "features": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 17,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": false,
+    "sf_nextAbsorbedIndex": 40,
+    "sf_absorbed_sparse": false,
+    "sf_predefinedLimitIdx": 35,
+    "sf_refTypeIds_len": 0,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 0,
+    "cell_groups": [
+     "dimensions",
+     "identityData",
+     "electrical",
+     "identityData"
+    ],
+    "cell_dup_group_keys": true,
+    "cell_has_materials": false,
+    "hdr_deletion_nonelement": [],
+    "hdr_deletion_has_category": false,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "separators": {
+    "cell_dup_identity_groups": true,
+    "cell_no_materials_group": true,
+    "hdr_deletion_elements_only": true,
+    "hdr_deletion_lacks_category": true,
+    "sf_absorbed_dense (no history gap)": true,
+    "sf_category_is_ours_electrical": true,
+    "sf_locked_no_bip": true,
+    "sf_partType_set (not -1)": true,
+    "sf_predefinedLimitIdx_small": true,
+    "sf_refTypeIds_empty": true,
+    "sf_single_type_pair": false,
+    "sf_type_idx_zero": false
+   },
+   "separator_mismatches": {},
+   "exact_checks": {
+    "categoryId": true,
+    "partType": true,
+    "five_pairs_idx1": true,
+    "blank_pair_first": true,
+    "blank_rows_equal_current_values": true
+   },
+   "features_ok": true
+  },
+  "BX_conj_minus_cat": {
+   "features": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2001040,
+    "sf_partType": 14,
+    "sf_n_type_pairs": 5,
+    "sf_type_idx": 1,
+    "sf_familyParams_rows": 18,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2001040,
+     -1005500,
+     -1001205
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "separators": {
+    "cell_dup_identity_groups": false,
+    "cell_no_materials_group": false,
+    "hdr_deletion_elements_only": false,
+    "hdr_deletion_lacks_category": false,
+    "sf_absorbed_dense (no history gap)": false,
+    "sf_category_is_ours_electrical": true,
+    "sf_locked_no_bip": false,
+    "sf_partType_set (not -1)": true,
+    "sf_predefinedLimitIdx_small": false,
+    "sf_refTypeIds_empty": false,
+    "sf_single_type_pair": false,
+    "sf_type_idx_zero": false
+   },
+   "separator_mismatches": {},
+   "exact_checks": {
+    "categoryId": true,
+    "partType": true,
+    "five_pairs_idx1": true,
+    "blank_pair_first": true,
+    "blank_rows_equal_current_values": true,
+    "locked_has_cost_bip": true,
+    "palette_has_cost_bip": true,
+    "materials_group_present": true,
+    "familyParams_18_rows": true,
+    "material_fsdo": true,
+    "no_dup_cell_keys": true,
+    "donor_counters": true,
+    "deletion_nonelement_parents": true,
+    "refTypeIds_len_1": true
+   },
+   "features_ok": true
+  },
+  "BX_conj_minus_types": {
+   "features": {
+    "n_elements": 41,
+    "ascending_id": true,
+    "sf_categoryId": -2000151,
+    "sf_partType": -1,
+    "sf_n_type_pairs": 1,
+    "sf_type_idx": 0,
+    "sf_familyParams_rows": 18,
+    "sf_familyParams_has_bip_row": true,
+    "sf_locked_has_bip": true,
+    "sf_nextAbsorbedIndex": 3165,
+    "sf_absorbed_sparse": true,
+    "sf_predefinedLimitIdx": 1963,
+    "sf_refTypeIds_len": 1,
+    "sf_deletable_len": 0,
+    "sf_fsdos_len": 1,
+    "cell_groups": [
+     "materials",
+     "dimensions",
+     "identityData",
+     "electrical"
+    ],
+    "cell_dup_group_keys": false,
+    "cell_has_materials": true,
+    "hdr_deletion_nonelement": [
+     -2000151,
+     -1005500,
+     -1001205
+    ],
+    "hdr_deletion_has_category": true,
+    "order_viewer_before_viewproject": false,
+    "order_first8": "Family,UnitsElem,LevelAttributes,Level,DBViewProject,Viewer,Viewport,DBDrawing",
+    "adoc_bytes": 3017,
+    "adoc_bytes_per_row": 73.6,
+    "adoc_deep": false,
+    "max_familyIds_index_gap": 0
+   },
+   "separators": {
+    "cell_dup_identity_groups": false,
+    "cell_no_materials_group": false,
+    "hdr_deletion_elements_only": false,
+    "hdr_deletion_lacks_category": false,
+    "sf_absorbed_dense (no history gap)": false,
+    "sf_category_is_ours_electrical": false,
+    "sf_locked_no_bip": false,
+    "sf_partType_set (not -1)": false,
+    "sf_predefinedLimitIdx_small": false,
+    "sf_refTypeIds_empty": false,
+    "sf_single_type_pair": true,
+    "sf_type_idx_zero": true
+   },
+   "separator_mismatches": {},
+   "exact_checks": {
+    "categoryId": true,
+    "partType": true,
+    "locked_has_cost_bip": true,
+    "palette_has_cost_bip": true,
+    "materials_group_present": true,
+    "familyParams_18_rows": true,
+    "material_fsdo": true,
+    "no_dup_cell_keys": true,
+    "donor_counters": true,
+    "deletion_nonelement_parents": true,
+    "refTypeIds_len_1": true
+   },
+   "features_ok": true
+  }
+ },
+ "gates": {
+  "BX_bip": {
+   "validator_errors": 0,
+   "validator_unexpected": 0,
+   "four_registry_coherent": true,
+   "load_hop_units_added": 1,
+   "instance_hop_units_added": 0,
+   "survivor_law_ok": true,
+   "identity": "PASS",
+   "blob_all_units_64B": true,
+   "blob_added_nonce_verified": true,
+   "blob_units_added": 1,
+   "instance_present": true,
+   "instance_connmgr_ok": true,
+   "instance_category_ok": true,
+   "symbol_form_ok": true,
+   "doc_roundtrip_ok": true,
+   "features_ok": true,
+   "separator_mismatches": {},
+   "gates_ok": true
+  },
+  "BX_cat_gm": {
+   "validator_errors": 0,
+   "validator_unexpected": 0,
+   "four_registry_coherent": true,
+   "load_hop_units_added": 1,
+   "instance_hop_units_added": 0,
+   "survivor_law_ok": true,
+   "identity": "PASS",
+   "blob_all_units_64B": true,
+   "blob_added_nonce_verified": true,
+   "blob_units_added": 1,
+   "instance_present": true,
+   "instance_connmgr_ok": true,
+   "instance_category_ok": true,
+   "symbol_form_ok": true,
+   "doc_roundtrip_ok": true,
+   "features_ok": true,
+   "separator_mismatches": {},
+   "gates_ok": true
+  },
+  "BX_conj": {
+   "validator_errors": 0,
+   "validator_unexpected": 0,
+   "four_registry_coherent": true,
+   "load_hop_units_added": 1,
+   "instance_hop_units_added": 0,
+   "survivor_law_ok": true,
+   "identity": "PASS",
+   "blob_all_units_64B": true,
+   "blob_added_nonce_verified": true,
+   "blob_units_added": 1,
+   "instance_present": true,
+   "instance_connmgr_ok": true,
+   "instance_category_ok": true,
+   "symbol_form_ok": true,
+   "doc_roundtrip_ok": true,
+   "features_ok": true,
+   "separator_mismatches": {},
+   "gates_ok": true
+  },
+  "BX_types_5": {
+   "validator_errors": 0,
+   "validator_unexpected": 0,
+   "four_registry_coherent": true,
+   "load_hop_units_added": 1,
+   "instance_hop_units_added": 0,
+   "survivor_law_ok": true,
+   "identity": "PASS",
+   "blob_all_units_64B": true,
+   "blob_added_nonce_verified": true,
+   "blob_units_added": 1,
+   "instance_present": true,
+   "instance_connmgr_ok": true,
+   "instance_category_ok": true,
+   "symbol_form_ok": true,
+   "doc_roundtrip_ok": true,
+   "features_ok": true,
+   "separator_mismatches": {},
+   "gates_ok": true
+  },
+  "BX_conj_minus_cat": {
+   "validator_errors": 0,
+   "validator_unexpected": 0,
+   "four_registry_coherent": true,
+   "load_hop_units_added": 1,
+   "instance_hop_units_added": 0,
+   "survivor_law_ok": true,
+   "identity": "PASS",
+   "blob_all_units_64B": true,
+   "blob_added_nonce_verified": true,
+   "blob_units_added": 1,
+   "instance_present": true,
+   "instance_connmgr_ok": true,
+   "instance_category_ok": true,
+   "symbol_form_ok": true,
+   "doc_roundtrip_ok": true,
+   "features_ok": true,
+   "separator_mismatches": {},
+   "gates_ok": true
+  },
+  "BX_conj_minus_types": {
+   "validator_errors": 0,
+   "validator_unexpected": 0,
+   "four_registry_coherent": true,
+   "load_hop_units_added": 1,
+   "instance_hop_units_added": 0,
+   "survivor_law_ok": true,
+   "identity": "PASS",
+   "blob_all_units_64B": true,
+   "blob_added_nonce_verified": true,
+   "blob_units_added": 1,
+   "instance_present": true,
+   "instance_connmgr_ok": true,
+   "instance_category_ok": true,
+   "symbol_form_ok": true,
+   "doc_roundtrip_ok": true,
+   "features_ok": true,
+   "separator_mismatches": {},
+   "gates_ok": true
+  }
+ },
+ "errors": {},
+ "seconds": 13.0
+}

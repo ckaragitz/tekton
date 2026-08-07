@@ -1,0 +1,527 @@
+{
+ "tool": "rvt_job",
+ "tool_version": "1.0",
+ "mode": "edit",
+ "generated_at": "2026-08-03T18:56:13Z",
+ "inputs": {
+  "file": "/Users/ck/dev/things/rev-revit/samples/rmebasicsampleproject.rvt",
+  "ops": "/Users/ck/dev/things/rev-revit/experiments/job/ops.json",
+  "op_count": 4
+ },
+ "base": {
+  "path": "/Users/ck/dev/things/rev-revit/samples/rmebasicsampleproject.rvt",
+  "sha256": "37127cf55f7488f16124c6149c0d46e974faf64fe1a87d541149c8715f3ead94",
+  "is_autodesk_sample": true,
+  "history_head_guid": "f71f3b81-bc81-4784-872e-12ad1c080c37"
+ },
+ "edit": {
+  "ops": [
+   {
+    "op": "rename",
+    "id": 581483,
+    "name": "PP-1B-JOB",
+    "why": "panelboard 'PP-1B' -> renamed via BIP_RBS_ELEC_PANEL_NAME (M3 specimen)"
+   },
+   {
+    "op": "set-mark",
+    "id": 581483,
+    "mark": "JOB-EDIT",
+    "why": "same panel's Mark (BIP_ALL_MODEL_MARK) \u2014 two plans compose on one element"
+   },
+   {
+    "op": "move",
+    "id": 624416,
+    "delta": [
+     5.0,
+     0.0,
+     0.0
+    ],
+    "rotation_deg": 90,
+    "why": "free-standing 500 kVA transformer moved +5 ft X and rotated 90 deg (M4 specimen)"
+   },
+   {
+    "op": "delete",
+    "id": 430715,
+    "cascade": false,
+    "why": "isolated air terminal, no dependents/referrers (M1 specimen)"
+   }
+  ],
+  "log": [
+   "op1 rename   id=581483 panel name -> 'PP-1B-JOB'",
+   "op2 set-mark id=581483 mark -> 'JOB-EDIT'",
+   "op3 move     id=624416 delta (5.0, 0.0, 0.0) ft rot 90deg",
+   "op4 delete   id=430715 cascade=False -> removes 1 element(s)"
+  ],
+  "edited_ids": [
+   581483,
+   581483,
+   624416
+  ],
+  "deleted_ids": [
+   430715
+  ],
+  "created_ids": [],
+  "plans": [
+   {
+    "plan": "modify",
+    "kind": "set-param",
+    "elem_id": 581483,
+    "class": "FamilyInstance",
+    "changes": [
+     {
+      "seq": 102,
+      "path": "m_pParamValueSetAString.value.m_paramSet[0].m_value",
+      "before": "PP-1B",
+      "after": "PP-1B-JOB"
+     }
+    ],
+    "record_edits": [
+     {
+      "seq": 102,
+      "elem_id": 581483,
+      "action": "replace",
+      "new_record_len": 1816,
+      "reason": "set parameter -1140078 = 'PP-1B-JOB'"
+     }
+    ],
+    "notes": []
+   },
+   {
+    "plan": "modify",
+    "kind": "set-param",
+    "elem_id": 581483,
+    "class": "FamilyInstance",
+    "changes": [
+     {
+      "seq": 102,
+      "path": "m_pParamValueSetAString.value.m_paramSet[1].m_value",
+      "before": "15",
+      "after": "JOB-EDIT"
+     }
+    ],
+    "record_edits": [
+     {
+      "seq": 102,
+      "elem_id": 581483,
+      "action": "replace",
+      "new_record_len": 1828,
+      "reason": "set parameter -1001203 = 'JOB-EDIT'"
+     }
+    ],
+    "notes": []
+   },
+   {
+    "plan": "modify",
+    "kind": "move",
+    "elem_id": 624416,
+    "class": "FamilyInstance",
+    "changes": [
+     {
+      "seq": 102,
+      "path": "m_pInstanceInfo.value.m_Trf.m_or",
+      "before": [
+       -49.43537612077513,
+       18.743653381857552,
+       0.30896239133315895
+      ],
+      "after": [
+       -44.43537612077513,
+       18.743653381857552,
+       0.30896239133315895
+      ]
+     },
+     {
+      "seq": 102,
+      "path": "m_pInstanceInfo.value.m_Trf.m_3x3",
+      "before": [
+       [
+        1.0,
+        0.0,
+        0.0
+       ],
+       [
+        0.0,
+        1.0,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ],
+      "after": [
+       [
+        6.123233995736766e-17,
+        1.0,
+        0.0
+       ],
+       [
+        -1.0,
+        6.123233995736766e-17,
+        0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ]
+      ]
+     },
+     {
+      "seq": 102,
+      "path": "m_instOrigin",
+      "before": [
+       -49.43537612077511,
+       20.005844540221133,
+       0.0
+      ],
+      "after": [
+       -44.43537612077511,
+       20.005844540221133,
+       0.0
+      ]
+     },
+     {
+      "seq": 103,
+      "path": "GElement transforms/boxes",
+      "before": "+[5.0, 0.0, 0.0]",
+      "after": "translated"
+     },
+     {
+      "seq": 101,
+      "path": "m_pBBox.value.m_minmax",
+      "before": [
+       [
+        -51.43504803678561,
+        17.007156876179135,
+        0.3089623913331408
+       ],
+       [
+        -47.435704204764285,
+        20.005844540221766,
+        6.224316722041813
+       ]
+      ],
+      "after": [
+       [
+        -46.43504803678561,
+        17.007156876179135,
+        0.3089623913331408
+       ],
+       [
+        -42.435704204764285,
+        20.005844540221766,
+        6.224316722041813
+       ]
+      ]
+     }
+    ],
+    "record_edits": [
+     {
+      "seq": 102,
+      "elem_id": 624416,
+      "action": "replace",
+      "new_record_len": 1846,
+      "reason": "move: placement transform"
+     },
+     {
+      "seq": 103,
+      "elem_id": 624416,
+      "action": "replace",
+      "new_record_len": 474,
+      "reason": "move: cached rep"
+     },
+     {
+      "seq": 101,
+      "elem_id": 624416,
+      "action": "replace",
+      "new_record_len": 377,
+      "reason": "move: header bbox"
+     }
+    ],
+    "notes": [
+     "translated by [5.0, 0.0, 0.0] ft, rotated 1.5707963267948966 rad"
+    ]
+   },
+   {
+    "plan": "delete",
+    "root_id": 430715,
+    "cascade": false,
+    "ids_to_remove": [
+     430715
+    ],
+    "dependents": [],
+    "referrer_edits": [],
+    "record_edits": [
+     {
+      "seq": 101,
+      "elem_id": 430715,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 430715,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 430715,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     }
+    ],
+    "elemtable_remove": [
+     430715
+    ],
+    "warnings": [],
+    "notes": [
+     "deleting 1 element(s): [430715]; 0 referrer element(s) neutralised; ElemTable count -= 1, id watermark unchanged"
+    ]
+   }
+  ],
+  "stages": [
+   {
+    "stage": "manipulate",
+    "plans": 4,
+    "removed_ids": [
+     430715
+    ],
+    "elemtable_before": 28132,
+    "elemtable_after": 28131
+   }
+  ]
+ },
+ "gates": {
+  "structural": {
+   "status": "PASS",
+   "kind": "verify_manipulated",
+   "edited": {
+    "581483": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "FamilyInstance",
+      "clean": true
+     },
+     "103": {
+      "class": "GElement",
+      "clean": true
+     }
+    },
+    "624416": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "FamilyInstance",
+      "clean": true
+     },
+     "103": {
+      "class": "GElement",
+      "clean": true
+     }
+    }
+   },
+   "report": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28131,
+    "header_count": 28131,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   }
+  },
+  "validation": {
+   "status": "PASS",
+   "errors": 0,
+   "warnings": 1,
+   "infos": 2,
+   "layers": [
+    "structure",
+    "consistency",
+    "semantic"
+   ],
+   "strict": false,
+   "elapsed_s": 12.2,
+   "summary_line": "verdict: VALID (no errors); warnings=1 info=2; layers=structure,consistency,semantic",
+   "top_findings": [
+    {
+     "severity": "warning",
+     "layer": "semantic",
+     "where": "objects",
+     "message": "1171/142173 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+    }
+   ],
+   "stats": {
+    "streams": 13,
+    "pages_checked": 506,
+    "gzip_members": 8,
+    "partition_blocks": 2050,
+    "records": 427437,
+    "elements_decoded": 142173,
+    "decode_failures": 1171,
+    "refs_checked": 2570565,
+    "connector_edges": 15339,
+    "circuits": 187
+   },
+   "report_json": "/Users/ck/dev/things/rev-revit/experiments/job/edit.rvt.validation.json"
+  },
+  "identity": {
+   "status": "PASS",
+   "issues": [],
+   "identity": {
+    "author": "rvt-writer",
+    "client_app_name": "rvt-writer",
+    "username": "",
+    "last_save_path": "edit.rvt",
+    "central_model_path": "",
+    "unique_document_guid": "f71f3b81-bc81-4784-872e-12ad1c080c37",
+    "central_episode_guid": "f71f3b81-bc81-4784-872e-12ad1c080c37",
+    "format": "2026",
+    "build": "20250227_1515(x64)",
+    "locale": "ENU",
+    "unique_document_increments": "15"
+   },
+   "history_head_guid": "f71f3b81-bc81-4784-872e-12ad1c080c37",
+   "our_identity": {
+    "author": "rvt-writer",
+    "client_app_name": "rvt-writer"
+   }
+  },
+  "base_provenance": {
+   "status": "PROOF-ONLY, NOT-DELIVERABLE",
+   "deliverable": false,
+   "base": "/Users/ck/dev/things/rev-revit/samples/rmebasicsampleproject.rvt",
+   "base_is_autodesk_sample": true,
+   "elapsed_s": 1.6,
+   "g1": {
+    "passes": false,
+    "verdict": "FAIL \u2014 27,879 Autodesk-derived element(s) remain in expression-bearing categories",
+    "blocking": [
+     {
+      "category": "embedded-family-documents",
+      "provenance": "autodesk-sample",
+      "count": 305,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "loadable-families",
+      "provenance": "autodesk-sample",
+      "count": 513,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "autodesk-sample",
+      "count": 1067,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "autodesk-sample",
+      "count": 126,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "autodesk-sample",
+      "count": 943,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "autodesk-sample",
+      "count": 3483,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "autodesk-sample",
+      "count": 1429,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "autodesk-sample",
+      "count": 864,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "annotation-symbols-titleblocks",
+      "provenance": "autodesk-sample",
+      "count": 62,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "parameter-definitions",
+      "provenance": "autodesk-sample",
+      "count": 1438,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "autodesk-sample",
+      "count": 18,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "autodesk-sample",
+      "count": 35,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ]
+   },
+   "provenance_totals": {
+    "autodesk-sample": 28129,
+    "ours-modified": 2
+   },
+   "created_elements": [],
+   "modified_elements": [
+    {
+     "id": 581483,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-modified",
+     "reason": "differs in object"
+    },
+    {
+     "id": 624416,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-modified",
+     "reason": "differs in object+header+geometry"
+    }
+   ],
+   "reason": "P0 genesis gate G1 fails (the base is an Autodesk sample project): FAIL \u2014 27,879 Autodesk-derived element(s) remain in expression-bearing categories. Nothing built on a sample base is a product; ship only from a certified genesis base."
+  }
+ },
+ "hard_gates_passed": true,
+ "deliverable": false,
+ "status": "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)",
+ "elapsed_s": 71.1,
+ "output": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/job/edit.rvt",
+  "bytes": 32657408,
+  "sha256": "902503e1ff0c6824725401e7bba577dc3630969d6142c6e0e44603579124e877"
+ }
+}

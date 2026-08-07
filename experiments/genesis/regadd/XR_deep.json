@@ -1,0 +1,231 @@
+{
+ "op": "substitute_elements",
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR_deep.rvt",
+ "target_id": 2,
+ "class_name": "PenWidthTableElem",
+ "seqs_replaced": [
+  101,
+  102,
+  103
+ ],
+ "null_mode": false,
+ "row_before": {
+  "original_id": 2,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 2,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "row_after": {
+  "original_id": 2,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 2,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "positions_before": {
+  "101": 2516,
+  "102": 2516,
+  "103": 2516
+ },
+ "positions_after": {
+  "101": 2516,
+  "102": 2516,
+  "103": 2516
+ },
+ "record_len_delta": {
+  "101": 0,
+  "102": 0,
+  "103": 0
+ },
+ "identity_at_original": null,
+ "emit": {
+  "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR_deep.rvt",
+  "partition": "Partitions/21",
+  "unit0_blocks_after": {
+   "101": 8,
+   "102": 42,
+   "103": 25
+  },
+  "elemtable_count": 6540,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 276,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389019
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "notes": [
+  "1485 element(s) substituted in place: ids [2, 30, 31, 32, 33, 34, 35, 36]..."
+ ],
+ "diff_summary": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "streams_identical_count": 11,
+  "partition_logical_identical": false,
+  "records_added": 0,
+  "records_removed": 0,
+  "records_changed": 2281,
+  "changed_ids": [
+   2,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   47,
+   48
+  ],
+  "id_order_identical": true,
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical": {
+   "101": false,
+   "102": false,
+   "103": false
+  },
+  "elemtable_identical": true,
+  "latest_identical": true,
+  "embedded_units_identical": true
+ },
+ "probe": "XR_deep",
+ "role": "settings + catalog OUR content, in place (the deep rung)",
+ "inplaced_count": 1485,
+ "settings": 78,
+ "catalog": 1407,
+ "residue_not_inplaceable": [
+  {
+   "rung": "X2",
+   "our_new_only": 1500085,
+   "class": "BrowserOrganization",
+   "reason": "OUR new-only record has no old correspondent (needs the ADD path)"
+  },
+  {
+   "rung": "X2",
+   "our_new_only": 1500086,
+   "class": "BrowserOrganization",
+   "reason": "OUR new-only record has no old correspondent (needs the ADD path)"
+  },
+  {
+   "rung": "X2",
+   "our_new_only": 1500085,
+   "class": "BrowserOrganization",
+   "reason": "new-only registration record (needs the ADD path)"
+  },
+  {
+   "rung": "X2",
+   "our_new_only": 1500086,
+   "class": "BrowserOrganization",
+   "reason": "new-only registration record (needs the ADD path)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 24947,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26012,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26013,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26014,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26015,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26016,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X2",
+   "old_deleted": 26017,
+   "class": "BrowserOrganization",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X5",
+   "old_deleted": 171476,
+   "class": "WorksharingViewModeSettings",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X5",
+   "old_deleted": 408188,
+   "class": "PrintSettings",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  },
+  {
+   "rung": "X5",
+   "old_deleted": 1013474,
+   "class": "PrintSettings",
+   "reason": "OLD element deleted without a correspondent (a deletion, not a substitution)"
+  }
+ ],
+ "if_PASS": "the whole ours-in-place layer loads: the genesis base = a fresh document minted class-by-class AT canonical ids with this content, plus the add path for the residue",
+ "if_FAIL": "read XR2 / XR3 individually (the deep rung is their sum)",
+ "seconds": 9.5
+}

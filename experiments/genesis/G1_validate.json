@@ -1,0 +1,66 @@
+{
+ "G1a": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "error_messages": [],
+  "warning_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 3,
+   "records": 705,
+   "elements_decoded": 234,
+   "decode_failures": 0,
+   "refs_checked": 2940
+  },
+  "seconds": 0.1
+ },
+ "G1_candidate": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "error_messages": [],
+  "warning_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 3,
+   "records": 705,
+   "elements_decoded": 234,
+   "decode_failures": 0,
+   "refs_checked": 2940
+  },
+  "seconds": 0.1
+ },
+ "G1b": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "error_messages": [],
+  "warning_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 3,
+   "records": 705,
+   "elements_decoded": 234,
+   "decode_failures": 0,
+   "refs_checked": 2940
+  },
+  "seconds": 0.1
+ },
+ "G1_candidate_safe": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "error_messages": [],
+  "warning_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 3,
+   "records": 705,
+   "elements_decoded": 234,
+   "decode_failures": 0,
+   "refs_checked": 3022
+  },
+  "seconds": 0.1
+ }
+}

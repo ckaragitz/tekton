@@ -1,0 +1,368 @@
+PROVENANCE LEDGER v2 — X9.rvt
+baselines (multi, union): dach-sample-project.rvt, racadvancedsampleproject.rvt, racbasicsampleproject.rvt, rmebasicsampleproject.rvt, rstadvancedsampleproject.rvt, rstbasicsampleproject.rvt
+primary baseline: rstbasicsampleproject.rvt   watermark: 1472524   overlap: 0.6355
+layers ledgered: elements + streams + strings + identity
+host elements: 4,346   embedded family documents: 0 
+element totals: sample=2,367  modified=395  created=83  cloned=1,501
+
+STREAM LEDGER (byte-weighted):
+  ALL STREAMS: of 4,643,594 total inflated bytes, 65.84% identical-to-baseline, 34.04% modified-lineage, 0.12% ours
+  EXCLUDING Formats/Latest (schema, counsel C4): of 4,146,997 total inflated bytes, 61.75% identical-to-baseline, 38.12% modified-lineage, 0.13% ours
+  stream / unit                            R    inflated   identical  %ident  class            best-baseline
+  ----------------------------------------------------------------------------------------------------------
+  BasicFileInfo                            F       1,963       1,280   65.2%  modified-lineage rstbasicsampleproject
+  Contents                                 F         264         264  100.0%  identical        rstbasicsampleproject
+  Formats/Latest                           S     496,597     496,597  100.0%  identical        dach-sample-project
+  Global/ContentDocuments                  E          22           0    0.0%  ours             racadvancedsampleproject
+  Global/DocumentIncrementTable            F       5,366           0    0.0%  ours             rstbasicsampleproject
+  Global/ElemTable                         F     173,878      71,680   41.2%  modified-lineage rstbasicsampleproject
+  Global/History                           F      18,171      18,171  100.0%  identical        rstbasicsampleproject
+  Global/Latest                            E   1,564,694   1,510,060   96.5%  modified-lineage racbasicsampleproject
+  Global/PartitionTable                    F          95          95  100.0%  identical        rstbasicsampleproject
+  Partitions/21#host                       H   2,377,737     954,368   40.1%  modified-lineage rstbasicsampleproject
+  ProjectInformation                       F         969         969  100.0%  identical        rstbasicsampleproject
+  TransmissionData                         F       3,838       3,838  100.0%  identical        rstbasicsampleproject
+  R: E=expression-bearing (gated)  S=schema (counsel C4)  F=fingerprint (identity/lineage)  H=host element records
+
+AUTODESK RESOURCE REFS (G1c): 8,407 in document content (553 host elements carry them); 0 more inside the schema stream
+    forge-typeid                 8,282
+    revit-resource-string          108
+    asset-library-fbx                6
+    autodesk-name                    3
+    adsk-token                       2
+    revit-server-string              2
+    sunandsky-asset                  2
+    forge-schema-corpus              1
+    autodesk-url                     1
+
+IDENTITY (G2 policy): author='rvt-writer' username='rvt-writer' last_save_path='.X9.a_appended.rvt'
+    x unique_document_guid: 34447475-c1fb-44d1-b0f8-1adaa86cdbe1 — document GUID inherited from a sample (identity is theirs)
+    x central_episode_guid: 34447475-c1fb-44d1-b0f8-1adaa86cdbe1 — document GUID inherited from a sample (identity is theirs)
+
+MULTI-BASELINE ELEMENT TABLE (per baseline, then union over all):
+    dach-sample-project              modified=15  unmatched=4,331
+    racadvancedsampleproject         sample=12  modified=505  created=874  cloned=2,196  unmatched=759
+    racbasicsampleproject            sample=1,043  modified=417  created=339  cloned=1,910  unmatched=637
+    rmebasicsampleproject            sample=7  modified=390  created=631  cloned=2,129  unmatched=1,189
+    rstadvancedsampleproject         modified=11  created=923  cloned=2,344  unmatched=1,068
+    rstbasicsampleproject            sample=2,367  modified=395  created=94  cloned=1,490
+    UNION (any baseline)             sample=2,367  modified=395  created=83  cloned=1,501
+    derived elements attributed to: rstbasicsampleproject=1546, racadvancedsampleproject=1528, racbasicsampleproject=1158, rmebasicsampleproject=17, rstadvancedsampleproject=12, dach-sample-project=2
+
+category                                     E     sample   modified    created     cloned
+------------------------------------------------------------------------------------------
+Loadable families (host side)                E         18          2          0          0
+Family types (symbols)                       E          7          6          0          0
+System-family types                          E         83         22          0          0
+Views & view templates                       E         82         27         29         21
+Object styles (categories / graphics styles) E        709        223          0      1,417
+Fill / line patterns, materials, appearance  E        115         49         23          4
+Text / dimension / arrowhead / annotation ty E         59         12          2          3
+Shared / project parameter definitions       E        791          0          1          2
+Phases / design options / revisions          E          7          0          9          3
+Project info & settings elements             E          2          0         14         21
+MEP / electrical definition tables           E        369         15          1          5
+Datums (levels / grids / reference planes)             37          0          4          1
+Placed model content (sample geometry)       E         61          1          0          2
+View-owned 2D / annotation content           E         27         30          0          3
+Internal bookkeeping (regenerated by Revit)             0          8          0         19
+
+E = expression-bearing (gated).  Per-class detail (top classes, example ids : name):
+
+[loadable-families]  Loadable families (host side)
+  FamilySurrogate                          sample=8 modified=1
+          sample: 8484:Rectangular Mullion, 8485:Circular Mullion, 12610:System Panel
+        modified: 876494:building option 2
+  Family                                   sample=8
+          sample: 8482:Rectangular Mullion, 8483:Circular Mullion, 12609:System Panel
+  FamSymSurrogate                          sample=2 modified=1
+          sample: 232769:Glazed, 232771:64 x 128 rectangular
+        modified: 876570:building option 1
+
+[family-types-symbols]  Family types (symbols)
+  MasterImportSymbol                       sample=3
+          sample: 1382279:SH01_2015_structure1, 1382677:SH01_2015_structure3, 1382767:SH01_2015_structure4
+  SysPanelFamSym                           modified=2
+        modified: 54539:Wall, 232758:Glazed
+  ComponentRepeaterSlotSpecialType         sample=2
+          sample: 137223:-, 137224:-
+  ColorFillSymbol                          sample=1
+          sample: 299:1
+  SysMullionFamSym                         modified=1
+        modified: 232770:64 x 128 rectangular
+  StairsTriserSymbol                       modified=1
+        modified: 513310:-
+  FamilySymbol                             modified=1
+        modified: 876569:building option 1
+  RvtLinkSymbol                            modified=1
+        modified: 1250029:rac_basic_sample_project.rvt
+    ... 1 more class(es)
+
+[system-family-types]  System-family types
+  RbsPipingSystemType                      sample=11
+          sample: 132471:Hydronic Supply, 132472:Hydronic Return, 132473:Sanitary
+  RebarShape                               sample=8
+          sample: 1372292:Stirrup - T1, 1372482:Standard - 1, 1374296:Rebar Shape 2
+  FloorAttributes                          modified=5
+        modified: 86313:150mm Foundation Slab, 581371:Insitu Concrete, 1201129:Plywood double brace
+  RebarHookType                            sample=5
+          sample: 1316393:Rebar Hook 90, 1352845:Standard - 90 deg., 1352857:Standard - 180 deg.
+  CustomElementType                        sample=4
+          sample: 1471916:60D Lap Splice, 1471917:60D Staggered Lap Splice, 1471918:End to End Splice
+  BasicWallType                            modified=3
+        modified: 397:Exterior - Brick on Mtl. Stud, 54538:Exterior - Block on Mtl. Stud, 600634:CL_W1
+  RbsHvacSystemType                        sample=3
+          sample: 132467:Supply Air, 132468:Return Air, 132469:Exhaust Air
+  StairsLandingType                        sample=1 modified=2
+          sample: 141731:Non-Monolithic Landing
+        modified: 171671:220mm Thickness, 1389854:300 mm Thickness
+    ... 47 more class(es)
+
+[views-and-templates]  Views & view templates
+  DBViewType                               sample=72 created=19
+          sample: 49584:Floor Plan, 49585:Ceiling Plan, 49586:Section 1
+         created: 2300209:GEN 3D View ~49665(0.3), 2300210:GEN Floor Plan ~49665(0.3), 2300211:GEN Ceiling Plan ~49665(0.29)
+  AllPlanTopologies                        modified=12
+        modified: 26009:-, 86962:-, 102524:-
+  ColorFillSchema                          sample=2 modified=8
+          sample: 99864:-, 1472456:-
+        modified: 99859:-, 99860:-, 99861:-
+  ParameterFilterElement                   sample=7
+          sample: 116099:Interior, 928364:Learning Content, 1296133:Coonected Node
+  AreaSchemePlanTopologies                 modified=6
+        modified: 9744:-, 9745:-, 581529:-
+  BrowserOrganization                      cloned=6
+          cloned: 1600000:all ~24945(0.88), 1600001:all ~24946(0.86), 1600002:all ~347123(0.86)
+  SunAndShadowSettings                     created=4
+         created: 2300204:GEN Still Sun - South 45 ~233067(0.32), 2300215:GEN Still Sun - South 45 ~55158(0.26), 2300223:GEN Still Sun - South 45 ~233067(0.3)
+  Viewport                                 cloned=4
+          cloned: 2300207:- ~232(0.71), 2300216:- ~212138(0.64), 2300224:- ~212138(0.64)
+    ... 12 more class(es)
+
+[object-styles]  Object styles (categories / graphics styles)
+  GStyleElem                               sample=337 modified=209 cloned=1,410
+          sample: 236:style:Category(235), 242:style:Category(241), 279:style:Category(278)
+        modified: 307:style:Category(306), 343:style:Category(342), 1661:style:Hidden Lines
+          cloned: 2000000:- ~34(0.58), 2000001:- ~433587(0.75), 2000002:- ~433586(0.75)
+  CategoryElem                             sample=372 modified=14 cloned=3
+          sample: 235:-, 241:-, 278:-
+        modified: 306:-, 309:-, 907371:-
+          cloned: 2300079:- ~90542(0.5), 2300083:- ~86450(0.5), 2300087:- ~49590(0.5)
+  ModelGraphicsStyle                       cloned=2
+          cloned: 1900042:<Shading> ~54523(0.62), 1900043:<Raytracing> ~54525(0.65)
+  RvtLinkInstanceAppearanceParentElem      cloned=1
+          cloned: 1900020:- ~254153(0.6)
+  SketchGridAppearanceParentElem           cloned=1
+          cloned: 1900021:- ~254155(0.6)
+
+[patterns-materials]  Fill / line patterns, materials, appearance assets
+  FontElem                                 sample=61 modified=13 cloned=3
+          sample: 280:Arial, 291:Arial, 344:Arial
+        modified: 308:Arial, 907373:Arial, 1386049:Arial
+          cloned: 2300078:Arial ~116144(0.64), 2300082:Arial ~86452(0.55), 2300086:Arial ~623053(0.64)
+  ConceptualConstructionType               modified=36
+        modified: 121716:-, 121717:-, 121718:-
+  TilePatternType                          sample=17
+          sample: 112390:-, 112391:-, 112392:-
+  DivisionRule                             sample=17
+          sample: 907337:Zig Zag, 907338:Triangle Step (bent), 907339:Triangle Checkerboard (flat)
+  MaterialElem                             created=13
+         created: 2100009:GEN Concrete, Cast-in-Place ~813(0.31), 2100010:GEN Concrete Masonry Units ~293370(0.35), 2100011:GEN Gypsum Wall Board
+  ConceptualSurfaceType                    sample=10
+          sample: 121752:-, 121753:-, 121754:-
+  PenWidthTableElem                        sample=8 created=1
+          sample: 1218557:-, 1218558:-, 1218559:-
+         created: 1500000:- ~274769(0.42)
+  FillPatternElem                          created=5
+         created: 2100004:GEN Solid Fill ~6473(0.44), 2100005:GEN Diagonal Crosshatch 3mm ~6473(0.41), 2100006:GEN Diagonal Up 4mm ~6473(0.32)
+    ... 4 more class(es)
+
+[text-dimension-types]  Text / dimension / arrowhead / annotation types
+  DimensionStyle                           sample=16
+          sample: 277:SecretInternalLinAngDimStyle5p4736185, 288:SecretInternalRadDimStyle54q736186, 23763:SecretInternalTypePreviewDimStyle54897
+  LeaderStyle                              sample=12
+          sample: 234:Arrow 30 Degree, 240:Arrow Filled 15 Degree, 285:SecretInternalLinAngArrowhead547r36186
+  SectionAttributes                        sample=8 modified=2
+          sample: 49579:Section 1, 49597:Section 1, 49615:Section 1
+        modified: 26029:Section Head - Filled, Section Tail - , 29088:Section Head - No Arrow, Section Tail 
+  InteriorElevAttributes                   sample=8 modified=1
+          sample: 49589:Elevation 1, 49607:Elevation 1, 49625:Elevation 1
+        modified: 357:12mm Circle
+  CalloutTag                               sample=8 modified=1
+          sample: 49583:Callout Tag 1, 49601:Callout Tag 1, 49619:Callout Tag 1
+        modified: 49508:Callout Head w 3mm Corner Radius
+  SpotElevationStyle                       sample=2 modified=2
+          sample: 105723:Slope, 1471218:Horizontal
+        modified: 21437:Target (Project), 56768:Horizontal
+  TextNoteAttributes                       created=1 cloned=2
+         created: 2300081:GEN 3.5mm Text Bold ~583138(0.48)
+          cloned: 2300077:GEN 2.5mm Text ~583138(0.5), 2300085:GEN 5mm Title ~583138(0.5)
+  ViewportAttributes                       modified=2
+        modified: 324:Title w Line, 1441530:No Title
+    ... 11 more class(es)
+
+[parameter-definitions]  Shared / project parameter definitions
+  ParamElemExternal                        sample=466
+          sample: 21308:Door Level, 21309:Door Level, 114978:A
+  ParamBinding                             sample=209
+          sample: 26011:Occupant -> Rooms, 198378:Recycled Content -> Materials, 198386:Embodied Energy -> -2009030
+  ParamElemElectricalLoadClassification    sample=108
+          sample: 127547:Other Demand Apparent Power, 127548:Other Connected Apparent Power, 127549:Other Estimated Demand Current
+  ParamElemProject                         sample=8
+          sample: 26010:Occupant, 713618:Hinge Set, 713619:Lock Function
+  KeynoteTable                             cloned=1
+          cloned: 1700003:Standard ~86291(0.64)
+  KeynotingSystem                          created=1
+         created: 1700004:- ~86315(0.43)
+  ExternalParamLock                        cloned=1
+          cloned: 1900014:- ~46017(0.67)
+
+[phases-design-options]  Phases / design options / revisions
+  PhaseFilterElem                          created=5
+         created: 2300198:GEN All Phases, 2300199:GEN Existing Conditions Only ~24937(0.33), 2300200:GEN Demolition Plan ~371(0.33)
+  DesignOption                             sample=3
+          sample: 875635:-, 875638:-, 875641:-
+  NumberingSchema                          sample=3
+          sample: 1218729:-, 1218730:-, 1457391:-
+  RevisionNumberingSequence                cloned=2
+          cloned: 1900044:- ~431694(0.83), 1900045:- ~431695(0.94)
+  ProjectPhase                             created=2
+         created: 2300196:Existing Conditions, 2300197:New Work
+  DesignOptionSet                          sample=1
+          sample: 875634:-
+  ProjectRevision                          created=1
+         created: 1900046:- ~49030(0.46)
+  AllProjectRevisions                      created=1
+         created: 1900047:- ~49031(0.4)
+    ... 1 more class(es)
+
+[project-info-settings]  Project info & settings elements
+  GeoSite                                  created=2
+         created: 2200186:- ~21747(0.26), 2200187:- ~21747(0.26)
+  GeoLocation                              created=2
+         created: 2200188:GEN Internal Origin ~250336(0.39), 2200189:GEN Project Position ~21748(0.39)
+  BasePoint                                cloned=2
+          cloned: 2200190:- ~250337(0.89), 2200191:- ~250337(0.95)
+  AreaReportSettingsElem                   sample=1
+          sample: 69707:-
+  DataStorage                              sample=1
+          sample: 1382860:-
+  StructSettingsElem                       created=1
+         created: 1700000:- ~54663(0.32)
+  WallJoinDefaultSetting                   cloned=1
+          cloned: 1700001:- ~102105(0.67)
+  RbsWireSettingsElem                      cloned=1
+          cloned: 1800000:- ~293123(0.58)
+    ... 26 more class(es)
+
+[mep-electrical-definitions]  MEP / electrical definition tables
+  HVACLoadSpaceTypeElem                    sample=125
+          sample: 105590:Active Storage, 105591:Active Storage - Hospital/Healthcare, 105592:Air/Train/Bus - Baggage Area
+  HVACLoadBuildingTypeElem                 sample=33
+          sample: 105557:Automotive Facility, 105558:Convention Center, 105559:Courthouse
+  RbsFluidType                             sample=28
+          sample: 102380:Water, 102381:Ethlene Glycol - 10, 102382:Ethlene Glycol - 20
+  HVACLoadScheduleElem                     sample=27
+          sample: 105532:-, 105533:-, 105534:-
+  BuildingOperatingYearSchedule            sample=27
+          sample: 1471979:-, 1471980:-, 1471981:-
+  RbsWireInsulationType                    sample=26
+          sample: 102415:FEP, 102416:FEPB, 102417:FEPW
+  ElectricalDemandFactorDefinition         sample=21
+          sample: 113159:Other, 113161:Motor, 113943:Demand Factor
+  ElectricalLoadClassification             sample=18
+          sample: 113160:Other, 113162:Motor, 113944:Power
+    ... 20 more class(es)
+
+[datums]  Datums (levels / grids / reference planes)
+  RefPlane                                 sample=21
+          sample: 273446:-, 275461:-, 275545:-
+  Grid                                     sample=16
+          sample: 195169:2, 195239:3, 195253:4
+  ExtentElem                               created=2 cloned=1
+         created: 2300219:- ~224385(0.25), 2300226:- ~136344(0.45)
+          cloned: 2300233:- ~136772(0.55)
+  Level                                    created=2
+         created: 2300193:L1 - Ground Floor ~800333(0.46), 2300194:L2 - Second Floor ~800333(0.43)
+
+[placed-model-content]  Placed model content (sample geometry)
+  CustomElement                            sample=61
+          sample: 1472460:-, 1472461:-, 1472462:-
+  AreaMeasureElem                          cloned=2
+          cloned: 1900051:- <-clone-of AreaSchemePlanTopologies 9744, 1900052:- <-clone-of AreaSchemePlanTopologies 9745
+  RvtLinkInstance                          modified=1
+        modified: 1250030:rac_basic_sample_project.rvt
+
+[view-annotation-2d-content]  View-owned 2D / annotation content
+  SketchPlane                              sample=6 modified=23 cloned=2
+          sample: 912817:-, 1003588:-, 1003982:-
+        modified: 3325:-, 196658:-, 245433:-
+          cloned: 2300222:- ~213121(0.65), 2300229:- ~213121(0.65)
+  LegendComponent                          sample=21
+          sample: 907389:-, 907390:-, 907398:-
+  CurveElem                                modified=6
+        modified: 1004904:-, 1004905:-, 1004906:-
+  LinearDimString                          modified=1
+        modified: 763420:-
+  ModelClipBox                             cloned=1
+          cloned: 2300214:- ~228872(0.8)
+
+[internal-bookkeeping]  Internal bookkeeping (regenerated by Revit)
+  AreaTypeElem                             modified=8
+        modified: 9492:-, 9493:-, 9496:-
+  ReconcileBrowserSettingsElem             cloned=1
+          cloned: 1600006:- ~251985(0.5)
+  AutoJoinTracker                          cloned=1
+          cloned: 1700002:- ~102467(0.71)
+  MEPComponentTracker                      cloned=1
+          cloned: 1900000:- ~268909(0.71)
+  LayoutNodesTracker                       cloned=1
+          cloned: 1900001:- ~274762(0.67)
+  MEPSystemTracker                         cloned=1
+          cloned: 1900002:- ~253674(0.71)
+  MEPNetworkDataElem                       cloned=1
+          cloned: 1900003:- ~438465(0.67)
+  MEPNetworkTracker                        cloned=1
+          cloned: 1900004:- ~345779(0.71)
+    ... 12 more class(es)
+
+G1 GATE: FAIL — 4,198 Autodesk-derived element(s) in expression-bearing categories; 1,510,060 byte(s) byte-identical to baseline in expression-bearing streams; 8,407 Autodesk resource identifier(s); 2 identity violation(s)
+   x [elements] loadable-families                  autodesk-sample                  18
+   x [elements] loadable-families                  ours-modified                     2
+   x [elements] family-types-symbols               autodesk-sample                   7
+   x [elements] family-types-symbols               ours-modified                     6
+   x [elements] system-family-types                autodesk-sample                  83
+   x [elements] system-family-types                ours-modified                    22
+   x [elements] views-and-templates                autodesk-sample                  82
+   x [elements] views-and-templates                ours-modified                    27
+   x [elements] views-and-templates                transitive-cloned                21
+   x [elements] object-styles                      autodesk-sample                 709
+   x [elements] object-styles                      ours-modified                   223
+   x [elements] object-styles                      transitive-cloned             1,417
+   x [elements] patterns-materials                 autodesk-sample                 115
+   x [elements] patterns-materials                 ours-modified                    49
+   x [elements] patterns-materials                 transitive-cloned                 4
+   x [elements] text-dimension-types               autodesk-sample                  59
+   x [elements] text-dimension-types               ours-modified                    12
+   x [elements] text-dimension-types               transitive-cloned                 3
+   x [elements] parameter-definitions              autodesk-sample                 791
+   x [elements] parameter-definitions              transitive-cloned                 2
+   x [elements] phases-design-options              autodesk-sample                   7
+   x [elements] phases-design-options              transitive-cloned                 3
+   x [elements] project-info-settings              autodesk-sample                   2
+   x [elements] project-info-settings              transitive-cloned                21
+   x [elements] mep-electrical-definitions         autodesk-sample                 369
+   x [elements] mep-electrical-definitions         ours-modified                    15
+   x [elements] mep-electrical-definitions         transitive-cloned                 5
+   x [elements] placed-model-content               autodesk-sample                  61
+   x [elements] placed-model-content               ours-modified                     1
+   x [elements] placed-model-content               transitive-cloned                 2
+   x [elements] view-annotation-2d-content         autodesk-sample                  27
+   x [elements] view-annotation-2d-content         ours-modified                    30
+   x [elements] view-annotation-2d-content         transitive-cloned                 3
+   x [streams ] Global/Latest                      stream-modified-lineag    1,510,060
+   x [strings ] autodesk-resource-refs             autodesk-resource-refs        8,407
+   x [identity] identity:unique_document_guid      identity-not-ours                 1
+   x [identity] identity:central_episode_guid      identity-not-ours                 1
+   ? [counsel ] C4 schema-stream Formats/Latest — Formats/Latest is Autodesk's serialized class model shipped byte-identical — counsel decides ship-verbatim vs clean-room
+   ~ 7 advisory item(s) (lineage fingerprints / identity notes) in JSON

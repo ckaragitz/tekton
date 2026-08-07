@@ -1,0 +1,819 @@
+{
+ "rung": "ZB7_machinery",
+ "label": "empty/built-in machinery reproduced (sun annotations / numbering schemas / slave tracker) + surplus print & worksharing setups + the drafting view's viewer/viewports -> ours",
+ "kind": "inplace",
+ "stream": "genesis-residue-B",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; one our-record per residue slot",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+  "md5": "aa5952bceeb5830790f289af0d7cee27",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/residue_b/ZB6_filters.rvt",
+ "parent_rung": "ZB6_filters",
+ "out": "experiments/genesis/subst_k4/residue_b/ZB7_machinery.rvt",
+ "description": "The empty and built-in machinery classes are REPRODUCED (byte-identical slots = nothing of ours to reject); the surplus per-user worksharing display (the 'liqi' username leak) and print setups ('SYDPRN008' printer leak) become ours; the drafting view's companions are rebuilt by the skeleton constructors.",
+ "tests": "Whether our print / worksharing setups and the rebuilt view companions load (the reproduced machinery cannot fail).",
+ "if_PASS": "The machinery buckets are honestly emptied; the two identity leaks are retired.",
+ "if_FAIL": "Bisect print setups vs the worksharing copy vs the drafting companions.",
+ "stages": [],
+ "group_b_classes": {
+  "SunAnnotationElem": 3,
+  "NumberingSchema": 3,
+  "SlaveSymbolTrackerElem": 1,
+  "WorksharingViewModeSettings": 1,
+  "PrintSettings": 2,
+  "Viewer": 1,
+  "Viewport": 3
+ },
+ "parent_context": {
+  "host_elements": 3342,
+  "watermark": 1472524,
+  "protected_slots_from_earlier_rungs": 2262
+ },
+ "candidates_old_by_class": {
+  "SunAnnotationElem": 3,
+  "NumberingSchema": 3,
+  "Viewport": 3,
+  "PrintSettings": 2,
+  "WorksharingViewModeSettings": 1,
+  "SlaveSymbolTrackerElem": 1,
+  "Viewer": 1
+ },
+ "our_records_by_class": {
+  "SunAnnotationElem": 3,
+  "NumberingSchema": 3,
+  "Viewport": 3,
+  "PrintSettings": 2,
+  "SlaveSymbolTrackerElem": 1,
+  "WorksharingViewModeSettings": 1,
+  "Viewer": 1
+ },
+ "build_notes": [
+  "empty/built-in machinery reproduced: 3 sun annotations, 3 numbering schemas, 1 slave trackers (expect byte-identical landed slots = nothing of ours to reject)",
+  "per-user worksharing display: 1 <- ours (user 'rvt-writer'; the sample copy leaked username 'liqi')",
+  "print setups: 2 <- ours (the sample's names leaked printer 'SYDPRN008')",
+  "drafting view companions: 1 viewer + 3 viewports <- skeleton constructors (view/drawing/title wiring kept; the drafting VIEW ROOT + its DBDrawing are Group-A classes)"
+ ],
+ "build_info": {},
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 14,
+  "by_match": {
+   "role": 14
+  },
+  "landed_by_class": {
+   "SunAnnotationElem": 3,
+   "NumberingSchema": 3,
+   "Viewport": 3,
+   "PrintSettings": 2,
+   "SlaveSymbolTrackerElem": 1,
+   "WorksharingViewModeSettings": 1,
+   "Viewer": 1
+  },
+  "dropped_ours": 0,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 0,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 14,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 14,
+  "would_differ_103": 0,
+  "seconds": 0.1
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.2
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   171476,
+   408188,
+   1013474,
+   1457029,
+   1457043,
+   1457044
+  ],
+  "records_changed_count": 6,
+  "records_changed_by_seq": {
+   "102": 6
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 14,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 8,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 171476,
+    "len_ours": 254,
+    "len_parent": 222,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "WorksharingViewModeSettings",
+      "class_parent": "WorksharingViewModeSettings"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter",
+      "parent": "None"
+     },
+     {
+      "path": ".m_ownershipStatusColors[0].second.m_lineColor",
+      "ours": "5737262",
+      "parent": "28928"
+     },
+     {
+      "path": ".m_ownershipStatusColors[1].second.m_lineColor",
+      "ours": "35558",
+      "parent": "221"
+     },
+     {
+      "path": ".m_ownershipStatusColors[2].second.m_apply",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_ownershipStatusColors[2].second.m_lineColor",
+      "ours": "9868950",
+      "parent": "14069600"
+     },
+     {
+      "path": ".m_updateStatusColors[0].second.m_lineColor",
+      "ours": "5737262",
+      "parent": "28928"
+     },
+     {
+      "path": ".m_updateStatusColors[1].second.m_lineColor",
+      "ours": "13132830",
+      "parent": "16711680"
+     },
+     {
+      "path": ".m_updateStatusColors[2].second.m_apply",
+      "ours": "False",
+      "parent": "True"
+     },
+     {
+      "path": ".m_updateStatusColors[2].second.m_lineColor",
+      "ours": "1341670",
+      "parent": "221"
+     },
+     {
+      "path": ".m_updateStatusColors[3].second.m_apply",
+      "ours": "False",
+      "parent": "True"
+     },
+     {
+      "path": ".m_updateStatusColors[3].second.m_lineColor",
+      "ours": "1973960",
+      "parent": "16711680"
+     },
+     {
+      "path": ".m_user",
+      "ours": "'rvt-writer'",
+      "parent": "'liqi'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 408188,
+    "len_ours": 306,
+    "len_parent": 288,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PrintSettings",
+      "class_parent": "PrintSettings"
+     },
+     {
+      "path": ".m_PrintParameters.m_MarginType",
+      "ours": "0",
+      "parent": "1"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN A3 Landscape - Full Size'",
+      "parent": "'SYDPRN008_Default 2'"
+     },
+     {
+      "path": ".m_timeStampInSeconds.m_lsb",
+      "ours": "0",
+      "parent": "1343101213"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1013474,
+    "len_ours": 342,
+    "len_parent": 302,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PrintSettings",
+      "class_parent": "PrintSettings"
+     },
+     {
+      "path": ".m_PrintParameters.m_MarginType",
+      "ours": "0",
+      "parent": "1"
+     },
+     {
+      "path": ".m_PrintParameters.m_ZoomType",
+      "ours": "0",
+      "parent": "1"
+     },
+     {
+      "path": ".m_PrintParameters.m_nPaperIndex",
+      "ours": "25",
+      "parent": "8"
+     },
+     {
+      "path": ".m_PrintParameters.m_nPaperSizeX",
+      "ours": "5588",
+      "parent": "2970"
+     },
+     {
+      "path": ".m_PrintParameters.m_nPaperSizeY",
+      "ours": "8636",
+      "parent": "4200"
+     },
+     {
+      "path": ".m_PrintParameters.m_strPaperSize",
+      "ours": "'ANSI D (22x34in)'",
+      "parent": "'A3 (297 x 420mm)'"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN ANSI D Landscape - Full Size'",
+      "parent": "'SYDPRN008_A3'"
+     },
+     {
+      "path": ".m_timeStampInSeconds.m_lsb",
+      "ours": "0",
+      "parent": "1372651021"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1457029,
+    "len_ours": 468,
+    "len_parent": 559,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "Viewer",
+      "class_parent": "Viewer"
+     },
+     {
+      "path": ".m_boundedSpace.m_boundActive[0][0]",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_boundedSpace.m_boundActive[0][1]",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_boundedSpace.m_boundActive[1][0]",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_boundedSpace.m_boundActive[1][1]",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_boundedSpace.m_isOn",
+      "ours": "False",
+      "parent": "True"
+     },
+     {
+      "path": ".m_geomSteps",
+      "ours": "None",
+      "parent": "{'ptr_class': 'GeomStepList', 'pid': -1, 'value': {'m_nonBRepGList': [{'ptr_clas"
+     },
+     {
+      "path": ".m_intentionallyPlaced",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_pParamValueSetElementId",
+      "ours": "{'ptr_class': 'ParamValueSetElementId', 'pid': -1, 'value': {'m_paramSet': [{'m_",
+      "parent": "None"
+     },
+     {
+      "path": ".m_projMethodType",
+      "ours": "2",
+      "parent": "1"
+     },
+     {
+      "path": ".m_viewerFlags",
+      "ours": "7",
+      "parent": "0"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 12,
+    "blocks_out": 12
+   },
+   {
+    "what": "8 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     245447,
+     1064660,
+     1218729,
+     1218730,
+     1454510,
+     1454535,
+     1457030,
+     1457391
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 14,
+  "slots_with_registry_surface": 6,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 171476,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->WorksharingDisplaySettingsTracking.m_userToSettingsMap[*].second"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 408188,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PrintSettingsTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 1013474,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PrintSettingsTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PrintSettingsTracking.m_idMRU"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 1218729,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_mapCategoriesToParameterIdsToSchemas[*].second.m_parameterToSchemas[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_mapSchemaIdsToInfo[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_mapSchemas[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_schemaIdsToData[*].first"
+    ],
+    "n_paths": 5
+   },
+   {
+    "slot": 1218730,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_mapCategoriesToParameterIdsToSchemas[*].second.m_parameterToSchemas[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_mapSchemaIdsToInfo[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_mapSchemas[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_schemaIdsToData[*].first"
+    ],
+    "n_paths": 5
+   },
+   {
+    "slot": 1457391,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_mapCategoriesToParameterIdsToSchemas[*].second.m_parameterToSchemas[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_mapSchemaIdsToInfo[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_mapSchemas[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NumberingAppInfo.m_schemaIdsToData[*].first"
+    ],
+    "n_paths": 5
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 14,
+  "pairs_ok": 14,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 171476,
+   "class": "WorksharingViewModeSettings",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 551,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 245447,
+   "class": "SunAnnotationElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 576,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 408188,
+   "class": "PrintSettings",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 619,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 1013474,
+   "class": "PrintSettings",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 801,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 1064660,
+   "class": "SunAnnotationElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 823,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 1218729,
+   "class": "NumberingSchema",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 907,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 5
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 17,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 50680
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_b/ZB7_machinery.rvt",
+  "elements": 3342,
+  "file_size": 765952,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500007,
+   "slot": 171476,
+   "class": "WorksharingViewModeSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500000,
+   "slot": 245447,
+   "class": "SunAnnotationElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500008,
+   "slot": 408188,
+   "class": "PrintSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN A3 Landscape - Full Size"
+  },
+  {
+   "ours_tmp": 1500009,
+   "slot": 1013474,
+   "class": "PrintSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN ANSI D Landscape - Full Size"
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 1064660,
+   "class": "SunAnnotationElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 1218729,
+   "class": "NumberingSchema",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "Rebar Numbering"
+  },
+  {
+   "ours_tmp": 1500005,
+   "slot": 1218730,
+   "class": "NumberingSchema",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "Fabric Sheets Numbering"
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 1454510,
+   "class": "SunAnnotationElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 1454535,
+   "class": "SlaveSymbolTrackerElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500010,
+   "slot": 1457029,
+   "class": "Viewer",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500011,
+   "slot": 1457030,
+   "class": "Viewport",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500012,
+   "slot": 1457043,
+   "class": "Viewport",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 4,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500013,
+   "slot": 1457044,
+   "class": "Viewport",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 4,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 1457391,
+   "class": "NumberingSchema",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "Rebar Couplers Numbering"
+  }
+ ],
+ "landed_slots": [
+  {
+   "slot": 245447,
+   "class": "SunAnnotationElem",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 1064660,
+   "class": "SunAnnotationElem",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 1454510,
+   "class": "SunAnnotationElem",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 1218729,
+   "class": "NumberingSchema",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 1457391,
+   "class": "NumberingSchema",
+   "match": "role",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 1218730,
+   "class": "NumberingSchema",
+   "match": "role",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 1454535,
+   "class": "SlaveSymbolTrackerElem",
+   "match": "role",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 171476,
+   "class": "WorksharingViewModeSettings",
+   "match": "role",
+   "ours_tmp": 1500007
+  },
+  {
+   "slot": 408188,
+   "class": "PrintSettings",
+   "match": "role",
+   "ours_tmp": 1500008
+  },
+  {
+   "slot": 1013474,
+   "class": "PrintSettings",
+   "match": "role",
+   "ours_tmp": 1500009
+  },
+  {
+   "slot": 1457029,
+   "class": "Viewer",
+   "match": "role",
+   "ours_tmp": 1500010
+  },
+  {
+   "slot": 1457030,
+   "class": "Viewport",
+   "match": "role",
+   "ours_tmp": 1500011
+  },
+  {
+   "slot": 1457043,
+   "class": "Viewport",
+   "match": "role",
+   "ours_tmp": 1500012
+  },
+  {
+   "slot": 1457044,
+   "class": "Viewport",
+   "match": "role",
+   "ours_tmp": 1500013
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": []
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {}
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 765952,
+ "seconds": 2.1
+}

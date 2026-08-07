@@ -1,0 +1,2519 @@
+{
+ "template": "samples/rmebasicsampleproject.rvt",
+ "files": [
+  {
+   "file": "experiments/mep/electrical/wire_create.rvt",
+   "size_bytes": 32657408,
+   "commit": {
+    "partition": "Partitions/14",
+    "new_element_ids": [
+     888014,
+     888015
+    ],
+    "removed_ids": [],
+    "replaced": [
+     [
+      102,
+      466882
+     ],
+     [
+      102,
+      467749
+     ]
+    ],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28134,
+    "watermark_after": 888015,
+    "blocks_after": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/mep/electrical/wire_create.rvt"
+   },
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28134,
+    "header_count": 28134,
+    "unit0_ids_equal_elemtable": true,
+    "elemtable_ids_sorted": true,
+    "structurally_valid": true
+   },
+   "verify_edited": {
+    "466882": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "FamilyInstance",
+      "clean": true
+     },
+     "103": {
+      "class": "GElement",
+      "clean": true
+     }
+    },
+    "467749": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "FamilyInstance",
+      "clean": true
+     },
+     "103": {
+      "class": "GElement",
+      "clean": true
+     }
+    },
+    "888014": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsWireCurve",
+      "clean": true
+     },
+     "103": {
+      "class": "GElement",
+      "clean": true
+     }
+    },
+    "888015": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsWireCurve",
+      "clean": true
+     },
+     "103": {
+      "class": "GElement",
+      "clean": true
+     }
+    }
+   },
+   "proves": "CREATE two RbsWireCurve wires for existing circuit 469513 (panel 622027 'PP-1A' slot connector 50016): a HOME RUN with a FREE arrow start end (pointing to the panel) ending on device 466882, and a chamfered BRANCH wire 466882<->467749; the connected devices are edited in the SAME commit so their supply connectors reference the wires back (two-way connType-1 links, no one-way connector warnings).",
+   "circuit": 469513,
+   "panel": [
+    622027,
+    50016
+   ],
+   "loads_used": [
+    [
+     466882,
+     1
+    ],
+    [
+     467749,
+     1
+    ]
+   ],
+   "elements": [
+    {
+     "id": 888014,
+     "class": "RbsWireCurve",
+     "notes": [
+      "cloned from wire 469465 (view 455447); HOME RUN (free arrow start end); circuits [469513]; arc; A=free B=466882:1"
+     ]
+    },
+    {
+     "id": 888015,
+     "class": "RbsWireCurve",
+     "notes": [
+      "cloned from wire 469465 (view 455447); branch wire; circuits [469513]; chamfer; A=466882:1 B=467749:1"
+     ]
+    }
+   ],
+   "device_edits": [
+    466882,
+    467749
+   ],
+   "dangling_refs_before_write": {
+    "888014": [],
+    "888015": []
+   },
+   "readback": {
+    "home_run": {
+     "id": 888014,
+     "view": 455447,
+     "level": 378117,
+     "wire_type": 261496,
+     "circuits": [
+      469513
+     ],
+     "wiring": "arc",
+     "points_ft": [
+      [
+       47.46973862757682,
+       126.14902652219527,
+       0.0
+      ],
+      [
+       48.02089868046323,
+       128.14027706709527,
+       0.8170931758528538
+      ],
+      [
+       49.47009667155182,
+       129.61292139587496,
+       1.6341863517057076
+      ]
+     ],
+     "start": null,
+     "end": {
+      "device": 466882,
+      "connector": 1,
+      "conn_type": 1,
+      "class": "FamilyInstance"
+     },
+     "home_run": true,
+     "unconnected": false,
+     "mark": "1151"
+    },
+    "branch": {
+     "id": 888015,
+     "view": 455447,
+     "level": 378117,
+     "wire_type": 261496,
+     "circuits": [
+      469513
+     ],
+     "wiring": "chamfer",
+     "points_ft": [
+      [
+       49.47009667155182,
+       129.61292139587496,
+       1.6341863517057076
+      ],
+      [
+       39.72768361380896,
+       119.52842708410157,
+       1.6341863517057076
+      ],
+      [
+       29.985270556066098,
+       109.44393277232817,
+       1.6341863517057076
+      ]
+     ],
+     "start": {
+      "device": 466882,
+      "connector": 1,
+      "conn_type": 1,
+      "class": "FamilyInstance"
+     },
+     "end": {
+      "device": 467749,
+      "connector": 1,
+      "conn_type": 1,
+      "class": "FamilyInstance"
+     },
+     "home_run": false,
+     "unconnected": false,
+     "mark": "1152"
+    },
+    "device_backlinks": {
+     "466882": {
+      "1": [
+       [
+        888014,
+        1,
+        1
+       ],
+       [
+        888015,
+        0,
+        1
+       ]
+      ]
+     },
+     "467749": {
+      "1": [
+       [
+        888015,
+        1,
+        1
+       ]
+      ]
+     }
+    }
+   },
+   "SEMANTIC_OK": true,
+   "category": "wires",
+   "verb": "CREATE",
+   "build_seconds": 59.9,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "warning_messages": [
+     "1171/142176 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+    ],
+    "stats": {
+     "records": 427446,
+     "elements_decoded": 142176,
+     "refs_checked": 2570651,
+     "connector_edges": 15349,
+     "circuits": 187
+    }
+   },
+   "validate_seconds": 12.3,
+   "CELL_OK": true
+  },
+  {
+   "file": "experiments/mep/electrical/wire_delete.rvt",
+   "size_bytes": 32657408,
+   "commit": {
+    "partition": "Partitions/14",
+    "new_element_ids": [],
+    "removed_ids": [
+     469466
+    ],
+    "replaced": [
+     [
+      101,
+      467291
+     ],
+     [
+      101,
+      467473
+     ],
+     [
+      101,
+      469465
+     ],
+     [
+      102,
+      467291
+     ],
+     [
+      102,
+      467473
+     ]
+    ],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28131,
+    "watermark_after": 888013,
+    "blocks_after": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/mep/electrical/wire_delete.rvt"
+   },
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28131,
+    "header_count": 28131,
+    "unit0_ids_equal_elemtable": true,
+    "elemtable_ids_sorted": true,
+    "structurally_valid": true
+   },
+   "verify_edited": {
+    "469465": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsWireCurve",
+      "clean": true
+     },
+     "103": {
+      "class": "GElement",
+      "clean": true
+     }
+    },
+    "467291": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "FamilyInstance",
+      "clean": true
+     },
+     "103": {
+      "class": "GElement",
+      "clean": true
+     }
+    },
+    "467473": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "FamilyInstance",
+      "clean": true
+     },
+     "103": {
+      "class": "GElement",
+      "clean": true
+     }
+    }
+   },
+   "proves": "DELETE wire 469466 (branch 467291<->467473, circuits [469428, 469434]): its three records + ElemRec removed, its wire tag cascaded, and the two devices' connector back-links neutralised (soft referrers, plus the neighbouring wire's header lists).",
+   "wire_before": {
+    "id": 469466,
+    "view": 455447,
+    "level": 378117,
+    "wire_type": 261496,
+    "circuits": [
+     469428,
+     469434
+    ],
+    "wiring": "arc",
+    "points_ft": [
+     [
+      59.1678327688626,
+      110.0898540214491,
+      1.6341863517057076
+     ],
+     [
+      63.93493592970986,
+      110.47937589733623,
+      0.0
+     ],
+     [
+      64.715485929603,
+      113.58528187999075,
+      1.6341863517057076
+     ]
+    ],
+    "start": {
+     "device": 467291,
+     "connector": 1,
+     "conn_type": 1,
+     "class": "FamilyInstance"
+    },
+    "end": {
+     "device": 467473,
+     "connector": 1,
+     "conn_type": 1,
+     "class": "FamilyInstance"
+    },
+    "home_run": false,
+    "unconnected": false,
+    "mark": "2"
+   },
+   "deleted_ids": [
+    469466
+   ],
+   "dependents": [],
+   "referrers_neutralised": [
+    467291,
+    467473,
+    469465
+   ],
+   "readback": {
+    "deleted_still_present": {
+     "469466": false
+    },
+    "devices_no_longer_reference_wire": {
+     "467291": true,
+     "467473": true
+    }
+   },
+   "SEMANTIC_OK": true,
+   "category": "wires",
+   "verb": "DELETE",
+   "build_seconds": 57.4,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "warning_messages": [
+     "1171/142173 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+    ],
+    "stats": {
+     "records": 427437,
+     "elements_decoded": 142173,
+     "refs_checked": 2570577,
+     "connector_edges": 15333,
+     "circuits": 187
+    }
+   },
+   "validate_seconds": 12.5,
+   "CELL_OK": true
+  },
+  {
+   "file": "experiments/mep/electrical/settings_modify.rvt",
+   "size_bytes": 32657408,
+   "commit": {
+    "partition": "Partitions/14",
+    "new_element_ids": [],
+    "removed_ids": [],
+    "replaced": [
+     [
+      102,
+      55359
+     ],
+     [
+      102,
+      261496
+     ],
+     [
+      102,
+      277809
+     ],
+     [
+      102,
+      293123
+     ],
+     [
+      102,
+      638823
+     ],
+     [
+      102,
+      639116
+     ],
+     [
+      102,
+      690425
+     ]
+    ],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28132,
+    "watermark_after": 888013,
+    "blocks_after": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/mep/electrical/settings_modify.rvt"
+   },
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28132,
+    "header_count": 28132,
+    "unit0_ids_equal_elemtable": true,
+    "elemtable_ids_sorted": true,
+    "structurally_valid": true
+   },
+   "verify_edited": {
+    "690425": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ElectricalLoadClassification",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "638823": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ElectricalDemandFactorDefinition",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "639116": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ElectricalSetting",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "293123": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsWireSettingsElem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "277809": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsDistributionSysType",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "261496": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsWireType",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "55359": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsVoltageType",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    }
+   },
+   "proves": "MODIFY each electrical-settings class in place (byte-exact re-encode + fresh stamp): demand factor 'HVAC' 1.0->0.85, voltage '120' max 130->132 V, distribution system renamed '240/120 Single Phase', wire type 'XHHW' share-ground off, load classification 'Receptacles' abbreviation 'RCPT', ElectricalSetting default circuit rating 20->30 A, wire tick-label separator '-'->'/'.",
+   "edited": [
+    55359,
+    261496,
+    277809,
+    293123,
+    638823,
+    639116,
+    690425
+   ],
+   "plans": [
+    {
+     "plan": "modify",
+     "kind": "electrical-setting",
+     "elem_id": 638823,
+     "class": "ElectricalDemandFactorDefinition",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_values[0].m_factor",
+       "before": 1.0,
+       "after": 0.85
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 638823,
+       "action": "replace",
+       "new_record_len": 178,
+       "reason": "demand factor 638823 row 0 -> 0.85"
+      }
+     ],
+     "notes": []
+    },
+    {
+     "plan": "modify",
+     "kind": "electrical-setting",
+     "elem_id": 55359,
+     "class": "RbsVoltageType",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_dMaxVoltage",
+       "before": 1399.3083541722638,
+       "after": 1420.8361750056833
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 55359,
+       "action": "replace",
+       "new_record_len": 181,
+       "reason": "voltage type 55359 edit"
+      }
+     ],
+     "notes": []
+    },
+    {
+     "plan": "modify",
+     "kind": "electrical-setting",
+     "elem_id": 277809,
+     "class": "RbsDistributionSysType",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_symbolInfo.value.m_name",
+       "before": "120/240 Single",
+       "after": "240/120 Single Phase"
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 277809,
+       "action": "replace",
+       "new_record_len": 229,
+       "reason": "rename 277809 -> '240/120 Single Phase'"
+      }
+     ],
+     "notes": []
+    },
+    {
+     "plan": "modify",
+     "kind": "electrical-setting",
+     "elem_id": 261496,
+     "class": "RbsWireType",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_bShareGround",
+       "before": true,
+       "after": false
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 261496,
+       "action": "replace",
+       "new_record_len": 234,
+       "reason": "wire type XHHW: share ground -> off"
+      }
+     ],
+     "notes": []
+    },
+    {
+     "plan": "modify",
+     "kind": "electrical-setting",
+     "elem_id": 690425,
+     "class": "ElectricalLoadClassification",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_abbreviation",
+       "before": "",
+       "after": "RCPT"
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 690425,
+       "action": "replace",
+       "new_record_len": 543,
+       "reason": "load classification 690425: ['m_abbreviation']"
+      }
+     ],
+     "notes": []
+    },
+    {
+     "plan": "modify",
+     "kind": "electrical-setting",
+     "elem_id": 639116,
+     "class": "ElectricalSetting",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_circuitRating",
+       "before": 20.0,
+       "after": 30.0
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 639116,
+       "action": "replace",
+       "new_record_len": 304,
+       "reason": "ElectricalSetting default circuit rating 20 -> 30 A"
+      }
+     ],
+     "notes": []
+    },
+    {
+     "plan": "modify",
+     "kind": "electrical-setting",
+     "elem_id": 293123,
+     "class": "RbsWireSettingsElem",
+     "changes": [
+      {
+       "seq": 102,
+       "path": "m_strElectricalConnectorSeparator",
+       "before": "-",
+       "after": "/"
+      }
+     ],
+     "record_edits": [
+      {
+       "seq": 102,
+       "elem_id": 293123,
+       "action": "replace",
+       "new_record_len": 192,
+       "reason": "wire tick-label connector separator '-' -> '/'"
+      }
+     ],
+     "notes": []
+    }
+   ],
+   "before": {
+    "electrical_setting": {
+     "id": 639116,
+     "circuit_name_phases": [
+      "A",
+      "B",
+      "C"
+     ],
+     "space_label": "Space",
+     "spare_label": "Spare",
+     "circuit_rating": 20.0,
+     "circuit_path_offset_ft": 9.0223097,
+     "include_spares_in_totals": true,
+     "circuit_load_calc_method": 0,
+     "merge_multipoled_circuits": false
+    },
+    "wire_settings": {
+     "id": 293123,
+     "connector_separator": "-",
+     "crossing_gap_ft": 0.006561679790026247,
+     "home_run_arrow_leader_style": 583374,
+     "show_tick_marks": 0,
+     "tick_mark_style": 0
+    }
+   },
+   "readback_checks": {
+    "demand_factor_hvac_0.85": true,
+    "voltage_120_max_132": true,
+    "distsys_renamed": true,
+    "wiretype_share_ground_off": true,
+    "loadclass_abbrev_RCPT": true,
+    "elec_setting_ckt_rating_30": true,
+    "wire_separator_slash": true
+   },
+   "SEMANTIC_OK": true,
+   "category": "electrical settings",
+   "verb": "MODIFY",
+   "build_seconds": 59.8,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "warning_messages": [
+     "1171/142174 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+    ],
+    "stats": {
+     "records": 427440,
+     "elements_decoded": 142174,
+     "refs_checked": 2570603,
+     "connector_edges": 15339,
+     "circuits": 187
+    }
+   },
+   "validate_seconds": 12.6,
+   "CELL_OK": true
+  },
+  {
+   "file": "experiments/mep/electrical/load_class_create.rvt",
+   "size_bytes": 32657408,
+   "commit": {
+    "partition": "Partitions/14",
+    "new_element_ids": [
+     888014,
+     888015,
+     888016,
+     888017,
+     888018,
+     888019,
+     888020,
+     888021,
+     888022,
+     888023,
+     888024
+    ],
+    "removed_ids": [],
+    "replaced": [],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28143,
+    "watermark_after": 888024,
+    "blocks_after": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/mep/electrical/load_class_create.rvt"
+   },
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28143,
+    "header_count": 28143,
+    "unit0_ids_equal_elemtable": true,
+    "elemtable_ids_sorted": true,
+    "structurally_valid": true
+   },
+   "verify_edited": {
+    "888014": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsVoltageType",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888015": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsVoltageType",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888016": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsDistributionSysType",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888017": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ElectricalDemandFactorDefinition",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888018": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ElectricalLoadClassification",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888019": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ParamElemElectricalLoadClassification",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888020": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ParamElemElectricalLoadClassification",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888021": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ParamElemElectricalLoadClassification",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888022": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ParamElemElectricalLoadClassification",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888023": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ParamElemElectricalLoadClassification",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "888024": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "ParamElemElectricalLoadClassification",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    }
+   },
+   "proves": "CREATE electrical-settings elements: a load classification 'EV Charging' (abbr 'EV') as the full Revit closure \u2014 its own ElectricalDemandFactorDefinition (1.0) and six ParamElemElectricalLoadClassification parameter elements, cross-referenced both ways with mutual deletion parents \u2014 plus a NEW '600/347 Wye' distribution system referencing two NEW voltage definitions (347 V, 600 V).",
+   "elements": [
+    {
+     "id": 888014,
+     "class": "RbsVoltageType",
+     "kind": "voltage_type"
+    },
+    {
+     "id": 888015,
+     "class": "RbsVoltageType",
+     "kind": "voltage_type"
+    },
+    {
+     "id": 888016,
+     "class": "RbsDistributionSysType",
+     "kind": "distribution_system"
+    },
+    {
+     "id": 888017,
+     "class": "ElectricalDemandFactorDefinition",
+     "kind": "demand_factor"
+    },
+    {
+     "id": 888018,
+     "class": "ElectricalLoadClassification",
+     "kind": "load_classification"
+    },
+    {
+     "id": 888019,
+     "class": "ParamElemElectricalLoadClassification",
+     "kind": "load_class_param"
+    },
+    {
+     "id": 888020,
+     "class": "ParamElemElectricalLoadClassification",
+     "kind": "load_class_param"
+    },
+    {
+     "id": 888021,
+     "class": "ParamElemElectricalLoadClassification",
+     "kind": "load_class_param"
+    },
+    {
+     "id": 888022,
+     "class": "ParamElemElectricalLoadClassification",
+     "kind": "load_class_param"
+    },
+    {
+     "id": 888023,
+     "class": "ParamElemElectricalLoadClassification",
+     "kind": "load_class_param"
+    },
+    {
+     "id": 888024,
+     "class": "ParamElemElectricalLoadClassification",
+     "kind": "load_class_param"
+    }
+   ],
+   "dangling_refs_before_write": {
+    "888014": [],
+    "888015": [],
+    "888016": [],
+    "888017": [],
+    "888018": [],
+    "888019": [],
+    "888020": [],
+    "888021": [],
+    "888022": [],
+    "888023": [],
+    "888024": []
+   },
+   "readback": {
+    "load_classification": {
+     "id": 888018,
+     "name": "EV Charging",
+     "abbreviation": "EV",
+     "demand_factor_id": 888017,
+     "demand_factor": "EV Charging",
+     "param_elem_ids": {
+      "m_totalLoadParamElemId": 888019,
+      "m_estLoadParamElemId": 888020,
+      "m_totalCurrentParamElemId": 888021,
+      "m_estCurrentParamElemId": 888022,
+      "m_demandFactorParamElemId": 888023,
+      "m_actualSpaceLoadParamElemId": 888024
+     },
+     "signature_type": 0,
+     "space_load_class": 2
+    },
+    "distribution_system": {
+     "id": 888016,
+     "name": "600/347 Wye",
+     "phase": "three",
+     "config": "wye",
+     "num_wires": 4,
+     "high_leg_phase": -1,
+     "vll_id": 888015,
+     "vll": 600.0,
+     "vlg_id": 888014,
+     "vlg": 347.0
+    },
+    "params_point_back_at_classification": true
+   },
+   "SEMANTIC_OK": true,
+   "category": "electrical settings",
+   "verb": "CREATE",
+   "build_seconds": 57.0,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "warning_messages": [
+     "1171/142185 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+    ],
+    "stats": {
+     "records": 427473,
+     "elements_decoded": 142185,
+     "refs_checked": 2570718,
+     "connector_edges": 15339,
+     "circuits": 187
+    }
+   },
+   "validate_seconds": 12.5,
+   "CELL_OK": true
+  },
+  {
+   "file": "experiments/mep/electrical/panel_renumber.rvt",
+   "size_bytes": 32657408,
+   "commit": {
+    "partition": "Partitions/14",
+    "new_element_ids": [],
+    "removed_ids": [],
+    "replaced": [
+     [
+      102,
+      469513
+     ],
+     [
+      102,
+      469656
+     ],
+     [
+      102,
+      469852
+     ],
+     [
+      102,
+      469973
+     ],
+     [
+      102,
+      470113
+     ],
+     [
+      102,
+      470129
+     ],
+     [
+      102,
+      470159
+     ],
+     [
+      102,
+      470244
+     ],
+     [
+      102,
+      470296
+     ],
+     [
+      102,
+      470402
+     ],
+     [
+      102,
+      470435
+     ],
+     [
+      102,
+      470601
+     ],
+     [
+      102,
+      470631
+     ],
+     [
+      102,
+      470661
+     ],
+     [
+      102,
+      470691
+     ],
+     [
+      102,
+      470739
+     ],
+     [
+      102,
+      475482
+     ],
+     [
+      102,
+      475564
+     ],
+     [
+      102,
+      475672
+     ],
+     [
+      102,
+      475739
+     ],
+     [
+      102,
+      475777
+     ],
+     [
+      102,
+      475802
+     ],
+     [
+      102,
+      475827
+     ],
+     [
+      102,
+      475852
+     ],
+     [
+      102,
+      475876
+     ],
+     [
+      102,
+      475924
+     ],
+     [
+      102,
+      475946
+     ],
+     [
+      102,
+      476015
+     ],
+     [
+      102,
+      476038
+     ],
+     [
+      102,
+      476061
+     ],
+     [
+      102,
+      476101
+     ],
+     [
+      102,
+      476118
+     ],
+     [
+      102,
+      540552
+     ]
+    ],
+    "elemtable_count_before": 28132,
+    "elemtable_count_after": 28132,
+    "watermark_after": 888013,
+    "blocks_after": {
+     "101": 54,
+     "102": 421,
+     "103": 338
+    },
+    "out_path": "/Users/ck/dev/things/rev-revit/experiments/mep/electrical/panel_renumber.rvt"
+   },
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "stamps_ok": true,
+    "elemtable_count": 28132,
+    "header_count": 28132,
+    "unit0_ids_equal_elemtable": true,
+    "elemtable_ids_sorted": true,
+    "structurally_valid": true
+   },
+   "verify_edited": {
+    "469513": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "469656": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "469852": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "469973": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470113": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470129": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470159": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470244": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470296": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470402": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470435": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470601": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470631": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470661": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470691": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "470739": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475482": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475564": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475672": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475739": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475777": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475802": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475827": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475852": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475876": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475924": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "475946": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "476015": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "476038": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "476061": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "476101": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "476118": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    },
+    "540552": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "RbsElectricalSystem",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    }
+   },
+   "proves": "renumber_circuits() re-lays-out real panels PP-1A (622027: 17 circuits, hole at slot 2 -> contiguous 1..17) and LP-2 (471705: 17 circuits, holes at 1/14/19 -> 1..17): every circuit's m_number / m_nStartSlot rewritten in place. The two-column rule (n-pole = n same-parity slots, lowest fit) is first shown to REPRODUCE Autodesk's own numbering value-for-value on untouched panels PP-2B and PP-3B, including their 3-pole '20,22,24' / '19,21,23' circuits.",
+   "rule_reproduces_autodesk": {
+    "471596": {
+     "panel": "PP-2B",
+     "circuits": 22,
+     "rule_reproduces_autodesk_numbering": true,
+     "sample_numbers": [
+      "18",
+      "19",
+      "20,22,24",
+      "21",
+      "23"
+     ]
+    },
+    "503195": {
+     "panel": "PP-3B",
+     "circuits": 19,
+     "rule_reproduces_autodesk_numbering": true,
+     "sample_numbers": [
+      "15",
+      "16",
+      "17",
+      "18",
+      "19,21,23"
+     ]
+    }
+   },
+   "edited_circuits": [
+    469513,
+    469656,
+    469852,
+    469973,
+    470113,
+    470129,
+    470159,
+    470244,
+    470296,
+    470402,
+    470435,
+    470601,
+    470631,
+    470661,
+    470691,
+    470739,
+    475482,
+    475564,
+    475672,
+    475739,
+    475777,
+    475802,
+    475827,
+    475852,
+    475876,
+    475924,
+    475946,
+    476015,
+    476038,
+    476061,
+    476101,
+    476118,
+    540552
+   ],
+   "before": {
+    "622027": {
+     "info": {
+      "id": 622027,
+      "name": "PP-1A",
+      "mark": "20",
+      "family": "M_Lighting and Appliance Panelboard - 208V MCB - Surface",
+      "type": "100 A",
+      "symbol_id": 620368,
+      "mains_rating_a": 100.0,
+      "max_poles": 12,
+      "distribution_system_id": 55360,
+      "distribution_system": "120/208 Wye",
+      "voltage_ll": 208.0,
+      "voltage_lg": 120.0,
+      "slot_connectors": [
+       50000,
+       50001,
+       50002,
+       50003,
+       50004,
+       50005,
+       50006,
+       50007,
+       50008,
+       50009,
+       50010,
+       50011,
+       50012,
+       50013,
+       50014,
+       50015,
+       50016
+      ],
+      "supply_connector": 1,
+      "circuit_numbering_option": 0,
+      "n_circuits": 17
+     },
+     "numbering": {
+      "panel": 622027,
+      "circuits": 17,
+      "slots_used": [
+       1,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       10,
+       11,
+       12,
+       13,
+       14,
+       15,
+       16,
+       17,
+       18
+      ],
+      "highest_slot": 18,
+      "spaces": [
+       2
+      ],
+      "overlaps": {},
+      "parity_violations": [],
+      "number_string_mismatch": [],
+      "compact": false,
+      "consistent": true
+     },
+     "circuits": [
+      [
+       689041,
+       "1",
+       1,
+       1
+      ],
+      [
+       469513,
+       "3",
+       3,
+       1
+      ],
+      [
+       469656,
+       "4",
+       4,
+       1
+      ],
+      [
+       469852,
+       "5",
+       5,
+       1
+      ],
+      [
+       469973,
+       "6",
+       6,
+       1
+      ],
+      [
+       470113,
+       "7",
+       7,
+       1
+      ],
+      [
+       470129,
+       "8",
+       8,
+       1
+      ],
+      [
+       470159,
+       "9",
+       9,
+       1
+      ],
+      [
+       470244,
+       "10",
+       10,
+       1
+      ],
+      [
+       470296,
+       "11",
+       11,
+       1
+      ],
+      [
+       470402,
+       "12",
+       12,
+       1
+      ],
+      [
+       470435,
+       "13",
+       13,
+       1
+      ],
+      [
+       470601,
+       "14",
+       14,
+       1
+      ],
+      [
+       470631,
+       "15",
+       15,
+       1
+      ],
+      [
+       470661,
+       "16",
+       16,
+       1
+      ],
+      [
+       470691,
+       "17",
+       17,
+       1
+      ],
+      [
+       470739,
+       "18",
+       18,
+       1
+      ]
+     ]
+    },
+    "471705": {
+     "info": {
+      "id": 471705,
+      "name": "LP-2",
+      "mark": "7",
+      "family": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+      "type": "400 A",
+      "symbol_id": 471762,
+      "mains_rating_a": 100.0,
+      "max_poles": 42,
+      "distribution_system_id": 277810,
+      "distribution_system": "480/277 Wye",
+      "voltage_ll": 480.0,
+      "voltage_lg": 277.0,
+      "slot_connectors": [
+       50001,
+       50002,
+       50003,
+       50004,
+       50005,
+       50006,
+       50007,
+       50008,
+       50009,
+       50010,
+       50011,
+       50012,
+       50013,
+       50014,
+       50015,
+       50016,
+       50017
+      ],
+      "supply_connector": 1,
+      "circuit_numbering_option": 0,
+      "n_circuits": 17
+     },
+     "numbering": {
+      "panel": 471705,
+      "circuits": 17,
+      "slots_used": [
+       2,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       10,
+       11,
+       12,
+       13,
+       15,
+       16,
+       17,
+       18,
+       20
+      ],
+      "highest_slot": 20,
+      "spaces": [
+       1,
+       14,
+       19
+      ],
+      "overlaps": {},
+      "parity_violations": [],
+      "number_string_mismatch": [],
+      "compact": false,
+      "consistent": true
+     },
+     "circuits": [
+      [
+       475482,
+       "2",
+       2,
+       1
+      ],
+      [
+       475564,
+       "3",
+       3,
+       1
+      ],
+      [
+       475672,
+       "4",
+       4,
+       1
+      ],
+      [
+       475739,
+       "5",
+       5,
+       1
+      ],
+      [
+       475777,
+       "6",
+       6,
+       1
+      ],
+      [
+       475802,
+       "7",
+       7,
+       1
+      ],
+      [
+       475827,
+       "8",
+       8,
+       1
+      ],
+      [
+       475852,
+       "9",
+       9,
+       1
+      ],
+      [
+       475876,
+       "10",
+       10,
+       1
+      ],
+      [
+       475924,
+       "11",
+       11,
+       1
+      ],
+      [
+       475946,
+       "12",
+       12,
+       1
+      ],
+      [
+       540552,
+       "13",
+       13,
+       1
+      ],
+      [
+       476038,
+       "15",
+       15,
+       1
+      ],
+      [
+       476015,
+       "16",
+       16,
+       1
+      ],
+      [
+       476101,
+       "17",
+       17,
+       1
+      ],
+      [
+       476061,
+       "18",
+       18,
+       1
+      ],
+      [
+       476118,
+       "20",
+       20,
+       1
+      ]
+     ]
+    }
+   },
+   "after": {
+    "622027": {
+     "numbering": {
+      "panel": 622027,
+      "circuits": 17,
+      "slots_used": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       10,
+       11,
+       12,
+       13,
+       14,
+       15,
+       16,
+       17
+      ],
+      "highest_slot": 17,
+      "spaces": [],
+      "overlaps": {},
+      "parity_violations": [],
+      "number_string_mismatch": [],
+      "compact": true,
+      "consistent": true
+     },
+     "circuits": [
+      [
+       689041,
+       "1",
+       1,
+       1
+      ],
+      [
+       469513,
+       "2",
+       2,
+       1
+      ],
+      [
+       469656,
+       "3",
+       3,
+       1
+      ],
+      [
+       469852,
+       "4",
+       4,
+       1
+      ],
+      [
+       469973,
+       "5",
+       5,
+       1
+      ],
+      [
+       470113,
+       "6",
+       6,
+       1
+      ],
+      [
+       470129,
+       "7",
+       7,
+       1
+      ],
+      [
+       470159,
+       "8",
+       8,
+       1
+      ],
+      [
+       470244,
+       "9",
+       9,
+       1
+      ],
+      [
+       470296,
+       "10",
+       10,
+       1
+      ],
+      [
+       470402,
+       "11",
+       11,
+       1
+      ],
+      [
+       470435,
+       "12",
+       12,
+       1
+      ],
+      [
+       470601,
+       "13",
+       13,
+       1
+      ],
+      [
+       470631,
+       "14",
+       14,
+       1
+      ],
+      [
+       470661,
+       "15",
+       15,
+       1
+      ],
+      [
+       470691,
+       "16",
+       16,
+       1
+      ],
+      [
+       470739,
+       "17",
+       17,
+       1
+      ]
+     ]
+    },
+    "471705": {
+     "numbering": {
+      "panel": 471705,
+      "circuits": 17,
+      "slots_used": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7,
+       8,
+       9,
+       10,
+       11,
+       12,
+       13,
+       14,
+       15,
+       16,
+       17
+      ],
+      "highest_slot": 17,
+      "spaces": [],
+      "overlaps": {},
+      "parity_violations": [],
+      "number_string_mismatch": [],
+      "compact": true,
+      "consistent": true
+     },
+     "circuits": [
+      [
+       475482,
+       "1",
+       1,
+       1
+      ],
+      [
+       475564,
+       "2",
+       2,
+       1
+      ],
+      [
+       475672,
+       "3",
+       3,
+       1
+      ],
+      [
+       475739,
+       "4",
+       4,
+       1
+      ],
+      [
+       475777,
+       "5",
+       5,
+       1
+      ],
+      [
+       475802,
+       "6",
+       6,
+       1
+      ],
+      [
+       475827,
+       "7",
+       7,
+       1
+      ],
+      [
+       475852,
+       "8",
+       8,
+       1
+      ],
+      [
+       475876,
+       "9",
+       9,
+       1
+      ],
+      [
+       475924,
+       "10",
+       10,
+       1
+      ],
+      [
+       475946,
+       "11",
+       11,
+       1
+      ],
+      [
+       540552,
+       "12",
+       12,
+       1
+      ],
+      [
+       476038,
+       "13",
+       13,
+       1
+      ],
+      [
+       476015,
+       "14",
+       14,
+       1
+      ],
+      [
+       476101,
+       "15",
+       15,
+       1
+      ],
+      [
+       476061,
+       "16",
+       16,
+       1
+      ],
+      [
+       476118,
+       "17",
+       17,
+       1
+      ]
+     ]
+    }
+   },
+   "contiguous_1_to_N": {
+    "622027": true,
+    "471705": true
+   },
+   "SEMANTIC_OK": true,
+   "category": "panel data",
+   "verb": "MODIFY (renumber)",
+   "build_seconds": 58.7,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "error_messages": [],
+    "warning_messages": [
+     "1171/142174 seq-102 records failed schema decode (FamilyInstance x1171) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. FamilyInstance: 392203: pointer token pid=-1 to unknown class 0x2314"
+    ],
+    "stats": {
+     "records": 427440,
+     "elements_decoded": 142174,
+     "refs_checked": 2570603,
+     "connector_edges": 15339,
+     "circuits": 187
+    }
+   },
+   "validate_seconds": 12.5,
+   "CELL_OK": true
+  }
+ ],
+ "all_ok": true
+}

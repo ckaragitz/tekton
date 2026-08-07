@@ -1,0 +1,161 @@
+{
+ "law": "A = the NATIVE donor ContentTable row (rst unit 36, the V20-certified lineage); B = famload's authored row (the regcorner parent load = H9's exact recipe).  H11 re-authors B to byte-parity with A on every field except the identity -forced ContentKey GUID.",
+ "native_donor_guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+ "native_donor_ct_row": {
+  "m_pHostDocument": {
+   "weakref": 1
+  },
+  "m_ContentKey": {
+   "m_guidKey": "09982dbb-c022-48fc-a116-6d8ba6867fdb"
+  },
+  "m_author": "Autodesk Revit",
+  "m_history": {
+   "m_originalElementId": {
+    "m_id64": -1
+   },
+   "m_creationDate": {
+    "m_id": 948
+   },
+   "m_lastModificationDate": {
+    "m_id": 988
+   },
+   "m_lastUserModificationDate": {
+    "m_id": -1
+   }
+  },
+  "m_EpisodeCounts": [
+   {
+    "first": {
+     "m_id": 1003
+    },
+    "second": 6
+   },
+   {
+    "first": {
+     "m_id": 1013
+    },
+    "second": 411
+   }
+  ]
+ },
+ "native_ct_census": {
+  "rows": 52,
+  "authors": {
+   "Autodesk Revit": 52
+  },
+  "episode_count_lens": {
+   "2": 43,
+   "3": 9
+  },
+  "keysets": {
+   "('m_ContentKey', 'm_EpisodeCounts', 'm_author', 'm_history', 'm_pHostDocument')": 52
+  }
+ },
+ "native_fm_census": {
+  "entries": 50,
+  "guid_list_lens": [
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "note": "famload's {m_surrogateId, m_familyDocGUIDs:[1 GUID]} entry is native-parity (1 in range 0..4); no FM axis to probe"
+ },
+ "native_cd_entry": {
+  "adoc_bytes": 34870,
+  "adoc_decodes_clean": true,
+  "appinfo_slots": 239,
+  "appinfo_populated": 131
+ },
+ "famload_ct_row": {
+  "m_pHostDocument": {
+   "weakref": 1
+  },
+  "m_ContentKey": {
+   "m_guidKey": "ceaaa6e7-046c-4ca2-b069-c06d26cea622"
+  },
+  "m_author": "rvt-writer",
+  "m_history": {
+   "m_originalElementId": {
+    "m_id64": -1
+   },
+   "m_creationDate": {
+    "m_id": 1016
+   },
+   "m_lastModificationDate": {
+    "m_id": 1016
+   },
+   "m_lastUserModificationDate": {
+    "m_id": -1
+   }
+  },
+  "m_EpisodeCounts": [
+   {
+    "first": {
+     "m_id": 1016
+    },
+    "second": 417
+   }
+  ]
+ },
+ "famload_cd_entry": {
+  "bytes": 18057,
+  "appinfo_slots": 239,
+  "appinfo_populated": 0
+ },
+ "ct_row_field_diff": [
+  {
+   "path": "row.m_ContentKey.m_guidKey",
+   "native": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+   "famload": "ceaaa6e7-046c-4ca2-b069-c06d26cea622",
+   "identity_forced": true
+  },
+  {
+   "path": "row.m_EpisodeCounts",
+   "native": [
+    {
+     "first": {
+      "m_id": 1003
+     },
+     "second": 6
+    },
+    {
+     "first": {
+      "m_id": 1013
+     },
+     "second": 411
+    }
+   ],
+   "famload": [
+    {
+     "first": {
+      "m_id": 1016
+     },
+     "second": 417
+    }
+   ],
+   "identity_forced": false
+  },
+  {
+   "path": "row.m_author",
+   "native": "Autodesk Revit",
+   "famload": "rvt-writer",
+   "identity_forced": false
+  },
+  {
+   "path": "row.m_history.m_creationDate.m_id",
+   "native": 948,
+   "famload": 1016,
+   "identity_forced": false
+  },
+  {
+   "path": "row.m_history.m_lastModificationDate.m_id",
+   "native": 988,
+   "famload": 1016,
+   "identity_forced": false
+  }
+ ],
+ "partition_frames": "famload's spliced unit is frame-identical to the native donor unit (counter 417, 4 blocks, seq split 418/146+272/418, flags 4) -- measured 2026-08-05; no partition axis to probe",
+ "coherence_note": "CT m_EpisodeCounts vs inline-ADocument per-element histories is NOT a strict corpus law (49/52 native units disagree with both the creation and lastMod histograms) -- H12's famload-row + native-adoc pairing is therefore not off-corpus on that pair"
+}

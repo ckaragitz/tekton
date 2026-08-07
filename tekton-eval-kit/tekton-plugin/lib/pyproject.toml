@@ -1,0 +1,33 @@
+# rvt engine — bundled copy for the revit-automation Claude Code plugin.
+#
+# This is a byte-identical copy of the repo's proven `src/rvt` package
+# (the native .rvt reader/writer that passed the Autodesk Viewer end-to-end:
+# V15 whole-file re-write, V18/V19 authored-content change). It is packaged
+# here so a fresh machine can `pip install ./plugin/lib` (or
+# `uv pip install --python <venv>/bin/python ./plugin/lib`) and then
+# `import rvt.ecc, rvt.container, rvt.cfb_writer, ...` from the skill scripts.
+#
+# Only runtime dependency: olefile (CFB reading). Everything else is stdlib
+# (zlib, struct, uuid). `compoundfiles` is an OPTIONAL second reader used only
+# by `rvt-roundtrip --verify` cross-checks; it is not required.
+[project]
+name = "rvt"
+version = "0.1.0"
+description = "Read and (proven, in-progress for creation) write Autodesk Revit .rvt files — bundled engine for the revit-automation plugin"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["olefile>=0.47"]
+
+[project.optional-dependencies]
+verify = ["compoundfiles>=0.3"]
+
+[project.scripts]
+rvtinspect = "rvt.cli:main"
+rvt-roundtrip = "rvt.roundtrip:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

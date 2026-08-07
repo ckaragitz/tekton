@@ -1,0 +1,57 @@
+{
+ "router": "rvt.frontdoor.router (perm-matrix stream)",
+ "request": {
+  "inputs": {
+   "spec": "usecases/chicago-plenum-electrical-room/room-spec.json"
+  },
+  "output": "ifc",
+  "opts": {}
+ },
+ "cell": {
+  "inputs": [
+   "spec"
+  ],
+  "output": "ifc",
+  "status": "works",
+  "route": "spec_to_ifc",
+  "stages": [
+   "spec->ifc"
+  ],
+  "evidence": [
+   "worked:usecases/chicago-plenum-electrical-room/generated.ifc",
+   "worked:skills/tekton-ifc/tests"
+  ],
+  "caveats": [
+   "deterministic: identical spec -> byte-identical IFC"
+  ],
+  "missing_reason": null,
+  "closest": null,
+  "hint": null
+ },
+ "route": "spec_to_ifc",
+ "ok": true,
+ "status": "OK (deterministic IFC4 from the building spec)",
+ "steps": [
+  {
+   "stage": "spec->ifc",
+   "impl": "skills/tekton-ifc/scripts/generate_ifc.py:main",
+   "ok": true,
+   "seconds": 0.2
+  }
+ ],
+ "files": {
+  "ifc": "experiments/routes/demo2-spec-to-ifc/room-spec.ifc"
+ },
+ "releases": {},
+ "stamps": [],
+ "caveats": [
+  "deterministic: identical spec -> byte-identical IFC"
+ ],
+ "evidence": [
+  "worked:usecases/chicago-plenum-electrical-room/generated.ifc",
+  "worked:skills/tekton-ifc/tests"
+ ],
+ "errors": [],
+ "seconds": 0.3,
+ "deliverable_rule": "gates are labels: the output files above ARE delivered; every caveat/stamp rides AFTER the delivery, never instead of it"
+}

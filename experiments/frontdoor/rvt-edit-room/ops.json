@@ -1,0 +1,54 @@
+{
+ "ops": [
+  {
+   "op": "move",
+   "id": 1472947,
+   "to": [
+    3.0,
+    1.0,
+    4.66
+   ]
+  },
+  {
+   "op": "delete",
+   "id": 1472952,
+   "cascade": true
+  },
+  {
+   "op": "set-level",
+   "id": 311,
+   "elevation_ft": 0.5
+  }
+ ],
+ "source": "text",
+ "understood": [
+  {
+   "clause": "move DP-1 to 3,1,4.66",
+   "op": {
+    "op": "move",
+    "id": 1472947,
+    "to": [
+     3.0,
+     1.0,
+     4.66
+    ]
+   }
+  },
+  {
+   "clause": "delete LP-4 with cascade",
+   "op": {
+    "op": "delete",
+    "id": 1472952,
+    "cascade": true
+   }
+  },
+  {
+   "clause": "set level L1 - Ground Floor elevation to 0.5 ft",
+   "op": {
+    "op": "set-level",
+    "id": 311,
+    "elevation_ft": 0.5
+   }
+  }
+ ]
+}

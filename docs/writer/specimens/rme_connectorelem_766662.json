@@ -1,0 +1,577 @@
+{
+ "element_id": 766662,
+ "note": "ConnectorElem inside an embedded family document (not in ElemTable)",
+ "elemtable": {
+  "found_in_ElemTable": false
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 7167199,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 766662,
+  "stamp": null,
+  "psize": 159,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 157,
+  "total_record_bytes": 175,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 28 60 e1 ff ff ff ff ff f6 b0 0b 00 00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "157/157",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -2007000,
+   "m_familyId": 766198,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -4225
+   },
+   "m_abFlags4Bytes": 2058,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "ConnectorElem"
+    }
+   },
+   "m_pBBox": null,
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      638828,
+      766198,
+      766603,
+      766636,
+      766662,
+      766716
+     ],
+     "m_regenOnly": [],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -2007000,
+  "builtin": "?"
+ },
+ "classDef": "ConnectorElem",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 47511779,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 766662,
+  "stamp": 2631742256,
+  "psize": 940,
+  "class_id_hex": "0x0381",
+  "object_bytes": 938,
+  "total_record_bytes": 960,
+  "size_trailer_ok": true,
+  "payload_head_hex": "ff ff ff ff 5d 0c ff ff ff ff 5f 0c ff ff ff ff 5c 0c 00 00 00 00 ff ff ff ff f6 08 ff ff ff ff",
+  "class": "ConnectorElem",
+  "clean": true,
+  "consumed_of_object": "938/938",
+  "value": {
+   "m_pParamValueSetDouble": {
+    "ptr_class": "ParamValueSetDouble",
+    "pid": -1,
+    "value": {
+     "m_paramSet": []
+    }
+   },
+   "m_pParamValueSetInt": {
+    "ptr_class": "ParamValueSetInt",
+    "pid": -1,
+    "value": {
+     "m_paramSet": []
+    }
+   },
+   "m_pParamValueSetAString": {
+    "ptr_class": "ParamValueSetAString",
+    "pid": -1,
+    "value": {
+     "m_paramSet": []
+    }
+   },
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": {
+    "ptr_class": "GeomStepList",
+    "pid": -1,
+    "value": {
+     "m_nonBRepGList": [
+      {
+       "ptr_class": "ConnectorElemGStep",
+       "pid": -1,
+       "value": {
+        "m_faceHistTable": [
+         {
+          "m_id": 1,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            0,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 2,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            1,
+            -1
+           ]
+          }
+         }
+        ],
+        "m_curveHistTableSet": [],
+        "m_edgeHistTable": [],
+        "m_edgeHistTableReverse": [],
+        "m_id": 1,
+        "m_version": 0,
+        "m_flags": 237373,
+        "m_pElem": {
+         "weakref": 2
+        },
+        "m_oExtraDatas": null
+       }
+      }
+     ],
+     "m_bRepFormGList": [],
+     "m_bRepAdjustGList": [],
+     "m_bRepCutOutGList": [],
+     "m_bRepPostCutOutGList": [],
+     "m_bRepTweakGList": [],
+     "m_bRepFormSnapshot": null,
+     "m_bRepAdjustSnapshot": null,
+     "m_bRepCutOutSnapshot": null,
+     "m_bRepPostCutOutSnapshot": null,
+     "m_pElem": {
+      "weakref": 2
+     },
+     "m_latestGStepTypeInPrevRegenCycle": [
+      1,
+      1,
+      1,
+      1,
+      1
+     ],
+     "m_idCounter": 2,
+     "m_flags": 9
+    }
+   },
+   "m_pGeomTable": {
+    "ptr_class": "GeomTable",
+    "pid": -1,
+    "value": {
+     "m_refPntMirrored": false,
+     "m_table": [
+      {
+       "m_geomGeneratorId": -1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      }
+     ],
+     "m_bigTableOwner": null,
+     "m_materialMarkers": [],
+     "m_faceTypeMarkers": []
+    }
+   },
+   "m_constrInfo": [],
+   "m_cellList": {
+    "ptr_class": "CellList",
+    "pid": -1,
+    "value": {
+     "m_cells": [
+      {
+       "ptr_class": "FamilyParametrizedElemParamsCell",
+       "pid": -1,
+       "value": {
+        "m_paramDrivenData": [
+         {
+          "m_famParamId": 766603,
+          "m_elemPropId": -1140002,
+          "m_geomTag": -1,
+          "m_bIsSymbol": false
+         },
+         {
+          "m_famParamId": 766716,
+          "m_elemPropId": -1140005,
+          "m_geomTag": -1,
+          "m_bIsSymbol": false
+         }
+        ]
+       }
+      },
+      {
+       "ptr_class": "PatternHelper",
+       "pid": -1,
+       "value": {
+        "m_PatternPositionMap": [],
+        "m_substituteFaceMap": []
+       }
+      }
+     ]
+    }
+   },
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 766662,
+   "m_assocLevelId": -1,
+   "m_famId": 766198,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -4,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_oPlaneRef": {
+    "ptr_class": "GeomOnPlaneRef",
+    "pid": -1,
+    "value": {
+     "m_geomRef": {
+      "m_intermediateTags": [],
+      "m_oNextRef": null,
+      "m_elemId": 766636,
+      "m_ownerDBViewId": -1,
+      "m_foreignElemIdRef": {
+       "m_id64": -1
+      },
+      "m_geomTag": 2,
+      "m_subTag": -1,
+      "m_famMemberIdx": -1,
+      "m_flags": 0,
+      "m_isLazyRef": false
+     },
+     "m_oRawPlaneInLinkCache": null,
+     "m_oFacePointRef": null,
+     "m_offset": [
+      -0.0625,
+      -0.088541667
+     ],
+     "m_angle": 3.141592654,
+     "m_flip": false
+    }
+   },
+   "m_oEdgeLoopRef": {
+    "ptr_class": "EdgeLoopRef",
+    "pid": -1,
+    "value": {
+     "m_sortedTagArr": [
+      3,
+      4,
+      8,
+      17
+     ]
+    }
+   },
+   "m_pFaceU": {
+    "ptr_class": "Face",
+    "pid": 3,
+    "value": {
+     "m_GInfo": {
+      "m_categoryId": -1,
+      "m_tag": 1,
+      "m_controlCommand": 0,
+      "m_flags": 524804
+     },
+     "m_pFirstLoop": null,
+     "m_faceRegions": [],
+     "m_pGFilling": null,
+     "m_oBackgroundFilling": null,
+     "m_renderStyleId": -1,
+     "m_cutType": 0,
+     "m_faceFlags_v9": 0,
+     "m_pSurf": {
+      "ptr_class": "Plane",
+      "pid": 5,
+      "value": {
+       "m_Envelope": {
+        "m_corners": [
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.492125984,
+          0.492125984
+         ]
+        ]
+       },
+       "m_orientFlag": true,
+       "m_origin": [
+        0.0,
+        0.125,
+        -0.088541667
+       ],
+       "m_xVec": [
+        0.0,
+        0.0,
+        1.0
+       ],
+       "m_yVec": [
+        -0.0,
+        1.0,
+        0.0
+       ]
+      }
+     }
+    }
+   },
+   "m_pFaceV": {
+    "ptr_class": "Face",
+    "pid": 4,
+    "value": {
+     "m_GInfo": {
+      "m_categoryId": -1,
+      "m_tag": 2,
+      "m_controlCommand": 0,
+      "m_flags": 524804
+     },
+     "m_pFirstLoop": null,
+     "m_faceRegions": [],
+     "m_pGFilling": null,
+     "m_oBackgroundFilling": null,
+     "m_renderStyleId": -1,
+     "m_cutType": 0,
+     "m_faceFlags_v9": 0,
+     "m_pSurf": {
+      "ptr_class": "Plane",
+      "pid": 6,
+      "value": {
+       "m_Envelope": {
+        "m_corners": [
+         [
+          0.0,
+          0.0
+         ],
+         [
+          0.492125984,
+          0.492125984
+         ]
+        ]
+       },
+       "m_orientFlag": true,
+       "m_origin": [
+        0.0,
+        0.125,
+        -0.088541667
+       ],
+       "m_xVec": [
+        -0.0,
+        1.0,
+        0.0
+       ],
+       "m_yVec": [
+        -1.0,
+        -0.0,
+        0.0
+       ]
+      }
+     }
+    }
+   },
+   "m_pDomain": {
+    "ptr_class": "ConnectorElemDomainElectrical",
+    "pid": -1,
+    "value": {
+     "m_pConnElem": {
+      "weakref": 2
+     },
+     "m_dVoltage": 1291.669250005,
+     "m_dApparentLoad": 0.0,
+     "m_dApparentLoadPhase1": 0.0,
+     "m_dApparentLoadPhase2": 0.0,
+     "m_dApparentLoadPhase3": 0.0,
+     "m_dPowerFactor": 1.0,
+     "m_idLoadClassification": 638828,
+     "m_nNumberOfPoles": 1,
+     "m_systemType": 31,
+     "m_powerFactorState": 1,
+     "m_bIsConnectorPrimary": true,
+     "m_bConnectorUtility": false,
+     "m_bSubClassificationMotor": false,
+     "m_strConnectorDescription": ""
+    }
+   },
+   "m_grepSize": 0.492125984,
+   "m_idLinkedElem": -1,
+   "m_idPrimaryElem": 766662,
+   "m_index": 1,
+   "m_reservedTag": 0
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 39167674,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 766662,
+  "stamp": 6881340,
+  "psize": 2,
+  "class_id_hex": "0x0f2c",
+  "object_bytes": 0,
+  "total_record_bytes": 22,
+  "size_trailer_ok": true,
+  "payload_head_hex": "",
+  "class": "SerializedDummy",
+  "clean": true,
+  "consumed_of_object": "0/0",
+  "value": {}
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_familyId",
+   "id": 766198,
+   "target_class": "Family",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[0]",
+   "id": 638828,
+   "target_class": "ElectricalLoadClassification",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[1]",
+   "id": 766198,
+   "target_class": "Family",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[2]",
+   "id": 766603,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[3]",
+   "id": 766636,
+   "target_class": "ExtrusionElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[4]",
+   "id": 766662,
+   "target_class": "ConnectorElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[5]",
+   "id": 766716,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_nonBRepGList[0].value.m_id",
+   "id": 1,
+   "target_class": "AllProjectPhases",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_idCounter",
+   "id": 2,
+   "target_class": "PenWidthTableElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_cellList.value.m_cells[0].value.m_paramDrivenData[0].m_famParamId",
+   "id": 766603,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_cellList.value.m_cells[0].value.m_paramDrivenData[1].m_famParamId",
+   "id": 766716,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 766662,
+   "target_class": "ConnectorElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_famId",
+   "id": 766198,
+   "target_class": "Family",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_oPlaneRef.value.m_geomRef.m_elemId",
+   "id": 766636,
+   "target_class": "ExtrusionElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pDomain.value.m_idLoadClassification",
+   "id": 638828,
+   "target_class": "ElectricalLoadClassification",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_idPrimaryElem",
+   "id": 766662,
+   "target_class": "ConnectorElem",
+   "in_ElemTable": false,
+   "in_partitions": true
+  }
+ ]
+}

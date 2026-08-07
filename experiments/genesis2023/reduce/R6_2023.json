@@ -1,0 +1,483 @@
+{
+ "rung": "R6_2023",
+ "ladder": "2023",
+ "release": 2023,
+ "recipe": "the certified 2026 R6 seed (rvt_reduce.stage_seed_v2) re-run on samples/2023/rstbasicsampleproject.rvt under rvt.versions.records32.ids32 + versions.reading + context_2023",
+ "parent": "samples/2023/rstbasicsampleproject.rvt",
+ "parent_rung": "sample",
+ "out": "experiments/genesis2023/reduce/R6_2023.rvt",
+ "file_size": 5623808,
+ "seed": 6498,
+ "seed_kept_pinned": 898,
+ "deleted": 5600,
+ "surviving_elements": 8221,
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4135
+  ],
+  [
+   "LinearDimString",
+   508
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "SketchPlane",
+   74
+  ],
+  [
+   "SunAndShadowSettings",
+   71
+  ],
+  [
+   "LegendComponent",
+   60
+  ],
+  [
+   "VarSketch",
+   56
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "Viewport",
+   40
+  ],
+  [
+   "SketchGrid",
+   40
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "DBDrawing",
+   34
+  ],
+  [
+   "FamilyInstance",
+   33
+  ],
+  [
+   "Viewer",
+   22
+  ],
+  [
+   "FontElem",
+   21
+  ],
+  [
+   "ExtentElem",
+   20
+  ],
+  [
+   "DBView3d",
+   15
+  ],
+  [
+   "SunAnnotationElem",
+   13
+  ],
+  [
+   "DBViewSection",
+   13
+  ],
+  [
+   "CategoryElem",
+   13
+  ],
+  [
+   "GStyleElem",
+   13
+  ],
+  [
+   "DBViewPlan",
+   11
+  ],
+  [
+   "DBViewSchedule",
+   10
+  ],
+  [
+   "ScheduleInstance",
+   10
+  ],
+  [
+   "LightSchemeElement",
+   9
+  ],
+  [
+   "InteriorElev",
+   6
+  ],
+  [
+   "Viewer3d",
+   6
+  ],
+  [
+   "ModelClipBox",
+   6
+  ],
+  [
+   "PanelScheduleTemplate",
+   5
+  ],
+  [
+   "DBViewAnonDrafting",
+   5
+  ],
+  [
+   "InteriorElevArrow",
+   4
+  ],
+  [
+   "DBViewDrafting",
+   4
+  ],
+  [
+   "ImportInstance",
+   3
+  ],
+  [
+   "ContourSpacingElem",
+   3
+  ],
+  [
+   "GCSViewport",
+   2
+  ],
+  [
+   "ViewSheetSet",
+   2
+  ],
+  [
+   "SpotElevation",
+   1
+  ],
+  [
+   "InitialViewSettings",
+   1
+  ],
+  [
+   "Section",
+   1
+  ],
+  [
+   "ViewReferencing",
+   1
+  ]
+ ],
+ "structural_ok": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 339,
+   "records": 78831,
+   "elements_decoded": 26224,
+   "decode_failures": 7,
+   "refs_checked": 449974
+  }
+ },
+ "reduce_law": {
+  "verdict": "EDIT-FREE",
+  "ok": true,
+  "removed": 5600,
+  "added": 0,
+  "common": 26224,
+  "survivors_edited": 0,
+  "summary": "[EDIT-FREE] R6_2023 vs rstbasic-2023 (sample): removed 5,600, added 0, common 26,224, SURVIVORS EDITED 0 (vindicated 0)"
+ },
+ "census": {
+  "path": "experiments/genesis2023/reduce/R6_2023.rvt",
+  "elements": 8221,
+  "classes": {
+   "GStyleElem": 2143,
+   "CategoryElem": 603,
+   "ParamElemExternal": 466,
+   "FamilyInstance": 464,
+   "FontElem": 242,
+   "RebarInSystem": 224,
+   "CurveElem": 216,
+   "ParamBinding": 209,
+   "LinearDimString": 202,
+   "LinePatternElem": 150,
+   "SketchPlane": 135,
+   "AppearanceAssetElem": 131,
+   "ReferencePoint": 128,
+   "HVACLoadSpaceTypeElem": 125,
+   "Rebar": 122,
+   "Hub": 122,
+   "ParamElemFamily": 120,
+   "FillPatternElem": 116,
+   "ParamElemElectricalLoadClassification": 108,
+   "FamilySymbol": 106,
+   "MaterialElem": 93,
+   "DBViewType": 91,
+   "TextNoteAttributes": 90,
+   "AnalyticalMember": 90,
+   "VarSketch": 84,
+   "RegenSplitterElem": 68,
+   "LeaderStyle": 61,
+   "TagNoteAttributes": 60,
+   "PropertySetElement": 56,
+   "Family": 50,
+   "FamilySurrogate": 50,
+   "FamSymSurrogate": 50,
+   "DPart": 45,
+   "RebarSystem": 44,
+   "Viewport": 39,
+   "ConceptualConstructionType": 36,
+   "PostedWarningElem": 36,
+   "LegendComponent": 35,
+   "LineLoad": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "FilledRegionAttributes": 32,
+   "RoomElem": 31,
+   "RbsFluidType": 28,
+   "HVACLoadScheduleElem": 27,
+   "RbsWireInsulationType": 26,
+   "DBDrawing": 25,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "BoundaryConditions": 20,
+   "SunAndShadowSettings": 19,
+   "ExtentElem": 19,
+   "ElectricalLoadClassification": 18,
+   "SunAnnotationElem": 18,
+   "TilePatternType": 17,
+   "DivisionRule": 17,
+   "DimensionStyle": 16,
+   "Grid": 16,
+   "JoistSystem": 16,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "Viewer": 12,
+   "AllPlanTopologies": 12,
+   "AnalyticalPanel": 12,
+   "RbsPipingSystemType": 11,
+   "BrowserOrganization": 10,
+   "SectionAttributes": 10,
+   "ConceptualSurfaceType": 10,
+   "PenWidthTableElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "ColorFillSchema": 9,
+   "SWall": 9,
+   "AreaTypeElem": 8,
+   "ParamElemProject": 8,
+   "LoadNatureElem": 8,
+   "LoadCaseElem": 8,
+   "RbsPipeConnectionType": 8,
+   "Alignment": 8,
+   "PartMaker": 8,
+   "RebarShape": 8,
+   "PhaseFilterElem": 7,
+   "ParameterFilterElement": 7,
+   "Section": 7,
+   "DBViewSection": 7,
+   "AreaSchemePlanTopologies": 6,
+   "ConduitStandardType": 6,
+   "Viewer3d": 6,
+   "ModelClipBox": 6,
+   "DBView3d": 6,
+   "LightSchemeElement": 6,
+   "FloorAttributes": 5,
+   "RbsPipeMaterialType": 5,
+   "StructConnectionType": 5,
+   "DBViewPlan": 5,
+   "Floor": 5,
+   "RebarHookType": 5,
+   "AreaLoad": 5,
+   "ImageHolder": 5,
+   "SpotElevationStyle": 4,
+   "RbsWireMaterialType": 4,
+   "NonPlanarSketch": 4,
+   "ContFooting": 4,
+   "ImageSymbol": 4,
+   "DBViewDrafting": 4,
+   "BasicWallType": 3,
+   "PrintSettings": 3,
+   "RbsWireTemperatureRatingType": 3,
+   "RbsHvacSystemType": 3,
+   "StairsLandingType": 3,
+   "StairsType": 3,
+   "StairsRunType": 3,
+   "DesignOption": 3,
+   "AbsDuctType": 3,
+   "NumberingSchema": 3,
+   "MasterImportSymbol": 3,
+   "ViewportAttributes": 2,
+   "CompoundCeilingType": 2,
+   "AreaMeasureElem": 2,
+   "ProjectPhase": 2,
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "ModelGraphicsStyle": 2,
+   "SysPanelFamSym": 2,
+   "CoverType": 2,
+   "BasePoint": 2,
+   "WorksharingViewModeSettings": 2,
+   "ComponentRepeaterSlotSpecialType": 2,
+   "StairsPathType": 2,
+   "StairsSupportType": 2,
+   "FormElem": 2,
+   "MassLevelData": 2,
+   "AbsFlexDuctType": 2,
+   "RbsCableTrayType": 2,
+   "RbsConduitType": 2,
+   "RebarBarType": 2,
+   "StairsSupport": 2,
+   "RevisionNumberingSequence": 2,
+   "AllProjectPhases": 1,
+   "DBViewProject": 1,
+   "ColorFillSymbol": 1,
+   "LevelAttributes": 1,
+   "CurtainRoofAttributes": 1,
+   "GridAttributes": 1,
+   "RampAttributes": 1,
+   "RevealAttr": 1,
+   "CorniceAttr": 1,
+   "Text3dAttrSymbol": 1,
+   "TrueNorth": 1,
+   "DaylightSourceIdSet": 1,
+   "UnitsElem": 1,
+   "RoofSoffitType": 1,
+   "FasciaAttr": 1,
+   "GutterAttr": 1,
+   "EdgeSlabAttr": 1,
+   "ContourLabelingAttributes": 1,
+   "PropertyAttr": 1,
+   "StairsRailingAttr": 1,
+   "StairsAttributes": 1,
+   "RepeatingDetailAttributes": 1,
+   "ExternalParamLock": 1,
+   "JoistSystemAttr": 1,
+   "RevisionCloudAttr": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "CurtaSystemAttr": 1,
+   "ProjectInfo": 1,
+   "StackedWallType": 1,
+   "StructSettingsElem": 1,
+   "RbsWireType": 1,
+   "RbsVoltageType": 1,
+   "RbsDistributionSysType": 1,
+   "AreaReportSettingsElem": 1,
+   "RbsDbViewSystemNavigator": 1,
+   "AreaSettingsElem": 1,
+   "ReactionsUpToDateElem": 1,
+   "ContFootingType": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "KeynoteTable": 1,
+   "AnalyticalSupportTracker": 1,
+   "KeynotingSystem": 1,
+   "ReferenceViewerAttributes": 1,
+   "ConstructionSetProject": 1,
+   "WallJoinDefaultSetting": 1,
+   "RbsDuctSizesElem": 1,
+   "RbsDuctSettingsElem": 1,
+   "RbsPipeSettingsElem": 1,
+   "RbsWireSettingsElem": 1,
+   "RbsPipeSizesElem": 1,
+   "RbsWireSizesElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "ZoneScheme": 1,
+   "ZoneElement": 1,
+   "AutoJoinTracker": 1,
+   "AnalyticalSetTracker": 1,
+   "AnalyticalAutofixTracker": 1,
+   "AnalyticalOctreeTracker": 1,
+   "AutoCamSettingsElem": 1,
+   "GCSTracker": 1,
+   "HalftoneUnderlaySettings": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "ConduitSizesElem": 1,
+   "CableTraySizesElem": 1,
+   "CableTraySettingsElem": 1,
+   "ConduitSettingsElem": 1,
+   "ProjectCopySettingsElem": 1,
+   "EnergyDataSettings": 1,
+   "ReconcileBrowserSettingsElem": 1,
+   "ElectricalSetting": 1,
+   "ListConceptualSurfaceTypes": 1,
+   "MEPSystemTracker": 1,
+   "AssemblyTracker": 1,
+   "HubsTracker": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "PropertySetLibrary": 1,
+   "AnalyticalLinkType": 1,
+   "ReinforcementSettings": 1,
+   "HandRailType": 1,
+   "TopRailType": 1,
+   "CutMarkType": 1,
+   "SysMullionFamSym": 1,
+   "BuildingPadType": 1,
+   "CurtaSystemFaceManager": 1,
+   "NewCurtainWallType": 1,
+   "RoofAttributes": 1,
+   "StairsElement": 1,
+   "StairsRun": 1,
+   "StairsTriserSymbol": 1,
+   "DesignOptionSet": 1,
+   "DefaultDivideSettings": 1,
+   "MEPComponentTracker": 1,
+   "RbsPipeType": 1,
+   "RbsFlexPipeType": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "LevelRoomPlan": 1,
+   "LayoutNodesTracker": 1,
+   "AssemblyCodeTable": 1,
+   "FabricationSettings": 1,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "CopyWatchProperties": 1,
+   "AreaReinforcementType": 1,
+   "FabricAreaType": 1,
+   "FabricWireType": 1,
+   "FabricSheetType": 1,
+   "DBViewAnonDrafting": 1,
+   "DataStorage": 1,
+   "LineLoadType": 1,
+   "AreaLoadType": 1,
+   "SlaveSymbolTrackerElem": 1,
+   "FabricationSettingsElement": 1,
+   "StructuralConnectionSettings": 1,
+   "MEPAnalyticalConnectionElementType": 1,
+   "MEPNetworkTracker": 1,
+   "MechanicalEquipmentSetType": 1,
+   "MEPSystemZoneType": 1,
+   "RouteAnalysisSettings": 1,
+   "CircuitNamingTypeSetting": 1,
+   "ForgeConnectionTracker": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "GraphicsCache": 1,
+   "AnalyticalToPhysicalRelationManager": 1
+  },
+  "file_size": 5623808,
+  "save_units": 53,
+  "contentdocs_entries": 52,
+  "contentdocs_clean_tail": true,
+  "contenttable_records": 52,
+  "adocument_clean": true,
+  "familymgr_entries": 50,
+  "familymgr_doc_guids": 52,
+  "four_registry_coherent": true
+ },
+ "latest_dangling": 259,
+ "seconds": 31.7
+}

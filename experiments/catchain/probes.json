@@ -1,0 +1,443 @@
+{
+ "stream": "catchain: THE CHAIN PROBES (post-verdict-#41).  Batch 47 exonerated pure order both directions and every single-field byte morph; the survivors are the ENTANGLED residues only a full famgen-chain rebuild can flip coherently: the family category (+ partType), the type-table shape, the locked/param BIP group, the materials group -- possibly a conjunction.  Every probe here is the B0 recipe rebuilt through the FULL chain with ONE recipe change (no byte surgery); the emitted famdoc's feature vector is machine-verified against the intended recipe (layout_diff unit_features).",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "upload_order_max_information_first": [
+  "BX_conj",
+  "BX_cat_gm",
+  "BX_types_5",
+  "BX_bip",
+  "BX_conj_minus_cat",
+  "BX_conj_minus_types"
+ ],
+ "controls": {
+  "g_abpd": {
+   "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "voids": "ALL probes on CTRL FAIL"
+  }
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID (oracle/environment) -- interpret nothing; re-stage.",
+  "BX_conj PASS": "the law LIVES INSIDE the enumerated famgen residues -- the corpus's byte-observable suspect list is CONFIRMED sufficient.  Read the singles to name it: any single PASS names its axis outright; all singles FAIL => the law is a conjunction of >= 2 axes -- read the pre-built minus probes: BX_conj_minus_cat FAIL => the category axis is NECESSARY (and with BX_cat_gm FAIL, not sufficient); BX_conj_minus_cat PASS => category UNNECESSARY (the law sits in types/bip/materials/dedup/counters/deletion/refTypeIds -- next round bisects those, same minus pattern, conj-minus-one per axis).  Symmetrically for BX_conj_minus_types.",
+  "BX_conj FAIL": "the defect is OUTSIDE everything enumerated: every one of the corpus's 12 perfectly-separating byte residues was authored to the PASS side through the coherent chain and the audit still rejects.  The byte-diff instrument is exhausted at this scale; the honest next instrument is the desktop-Revit kit (observe the audit's actual complaint on B0/BX_conj directly).  Singles/minus probes then serve only as corroboration.",
+  "BX_cat_gm PASS": "the CATEGORY axis is the law: the audit demands category-consistent infrastructure our electrical-equipment famdoc lacks (partType-14 panelboards imply panel-schedule machinery).  Fix fork: ship GM-category equipment families (works today; schedules/tags lose the category filter) or author the electrical infra the category implies (next stream).",
+  "BX_types_5 PASS": "the TYPE-TABLE law: multi-pair table with the leading blank current-values pair.  famgen fix = author the blank pair + m_idx 1 in finalize (catprobe.apply_types5 is the fix, promoted).",
+  "BX_bip PASS": "the LOCKED/BIP law: the identity palette + locked cost BIP.  famgen fix = catprobe.apply_bip_lock promoted into finalize.",
+  "minus-probe reading": "each minus probe removes ONE axis from the conjunction: minus FAIL while conj PASS => the removed axis is NECESSARY; minus PASS => UNNECESSARY given the rest.  Only meaningful when BX_conj PASSES.",
+  "singles all FAIL + conj FAIL": "consistent with #41's trajectory: the residue enumeration is complete and insufficient -- desktop-Revit kit next."
+ },
+ "companion_evidence": {
+  "accounting": "experiments/catchain/accounting.json",
+  "corpus_shapes": "experiments/catchain/corpus_shapes.json",
+  "separator_ranking": "experiments/layout/layout_diff.json",
+  "prior_round": "experiments/layout/probes.json (batch 47: M2 PASS, everything else FAIL)",
+  "record": "docs/inbox/catchain.md"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "BX_conj",
+   "file": "experiments/catchain/BX_conj.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "CONJUNCTION upper bound: every enumerated famgen-side residue fixed at once through the chain (all 12 corpus separators flipped to the PASS side, machine-checked)",
+   "recipe": {
+    "category": -2000151,
+    "part_type": -1,
+    "residues": {
+     "types5": true,
+     "bip": true,
+     "materials": true,
+     "dedup_cell": true,
+     "sparse_counters": true,
+     "deletion_prefix": true,
+     "ref_type_ids": true
+    }
+   },
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "CONJUNCTION upper bound: every enumerated famgen-side residue fixed at once through the chain (all 12 corpus separators flipped to the PASS side, machine-checked)",
+   "expected": "the round's verdict-bearing rung: PASS => bisect down (minus probes pre-built); FAIL => the enumerated residue space is exhausted, desktop-Revit kit next",
+   "separators_flipped_to_PASS_side": [
+    "cell_dup_identity_groups",
+    "cell_no_materials_group",
+    "hdr_deletion_elements_only",
+    "hdr_deletion_lacks_category",
+    "sf_absorbed_dense (no history gap)",
+    "sf_category_is_ours_electrical",
+    "sf_locked_no_bip",
+    "sf_partType_set (not -1)",
+    "sf_predefinedLimitIdx_small",
+    "sf_refTypeIds_empty",
+    "sf_single_type_pair",
+    "sf_type_idx_zero"
+   ],
+   "md5": "47a68a118659f17815edfadf683e99cb",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/catchain/_build/BX_conj_chain/stage_L1_pp1.rvt",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "features_ok": true,
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "instance_present": true,
+    "instance_connmgr_ok": true,
+    "instance_category_ok": true,
+    "symbol_form_ok": true,
+    "doc_roundtrip_ok": true,
+    "features_ok": true,
+    "separator_mismatches": {},
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 2,
+   "rung": "BX_cat_gm",
+   "file": "experiments/catchain/BX_cat_gm.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "the CATEGORY axis alone: the panelboard product authored under Generic Model (-2000151) + partType -1 through every coupled surface of the chain",
+   "recipe": {
+    "category": -2000151,
+    "part_type": -1,
+    "residues": {}
+   },
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the CATEGORY axis alone: the panelboard product authored under Generic Model (-2000151) + partType -1 through every coupled surface of the chain",
+   "expected": "unknown (the top unprobed candidate: category-coupled infrastructure demand)",
+   "separators_flipped_to_PASS_side": [
+    "sf_category_is_ours_electrical",
+    "sf_partType_set (not -1)"
+   ],
+   "md5": "6d7ed2f3f1fa7c8b2d90ea93874909d6",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/catchain/_build/BX_cat_gm_chain/stage_L1_pp1.rvt",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "features_ok": true,
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "instance_present": true,
+    "instance_connmgr_ok": true,
+    "instance_category_ok": true,
+    "symbol_form_ok": true,
+    "doc_roundtrip_ok": true,
+    "features_ok": true,
+    "separator_mismatches": {},
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 3,
+   "rung": "BX_types_5",
+   "file": "experiments/catchain/BX_types_5.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "the TYPE-TABLE axis alone: the donor's 5-pair shape (blank ' ' current-values pair first, 4 real types with distinct names/ratings, m_idx 1)",
+   "recipe": {
+    "category": null,
+    "part_type": null,
+    "residues": {
+     "types5": true
+    }
+   },
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the TYPE-TABLE axis alone: the donor's 5-pair shape (blank ' ' current-values pair first, 4 real types with distinct names/ratings, m_idx 1)",
+   "expected": "unknown",
+   "separators_flipped_to_PASS_side": [
+    "sf_single_type_pair",
+    "sf_type_idx_zero"
+   ],
+   "md5": "088530c6ea4c65fd0bf6a5ae4958a7eb",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/catchain/_build/BX_types_5_chain/stage_L1_pp1.rvt",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "features_ok": true,
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "instance_present": true,
+    "instance_connmgr_ok": true,
+    "instance_category_ok": true,
+    "symbol_form_ok": true,
+    "doc_roundtrip_ok": true,
+    "features_ok": true,
+    "separator_mismatches": {},
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 4,
+   "rung": "BX_bip",
+   "file": "experiments/catchain/BX_bip.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "the LOCKED/PARAM BIP axis alone: -1001205 in m_locked + the identityData palette (the donor's exact shape: no value row)",
+   "recipe": {
+    "category": null,
+    "part_type": null,
+    "residues": {
+     "bip": true
+    }
+   },
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the LOCKED/PARAM BIP axis alone: -1001205 in m_locked + the identityData palette (the donor's exact shape: no value row)",
+   "expected": "unknown",
+   "separators_flipped_to_PASS_side": [
+    "sf_locked_no_bip"
+   ],
+   "md5": "8db29a11f7937a3ec3ffe6ff263b690a",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/catchain/_build/BX_bip_chain/stage_L1_pp1.rvt",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "features_ok": true,
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "instance_present": true,
+    "instance_connmgr_ok": true,
+    "instance_category_ok": true,
+    "symbol_form_ok": true,
+    "doc_roundtrip_ok": true,
+    "features_ok": true,
+    "separator_mismatches": {},
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 5,
+   "rung": "BX_conj_minus_cat",
+   "file": "experiments/catchain/BX_conj_minus_cat.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "BX_conj minus the category flip (bisection pre-build: category NECESSARY iff this FAILS while BX_conj PASSES)",
+   "recipe": {
+    "category": null,
+    "part_type": null,
+    "residues": {
+     "types5": true,
+     "bip": true,
+     "materials": true,
+     "dedup_cell": true,
+     "sparse_counters": true,
+     "deletion_prefix": true,
+     "ref_type_ids": true
+    }
+   },
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "BX_conj minus the category flip (bisection pre-build: category NECESSARY iff this FAILS while BX_conj PASSES)",
+   "expected": "read only under BX_conj PASS (bisection start)",
+   "separators_flipped_to_PASS_side": [
+    "cell_dup_identity_groups",
+    "cell_no_materials_group",
+    "hdr_deletion_elements_only",
+    "hdr_deletion_lacks_category",
+    "sf_absorbed_dense (no history gap)",
+    "sf_locked_no_bip",
+    "sf_predefinedLimitIdx_small",
+    "sf_refTypeIds_empty",
+    "sf_single_type_pair",
+    "sf_type_idx_zero"
+   ],
+   "md5": "3cd1795d0d209126f9fba8574005ebad",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/catchain/_build/BX_conj_minus_cat_chain/stage_L1_pp1.rvt",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "features_ok": true,
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "instance_present": true,
+    "instance_connmgr_ok": true,
+    "instance_category_ok": true,
+    "symbol_form_ok": true,
+    "doc_roundtrip_ok": true,
+    "features_ok": true,
+    "separator_mismatches": {},
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 6,
+   "rung": "BX_conj_minus_types",
+   "file": "experiments/catchain/BX_conj_minus_types.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "BX_conj minus the 5-row table (bisection pre-build: the table shape NECESSARY iff this FAILS while BX_conj PASSES)",
+   "recipe": {
+    "category": -2000151,
+    "part_type": -1,
+    "residues": {
+     "bip": true,
+     "materials": true,
+     "dedup_cell": true,
+     "sparse_counters": true,
+     "deletion_prefix": true,
+     "ref_type_ids": true
+    }
+   },
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "BX_conj minus the 5-row table (bisection pre-build: the table shape NECESSARY iff this FAILS while BX_conj PASSES)",
+   "expected": "read only under BX_conj PASS (bisection start)",
+   "separators_flipped_to_PASS_side": [
+    "cell_dup_identity_groups",
+    "cell_no_materials_group",
+    "hdr_deletion_elements_only",
+    "hdr_deletion_lacks_category",
+    "sf_absorbed_dense (no history gap)",
+    "sf_category_is_ours_electrical",
+    "sf_locked_no_bip",
+    "sf_partType_set (not -1)",
+    "sf_predefinedLimitIdx_small",
+    "sf_refTypeIds_empty"
+   ],
+   "md5": "70e4fa88dcc0cdad94b03c0ed8f4483e",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/catchain/_build/BX_conj_minus_types_chain/stage_L1_pp1.rvt",
+   "instance_connmgr": "FamilyInstanceConnectorManager",
+   "features_ok": true,
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "instance_present": true,
+    "instance_connmgr_ok": true,
+    "instance_category_ok": true,
+    "symbol_form_ok": true,
+    "doc_roundtrip_ok": true,
+    "features_ok": true,
+    "separator_mismatches": {},
+    "gates_ok": true
+   }
+  }
+ ]
+}

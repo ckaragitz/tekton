@@ -1,0 +1,109 @@
+{
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR1.rvt",
+ "streams": {
+  "identical": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "ProjectInformation",
+   "TransmissionData"
+  ],
+  "differing": [
+   "Partitions/21"
+  ]
+ },
+ "partition_logical_identical": false,
+ "records": {
+  "parent_count": 19623,
+  "out_count": 19623,
+  "added": [],
+  "removed": [],
+  "changed": [
+   {
+    "seq": 102,
+    "id": 34,
+    "len_ours": 176,
+    "len_parent": 176,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "GStyleElem",
+      "class_parent": "GStyleElem"
+     },
+     {
+      "path": ".m_pGStyle.value.m_color",
+      "ours": "1579032",
+      "parent": "0"
+     },
+     {
+      "path": ".m_pGStyle.value.m_penNumber",
+      "ours": "1",
+      "parent": "2"
+     }
+    ]
+   }
+  ],
+  "changed_count": 1,
+  "added_ids": [],
+  "removed_ids": [],
+  "changed_ids": [
+   34
+  ],
+  "id_order_identical": true,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "added_positions": {},
+  "removed_positions": {}
+ },
+ "blocks": {
+  "101": {
+   "parent": 8,
+   "out": 8,
+   "identical": true,
+   "differing": []
+  },
+  "102": {
+   "parent": 47,
+   "out": 47,
+   "identical": true,
+   "differing": []
+  },
+  "103": {
+   "parent": 25,
+   "out": 25,
+   "identical": true,
+   "differing": []
+  }
+ },
+ "elemtable": {
+  "rows_parent": 6540,
+  "rows_out": 6540,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "watermark_parent": 1472524,
+  "watermark_out": 1472524,
+  "identical": true
+ },
+ "latest": {
+  "identical": true,
+  "len_parent": 1586246,
+  "len_out": 1586246
+ },
+ "embedded_units_identical": true
+}

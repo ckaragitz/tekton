@@ -1,0 +1,8455 @@
+{
+ "tool": "tools/rft_probe.py census",
+ "n_famdocs": 511,
+ "smallest_overall": [
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 256,
+   "family": "M_Diffuser Tag",
+   "category": -2008014,
+   "part_type": -1,
+   "n_records": 199,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 371
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 266,
+   "family": "M_Duct Size Tag",
+   "category": -2008003,
+   "part_type": -1,
+   "n_records": 202,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 342
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 123,
+   "family": "M_Pipe Size Tag",
+   "category": -2008047,
+   "part_type": -1,
+   "n_records": 204,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 3
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 166,
+   "family": "M_Wire Tag",
+   "category": -2008057,
+   "part_type": -1,
+   "n_records": 204,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 50
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 104,
+   "family": "M_Flex Duct Tag Round",
+   "category": -2008004,
+   "part_type": -1,
+   "n_records": 205,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 77,
+   "family": "M_Electrical Equipment Type Mark Tag",
+   "category": -2005003,
+   "part_type": -1,
+   "n_records": 206,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 2
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 102,
+   "family": "M_Bottom Elevation Duct Tag",
+   "category": -2008003,
+   "part_type": -1,
+   "n_records": 206,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 3
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 94,
+   "family": "M_Door Tag",
+   "category": -2000460,
+   "part_type": -1,
+   "n_records": 209,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 100
+   }
+  }
+ ],
+ "smallest_model_instanceable": [
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 33,
+   "family": "M_RPC Female",
+   "category": -2001370,
+   "part_type": -1,
+   "n_records": 381,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 46,
+   "family": "M_RPC Male",
+   "category": -2001370,
+   "part_type": -1,
+   "n_records": 381,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 119,
+   "family": "RPC Female",
+   "category": -2001370,
+   "part_type": -1,
+   "n_records": 393,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 3,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 68,
+   "family": "RPC Male",
+   "category": -2001370,
+   "part_type": -1,
+   "n_records": 395,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 163,
+   "family": "Dining Chair (3)",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 395,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 8,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 24,
+   "family": "M_Parking Space",
+   "category": -2001180,
+   "part_type": -1,
+   "n_records": 408,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 27,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 107,
+   "family": "M_Concrete-Round-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 411,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 170,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 56,
+   "family": "M_RPC Tree - Deciduous",
+   "category": -2001360,
+   "part_type": -1,
+   "n_records": 412,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 13,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  }
+ ],
+ "selection": {
+  "TB0": {
+   "sample": "racadvancedsampleproject",
+   "unit": 33,
+   "why": "smallest famdoc whose native instances are MODEL-form (level-owned) FamilyInstances -- the proven placement envelope"
+  },
+  "TB0r": {
+   "sample": "rstbasicsampleproject",
+   "unit": 41,
+   "why": "smallest model-instanceable famdoc on the maximally-proven host; single-variable pair with certified B7"
+  }
+ },
+ "annotation_finding": "the corpus's absolutely smallest famdocs (199..233 records) are annotation families; their native 'instances' are IndependentTag elements or view-owned FamilyInstances (m_ownerDBViewId set, no level/phase) -- forms the proven level+phase template path does NOT produce.  Reaching them honestly needs view-owned placement grammar: proposed follow-up, not smuggled into this round.",
+ "rows": [
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 256,
+   "family": "M_Diffuser Tag",
+   "category": -2008014,
+   "part_type": -1,
+   "n_records": 199,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 371
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 266,
+   "family": "M_Duct Size Tag",
+   "category": -2008003,
+   "part_type": -1,
+   "n_records": 202,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 342
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 123,
+   "family": "M_Pipe Size Tag",
+   "category": -2008047,
+   "part_type": -1,
+   "n_records": 204,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 3
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 166,
+   "family": "M_Wire Tag",
+   "category": -2008057,
+   "part_type": -1,
+   "n_records": 204,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 50
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 104,
+   "family": "M_Flex Duct Tag Round",
+   "category": -2008004,
+   "part_type": -1,
+   "n_records": 205,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 77,
+   "family": "M_Electrical Equipment Type Mark Tag",
+   "category": -2005003,
+   "part_type": -1,
+   "n_records": 206,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 2
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 102,
+   "family": "M_Bottom Elevation Duct Tag",
+   "category": -2008003,
+   "part_type": -1,
+   "n_records": 206,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 3
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 94,
+   "family": "M_Door Tag",
+   "category": -2000460,
+   "part_type": -1,
+   "n_records": 209,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 100
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 45,
+   "family": "M_Centreline",
+   "category": -2000150,
+   "part_type": -1,
+   "n_records": 210,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 189,
+   "family": "M_Electrical Equipment Tag",
+   "category": -2005003,
+   "part_type": -1,
+   "n_records": 210,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 58
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 152,
+   "family": "M_Centreline",
+   "category": -2000150,
+   "part_type": -1,
+   "n_records": 210,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 30,
+   "family": "M_Window Tag",
+   "category": -2000450,
+   "part_type": -1,
+   "n_records": 211,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 6
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 92,
+   "family": "M_Spot Elevation - Crosshair",
+   "category": -2005100,
+   "part_type": -1,
+   "n_records": 211,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 29,
+   "family": "M_North Arrow-2",
+   "category": -2000150,
+   "part_type": -1,
+   "n_records": 212,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 81,
+   "family": "M_Level Head - No Bubble",
+   "category": -2006020,
+   "part_type": -1,
+   "n_records": 213,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 98,
+   "family": "M_View Title",
+   "category": -2000515,
+   "part_type": -1,
+   "n_records": 213,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 93,
+   "family": "M_Level Head - No Bubble",
+   "category": -2006020,
+   "part_type": -1,
+   "n_records": 213,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 113,
+   "family": "M_North Arrow-1",
+   "category": -2000150,
+   "part_type": -1,
+   "n_records": 213,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 124,
+   "family": "M_Spot Elevation - Crosshair",
+   "category": -2005100,
+   "part_type": -1,
+   "n_records": 214,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 5,
+   "family": "M_Grid Head - No Bubble",
+   "category": -2006040,
+   "part_type": -1,
+   "n_records": 215,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 65,
+   "family": "M_Grid Head - Circle",
+   "category": -2006040,
+   "part_type": -1,
+   "n_records": 215,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 4,
+   "family": "M_View Title",
+   "category": -2000515,
+   "part_type": -1,
+   "n_records": 215,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 88,
+   "family": "M_Structural Column Tag-45",
+   "category": -2005018,
+   "part_type": -1,
+   "n_records": 215,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 136,
+   "family": "M_Structural Framing Tag",
+   "category": -2005015,
+   "part_type": -1,
+   "n_records": 215,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 3
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 142,
+   "family": "M_Structural Foundation Tag",
+   "category": -2005019,
+   "part_type": -1,
+   "n_records": 215,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 1,
+   "family": "M_Wall Tag",
+   "category": -2005011,
+   "part_type": -1,
+   "n_records": 216,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 2
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 66,
+   "family": "M_View Title",
+   "category": -2000515,
+   "part_type": -1,
+   "n_records": 216,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 47,
+   "family": "M_View Title",
+   "category": -2000515,
+   "part_type": -1,
+   "n_records": 216,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 64,
+   "family": "M_Structural Column Tag",
+   "category": -2005018,
+   "part_type": -1,
+   "n_records": 216,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 201
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 78,
+   "family": "M_Structural Framing Tag - with Camber",
+   "category": -2005015,
+   "part_type": -1,
+   "n_records": 216,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 4
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 26,
+   "family": "M_View Title",
+   "category": -2000515,
+   "part_type": -1,
+   "n_records": 216,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 40,
+   "family": "M_Spot Elevation - Exterior Filled",
+   "category": -2005100,
+   "part_type": -1,
+   "n_records": 217,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 87,
+   "family": "M_Material Tag",
+   "category": -2005027,
+   "part_type": -1,
+   "n_records": 217,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 158,
+   "family": "M_Grid Head - Circle",
+   "category": -2006040,
+   "part_type": -1,
+   "n_records": 217,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 96,
+   "family": "M_Revision Tag",
+   "category": -2006080,
+   "part_type": -1,
+   "n_records": 217,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 53,
+   "family": "Section Head - no arrow",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 218,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 82,
+   "family": "M_Grid Head - Circle",
+   "category": -2006040,
+   "part_type": -1,
+   "n_records": 218,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 198,
+   "family": "Centerline",
+   "category": -2000150,
+   "part_type": -1,
+   "n_records": 218,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 289,
+   "family": "Section Head - no arrow",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 218,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 17,
+   "family": "M_Grid Head - Circle1",
+   "category": -2006040,
+   "part_type": -1,
+   "n_records": 218,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 30,
+   "family": "M_Grid Head - Circle",
+   "category": -2006040,
+   "part_type": -1,
+   "n_records": 218,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 112,
+   "family": "M_Grid Head - No Bubble",
+   "category": -2006040,
+   "part_type": -1,
+   "n_records": 218,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 150,
+   "family": "Section Head - no arrow",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 218,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 98,
+   "family": "M_Zone Tag",
+   "category": -2008115,
+   "part_type": -1,
+   "n_records": 220,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 2
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 52,
+   "family": "M_Material Tag",
+   "category": -2005027,
+   "part_type": -1,
+   "n_records": 220,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 99,
+   "family": "M_Spot Elevation - Exterior Filled",
+   "category": -2005100,
+   "part_type": -1,
+   "n_records": 220,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 101,
+   "family": "M_Structural Framing Tag-w-Start Reactions",
+   "category": -2005015,
+   "part_type": -1,
+   "n_records": 220,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 104,
+   "family": "M_Area Reinforcement Tag",
+   "category": -2009021,
+   "part_type": -1,
+   "n_records": 220,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 115,
+   "family": "M_Path Reinforcement Tag",
+   "category": -2009011,
+   "part_type": -1,
+   "n_records": 220,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 1
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 167,
+   "family": "M_Structural Framing Tag-w-End Reactions",
+   "category": -2005015,
+   "part_type": -1,
+   "n_records": 220,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 3
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 96,
+   "family": "M_Callout Head",
+   "category": -2000538,
+   "part_type": -1,
+   "n_records": 221,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 40,
+   "family": "M_Mechanical Equipment Tag",
+   "category": -2005009,
+   "part_type": -1,
+   "n_records": 221,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 56
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 107,
+   "family": "M_Lighting Fixture Circuit Tag",
+   "category": -2005008,
+   "part_type": -1,
+   "n_records": 221,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 520
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 23,
+   "family": "M_Grid Head - Circle1",
+   "category": -2006040,
+   "part_type": -1,
+   "n_records": 221,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 19,
+   "family": "Section Head - Open",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 23,
+   "family": "M_Section Head - Open",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 64,
+   "family": "M_Section Head - No Arrow",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 73,
+   "family": "M_Spot Elevation - Target Filled",
+   "category": -2005100,
+   "part_type": -1,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 113,
+   "family": "M_Room Tag",
+   "category": -2000480,
+   "part_type": -1,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 19,
+   "family": "M_Section Head - No Arrow",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 100,
+   "family": "M_Section Head - Open",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 120,
+   "family": "M_Section Head - No Arrow",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 17,
+   "family": "M_Section Head - No Arrow",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 222,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 35,
+   "family": "M_Revision Tag",
+   "category": -2006080,
+   "part_type": -1,
+   "n_records": 223,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 8,
+   "family": "M_Callout Head",
+   "category": -2000538,
+   "part_type": -1,
+   "n_records": 223,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 52,
+   "family": "M_Area Tag",
+   "category": -2005020,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 16,
+   "family": "M_Section Head - No Arrow",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 28,
+   "family": "M_Spot Elevation - Target Filled",
+   "category": -2005100,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 1,
+   "family": "Diffuser Tag  - TYPE NAME",
+   "category": -2008014,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 80,
+   "family": "M_Callout Head",
+   "category": -2000538,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 49,
+   "family": "M_Callout Head",
+   "category": -2000538,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 67,
+   "family": "M_Structural Truss Tag",
+   "category": -2005030,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 1
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 2,
+   "family": "Structural Column Tag",
+   "category": -2005018,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 10
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 6,
+   "family": "M_Callout Head1",
+   "category": -2000538,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 45,
+   "family": "Structural Foundation Tag",
+   "category": -2005019,
+   "part_type": -1,
+   "n_records": 224,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 2
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 8,
+   "family": "View Title",
+   "category": -2000515,
+   "part_type": -1,
+   "n_records": 225,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 115,
+   "family": "M_Keynote Tag",
+   "category": -2005029,
+   "part_type": -1,
+   "n_records": 225,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 24,
+   "family": "M_Connection-Brace-Parallel",
+   "category": -2006110,
+   "part_type": -1,
+   "n_records": 225,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 127,
+   "family": "M_Spot Elevation - Target Filled",
+   "category": -2005100,
+   "part_type": -1,
+   "n_records": 225,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 4,
+   "family": "M_Spot Elevation - Target Filled",
+   "category": -2005100,
+   "part_type": -1,
+   "n_records": 225,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 104,
+   "family": "Callout Head",
+   "category": -2000538,
+   "part_type": -1,
+   "n_records": 226,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 24,
+   "family": "M_Space Tag",
+   "category": -2000485,
+   "part_type": -1,
+   "n_records": 226,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 143,
+   "family": "M_Connection-Column-Default",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 226,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 93,
+   "family": "M_Door Tag",
+   "category": -2000460,
+   "part_type": -1,
+   "n_records": 227,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 16
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 122,
+   "family": "Planting Tag",
+   "category": -2005021,
+   "part_type": -1,
+   "n_records": 227,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 17
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 54,
+   "family": "M_Connection-Brace-Kicker",
+   "category": -2006110,
+   "part_type": -1,
+   "n_records": 227,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 116,
+   "family": "M_Property Line Tag",
+   "category": -2001269,
+   "part_type": -1,
+   "n_records": 228,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 4
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 118,
+   "family": "M_View Reference",
+   "category": -2000197,
+   "part_type": -1,
+   "n_records": 228,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 120,
+   "family": "View Title",
+   "category": -2000515,
+   "part_type": -1,
+   "n_records": 228,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 6,
+   "family": "View Title - No Scale Text",
+   "category": -2000515,
+   "part_type": -1,
+   "n_records": 228,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 105,
+   "family": "M_Connection-Brace-Angle",
+   "category": -2006110,
+   "part_type": -1,
+   "n_records": 228,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 164,
+   "family": "M_Keynote Tag",
+   "category": -2005029,
+   "part_type": -1,
+   "n_records": 228,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 175,
+   "family": "View Title",
+   "category": -2000515,
+   "part_type": -1,
+   "n_records": 228,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 46,
+   "family": "Structural Framing Tag",
+   "category": -2005015,
+   "part_type": -1,
+   "n_records": 228,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 25
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 121,
+   "family": "M_Window Tag",
+   "category": -2000450,
+   "part_type": -1,
+   "n_records": 229,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 15
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 2,
+   "family": "Callout Head",
+   "category": -2000538,
+   "part_type": -1,
+   "n_records": 229,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 151,
+   "family": "Callout Head",
+   "category": -2000538,
+   "part_type": -1,
+   "n_records": 229,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 72,
+   "family": "M_View Reference",
+   "category": -2000197,
+   "part_type": -1,
+   "n_records": 230,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 165,
+   "family": "M_Keynote Tag",
+   "category": -2005029,
+   "part_type": -1,
+   "n_records": 231,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 40,
+   "family": "M_View Reference",
+   "category": -2000197,
+   "part_type": -1,
+   "n_records": 231,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 14,
+   "family": "M_View Reference1",
+   "category": -2000197,
+   "part_type": -1,
+   "n_records": 231,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 93,
+   "family": "Section Tail - Filled Horizontal",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 232,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 128,
+   "family": "Connection-Brace-Parallel",
+   "category": -2006110,
+   "part_type": -1,
+   "n_records": 232,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 177,
+   "family": "M_Connection-Column-Plate",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 232,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 16,
+   "family": "M_Section Tail - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 48,
+   "family": "Section Tail - Filled Horizontal",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 72,
+   "family": "M_Section Tail - Filled Horizontal",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 108,
+   "family": "Section Tail - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 6,
+   "family": "M_Room Tag",
+   "category": -2000480,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 131,
+   "family": "North Arrow 2",
+   "category": -2000150,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 60,
+   "family": "M_Section Tail - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 114,
+   "family": "M_Section Tail - Filled Horizontal",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 188,
+   "family": "M_Spot Elevation - Target Filled",
+   "category": -2005100,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 208,
+   "family": "M_View Reference",
+   "category": -2000197,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 31,
+   "family": "Connection-Column-Default",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 46,
+   "family": "M_Section Tail - Filled Horizontal",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 107,
+   "family": "M_Section Tail - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 5,
+   "family": "M_Section Tail - Filled Horizontal",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 44,
+   "family": "M_Section Tail - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 233,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 103,
+   "family": "Stair Nosing - Pan",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 234,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 21,
+   "family": "Connection-Brace-Kicker",
+   "category": -2006110,
+   "part_type": -1,
+   "n_records": 234,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 36,
+   "family": "M_Section Tail - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 235,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 39,
+   "family": "M_Section Tail - Filled Horizontal",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 235,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 6,
+   "family": "Level Head - Circle",
+   "category": -2006020,
+   "part_type": -1,
+   "n_records": 236,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 20,
+   "family": "M_Level Head - Circle",
+   "category": -2006020,
+   "part_type": -1,
+   "n_records": 236,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 265,
+   "family": "M_Level Head - Circle",
+   "category": -2006020,
+   "part_type": -1,
+   "n_records": 236,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 106,
+   "family": "Section Tail - Filled Horizontal",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 236,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 41,
+   "family": "M_T9",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 237,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 81,
+   "family": "M_18",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 237,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 83,
+   "family": "M_01",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 237,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 147,
+   "family": "M_00",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 237,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 161,
+   "family": "M_08",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 237,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 162,
+   "family": "M_02",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 237,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 163,
+   "family": "M_24",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 237,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 45,
+   "family": "Stahlseil",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 238,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 156,
+   "family": "Handlauf - rund",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 238,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 11,
+   "family": "M_Structural Framing Tag - by Type Mark",
+   "category": -2005015,
+   "part_type": -1,
+   "n_records": 238,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 119
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 48,
+   "family": "M_Connection-Moment-Filled",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 238,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 68,
+   "family": "M_Connection-Column-Vertical Plates",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 238,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 141,
+   "family": "M_Connection-Moment-Not Filled",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 238,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 11,
+   "family": "Circular Handrail",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 239,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 14,
+   "family": "M_Rectangular Handrail",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 239,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 89,
+   "family": "Rectangular Handrail",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 239,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 95,
+   "family": "M_Circular Handrail",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 239,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 4,
+   "family": "M_Level Head - Circle1",
+   "category": -2006020,
+   "part_type": -1,
+   "n_records": 239,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 121,
+   "family": "Connection-Column-Plate",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 239,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 134,
+   "family": "M_Level Head - Circle",
+   "category": -2006020,
+   "part_type": -1,
+   "n_records": 239,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 28,
+   "family": "M_Rectangular Handrail1",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 239,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 34,
+   "family": "M_Level Head - Circle1",
+   "category": -2006020,
+   "part_type": -1,
+   "n_records": 239,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 83,
+   "family": "M_Level Head - Circle",
+   "category": -2006020,
+   "part_type": -1,
+   "n_records": 240,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 82,
+   "family": "M_17A",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 240,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 154,
+   "family": "M_09",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 240,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 25,
+   "family": "M_Fascia-Flat",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 28,
+   "family": "M_Stair Nosing - Radius",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 52,
+   "family": "Property Line Tag",
+   "category": -2001269,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 6
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 125,
+   "family": "M_Fascia-Flat",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 27,
+   "family": "M_S2",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 44,
+   "family": "M_S1",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 102,
+   "family": "M_S4",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 138,
+   "family": "M_S6",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 145,
+   "family": "M_S5",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 171,
+   "family": "M_S3",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 241,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 51,
+   "family": "M_Reveal-Brick Course",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 242,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 62,
+   "family": "M_Rectangular Handrail",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 242,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 104,
+   "family": "M_Circular Handrail",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 242,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 39,
+   "family": "M_Structural Beam System Tag",
+   "category": -2005130,
+   "part_type": -1,
+   "n_records": 242,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 85,
+   "family": "M_Connection-Column-Filled Triangle",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 242,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 119,
+   "family": "M_Reveal-Brick Course",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 242,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 160,
+   "family": "M_T3",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 242,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 18,
+   "family": "M_Circular Handrail",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 242,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 59,
+   "family": "M_17",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 243,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 86,
+   "family": "M_20",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 243,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 41,
+   "family": "M_Slab Edge-Thickened",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 244,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 160,
+   "family": "M_Fascia-Flat",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 244,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 233,
+   "family": "M_Slab Edge-Thickened",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 244,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 7,
+   "family": "M_10",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 244,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 108,
+   "family": "M_Stair Nosing - Radius",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 244,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 174,
+   "family": "M_Rebar Tag",
+   "category": -2009020,
+   "part_type": -1,
+   "n_records": 244,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 13,
+   "family": "Connection-Moment-Not Filled",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 245,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 14,
+   "family": "Connection-Moment-Filled",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 245,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 43,
+   "family": "M_T1",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 245,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 66,
+   "family": "M_T6",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 245,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 148,
+   "family": "M_T2",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 245,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 176,
+   "family": "M_05",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 245,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 180,
+   "family": "M_06",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 245,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 44,
+   "family": "Section Head - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 246,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 62,
+   "family": "Reinf Bar Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 246,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 8,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 100,
+   "family": "M_Section Head - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 246,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 196,
+   "family": "M_Section Head - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 246,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 8,
+   "family": "M_16",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 246,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 74,
+   "family": "M_11",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 246,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 135,
+   "family": "M_Section Head - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 246,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 146,
+   "family": "M_12",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 246,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 35,
+   "family": "M_Section Head - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 246,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 46,
+   "family": "M_Slab Edge-Thickened",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 247,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 1,
+   "family": "M_T7",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 247,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 3,
+   "family": "M_T8",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 247,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 55,
+   "family": "M_19",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 247,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 116,
+   "family": "M_Slab Edge-Thickened",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 247,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 7,
+   "family": "M_Slab Edge-Thickened1",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 247,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 162,
+   "family": "M_Section Head - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "n_records": 248,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 58,
+   "family": "M_07",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 248,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 114,
+   "family": "M_13",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 248,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 63,
+   "family": "M_Reinf Bar Bend 10-25",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 249,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 93,
+   "family": "Reinf Bar Elevation",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 249,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 157,
+   "family": "Connection-Column-Filled Triangle",
+   "category": -2006100,
+   "part_type": -1,
+   "n_records": 249,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 7,
+   "family": "Reinf Bar Bend 3-8",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 250,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 78,
+   "family": "M_Tapered Rigid Insulation-Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 252,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 90,
+   "family": "Brick - UK Standard",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 252,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 122,
+   "family": "M_Concrete Block",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 252,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 42,
+   "family": "M_23",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 253,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 123,
+   "family": "M_22",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 253,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 16,
+   "family": "M_14",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 254,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 91,
+   "family": "Brick - UK Standard",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 255,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 25,
+   "family": "M_04",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 255,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 26,
+   "family": "M_03",
+   "category": -2009013,
+   "part_type": -1,
+   "n_records": 255,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 118,
+   "family": "M_Elevation Mark Body_Circle-12mm",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 258,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 20,
+   "family": "M_Elevation Mark Body_Circle-12mm1",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 258,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 66,
+   "family": "M_Elevation Mark Pointer_Circle",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 259,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 110,
+   "family": "M_Break Line",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 262,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 3,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 225,
+   "family": "M_Break Line",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 265,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 11,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 52,
+   "family": "M_Elevation Mark Pointer_Circle-12mm1",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 266,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 212,
+   "family": "Break Line",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 269,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 12,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 78,
+   "family": "M_Elevation Mark Pointer_Circle-12mm",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 270,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 13,
+   "family": "M_Elevation Mark Pointer_Circle-12mm",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 270,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 33,
+   "family": "Help Button",
+   "category": -2000150,
+   "part_type": -1,
+   "n_records": 271,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 41,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 152,
+   "family": "M_Break Line",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 271,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 3,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 35,
+   "family": "M_Form Deck_Non-Composite",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 271,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 40,
+   "family": "Help Button",
+   "category": -2000150,
+   "part_type": -1,
+   "n_records": 271,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 30,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 103,
+   "family": "M_Roof Deck",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 272,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 60,
+   "family": "M_Gutter - Bevel",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 273,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 220,
+   "family": "M_Gutter - Bevel",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 273,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 29,
+   "family": "M_Dimension Lumber-Profile",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 277,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 38,
+   "family": "M_Rigid Insulation-Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 285,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 39,
+   "family": "Elevation Mark Pointer_Square",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 287,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 251,
+   "family": "Elevation Mark Pointer_Square",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 290,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 33,
+   "family": "Elevation Mark Pointer_Square",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 290,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 62,
+   "family": "UB-Universal Beam-Profile",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 290,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 105,
+   "family": "Cant Strip-Wood-Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 291,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 241,
+   "family": "AISC Pipe Shapes-Top",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 297,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 74,
+   "family": "Elevation Mark Pointer_Circle",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 305,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 153,
+   "family": "AISC Pipe Shapes-Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 305,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 262,
+   "family": "Elevation Mark Pointer_Circle",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 308,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 51,
+   "family": "Elevation Mark Pointer_Circle",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 308,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 88,
+   "family": "Elevation Mark Square - Upgrade",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 313,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 130,
+   "family": "Elevation Mark Square - Upgrade",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 314,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 76,
+   "family": "Elevation Mark Circle - Upgrade",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 316,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 72,
+   "family": "Elevation Mark Square - Upgrade",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 316,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 239,
+   "family": "Elevation Mark Circle - Upgrade",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 317,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 45,
+   "family": "M_Span Direction",
+   "category": -2005110,
+   "part_type": -1,
+   "n_records": 317,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 4,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 172,
+   "family": "M_Span Direction Fixed",
+   "category": -2005110,
+   "part_type": -1,
+   "n_records": 318,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 24,
+   "family": "Notch",
+   "category": -2008165,
+   "part_type": -1,
+   "n_records": 318,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 4,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 57,
+   "family": "M_CMU-2 Core-Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 319,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 79,
+   "family": "Elevation Mark Circle - Upgrade",
+   "category": -2006045,
+   "part_type": -1,
+   "n_records": 319,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 137,
+   "family": "Cable Profile",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 322,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 105,
+   "family": "Brick - UK Standard",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 325,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 246,
+   "family": "A0 metric",
+   "category": -2000280,
+   "part_type": -1,
+   "n_records": 325,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 7,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 9,
+   "family": "Brick - UK Standard",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 325,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 13,
+   "family": "M_Metal Parapet Cap",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 328,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 102,
+   "family": "A0 metric",
+   "category": -2000280,
+   "part_type": -1,
+   "n_records": 333,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 84,
+   "family": "M_Coping-Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 344,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 80,
+   "family": "A1 metric",
+   "category": -2000280,
+   "part_type": -1,
+   "n_records": 346,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 124,
+   "family": "A1 metric",
+   "category": -2000280,
+   "part_type": -1,
+   "n_records": 346,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 6,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 137,
+   "family": "A1 metric",
+   "category": -2000280,
+   "part_type": -1,
+   "n_records": 346,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 8,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 3,
+   "family": "A1 metric",
+   "category": -2000280,
+   "part_type": -1,
+   "n_records": 346,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 8,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 75,
+   "family": "M_Precast Slab-Hollow Core-Side",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 348,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 126,
+   "family": "M_Howe Flat Truss",
+   "category": -2009600,
+   "part_type": -1,
+   "n_records": 350,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 139,
+   "family": "M_Pratt Flat Truss",
+   "category": -2009600,
+   "part_type": -1,
+   "n_records": 350,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 277,
+   "family": "Fassade - Pfosten - Deckprofil U",
+   "category": -2003000,
+   "part_type": -1,
+   "n_records": 358,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 155,
+   "family": "UB-Universal Beam-Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 360,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 132,
+   "family": "E1 30 x 42 Horizontal1",
+   "category": -2000280,
+   "part_type": -1,
+   "n_records": 361,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 33,
+   "family": "M_RPC Female",
+   "category": -2001370,
+   "part_type": -1,
+   "n_records": 381,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 46,
+   "family": "M_RPC Male",
+   "category": -2001370,
+   "part_type": -1,
+   "n_records": 381,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 119,
+   "family": "RPC Female",
+   "category": -2001370,
+   "part_type": -1,
+   "n_records": 393,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 3,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 68,
+   "family": "RPC Male",
+   "category": -2001370,
+   "part_type": -1,
+   "n_records": 395,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 163,
+   "family": "Dining Chair (3)",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 395,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 8,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 3,
+   "family": "M_Rectangular Column",
+   "category": -2000100,
+   "part_type": -1,
+   "n_records": 408,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 24,
+   "family": "M_Parking Space",
+   "category": -2001180,
+   "part_type": -1,
+   "n_records": 408,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 27,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 92,
+   "family": "M_Footing-Rectangular",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 410,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 107,
+   "family": "M_Concrete-Round-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 411,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 170,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 56,
+   "family": "M_RPC Tree - Deciduous",
+   "category": -2001360,
+   "part_type": -1,
+   "n_records": 412,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 13,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 37,
+   "family": "Wastebasket2",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 414,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 4,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 76,
+   "family": "M_Concrete-Round-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 414,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 196,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 41,
+   "family": "M_Pile-Steel Pipe",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 414,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 17,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 131,
+   "family": "M_HSS Round",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 417,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 26,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 156,
+   "family": "M_Concrete-Rectangular-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 417,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 36,
+   "family": "M_Concrete-Square-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 417,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 168,
+   "family": "M_Pile-Steel Pipe",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 419,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 216,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 50,
+   "family": "CHS-Circular Hollow Sections (AS 1163_C250L0)",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 420,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 18,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 71,
+   "family": "M_Concrete-Rectangular Beam",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 421,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 357,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 49,
+   "family": "M_Precast-Rectangular Beam",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 423,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 12,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 143,
+   "family": "M_Pile-Steel Pipe",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 426,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 11,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 22,
+   "family": "Pile Cap-Rectangular",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 429,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 6,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 67,
+   "family": "RPC Tree - Deciduous",
+   "category": -2001360,
+   "part_type": -1,
+   "n_records": 430,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 16,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 166,
+   "family": "M_Door-Opening",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 432,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 165,
+   "family": "M_Window-Square Opening",
+   "category": -2000014,
+   "part_type": -1,
+   "n_records": 436,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 65,
+   "family": "M_Pile Cap-2 Pile",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 437,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 48,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 55,
+   "family": "M_Baluster - Square",
+   "category": -2000127,
+   "part_type": -1,
+   "n_records": 439,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 22,
+   "family": "M_L-Angle-Bolted Connection-Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 439,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 71,
+   "family": "M_Baluster - Round",
+   "category": -2000127,
+   "part_type": -1,
+   "n_records": 440,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 36,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 140,
+   "family": "Strut",
+   "category": -2000100,
+   "part_type": -1,
+   "n_records": 440,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 4,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 99,
+   "family": "Baluster - Round",
+   "category": -2000127,
+   "part_type": -1,
+   "n_records": 443,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 184,
+   "family": "Gel\u00e4nderpfosten - rechteckig",
+   "category": -2000127,
+   "part_type": -1,
+   "n_records": 443,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 32,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 47,
+   "family": "Round Bar",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 443,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 16,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 70,
+   "family": "M_Pile Cap-4 Pile",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 449,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 30,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 21,
+   "family": "M_Baluster - Square",
+   "category": -2000127,
+   "part_type": -1,
+   "n_records": 449,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 132,
+   "family": "M_Baluster - Square",
+   "category": -2000127,
+   "part_type": -1,
+   "n_records": 450,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 25,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 106,
+   "family": "M_Shower Stall-2D",
+   "category": -2001160,
+   "part_type": 0,
+   "n_records": 452,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 3,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 79,
+   "family": "Handrail - Round w Extension - End",
+   "category": -2000127,
+   "part_type": -1,
+   "n_records": 458,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 43,
+   "family": "M_Pile Cap-600 Pile",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 459,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 8,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 116,
+   "family": "M_Pile Cap-600 Pile",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 460,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 11,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 26,
+   "family": "M_L-Anglel-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 462,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 114,
+   "family": "Handrail - Bracket",
+   "category": -2000127,
+   "part_type": -1,
+   "n_records": 463,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 15,
+   "family": "M_HSS Square",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 466,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 39,
+   "family": "M_HSS Square-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 476,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 12,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 34,
+   "family": "M_Chair-Breuer",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 478,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 60,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 66,
+   "family": "Table-Night Stand",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 481,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 9,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 82,
+   "family": "M_W-Wide Flange",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 482,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 101,
+   "family": "UB-Universal Beam",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 484,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 33,
+   "family": "PFC-Parallel Flange Channels (AS 3679_1)",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 484,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 7,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 12,
+   "family": "Pile Cap-9 Pile",
+   "category": -2001300,
+   "part_type": -1,
+   "n_records": 488,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 49,
+   "family": "UB-Universal Beams (AS 3679_1)",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 490,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 35,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 37,
+   "family": "UB-Universal Beams-Column (AS 3679_1)",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 492,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 17,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 69,
+   "family": "UB-Universal Beams",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 494,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 14,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 70,
+   "family": "M_W-Wide Flange-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 495,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 6,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 31,
+   "family": "UC-Universal Column-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 496,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 2,
+   "family": "UC-Universal Columns-Column",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 496,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 7,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 61,
+   "family": "M_Single-Flush",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 502,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 69,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 5,
+   "family": "Single-Flush",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 502,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 7,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 32,
+   "family": "M_Single-Flush-Dbl Acting",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 504,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 16,
+   "family": "Rectangular(Timber)-Beam",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 511,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 171,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 97,
+   "family": "Handrail - Round w Extension - Start-Offset",
+   "category": -2000127,
+   "part_type": -1,
+   "n_records": 513,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 88,
+   "family": "M_Concrete-Round-Column with Drop Caps",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 514,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 17,
+   "family": "M_Curtain Wall Sgl Glass",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 518,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 12,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 2,
+   "family": "M_Single-Flush Vision",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 520,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 4,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 83,
+   "family": "Table Lamp 4",
+   "category": -2001120,
+   "part_type": 0,
+   "n_records": 523,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 4,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 213,
+   "family": "Giebel",
+   "category": -2003400,
+   "part_type": -1,
+   "n_records": 523,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 4,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 84,
+   "family": "M_Area Reinforcement Symbol",
+   "category": -2009005,
+   "part_type": -1,
+   "n_records": 523,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 42,
+   "family": "M_Double-Flush",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 527,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 7,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 56,
+   "family": "Wine Bottles",
+   "category": -2001350,
+   "part_type": 0,
+   "n_records": 527,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 37,
+   "family": "M_Linear Stiffener-Plate",
+   "category": -2001354,
+   "part_type": -1,
+   "n_records": 531,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 169,
+   "family": "Boundary Condition-Pinned",
+   "category": -2005301,
+   "part_type": -1,
+   "n_records": 537,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 170,
+   "family": "M_Boundary Condition-Pinned",
+   "category": -2005301,
+   "part_type": -1,
+   "n_records": 537,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 7,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 18,
+   "family": "Pendant Light - Linear - 1 Lamp",
+   "category": -2001120,
+   "part_type": 0,
+   "n_records": 538,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 30,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 106,
+   "family": "M_Table-Dining Round w Chairs",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 539,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 15,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 43,
+   "family": "M_Fixed",
+   "category": -2000014,
+   "part_type": -1,
+   "n_records": 540,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 24,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 34,
+   "family": "M_Double-Flush",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 540,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 12,
+   "family": "Window Shade",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 543,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 6,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 50,
+   "family": "Boundary Condition-Roller",
+   "category": -2005301,
+   "part_type": -1,
+   "n_records": 545,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 57,
+   "family": "M_Boundary Condition-Roller",
+   "category": -2005301,
+   "part_type": -1,
+   "n_records": 545,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 149,
+   "family": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 3R",
+   "category": -2001040,
+   "part_type": 15,
+   "n_records": 548,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 3,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 30,
+   "family": "M_Lighting and Appliance Panelboard - 208V MCB - Surface",
+   "category": -2001040,
+   "part_type": 14,
+   "n_records": 549,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 3,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 58,
+   "family": "M_Single-Glass 1",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 550,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 243,
+   "family": "M_Lighting and Appliance Panelboard - 208V MLO - Surface",
+   "category": -2001040,
+   "part_type": 14,
+   "n_records": 551,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 8,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 147,
+   "family": "Stahlbalkon",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 552,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 81,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 63,
+   "family": "M_Skylight",
+   "category": -2000014,
+   "part_type": -1,
+   "n_records": 554,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 247,
+   "family": "M_Lighting and Appliance Panelboard - 480V MLO - Surface",
+   "category": -2001040,
+   "part_type": 14,
+   "n_records": 554,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 4,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 53,
+   "family": "M_Path Reinforcement Symbol",
+   "category": -2009010,
+   "part_type": -1,
+   "n_records": 554,
+   "n_nested_families": 7,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 68,
+   "family": "M_Rectangular Duct Union",
+   "category": -2008010,
+   "part_type": 13,
+   "n_records": 560,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 6,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 111,
+   "family": "Conduit Coupling - Aluminum",
+   "category": -2008128,
+   "part_type": 13,
+   "n_records": 562,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 27,
+   "family": "Light Gauge-Joists",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 563,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 96,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 162,
+   "family": "Conduit Coupling - Steel",
+   "category": -2008128,
+   "part_type": 13,
+   "n_records": 564,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 210,
+   "family": "M_Floor Drain with Waterproofing-Section",
+   "category": -2002000,
+   "part_type": -1,
+   "n_records": 564,
+   "n_nested_families": 0,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 264,
+   "family": "Conduit Coupling - PVC",
+   "category": -2008128,
+   "part_type": 13,
+   "n_records": 564,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 183,
+   "family": "M_Round Duct Union",
+   "category": -2008010,
+   "part_type": 13,
+   "n_records": 568,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 16,
+   "family": "M_Round Duct Elbow",
+   "category": -2008010,
+   "part_type": 5,
+   "n_records": 569,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 51,
+   "family": "M_Sconce Light - Flat Round",
+   "category": -2001120,
+   "part_type": 0,
+   "n_records": 573,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 66,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 238,
+   "family": "M_Pipe Straight Coupling",
+   "category": -2008049,
+   "part_type": 13,
+   "n_records": 573,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 19,
+   "family": "timber_door_int",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 574,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 61,
+   "family": "M_Rectangular Duct Elbow - Mitered",
+   "category": -2008010,
+   "part_type": 5,
+   "n_records": 575,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 198,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 216,
+   "family": "M_Rectangular Duct Endcap",
+   "category": -2008010,
+   "part_type": 9,
+   "n_records": 576,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 90,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 118,
+   "family": "Conduit Junction Box - Tee - Aluminum",
+   "category": -2008128,
+   "part_type": 30,
+   "n_records": 579,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 172,
+   "family": "Conduit Junction Box - Tee - PVC",
+   "category": -2008128,
+   "part_type": 30,
+   "n_records": 579,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 150,
+   "family": "Sofa - Ottoman",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 581,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 7,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 49,
+   "family": "Conduit Junction Box - Cross - Aluminum",
+   "category": -2008128,
+   "part_type": 31,
+   "n_records": 582,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 179,
+   "family": "Conduit Junction Box - Cross - PVC",
+   "category": -2008128,
+   "part_type": 31,
+   "n_records": 582,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 186,
+   "family": "Conduit Elbow - Aluminum",
+   "category": -2008128,
+   "part_type": 5,
+   "n_records": 582,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 302,
+   "family": "Conduit Elbow - without Fittings - RMC",
+   "category": -2008128,
+   "part_type": 5,
+   "n_records": 582,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 69,
+   "family": "Sconce 4",
+   "category": -2001120,
+   "part_type": 0,
+   "n_records": 584,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 7,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 38,
+   "family": "Conduit Elbow - without Fittings - RNC",
+   "category": -2008128,
+   "part_type": 5,
+   "n_records": 584,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 12,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 96,
+   "family": "M_Coupling - Generic",
+   "category": -2008049,
+   "part_type": 13,
+   "n_records": 584,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 150,
+   "family": "Conduit Elbow - Plain End - PVC",
+   "category": -2008128,
+   "part_type": 5,
+   "n_records": 584,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 222,
+   "family": "Conduit Elbow - without Fittings - EMT",
+   "category": -2008128,
+   "part_type": 5,
+   "n_records": 584,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 248,
+   "family": "Conduit Elbow - Steel",
+   "category": -2008128,
+   "part_type": 5,
+   "n_records": 584,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 34,
+   "family": "M_Supply Diffuser - Sidewall",
+   "category": -2008013,
+   "part_type": 0,
+   "n_records": 585,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 96,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 24,
+   "family": "Vase (3)-with Flower",
+   "category": -2001350,
+   "part_type": 0,
+   "n_records": 586,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 178,
+   "family": "M_Round Duct Takeoff",
+   "category": -2008010,
+   "part_type": 11,
+   "n_records": 586,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 8,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 108,
+   "family": "M_Lighting and Appliance Panelboard - 480V MCB - Surface",
+   "category": -2001040,
+   "part_type": 14,
+   "n_records": 589,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 9,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 100,
+   "family": "M_Exhaust Grill",
+   "category": -2008013,
+   "part_type": 0,
+   "n_records": 593,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 6,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 228,
+   "family": "M_Pipe Elbow",
+   "category": -2008049,
+   "part_type": 5,
+   "n_records": 593,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 123,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 120,
+   "family": "White Porcelain Plate",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 594,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 8,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 281,
+   "family": "M_Pipe Tee",
+   "category": -2008049,
+   "part_type": 6,
+   "n_records": 594,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 46,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 293,
+   "family": "M_Elbow - Generic",
+   "category": -2008049,
+   "part_type": 5,
+   "n_records": 596,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 128,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 126,
+   "family": "Ladder Union",
+   "category": -2008126,
+   "part_type": 48,
+   "n_records": 600,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 215,
+   "family": "M_Supply Diffuser - Rectangular Face Round Neck",
+   "category": -2008013,
+   "part_type": 0,
+   "n_records": 600,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 113,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 268,
+   "family": "M_Cap - Generic",
+   "category": -2008049,
+   "part_type": 9,
+   "n_records": 601,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 297,
+   "family": "M_Return Diffuser",
+   "category": -2008013,
+   "part_type": 0,
+   "n_records": 601,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 59,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 9,
+   "family": "M_Double-Glass 1",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 605,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 95,
+   "family": "Conduit Junction Box - Transition - Aluminum",
+   "category": -2008128,
+   "part_type": 7,
+   "n_records": 605,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 115,
+   "family": "M_Return Grille - Rectangular - Hosted",
+   "category": -2008013,
+   "part_type": 0,
+   "n_records": 605,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 33,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 187,
+   "family": "Conduit Junction Box - Transition - PVC",
+   "category": -2008128,
+   "part_type": 7,
+   "n_records": 605,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 271,
+   "family": "M_Plain Recessed Lighting Fixture",
+   "category": -2001120,
+   "part_type": 0,
+   "n_records": 605,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 195,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 21,
+   "family": "M_Round Duct Tee",
+   "category": -2008010,
+   "part_type": 6,
+   "n_records": 607,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 231,
+   "family": "STB St\u00fctze - rund",
+   "category": -2001330,
+   "part_type": -1,
+   "n_records": 609,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 131,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 144,
+   "family": "M_Quadruplex Receptacle",
+   "category": -2001060,
+   "part_type": 0,
+   "n_records": 611,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 54,
+   "family": "M_RPC Shrub",
+   "category": -2001360,
+   "part_type": -1,
+   "n_records": 612,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 17,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 4,
+   "family": "M_Lighting Switches",
+   "category": -2008087,
+   "part_type": 19,
+   "n_records": 612,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 9,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 65,
+   "family": "M_Rectangular Duct Tee",
+   "category": -2008010,
+   "part_type": 6,
+   "n_records": 612,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 16,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 86,
+   "family": "Entrance door",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 613,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 161,
+   "family": "Channel Horizontal Bend",
+   "category": -2008126,
+   "part_type": 35,
+   "n_records": 614,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 175,
+   "family": "Channel Vertical Outside Bend",
+   "category": -2008126,
+   "part_type": 36,
+   "n_records": 614,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 176,
+   "family": "Channel Vertical Inside Bend",
+   "category": -2008126,
+   "part_type": 36,
+   "n_records": 614,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 258,
+   "family": "Exhaust Grille - Rectangular - Hosted - Horizontal",
+   "category": -2008013,
+   "part_type": 0,
+   "n_records": 614,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 25,
+   "family": "M_Boundary Condition-Fixed",
+   "category": -2005301,
+   "part_type": -1,
+   "n_records": 619,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 20,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 173,
+   "family": "M_Pipe Cross",
+   "category": -2008049,
+   "part_type": 8,
+   "n_records": 620,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 292,
+   "family": "M_Pendant Light - Disk",
+   "category": -2001120,
+   "part_type": 0,
+   "n_records": 620,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 65,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 148,
+   "family": "4500_Kitchen Island_DW",
+   "category": -2001000,
+   "part_type": 0,
+   "n_records": 621,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 119,
+   "family": "M_Duplex Receptacle",
+   "category": -2001060,
+   "part_type": 0,
+   "n_records": 621,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 423,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 300,
+   "family": "Channel Union",
+   "category": -2008126,
+   "part_type": 40,
+   "n_records": 621,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 158,
+   "family": "Boundary Condition-Fixed",
+   "category": -2005301,
+   "part_type": -1,
+   "n_records": 621,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 174,
+   "family": "T\u00fcrelement 1-flg - Drehfl\u00fcgel - Glas",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 622,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 11,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 94,
+   "family": "4500_Kitchen Island",
+   "category": -2001000,
+   "part_type": 0,
+   "n_records": 623,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 140,
+   "family": "Bar Chair",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 628,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 6,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 36,
+   "family": "SHADE SUPPORT",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 629,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 40,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 17,
+   "family": "M_Tee - Generic",
+   "category": -2008049,
+   "part_type": 6,
+   "n_records": 631,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 56,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 8,
+   "family": "M_TJL Wood Open Web Joist",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 633,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 27,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 298,
+   "family": "Conduit Body - Type L - Aluminum",
+   "category": -2008128,
+   "part_type": 34,
+   "n_records": 638,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 57,
+   "family": "Water Glass",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 639,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 8,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 70,
+   "family": "M_Round Duct Cross",
+   "category": -2008010,
+   "part_type": 8,
+   "n_records": 641,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 97,
+   "family": "Weld Symbol1",
+   "category": -2000150,
+   "part_type": -1,
+   "n_records": 642,
+   "n_nested_families": 16,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 4,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 9,
+   "family": "M_Boundary Condition-Fixed",
+   "category": -2005301,
+   "part_type": -1,
+   "n_records": 645,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 8,
+   "family": "M_Pipe Transition",
+   "category": -2008049,
+   "part_type": 7,
+   "n_records": 646,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 43,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 121,
+   "family": "Couch-Viper",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 648,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 3,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 157,
+   "family": "Side Table 2 (2)",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 650,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 250,
+   "family": "Aufzug 2-flg",
+   "category": -2001350,
+   "part_type": 0,
+   "n_records": 652,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 3,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 72,
+   "family": "M_Rectangular Duct Cross",
+   "category": -2008010,
+   "part_type": 8,
+   "n_records": 654,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 18,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 26,
+   "family": "Chair-Viper",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 655,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 7,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 272,
+   "family": "M_Wall Occupancy Sensor - Regular Voltage",
+   "category": -2008087,
+   "part_type": 19,
+   "n_records": 655,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 54,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 55,
+   "family": "M_Water Closet - Flush Valve - Wall Mounted",
+   "category": -2001160,
+   "part_type": 0,
+   "n_records": 656,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 5,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 44,
+   "family": "M_Coupling - PVC - Sch 40 - DWV",
+   "category": -2008049,
+   "part_type": 13,
+   "n_records": 658,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstbasicsampleproject",
+   "unit": 38,
+   "family": "M_Support - Metal - Circular",
+   "category": -2000948,
+   "part_type": -1,
+   "n_records": 660,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 59,
+   "family": "M_Support - Metal - Circular",
+   "category": -2000948,
+   "part_type": -1,
+   "n_records": 662,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 15,
+   "family": "M_Curtain Wall Dbl Glass",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 664,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 6,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 240,
+   "family": "Drehfl\u00fcgel 1-flg - Stahlzarge",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 666,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 107,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 202,
+   "family": "M_Cross - Generic",
+   "category": -2008049,
+   "part_type": 8,
+   "n_records": 667,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 120,
+   "family": "Potted Plant",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 671,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 131,
+   "family": "M_Dry Type Transformer - 480-208Y120 - NEMA Type 2",
+   "category": -2001040,
+   "part_type": 15,
+   "n_records": 671,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 274,
+   "family": "T\u00fcrelement 2-flg - Drehfl\u00fcgel - Glas",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 671,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 6,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 81,
+   "family": "Curtain Wall Dbl Glass",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 675,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 3,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 217,
+   "family": "M_Rectangular Duct Takeoff",
+   "category": -2008010,
+   "part_type": 11,
+   "n_records": 676,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 288,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 71,
+   "family": "Seat - Single with Island",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 679,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 87,
+   "family": "aalto vase - tall",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 679,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 260,
+   "family": "M_Bend - PVC - Sch 40 - DWV",
+   "category": -2008049,
+   "part_type": 5,
+   "n_records": 680,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 7,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 101,
+   "family": "Pocket_Slider_Door_5851",
+   "category": -2000023,
+   "part_type": -1,
+   "n_records": 684,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 3,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 255,
+   "family": "M_WSHP - Horizontal - High Efficiency - 7-18 kW - Left Return - Back Discharge",
+   "category": -2001140,
+   "part_type": 0,
+   "n_records": 688,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 8,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 77,
+   "family": "M_Desk",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 690,
+   "n_nested_families": 1,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 31,
+   "family": "M_TV - Flat Screen",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 690,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 117,
+   "family": "M_WSHP - Horizontal - High Efficiency - 7-18 kW - Left Return - Right Discharge",
+   "category": -2001140,
+   "part_type": 0,
+   "n_records": 691,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 28,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 267,
+   "family": "M_Sprinkler - Pendent - Hosted",
+   "category": -2008099,
+   "part_type": 0,
+   "n_records": 691,
+   "n_nested_families": 7,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 6,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 147,
+   "family": "SH_Lighting-Pendant-Litecontrol-Mod66-8_Foot_09",
+   "category": -2001120,
+   "part_type": 0,
+   "n_records": 695,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 244,
+   "family": "M_Centrifugal Fan -  Rooftop  - Upblast",
+   "category": -2001140,
+   "part_type": 0,
+   "n_records": 695,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 43,
+   "family": "Ladder Horizontal Bend",
+   "category": -2008126,
+   "part_type": 43,
+   "n_records": 696,
+   "n_nested_families": 6,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 195,
+   "family": "M_WSHP - Horizontal - High Efficiency - 7-18 kW - Right Return - Back Discharge",
+   "category": -2001140,
+   "part_type": 0,
+   "n_records": 697,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 7,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 299,
+   "family": "Channel Reducer",
+   "category": -2008126,
+   "part_type": 39,
+   "n_records": 699,
+   "n_nested_families": 6,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 62,
+   "family": "M_Round Duct Transition - Angle",
+   "category": -2008010,
+   "part_type": 7,
+   "n_records": 701,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 135,
+   "family": "Ladder Vertical Outside Bend",
+   "category": -2008126,
+   "part_type": 44,
+   "n_records": 713,
+   "n_nested_families": 6,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 141,
+   "family": "Ladder Vertical Inside Bend",
+   "category": -2008126,
+   "part_type": 44,
+   "n_records": 713,
+   "n_nested_families": 6,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 158,
+   "family": "M_Outdoor AHU - Horizontal",
+   "category": -2001140,
+   "part_type": 0,
+   "n_records": 718,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 133,
+   "family": "Trck_BswySystms_Cooper_RSA_Profile Series_AR111 Closed Back Integral Xfmr",
+   "category": -2001120,
+   "part_type": 0,
+   "n_records": 720,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 8,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 94,
+   "family": "M_Transition - Generic",
+   "category": -2008049,
+   "part_type": 7,
+   "n_records": 721,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 119,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 296,
+   "family": "M_Lavatory - Wall Mounted",
+   "category": -2001160,
+   "part_type": 0,
+   "n_records": 724,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 4,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 126,
+   "family": "fire place hang",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 725,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 269,
+   "family": "M_Pendant Light - Linear - 2 Lamp",
+   "category": -2001120,
+   "part_type": 0,
+   "n_records": 728,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 84,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 90,
+   "family": "Channel Horizontal Tee",
+   "category": -2008126,
+   "part_type": 38,
+   "n_records": 733,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 273,
+   "family": "M_Rectangular Duct Transition - Angle",
+   "category": -2008010,
+   "part_type": 7,
+   "n_records": 735,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 204,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 75,
+   "family": "DC_Tankworks_PLM_5000L",
+   "category": -2001160,
+   "part_type": 0,
+   "n_records": 752,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 37,
+   "family": "Table-Dining 01 (M)",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 763,
+   "n_nested_families": 2,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 10,
+   "family": "M_Urinal - Wall Hung",
+   "category": -2001160,
+   "part_type": 0,
+   "n_records": 764,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 2,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 280,
+   "family": "M_Water Heater - Tankless",
+   "category": -2001140,
+   "part_type": 0,
+   "n_records": 775,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 209,
+   "family": "Ladder Reducer",
+   "category": -2008126,
+   "part_type": 47,
+   "n_records": 783,
+   "n_nested_families": 9,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 52,
+   "family": "M_Reducer - PVC - Sch 40 - DWV",
+   "category": -2008049,
+   "part_type": 7,
+   "n_records": 799,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 97,
+   "family": "M_Wind Power Generator",
+   "category": -2001260,
+   "part_type": 0,
+   "n_records": 801,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 3,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 214,
+   "family": "M_Rectangular to Round Duct Transition - Angle",
+   "category": -2008010,
+   "part_type": 7,
+   "n_records": 801,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 105,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 153,
+   "family": "Lavatory-TOTO-Luminist_Rectangle_Vessel_LLT151",
+   "category": -2001160,
+   "part_type": 0,
+   "n_records": 805,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 4,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 290,
+   "family": "M_Tee Sanitary - PVC - Sch 40 - DWV",
+   "category": -2008049,
+   "part_type": 6,
+   "n_records": 812,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 8,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racadvancedsampleproject",
+   "unit": 59,
+   "family": "M_K-Series Bar Joist-Angle Web",
+   "category": -2001320,
+   "part_type": -1,
+   "n_records": 814,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 23,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 148,
+   "family": "Channel Horizontal Cross",
+   "category": -2008126,
+   "part_type": 37,
+   "n_records": 823,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 41,
+   "family": "M_Cooling Tower - Closed Circuit - Counterflow - 67-189 kW",
+   "category": -2001140,
+   "part_type": 0,
+   "n_records": 829,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 168,
+   "family": "M_Wye 45 Deg Double - PVC - Sch 40 - DWV",
+   "category": -2008049,
+   "part_type": 24,
+   "n_records": 839,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 81,
+   "family": "Ladder Horizontal Tee",
+   "category": -2008126,
+   "part_type": 46,
+   "n_records": 851,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 103,
+   "family": "M_Circuit Breaker Switchboard",
+   "category": -2001040,
+   "part_type": 16,
+   "n_records": 867,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 43,
+   "family": "Miele Built-under Dishwasher G 4101 U CS",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 879,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 136,
+   "family": "Bathtub-TOTO-Nexus-FBF794S",
+   "category": -2001160,
+   "part_type": 0,
+   "n_records": 886,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 41,
+   "family": "Single Window",
+   "category": -2000014,
+   "part_type": -1,
+   "n_records": 892,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 15,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 64,
+   "family": "Cabinet 1",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 903,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 40,
+   "family": "Miele Built-in Rangehood DA 2210",
+   "category": -2001350,
+   "part_type": 0,
+   "n_records": 921,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 73,
+   "family": "Miele Built-in Microwave M 8260-2",
+   "category": -2001350,
+   "part_type": 0,
+   "n_records": 961,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rmebasicsampleproject",
+   "unit": 129,
+   "family": "Ladder Horizontal Cross",
+   "category": -2008126,
+   "part_type": 45,
+   "n_records": 963,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 92,
+   "family": "Seating - Artemis - Lounge chair",
+   "category": -2000080,
+   "part_type": 0,
+   "n_records": 1001,
+   "n_nested_families": 5,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 2,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 155,
+   "family": "Miele Washing Machine W 5820 WPS",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 1042,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 15,
+   "family": "Miele MasterCool KF 1911 Vi",
+   "category": -2001350,
+   "part_type": 0,
+   "n_records": 1072,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 146,
+   "family": "Miele Oven H 5681 BP",
+   "category": -2001350,
+   "part_type": 0,
+   "n_records": 1111,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 108,
+   "family": "Miele Induction Cooktop KM 6350 LPT",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 1130,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 63,
+   "family": "M_Boundary Condition-Variable",
+   "category": -2005301,
+   "part_type": -1,
+   "n_records": 1147,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "rstadvancedsampleproject",
+   "unit": 110,
+   "family": "Boundary Condition-Variable",
+   "category": -2005301,
+   "part_type": -1,
+   "n_records": 1147,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 100,
+   "family": "M_RPC Beetle",
+   "category": -2001370,
+   "part_type": -1,
+   "n_records": 1181,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 50,
+   "family": "Sink-Offset-Kohler-Vault-3823_4",
+   "category": -2001160,
+   "part_type": 0,
+   "n_records": 1195,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 21,
+   "family": "Miele Tumble Dryer T 7944 C",
+   "category": -2001350,
+   "part_type": 0,
+   "n_records": 1353,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 1,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 107,
+   "family": "Faucet-8inch_Reach-Kohler-Purist-7507",
+   "category": -2001160,
+   "part_type": 0,
+   "n_records": 1396,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 0,
+    "view_owned": 1,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 112,
+   "family": "Walvit_Hung Bowl_604118 W",
+   "category": -2000151,
+   "part_type": 0,
+   "n_records": 1562,
+   "n_nested_families": 3,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 4,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  },
+  {
+   "sample": "racbasicsampleproject",
+   "unit": 42,
+   "family": "Photovoltaic-Panel-SolarWorld-SunModule-(235-240)",
+   "category": -2001040,
+   "part_type": 14,
+   "n_records": 1917,
+   "n_nested_families": 4,
+   "seq103_loadable": true,
+   "seq103_other": [],
+   "native_instances": {
+    "model_form": 13,
+    "view_owned": 0,
+    "independent_tag": 0
+   }
+  }
+ ]
+}

@@ -1,0 +1,1299 @@
+{
+ "stream": "y2024-compose / settings half (THE Y2024 SETTINGS + CATALOG RUNGS -- the certified ladder's Y1..Y7 on the CERTIFIED 2024 base B2024_K4, constructors through rvt.genesis.port2024, run inside tools/genesis_2024.py::context_2024)",
+ "release": 2024,
+ "situation": "VERDICTS #32: b28 all PASS -- B2024_K4 is a CERTIFIED base and the v3 engine's assert_certified gate accepts it (no --allow-uncertified anywhere in this ladder). These rungs put OUR constructors' output at Autodesk's own 2024 registrations, one class layer at a time, zero registration motion.",
+ "the_operation": "In-place substitution (rvt.regadd.substitute_elements): our constructor's OBJECT record (seq-102) replaces the base's at the SAME element id -- same ElemTable row, same record position, same registry slots; Global/Latest and Global/ElemTable BYTE-IDENTICAL to the parent (asserted per rung); nothing added, nothing deleted. Every rung: validator 0 errors (IN-CONTEXT -- the standalone CLI reads phantom errors on non-2026 files, the 2025 lesson), structural proof, four-registry coherence (1/0/0), registry parity, a regdiff registration sample, and the byte-delta assertion table (only the landed slots' seq-102 records change).",
+ "base": {
+  "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+   "when": "2026-08-05 ~02:25",
+   "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  },
+  "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+  "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+ },
+ "standing_control": {
+  "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+  "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+  "md5": "b953513bf80a963021b7de8e96d1be9d",
+  "certification": {
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+   "when": "2026-08-05 ~02:25",
+   "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  }
+ },
+ "controls_discipline": "EVERY batch is uploaded with the certified control (CTRL_B2024_K4_base.rvt, md5-identical to the certified base; tools/probe_batch.py stage will mint its own CTRL_..._b<n> copy). If the CONTROL fails, the batch is VOID (oracle / service health) and NOTHING about our constructors is read from it.",
+ "upload_order_bisection_first": [
+  "Y7_2024",
+  "Y1s_2024",
+  "Y6s_2024",
+  "Y6_2024",
+  "Y5_2024",
+  "Y4_2024",
+  "Y3_2024",
+  "Y2_2024",
+  "Y1_2024"
+ ],
+ "reading_the_results": {
+  "how": "Upload in the listed order (control first). Y7_2024 is the deepest cumulative rung of this half: PASS proves every settings + catalog + palette constructor loads at 2024 registrations in one verdict. Y7_2024 FAIL -> read the singles: Y1s_2024 (one pen object) and Y6s_2024 (only the catalog) bracket the layer; then the intermediates deep->shallow -- the first FAIL whose parent PASSED convicts exactly that rung's class layer.",
+  "Y1s_2024 FAIL": "even ONE our-object at a 2024 registration fails: the object CONTENT layer is the defect (diff our pen record vs the base's project table).",
+  "Y1s_2024 PASS + Y6s_2024 FAIL": "our catalog VALUES are the 2024 reader's objection, isolated.",
+  "singles PASS, Y7_2024 FAIL": "a settings constructor (Y2..Y5), the cumulative catalog (Y6) or the palette layer (Y7) -- the intermediates name it.",
+  "ALL PASS": "every constructor this half owns loads on 2024. Remaining campaign steps (same stream): the Y8/Y9 datum + view rungs, the residue rounds, then tools/genesis_2024_compose.py => G_ABPD_2024 => the front door's 2024 slot."
+ },
+ "pen_scale_key_verification": {
+  "base_pen_table_elem": 2,
+  "base_model_scales": [
+   10,
+   20,
+   50,
+   100,
+   200,
+   500
+  ],
+  "our_constructor_scales": [
+   10,
+   20,
+   50,
+   100,
+   200,
+   500
+  ],
+  "pens_per_scale": [
+   16
+  ],
+  "perspective_marker": -1,
+  "draft_marker": -1,
+  "match": true,
+  "meaning": "the 2024 corpus scale-key set VERIFIED against the base's own project pen table -- the 2026 constant holds iff match=True (charter: never assume another release's set)"
+ },
+ "single_change_identity": {
+  "checked": true,
+  "Y1_2024_md5": "9c5cb1fa962253a94a68e68121ccdd43",
+  "Y1s_2024_md5": "9c5cb1fa962253a94a68e68121ccdd43",
+  "identical": true,
+  "meaning": "Y1s_2024 is the single-change pen probe; identical bytes prove the build is deterministic and the two files carry ONE verdict"
+ },
+ "probe_batch_gate_check": {
+  "ran": true,
+  "files": [
+   "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+   "experiments/genesis/subst_k4_2024/Y1s_2024.rvt",
+   "experiments/genesis/subst_k4_2024/Y6s_2024.rvt",
+   "experiments/genesis/subst_k4_2024/Y6_2024.rvt",
+   "experiments/genesis/subst_k4_2024/Y5_2024.rvt",
+   "experiments/genesis/subst_k4_2024/Y4_2024.rvt",
+   "experiments/genesis/subst_k4_2024/Y3_2024.rvt",
+   "experiments/genesis/subst_k4_2024/Y2_2024.rvt",
+   "experiments/genesis/subst_k4_2024/Y1_2024.rvt"
+  ],
+  "violations": [],
+  "admissible": true,
+  "entries": [
+   {
+    "file": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2024/Y1s_2024.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2024/Y6s_2024.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2024/Y6_2024.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2024/Y5_2024.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2024/Y4_2024.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2024/Y3_2024.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2024/Y2_2024.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2024/Y1_2024.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "base_status": "certified"
+   }
+  ],
+  "meaning": "tools/probe_batch.py check_batch dry-run: admissible=True means the standing-controls gate resolves every rung's declared base to the CERTIFIED B2024_K4 -- the K1 law satisfied, nothing staged/uploaded"
+ },
+ "next_steps_same_stream": "Y8_2024 (datum + identity) and Y9_2024 (view layer) mirror v3's Y8/Y9 on top of Y7_2024 (rvt.genesis.y2024_b); then the residue rounds; then compose (tools/genesis_2024_compose.py) => experiments/genesis/subst_k4_2024/compose/G_ABPD_2024.rvt -- the path src/rvt/frontdoor/assets/genesis_base.json releases.2024 reserves.",
+ "probes": [
+  {
+   "order": 1,
+   "rung": "Y7_2024",
+   "stream": "y2024-settings",
+   "file": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+   "release": 2024,
+   "class_layer_substituted": "line/fill patterns + materials + the palette PROPERTY SETS (structural/thermal, corrected constructors) -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2024/Y6_2024.rvt",
+   "parent_rung": "Y6_2024",
+   "the_ONE_thing_it_tests": "Whether the 2024 reader accepts OUR pattern + material + property-set OBJECTS at Autodesk's palette registrations (the deepest rung of this stream: a PASS proves the whole settings + catalog + palette chain on 2024).",
+   "if_PASS": "Every constructor of this stream loads at 2024 registrations; the Y8/Y9 (datum + view) rungs and compose are the remaining campaign steps.",
+   "if_FAIL": "Bisect patterns+materials (the certified X7 half) from the property sets (the certified residue_b2 half) -- two single-layer in-place probes off Y6_2024; read the death signature (AUDIT vs CRASH).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 60,
+    "by_class": {
+     "PropertySetElement": 28,
+     "MaterialElem": 23,
+     "FillPatternElem": 5,
+     "LinePatternElem": 4
+    },
+    "by_match": {
+     "role-primary": 2,
+     "role": 39,
+     "donor": 17,
+     "sibling-donor": 2
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 25,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 60,
+    "expected_slots": 60,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 733184,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2024/Y7_2024.json"
+  },
+  {
+   "order": 2,
+   "rung": "Y1s_2024",
+   "stream": "y2024-settings",
+   "file": "experiments/genesis/subst_k4_2024/Y1s_2024.rvt",
+   "release": 2024,
+   "class_layer_substituted": "the base + ONLY our pen table in place (single-change probe)",
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Y1_2024's question isolated: ONE our-object at a 2024 registration.",
+   "if_PASS": "Our pen table loads on 2024 in isolation.",
+   "if_FAIL": "Even ONE our-object at a 2024 registration fails: the object-content layer is the defect; expect the whole ladder to fail until fixed.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1,
+    "by_class": {
+     "PenWidthTableElem": 1
+    },
+    "by_match": {
+     "role": 1
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1,
+    "expected_slots": 1,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 831488,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2024/Y1s_2024.json",
+   "identical_to": {
+    "rung": "Y1_2024",
+    "byte_identical": true,
+    "note": "byte-identical to Y1_2024 (single-change pen probe == ladder rung 1): ONE upload may serve both names if the viewer dedupes; both files are staged"
+   }
+  },
+  {
+   "order": 3,
+   "rung": "Y6s_2024",
+   "stream": "y2024-settings",
+   "file": "experiments/genesis/subst_k4_2024/Y6s_2024.rvt",
+   "release": 2024,
+   "class_layer_substituted": "the base + ONLY the built-in GStyle catalog in place (single-change probe)",
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether OUR catalog values load at 2024 registrations, isolated from every other constructor.",
+   "if_PASS": "Our catalog values are 2024-reader-accepted in isolation.",
+   "if_FAIL": "Our catalog VALUES are rejected in isolation on 2024 -- diff a rejected row's pen / colour / pattern values against the base's row.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1156,
+    "by_class": {
+     "GStyleElem": 1156
+    },
+    "by_match": {
+     "role": 1156
+    }
+   },
+   "ours_not_landed": {
+    "GStyleElem": 234
+   },
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1156,
+    "expected_slots": 1156,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 831488,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2024/Y6s_2024.json"
+  },
+  {
+   "order": 4,
+   "rung": "Y6_2024",
+   "stream": "y2024-settings",
+   "file": "experiments/genesis/subst_k4_2024/Y6_2024.rvt",
+   "release": 2024,
+   "class_layer_substituted": "the built-in-category GStyle CATALOG swapped in place, row for row (2024 enum + profile)",
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2024/Y5_2024.rvt",
+   "parent_rung": "Y5_2024",
+   "the_ONE_thing_it_tests": "Whether the 2024 reader accepts OUR object-styles VALUES row for row at Autodesk's own catalog registrations.",
+   "if_PASS": "Our catalog values are 2024-reader-accepted.",
+   "if_FAIL": "Our catalog VALUES are the 2024 reader's objection -- diff a rejected (category, type) row vs the base's (field diff sample in the report).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1156,
+    "by_class": {
+     "GStyleElem": 1156
+    },
+    "by_match": {
+     "role": 1156
+    }
+   },
+   "ours_not_landed": {
+    "GStyleElem": 234
+   },
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1156,
+    "expected_slots": 1156,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 749568,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2024/Y6_2024.json"
+  },
+  {
+   "order": 5,
+   "rung": "Y5_2024",
+   "stream": "y2024-settings",
+   "file": "experiments/genesis/subst_k4_2024/Y5_2024.rvt",
+   "release": 2024,
+   "class_layer_substituted": "every remaining settings singleton / tracker with a constructor -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2024/Y4_2024.rvt",
+   "parent_rung": "Y4_2024",
+   "the_ONE_thing_it_tests": "Whether the 2024 reader accepts the WHOLE our-settings constellation at Autodesk's slots.",
+   "if_PASS": "Every settings constructor we own is 2024-reader-accepted; the settings layer is retired.",
+   "if_FAIL": "Bisect Y5 by tier (mep / trackers / revisions).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 48,
+    "by_class": {
+     "ModelGraphicsStyle": 2,
+     "RevisionNumberingSequence": 2,
+     "AreaMeasureElem": 2,
+     "MEPComponentTracker": 1,
+     "LayoutNodesTracker": 1,
+     "MEPSystemTracker": 1,
+     "MEPNetworkTracker": 1,
+     "MEPHiddenLineSettingsElem": 1,
+     "CircuitNamingTypeSetting": 1,
+     "AssemblyTracker": 1,
+     "KeynoteTagsOnSheetsTracker": 1,
+     "RevisionCloudsOnSheetsTracker": 1,
+     "AnalyticalToPhysicalRelationManager": 1,
+     "ReactionsUpToDateElem": 1,
+     "GraphicsCache": 1,
+     "ExternalParamLock": 1,
+     "DaylightSourceIdSet": 1,
+     "WorksetVisibilitySettingsElem": 1,
+     "Dwg2dExportUserSettingsData": 1,
+     "ZoneScheme": 1,
+     "RvtLinkInstanceAppearanceParentElem": 1,
+     "SketchGridAppearanceParentElem": 1,
+     "FabricationServiceSettings": 1,
+     "CurtaSystemFaceManager": 1,
+     "StructuralConnectionSettings": 1,
+     "AutoCamSettingsElem": 1,
+     "HalftoneUnderlaySettings": 1,
+     "MultipleValuesIndicationSettings": 1,
+     "DefaultDivideSettings": 1,
+     "ProjectCopySettingsElem": 1,
+     "AreaSettingsElem": 1,
+     "RouteAnalysisSettings": 1,
+     "FabricationSettings": 1,
+     "FabricationSettingsElement": 1,
+     "SSEPointVisibilitySettings": 1,
+     "ReinforcementSettings": 1,
+     "CoordinateSystemDisplayElem": 1,
+     "ElectricalSetting": 1,
+     "CopyWatchProperties": 1,
+     "ActiveGeoLocationTrackingElement": 1,
+     "EnergyDataSettings": 1,
+     "WorksharingViewModeSettings": 1,
+     "ProjectRevision": 1,
+     "AllProjectRevisions": 1,
+     "PrintSettings": 1
+    },
+    "by_match": {
+     "role": 48
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 3,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 11,
+    "expected_slots": 48,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 753664,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2024/Y5_2024.json"
+  },
+  {
+   "order": 6,
+   "rung": "Y4_2024",
+   "stream": "y2024-settings",
+   "file": "experiments/genesis/subst_k4_2024/Y4_2024.rvt",
+   "release": 2024,
+   "class_layer_substituted": "Rbs* settings + sizes tables (wire/duct/pipe/conduit/cable-tray) -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2024/Y3_2024.rvt",
+   "parent_rung": "Y3_2024",
+   "the_ONE_thing_it_tests": "Whether the 2024 reader accepts our MEP settings + OUR size-table DATA at Autodesk's slots.",
+   "if_PASS": "Our MEP settings / sizes constructors + data are 2024-reader-accepted.",
+   "if_FAIL": "Bisect settings vs sizes vs the conduit/cable-tray pair.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 8,
+    "by_class": {
+     "RbsWireSettingsElem": 1,
+     "RbsWireSizesElem": 1,
+     "RbsPipeSettingsElem": 1,
+     "RbsPipeSizesElem": 1,
+     "RbsDuctSettingsElem": 1,
+     "RbsDuctSizesElem": 1,
+     "ConduitSettingsElem": 1,
+     "CableTraySettingsElem": 1
+    },
+    "by_match": {
+     "role": 8
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 8,
+    "expected_slots": 8,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 753664,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2024/Y4_2024.json"
+  },
+  {
+   "order": 7,
+   "rung": "Y3_2024",
+   "stream": "y2024-settings",
+   "file": "experiments/genesis/subst_k4_2024/Y3_2024.rvt",
+   "release": 2024,
+   "class_layer_substituted": "StructSettings / wall-join / auto-join / keynote pair -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2024/Y2_2024.rvt",
+   "parent_rung": "Y2_2024",
+   "the_ONE_thing_it_tests": "Whether the 2024 reader accepts our named settings singletons (incl. an EMPTY keynote table).",
+   "if_PASS": "The named singleton constructors are 2024-reader-accepted.",
+   "if_FAIL": "Bisect the keynote pair from the joins pair from StructSettings.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 5,
+    "by_class": {
+     "StructSettingsElem": 1,
+     "WallJoinDefaultSetting": 1,
+     "AutoJoinTracker": 1,
+     "KeynoteTable": 1,
+     "KeynotingSystem": 1
+    },
+    "by_match": {
+     "role": 5
+    }
+   },
+   "ours_not_landed": {
+    "InitialViewSettings": 1
+   },
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 2,
+    "expected_slots": 5,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 757760,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2024/Y3_2024.json"
+  },
+  {
+   "order": 8,
+   "rung": "Y2_2024",
+   "stream": "y2024-settings",
+   "file": "experiments/genesis/subst_k4_2024/Y2_2024.rvt",
+   "release": 2024,
+   "class_layer_substituted": "BrowserOrganization set + system-navigator constellation -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2024/Y1_2024.rvt",
+   "parent_rung": "Y1_2024",
+   "the_ONE_thing_it_tests": "Whether the 2024 reader accepts our browser / navigator OBJECTS at Autodesk's registrations.",
+   "if_PASS": "Our browser / navigator constructors are 2024-reader-accepted.",
+   "if_FAIL": "Bisect the organizations from the navigator (two single-class in-place probes).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 12,
+    "by_class": {
+     "BrowserOrganization": 6,
+     "ReconcileBrowserSettingsElem": 1,
+     "ConstructionSetProject": 1,
+     "RbsDbViewSystemNavigator": 1,
+     "Viewer": 1,
+     "Viewport": 1,
+     "DBDrawing": 1
+    },
+    "by_match": {
+     "role": 9,
+     "donor": 3
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 4,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 9,
+    "expected_slots": 12,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 831488,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2024/Y2_2024.json"
+  },
+  {
+   "order": 9,
+   "rung": "Y1_2024",
+   "stream": "y2024-settings",
+   "file": "experiments/genesis/subst_k4_2024/Y1_2024.rvt",
+   "release": 2024,
+   "class_layer_substituted": "the project pen table (PenWidthTableElem, m_famId -1) -> OUR pen table, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether the 2024 reader accepts OUR pen-table CONTENT when nothing but the object bytes at Autodesk's own registration change.",
+   "if_PASS": "Our pen constructor's values load at a 2024 registration (the 2026/2025 Y1 result transfers).",
+   "if_FAIL": "Our pen VALUES are what the 2024 reader rejects (the only variable): diff our record vs the base's project pen table field by field.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1,
+    "by_class": {
+     "PenWidthTableElem": 1
+    },
+    "by_match": {
+     "role": 1
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1,
+    "expected_slots": 1,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 831488,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2024/Y1_2024.json"
+  },
+  {
+   "order": 1,
+   "rung": "RC_2024",
+   "stream": "y2024-views",
+   "file": "experiments/genesis/subst_k4_2024/RC_2024.rvt",
+   "release": 2024,
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2024/RC_2024_inplace.rvt",
+   "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+   "the_ONE_thing_it_tests": "THE DEEPEST 2024 CHAIN FILE: every rung of this stream + the lawful straggler deletions. PASS proves the whole Y8/Y9 + residue A/B/C chain + the deletion layer at 2024 registrations in one verdict.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "byte_delta_assertion_holds": null,
+   "reduce_law": "EDIT-FREE",
+   "report": "experiments/genesis/subst_k4_2024/RC_2024.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   }
+  },
+  {
+   "order": 2,
+   "rung": "RC_2024_inplace",
+   "stream": "y2024-views",
+   "file": "experiments/genesis/subst_k4_2024/RC_2024_inplace.rvt",
+   "release": 2024,
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2024/Z_RC_2024.rvt",
+   "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+   "the_ONE_thing_it_tests": "the overlap fixes alone (view headers + area unwiring).",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2024/RC_2024_inplace.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   }
+  },
+  {
+   "order": 3,
+   "rung": "Z_RC_2024",
+   "stream": "y2024-views",
+   "file": "experiments/genesis/subst_k4_2024/Z_RC_2024.rvt",
+   "release": 2024,
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2024/RB_2024.rvt",
+   "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+   "the_ONE_thing_it_tests": "preview nulls + the drafting link pin removal (no 2024 year layer).",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2024/Z_RC_2024.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   }
+  },
+  {
+   "order": 4,
+   "rung": "RB_2024",
+   "stream": "y2024-views",
+   "file": "experiments/genesis/subst_k4_2024/RB_2024.rvt",
+   "release": 2024,
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2024/RA_2024.rvt",
+   "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+   "the_ONE_thing_it_tests": "alias of the deepest residue-B chain file (defs + MEP catalog).",
+   "alias_of": "RB2_mepcat_2024",
+   "verdict": "VALID",
+   "validator": null,
+   "byte_delta_assertion_holds": null,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2024/RB_2024.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   }
+  },
+  {
+   "order": 5,
+   "rung": "RB2_mepcat_2024",
+   "stream": "y2024-views",
+   "file": "experiments/genesis/subst_k4_2024/RB2_mepcat_2024.rvt",
+   "release": 2024,
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2024/RB1_defs_2024.rvt",
+   "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+   "the_ONE_thing_it_tests": "our MEP wire/pipe catalog objects at 2024 registrations.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2024/RB2_mepcat_2024.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   }
+  },
+  {
+   "order": 6,
+   "rung": "RB1_defs_2024",
+   "stream": "y2024-views",
+   "file": "experiments/genesis/subst_k4_2024/RB1_defs_2024.rvt",
+   "release": 2024,
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2024/RA_2024.rvt",
+   "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+   "the_ONE_thing_it_tests": "our parameter definitions at the 2024 file's own shared-parameter GUID registry keys.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2024/RB1_defs_2024.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   }
+  },
+  {
+   "order": 7,
+   "rung": "RA_2024",
+   "stream": "y2024-views",
+   "file": "experiments/genesis/subst_k4_2024/RA_2024.rvt",
+   "release": 2024,
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2024/Y9_2024.rvt",
+   "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+   "the_ONE_thing_it_tests": "ALL Group-A residue constructors at once (subcategories, annotation types + fonts, datum content, pattern surplus, appearance assets) on the 2024 chain.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2024/RA_2024.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   }
+  },
+  {
+   "order": 8,
+   "rung": "Y9_2024",
+   "stream": "y2024-views",
+   "file": "experiments/genesis/subst_k4_2024/Y9_2024.rvt",
+   "release": 2024,
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2024/Y8_2024.rvt",
+   "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+   "the_ONE_thing_it_tests": "our view layer in the 2024 LAYOUT (DBView without m_viewPositionId, Viewport v10, DBViewDrafting with m_scheduleInstanceIds []) at Autodesk's 2024 registrations -- the deepest Y rung.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2024/Y9_2024.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   }
+  },
+  {
+   "order": 9,
+   "rung": "Y8_2024",
+   "stream": "y2024-views",
+   "file": "experiments/genesis/subst_k4_2024/Y8_2024.rvt",
+   "release": 2024,
+   "base": {
+    "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+   "parent_mode": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)",
+   "the_ONE_thing_it_tests": "our datum + identity layer at 2024 registrations.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2024/Y8_2024.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+    "md5": "b953513bf80a963021b7de8e96d1be9d",
+    "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+     "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+     "when": "2026-08-05 ~02:25",
+     "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+    }
+   }
+  }
+ ],
+ "derivation_chain": [
+  "Y1_2024 <- BASE",
+  "Y2_2024 <- Y1_2024",
+  "Y3_2024 <- Y2_2024",
+  "Y4_2024 <- Y3_2024",
+  "Y5_2024 <- Y4_2024",
+  "Y6_2024 <- Y5_2024",
+  "Y7_2024 <- Y6_2024",
+  "Y1s_2024 <- BASE",
+  "Y6s_2024 <- BASE"
+ ],
+ "manifest": "experiments/genesis/subst_k4_2024 -- the certified-base 2024 substitution chain (settings half y2024_a + views/residue half y2024_b of stream y2024-compose; entries keyed by rung)",
+ "y2024_views_upload_order_bisection_first": [
+  "RC_2024",
+  "RC_2024_inplace",
+  "Z_RC_2024",
+  "RB_2024",
+  "RB2_mepcat_2024",
+  "RB1_defs_2024",
+  "RA_2024",
+  "Y9_2024",
+  "Y8_2024"
+ ],
+ "parent_mode_now": "settings-chain (Y7_2024 landed by rvt.genesis.y2024_a)"
+}

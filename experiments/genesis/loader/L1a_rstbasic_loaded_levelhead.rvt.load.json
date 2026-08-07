@@ -1,0 +1,463 @@
+{
+ "ok": true,
+ "out_path": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+ "plans": [
+  {
+   "key": "level_head",
+   "guid": "bee1932a-8bd8-4d8d-8c5d-af2913c9813d",
+   "fam_doc_guid": "3e060f73-906c-46bc-a3b5-a32ee122333e",
+   "session_guid_hex": "8a81146357a8469ca09334fd08c9c5ae",
+   "family_name": "RW Level Head - Circle",
+   "category": -2006020,
+   "part_type": -1,
+   "type_names": [
+    "Level Head - Circle"
+   ],
+   "host_family_id": 1472546,
+   "surrogate_id": 1472550,
+   "symbol_ids": [
+    1472552
+   ],
+   "symbol_surrogate_ids": [
+    1472551
+   ],
+   "twin_of": {
+    "1472543": 1472547,
+    "1472544": 1472548,
+    "1472545": 1472549
+   },
+   "abs_index": {
+    "1472526": 0,
+    "1472527": 1,
+    "1472530": 2,
+    "1472531": 3,
+    "1472532": 4,
+    "1472529": 5,
+    "1472533": 6,
+    "1472535": 7,
+    "1472536": 8,
+    "1472537": 9,
+    "1472538": 10,
+    "1472539": 11,
+    "1472540": 12,
+    "1472534": 13,
+    "1472528": 14,
+    "1472541": 15,
+    "1472542": 16,
+    "1472543": 17,
+    "1472544": 18,
+    "1472545": 19
+   },
+   "core_ids": [
+    23795
+   ],
+   "doc_id_range": [
+    1472525,
+    1472545
+   ],
+   "unit_records": 21,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1472546,
+    1472547,
+    1472548,
+    1472549,
+    1472550,
+    1472551,
+    1472552
+   ]
+  }
+ ],
+ "proofs": {
+  "host": {
+   "path": "samples/rstbasicsampleproject.rvt",
+   "watermark": 1472524,
+   "episode": 1016,
+   "partition": "Partitions/21",
+   "elements": 13936,
+   "category_gstyles": {
+    "-2006020": 23795
+   },
+   "usage_referrers": {
+    "LevelAttributes": [
+     305
+    ],
+    "GridAttributes": [
+     341
+    ],
+    "CalloutTag": [
+     49508,
+     49583,
+     49601,
+     49619,
+     49637,
+     49655,
+     49673,
+     49691,
+     49709
+    ],
+    "ViewportAttributes": [
+     324,
+     1441530
+    ],
+    "SectionAttributes": [
+     26029,
+     29088,
+     49579,
+     49597,
+     49615,
+     49633,
+     49651,
+     49669,
+     49687,
+     49705
+    ],
+    "InteriorElevAttributes": [
+     357,
+     49589,
+     49607,
+     49625,
+     49643,
+     49661,
+     49679,
+     49697,
+     49715
+    ],
+    "StructSettingsElem": [
+     54663
+    ]
+   },
+   "registries_before": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_entries": 50,
+    "coherent": true
+   },
+   "notes": []
+  },
+  "plans": [
+   {
+    "key": "level_head",
+    "guid": "bee1932a-8bd8-4d8d-8c5d-af2913c9813d",
+    "fam_doc_guid": "3e060f73-906c-46bc-a3b5-a32ee122333e",
+    "session_guid_hex": "8a81146357a8469ca09334fd08c9c5ae",
+    "family_name": "RW Level Head - Circle",
+    "category": -2006020,
+    "part_type": -1,
+    "type_names": [
+     "Level Head - Circle"
+    ],
+    "host_family_id": 1472546,
+    "surrogate_id": 1472550,
+    "symbol_ids": [
+     1472552
+    ],
+    "symbol_surrogate_ids": [
+     1472551
+    ],
+    "twin_of": {
+     "1472543": 1472547,
+     "1472544": 1472548,
+     "1472545": 1472549
+    },
+    "abs_index": {
+     "1472526": 0,
+     "1472527": 1,
+     "1472530": 2,
+     "1472531": 3,
+     "1472532": 4,
+     "1472529": 5,
+     "1472533": 6,
+     "1472535": 7,
+     "1472536": 8,
+     "1472537": 9,
+     "1472538": 10,
+     "1472539": 11,
+     "1472540": 12,
+     "1472534": 13,
+     "1472528": 14,
+     "1472541": 15,
+     "1472542": 16,
+     "1472543": 17,
+     "1472544": 18,
+     "1472545": 19
+    },
+    "core_ids": [
+     23795
+    ],
+    "doc_id_range": [
+     1472525,
+     1472545
+    ],
+    "unit_records": 21,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1472546,
+     1472547,
+     1472548,
+     1472549,
+     1472550,
+     1472551,
+     1472552
+    ]
+   }
+  ],
+  "host_elements": {
+   "count": 7,
+   "by_family": {
+    "level_head": [
+     {
+      "elem_id": 1472546,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1472547,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472546,
+      "notes": [
+       "twin of embedded param 1472543 (Name)"
+      ]
+     },
+     {
+      "elem_id": 1472548,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472546,
+      "notes": [
+       "twin of embedded param 1472544 (Elevation)"
+      ]
+     },
+     {
+      "elem_id": 1472549,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472546,
+      "notes": [
+       "twin of embedded param 1472545 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1472550,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472551,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472552,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ]
+   }
+  },
+  "roundtrip_gate": {
+   "records": 21,
+   "roundtrip_ok": 21,
+   "failed": 0,
+   "encoded_bytes": 4708,
+   "failures": []
+  },
+  "embedded": {
+   "level_head": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2217,
+     "elem_recs": 21,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "bee1932a-8bd8-4d8d-8c5d-af2913c9813d",
+     "records": 21,
+     "bytes": 3874,
+     "segments": {
+      "101": 3331,
+      "102": 15666,
+      "103": 482
+     }
+    }
+   }
+  },
+  "pass1_commit": {
+   "new_element_ids": [
+    1472546,
+    1472547,
+    1472548,
+    1472549,
+    1472550,
+    1472551,
+    1472552
+   ],
+   "elemtable_count_before": 13936,
+   "elemtable_count_after": 13943,
+   "watermark_after": 1472552,
+   "per_seq_bytes_added": {
+    "101": 1131,
+    "102": 3857,
+    "103": 154
+   }
+  },
+  "pass2_partition_splices": {
+   "level_head": {
+    "units_before": 53,
+    "units_after": 54,
+    "walker_errors": [],
+    "our_unit_guid": "bee1932a-8bd8-4d8d-8c5d-af2913c9813d",
+    "our_unit_records": {
+     "101": 22,
+     "102": 22,
+     "103": 22
+    },
+    "id_sets_identical": true
+   }
+  },
+  "pass2_content_documents": {
+   "entries_before": 52,
+   "entries_after": 53,
+   "ours_all_present": true,
+   "end_record_intact": true,
+   "delta_bytes": 2253
+  },
+  "pass2_adocument_registrations": {
+   "content_table_records": 53,
+   "family_mgr_entries": 51,
+   "element_tracking": {
+    "-2006020": "no host row (skipped)"
+   }
+  },
+  "pass2_adocument_reencode": {
+   "clean": true,
+   "bytes_before": 1586246,
+   "bytes_after": 1586350
+  },
+  "verify_written": {
+   "path": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+   "container": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "host_records_missing": [],
+    "host_records_unclean": []
+   },
+   "registries": {
+    "save_units": 54,
+    "contentdocs_entries": 53,
+    "contenttable_records": 53,
+    "familymgr_entries": 51,
+    "coherent": true,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "units_missing_from_contentdocs": [],
+    "units_missing_from_contenttable": [],
+    "units_missing_from_familymgr": [],
+    "contenttable_dangling": [],
+    "familymgr_dangling": [],
+    "before": {
+     "save_units": 53,
+     "contentdocs_entries": 52,
+     "contenttable_records": 52,
+     "familymgr_entries": 50,
+     "coherent": true
+    },
+    "units_added": 1,
+    "units_added_ok": true,
+    "ours_in_all_four": true
+   },
+   "elemtable": {
+    "records": 13943,
+    "watermark": 1472552,
+    "our_host_ids_present": true,
+    "watermark_covers_documents": true
+   },
+   "host_linkage": {
+    "ok": true,
+    "families": [
+     {
+      "key": "level_head",
+      "family": 1472546,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1472552": true,
+       "symsurrogate_1472551": true,
+       "twin_1472547": true,
+       "twin_1472548": true,
+       "twin_1472549": true
+      },
+      "ok": true
+     }
+    ]
+   },
+   "family_inventory": {
+    "total_host_families": 51,
+    "ours": [
+     {
+      "key": "level_head",
+      "found": 1,
+      "family_id": 1472546,
+      "family_name": "RW Level Head - Circle",
+      "category": -2006020,
+      "unit": 53,
+      "n_records": 21,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1472552,
+        "name": "Level Head - Circle"
+       }
+      ],
+      "big2small_count": 3,
+      "n_family_params": 3,
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": [],
+    "warnings": [
+     "[semantic] objects: 7/32039 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+    ]
+   },
+   "ok": true
+  }
+ },
+ "acceptance": [
+  "H1: an EMBEDDED family ADocument with an all-null 239-slot AppInfoManager (the specimen carries ~110 populated family-editor registries) -- the factory's L3 open question, unchanged",
+  "H2: an annotation FamilySymbol whose seq-103 rep is a SerializedDummy and whose geometry bookkeeping (m_geomSteps / m_pGeomTable / m_refFaces / m_tagNoteData) is EMPTY -- Revit must regenerate the symbol graphics from the family document",
+  "H3: our family documents carry the S0 skeleton (self-Family, Ref. Level, origin planes, units, one plan view, parameters, one type) and NO detail geometry / label -- the head SHAPE is absent",
+  "H4: host Family.m_coreIds bind only the host's category GStyle rows (none when the host lacks that category); big2small maps only the parameter twins (our documents reference no host catalog rows)",
+  "H5: the ContentTable record's author is 'rvt-writer'; the load reuses the host's current episode (no new History row / DIT record)",
+  "H6: the host FamilyTypeTable = one blank ' ' row and the type lives as the FamilySymbol (the annotation flavour); OUR embedded document carries its single named type too (the specimen embedded head document's type table is empty)"
+ ],
+ "stop_reason": "",
+ "seconds": 20.4
+}

@@ -1,0 +1,740 @@
+{
+ "rung": "ZC_systype",
+ "label": "residue system-family types (wall / floor / welded-wire fabric) -> OURS, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_a2/CTRL_ZA_deep_base.rvt",
+  "copied_from": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "note": "the batch's standing certified control (byte-identical to the certified ZA_deep); read FIRST -- a failing control voids the round",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a2/ZC_systype.rvt",
+ "landed_by_class": {
+  "BasicWallType": 1,
+  "FloorAttributes": 1,
+  "FabricWireType": 1,
+  "FabricSheetType": 1
+ },
+ "notes": [
+  "wall type -> 'GEN Wall - Interior Partition 121mm', floor type -> 'GEN Floor - Concrete Slab 150mm': our layer make-up over OUR palette materials looked up by name in the parent (ALL FOUND); each type's LegendComponent preview id is KEPT (the preview then displays OUR type -- a type-preview leaves only with its type, deletion finding 3)",
+  "fabric: wire -> 'GEN W2.9' (ASTM A1064 W2.9 (0.029 in2, 0.192 in dia)), sheet -> 'GEN WWF 6x6-W2.9xW2.9' (ASTM A1064 6x6-W2.9xW2.9 (42 lb / 100 ft2); sheet 8 ft x 20 ft ours); the sheet's MasterSymbolCell -> SlaveSymbolTracker (Group B's reproduced machinery) and its sheet-material slot wiring kept"
+ ],
+ "info": {
+  "materials_found": {
+   "GEN Gypsum Wall Board": 29,
+   "GEN Metal Stud Framing": 51455,
+   "GEN Concrete, Cast-in-Place": 600660
+  }
+ },
+ "residue_left_in_place": {},
+ "record_selfcheck": {
+  "objects": 4,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.0
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   600634,
+   1201129,
+   1352718,
+   1352719
+  ],
+  "records_changed_count": 4,
+  "records_changed_by_seq": {
+   "102": 4
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 4,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 600634,
+    "len_ours": 1120,
+    "len_parent": 770,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "BasicWallType",
+      "class_parent": "BasicWallType"
+     },
+     {
+      "path": ".m_function",
+      "ours": "0",
+      "parent": "1"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_coarseScaleFillColor",
+      "ours": "0",
+      "parent": "12632256"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_coarseScaleFillPatternElemId",
+      "ours": "-1",
+      "parent": "3"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_layers[len]",
+      "ours": 3,
+      "parent": 1
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_layers[0].m_layerFunction",
+      "ours": "5",
+      "parent": "1"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_layers[0].m_layerPriority",
+      "ours": "5",
+      "parent": "1"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_layers[0].m_layerWidth",
+      "ours": "0.05249343832020997",
+      "parent": "0.9186351706036745"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_layers[0].m_materialId",
+      "ours": "29",
+      "parent": "600660"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_numShellLayersExt",
+      "ours": "1",
+      "parent": "0"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_numShellLayersInt",
+      "ours": "1",
+      "parent": "0"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_cutOffHeight",
+      "ours": "20.0",
+      "parent": "10.0"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[len]",
+      "ours": 3,
+      "parent": 1
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_id",
+      "ours": "0",
+      "parent": "3"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_segmentIds[0]",
+      "ours": "0",
+      "parent": "1"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_segmentIds[1]",
+      "ours": "4",
+      "parent": "12"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_segmentIds[2]",
+      "ours": "1",
+      "parent": "4"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_segmentIds[3]",
+      "ours": "5",
+      "parent": "13"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[len]",
+      "ours": 10,
+      "parent": 4
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[0].m_id",
+      "ours": "4",
+      "parent": "12"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[0].m_regionId[0]",
+      "ours": "0",
+      "parent": "3"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[1].m_coordinate",
+      "ours": "0.0",
+      "parent": "20.0"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[1].m_id",
+      "ours": "6",
+      "parent": "13"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[1].m_regionId[0]",
+      "ours": "1",
+      "parent": "3"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[2].m_id",
+      "ours": "8",
+      "parent": "1"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[2].m_orientation",
+      "ours": "1",
+      "parent": "0"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[2].m_regionId[0]",
+      "ours": "2",
+      "parent": "3"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[3].m_coordinate",
+      "ours": "20.0",
+      "parent": "0.9186351706036745"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[3].m_id",
+      "ours": "5",
+      "parent": "4"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[3].m_orientation",
+      "ours": "1",
+      "parent": "0"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[3].m_regionId[0]",
+      "ours": "0",
+      "parent": "3"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1201129,
+    "len_ours": 382,
+    "len_parent": 401,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FloorAttributes",
+      "class_parent": "FloorAttributes"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_layers[len]",
+      "ours": 1,
+      "parent": 2
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_layers[0].m_layerWidth",
+      "ours": "0.49212598425196846",
+      "parent": "0.0721784776902887"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_layers[0].m_materialId",
+      "ours": "600660",
+      "parent": "417"
+     },
+     {
+      "path": ".m_pCompoundStructure.value.m_structuralMaterialLayerIndex",
+      "ours": "0",
+      "parent": "-1"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Floor - Concrete Slab 150mm'",
+      "parent": "'Plywood double brace'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1352718,
+    "len_ours": 183,
+    "len_parent": 175,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FabricWireType",
+      "class_parent": "FabricWireType"
+     },
+     {
+      "path": ".m_bendDiameter",
+      "ours": "0.064",
+      "parent": "0.13333333333333333"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN W2.9'",
+      "parent": "'W2.0'"
+     },
+     {
+      "path": ".m_wireDiameter",
+      "ours": "0.016",
+      "parent": "0.013333333333333332"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 1352719,
+    "len_ours": 438,
+    "len_parent": 422,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FabricSheetType",
+      "class_parent": "FabricSheetType"
+     },
+     {
+      "path": ".m_majorEndOverhang",
+      "ours": "0.25",
+      "parent": "0.08333333333333393"
+     },
+     {
+      "path": ".m_majorLapSpliceLength",
+      "ours": "1.0",
+      "parent": "0.6666666666666666"
+     },
+     {
+      "path": ".m_majorNumberOfWires",
+      "ours": "17",
+      "parent": "25"
+     },
+     {
+      "path": ".m_majorSpacing",
+      "ours": "0.5",
+      "parent": "0.3333333333333333"
+     },
+     {
+      "path": ".m_majorStartOverhang",
+      "ours": "0.25",
+      "parent": "0.08333333333333333"
+     },
+     {
+      "path": ".m_minorEndOverhang",
+      "ours": "0.25",
+      "parent": "0.08333333333333215"
+     },
+     {
+      "path": ".m_minorLapSpliceLength",
+      "ours": "1.0",
+      "parent": "0.6666666666666666"
+     },
+     {
+      "path": ".m_minorNumberOfWires",
+      "ours": "41",
+      "parent": "38"
+     },
+     {
+      "path": ".m_minorSpacing",
+      "ours": "0.5",
+      "parent": "0.3333333333333333"
+     },
+     {
+      "path": ".m_minorStartOverhang",
+      "ours": "0.25",
+      "parent": "0.08333333333333333"
+     },
+     {
+      "path": ".m_overallLength",
+      "ours": "20.0",
+      "parent": "12.5"
+     },
+     {
+      "path": ".m_overallWidth",
+      "ours": "8.0",
+      "parent": "8.166666666666666"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN WWF 6x6-W2.9xW2.9'",
+      "parent": "'4x4-W2.0xW2.0'"
+     },
+     {
+      "path": ".m_userEnteredSheetMass",
+      "ours": "30.5",
+      "parent": "19.958064280000002"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 11,
+    "blocks_out": 11
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 4,
+  "slots_with_registry_surface": 4,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 600634,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value"
+    ],
+    "n_paths": 5
+   },
+   {
+    "slot": 1201129,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 1352718,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 1352719,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 4,
+  "pairs_ok": 4,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 600634,
+   "class": "BasicWallType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 672,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 5
+  },
+  {
+   "slot": 1201129,
+   "class": "FloorAttributes",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 890,
+    "modified_ep": 890,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 1352718,
+   "class": "FabricWireType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 922,
+    "modified_ep": 922,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 1352719,
+   "class": "FabricSheetType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 922,
+    "modified_ep": 1013,
+    "owner_id": null,
+    "id_band": "<5M"
+   },
+   "surface_paths": 2
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 16,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51480
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a2/ZC_systype.rvt",
+  "elements": 3342,
+  "file_size": 626688,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "BasicWallType": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_function": 1,
+    "m_pCompoundStructure.value.m_coarseScaleFillColor": 1,
+    "m_pCompoundStructure.value.m_coarseScaleFillPatternElemId": 1,
+    "m_pCompoundStructure.value.m_layers.#len": 1,
+    "m_pCompoundStructure.value.m_numShellLayersExt": 1,
+    "m_pCompoundStructure.value.m_numShellLayersInt": 1,
+    "m_pCompoundStructure.value.m_oVertRegStructure.value.m_cutOffHeight": 1,
+    "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions.#len": 1,
+    "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments.#len": 1,
+    "m_pCompoundStructure.value.m_oVertRegStructure.value.m_regionToLayerMap.#len": 1,
+    "m_pCompoundStructure.value.m_openingWrapping": 1,
+    "m_pCompoundStructure.value.m_segRefFaceKeys.[1].m_id": 1,
+    "m_pCompoundStructure.value.m_structuralMaterialLayerIndex": 1,
+    "m_symbolInfo.value.m_name": 1
+   },
+   "declared_ours": [
+    "m_function",
+    "m_pCompoundStructure (our layers)",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "FloorAttributes": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_pCompoundStructure.value.m_layers.#len": 1,
+    "m_pCompoundStructure.value.m_structuralMaterialLayerIndex": 1,
+    "m_symbolInfo.value.m_name": 1
+   },
+   "declared_ours": [
+    "m_pCompoundStructure (our layers)",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "FabricWireType": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_bendDiameter": 1,
+    "m_symbolInfo.value.m_name": 1,
+    "m_wireDiameter": 1
+   },
+   "declared_ours": [
+    "m_bendDiameter",
+    "m_symbolInfo.value.m_name",
+    "m_wireDiameter"
+   ]
+  },
+  "FabricSheetType": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_majorEndOverhang": 1,
+    "m_majorLapSpliceLength": 1,
+    "m_majorNumberOfWires": 1,
+    "m_majorSpacing": 1,
+    "m_majorStartOverhang": 1,
+    "m_minorEndOverhang": 1,
+    "m_minorLapSpliceLength": 1,
+    "m_minorNumberOfWires": 1,
+    "m_minorSpacing": 1,
+    "m_minorStartOverhang": 1,
+    "m_overallLength": 1,
+    "m_overallWidth": 1,
+    "m_symbolInfo.value.m_name": 1,
+    "m_userEnteredSheetMass": 1
+   },
+   "declared_ours": [
+    "lap splices",
+    "m_symbolInfo.value.m_name",
+    "overhangs",
+    "sheet mass",
+    "sheet size",
+    "spacings",
+    "wire counts"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 600634,
+   "class": "BasicWallType"
+  },
+  {
+   "slot": 1201129,
+   "class": "FloorAttributes"
+  },
+  {
+   "slot": 1352718,
+   "class": "FabricWireType"
+  },
+  {
+   "slot": 1352719,
+   "class": "FabricSheetType"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 600634,
+   "class": "BasicWallType",
+   "notes": [
+    "our wall type 'GEN Wall - Interior Partition 121mm': layers [('finish2', 16.0, 'GEN Gypsum Wall Board'), ('structure', 89.0, 'GEN Metal Stud Framing'), ('finish2', 16.0, 'GEN Gypsum Wall Board')]; preview 907404 kept"
+   ]
+  },
+  {
+   "slot": 1201129,
+   "class": "FloorAttributes",
+   "notes": [
+    "our floor type 'GEN Floor - Concrete Slab 150mm': layers [('structure', 150.0, 'GEN Concrete, Cast-in-Place')]; preview 1201130 kept"
+   ]
+  },
+  {
+   "slot": 1352718,
+   "class": "FabricWireType",
+   "notes": [
+    "our wire 'GEN W2.9' (ASTM A1064 W2.9 (0.029 in2, 0.192 in dia)), bend diameter 4.0 db"
+   ]
+  },
+  {
+   "slot": 1352719,
+   "class": "FabricSheetType",
+   "notes": [
+    "our fabric 'GEN WWF 6x6-W2.9xW2.9' (ASTM A1064 6x6-W2.9xW2.9 (42 lb / 100 ft2); sheet 8 ft x 20 ft ours); wire slot 1352718, material slot 1352645 + tracker cell kept"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 626688,
+ "seconds": 1.4,
+ "reached_by_other_streams_not_reauthored": {
+  "RbsWireInsulationType": "GROUP B ZB2_mepcat (viewer PASS, batch 17) -- our wire catalog",
+  "RbsWireMaterialType": "GROUP B ZB2_mepcat",
+  "RbsWireTemperatureRatingType": "GROUP B ZB2_mepcat",
+  "RbsPipeScheduleType": "GROUP B ZB2_mepcat -- our piping catalog",
+  "RbsPipeConnectionType": "GROUP B ZB2_mepcat",
+  "RbsPipeMaterialType": "GROUP B ZB2_mepcat",
+  "PipeSegment": "GROUP B ZB2_mepcat",
+  "CategoryElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation, D_curtain)",
+  "GStyleElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "FontElem": "GROUP A ZA_deep (family-scoped remainder = curtain constellation)",
+  "DimensionStyle": "GROUP A ZA_deep (family-scoped remainder)",
+  "CalloutTag": "GROUP A ZA_deep (family-scoped remainder)",
+  "InteriorElevAttributes": "GROUP A ZA_deep (family-scoped remainder)",
+  "DBViewType": "curtain constellation (deletion stream D_curtain)",
+  "Family": "curtain constellation (D_curtain)",
+  "FamilySurrogate": "curtain constellation (D_curtain)",
+  "CurveElem": "room constellation (deletion stream, blocked -> D_room after the wiring fix)",
+  "LegendComponent": "type previews (2 curtain-owned in D_curtain; 2 owned by our residue types)",
+  "LevelRoomPlan": "room constellation",
+  "LinearDimString": "constraint-dimension group (deletion stream D_content)",
+  "RoomElem": "GROUP B ZB8_content (identity) / room constellation deletion",
+  "MaterialElem": "GROUP B ZB5_palette (surplus materials)",
+  "ParamElemExternal": "GROUP B ZB1_defs",
+  "ParamBinding": "GROUP B ZB1_defs",
+  "ParamElemElectricalLoadClassification": "GROUP B ZB1_defs (the 6-per-class companions of our ZC_elec classifications -- id-wired both sides)",
+  "ParamElemProject": "GROUP B ZB1_defs",
+  "PenWidthTableElem": "GROUP B ZB3_pens",
+  "SectionAttributes": "GROUP B ZB4_annot",
+  "ViewportAttributes": "GROUP B ZB4_annot",
+  "PropertySetElement": "GROUP B ZB5_palette",
+  "ParameterFilterElement": "GROUP B ZB6_filters",
+  "SunAnnotationElem": "GROUP B ZB7_machinery",
+  "NumberingSchema": "GROUP B ZB7_machinery",
+  "SlaveSymbolTrackerElem": "GROUP B ZB7_machinery",
+  "WorksharingViewModeSettings": "GROUP B ZB7_machinery",
+  "PrintSettings": "GROUP B ZB7_machinery",
+  "Viewer": "GROUP B ZB7_machinery (the sheet's viewer 1457029)",
+  "Viewport": "GROUP B ZB7_machinery (the sheet's viewports 1457030/1457043/1457044)",
+  "RefPlane": "GROUP B ZB8_content",
+  "SketchPlane": "GROUP B ZB8_content"
+ },
+ "stream": "genesis-residue-A2 (remaining unsubstituted classes, in place, from ZA_deep)"
+}

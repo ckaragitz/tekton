@@ -1,0 +1,77 @@
+{
+ "batch": 16,
+ "created": "2026-08-04T05:31:09-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "",
+ "reading_order": [
+  "CTRL_K1_suspect_b16.rvt",
+  "ZA_deep.rvt",
+  "ZB_deep.rvt",
+  "Z_subcat.rvt",
+  "Z_defs.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_K1_suspect_b16.rvt",
+   "staged_as": "experiments/acceptance/CTRL_K1_suspect_b16.rvt",
+   "md5": "fb851015c9394d72d1533fea2425dd36",
+   "kind": "control",
+   "control": true,
+   "control_source": "experiments/genesis/autopsy/K1_suspect.rvt",
+   "base": "experiments/genesis/autopsy/K1_suspect.rvt",
+   "base_certification": "autopsy: the in-place family orphaning group alone is NOT the killer (PASS) \u2014 another edit group is; remaining rungs name it"
+  },
+  {
+   "order": 1,
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "staged_as": "experiments/acceptance/ZA_deep.rvt",
+   "md5": "56308637529a0d0a95976f5701e2615e",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/Y9.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4/residue_a/probes.json entry 'ZA_deep' field 'base'",
+   "base_status": "certified",
+   "base_certification": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  },
+  {
+   "order": 2,
+   "file": "experiments/genesis/subst_k4/residue_b/ZB_deep.rvt",
+   "staged_as": "experiments/acceptance/ZB_deep.rvt",
+   "md5": "064593637574bd0b0554122f82d6a62f",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/Y9.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4/residue_b/probes.json entry 'ZB_deep' field 'base'",
+   "base_status": "certified",
+   "base_certification": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  },
+  {
+   "order": 3,
+   "file": "experiments/genesis/subst_k4/residue_a/Z_subcat.rvt",
+   "staged_as": "experiments/acceptance/Z_subcat.rvt",
+   "md5": "b52d34bd5f96cbc52215d9719b6c1d2c",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/Y9.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4/residue_a/probes.json entry 'Z_subcat' field 'base'",
+   "base_status": "certified",
+   "base_certification": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  },
+  {
+   "order": 4,
+   "file": "experiments/genesis/subst_k4/residue_b/Z_defs.rvt",
+   "staged_as": "experiments/acceptance/Z_defs.rvt",
+   "md5": "1703a2c006b344e4e2317698a964f643",
+   "kind": "probe",
+   "control": false,
+   "base": "experiments/genesis/subst_k4/Y9.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4/residue_b/probes.json entry 'Z_defs' field 'base'",
+   "base_status": "certified",
+   "base_certification": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ ]
+}

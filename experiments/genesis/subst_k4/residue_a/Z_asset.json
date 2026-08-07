@@ -1,0 +1,1435 @@
+{
+ "rung": "Z_asset",
+ "label": "the material appearance-asset companions -> our generic appearance palette, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/CTRL_K4_base.rvt",
+  "note": "the ladder's standing certified control (md5-identical to K4); upload with EVERY batch",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y9.rvt",
+ "out": "experiments/genesis/subst_k4/residue_a/Z_asset.rvt",
+ "landed_by_class": {
+  "AppearanceAssetElem": 18
+ },
+ "notes": [
+  "appearance assets 18 -> our generic appearance palette (Protein GenericSchema, frozen 59-property skeleton, our colour / gloss / transparency); MaterialElem companions keep referencing the same ids"
+ ],
+ "info": {
+  "assets": [
+   {
+    "slot": 171886,
+    "old_ui_name": "Generic",
+    "our_name": "GEN Appearance - Cast Concrete",
+    "referrers": [
+     [
+      29,
+      "MaterialElem"
+     ],
+     [
+      8798,
+      "MaterialElem"
+     ],
+     [
+      105006,
+      "MaterialElem"
+     ],
+     [
+      105007,
+      "MaterialElem"
+     ],
+     [
+      1352645,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 171938,
+    "old_ui_name": "Smooth - Light Gray",
+    "our_name": "GEN Appearance - Concrete Masonry",
+    "referrers": [
+     [
+      102856,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 171941,
+    "old_ui_name": "Copper - Satin",
+    "our_name": "GEN Appearance - Painted Gypsum",
+    "referrers": [
+     [
+      137434,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 171944,
+    "old_ui_name": "Semi-Polished",
+    "our_name": "GEN Appearance - Structural Steel",
+    "referrers": [
+     [
+      137433,
+      "MaterialElem"
+     ],
+     [
+      137436,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 172415,
+    "old_ui_name": "Dirt - Dark Brown",
+    "our_name": "GEN Appearance - Anodised Aluminium",
+    "referrers": [
+     [
+      519,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 172485,
+    "old_ui_name": "Yellow Pine - Solid Natural Low Gloss",
+    "our_name": "GEN Appearance - Clear Glazing",
+    "referrers": [
+     [
+      123310,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 172497,
+    "old_ui_name": "Iron Gray",
+    "our_name": "GEN Appearance - Softwood Lumber",
+    "referrers": [
+     [
+      137435,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 174486,
+    "old_ui_name": "Plywood - New",
+    "our_name": "GEN Appearance - Rigid Insulation",
+    "referrers": [
+     [
+      417,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 174600,
+    "old_ui_name": "Generic(2)",
+    "our_name": "GEN Appearance - Compacted Earth",
+    "referrers": [
+     [
+      51455,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 194609,
+    "old_ui_name": "Metal - Steel - 345 MPa (1)",
+    "our_name": "GEN Appearance - Painted Dark",
+    "referrers": [
+     [
+      509467,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 1028789,
+    "old_ui_name": "Metal - Steel - 250 MPa (1)",
+    "our_name": "GEN Appearance - Plastic Laminate",
+    "referrers": [
+     [
+      1028437,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 1040868,
+    "old_ui_name": "Metal - Light Gauge (1)",
+    "our_name": "GEN Appearance - Upholstery Fabric",
+    "referrers": [
+     [
+      1040388,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 1170094,
+    "old_ui_name": "Stainless - Satin",
+    "our_name": "GEN Appearance - Carpet Tile",
+    "referrers": [
+     [
+      1168302,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 1177772,
+    "old_ui_name": "Flat - Gray 1",
+    "our_name": "GEN Appearance - Face Brick",
+    "referrers": [
+     [
+      1177727,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 1352777,
+    "old_ui_name": "Satin(1)",
+    "our_name": "GEN Appearance - Ceramic Tile",
+    "referrers": [
+     [
+      141538,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 1389754,
+    "old_ui_name": "Lacquer - Clear",
+    "our_name": "GEN Appearance - Asphalt",
+    "referrers": [
+     [
+      1390010,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 1462679,
+    "old_ui_name": "Panels - Reveal Smooth",
+    "our_name": "GEN Appearance - Turf",
+    "referrers": [
+     [
+      600660,
+      "MaterialElem"
+     ]
+    ]
+   },
+   {
+    "slot": 1462680,
+    "old_ui_name": "Flat - Broom Gray",
+    "our_name": "GEN Appearance - Water",
+    "referrers": [
+     [
+      218358,
+      "MaterialElem"
+     ]
+    ]
+   }
+  ]
+ },
+ "residue_left_in_place": {},
+ "record_selfcheck": {
+  "objects": 18,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3342,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.0
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   171886,
+   171938,
+   171941,
+   171944,
+   172415,
+   172485,
+   172497,
+   174486,
+   174600,
+   194609,
+   1028789,
+   1040868,
+   1170094,
+   1177772,
+   1352777,
+   1389754,
+   1462679,
+   1462680
+  ],
+  "records_changed_count": 18,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 18,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 171886,
+    "len_ours": 4629,
+    "len_parent": 9482,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "AppearanceAssetElem",
+      "class_parent": "AppearanceAssetElem"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[len]",
+      "ours": 59,
+      "parent": 56
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[0].value.m_sName",
+      "ours": "'ShadingModel'",
+      "parent": "'AdvancedUIDefinition'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[0].value.m_value",
+      "ours": "'Unknown'",
+      "parent": "'Mats/Generic/GenericAdvancedUI.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[1].value.m_sName",
+      "ours": "'AdvancedUIDefinition'",
+      "parent": "'AssetLibID'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[1].value.m_value",
+      "ours": "'Mats/Generic/GenericAdvancedUI.xml'",
+      "parent": "'314DE259-5443-4621-BFBD-1730C6CC9AE9'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].ptr_class",
+      "ours": "'APropertyBoolean'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].value.m_sName",
+      "ours": "'MultiLayer'",
+      "parent": "'BaseSchema'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].value.m_value",
+      "ours": "False",
+      "parent": "'GenericSchema'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[3].value.m_sName",
+      "ours": "'AssetLibID'",
+      "parent": "'ExchangeGUID'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[3].value.m_value",
+      "ours": "'OURS-0000-0000-0000-000000000000'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].ptr_class",
+      "ours": "'APropertyString'",
+      "parent": "'APropertyBoolean'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].value.m_sName",
+      "ours": "'BaseSchema'",
+      "parent": "'Hidden'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].value.m_value",
+      "ours": "'GenericSchema'",
+      "parent": "False"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[5].value.m_sName",
+      "ours": "'ExchangeGUID'",
+      "parent": "'ImplementationGeneric'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].ptr_class",
+      "ours": "'APropertyBoolean'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].value.m_sName",
+      "ours": "'Hidden'",
+      "parent": "'ImplementationMentalRay'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].value.m_value",
+      "ours": "False",
+      "parent": "'Mats/Generic/MentalImage.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[7].value.m_sName",
+      "ours": "'ImplementationGeneric'",
+      "parent": "'ImplementationOGS'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[7].value.m_value",
+      "ours": "''",
+      "parent": "'Mats/Generic/OGS.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[8].value.m_sName",
+      "ours": "'ImplementationMentalRay'",
+      "parent": "'ImplementationPreview'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[8].value.m_value",
+      "ours": "'Mats/Generic/MentalImage.xml'",
+      "parent": "'Mats/Generic/PreviewColor.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].ptr_class",
+      "ours": "'APropertyString'",
+      "parent": "'APropertyInteger'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].value.m_sName",
+      "ours": "'ImplementationOGS'",
+      "parent": "'SchemaVersion'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].value.m_value",
+      "ours": "'Mats/Generic/OGS.xml'",
+      "parent": "4"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[10].value.m_sName",
+      "ours": "'ImplementationPreview'",
+      "parent": "'UIDefinition'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[10].value.m_value",
+      "ours": "'Mats/Generic/PreviewColor.xml'",
+      "parent": "'Mats/Generic/GenericUI.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].ptr_class",
+      "ours": "'APropertyInteger'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].value.m_sName",
+      "ours": "'SchemaVersion'",
+      "parent": "'UIName'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].value.m_value",
+      "ours": "4",
+      "parent": "'Generic'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[12].value.m_sName",
+      "ours": "'UIDefinition'",
+      "parent": "'VersionGUID'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 171938,
+    "len_ours": 4621,
+    "len_parent": 15926,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "AppearanceAssetElem",
+      "class_parent": "AppearanceAssetElem"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[len]",
+      "ours": 59,
+      "parent": 49
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[0].value.m_sName",
+      "ours": "'ShadingModel'",
+      "parent": "'AdvancedUIDefinition'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[0].value.m_value",
+      "ours": "'Unknown'",
+      "parent": "'Mats/PlasticVinyl/PlasticVinylAdvancedUI.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[1].value.m_sName",
+      "ours": "'AdvancedUIDefinition'",
+      "parent": "'AssetLibID'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[1].value.m_value",
+      "ours": "'Mats/Generic/GenericAdvancedUI.xml'",
+      "parent": "'05AB8C01-9E15-4D19-8791-5CD982F715F4'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].ptr_class",
+      "ours": "'APropertyBoolean'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].value.m_sName",
+      "ours": "'MultiLayer'",
+      "parent": "'BaseSchema'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].value.m_value",
+      "ours": "False",
+      "parent": "'PlasticVinylSchema'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[3].value.m_sName",
+      "ours": "'AssetLibID'",
+      "parent": "'ExchangeGUID'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[3].value.m_value",
+      "ours": "'OURS-0000-0000-0000-000000000000'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].ptr_class",
+      "ours": "'APropertyString'",
+      "parent": "'APropertyBoolean'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].value.m_sName",
+      "ours": "'BaseSchema'",
+      "parent": "'Hidden'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].value.m_value",
+      "ours": "'GenericSchema'",
+      "parent": "False"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[5].value.m_sName",
+      "ours": "'ExchangeGUID'",
+      "parent": "'ImplementationGeneric'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[5].value.m_value",
+      "ours": "''",
+      "parent": "'Mats/PlasticVinyl/Generic.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].ptr_class",
+      "ours": "'APropertyBoolean'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].value.m_sName",
+      "ours": "'Hidden'",
+      "parent": "'ImplementationMentalRay'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].value.m_value",
+      "ours": "False",
+      "parent": "'Mats/PlasticVinyl/MentalImage.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[7].value.m_sName",
+      "ours": "'ImplementationGeneric'",
+      "parent": "'ImplementationOGS'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[7].value.m_value",
+      "ours": "''",
+      "parent": "'Mats/PlasticVinyl/OGS.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[8].value.m_sName",
+      "ours": "'ImplementationMentalRay'",
+      "parent": "'ImplementationPreview'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[8].value.m_value",
+      "ours": "'Mats/Generic/MentalImage.xml'",
+      "parent": "'Mats/PlasticVinyl/PreviewColor.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].ptr_class",
+      "ours": "'APropertyString'",
+      "parent": "'APropertyInteger'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].value.m_sName",
+      "ours": "'ImplementationOGS'",
+      "parent": "'SchemaVersion'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].value.m_value",
+      "ours": "'Mats/Generic/OGS.xml'",
+      "parent": "4"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[10].value.m_sName",
+      "ours": "'ImplementationPreview'",
+      "parent": "'UIDefinition'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[10].value.m_value",
+      "ours": "'Mats/Generic/PreviewColor.xml'",
+      "parent": "'Mats/PlasticVinyl/PlasticVinylUI.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].ptr_class",
+      "ours": "'APropertyInteger'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].value.m_sName",
+      "ours": "'SchemaVersion'",
+      "parent": "'UIName'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].value.m_value",
+      "ours": "4",
+      "parent": "'Smooth - Light Gray'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 171941,
+    "len_ours": 4625,
+    "len_parent": 17891,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "AppearanceAssetElem",
+      "class_parent": "AppearanceAssetElem"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[len]",
+      "ours": 59,
+      "parent": 55
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[0].value.m_sName",
+      "ours": "'ShadingModel'",
+      "parent": "'AdvancedUIDefinition'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[0].value.m_value",
+      "ours": "'Unknown'",
+      "parent": "'Mats/Metal/metalAdvancedUI.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[1].value.m_sName",
+      "ours": "'AdvancedUIDefinition'",
+      "parent": "'AssetLibID'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[1].value.m_value",
+      "ours": "'Mats/Generic/GenericAdvancedUI.xml'",
+      "parent": "'AD121259-C03E-4A1D-92D8-59A22B4807AD'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].ptr_class",
+      "ours": "'APropertyBoolean'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].value.m_sName",
+      "ours": "'MultiLayer'",
+      "parent": "'BaseSchema'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].value.m_value",
+      "ours": "False",
+      "parent": "'MetalSchema'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[3].value.m_sName",
+      "ours": "'AssetLibID'",
+      "parent": "'ExchangeGUID'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[3].value.m_value",
+      "ours": "'OURS-0000-0000-0000-000000000000'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].ptr_class",
+      "ours": "'APropertyString'",
+      "parent": "'APropertyBoolean'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].value.m_sName",
+      "ours": "'BaseSchema'",
+      "parent": "'Hidden'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].value.m_value",
+      "ours": "'GenericSchema'",
+      "parent": "False"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[5].value.m_sName",
+      "ours": "'ExchangeGUID'",
+      "parent": "'ImplementationGeneric'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[5].value.m_value",
+      "ours": "''",
+      "parent": "'Mats/Metal/Generic.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].ptr_class",
+      "ours": "'APropertyBoolean'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].value.m_sName",
+      "ours": "'Hidden'",
+      "parent": "'ImplementationMentalRay'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].value.m_value",
+      "ours": "False",
+      "parent": "'Mats/Metal/MentalImage.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[7].value.m_sName",
+      "ours": "'ImplementationGeneric'",
+      "parent": "'ImplementationOGS'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[7].value.m_value",
+      "ours": "''",
+      "parent": "'Mats/Metal/OGS.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[8].value.m_sName",
+      "ours": "'ImplementationMentalRay'",
+      "parent": "'ImplementationPreview'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[8].value.m_value",
+      "ours": "'Mats/Generic/MentalImage.xml'",
+      "parent": "'Mats/Metal/PreviewColor.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].ptr_class",
+      "ours": "'APropertyString'",
+      "parent": "'APropertyInteger'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].value.m_sName",
+      "ours": "'ImplementationOGS'",
+      "parent": "'SchemaVersion'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].value.m_value",
+      "ours": "'Mats/Generic/OGS.xml'",
+      "parent": "4"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[10].value.m_sName",
+      "ours": "'ImplementationPreview'",
+      "parent": "'UIDefinition'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[10].value.m_value",
+      "ours": "'Mats/Generic/PreviewColor.xml'",
+      "parent": "'Mats/Metal/metalUI.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].ptr_class",
+      "ours": "'APropertyInteger'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].value.m_sName",
+      "ours": "'SchemaVersion'",
+      "parent": "'UIName'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].value.m_value",
+      "ours": "4",
+      "parent": "'Copper - Satin'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 171944,
+    "len_ours": 4629,
+    "len_parent": 18408,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "AppearanceAssetElem",
+      "class_parent": "AppearanceAssetElem"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[len]",
+      "ours": 59,
+      "parent": 55
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[0].value.m_sName",
+      "ours": "'ShadingModel'",
+      "parent": "'AdvancedUIDefinition'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[0].value.m_value",
+      "ours": "'Unknown'",
+      "parent": "'Mats/Metal/metalAdvancedUI.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[1].value.m_sName",
+      "ours": "'AdvancedUIDefinition'",
+      "parent": "'AssetLibID'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[1].value.m_value",
+      "ours": "'Mats/Generic/GenericAdvancedUI.xml'",
+      "parent": "'AD121259-C03E-4A1D-92D8-59A22B4807AD'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].ptr_class",
+      "ours": "'APropertyBoolean'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].value.m_sName",
+      "ours": "'MultiLayer'",
+      "parent": "'BaseSchema'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[2].value.m_value",
+      "ours": "False",
+      "parent": "'MetalSchema'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[3].value.m_sName",
+      "ours": "'AssetLibID'",
+      "parent": "'ExchangeGUID'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[3].value.m_value",
+      "ours": "'OURS-0000-0000-0000-000000000000'",
+      "parent": "''"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].ptr_class",
+      "ours": "'APropertyString'",
+      "parent": "'APropertyBoolean'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].value.m_sName",
+      "ours": "'BaseSchema'",
+      "parent": "'Hidden'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[4].value.m_value",
+      "ours": "'GenericSchema'",
+      "parent": "False"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[5].value.m_sName",
+      "ours": "'ExchangeGUID'",
+      "parent": "'ImplementationGeneric'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[5].value.m_value",
+      "ours": "''",
+      "parent": "'Mats/Metal/Generic.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].ptr_class",
+      "ours": "'APropertyBoolean'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].value.m_sName",
+      "ours": "'Hidden'",
+      "parent": "'ImplementationMentalRay'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[6].value.m_value",
+      "ours": "False",
+      "parent": "'Mats/Metal/MentalImage.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[7].value.m_sName",
+      "ours": "'ImplementationGeneric'",
+      "parent": "'ImplementationOGS'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[7].value.m_value",
+      "ours": "''",
+      "parent": "'Mats/Metal/OGS.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[8].value.m_sName",
+      "ours": "'ImplementationMentalRay'",
+      "parent": "'ImplementationPreview'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[8].value.m_value",
+      "ours": "'Mats/Generic/MentalImage.xml'",
+      "parent": "'Mats/Metal/PreviewColor.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].ptr_class",
+      "ours": "'APropertyString'",
+      "parent": "'APropertyInteger'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].value.m_sName",
+      "ours": "'ImplementationOGS'",
+      "parent": "'SchemaVersion'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[9].value.m_value",
+      "ours": "'Mats/Generic/OGS.xml'",
+      "parent": "4"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[10].value.m_sName",
+      "ours": "'ImplementationPreview'",
+      "parent": "'UIDefinition'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[10].value.m_value",
+      "ours": "'Mats/Generic/PreviewColor.xml'",
+      "parent": "'Mats/Metal/metalUI.xml'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].ptr_class",
+      "ours": "'APropertyInteger'",
+      "parent": "'APropertyString'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].value.m_sName",
+      "ours": "'SchemaVersion'",
+      "parent": "'UIName'"
+     },
+     {
+      "path": ".m_pAppearanceAsset.value.m_Asset.m_aAProperties[11].value.m_value",
+      "ours": "4",
+      "parent": "'Semi-Polished'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 13,
+    "blocks_out": 11
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 18,
+  "slots_with_registry_surface": 18,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 171886,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppearanceAssetTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 171938,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppearanceAssetTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 171941,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppearanceAssetTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 171944,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppearanceAssetTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 172415,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppearanceAssetTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElemsSetWithCellsTracking.m_elemIdSetMap[*].second.m_idSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 172485,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppearanceAssetTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 172497,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppearanceAssetTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 174486,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppearanceAssetTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElemsSetWithCellsTracking.m_elemIdSetMap[*].second.m_idSet[*]"
+    ],
+    "n_paths": 2
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 18,
+  "pairs_ok": 18,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 171886,
+   "class": "AppearanceAssetElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 558,
+    "modified_ep": 987,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 171938,
+   "class": "AppearanceAssetElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 558,
+    "modified_ep": 987,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 171941,
+   "class": "AppearanceAssetElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 558,
+    "modified_ep": 987,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 171944,
+   "class": "AppearanceAssetElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 558,
+    "modified_ep": 987,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 172415,
+   "class": "AppearanceAssetElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 559,
+    "modified_ep": 987,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 172485,
+   "class": "AppearanceAssetElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 559,
+    "modified_ep": 987,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 16,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_a/Z_asset.rvt",
+  "elements": 3342,
+  "file_size": 626688,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "AppearanceAssetElem": {
+   "slots": 18,
+   "differing_field_paths": {
+    "m_pAppearanceAsset.value.m_Asset.m_aAProperties.#len": 18,
+    "m_pAppearanceAsset.value.m_color": 18,
+    "m_pThumbnail": 18,
+    "m_pAppearanceAsset.value.m_Name": 17,
+    "m_pAppearanceAsset.value.m_Asset.m_sName": 9,
+    "m_cellList": 4,
+    "m_materialPathMap.#len": 4,
+    "m_pAppearanceAsset.value.m_transparency": 2
+   },
+   "declared_ours": [
+    "UIName",
+    "VersionGUID",
+    "category",
+    "common_Tint_color",
+    "description",
+    "generic_diffuse",
+    "generic_glossiness",
+    "generic_is_metal",
+    "generic_reflectivity_*",
+    "generic_transparency",
+    "keyword",
+    "m_color",
+    "m_transparency",
+    "thumbnail"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 171886,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 171938,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 171941,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 171944,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 172415,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 172485,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 172497,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 174486,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 174600,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 194609,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1028789,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1040868,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1170094,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1177772,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1352777,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1389754,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1462679,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1462680,
+   "class": "AppearanceAssetElem"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 171886,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Cast Concrete': diffuse [0.7843, 0.7765, 0.7529, 1.0], gloss 0.2, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Generic'; material referrers [(29, 'MaterialElem'), (8798, 'MaterialElem'), (105006, 'MaterialElem'), (105007, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 171938,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Concrete Masonry': diffuse [0.6745, 0.6588, 0.6196, 1.0], gloss 0.15, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Smooth - Light Gray'; material referrers [(102856, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 171941,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Painted Gypsum': diffuse [0.9647, 0.9647, 0.9412, 1.0], gloss 0.35, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Copper - Satin'; material referrers [(137434, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 171944,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Structural Steel': diffuse [0.5882, 0.5961, 0.6275, 1.0], gloss 0.55, transparency 0.0, metal True; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Semi-Polished'; material referrers [(137433, 'MaterialElem'), (137436, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 172415,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Anodised Aluminium': diffuse [0.7686, 0.7843, 0.8157, 1.0], gloss 0.7, transparency 0.0, metal True; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Dirt - Dark Brown'; material referrers [(519, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 172485,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Clear Glazing': diffuse [0.7765, 0.8627, 0.9255, 1.0], gloss 0.9, transparency 0.7, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Yellow Pine - Solid Natural Low Gloss'; material referrers [(123310, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 172497,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Softwood Lumber': diffuse [0.8, 0.698, 0.549, 1.0], gloss 0.25, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Iron Gray'; material referrers [(137435, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 174486,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Rigid Insulation': diffuse [0.9804, 0.9412, 0.7843, 1.0], gloss 0.1, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Plywood - New'; material referrers [(417, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 174600,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Compacted Earth': diffuse [0.549, 0.4549, 0.3451, 1.0], gloss 0.05, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Generic(2)'; material referrers [(51455, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 194609,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Painted Dark': diffuse [0.2353, 0.2431, 0.2588, 1.0], gloss 0.4, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Metal - Steel - 345 MPa (1)'; material referrers [(509467, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 1028789,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Plastic Laminate': diffuse [0.8706, 0.8706, 0.8471, 1.0], gloss 0.45, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Metal - Steel - 250 MPa (1)'; material referrers [(1028437, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 1040868,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Upholstery Fabric': diffuse [0.4314, 0.3765, 0.3294, 1.0], gloss 0.05, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Metal - Light Gauge (1)'; material referrers [(1040388, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 1170094,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Carpet Tile': diffuse [0.502, 0.502, 0.5255, 1.0], gloss 0.05, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Stainless - Satin'; material referrers [(1168302, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 1177772,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Face Brick': diffuse [0.6745, 0.3765, 0.2902, 1.0], gloss 0.15, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Flat - Gray 1'; material referrers [(1177727, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 1352777,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Ceramic Tile': diffuse [0.9098, 0.9098, 0.8863, 1.0], gloss 0.6, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Satin(1)'; material referrers [(141538, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 1389754,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Asphalt': diffuse [0.2824, 0.2824, 0.2902, 1.0], gloss 0.1, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Lacquer - Clear'; material referrers [(1390010, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 1462679,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Turf': diffuse [0.3843, 0.549, 0.2902, 1.0], gloss 0.05, transparency 0.0, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Panels - Reveal Smooth'; material referrers [(600660, 'MaterialElem')]"
+   ]
+  },
+  {
+   "slot": 1462680,
+   "class": "AppearanceAssetElem",
+   "notes": [
+    "our generic appearance 'GEN Appearance - Water': diffuse [0.4706, 0.6118, 0.7294, 1.0], gloss 0.85, transparency 0.4, metal False; 59-property GenericSchema skeleton = the frozen corpus profile (format constants)",
+    "replaces appearance 'Flat - Broom Gray'; material referrers [(218358, 'MaterialElem')]"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 626688,
+ "seconds": 1.5
+}

@@ -1,0 +1,18 @@
+{
+ "rung": "D_queue",
+ "before": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "after": "experiments/genesis/subst_k4/deletion/D_queue.rvt",
+ "assert_edit_free": "PASS",
+ "summary": "[EDIT-FREE] D_queue vs ZA_deep: removed 238, added 0, common 3,104, SURVIVORS EDITED 0 (vindicated 0)",
+ "report": {
+  "ok": true,
+  "verdict": "EDIT-FREE",
+  "removed": 238,
+  "added": 0,
+  "common": 3104,
+  "survivors_edited": 0,
+  "vindicated": 0,
+  "clause_counts": {},
+  "edits": []
+ }
+}

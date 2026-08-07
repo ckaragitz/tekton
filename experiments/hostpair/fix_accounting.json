@@ -1,0 +1,727 @@
+{
+ "tool": "tools/hostpair_probe.py fixdemo",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "built": {
+  "BXhf_f1i1": {
+   "probe": "BXhf_f1i1",
+   "axis": "the minimal fixed probe: G_ABPD + ONE famgen family + ONE instance, symbols in the corpus-lawful form (famload_hostfix)",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "file": "experiments/hostpair/BXhf_f1i1.rvt",
+   "md5": "1d6d2dd7c2843afe7496d2d5c3139115",
+   "immediate_parent": "experiments/hostpair/_build/hf_chain1/stage_L1_pp1.rvt",
+   "instance_ids": [
+    1472584
+   ],
+   "symbols": [
+    1472582
+   ],
+   "recipe": "tools/bisect_instance_bug chain+place (the BXfix recipe) under famload_hostfix.corpus_symbol_form",
+   "symbol_form": {
+    "1472582": {
+     "ok": true,
+     "counts": {
+      "subs": 3,
+      "faceHist": 9,
+      "edgeHist": 12,
+      "curveHist": 1,
+      "table": 22,
+      "refFaces": 3
+     }
+    }
+   }
+  },
+  "DEMO_250v_room_v3": {
+   "probe": "DEMO_250v_room_v3",
+   "axis": "the user's exact prompt end-to-end through rvt.frontdoor.run with famload_hostfix applied",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "file": "experiments/hostpair/DEMO_250v_room_v3.rvt",
+   "md5": "d7798f2b131e1ad3b906ad44321e4ee3",
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "frontdoor_status": "PROOF-ONLY (self-checks PASS; see honesty.proof_only_stamps + status_gate)",
+   "out_dir": "experiments/hostpair/_build/demo_v3",
+   "prompt": "an electrical room rated for 250V with 6 panels",
+   "symbol_form": {
+    "1472582": {
+     "ok": true,
+     "counts": {
+      "subs": 3,
+      "faceHist": 9,
+      "edgeHist": 12,
+      "curveHist": 1,
+      "table": 22,
+      "refFaces": 3
+     }
+    },
+    "1472641": {
+     "ok": true,
+     "counts": {
+      "subs": 3,
+      "faceHist": 9,
+      "edgeHist": 12,
+      "curveHist": 1,
+      "table": 22,
+      "refFaces": 3
+     }
+    },
+    "1472700": {
+     "ok": true,
+     "counts": {
+      "subs": 3,
+      "faceHist": 9,
+      "edgeHist": 12,
+      "curveHist": 1,
+      "table": 22,
+      "refFaces": 3
+     }
+    },
+    "1472759": {
+     "ok": true,
+     "counts": {
+      "subs": 3,
+      "faceHist": 9,
+      "edgeHist": 12,
+      "curveHist": 1,
+      "table": 22,
+      "refFaces": 3
+     }
+    },
+    "1472818": {
+     "ok": true,
+     "counts": {
+      "subs": 3,
+      "faceHist": 9,
+      "edgeHist": 12,
+      "curveHist": 1,
+      "table": 22,
+      "refFaces": 3
+     }
+    },
+    "1472877": {
+     "ok": true,
+     "counts": {
+      "subs": 3,
+      "faceHist": 9,
+      "edgeHist": 12,
+      "curveHist": 1,
+      "table": 22,
+      "refFaces": 3
+     }
+    }
+   },
+   "instance_ids": [
+    1472879,
+    1472880,
+    1472881,
+    1472882,
+    1472883,
+    1472884
+   ]
+  }
+ },
+ "accounting": {
+  "BXhf_f1i1": {
+   "rung": "BXhf_f1i1",
+   "file": "experiments/hostpair/BXhf_f1i1.rvt",
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "md5": "1d6d2dd7c2843afe7496d2d5c3139115",
+   "validator": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": [],
+    "first_errors": []
+   },
+   "identity_gate": {
+    "status": "PASS",
+    "issues": [],
+    "identity": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "username": "",
+     "last_save_path": "BXhf_f1i1.rvt",
+     "central_model_path": "",
+     "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "format": "2026",
+     "build": "20250227_1515(x64)",
+     "locale": "ENU",
+     "unique_document_increments": "22"
+    },
+    "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+   },
+   "census": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "familymgr_guids": 1,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "coherent": true,
+    "unit_guids": [
+     "17091615-4902-459b-83f6-5a0631932656"
+    ]
+   },
+   "census_delta": {
+    "save_units": 1,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 1,
+    "familymgr_guids": 1
+   },
+   "census_parent": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 9,
+    "familymgr_guids": 0,
+    "coherent": true
+   },
+   "partition_table": {
+    "count": 1,
+    "names": [
+     "Workset1"
+    ],
+    "payload_bytes": 87,
+    "rows_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "storage_index": {
+    "counters": [
+     612,
+     628,
+     628,
+     628,
+     517,
+     628,
+     629,
+     599,
+     517
+    ],
+    "counter_g": 506,
+    "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+    "payload_bytes": 240,
+    "counters_delta": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "counter_g_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "elemtable": {
+    "rows_before": 3102,
+    "rows_after": 3121,
+    "added_ids": [
+     1472566,
+     1472567,
+     1472568,
+     1472569,
+     1472570,
+     1472571,
+     1472572,
+     1472573,
+     1472574,
+     1472575,
+     1472576,
+     1472577,
+     1472578,
+     1472579,
+     1472580,
+     1472581,
+     1472582,
+     1472583,
+     1472584
+    ],
+    "n_added": 19,
+    "removed_ids": [],
+    "watermark_after": 1472584,
+    "added_modified_episodes": [
+     1016
+    ]
+   },
+   "element_diff": {
+    "removed": 0,
+    "added": 60,
+    "common": 3102,
+    "survivors_modified": 0,
+    "modified_seq_hist": {},
+    "added_ids_host": [
+     1472566,
+     1472567,
+     1472568,
+     1472569,
+     1472570,
+     1472571,
+     1472572,
+     1472573,
+     1472574,
+     1472575,
+     1472576,
+     1472577,
+     1472578,
+     1472579,
+     1472580,
+     1472581,
+     1472582,
+     1472583,
+     1472584
+    ]
+   },
+   "survivor_law_ok": true,
+   "streams_changed": [
+    {
+     "stream": "BasicFileInfo",
+     "bytes_before": 2171,
+     "bytes_after": 1903,
+     "delta": -268
+    },
+    {
+     "stream": "Global/ContentDocuments",
+     "bytes_before": 82,
+     "bytes_after": 544,
+     "delta": 462
+    },
+    {
+     "stream": "Global/DocumentIncrementTable",
+     "bytes_before": 1096,
+     "bytes_after": 967,
+     "delta": -129
+    },
+    {
+     "stream": "Global/ElemTable",
+     "bytes_before": 16567,
+     "bytes_after": 17144,
+     "delta": 577
+    },
+    {
+     "stream": "Global/Latest",
+     "bytes_before": 127939,
+     "bytes_after": 127939,
+     "delta": 0
+    },
+    {
+     "stream": "Partitions/21",
+     "bytes_before": 193188,
+     "bytes_after": 205140,
+     "delta": 11952
+    }
+   ],
+   "streams_unchanged": 6,
+   "seconds": 0.5,
+   "gates_ok": true
+  },
+  "DEMO_250v_room_v3": {
+   "rung": "DEMO_250v_room_v3",
+   "file": "experiments/hostpair/DEMO_250v_room_v3.rvt",
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "declared_base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "md5": "d7798f2b131e1ad3b906ad44321e4ee3",
+   "validator": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": [],
+    "first_errors": []
+   },
+   "identity_gate": {
+    "status": "PASS",
+    "issues": [],
+    "identity": {
+     "author": "rvt-writer",
+     "client_app_name": "rvt-writer",
+     "username": "",
+     "last_save_path": "DEMO_250v_room_v3.rvt",
+     "central_model_path": "",
+     "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "format": "2026",
+     "build": "20250227_1515(x64)",
+     "locale": "ENU",
+     "unique_document_increments": "22"
+    },
+    "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+   },
+   "census": {
+    "save_units": 7,
+    "contentdocs_entries": 6,
+    "contenttable_records": 6,
+    "familymgr_entries": 15,
+    "familymgr_guids": 6,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "coherent": true,
+    "unit_guids": [
+     "51a58100-d03e-4b1f-a11e-db7d7af6e910",
+     "6c7fa8a9-e8af-406b-bf88-a14e76e46066",
+     "85041759-7f66-47d6-b6b6-4eb885ffb425",
+     "b9c74526-968c-4fd7-97de-49b9c453e6ed",
+     "c5a2a636-fcf5-4808-a404-24d13274b8a0",
+     "f8126353-91d1-4a62-beb5-3faf7765cb8d"
+    ]
+   },
+   "census_delta": {
+    "save_units": 6,
+    "contentdocs_entries": 6,
+    "contenttable_records": 6,
+    "familymgr_entries": 6,
+    "familymgr_guids": 6
+   },
+   "census_parent": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 9,
+    "familymgr_guids": 0,
+    "coherent": true
+   },
+   "partition_table": {
+    "count": 1,
+    "names": [
+     "Workset1"
+    ],
+    "payload_bytes": 87,
+    "rows_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "storage_index": {
+    "counters": [
+     612,
+     628,
+     628,
+     628,
+     517,
+     628,
+     629,
+     599,
+     517
+    ],
+    "counter_g": 506,
+    "creation_guid": "e3e052f8-0156-11d5-9301-0000863f27ad",
+    "payload_bytes": 240,
+    "counters_delta": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "counter_g_delta": 0,
+    "byte_identical_to_parent": true
+   },
+   "elemtable": {
+    "rows_before": 3102,
+    "rows_after": 3216,
+    "added_ids": [
+     1472566,
+     1472567,
+     1472568,
+     1472569,
+     1472570,
+     1472571,
+     1472572,
+     1472573,
+     1472574,
+     1472575,
+     1472576,
+     1472577,
+     1472578,
+     1472579,
+     1472580,
+     1472581,
+     1472582,
+     1472583,
+     1472625,
+     1472626,
+     1472627,
+     1472628,
+     1472629,
+     1472630,
+     1472631,
+     1472632,
+     1472633,
+     1472634,
+     1472635,
+     1472636,
+     1472637,
+     1472638,
+     1472639,
+     1472640,
+     1472641,
+     1472642,
+     1472684,
+     1472685,
+     1472686,
+     1472687,
+     1472688,
+     1472689,
+     1472690,
+     1472691,
+     1472692,
+     1472693,
+     1472694,
+     1472695,
+     1472696,
+     1472697,
+     1472698,
+     1472699,
+     1472700,
+     1472701,
+     1472743,
+     1472744,
+     1472745,
+     1472746,
+     1472747,
+     1472748,
+     1472749,
+     1472750,
+     1472751,
+     1472752,
+     1472753,
+     1472754,
+     1472755,
+     1472756,
+     1472757,
+     1472758,
+     1472759,
+     1472760,
+     1472802,
+     1472803,
+     1472804,
+     1472805,
+     1472806,
+     1472807,
+     1472808,
+     1472809,
+     1472810,
+     1472811,
+     1472812,
+     1472813,
+     1472814,
+     1472815,
+     1472816,
+     1472817,
+     1472818,
+     1472819,
+     1472861,
+     1472862,
+     1472863,
+     1472864,
+     1472865,
+     1472866,
+     1472867,
+     1472868,
+     1472869,
+     1472870,
+     1472871,
+     1472872,
+     1472873,
+     1472874,
+     1472875,
+     1472876,
+     1472877,
+     1472878,
+     1472879,
+     1472880,
+     1472881,
+     1472882,
+     1472883,
+     1472884
+    ],
+    "n_added": 114,
+    "removed_ids": [],
+    "watermark_after": 1472884,
+    "added_modified_episodes": [
+     1016
+    ]
+   },
+   "element_diff": {
+    "removed": 0,
+    "added": 360,
+    "common": 3102,
+    "survivors_modified": 0,
+    "modified_seq_hist": {},
+    "added_ids_host": [
+     1472566,
+     1472567,
+     1472568,
+     1472569,
+     1472570,
+     1472571,
+     1472572,
+     1472573,
+     1472574,
+     1472575,
+     1472576,
+     1472577,
+     1472578,
+     1472579,
+     1472580,
+     1472581,
+     1472582,
+     1472583,
+     1472625,
+     1472626,
+     1472627,
+     1472628,
+     1472629,
+     1472630,
+     1472631,
+     1472632,
+     1472633,
+     1472634,
+     1472635,
+     1472636,
+     1472637,
+     1472638,
+     1472639,
+     1472640,
+     1472641,
+     1472642,
+     1472684,
+     1472685,
+     1472686,
+     1472687,
+     1472688,
+     1472689,
+     1472690,
+     1472691,
+     1472692,
+     1472693,
+     1472694,
+     1472695,
+     1472696,
+     1472697,
+     1472698,
+     1472699,
+     1472700,
+     1472701,
+     1472743,
+     1472744,
+     1472745,
+     1472746,
+     1472747,
+     1472748,
+     1472749,
+     1472750,
+     1472751,
+     1472752,
+     1472753,
+     1472754,
+     1472755,
+     1472756,
+     1472757,
+     1472758,
+     1472759,
+     1472760,
+     1472802,
+     1472803,
+     1472804,
+     1472805,
+     1472806,
+     1472807,
+     1472808,
+     1472809,
+     1472810,
+     1472811,
+     1472812,
+     1472813,
+     1472814,
+     1472815,
+     1472816,
+     1472817,
+     1472818,
+     1472819,
+     1472861,
+     1472862,
+     1472863,
+     1472864,
+     1472865,
+     1472866,
+     1472867,
+     1472868,
+     1472869,
+     1472870,
+     1472871,
+     1472872,
+     1472873,
+     1472874,
+     1472875,
+     1472876,
+     1472877,
+     1472878,
+     1472879,
+     1472880,
+     1472881,
+     1472882,
+     1472883,
+     1472884
+    ]
+   },
+   "survivor_law_ok": true,
+   "streams_changed": [
+    {
+     "stream": "BasicFileInfo",
+     "bytes_before": 2171,
+     "bytes_after": 1935,
+     "delta": -236
+    },
+    {
+     "stream": "Global/ContentDocuments",
+     "bytes_before": 82,
+     "bytes_after": 2024,
+     "delta": 1942
+    },
+    {
+     "stream": "Global/DocumentIncrementTable",
+     "bytes_before": 1096,
+     "bytes_after": 967,
+     "delta": -129
+    },
+    {
+     "stream": "Global/ElemTable",
+     "bytes_before": 16567,
+     "bytes_after": 17144,
+     "delta": 577
+    },
+    {
+     "stream": "Global/Latest",
+     "bytes_before": 127939,
+     "bytes_after": 127939,
+     "delta": 0
+    },
+    {
+     "stream": "Partitions/21",
+     "bytes_before": 193188,
+     "bytes_after": 253319,
+     "delta": 60131
+    }
+   ],
+   "streams_unchanged": 6,
+   "seconds": 0.5,
+   "gates_ok": true
+  }
+ },
+ "errors": {},
+ "seconds": 21.7,
+ "note": "gates re-run against the STAGED batch-39 bytes (restored from experiments/acceptance/); fresh GUIDs are minted per fixdemo rebuild -- the staged bytes are canonical"
+}

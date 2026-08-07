@@ -1,0 +1,111 @@
+{
+ "stream": "render-emit (genesis-11): BAKED wall geometry so created walls RENDER (LOAD is not RENDER -- the cloud extractor draws baked seq-103 geometry only)",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "ZA_deep = certified deep genesis rung (ORCHESTRATOR VERDICTS #18: ZA_deep PASS)"
+  },
+  "note": "every ZA_deep-based candidate declares this SAME certified base"
+ },
+ "standing_control": {
+  "file": "experiments/ifc_room/render/CTRL_ZA_deep_render.rvt",
+  "identical_to": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "purpose": "byte-identical copy of the certified base -- read FIRST; a control FAIL voids the round"
+ },
+ "read_order": "control FIRST; then walls_only_dummy (the LOAD-certified wall state, rebuilt); then wall_baked_min (single baked wall); then walls_baked / walls_baked_reponly; the diagnostic rst-hosted probe reads INDEPENDENTLY of the ZA_deep set",
+ "the_render_gate": "for each baked probe read TWO things: (1) LOAD (translation) PASS/FAIL as before, (2) the MODEL TREE / 3D view: do the wall elements appear (a rendered element = a browser node under its level with an eye toggle)? A LOAD PASS with an empty tree = the geometry did not draw.",
+ "known_co_blocker": "ZA_deep carries NO Walls-category projection GStyleElem (rst row 30, one of the GC'd catalog rows; its category catalog HAS the rows for Levels(144)/Doors(44)/ElectricalEquipment(124)/Lines(69) which DO render). The baked reps reference root category 30 (dangling until the ADD-cat rung restores it). The rst-hosted diagnostic probe isolates this variable.",
+ "reading_the_results": {
+  "control FAIL": "oracle/environment problem -- every verdict VOID",
+  "dummy control PASS + wall_min renders": "created walls RENDER: the render track's core question answered YES",
+  "wall_min LOAD-PASS but empty": "the geometry did not draw -- if the rst-hosted diagnostic RENDERS, the fix is the ADD-cat rung (Walls GStyle row 30 + friends), not the geometry",
+  "diag renders + ZA_deep does not": "the ADD-cat rung is the render blocker",
+  "diag does not render": "the constructed grammar -- read the card, compare with the archaeology stream's rvt.render.brep box (a second, independent construction to A/B)"
+ },
+ "probes": [
+  {
+   "file": "experiments/ifc_room/render/walls_baked.rvt",
+   "probe": "REND_walls_baked",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "1802fe8916cc925f68ce4c36685b85a8",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "render_readback_all_baked": true,
+   "tests": "the room's four walls with BAKED reps: are the created walls now VISIBLE in the model tree / 3D (the RENDER gate) and does the file still LOAD?",
+   "if_PASS": "created walls RENDER on the family-free genesis base -- LOAD is now also RENDER for the wall layer",
+   "if_FAIL": "read the card + the model tree: 'Design is empty'/no wall nodes with LOAD ok => the geometry did not draw (root category / material / grammar) -- compare wall_baked_min and the diagnostic rst-hosted probe; a LOAD failure => bisect vs walls_baked_reponly (bookkeeping) and walls_only_dummy (the certified state)",
+   "render": {
+    "gate": "RENDER (model tree contains 4 wall nodes; 3D shows the 9.2 x 6.2 m room ring)",
+    "load_control": "walls_only_dummy.rvt"
+   }
+  },
+  {
+   "file": "experiments/ifc_room/render/walls_baked_reponly.rvt",
+   "probe": "REND_walls_baked_reponly",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "b4b7e47986ce0724337b05f63d7a0cc3",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "render_readback_all_baked": true,
+   "tests": "same as REND_walls_baked but the cloned geometry-history bookkeeping is UNTOUCHED -- only the seq-103 rep changed vs walls_only_dummy",
+   "if_PASS": "the rep alone renders (bookkeeping normalization not required)",
+   "if_FAIL": "if REND_walls_baked passes and this fails: the bookkeeping/rep mismatch matters to the extractor; if both fail: the rep/grammar or the base"
+  },
+  {
+   "file": "experiments/ifc_room/render/wall_baked_min.rvt",
+   "probe": "REND_wall_min",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "58cf7111ac024193620d016302e40a9b",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "render_readback_all_baked": true,
+   "tests": "the certified base + ONE baked wall: the cleanest render test",
+   "if_PASS": "a single created wall renders on ZA_deep",
+   "if_FAIL": "no wall node / 'Design is empty' => our baked geometry or a missing base prerequisite (the Walls-category GStyle row 30 is absent from ZA_deep -- see the diagnostic probe); a LOAD failure => the bake path itself"
+  },
+  {
+   "file": "experiments/ifc_room/render/wall_baked_min_catneg.rvt",
+   "probe": "REND_wall_min_catneg",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "cbc832954ae5f7fa4c61e52d747b3a78",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "render_readback_all_baked": true,
+   "tests": "the single baked wall with rep ROOT category -1 instead of the dangling Walls GStyle id 30 (root-category A/B)",
+   "if_PASS": "the extractor draws a wall rep with no category style -> the root category is not the gate",
+   "if_FAIL": "if REND_wall_min passes and this fails (or vice versa): the root category id matters -- keep the winning form"
+  },
+  {
+   "file": "experiments/ifc_room/render/walls_only_dummy.rvt",
+   "probe": "REND_walls_dummy_control",
+   "kind": "control-probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "9e8d64f07fa36034c9e987c294d4f37f",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "render_readback_all_baked": false,
+   "tests": "the same four walls WITHOUT baking (SerializedDummy reps) -- the wall layer in its LOAD-certified state, rebuilt this session",
+   "if_PASS": "LOAD control for the wall layer (must PASS; renders nothing by design)",
+   "if_FAIL": "the wall add path regressed vs verdict #22 -- read before the baked probes"
+  },
+  {
+   "file": "experiments/ifc_room/render/diag_rst_wall_baked.rvt",
+   "probe": "REND_diag_rst",
+   "kind": "probe",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "md5": "f473c9015ea4dc0e039995228e1db126",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "render_readback_all_baked": true,
+   "tests": "DIAGNOSTIC on the rst SAMPLE (certified source): one baked wall built by the SAME constructor where the Walls-category GStyle (30), the Default material (24) and native walls all exist",
+   "if_PASS": "our constructor's geometry renders where the category catalog is complete => a ZA_deep render failure is the missing Walls category rows (the ADD-cat rung), NOT the geometry",
+   "if_FAIL": "our geometry does not render even on a complete host => the grammar (read the card / model tree)"
+  }
+ ]
+}

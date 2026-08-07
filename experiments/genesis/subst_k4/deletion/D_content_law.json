@@ -1,0 +1,18 @@
+{
+ "rung": "D_content",
+ "before": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "after": "experiments/genesis/subst_k4/deletion/D_content.rvt",
+ "assert_edit_free": "PASS",
+ "summary": "[EDIT-FREE] D_content vs ZA_deep: removed 4, added 0, common 3,338, SURVIVORS EDITED 0 (vindicated 0)",
+ "report": {
+  "ok": true,
+  "verdict": "EDIT-FREE",
+  "removed": 4,
+  "added": 0,
+  "common": 3338,
+  "survivors_edited": 0,
+  "vindicated": 0,
+  "clause_counts": {},
+  "edits": []
+ }
+}

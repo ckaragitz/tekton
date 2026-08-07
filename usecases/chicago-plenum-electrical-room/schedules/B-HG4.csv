@@ -1,0 +1,12 @@
+panel,ckt,slots,description,load_class,phases,poles,va,amps,breaker_a,wire,continuous,va_A,va_B,va_C
+B-HG4,1,1-3-5,XFMR-LR1 45 kVA 480-208Y/120 primary,xfmr,3,3,45000.0,54.13,70,4 AWG,1,15000.0,15000.0,15000.0
+B-HG4,2,2-4-6,XFMR-LQ1 45 kVA 480-208Y/120 primary,xfmr,3,3,45000.0,54.13,70,4 AWG,1,15000.0,15000.0,15000.0
+B-HG4,7,7-9-11,XFMR-B-SLQ1 45 kVA 480-208Y/120 primary,xfmr,3,3,45000.0,54.13,70,4 AWG,1,15000.0,15000.0,15000.0
+B-HG4,8,8-10-12,UH-E1 unit heater 10 kW 480 V 3-ph,hvac,3,3,10000.0,12.03,20,12 AWG,1,3333.3,3333.3,3333.3
+B-HG4,13,13-15-17,EF-E1 exhaust fan 3 HP 480 V (NEC 430.250 FLA 4.8 A),motor,3,3,3990.6,4.8,20,12 AWG,0,1330.2,1330.2,1330.2
+B-HG4,14,14,Plenum recessed lighting - Area E row 1 (277 V),lighting,1,1,3600.0,13.0,20,12 AWG,1,3600.0,0.0,0.0
+B-HG4,16,16,Plenum recessed lighting - Area E row 2 (277 V),lighting,1,1,3600.0,13.0,20,12 AWG,1,0.0,3600.0,0.0
+B-HG4,18,18,Plenum recessed lighting - Area E row 3 (277 V),lighting,1,1,3600.0,13.0,20,12 AWG,1,0.0,0.0,3600.0
+B-HG4,19,19,Plenum recessed lighting - Area E row 4 (277 V),lighting,1,1,3600.0,13.0,20,12 AWG,1,3600.0,0.0,0.0
+B-HG4,20,20,SPARE,misc,1,1,0.0,0.0,20.0,12 AWG,0,0.0,0.0,0.0
+B-HG4,21,21,SPARE,misc,1,1,0.0,0.0,20.0,12 AWG,0,0.0,0.0,0.0

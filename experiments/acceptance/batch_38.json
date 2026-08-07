@@ -1,0 +1,51 @@
+{
+ "batch": 38,
+ "created": "2026-08-05T02:56:47-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "hostpair: the host-pair byte-copy binary (post-verdict-#33). H9 = H7's exact load with the host family layer replaced by id-rebased BYTE-COPIES of the donor's own NATIVE 22-element host constellation + one instance by H7's exact template recipe; H10 = H9's immediate parent (no instance).  Read experiments/hostpair/probes.json reading_the_matrix; the famload-vs-native fix spec is hostfix_spec.json.",
+ "reading_order": [
+  "CTRL_rstbasicsampleproject_b38.rvt",
+  "H9.rvt",
+  "H10.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/acceptance/CTRL_rstbasicsampleproject_b38.rvt",
+   "staged_as": "experiments/acceptance/CTRL_rstbasicsampleproject_b38.rvt",
+   "md5": "b3235ad2743f19bcfff243654fec35dd",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/rstbasicsampleproject.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 1,
+   "file": "experiments/hostpair/H9.rvt",
+   "staged_as": "experiments/acceptance/H9.rvt",
+   "md5": "2eb3a66f9a1826d9e39542a91492d67e",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/hostpair/probes.json entry 'H9' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 2,
+   "file": "experiments/hostpair/H10.rvt",
+   "staged_as": "experiments/acceptance/H10.rvt",
+   "md5": "e28952e7a10dce3f20c1937fa62dd0d4",
+   "kind": "probe",
+   "control": false,
+   "base": "samples/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/hostpair/probes.json entry 'H10' field 'base'",
+   "base_status": "sample",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  }
+ ]
+}

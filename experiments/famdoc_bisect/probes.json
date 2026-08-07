@@ -1,0 +1,264 @@
+{
+ "stream": "famdoc-bisect: WHAT inside our generated family document does the audit reject when an instance references it -- hybrid ladder on the rst sample (Autodesk famdoc body + our subtrees, one axis per rung)",
+ "base": "samples/rstbasicsampleproject.rvt",
+ "note": "every probe = untouched rst sample + ONE loaded family document + ONE placed instance.  Hybrids are ADD-form (our subtree added to the intact donor body, registered in the donor self-Family like its own members); the donor is the sample's own M_Concrete-Square-Column (unit 36; its native symbol is the V20-certified instance target).  PROOF-ONLY: sample-derived content, quarantined, never shipped.  Fresh GUIDs are minted per rebuild -- re-hash after any rerun.  H1..H7 placement is uniform (template path, null/template connmgr, fixed position); H8 is the demo's own recipe (product connmgr, intent position) so it reproduces the recorded SL_f1i1 FAIL byte-faithfully.",
+ "upload_order_max_information_first": [
+  "H7",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "H8"
+ ],
+ "control": {
+  "source": "samples/rstbasicsampleproject.rvt",
+  "note": "control = byte-identical copy of the UNTOUCHED rst sample (probe_batch stage --control-from)"
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID (oracle/environment) -- interpret nothing",
+  "H7 PASS + H8 FAIL": "the round is bracketed: loader + rebase + placement are lawful on the Autodesk famdoc while our famdoc fails under the SAME path -- the poison is inside our document content; read H1..H5 as convictions.",
+  "H7 FAIL": "the machinery corrupts a LAWFUL document: the axis shifts to the famload treatment itself.  Read H6 -- H6 PASS + H7 FAIL convicts OUR authored minimal inline ADocument (all-null AppInfoManager); both FAIL convicts the unit re-encode/rebase or the famload host flavour: diff the loaded bytes vs the donor's original unit (the segments are re-encoded from the decoded records; the 418/418 roundtrip bounds the delta to the id rebase).  Note V20 already certifies PLACEMENT of this exact symbol shape on this base.",
+  "H1 FAIL (H7 PASS)": "OUR GEOMETRY GRAMMAR CONVICTED: the extrusion/sketch/curve subtree poisons a lawful famdoc when an instance walks it -- the [H]-grammar bake is the fix target (corpus mining spec in instbug-residual corpus_symbols.json).",
+  "H2 FAIL (H7 PASS)": "our parameter/type-table layer convicted (14 ParamElemFamily + row grammar).",
+  "H3 FAIL (H7 PASS)": "our reference/datum layer convicted (ref planes / level / level type grammar).",
+  "H4 FAIL (H7 PASS)": "our view-constellation grammar convicted.",
+  "H5 FAIL (H7 PASS)": "our connector layer convicted (ConnectorElem + load classification + param-driven cell).",
+  "H6 verdict": "with H7 PASS it is corroboration (both inline-ADocument forms lawful); with H7 FAIL it splits the inline-ADocument axis from the unit-content axes.",
+  "all H1..H6 PASS + H8 FAIL": "no single added axis reproduces the failure: the defect is in what ONLY H8 carries -- our whole-document composition (the S0 skeleton itself, element ordering, the units/registry singletons, or an interaction of axes).  Next ladder: pairwise axis unions, or the inverse bisection (our doc with donor subtrees).",
+  "multiple axis FAILs": "each failing axis is independently convicted (the add-form makes probes independent); fix in deep-walk rank order H1 > H2 > H3 > H5 > H4."
+ },
+ "companion_evidence": {
+  "accounting": "experiments/famdoc_bisect/accounting.json",
+  "ranked_diff_checklist": "experiments/famdoc_bisect/famdoc_diff.json",
+  "per_probe_hybrid_reports": "experiments/famdoc_bisect/_build/<rung>/hybrid_report.json",
+  "dev_rfas": "experiments/famdoc_bisect/_build/<rung>/<rung>_famdoc.rfa (evidence only, never staged)"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "H7",
+   "file": "experiments/famdoc_bisect/H7.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "control-A: the Autodesk famdoc (id-rebased only)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "control-A: the Autodesk M_Concrete-Square-Column famdoc (id-rebased, otherwise verbatim) famload-loaded into its own rst sample + ONE instance by our template path.  V20 already certified an instance of this family's native symbol on this base -- the ONE new thing is the famload load of the copy.",
+   "expected": "PASS (every ingredient individually certified: famdoc native to the base, famload = L1a/L_v2 lineage, placement = V20)",
+   "md5": "149f5772123036e5a98bb66677c194a1",
+   "symbol_id": 1472947,
+   "family_id": 1472942,
+   "instance_ids": [
+    1472948
+   ],
+   "immediate_parent": "experiments/famdoc_bisect/_build/H7/H7_load.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "famdoc_refs_unresolved_anywhere": 0
+   }
+  },
+  {
+   "order": 2,
+   "rung": "H1",
+   "file": "experiments/famdoc_bisect/H1.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our GEOMETRY subtree added",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "H7 + OUR geometry subtree (ExtrusionElem + VarSketch + 4 CurveElems + SketchPlane) added to the donor famdoc, registered like its own members.  The downlight precedent makes this the prime suspect.",
+   "expected": "the hypothesis-bearing rung: FAIL convicts our geometry",
+   "md5": "bfe5dc60c7ab1bc223309e85c39b650c",
+   "symbol_id": 1474568,
+   "family_id": 1474563,
+   "instance_ids": [
+    1474569
+   ],
+   "immediate_parent": "experiments/famdoc_bisect/_build/H1/H1_load.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "famdoc_refs_unresolved_anywhere": 0
+   }
+  },
+  {
+   "order": 3,
+   "rung": "H2",
+   "file": "experiments/famdoc_bisect/H2.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our PARAMETER/TYPE layer added",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "H7 + OUR parameter/type layer (14 ParamElemFamily + our rows in all four self-Family parameter surfaces).",
+   "expected": "unknown",
+   "md5": "8ffc571394069c0da32decabed0c9dbe",
+   "symbol_id": 1474575,
+   "family_id": 1474556,
+   "instance_ids": [
+    1474576
+   ],
+   "immediate_parent": "experiments/famdoc_bisect/_build/H2/H2_load.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "famdoc_refs_unresolved_anywhere": 0
+   }
+  },
+  {
+   "order": 4,
+   "rung": "H3",
+   "file": "experiments/famdoc_bisect/H3.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our REFERENCE/DATUM layer added",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "H7 + OUR reference/datum layer (2 origin RefPlanes + Level + LevelAttributes).",
+   "expected": "unknown",
+   "md5": "cd412cfcc9a995c5121837204281d062",
+   "symbol_id": 1474547,
+   "family_id": 1474542,
+   "instance_ids": [
+    1474548
+   ],
+   "immediate_parent": "experiments/famdoc_bisect/_build/H3/H3_load.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "famdoc_refs_unresolved_anywhere": 0
+   }
+  },
+  {
+   "order": 5,
+   "rung": "H4",
+   "file": "experiments/famdoc_bisect/H4.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our VIEW constellation added",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "H7 + OUR plan-view constellation (8 elements).",
+   "expected": "unknown",
+   "md5": "1d275931fafe7aee5c1e67921a193e19",
+   "symbol_id": 1474545,
+   "family_id": 1474540,
+   "instance_ids": [
+    1474546
+   ],
+   "immediate_parent": "experiments/famdoc_bisect/_build/H4/H4_load.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "famdoc_refs_unresolved_anywhere": 0
+   }
+  },
+  {
+   "order": 6,
+   "rung": "H5",
+   "file": "experiments/famdoc_bisect/H5.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "our CONNECTOR layer added",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "H7 + OUR connector layer (ConnectorElem + ElectricalLoadClassification + the apparent-load param), face ref repointed to the donor solid (tag 2 exists on both).",
+   "expected": "unknown",
+   "md5": "534773e7bdaeca3b91648ba1049cf657",
+   "symbol_id": 1474571,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474572
+   ],
+   "immediate_parent": "experiments/famdoc_bisect/_build/H5/H5_load.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "famdoc_refs_unresolved_anywhere": 0
+   }
+  },
+  {
+   "order": 7,
+   "rung": "H6",
+   "file": "experiments/famdoc_bisect/H6.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "control-A with the donor's OWN inline ADocument carried",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "H7's document with the DONOR's OWN inline ADocument (131 populated family-editor registries, remapped) in the ContentDocuments entry instead of our authored all-null one.",
+   "expected": "PASS if H7 passes (corroboration); the split matters only under H7 FAIL",
+   "md5": "a1099ab6d7a4cf165a5736fcc10f9dd5",
+   "symbol_id": 1472947,
+   "family_id": 1472942,
+   "instance_ids": [
+    1472948
+   ],
+   "immediate_parent": "experiments/famdoc_bisect/_build/H6/H6_load_adoc.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "famdoc_refs_unresolved_anywhere": 0
+   }
+  },
+  {
+   "order": 8,
+   "rung": "H8",
+   "file": "experiments/famdoc_bisect/H8.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "control-B: our famdoc verbatim (known-FAIL anchor)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "control-B: OUR famdoc verbatim through the same famload path + the demo's own placement (the SL_f1i1 recipe) -- the known-FAIL anchor.",
+   "expected": "FAIL (the recorded SL_f1i1 verdict reproduces)",
+   "md5": "ea18a034bb7500d4a6ba3f32e7547f65",
+   "symbol_id": 1472583,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/famdoc_bisect/_build/H8/H8_load.rvt",
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "famdoc_refs_unresolved_anywhere": null
+   }
+  }
+ ]
+}

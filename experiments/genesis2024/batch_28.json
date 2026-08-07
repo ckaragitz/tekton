@@ -1,0 +1,64 @@
+{
+ "batch": 28,
+ "created": "2026-08-04T23:14:01-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "2024 campaign round 1: every entry a candidate-base (no 2024 file is certified yet); control = the untouched Autodesk 2024 rst sample, which also answers 'does the viewer read 2024 uploads?'.  The 2025 precedent (verdicts #28: the whole lineage certified in one round) motivates staging the spine only (R9 -> K3 -> B2024_K4); R5..R8_2024 are on disk for bisection.  Read with probe_batch.read_batch_verdicts; certification cascades R9 -> K3 -> B2024_K4.",
+ "reading_order": [
+  "CTRL_rstbasicsampleproject_b28.rvt",
+  "R9_2024.rvt",
+  "K3_2024.rvt",
+  "B2024_K4.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/genesis2024/CTRL_rstbasicsampleproject_b28.rvt",
+   "staged_as": "experiments/genesis2024/CTRL_rstbasicsampleproject_b28.rvt",
+   "md5": "2fe4eb044bd17f04da2eb12585d188ab",
+   "kind": "control",
+   "control": true,
+   "control_source": "samples/2024/rstbasicsampleproject.rvt",
+   "base": "samples/2024/rstbasicsampleproject.rvt",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 1,
+   "file": "experiments/genesis2024/reduce/R9_2024.rvt",
+   "staged_as": "experiments/genesis2024/R9_2024.rvt",
+   "md5": "cdf4a8579c4482aba87fd19b7b1c1da0",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "samples/2024/rstbasicsampleproject.rvt",
+   "base_declared_by": "experiments/genesis2024/probes.json entry 'R9_2024' field 'base'",
+   "base_status": "sample (lineage informational only for a candidate-base)",
+   "base_certification": "Autodesk-authored sample (the reader's own reference file; source of every certified lineage)"
+  },
+  {
+   "order": 2,
+   "file": "experiments/genesis2024/reduce/K3_2024.rvt",
+   "staged_as": "experiments/genesis2024/K3_2024.rvt",
+   "md5": "710d3eda1ee7602fea82aee59148d553",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2024/reduce/R9_2024.rvt",
+   "base_declared_by": "experiments/genesis2024/probes.json entry 'K3_2024' field 'base'",
+   "base_status": "unknown (lineage informational only for a candidate-base)",
+   "base_certification": null
+  },
+  {
+   "order": 3,
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "staged_as": "experiments/genesis2024/B2024_K4.rvt",
+   "md5": "b953513bf80a963021b7de8e96d1be9d",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2024/reduce/K3_2024.rvt",
+   "base_declared_by": "experiments/genesis2024/probes.json entry 'B2024_K4' field 'base'",
+   "base_status": "unknown (lineage informational only for a candidate-base)",
+   "base_certification": null
+  }
+ ]
+}

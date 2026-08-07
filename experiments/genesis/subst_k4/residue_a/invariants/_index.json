@@ -1,0 +1,168 @@
+{
+ "DimensionStyle": {
+  "n": 120,
+  "per_file": {
+   "rstbasicsampleproject": 16,
+   "rstadvancedsampleproject": 24,
+   "racbasicsampleproject": 16,
+   "racadvancedsampleproject": 21,
+   "rmebasicsampleproject": 19,
+   "dach-sample-project": 24
+  },
+  "rules": 214
+ },
+ "LeaderStyle": {
+  "n": 1024,
+  "per_file": {
+   "rstbasicsampleproject": 61,
+   "rstadvancedsampleproject": 193,
+   "racbasicsampleproject": 119,
+   "racadvancedsampleproject": 136,
+   "rmebasicsampleproject": 215,
+   "dach-sample-project": 300
+  },
+  "rules": 92
+ },
+ "GridAttributes": {
+  "n": 11,
+  "per_file": {
+   "rstbasicsampleproject": 1,
+   "rstadvancedsampleproject": 3,
+   "racbasicsampleproject": 1,
+   "racadvancedsampleproject": 3,
+   "rmebasicsampleproject": 1,
+   "dach-sample-project": 2
+  },
+  "rules": 85
+ },
+ "InteriorElevAttributes": {
+  "n": 49,
+  "per_file": {
+   "rstbasicsampleproject": 9,
+   "rstadvancedsampleproject": 10,
+   "racbasicsampleproject": 9,
+   "racadvancedsampleproject": 11,
+   "rmebasicsampleproject": 9,
+   "dach-sample-project": 1
+  },
+  "rules": 90
+ },
+ "CalloutTag": {
+  "n": 53,
+  "per_file": {
+   "rstbasicsampleproject": 9,
+   "rstadvancedsampleproject": 10,
+   "racbasicsampleproject": 9,
+   "racadvancedsampleproject": 11,
+   "rmebasicsampleproject": 10,
+   "dach-sample-project": 4
+  },
+  "rules": 71
+ },
+ "LinearDimString": {
+  "n": 1395,
+  "per_file": {
+   "rstbasicsampleproject": 300,
+   "rstadvancedsampleproject": 113,
+   "racbasicsampleproject": 112,
+   "racadvancedsampleproject": 270,
+   "rmebasicsampleproject": 300,
+   "dach-sample-project": 300
+  },
+  "rules": 308
+ },
+ "Grid": {
+  "n": 113,
+  "per_file": {
+   "rstbasicsampleproject": 16,
+   "rstadvancedsampleproject": 27,
+   "racbasicsampleproject": 14,
+   "racadvancedsampleproject": 22,
+   "rmebasicsampleproject": 22,
+   "dach-sample-project": 12
+  },
+  "rules": 186
+ },
+ "CurveElem": {
+  "n": 1755,
+  "per_file": {
+   "rstbasicsampleproject": 300,
+   "rstadvancedsampleproject": 300,
+   "racbasicsampleproject": 256,
+   "racadvancedsampleproject": 300,
+   "rmebasicsampleproject": 300,
+   "dach-sample-project": 299
+  },
+  "rules": 285
+ },
+ "LegendComponent": {
+  "n": 832,
+  "per_file": {
+   "rstbasicsampleproject": 96,
+   "rstadvancedsampleproject": 78,
+   "racbasicsampleproject": 89,
+   "racadvancedsampleproject": 111,
+   "rmebasicsampleproject": 158,
+   "dach-sample-project": 300
+  },
+  "rules": 130
+ },
+ "LevelRoomPlan": {
+  "n": 37,
+  "per_file": {
+   "rstbasicsampleproject": 1,
+   "racbasicsampleproject": 2,
+   "racadvancedsampleproject": 6,
+   "rmebasicsampleproject": 6,
+   "dach-sample-project": 22
+  },
+  "rules": 154
+ },
+ "AppearanceAssetElem": {
+  "n": 1196,
+  "per_file": {
+   "rstbasicsampleproject": 131,
+   "rstadvancedsampleproject": 265,
+   "racbasicsampleproject": 156,
+   "racadvancedsampleproject": 251,
+   "rmebasicsampleproject": 241,
+   "dach-sample-project": 152
+  },
+  "rules": 269
+ },
+ "Family": {
+  "n": 831,
+  "per_file": {
+   "rstbasicsampleproject": 50,
+   "rstadvancedsampleproject": 145,
+   "racbasicsampleproject": 94,
+   "racadvancedsampleproject": 116,
+   "rmebasicsampleproject": 159,
+   "dach-sample-project": 267
+  },
+  "rules": 1711
+ },
+ "FamilySurrogate": {
+  "n": 848,
+  "per_file": {
+   "rstbasicsampleproject": 50,
+   "rstadvancedsampleproject": 145,
+   "racbasicsampleproject": 94,
+   "racadvancedsampleproject": 116,
+   "rmebasicsampleproject": 159,
+   "dach-sample-project": 284
+  },
+  "rules": 72
+ },
+ "RoomElem": {
+  "n": 416,
+  "per_file": {
+   "rstbasicsampleproject": 31,
+   "racbasicsampleproject": 14,
+   "racadvancedsampleproject": 116,
+   "rmebasicsampleproject": 165,
+   "dach-sample-project": 90
+  },
+  "rules": 251
+ }
+}

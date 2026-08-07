@@ -1,0 +1,286 @@
+{
+  "engine": "tekton-ifc validate",
+  "engine_version": "0.1.0",
+  "file": "/Users/ck/dev/things/tekton/usecases/eaton-panelboard/panelboard.ifc",
+  "file_size": 6892,
+  "schema": {
+    "ran": true,
+    "schema": "IFC4",
+    "n_statements": 0,
+    "n_errors": 0,
+    "n_warnings": 0,
+    "errors": [],
+    "warnings": []
+  },
+  "histogram": {
+    "IfcPropertySingleValue": 27,
+    "IfcDirection": 11,
+    "IfcSIUnit": 8,
+    "IfcCartesianPoint": 6,
+    "IfcAxis2Placement3D": 5,
+    "IfcPropertySet": 4,
+    "IfcRelAggregates": 3,
+    "IfcRelDefinesByProperties": 2,
+    "IfcLocalPlacement": 2,
+    "IfcShapeRepresentation": 2,
+    "IfcPerson": 1,
+    "IfcOrganization": 1,
+    "IfcPersonAndOrganization": 1,
+    "IfcApplication": 1,
+    "IfcOwnerHistory": 1,
+    "IfcRelDefinesByType": 1,
+    "IfcProject": 1,
+    "IfcRelContainedInSpatialStructure": 1,
+    "IfcUnitAssignment": 1,
+    "IfcGeometricRepresentationContext": 1,
+    "IfcGeometricRepresentationSubContext": 1,
+    "IfcSite": 1,
+    "IfcBuilding": 1,
+    "IfcBuildingStorey": 1,
+    "IfcRectangleProfileDef": 1,
+    "IfcExtrudedAreaSolid": 1,
+    "IfcRepresentationMap": 1,
+    "IfcElectricDistributionBoardType": 1,
+    "IfcElectricDistributionBoard": 1,
+    "IfcCartesianTransformationOperator3D": 1,
+    "IfcMappedItem": 1,
+    "IfcProductDefinitionShape": 1
+  },
+  "products": [
+    {
+      "step_id": 67,
+      "guid": "1rRMQdeyDKwA8AJ0Db$4Jn",
+      "class": "IfcElectricDistributionBoard",
+      "predefined_type": "DISTRIBUTIONBOARD",
+      "object_type": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+      "name": "PANEL-A",
+      "description": "Panelboard, 480Y/277 V, 3-phase 4-wire, 400 A bus, main breaker, 42 spaces, 65 kA SCCR, surface mount",
+      "tag": "PANEL-A",
+      "type_name": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+      "type_id": 57,
+      "storey": "Level 1",
+      "storey_class": "IfcBuildingStorey",
+      "revit_category": "Electrical Equipment",
+      "placement_identity": false,
+      "placement_origin": [
+        0.0,
+        0.0,
+        1.067
+      ],
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "Pow-R-Line 4",
+          "ModelReference": "PRL4-400MB-42",
+          "id": 61
+        },
+        "revitbridge_Dimensions": {
+          "Width": 0.508,
+          "Depth": 0.19,
+          "Height": 1.372,
+          "id": 65
+        },
+        "PanelSchedule": {
+          "PanelName": "PANEL-A",
+          "Voltage": 480.0,
+          "SystemDesignation": "480Y/277 V, 3PH, 4W",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 400.0,
+          "MainsType": "Main Breaker",
+          "MainsRating": 400.0,
+          "ShortCircuitRatingkA": 65.0,
+          "Mounting": "Surface",
+          "NumberOfCircuits": 42.0,
+          "NeutralRating": "100%",
+          "DoorPosition": "Right-hinged, door closed",
+          "DoorSwingRadius": 0.508,
+          "WorkingClearanceShown": false,
+          "WorkingClearanceDepth": 1.067,
+          "WorkingClearanceWidth": 0.762,
+          "WorkingClearanceHeight": 1.981,
+          "id": 96
+        },
+        "Pset_ElectricDistributionBoardTypeCommon": {
+          "Reference": "PRL4-400MB-42",
+          "IsMain": true,
+          "NumberOfCircuits": 42.0,
+          "id": 101
+        }
+      },
+      "geometry": {
+        "has_body": true,
+        "kinds": [
+          "mapped(swept)"
+        ],
+        "items": [
+          {
+            "rep_identifier": "Body",
+            "rep_type": "MappedRepresentation",
+            "item": "IfcMappedItem",
+            "kind": "mapped(swept)",
+            "id": 70,
+            "style_name": null,
+            "transparency": 0.0,
+            "map_id": 56
+          }
+        ],
+        "tri_count": 0,
+        "faceset_count": 0,
+        "swept_count": 0,
+        "mapped": true,
+        "all_boxes": false,
+        "boxes": [],
+        "predicted_revit": "DirectShape from mapped/instanced geometry (mapped(swept)): shared type geometry, clean solid, movable",
+        "min_dimension": null,
+        "footprint_area": null
+      }
+    }
+  ],
+  "types": {
+    "type_objects": 1,
+    "rel_defines_by_type": 1,
+    "duplicate_groups": [],
+    "duplicate_type_objects": 0,
+    "products_typed": 1,
+    "products_untyped": 0,
+    "untyped_product_ids": [],
+    "typed_fraction": 1.0
+  },
+  "instancing": {
+    "repeated_groups": [],
+    "unshared_repeated_products": 0,
+    "unshared_fraction": 0.0,
+    "duplicated_triangles": 0
+  },
+  "phantoms": {
+    "count": 0,
+    "high_confidence": 0,
+    "findings": []
+  },
+  "spatial": {
+    "project": "Eaton Pow-R-Line 4 panelboard - parametric equipment spec",
+    "sites": 1,
+    "buildings": 1,
+    "storeys": [
+      {
+        "name": "Level 1",
+        "elevation": 0.0
+      }
+    ],
+    "storey_count": 1,
+    "single_storey": true,
+    "spaces": [],
+    "space_count": 0,
+    "orphan_element_ids": [],
+    "orphan_count": 0,
+    "containment_coverage": 1.0,
+    "elements_per_storey": {
+      "Level 1": 1
+    }
+  },
+  "psets": {
+    "by_class": {
+      "IfcElectricDistributionBoard": {
+        "PanelSchedule": {
+          "PanelName": "IfcLabel",
+          "Voltage": "IfcElectricVoltageMeasure",
+          "SystemDesignation": "IfcLabel",
+          "Phases": "IfcInteger",
+          "Wires": "IfcInteger",
+          "BusRating": "IfcElectricCurrentMeasure",
+          "MainsType": "IfcLabel",
+          "MainsRating": "IfcElectricCurrentMeasure",
+          "ShortCircuitRatingkA": "IfcReal",
+          "Mounting": "IfcLabel",
+          "NumberOfCircuits": "IfcCountMeasure",
+          "NeutralRating": "IfcLabel",
+          "DoorPosition": "IfcLabel",
+          "DoorSwingRadius": "IfcLengthMeasure",
+          "WorkingClearanceShown": "IfcBoolean",
+          "WorkingClearanceDepth": "IfcLengthMeasure",
+          "WorkingClearanceWidth": "IfcLengthMeasure",
+          "WorkingClearanceHeight": "IfcLengthMeasure"
+        },
+        "Pset_ElectricDistributionBoardTypeCommon": {
+          "Reference": "IfcLabel",
+          "IsMain": "IfcBoolean",
+          "NumberOfCircuits": "IfcCountMeasure"
+        }
+      }
+    },
+    "consistency_checks": 0,
+    "consistent": 0,
+    "consistency_ratio": 1.0,
+    "inconsistent": [],
+    "typing_smells": [],
+    "pset_names": [
+      "PanelSchedule",
+      "Pset_ElectricDistributionBoardTypeCommon"
+    ]
+  },
+  "units": {
+    "units": {
+      "AREAUNIT": "SQUARE_METRE",
+      "ELECTRICCURRENTUNIT": "AMPERE",
+      "ELECTRICVOLTAGEUNIT": "VOLT",
+      "FREQUENCYUNIT": "HERTZ",
+      "LENGTHUNIT": "METRE",
+      "PLANEANGLEUNIT": "RADIAN",
+      "POWERUNIT": "WATT",
+      "VOLUMEUNIT": "CUBIC_METRE"
+    },
+    "length_unit": "METRE",
+    "is_metric": true,
+    "electrical_units_missing": [],
+    "issues": []
+  },
+  "score": {
+    "score": 98.8,
+    "tier": "Tier 1 -- clean, movable, dimensionally-honest reference geometry (DirectShape, no MEP connectors)",
+    "components": {
+      "schema": 1.0,
+      "geometry_parametric": 1.0,
+      "placements": 1.0,
+      "typing": 1.0,
+      "instancing": 1.0,
+      "phantom_free": 1.0,
+      "spatial": 0.85,
+      "data": 1.0,
+      "units": 1.0
+    },
+    "weights": {
+      "schema": 8,
+      "geometry_parametric": 28,
+      "placements": 20,
+      "typing": 14,
+      "instancing": 6,
+      "phantom_free": 8,
+      "spatial": 8,
+      "data": 4,
+      "units": 4
+    },
+    "stats": {
+      "products": 1,
+      "with_body": 1,
+      "tessellated": 0,
+      "tessellated_fraction": 0.0,
+      "identity_placements": 0,
+      "identity_fraction": 0.0
+    },
+    "top_fixes": [
+      {
+        "component": "spatial",
+        "impact": 1.2,
+        "fix": "Single storey and no IfcSpace: add one IfcBuildingStorey per real level and IfcSpace for rooms so Revit gets Levels and space data."
+      }
+    ],
+    "all_fixes": [
+      {
+        "component": "spatial",
+        "impact": 1.2,
+        "fix": "Single storey and no IfcSpace: add one IfcBuildingStorey per real level and IfcSpace for rooms so Revit gets Levels and space data."
+      }
+    ]
+  }
+}

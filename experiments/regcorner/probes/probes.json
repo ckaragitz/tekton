@@ -1,0 +1,170 @@
+{
+ "stream": "regcorner: the registration-corner probes (post-verdict-#34).  H9 FAIL + H10 PASS + V20 PASS leaves exactly two suspects: the registration ROW CONTENT famload authors, or a FIFTH project-ADocument surface visited only on the instance walk.  H12/H11/H11x12 split them.",
+ "base": "samples/rstbasicsampleproject.rvt",
+ "note": "all three probes share ONE byte-identical parent load = H9's exact recipe re-run (hostpair_probe.build_load, fresh GUIDs); each probe = parent + exactly its axis edit + one V20-shape instance by H7/H9's exact template recipe.  PROOF-ONLY: sample-derived content, quarantined, never shipped.  Fresh GUIDs are minted per rebuild -- re-hash after any rerun.",
+ "upload_order_max_information_first": [
+  "H12",
+  "H11",
+  "H11x12",
+  "H13"
+ ],
+ "control": {
+  "source": "samples/rstbasicsampleproject.rvt",
+  "note": "control = byte-identical copy of the UNTOUCHED rst sample (probe_batch stage --control-from)"
+ },
+ "recorded_context": {
+  "H9": "FAIL (byte-copied host constellation + famload registration + instance, batch 38)",
+  "H10": "PASS (H9 minus the instance, batch 38)",
+  "V20": "PASS (instance of the NATIVE symbol, no load)",
+  "H6": "FAIL but uninterpretable (populated-adoc axis on famload-authored hosts; H7 FAILED so machinery was the confound, batch 37)"
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID (oracle/environment) -- interpret nothing",
+  "H12 PASS": "the all-null inline ADocument was H9's killer -- the ONE delta vs H9 is the donor's populated inline ADocument.  Fix = author a POPULATED inline ADocument in the product load path (port spec in docs/inbox/regcorner-probes.md: extend rvt.famgen.factory.author_embedded_adocument to populate the family-editor registries, modeled on the corpus 131-slot census).  Expect H11x12 PASS too (superset); H11 verdict then only measures whether the row ALSO matters.",
+  "H12 FAIL + H11 PASS": "the registration ROW CONTENT was the killer -- the ONE delta vs H9 is the ContentTable row re-authored on the native mold.  Before porting, run the field split (H11a author-only / H11b episode-shape-only, pre-branched in the record): the product path must NOT forge 'Autodesk Revit' authorship, so the lawful fix depends on WHICH field discriminates.  Expect H11x12 PASS (superset).",
+  "H12 FAIL + H11 FAIL + H11x12 PASS": "BOTH surfaces are required together (row + populated inline ADocument); port both mechanisms.",
+  "ALL THREE FAIL": "neither suspect-(1) surface (alone or united) cures H9 => the FIFTH SURFACE is convicted by elimination: a project-ADocument reference keyed on content GUID / unit identity outside the four-registry model, visited only on the instance walk.  The surface stream's candidate list (docs/inbox/regcorner-surface.md) drives H13 (`h13` subcommand).",
+  "H11x12 FAIL while H11 or H12 PASS": "lattice-inconsistent (the union of a passing edit failed) -- oracle noise; re-run the round.",
+  "H13 (staged separately, batch 41)": "H13 = H11 + the surface stream's top fifth-surface candidate (CategoryTracking rows for our cluster).  H13 PASS where H11 FAILED convicts the fifth surface; H13 FAIL alongside an all-FAIL batch 40 moves the hunt to the next donor-covered candidate on the ranking."
+ },
+ "companion_evidence": {
+  "accounting": "experiments/regcorner/probes/accounting.json",
+  "row_diff": "experiments/regcorner/probes/row_diff.json",
+  "parent_side_report": "experiments/regcorner/probes/_build/RC_parent_load.rvt.regcorner.json"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "H12",
+   "file": "experiments/regcorner/probes/H12.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "the COMPLETE-COPY probe: parent load + the donor's own POPULATED inline ADocument (H6 swap law) + one V20-shape instance",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "ONE delta vs H9: famload's all-null inline ADocument (0/239 AppInfo registries) replaced by the donor's own POPULATED one (131/239, ids remapped, fresh history identity).  Registration rows stay famload's.  PASS convicts the all-null inline ADocument; FAIL leaves rows / fifth surface.",
+   "expected": "the biggest split: the inline-ADocument axis (H6's FAIL was uninterpretable -- shared machinery; this re-tests it in the byte-copy frame where machinery is exonerated)",
+   "md5": "80321ae42263331fa47e3b26cc5760d0",
+   "symbol_id": 1472961,
+   "family_id": 1472942,
+   "instance_ids": [
+    1472964
+   ],
+   "immediate_parent": "experiments/regcorner/probes/_build/H12_load.rvt",
+   "shared_parent": "experiments/regcorner/probes/_build/RC_parent_load.rvt",
+   "gates": {
+    "validator_errors_probe": 0,
+    "validator_unexpected_probe": 0,
+    "validator_errors_load": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "streams_changed_by_edit": [
+     "Global/ContentDocuments"
+    ],
+    "axis_proofs_ok": true
+   }
+  },
+  {
+   "order": 2,
+   "rung": "H11",
+   "file": "experiments/regcorner/probes/H11.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "the NATIVE-MODELED REGISTRATION probe: parent load + the ContentTable row re-authored field-for-field on the donor's own native row (GUID kept ours) + one V20-shape instance",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "ONE delta vs H9: famload's ContentTable row re-authored field-for-field on the donor's own native row (author 'Autodesk Revit', creation<lastMod stamps, two-bucket m_EpisodeCounts summing to the unit's 417 records), GUID kept ours.  Inline ADocument stays famload's all-null.  PASS convicts the row content; FAIL leaves adoc / fifth surface.",
+   "expected": "the registration-row axis (suspect 1 verbatim)",
+   "md5": "b4a8900c1dde07c2cb13637dc683b072",
+   "symbol_id": 1472961,
+   "family_id": 1472942,
+   "instance_ids": [
+    1472964
+   ],
+   "immediate_parent": "experiments/regcorner/probes/_build/H11_load.rvt",
+   "shared_parent": "experiments/regcorner/probes/_build/RC_parent_load.rvt",
+   "gates": {
+    "validator_errors_probe": 0,
+    "validator_unexpected_probe": 0,
+    "validator_errors_load": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "streams_changed_by_edit": [
+     "Global/Latest"
+    ],
+    "axis_proofs_ok": true
+   }
+  },
+  {
+   "order": 3,
+   "rung": "H11x12",
+   "file": "experiments/regcorner/probes/H11x12.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "the UNION probe: both edits (native-modeled CT row + populated inline ADocument) + one V20-shape instance",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the union of both edits on the same byte-identical parent.  Separates 'both required together' from 'fifth surface' when H11 and H12 both FAIL.",
+   "expected": "the union rung (closes the both-required branch)",
+   "md5": "231e86d0bd949b20bfcadd4ae3dd4309",
+   "symbol_id": 1472961,
+   "family_id": 1472942,
+   "instance_ids": [
+    1472964
+   ],
+   "immediate_parent": "experiments/regcorner/probes/_build/H11x12_load.rvt",
+   "shared_parent": "experiments/regcorner/probes/_build/RC_parent_load.rvt",
+   "gates": {
+    "validator_errors_probe": 0,
+    "validator_unexpected_probe": 0,
+    "validator_errors_load": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "streams_changed_by_edit": [
+     "Global/ContentDocuments",
+     "Global/Latest"
+    ],
+    "axis_proofs_ok": true
+   }
+  },
+  {
+   "order": 4,
+   "rung": "H13",
+   "file": "experiments/regcorner/probes/H13.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "the FIFTH-SURFACE patch: H11's load + the donor cluster's CategoryTracking rows remapped for our copies (the surface stream's top donor-covered candidate) + one V20-shape instance",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "H11's exact load + the donor cluster's CategoryTracking rows (4 categoryData + 4 gstyleData) remapped for our copies at the law-derived positions -- the surface stream's top donor-covered instance-walk candidate.  The ONE thing vs H11: the fifth surface's entries.",
+   "expected": "the fifth-surface rung (H11 + the CategoryTracking rows; staged as its own batch after batch 40)",
+   "md5": "ae3712ef2517ace80d005b7ff87b570e",
+   "symbol_id": 1472961,
+   "family_id": 1472942,
+   "instance_ids": [
+    1472964
+   ],
+   "immediate_parent": "experiments/regcorner/probes/_build/H13_load.rvt",
+   "shared_parent": "experiments/regcorner/probes/_build/RC_parent_load.rvt",
+   "gates": {
+    "validator_errors_probe": 0,
+    "validator_unexpected_probe": 0,
+    "validator_errors_load": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "streams_changed_by_edit": [
+     "Global/Latest"
+    ],
+    "axis_proofs_ok": true
+   }
+  }
+ ]
+}

@@ -1,0 +1,380 @@
+{
+ "stage": "R4",
+ "safe_variant": false,
+ "out": "experiments/genesis/R4.rvt",
+ "file_size": 2859008,
+ "seed": 11097,
+ "deleted": 11097,
+ "surviving_elements": 2839,
+ "elemtable_before": 13936,
+ "records_removed": {
+  "101": 11097,
+  "102": 11097,
+  "103": 11097
+ },
+ "blocks_before": 213,
+ "blocks_after": 14,
+ "structural_ok": true,
+ "verify": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "units": 53,
+  "blocks_unit0": 14,
+  "isize_identity_ok": true,
+  "elemtable_ids_without_record": 0
+ },
+ "walker_errors": [],
+ "dangling": {
+  "survivors_with_dangling_refs": 1184,
+  "dangling_by_survivor_class": [
+   [
+    "GStyleElem",
+    726
+   ],
+   [
+    "CategoryElem",
+    436
+   ],
+   [
+    "Level",
+    9
+   ],
+   [
+    "PhaseFilterElem",
+    5
+   ],
+   [
+    "BasePoint",
+    2
+   ],
+   [
+    "ModelGraphicsStyle",
+    2
+   ],
+   [
+    "AllProjectPhases",
+    1
+   ],
+   [
+    "TrueNorth",
+    1
+   ],
+   [
+    "DBViewType",
+    1
+   ],
+   [
+    "CoordinateSystemDisplayElem",
+    1
+   ]
+  ],
+  "external": {
+   "Global/Latest": {
+    "dangling": 3576,
+    "by_class": [
+     [
+      "ParamElemExternal",
+      466
+     ],
+     [
+      "FamilyInstance",
+      439
+     ],
+     [
+      "RebarInSystem",
+      224
+     ],
+     [
+      "ParamBinding",
+      209
+     ],
+     [
+      "LinePatternElem",
+      136
+     ],
+     [
+      "AppearanceAssetElem",
+      131
+     ],
+     [
+      "HVACLoadSpaceTypeElem",
+      125
+     ],
+     [
+      "Rebar",
+      122
+     ],
+     [
+      "ParamElemElectricalLoadClassification",
+      108
+     ],
+     [
+      "SunAndShadowSettings",
+      90
+     ],
+     [
+      "FillPatternElem",
+      84
+     ],
+     [
+      "MaterialElem",
+      75
+     ]
+    ]
+   },
+   "Global/ContentDocuments": {
+    "dangling": 0,
+    "by_class": []
+   }
+  },
+  "history_invariant_at_risk": false
+ },
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4351
+  ],
+  [
+   "LinearDimString",
+   710
+  ],
+  [
+   "FamilyInstance",
+   497
+  ],
+  [
+   "ParamElemExternal",
+   466
+  ],
+  [
+   "FontElem",
+   263
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "SketchPlane",
+   209
+  ],
+  [
+   "ParamBinding",
+   209
+  ],
+  [
+   "LinePatternElem",
+   150
+  ],
+  [
+   "VarSketch",
+   140
+  ],
+  [
+   "AppearanceAssetElem",
+   131
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "HVACLoadSpaceTypeElem",
+   125
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "ParamElemFamily",
+   120
+  ],
+  [
+   "FillPatternElem",
+   116
+  ],
+  [
+   "ParamElemElectricalLoadClassification",
+   108
+  ],
+  [
+   "FamilySymbol",
+   106
+  ],
+  [
+   "LegendComponent",
+   96
+  ],
+  [
+   "MaterialElem",
+   93
+  ],
+  [
+   "SunAndShadowSettings",
+   90
+  ],
+  [
+   "TextNoteAttributes",
+   90
+  ],
+  [
+   "DBViewType",
+   90
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "Viewport",
+   79
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "LeaderStyle",
+   61
+  ],
+  [
+   "CustomElement",
+   61
+  ],
+  [
+   "TagNoteAttributes",
+   60
+  ],
+  [
+   "DBDrawing",
+   59
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "PropertySetElement",
+   56
+  ],
+  [
+   "FamilySurrogate",
+   50
+  ],
+  [
+   "FamSymSurrogate",
+   50
+  ],
+  [
+   "Family",
+   50
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "SketchGrid",
+   40
+  ]
+ ],
+ "top_survivor_classes": [
+  [
+   "GStyleElem",
+   2183
+  ],
+  [
+   "CategoryElem",
+   616
+  ],
+  [
+   "Level",
+   9
+  ],
+  [
+   "PhaseFilterElem",
+   7
+  ],
+  [
+   "DesignOption",
+   3
+  ],
+  [
+   "WorksharingViewModeSettings",
+   2
+  ],
+  [
+   "ProjectPhase",
+   2
+  ],
+  [
+   "BasePoint",
+   2
+  ],
+  [
+   "GeoSite",
+   2
+  ],
+  [
+   "GeoLocation",
+   2
+  ],
+  [
+   "ModelGraphicsStyle",
+   2
+  ],
+  [
+   "AllProjectPhases",
+   1
+  ],
+  [
+   "TrueNorth",
+   1
+  ],
+  [
+   "ActiveGeoLocationTrackingElement",
+   1
+  ],
+  [
+   "ProjectInfo",
+   1
+  ],
+  [
+   "DBViewType",
+   1
+  ],
+  [
+   "UnitsElem",
+   1
+  ],
+  [
+   "CoordinateSystemDisplayElem",
+   1
+  ],
+  [
+   "KeynoteTable",
+   1
+  ],
+  [
+   "DesignOptionSet",
+   1
+  ]
+ ],
+ "seconds": 4.2
+}

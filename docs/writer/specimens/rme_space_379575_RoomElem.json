@@ -1,0 +1,6582 @@
+{
+ "element_id": 379575,
+ "note": "MEP Space containing the panels",
+ "elemtable": {
+  "found_in_ElemTable": true,
+  "raw_40_bytes_hex": "b7 ca 05 00 00 00 00 00 02 02 00 00 18 03 00 00 24 02 00 00 b7 ca 05 00 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00",
+  "fields": {
+   "+0 u64 m_history.m_originalElementId": 379575,
+   "+8 u32 m_history.m_creationDate (EpisodeId)": 514,
+   "+12 u32 m_history.m_lastModificationDate (EpisodeId)": 792,
+   "+16 u32 m_history.m_lastUserModificationDate": 548,
+   "+20 u64 m_id": 379575,
+   "+28 u64 m_OwningElementId": -1,
+   "+36 u32 m_partitionId": 0
+  }
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 573397,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 379575,
+  "stamp": null,
+  "psize": 353,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 351,
+  "total_record_bytes": 369,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 70 6d e1 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "351/351",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -2003600,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -4225
+   },
+   "m_abFlags4Bytes": 39290,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "RoomElem"
+    }
+   },
+   "m_pBBox": {
+    "ptr_class": "Outline",
+    "pid": -1,
+    "value": {
+     "m_minmax": [
+      [
+       59.256374436,
+       105.086225122,
+       0.308962391
+      ],
+      [
+       68.915972771,
+       125.484847171,
+       11.482939633
+      ]
+     ]
+    }
+   },
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      86961,
+      293241,
+      378117,
+      379574,
+      379575,
+      573302,
+      573390,
+      573607,
+      573608,
+      573809,
+      576071,
+      577552,
+      577894,
+      578008,
+      578433,
+      584650,
+      638826,
+      638828,
+      690425
+     ],
+     "m_regenOnly": [
+      85092,
+      638853,
+      639116
+     ],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [
+      85092,
+      378117
+     ],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": true
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -2003600,
+  "builtin": "OST_MEPSpaces"
+ },
+ "classDef": "RoomElem",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 3425853,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 379575,
+  "stamp": 2660042246,
+  "psize": 11253,
+  "class_id_hex": "0x0ec8",
+  "object_bytes": 11251,
+  "total_record_bytes": 11273,
+  "size_trailer_ok": true,
+  "payload_head_hex": "ff ff ff ff 5d 0c ff ff ff ff 5f 0c ff ff ff ff 5c 0c ff ff ff ff 5e 0c ff ff ff ff f6 08 ff ff",
+  "class": "RoomElem",
+  "clean": true,
+  "consumed_of_object": "11251/11251",
+  "value": {
+   "m_pParamValueSetDouble": {
+    "ptr_class": "ParamValueSetDouble",
+    "pid": -1,
+    "value": {
+     "m_paramSet": [
+      {
+       "m_value": 0.0,
+       "m_paramId": -1114261
+      },
+      {
+       "m_value": 0.0,
+       "m_paramId": -1114260
+      },
+      {
+       "m_value": 0.0,
+       "m_paramId": -1114239
+      },
+      {
+       "m_value": 2333.042547797,
+       "m_paramId": -1114230
+      },
+      {
+       "m_value": 3181.421656087,
+       "m_paramId": -1114229
+      },
+      {
+       "m_value": 0.0,
+       "m_paramId": -1114189
+      },
+      {
+       "m_value": 0.0,
+       "m_paramId": -1114188
+      },
+      {
+       "m_value": 0.0,
+       "m_paramId": -1114175
+      },
+      {
+       "m_value": 0.915292342,
+       "m_paramId": -1114174
+      }
+     ]
+    }
+   },
+   "m_pParamValueSetInt": {
+    "ptr_class": "ParamValueSetInt",
+    "pid": -1,
+    "value": {
+     "m_paramSet": [
+      {
+       "m_paramId": -1114258,
+       "m_value": 0
+      },
+      {
+       "m_paramId": -1114257,
+       "m_value": 0
+      },
+      {
+       "m_paramId": -1114252,
+       "m_value": 0
+      },
+      {
+       "m_paramId": -1114173,
+       "m_value": -1
+      },
+      {
+       "m_paramId": -1114171,
+       "m_value": 2
+      }
+     ]
+    }
+   },
+   "m_pParamValueSetAString": {
+    "ptr_class": "ParamValueSetAString",
+    "pid": -1,
+    "value": {
+     "m_paramSet": [
+      {
+       "m_paramId": -1006901,
+       "m_value": "28"
+      },
+      {
+       "m_paramId": -1006900,
+       "m_value": "Technology"
+      }
+     ]
+    }
+   },
+   "m_pParamValueSetElementId": {
+    "ptr_class": "ParamValueSetElementId",
+    "pid": -1,
+    "value": {
+     "m_paramSet": [
+      {
+       "m_paramId": -1114251,
+       "m_value": -1
+      }
+     ]
+    }
+   },
+   "m_geomSteps": {
+    "ptr_class": "GeomStepList",
+    "pid": -1,
+    "value": {
+     "m_nonBRepGList": [
+      {
+       "ptr_class": "RoomElemReferencePlanesStep",
+       "pid": -1,
+       "value": {
+        "m_faceHistTable": [
+         {
+          "m_id": 226,
+          "m_faceHist": {
+           "m_keys": [
+            0,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 227,
+          "m_faceHist": {
+           "m_keys": [
+            1,
+            -1,
+            -1
+           ]
+          }
+         }
+        ],
+        "m_curveHistTableSet": [],
+        "m_edgeHistTable": [],
+        "m_edgeHistTableReverse": [],
+        "m_id": 2,
+        "m_version": 0,
+        "m_flags": 761725,
+        "m_pElem": {
+         "weakref": 2
+        },
+        "m_oExtraDatas": null
+       }
+      }
+     ],
+     "m_bRepFormGList": [
+      {
+       "ptr_class": "RoomCreate3dGeometryGStep",
+       "pid": -1,
+       "value": {
+        "m_faceHistTable": [
+         {
+          "m_id": 0,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            0,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 1,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 2,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            2,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 3,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            5,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 4,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            9,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 5,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            13,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 6,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            17,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 7,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            21,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 8,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            25,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 9,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            29,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 10,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            33,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 11,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            37,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 12,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            41,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 13,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            45,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 14,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            49,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 15,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            53,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 16,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            57,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 17,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            61,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 18,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            65,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 19,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            69,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 20,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            73,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 21,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            77,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 22,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            81,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 23,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            85,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 24,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            89,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 25,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            93,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 26,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            97,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 27,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            101,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 28,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            105,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 29,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            109,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 30,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            113,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 31,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            117,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 32,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            121,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 33,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            125,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 34,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            129,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 35,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            133,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 36,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            137,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 37,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            141,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 38,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            145,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 39,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            149,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 40,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            153,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 41,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            157,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 42,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            161,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 43,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            165,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 44,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            169,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 45,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            173,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 46,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            177,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 47,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            181,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 48,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            185,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 49,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            189,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 50,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            193,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 51,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            197,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 232,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            200,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 52,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            201,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 53,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            205,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 54,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            209,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 55,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            213,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 56,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            217,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 57,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            221,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 366,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            225,
+            -1
+           ]
+          }
+         },
+         "... 28 more (total 88)"
+        ],
+        "m_curveHistTableSet": [],
+        "m_edgeHistTable": [
+         {
+          "m_id": 58,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            3,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 169,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            4,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 59,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            6,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 168,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            7,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 171,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            8,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 60,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            10,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 167,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            11,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 172,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            12,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 61,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            14,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 166,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            15,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 173,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            16,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 229,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            17,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 62,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            18,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 165,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            19,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 174,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            20,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 230,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            21,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 63,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            22,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 164,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            23,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 175,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            24,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 231,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            25,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 64,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            26,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 163,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            27,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 176,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            28,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 65,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            30,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 162,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            31,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 177,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            32,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 228,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            33,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 66,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            34,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 161,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            35,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 178,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            36,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 67,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            38,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 160,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            39,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 179,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            40,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 68,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            42,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 159,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            43,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 180,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            44,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 69,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            46,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 158,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            47,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 181,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            48,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 70,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            50,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 157,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            51,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 182,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            52,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 71,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            54,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 156,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            55,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 183,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            56,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 72,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            58,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 155,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            59,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 184,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            60,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 73,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            62,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 154,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            63,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 185,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            64,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 74,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            66,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 153,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            67,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 186,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            68,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 75,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            70,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 152,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            71,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 187,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            72,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 76,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            74,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 151,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            75,
+            -1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 188,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            76,
+            -1,
+            -1
+           ]
+          }
+         },
+         "... 252 more (total 312)"
+        ],
+        "m_edgeHistTableReverse": [],
+        "m_id": 1,
+        "m_version": 1,
+        "m_flags": 761725,
+        "m_pElem": {
+         "weakref": 2
+        },
+        "m_oExtraDatas": null,
+        "m_faceOffsetMap": [
+         {
+          "first": 2,
+          "second": {
+           "m_offsets": [
+            0.0,
+            -0.32808399,
+            0.0,
+            -0.32808399
+           ]
+          }
+         },
+         {
+          "first": 3,
+          "second": {
+           "m_offsets": [
+            0.0,
+            -0.188648294,
+            0.0,
+            -0.188648294
+           ]
+          }
+         },
+         {
+          "first": 4,
+          "second": {
+           "m_offsets": [
+            0.0,
+            -0.188648294,
+            0.0,
+            -0.188648294
+           ]
+          }
+         },
+         {
+          "first": 5,
+          "second": {
+           "m_offsets": [
+            0.0,
+            -0.287073491,
+            0.0,
+            -0.287073491
+           ]
+          }
+         },
+         {
+          "first": 6,
+          "second": {
+           "m_offsets": [
+            0.0,
+            -0.32808399,
+            0.0,
+            -0.32808399
+           ]
+          }
+         },
+         {
+          "first": 232,
+          "second": {
+           "m_offsets": [
+            0.0,
+            -0.492125984,
+            0.0,
+            -0.492125984
+           ]
+          }
+         },
+         {
+          "first": 233,
+          "second": {
+           "m_offsets": [
+            0.0,
+            -0.246062992,
+            -0.229658793,
+            -0.360892388
+           ]
+          }
+         },
+         {
+          "first": 234,
+          "second": {
+           "m_offsets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         {
+          "first": 235,
+          "second": {
+           "m_offsets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         {
+          "first": 236,
+          "second": {
+           "m_offsets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         {
+          "first": 237,
+          "second": {
+           "m_offsets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         {
+          "first": 238,
+          "second": {
+           "m_offsets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         },
+         {
+          "first": 239,
+          "second": {
+           "m_offsets": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+           ]
+          }
+         }
+        ]
+       }
+      }
+     ],
+     "m_bRepAdjustGList": [],
+     "m_bRepCutOutGList": [],
+     "m_bRepPostCutOutGList": [],
+     "m_bRepTweakGList": [],
+     "m_bRepFormSnapshot": null,
+     "m_bRepAdjustSnapshot": null,
+     "m_bRepCutOutSnapshot": null,
+     "m_bRepPostCutOutSnapshot": null,
+     "m_pElem": {
+      "weakref": 2
+     },
+     "m_latestGStepTypeInPrevRegenCycle": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "m_idCounter": 3,
+     "m_flags": 9
+    }
+   },
+   "m_pGeomTable": {
+    "ptr_class": "GeomTable",
+    "pid": -1,
+    "value": {
+     "m_refPntMirrored": false,
+     "m_table": [
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      "... 342 more (total 402)"
+     ],
+     "m_bigTableOwner": null,
+     "m_materialMarkers": [],
+     "m_faceTypeMarkers": []
+    }
+   },
+   "m_constrInfo": [],
+   "m_cellList": {
+    "ptr_class": "CellList",
+    "pid": -1,
+    "value": {
+     "m_cells": [
+      {
+       "ptr_class": "PatternHelper",
+       "pid": -1,
+       "value": {
+        "m_PatternPositionMap": [],
+        "m_substituteFaceMap": []
+       }
+      }
+     ]
+    }
+   },
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 379575,
+   "m_assocLevelId": 378117,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_loadPerLoadClass": [
+    {
+     "first": 638826,
+     "second": 2303.476829176
+    },
+    {
+     "first": 638828,
+     "second": 0.0
+    },
+    {
+     "first": 690425,
+     "second": 9687.519375039
+    }
+   ],
+   "m_point": [
+    63.626631772,
+    118.279092963
+   ],
+   "m_dPlenumLighting": 0.2,
+   "m_dActualSupplyAirflow": 5.297200008,
+   "m_dActualReturnAirflow": 0.0,
+   "m_dActualExhaustAirflow": 0.0,
+   "m_dActualPowerLoad": 9687.519375039,
+   "m_dActualLightingLoad": 2303.476829176,
+   "m_dActualMechanicalLoad": 0.0,
+   "m_dActualOtherLoad": 0.0,
+   "m_dEstimatedIllumination": 42.279544915,
+   "m_dRoomCavityRatio": 5.146276178,
+   "m_dDesignSupplyAirflow": 3.198770728,
+   "m_dDesignReturnAirflow": 0.0,
+   "m_dDesignExhaustAirflow": 0.0,
+   "m_dCalculatedSupplyAirflow": 3.198770728,
+   "m_dOutdoorAirflow": 0.0,
+   "m_dPrimaryAirflow": 0.0,
+   "m_dDesignHeatingLoad": 8525.41531472,
+   "m_dCalculatedHeatingLoad": 8525.41531472,
+   "m_dDesignCoolingLoad": 13933.666756222,
+   "m_dCalculatedCoolingLoad": 13933.666756222,
+   "m_dDesignPowerLoadPerArea": 0.0,
+   "m_dDesignLightingLoadPerArea": 0.0,
+   "m_dDesignMechanicalLoadPerArea": 0.0,
+   "m_dDesignOtherLoadPerArea": 0.0,
+   "m_upperOffset": 12.467191601,
+   "m_height": 12.467191601,
+   "m_lowerOffset": 0.0,
+   "m_luminairePlane": 9.247139971,
+   "m_phaseId": 86961,
+   "m_areaSpaceElemId": -1,
+   "m_areaSchemeId": -1,
+   "m_zoneElementId": 379574,
+   "m_zoneSchemeId": 293241,
+   "m_upperLevelId": 378117,
+   "m_levelId": 378117,
+   "m_gbxmlSpaceTypeId": 584650,
+   "m_eBaseSupplyAirflowOn": 0,
+   "m_eBaseReturnAirflowOn": 0,
+   "m_eBasePowerLoadOn": -1,
+   "m_eBaseLightingLoadOn": -1,
+   "m_eBaseHeatLoadOn": -1,
+   "m_cachedCircuitId": {
+    "m_id": 39
+   },
+   "m_bIsLocationless": false,
+   "m_bReturnEqualToSupplyAirflow": true,
+   "m_bPlenum": false,
+   "m_bOccupiable": true,
+   "m_pPlacement": {
+    "ptr_class": "RoomTagPlacement",
+    "pid": -1,
+    "value": {
+     "m_offset0": -4.558905631,
+     "m_offset1": 7.394402501,
+     "m_ref0": 573608,
+     "m_ref1": 573607
+    }
+   },
+   "m_SpaceRoomLocationInfo": {
+    "ptr_class": "RoomBoundingItem",
+    "pid": -1,
+    "value": {
+     "m_linkInstOrHostId": 573809,
+     "m_linkRef": {
+      "m_id64": -1
+     }
+    }
+   },
+   "m_volumeBoundingElems": [
+    {
+     "m_linkInstOrHostId": 573302,
+     "m_linkRef": {
+      "m_id64": -1
+     }
+    },
+    {
+     "m_linkInstOrHostId": 573390,
+     "m_linkRef": {
+      "m_id64": -1
+     }
+    },
+    {
+     "m_linkInstOrHostId": 576071,
+     "m_linkRef": {
+      "m_id64": -1
+     }
+    },
+    {
+     "m_linkInstOrHostId": 577552,
+     "m_linkRef": {
+      "m_id64": -1
+     }
+    },
+    {
+     "m_linkInstOrHostId": 577894,
+     "m_linkRef": {
+      "m_id64": -1
+     }
+    },
+    {
+     "m_linkInstOrHostId": 578008,
+     "m_linkRef": {
+      "m_id64": -1
+     }
+    },
+    {
+     "m_linkInstOrHostId": 578433,
+     "m_linkRef": {
+      "m_id64": -1
+     }
+    }
+   ],
+   "m_referenceFaces": [
+    {
+     "ptr_class": "Face",
+     "pid": 3,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 226,
+       "m_controlCommand": 0,
+       "m_flags": 524804
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 5,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           1.0,
+           1.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         63.626631772,
+         118.279092963,
+         0.308962391
+        ],
+        "m_xVec": [
+         1.0,
+         0.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 4,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 227,
+       "m_controlCommand": 0,
+       "m_flags": 524804
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 6,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           1.0,
+           1.0
+          ],
+          [
+           0.0,
+           0.0
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         63.626631772,
+         118.279092963,
+         12.776153992
+        ],
+        "m_xVec": [
+         1.0,
+         0.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      }
+     }
+    }
+   ]
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 739265,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 379575,
+  "stamp": 2556555346,
+  "psize": 8710,
+  "class_id_hex": "0x089e",
+  "object_bytes": 8708,
+  "total_record_bytes": 8730,
+  "size_trailer_ok": true,
+  "payload_head_hex": "ff ff ff ff ff ff ff ff b7 ca 05 00 00 00 00 00 04 90 08 00 01 00 00 00 03 00 00 00 fc 08 80 10",
+  "class": "GElement",
+  "clean": true,
+  "consumed_of_object": "8708/8708",
+  "value": {
+   "m_GInfo": {
+    "m_categoryId": -1,
+    "m_tag": 379575,
+    "m_controlCommand": 0,
+    "m_flags": 561156
+   },
+   "m_subNodes": [
+    {
+     "ptr_class": "Geometry",
+     "pid": 3,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": -1,
+       "m_controlCommand": 17240129,
+       "m_flags": 573444
+      },
+      "m_pFaces": [
+       {
+        "ptr_class": "Face",
+        "pid": 4,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 1,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 59,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": {
+            "ptr_class": "EdgeLoop",
+            "pid": 89,
+            "value": {
+             "m_GInfo": {
+              "m_categoryId": -1,
+              "m_tag": -1,
+              "m_controlCommand": 0,
+              "m_flags": 524292
+             },
+             "m_nextLoop": null,
+             "m_pFace": {
+              "weakref": 4
+             },
+             "m_next": {
+              "weakref": 22
+             },
+             "m_prev": {
+              "weakref": 25
+             },
+             "m_Envelope": {
+              "m_corners": [
+               [
+                -7.52132546,
+                9.003430356
+               ],
+               [
+                -7.144028873,
+                9.659598335
+               ]
+              ]
+             },
+             "m_open": false
+            }
+           },
+           "m_pFace": {
+            "weakref": 4
+           },
+           "m_next": {
+            "weakref": 18
+           },
+           "m_prev": {
+            "weakref": 21
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -7.52132546,
+              -0.0
+             ],
+             [
+              -7.144028873,
+              6.099887049
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 4,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 60,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -7.52132546,
+              -0.0
+             ],
+             [
+              -7.144028873,
+              9.659598335
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            68.915972771,
+            106.152498086,
+            0.308962391
+           ],
+           "m_xVec": [
+            -0.0,
+            -1.0,
+            -0.0
+           ],
+           "m_yVec": [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 5,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 2,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 61,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 5
+           },
+           "m_next": {
+            "weakref": 26
+           },
+           "m_prev": {
+            "weakref": 32
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              12.467191601,
+              19.332349084
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 4,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 62,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              12.467191601,
+              19.332349084
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            68.915972771,
+            106.152498086,
+            12.776153992
+           ],
+           "m_xVec": [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           "m_yVec": [
+            0.0,
+            1.0,
+            0.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 6,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 3,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 63,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 6
+           },
+           "m_next": {
+            "weakref": 33
+           },
+           "m_prev": {
+            "weakref": 35
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              11.975065617,
+              9.659598335
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 4,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 64,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              11.975065617,
+              9.659598335
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            68.915972771,
+            125.484847171,
+            12.776153992
+           ],
+           "m_xVec": [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           "m_yVec": [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 7,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 4,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 65,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 7
+           },
+           "m_next": {
+            "weakref": 36
+           },
+           "m_prev": {
+            "weakref": 41
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              12.467191601,
+              20.398622049
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 4,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 66,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              12.467191601,
+              20.398622049
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            59.256374436,
+            125.484847171,
+            12.776153992
+           ],
+           "m_xVec": [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           "m_yVec": [
+            -0.0,
+            -1.0,
+            -0.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 8,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 5,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 67,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 8
+           },
+           "m_next": {
+            "weakref": 42
+           },
+           "m_prev": {
+            "weakref": 46
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              11.975065617,
+              9.659598335
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 4,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 68,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              11.975065617,
+              9.659598335
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            59.256374436,
+            105.086225122,
+            12.776153992
+           ],
+           "m_xVec": [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           "m_yVec": [
+            1.0,
+            -0.0,
+            0.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 9,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 6,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 69,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 9
+           },
+           "m_next": {
+            "weakref": 47
+           },
+           "m_prev": {
+            "weakref": 27
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              11.975065617,
+              1.066272965
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 4,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 70,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              1.29321436,
+              0.0
+             ],
+             [
+              11.975065617,
+              1.066272965
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            68.915972771,
+            105.086225122,
+            12.776153992
+           ],
+           "m_xVec": [
+            0.0,
+            0.0,
+            -1.0
+           ],
+           "m_yVec": [
+            0.0,
+            1.0,
+            0.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 10,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 232,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 71,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 10
+           },
+           "m_next": {
+            "weakref": 26
+           },
+           "m_prev": {
+            "weakref": 47
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -9.987682325,
+              8.653215229
+             ],
+             [
+              -0.32808399,
+              29.051837278
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": {
+          "ptr_class": "GFilling",
+          "pid": 72,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": 56,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_pGFace": {
+            "weakref": 10
+           },
+           "m_placer": {
+            "m_scale": 1.0,
+            "m_origin": [
+             -111.625433857,
+             175.73818898
+            ],
+            "m_dir": [
+             1.0,
+             0.0
+            ],
+            "m_uvScale": [
+             1.0,
+             1.0
+            ],
+            "m_isMirrored": false,
+            "m_placedDraft": false
+           },
+           "m_data": null,
+           "m_patternId": -1,
+           "m_fillColor": 16777216,
+           "m_flags": 18
+          }
+         },
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 6,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 73,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -9.987682325,
+              8.653215229
+             ],
+             [
+              -0.32808399,
+              29.051837278
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            69.24405676,
+            134.1380624,
+            11.482939633
+           ],
+           "m_xVec": [
+            1.0,
+            0.0,
+            0.0
+           ],
+           "m_yVec": [
+            0.0,
+            -1.0,
+            0.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 11,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 233,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 74,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 11
+           },
+           "m_next": {
+            "weakref": 49
+           },
+           "m_prev": {
+            "weakref": 40
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -28.510498691,
+              -39.219457136
+             ],
+             [
+              -8.111876642,
+              -29.559858801
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": {
+          "ptr_class": "GFilling",
+          "pid": 75,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": 56,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_pGFace": {
+            "weakref": 11
+           },
+           "m_placer": {
+            "m_scale": 1.0,
+            "m_origin": [
+             -175.73818898,
+             72.077892731
+            ],
+            "m_dir": [
+             0.0,
+             -1.0
+            ],
+            "m_uvScale": [
+             1.0,
+             1.0
+            ],
+            "m_isMirrored": false,
+            "m_placedDraft": false
+           },
+           "m_data": null,
+           "m_patternId": -1,
+           "m_fillColor": 16777216,
+           "m_flags": 18
+          }
+         },
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 6,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 76,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -28.510498691,
+              -39.219457136
+             ],
+             [
+              -8.111876642,
+              -29.559858801
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            29.696515635,
+            133.596723813,
+            0.801088376
+           ],
+           "m_xVec": [
+            -0.0,
+            1.0,
+            -0.0
+           ],
+           "m_yVec": [
+            -1.0,
+            0.0,
+            0.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 12,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 234,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 77,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 12
+           },
+           "m_next": {
+            "weakref": 49
+           },
+           "m_prev": {
+            "weakref": 55
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -0.0,
+              -0.0
+             ],
+             [
+              0.656167979,
+              0.492125984
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 6,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 78,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -0.0,
+              -0.0
+             ],
+             [
+              0.656167979,
+              0.492125984
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            59.256374436,
+            113.296526959,
+            0.801088376
+           ],
+           "m_xVec": [
+            1.0,
+            -0.0,
+            -0.0
+           ],
+           "m_yVec": [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 13,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 235,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 79,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 13
+           },
+           "m_next": {
+            "weakref": 50
+           },
+           "m_prev": {
+            "weakref": 56
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              0.0,
+              0.0
+             ],
+             [
+              0.377296588,
+              0.492125984
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 6,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 80,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              0.0,
+              0.0
+             ],
+             [
+              0.377296588,
+              0.492125984
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            59.912542415,
+            113.296526959,
+            0.801088376
+           ],
+           "m_xVec": [
+            -0.0,
+            1.0,
+            -0.0
+           ],
+           "m_yVec": [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 14,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 236,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 81,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 14
+           },
+           "m_next": {
+            "weakref": 51
+           },
+           "m_prev": {
+            "weakref": 38
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -0.0,
+              -0.0
+             ],
+             [
+              0.656167979,
+              0.492125984
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 6,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 82,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -0.0,
+              -0.0
+             ],
+             [
+              0.656167979,
+              0.492125984
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            59.912542415,
+            113.673823547,
+            0.801088376
+           ],
+           "m_xVec": [
+            -1.0,
+            -0.0,
+            -0.0
+           ],
+           "m_yVec": [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 15,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 237,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 83,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 15
+           },
+           "m_next": {
+            "weakref": 52
+           },
+           "m_prev": {
+            "weakref": 57
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -0.0,
+              -0.0
+             ],
+             [
+              6.099887049,
+              0.492125984
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 6,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 84,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -0.0,
+              -0.0
+             ],
+             [
+              6.099887049,
+              0.492125984
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            68.915972771,
+            113.673823547,
+            0.801088376
+           ],
+           "m_xVec": [
+            -1.0,
+            -0.0,
+            -0.0
+           ],
+           "m_yVec": [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 16,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 238,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 85,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 16
+           },
+           "m_next": {
+            "weakref": 53
+           },
+           "m_prev": {
+            "weakref": 58
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -0.0,
+              0.0
+             ],
+             [
+              0.377296588,
+              0.492125984
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 6,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 86,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              -0.0,
+              0.0
+             ],
+             [
+              0.377296588,
+              0.492125984
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            62.816085722,
+            113.673823547,
+            0.801088376
+           ],
+           "m_xVec": [
+            -0.0,
+            -1.0,
+            -0.0
+           ],
+           "m_yVec": [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          }
+         }
+        }
+       },
+       {
+        "ptr_class": "Face",
+        "pid": 17,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": 293228,
+          "m_tag": 239,
+          "m_controlCommand": 0,
+          "m_flags": 1074299396
+         },
+         "m_pFirstLoop": {
+          "ptr_class": "EdgeLoop",
+          "pid": 87,
+          "value": {
+           "m_GInfo": {
+            "m_categoryId": -1,
+            "m_tag": -1,
+            "m_controlCommand": 0,
+            "m_flags": 524292
+           },
+           "m_nextLoop": null,
+           "m_pFace": {
+            "weakref": 17
+           },
+           "m_next": {
+            "weakref": 54
+           },
+           "m_prev": {
+            "weakref": 29
+           },
+           "m_Envelope": {
+            "m_corners": [
+             [
+              0.0,
+              -0.0
+             ],
+             [
+              6.099887049,
+              0.492125984
+             ]
+            ]
+           },
+           "m_open": false
+          }
+         },
+         "m_faceRegions": [],
+         "m_pGFilling": null,
+         "m_oBackgroundFilling": null,
+         "m_renderStyleId": -4000038,
+         "m_cutType": 0,
+         "m_faceFlags_v9": 6,
+         "m_pSurf": {
+          "ptr_class": "Plane",
+          "pid": 88,
+          "value": {
+           "m_Envelope": {
+            "m_corners": [
+             [
+              0.0,
+              -0.0
+             ],
+             [
+              6.099887049,
+              0.492125984
+             ]
+            ]
+           },
+           "m_orientFlag": true,
+           "m_origin": [
+            62.816085722,
+            113.296526959,
+            0.801088376
+           ],
+           "m_xVec": [
+            1.0,
+            -0.0,
+            -0.0
+           ],
+           "m_yVec": [
+            0.0,
+            0.0,
+            -1.0
+           ]
+          }
+         }
+        }
+       }
+      ],
+      "m_flags": 7,
+      "m_geometryTag": -1,
+      "m_tessEpsCntrl": {
+       "m_type": 0,
+       "m_TessEpsCntrlVersion": 1
+      },
+      "m_pEdges": [
+       {
+        "ptr_class": "Edge",
+        "pid": 18,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 240,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 4
+          },
+          {
+           "weakref": 5
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 19
+          },
+          {
+           "weakref": 30
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 59
+          },
+          {
+           "weakref": 29
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -7.52132546,
+             -0.0
+            ],
+            [
+             12.467191601,
+             7.52132546
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -7.144028873,
+             -0.0
+            ],
+            [
+             12.467191601,
+             7.144028873
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 19,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 241,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 4
+          },
+          {
+           "weakref": 17
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 20
+          },
+          {
+           "weakref": 29
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 18
+          },
+          {
+           "weakref": 58
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -7.144028873,
+             -0.0
+            ],
+            [
+             6.099887049,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -7.144028873,
+             6.099887049
+            ],
+            [
+             0.0,
+             0.492125984
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 20,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 242,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 4
+          },
+          {
+           "weakref": 16
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 21
+          },
+          {
+           "weakref": 58
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 19
+          },
+          {
+           "weakref": 57
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -7.144028873,
+             6.099887049
+            ],
+            [
+             0.377296588,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -7.52132546,
+             6.099887049
+            ],
+            [
+             0.0,
+             0.492125984
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 21,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 243,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 4
+          },
+          {
+           "weakref": 15
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 59
+          },
+          {
+           "weakref": 57
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 20
+          },
+          {
+           "weakref": 30
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -7.52132546,
+             6.099887049
+            ],
+            [
+             6.099887049,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -7.52132546,
+             -0.0
+            ],
+            [
+             0.0,
+             0.492125984
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 22,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 244,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 4
+          },
+          {
+           "weakref": 7
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 23
+          },
+          {
+           "weakref": 39
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 89
+          },
+          {
+           "weakref": 38
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -7.144028873,
+             9.659598335
+            ],
+            [
+             12.467191601,
+             12.188320212
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -7.52132546,
+             9.659598335
+            ],
+            [
+             12.467191601,
+             11.811023624
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 23,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 245,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 4
+          },
+          {
+           "weakref": 14
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 24
+          },
+          {
+           "weakref": 38
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 22
+          },
+          {
+           "weakref": 56
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -7.52132546,
+             9.659598335
+            ],
+            [
+             0.656167979,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -7.52132546,
+             9.003430356
+            ],
+            [
+             -0.0,
+             0.492125984
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 24,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 246,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 4
+          },
+          {
+           "weakref": 13
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 25
+          },
+          {
+           "weakref": 56
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 23
+          },
+          {
+           "weakref": 55
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -7.52132546,
+             9.003430356
+            ],
+            [
+             0.377296588,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -7.144028873,
+             9.003430356
+            ],
+            [
+             0.0,
+             0.492125984
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 25,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 247,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 4
+          },
+          {
+           "weakref": 12
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 89
+          },
+          {
+           "weakref": 55
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 24
+          },
+          {
+           "weakref": 39
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -7.144028873,
+             9.003430356
+            ],
+            [
+             0.656167979,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -7.144028873,
+             9.659598335
+            ],
+            [
+             -0.0,
+             0.492125984
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 26,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 248,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 5
+          },
+          {
+           "weakref": 10
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 27
+          },
+          {
+           "weakref": 33
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 61
+          },
+          {
+           "weakref": 71
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             1.29321436,
+             19.332349084
+            ],
+            [
+             -0.32808399,
+             8.653215229
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             -0.32808399,
+             27.985564313
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 27,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 249,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 5
+          },
+          {
+           "weakref": 9
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 28
+          },
+          {
+           "weakref": 69
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 26
+          },
+          {
+           "weakref": 48
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             1.29321436,
+             1.066272965
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             11.975065617,
+             1.066272965
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 28,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 250,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 5
+          },
+          {
+           "weakref": 11
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 29
+          },
+          {
+           "weakref": 48
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 27
+          },
+          {
+           "weakref": 54
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             -27.444225727,
+             -39.219457136
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             7.144028873
+            ],
+            [
+             -20.300196854,
+             -39.219457136
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 29,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 251,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 5
+          },
+          {
+           "weakref": 17
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 18
+          },
+          {
+           "weakref": 87
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 28
+          },
+          {
+           "weakref": 19
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             7.144028873
+            ],
+            [
+             6.099887049,
+             -0.0
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             12.467191601,
+             7.144028873
+            ],
+            [
+             6.099887049,
+             0.492125984
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 30,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 252,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 5
+          },
+          {
+           "weakref": 15
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 31
+          },
+          {
+           "weakref": 21
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 18
+          },
+          {
+           "weakref": 52
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             12.467191601,
+             7.52132546
+            ],
+            [
+             0.0,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             7.52132546
+            ],
+            [
+             0.0,
+             -0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 31,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 253,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 5
+          },
+          {
+           "weakref": 11
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 32
+          },
+          {
+           "weakref": 52
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 30
+          },
+          {
+           "weakref": 34
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             7.52132546
+            ],
+            [
+             -19.922900266,
+             -39.219457136
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             19.332349084
+            ],
+            [
+             -8.111876642,
+             -39.219457136
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 32,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 254,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 6
+          },
+          {
+           "weakref": 5
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 34
+          },
+          {
+           "weakref": 61
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 33
+          },
+          {
+           "weakref": 31
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             11.975065617,
+             19.332349084
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             1.29321436,
+             19.332349084
+            ]
+           ]
+          }
+         ],
+         "m_flags": 7
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 33,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 255,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 6
+          },
+          {
+           "weakref": 10
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 32
+          },
+          {
+           "weakref": 36
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 63
+          },
+          {
+           "weakref": 26
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             1.29321436,
+             9.659598335
+            ],
+            [
+             -9.987682325,
+             8.653215229
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             -0.32808399,
+             8.653215229
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 34,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 256,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 6
+          },
+          {
+           "weakref": 11
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 35
+          },
+          {
+           "weakref": 31
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 32
+          },
+          {
+           "weakref": 37
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             -8.111876642,
+             -39.219457136
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             9.659598335
+            ],
+            [
+             -8.111876642,
+             -29.559858801
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 35,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 257,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 7
+          },
+          {
+           "weakref": 6
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 37
+          },
+          {
+           "weakref": 63
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 36
+          },
+          {
+           "weakref": 34
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             11.975065617,
+             9.659598335
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             1.29321436,
+             9.659598335
+            ]
+           ]
+          }
+         ],
+         "m_flags": 7
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 36,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 258,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 7
+          },
+          {
+           "weakref": 10
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 35
+          },
+          {
+           "weakref": 42
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 65
+          },
+          {
+           "weakref": 33
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             1.29321436,
+             20.398622049
+            ],
+            [
+             -9.987682325,
+             29.051837278
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             -9.987682325,
+             8.653215229
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 37,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 259,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 7
+          },
+          {
+           "weakref": 11
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 38
+          },
+          {
+           "weakref": 34
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 35
+          },
+          {
+           "weakref": 51
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             -8.111876642,
+             -29.559858801
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             11.811023624
+            ],
+            [
+             -19.922900266,
+             -29.559858801
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 38,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 260,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 7
+          },
+          {
+           "weakref": 14
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 22
+          },
+          {
+           "weakref": 81
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 37
+          },
+          {
+           "weakref": 23
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             11.811023624
+            ],
+            [
+             0.656167979,
+             -0.0
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             12.467191601,
+             11.811023624
+            ],
+            [
+             0.656167979,
+             0.492125984
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 39,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 261,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 7
+          },
+          {
+           "weakref": 12
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 40
+          },
+          {
+           "weakref": 25
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 22
+          },
+          {
+           "weakref": 49
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             12.467191601,
+             12.188320212
+            ],
+            [
+             -0.0,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             12.188320212
+            ],
+            [
+             -0.0,
+             -0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 40,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 262,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 7
+          },
+          {
+           "weakref": 11
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 41
+          },
+          {
+           "weakref": 74
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 39
+          },
+          {
+           "weakref": 43
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             12.188320212
+            ],
+            [
+             -20.300196854,
+             -29.559858801
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             20.398622049
+            ],
+            [
+             -28.510498691,
+             -29.559858801
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 41,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 263,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 8
+          },
+          {
+           "weakref": 7
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 43
+          },
+          {
+           "weakref": 65
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 42
+          },
+          {
+           "weakref": 40
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             11.975065617,
+             20.398622049
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             1.29321436,
+             20.398622049
+            ]
+           ]
+          }
+         ],
+         "m_flags": 7
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 42,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 264,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 8
+          },
+          {
+           "weakref": 10
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 41
+          },
+          {
+           "weakref": 47
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 67
+          },
+          {
+           "weakref": 36
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             1.29321436,
+             9.659598335
+            ],
+            [
+             -0.32808399,
+             29.051837278
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             -9.987682325,
+             29.051837278
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 43,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 265,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 8
+          },
+          {
+           "weakref": 11
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 44
+          },
+          {
+           "weakref": 40
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 41
+          },
+          {
+           "weakref": 44
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             -28.510498691,
+             -29.559858801
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.656167979
+            ],
+            [
+             -28.510498691,
+             -30.21602678
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 44,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 266,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 8
+          },
+          {
+           "weakref": 11
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 45
+          },
+          {
+           "weakref": 43
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 43
+          },
+          {
+           "weakref": 45
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.656167979
+            ],
+            [
+             -28.510498691,
+             -30.21602678
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             3.559711286
+            ],
+            [
+             -28.510498691,
+             -33.119570087
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 45,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 267,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 8
+          },
+          {
+           "weakref": 11
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 46
+          },
+          {
+           "weakref": 44
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 44
+          },
+          {
+           "weakref": 48
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             3.559711286
+            ],
+            [
+             -28.510498691,
+             -33.119570087
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             9.659598335
+            ],
+            [
+             -28.510498691,
+             -39.219457136
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 46,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 268,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 9
+          },
+          {
+           "weakref": 8
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 48
+          },
+          {
+           "weakref": 67
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 47
+          },
+          {
+           "weakref": 45
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             11.975065617,
+             9.659598335
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             1.29321436,
+             9.659598335
+            ]
+           ]
+          }
+         ],
+         "m_flags": 7
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 47,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 269,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 9
+          },
+          {
+           "weakref": 10
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 46
+          },
+          {
+           "weakref": 71
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 69
+          },
+          {
+           "weakref": 42
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             1.29321436,
+             1.066272965
+            ],
+            [
+             -0.32808399,
+             27.985564313
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             1.29321436,
+             0.0
+            ],
+            [
+             -0.32808399,
+             29.051837278
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 48,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 270,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 9
+          },
+          {
+           "weakref": 11
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 27
+          },
+          {
+           "weakref": 45
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 46
+          },
+          {
+           "weakref": 28
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             11.975065617,
+             0.0
+            ],
+            [
+             -28.510498691,
+             -39.219457136
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             11.975065617,
+             1.066272965
+            ],
+            [
+             -27.444225727,
+             -39.219457136
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 49,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 271,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 11
+          },
+          {
+           "weakref": 12
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 50
+          },
+          {
+           "weakref": 39
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 74
+          },
+          {
+           "weakref": 77
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -20.300196854,
+             -29.559858801
+            ],
+            [
+             0.0,
+             0.0
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -20.300196854,
+             -30.21602678
+            ],
+            [
+             0.656167979,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 50,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 272,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 11
+          },
+          {
+           "weakref": 13
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 51
+          },
+          {
+           "weakref": 55
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 49
+          },
+          {
+           "weakref": 79
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -20.300196854,
+             -30.21602678
+            ],
+            [
+             0.0,
+             0.0
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -19.922900266,
+             -30.21602678
+            ],
+            [
+             0.377296588,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 51,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 273,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 11
+          },
+          {
+           "weakref": 14
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 37
+          },
+          {
+           "weakref": 56
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 50
+          },
+          {
+           "weakref": 81
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -19.922900266,
+             -30.21602678
+            ],
+            [
+             -0.0,
+             0.0
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -19.922900266,
+             -29.559858801
+            ],
+            [
+             0.656167979,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 52,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 274,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 11
+          },
+          {
+           "weakref": 15
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 53
+          },
+          {
+           "weakref": 30
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 31
+          },
+          {
+           "weakref": 83
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -19.922900266,
+             -39.219457136
+            ],
+            [
+             -0.0,
+             0.0
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -19.922900266,
+             -33.119570087
+            ],
+            [
+             6.099887049,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 53,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 275,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 11
+          },
+          {
+           "weakref": 16
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 54
+          },
+          {
+           "weakref": 57
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 52
+          },
+          {
+           "weakref": 85
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -19.922900266,
+             -33.119570087
+            ],
+            [
+             -0.0,
+             0.0
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -20.300196854,
+             -33.119570087
+            ],
+            [
+             0.377296588,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 54,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 276,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 11
+          },
+          {
+           "weakref": 17
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 28
+          },
+          {
+           "weakref": 58
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 53
+          },
+          {
+           "weakref": 87
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             -20.300196854,
+             -33.119570087
+            ],
+            [
+             0.0,
+             0.0
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             -20.300196854,
+             -39.219457136
+            ],
+            [
+             6.099887049,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 55,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 277,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 12
+          },
+          {
+           "weakref": 13
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 77
+          },
+          {
+           "weakref": 24
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 25
+          },
+          {
+           "weakref": 50
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             0.656167979,
+             0.492125984
+            ],
+            [
+             0.0,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             0.656167979,
+             0.0
+            ],
+            [
+             0.0,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 56,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 278,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 13
+          },
+          {
+           "weakref": 14
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 79
+          },
+          {
+           "weakref": 23
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 24
+          },
+          {
+           "weakref": 51
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             0.377296588,
+             0.492125984
+            ],
+            [
+             0.0,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             0.377296588,
+             0.0
+            ],
+            [
+             -0.0,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 57,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 279,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 15
+          },
+          {
+           "weakref": 16
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 83
+          },
+          {
+           "weakref": 20
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 21
+          },
+          {
+           "weakref": 53
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             6.099887049,
+             0.492125984
+            ],
+            [
+             0.0,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             6.099887049,
+             0.0
+            ],
+            [
+             -0.0,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       },
+       {
+        "ptr_class": "Edge",
+        "pid": 58,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": 280,
+          "m_controlCommand": 0,
+          "m_flags": 557572
+         },
+         "m_pFace": [
+          {
+           "weakref": 16
+          },
+          {
+           "weakref": 17
+          }
+         ],
+         "m_next": [
+          {
+           "weakref": 85
+          },
+          {
+           "weakref": 19
+          }
+         ],
+         "m_prev": [
+          {
+           "weakref": 20
+          },
+          {
+           "weakref": 54
+          }
+         ],
+         "m_interiorEdgePnts": [],
+         "m_firstAndLastEdgePnts": [
+          {
+           "uv": [
+            [
+             0.377296588,
+             0.492125984
+            ],
+            [
+             0.0,
+             0.492125984
+            ]
+           ]
+          },
+          {
+           "uv": [
+            [
+             0.377296588,
+             0.0
+            ],
+            [
+             0.0,
+             0.0
+            ]
+           ]
+          }
+         ],
+         "m_flags": 6
+        }
+       }
+      ],
+      "m_sharedSurfInfo": []
+     }
+    }
+   ],
+   "m_bBox": [
+    [
+     59.256374436,
+     105.086225122,
+     0.308962391
+    ],
+    [
+     68.915972771,
+     125.484847171,
+     11.482939633
+    ]
+   ],
+   "m_tightbBox": [
+    [
+     59.256374436,
+     105.086225122,
+     0.308962391
+    ],
+    [
+     68.915972771,
+     125.484847171,
+     11.482939633
+    ]
+   ],
+   "m_elementId": 379575,
+   "m_gElemType": 3,
+   "m_flags": 0
+  }
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[0]",
+   "id": 86961,
+   "target_class": "ProjectPhase",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[1]",
+   "id": 293241,
+   "target_class": "ZoneScheme",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[2]",
+   "id": 378117,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[3]",
+   "id": 379574,
+   "target_class": "ZoneElement",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[4]",
+   "id": 379575,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[5]",
+   "id": 573302,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[6]",
+   "id": 573390,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[7]",
+   "id": 573607,
+   "target_class": "SWall",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[8]",
+   "id": 573608,
+   "target_class": "SWall",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[9]",
+   "id": 573809,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[10]",
+   "id": 576071,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[11]",
+   "id": 577552,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[12]",
+   "id": 577894,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[13]",
+   "id": 578008,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[14]",
+   "id": 578433,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[15]",
+   "id": 584650,
+   "target_class": "HVACLoadSpaceTypeElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[16]",
+   "id": 638826,
+   "target_class": "ElectricalLoadClassification",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[17]",
+   "id": 638828,
+   "target_class": "ElectricalLoadClassification",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[18]",
+   "id": 690425,
+   "target_class": "ElectricalLoadClassification",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[0]",
+   "id": 85092,
+   "target_class": "AreaSettingsElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[1]",
+   "id": 638853,
+   "target_class": "EnergyDataSettings",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[2]",
+   "id": 639116,
+   "target_class": "ElectricalSetting",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[0]",
+   "id": 85092,
+   "target_class": "AreaSettingsElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_appearanceParents[1]",
+   "id": 378117,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_nonBRepGList[0].value.m_id",
+   "id": 2,
+   "target_class": "PenWidthTableElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_bRepFormGList[0].value.m_id",
+   "id": 1,
+   "target_class": "AllProjectPhases",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_idCounter",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 379575,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_assocLevelId",
+   "id": 378117,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_phaseId",
+   "id": 86961,
+   "target_class": "ProjectPhase",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_zoneElementId",
+   "id": 379574,
+   "target_class": "ZoneElement",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_zoneSchemeId",
+   "id": 293241,
+   "target_class": "ZoneScheme",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_upperLevelId",
+   "id": 378117,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_levelId",
+   "id": 378117,
+   "target_class": "Level",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_gbxmlSpaceTypeId",
+   "id": 584650,
+   "target_class": "HVACLoadSpaceTypeElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_cachedCircuitId.m_id",
+   "id": 39,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_SpaceRoomLocationInfo.value.m_linkInstOrHostId",
+   "id": 573809,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_volumeBoundingElems[0].m_linkInstOrHostId",
+   "id": 573302,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_volumeBoundingElems[1].m_linkInstOrHostId",
+   "id": 573390,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_volumeBoundingElems[2].m_linkInstOrHostId",
+   "id": 576071,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_volumeBoundingElems[3].m_linkInstOrHostId",
+   "id": 577552,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_volumeBoundingElems[4].m_linkInstOrHostId",
+   "id": 577894,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_volumeBoundingElems[5].m_linkInstOrHostId",
+   "id": 578008,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_volumeBoundingElems[6].m_linkInstOrHostId",
+   "id": 578433,
+   "target_class": "Floor",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 103,
+   "path": "m_elementId",
+   "id": 379575,
+   "target_class": "RoomElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  }
+ ]
+}

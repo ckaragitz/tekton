@@ -1,0 +1,86 @@
+{
+ "understood": [
+  {
+   "clause": "30x20 ft",
+   "as": "room dimensions",
+   "width_m": 9.144,
+   "depth_m": 6.096,
+   "unit_assumed": "ft"
+  },
+  {
+   "clause": "rated for 2500 A service",
+   "as": "service rating",
+   "amps": 2500.0
+  },
+  {
+   "clause": "main switchboard",
+   "as": "equipment",
+   "kind": "switchboard",
+   "count": 1,
+   "rating_a": null,
+   "kva": null,
+   "voltage": null,
+   "mains": null,
+   "spaces": null
+  },
+  {
+   "clause": "distribution panels",
+   "as": "equipment",
+   "kind": "distribution_panelboard",
+   "count": 2,
+   "rating_a": 400.0,
+   "kva": null,
+   "voltage": null,
+   "mains": null,
+   "spaces": null
+  },
+  {
+   "clause": "lighting panels",
+   "as": "equipment",
+   "kind": "lighting_panelboard",
+   "count": 4,
+   "rating_a": null,
+   "kva": null,
+   "voltage": null,
+   "mains": null,
+   "spaces": null
+  }
+ ],
+ "ignored_words": [],
+ "not_built": [],
+ "defaults_applied": [
+  "room height: 3.6576 m (12 ft)",
+  "wall thickness: 0.2032 m location-line offset (the built wall uses the base wall type's compound structure)",
+  "service voltage system: 480Y/277 V",
+  "MSB: bus rating 2500 A (= the room's service rating)",
+  "MSB: voltage 480Y/277 V (service system)",
+  "MSB: main breaker (switchboard default)",
+  "MSB: SCCR 65 kA (typical 480 V service default; an ordering value, not a catalog fact)",
+  "MSB: 4 sections (lineup sizing rule round(A/625), clamped 2..6)",
+  "DP-1: voltage 480Y/277 V (service system)",
+  "DP-1: MCB (main breaker kind default)",
+  "DP-1: 42 spaces (default)",
+  "DP-2: voltage 480Y/277 V (service system)",
+  "DP-2: MCB (main breaker kind default)",
+  "DP-2: 42 spaces (default)",
+  "LP-1: 100 A bus (kind default)",
+  "LP-1: voltage 480Y/277 V (service system)",
+  "LP-1: MLO (main lugs only kind default)",
+  "LP-1: 42 spaces (default)",
+  "LP-2: 100 A bus (kind default)",
+  "LP-2: voltage 480Y/277 V (service system)",
+  "LP-2: MLO (main lugs only kind default)",
+  "LP-2: 42 spaces (default)",
+  "LP-3: 100 A bus (kind default)",
+  "LP-3: voltage 480Y/277 V (service system)",
+  "LP-3: MLO (main lugs only kind default)",
+  "LP-3: 42 spaces (default)",
+  "LP-4: 100 A bus (kind default)",
+  "LP-4: voltage 480Y/277 V (service system)",
+  "LP-4: MLO (main lugs only kind default)",
+  "LP-4: 42 spaces (default)"
+ ],
+ "warnings": [],
+ "consumed_ratio": 0.826,
+ "statement": "rules-first deterministic parser (no external model call, no API key): everything under 'understood' was normalised into the intent; 'ignored_words' are prompt words the parser did not use; 'not_built' items were recognised but are outside today's model build path; 'defaults_applied' names every value the parser had to assume."
+}

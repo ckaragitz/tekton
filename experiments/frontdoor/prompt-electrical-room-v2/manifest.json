@@ -1,0 +1,2136 @@
+{
+ "tool": "tekton frontdoor (rvt.frontdoor)",
+ "tool_version": "1.0.0",
+ "product": "tekton (multi-surface front door)",
+ "generated_at": "2026-08-05T05:31:44Z",
+ "route": "prompt",
+ "inputs": {
+  "prompt": "create an electrical room 30 by 20 feet with a 2500A switchboard, a distribution panel, a lighting panel, and a transformer",
+  "fallback_parser": "rules-first deterministic (no external model call, no API key)"
+ },
+ "out_dir": "experiments/frontdoor/prompt-electrical-room-v2",
+ "target_version": {
+  "requested": null,
+  "status": "unspecified",
+  "output_release": 2026,
+  "note": "no --target-version given: the output targets the certified default release (Revit 2026). Revit cannot open a newer file -- ask the user's Revit version before promising a .rvt (the tekton-author skill asks first)."
+ },
+ "prompt_handoff": {
+  "scene_brief": "experiments/frontdoor/prompt-electrical-room-v2/scene-brief.json",
+  "handoff": "experiments/frontdoor/prompt-electrical-room-v2/HANDOFF.md",
+  "instructions": "experiments/frontdoor/prompt-electrical-room-v2/PROMPT_TO_IFC.md",
+  "primary_path_note": "an AI surface executes HANDOFF.md/scene-brief.json with Three.js, exports IFC4 (tekton-ifc exporter, our tagging-contract Psets), and the .ifc re-enters via `frontdoor author --ifc` -- the recommended path"
+ },
+ "prompt_coverage": {
+  "understood": [
+   {
+    "clause": "30 by 20 feet",
+    "as": "room dimensions",
+    "width_m": 9.144,
+    "depth_m": 6.096,
+    "unit_assumed": "feet"
+   },
+   {
+    "clause": "switchboard",
+    "as": "equipment",
+    "kind": "switchboard",
+    "count": 1,
+    "rating_a": 2500.0,
+    "kva": null,
+    "voltage": null,
+    "mains": null,
+    "spaces": null
+   },
+   {
+    "clause": "distribution panel",
+    "as": "equipment",
+    "kind": "distribution_panelboard",
+    "count": 1,
+    "rating_a": null,
+    "kva": null,
+    "voltage": null,
+    "mains": null,
+    "spaces": null
+   },
+   {
+    "clause": "lighting panel",
+    "as": "equipment",
+    "kind": "lighting_panelboard",
+    "count": 1,
+    "rating_a": null,
+    "kva": null,
+    "voltage": null,
+    "mains": null,
+    "spaces": null
+   },
+   {
+    "clause": "transformer",
+    "as": "equipment",
+    "kind": "transformer",
+    "count": 1,
+    "rating_a": null,
+    "kva": null,
+    "voltage": null,
+    "mains": null,
+    "spaces": null
+   }
+  ],
+  "ignored_words": [],
+  "not_built": [],
+  "defaults_applied": [
+   "room height: 3.6576 m (12 ft)",
+   "wall thickness: 0.2032 m location-line offset (the built wall uses the base wall type's compound structure)",
+   "service voltage system: 480Y/277 V",
+   "MSB: voltage 480Y/277 V (service system)",
+   "MSB: main breaker (switchboard default)",
+   "MSB: SCCR 65 kA (typical 480 V service default; an ordering value, not a catalog fact)",
+   "MSB: 4 sections (lineup sizing rule round(A/625), clamped 2..6)",
+   "DP-1: 400 A bus (kind default)",
+   "DP-1: voltage 480Y/277 V (service system)",
+   "DP-1: MCB (main breaker kind default)",
+   "DP-1: 42 spaces (default)",
+   "LP-1: 100 A bus (kind default)",
+   "LP-1: voltage 480Y/277 V (service system)",
+   "LP-1: MLO (main lugs only kind default)",
+   "LP-1: 42 spaces (default)",
+   "T1: 75 kVA (no rating given)",
+   "T1: 480 V delta primary -> 208Y/120 V secondary (the standard step-down)"
+  ],
+  "warnings": [],
+  "consumed_ratio": 0.707,
+  "statement": "rules-first deterministic parser (no external model call, no API key): everything under 'understood' was normalised into the intent; 'ignored_words' are prompt words the parser did not use; 'not_built' items were recognised but are outside today's model build path; 'defaults_applied' names every value the parser had to assume."
+ },
+ "base": {
+  "path": "/Users/ck/dev/things/tekton/experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "source": "pinned-repo",
+  "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
+  "pinned": true,
+  "certified_genesis_base": true,
+  "is_autodesk_sample": false,
+  "certification": {
+   "ledger": "docs/coverage/viewer-certified.json",
+   "entry": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "proves": "THE COMPOSED GENESIS PROJECT BASE LOADS: G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the Autodesk viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt)",
+   "verdict": "docs/inbox/genesis-audit.md '***** ORCHESTRATOR VERDICTS #24' (2026-08-04): GENESIS LOADS",
+   "composed_by": "tools/genesis_compose.py (anchor byte-exact against certified ZA_deep)"
+  },
+  "warnings": [],
+  "pin": {
+   "id": "G_ABPD",
+   "relpath": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
+   "bytes": 581632,
+   "revit_release": "2026",
+   "certification": {
+    "ledger": "docs/coverage/viewer-certified.json",
+    "entry": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "proves": "THE COMPOSED GENESIS PROJECT BASE LOADS: G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the Autodesk viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt)",
+    "verdict": "docs/inbox/genesis-audit.md '***** ORCHESTRATOR VERDICTS #24' (2026-08-04): GENESIS LOADS",
+    "composed_by": "tools/genesis_compose.py (anchor byte-exact against certified ZA_deep)"
+   },
+   "residue_disclosure": "Per verdict #24: ~260 Autodesk-authored elements remain + 4 named stragglers, plus the two shipped product corpora present in EVERY Revit file (Formats/Latest schema + ESSchemaStorage unit schemas = counsel question C4). The genesis LINEAGE descends from the rst sample reduced + substituted in place; deliverability of any output is decided by the P0 provenance gate (rvt.provenance), never assumed by this registry.",
+   "specimen_ancestor": {
+    "id": "R5",
+    "relpath": "experiments/genesis/R5.rvt",
+    "sha256": "ae40074bb9379ee01b75f43e5bed23f450e34664d40deabed4a226e0847d4181"
+   }
+  },
+  "policy": "the front door authors ONLY on the certified genesis base (our composed project, no Autodesk-authored base content) or a user-supplied non-sample base; NEVER an Autodesk sample"
+ },
+ "intent": {
+  "summary": {
+   "project": "Electrical Room",
+   "source": "prompt:create an electrical room 30 by 20 feet with a 2500A switchboard, a distribution panel, a lighting panel, and a transformer",
+   "schema": "prompt/spec-v2",
+   "levels": [
+    {
+     "id": "L1",
+     "name": "Level 1",
+     "elevation": 0.0
+    }
+   ],
+   "room": {
+    "name": "Electrical Room",
+    "walls": 4,
+    "walls_synthesized": 0,
+    "doors": 0,
+    "ring_ccw": true,
+    "centerline_extents_m": {
+     "x": [
+      -4.572,
+      4.572
+     ],
+     "y": [
+      -3.048,
+      3.048
+     ]
+    }
+   },
+   "equipment_total": 4,
+   "equipment_by_kind": {
+    "switchboard": 1,
+    "distribution_panelboard": 1,
+    "lighting_panelboard": 1,
+    "transformer": 1
+   },
+   "equipment": [
+    {
+     "tag": "MSB",
+     "kind": "switchboard",
+     "disposition": "generated-family",
+     "insertion_m": [
+      -0.537,
+      2.389,
+      0.1
+     ],
+     "mounting": "floor",
+     "frame_kind": "yaw"
+    },
+    {
+     "tag": "DP-1",
+     "kind": "distribution_panelboard",
+     "disposition": "generated-family",
+     "insertion_m": [
+      -4.47,
+      2.092,
+      1.42
+     ],
+     "mounting": "surface",
+     "frame_kind": "upright"
+    },
+    {
+     "tag": "LP-1",
+     "kind": "lighting_panelboard",
+     "disposition": "generated-family",
+     "insertion_m": [
+      4.47,
+      2.092,
+      1.42
+     ],
+     "mounting": "surface",
+     "frame_kind": "upright"
+    },
+    {
+     "tag": "T1",
+     "kind": "transformer",
+     "disposition": "generated-family",
+     "insertion_m": [
+      2.1,
+      2.542,
+      0.1
+     ],
+     "mounting": "floor",
+     "frame_kind": "yaw"
+    }
+   ],
+   "feeder_edges": [
+    {
+     "from": "MSB",
+     "to": "DP-1",
+     "kind": "feeder",
+     "rating_a": 400.0,
+     "voltage": "480Y/277 V"
+    },
+    {
+     "from": "MSB",
+     "to": "T1",
+     "kind": "primary",
+     "rating_a": 90.2,
+     "voltage": "480 V delta"
+    },
+    {
+     "from": "DP-1",
+     "to": "LP-1",
+     "kind": "feeder",
+     "rating_a": 100.0,
+     "voltage": "480Y/277 V"
+    },
+    {
+     "from": "UTILITY",
+     "to": "MSB",
+     "kind": "service",
+     "rating_a": null,
+     "voltage": null
+    }
+   ],
+   "family_plans_by_status": {
+    "house": 1,
+    "resolved": 3
+   },
+   "family_plans": [
+    {
+     "tag": "MSB",
+     "kind": "switchboard",
+     "status": "house",
+     "constructor": "make_house_switchboard",
+     "variant": null,
+     "catalog": null,
+     "refusal": "FactoryError: no sizing rows for 2500.0 A mains; tabulated: [100.0, 225.0, 400.0, 600.0]"
+    },
+    {
+     "tag": "DP-1",
+     "kind": "distribution_panelboard",
+     "status": "resolved",
+     "constructor": "make_panelboard",
+     "variant": "PRL2X",
+     "catalog": "eaton/pow-r-line-panelboards",
+     "refusal": null
+    },
+    {
+     "tag": "LP-1",
+     "kind": "lighting_panelboard",
+     "status": "resolved",
+     "constructor": "make_panelboard",
+     "variant": "PRL2X",
+     "catalog": "eaton/pow-r-line-panelboards",
+     "refusal": null
+    },
+    {
+     "tag": "T1",
+     "kind": "transformer",
+     "status": "resolved",
+     "constructor": "make_transformer",
+     "variant": "V48M28T7516",
+     "catalog": "eaton/dry-type-transformers",
+     "refusal": null
+    }
+   ],
+   "clearances": 0,
+   "audit": {
+    "source": "prompt (built-in rules-first fallback; no external model call)",
+    "equipment_with_positions": 4,
+    "positions_all_zero": false,
+    "feeder_edges": 4,
+    "family_plans": {
+     "MSB": "house",
+     "DP-1": "resolved",
+     "LP-1": "resolved",
+     "T1": "resolved"
+    },
+    "prompt_consumed_ratio": 0.707,
+    "prompt_ignored_words": [],
+    "equipment_inside_room_ring": "4/4"
+   }
+  },
+  "json": "experiments/frontdoor/prompt-electrical-room-v2/intent.json"
+ },
+ "build": {
+  "combination_verdict": {
+   "open_bug": "walls+loaded-families-audit",
+   "open_bug_text": "created WALLS + LOADED FAMILY DOCUMENTS in the SAME file currently trip Autodesk's audit ('Processing failed'), while walls alone PASS (electrical_room_2500a_walls_only.rvt, certified) and loaded families alone PASS (stage_L8_lp4.rvt, certified) -- docs/inbox/genesis-audit.md ORCHESTRATOR VERDICTS #24 (verdict #22's 'one defective family' RETRACTED). The mechanism is under bisection in the render/creation stream; until it is fixed the front door DEGRADES: --strict emits two coordinated files (shell + equipment), the default emits one combined file STAMPED 'PROOF-ONLY: walls+families combination unverified'.",
+   "has_walls": true,
+   "n_walls": 4,
+   "has_loaded_families": true,
+   "n_loaded_families": 4,
+   "triggers_open_bug": true,
+   "mode": "stamp-proof-only",
+   "stamp": "PROOF-ONLY: walls+families combination unverified",
+   "files": [
+    "combined"
+   ],
+   "reason": "default: ONE combined file (the room's walls + the loaded families + their instances) is emitted and the manifest is STAMPED 'PROOF-ONLY: walls+families combination unverified' -- this exact combination is the OPEN BUG (unverified/failing in the viewer). Pass --strict to get two coordinated proven-shaped files instead.",
+   "notes": [
+    "the stamp is not decoration: it is the front door refusing to represent an unverified combination as accepted; the file's own self-checks (validator / registries / identity) still run."
+   ]
+  },
+  "files": {
+   "combined": {
+    "path": "/Users/ck/dev/things/tekton/experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "relpath": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "bytes": 622592,
+    "sha256": "3221ddd95ff93f667bf7751510e3379e90906a5bd41313e578a083cd15c48da7"
+   }
+  },
+  "families_dir": "experiments/frontdoor/prompt-electrical-room-v2/families",
+  "stages": null,
+  "load": {
+   "stage": "L",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "loads": [
+    {
+     "tag": "MSB",
+     "in": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L0_base.rvt",
+     "out": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L1_msb.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472524,
+     "symbol_id": 1472586,
+     "family_id": 1472568,
+     "surrogate_id": 1472585,
+     "content_guid": "07240249-5543-403f-95d1-27bc2420d966",
+     "twins": 16,
+     "elements_added": 20,
+     "proofs": {
+      "plan": {
+       "content_guid": "07240249-5543-403f-95d1-27bc2420d966",
+       "host_watermark": 1472524,
+       "our_doc_ids": [
+        1472525,
+        1472567
+       ],
+       "host_ids": {
+        "family": 1472568,
+        "surrogate": 1472585,
+        "symbol": 1472586,
+        "symbol_surrogate": 1472587,
+        "instance": -1,
+        "twins": 16
+       }
+      },
+      "roundtrip_gate": {
+       "records": 60,
+       "roundtrip_ok": 60,
+       "failed": 0,
+       "encoded_bytes": 22490,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "07240249-5543-403f-95d1-27bc2420d966",
+       "records": 43,
+       "bytes": 7627,
+       "segments": {
+        "101": 7197,
+        "102": 31312,
+        "103": 5424
+       }
+      },
+      "content_documents": {
+       "entries_before": 0,
+       "entries_after": 1,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3133
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580066,
+       "bytes_after": 1580190
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.4,
+     "report": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L1_msb.rvt.load.json"
+    },
+    {
+     "tag": "DP-1",
+     "in": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L1_msb.rvt",
+     "out": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L2_dp1.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472587,
+     "symbol_id": 1472645,
+     "family_id": 1472629,
+     "surrogate_id": 1472644,
+     "content_guid": "aafd7ceb-cd8c-4d6f-be05-e48df81bfe34",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "aafd7ceb-cd8c-4d6f-be05-e48df81bfe34",
+       "host_watermark": 1472587,
+       "our_doc_ids": [
+        1472588,
+        1472628
+       ],
+       "host_ids": {
+        "family": 1472629,
+        "surrogate": 1472644,
+        "symbol": 1472645,
+        "symbol_surrogate": 1472646,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 20390,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "aafd7ceb-cd8c-4d6f-be05-e48df81bfe34",
+       "records": 41,
+       "bytes": 7397,
+       "segments": {
+        "101": 6895,
+        "102": 29830,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 1,
+       "entries_after": 2,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580190,
+       "bytes_after": 1580302
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.5,
+     "report": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L2_dp1.rvt.load.json"
+    },
+    {
+     "tag": "T1",
+     "in": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L2_dp1.rvt",
+     "out": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L3_t1.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472646,
+     "symbol_id": 1472699,
+     "family_id": 1472686,
+     "surrogate_id": 1472698,
+     "content_guid": "3fece8d0-5ea5-4282-b54e-892fb76c483d",
+     "twins": 11,
+     "elements_added": 15,
+     "proofs": {
+      "plan": {
+       "content_guid": "3fece8d0-5ea5-4282-b54e-892fb76c483d",
+       "host_watermark": 1472646,
+       "our_doc_ids": [
+        1472647,
+        1472685
+       ],
+       "host_ids": {
+        "family": 1472686,
+        "surrogate": 1472698,
+        "symbol": 1472699,
+        "symbol_surrogate": 1472700,
+        "instance": -1,
+        "twins": 11
+       }
+      },
+      "roundtrip_gate": {
+       "records": 45,
+       "roundtrip_ok": 45,
+       "failed": 0,
+       "encoded_bytes": 19019,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "3fece8d0-5ea5-4282-b54e-892fb76c483d",
+       "records": 39,
+       "bytes": 7277,
+       "segments": {
+        "101": 6625,
+        "102": 29254,
+        "103": 5336
+       }
+      },
+      "content_documents": {
+       "entries_before": 2,
+       "entries_after": 3,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 2973
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580302,
+       "bytes_after": 1580414
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.5,
+     "report": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L3_t1.rvt.load.json"
+    },
+    {
+     "tag": "LP-1",
+     "in": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L3_t1.rvt",
+     "out": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L4_lp1.rvt",
+     "ok": true,
+     "stop_reason": "",
+     "host_watermark": 1472700,
+     "symbol_id": 1472758,
+     "family_id": 1472742,
+     "surrogate_id": 1472757,
+     "content_guid": "e7d828c8-dd0a-48f2-8a43-6d1c93089626",
+     "twins": 14,
+     "elements_added": 18,
+     "proofs": {
+      "plan": {
+       "content_guid": "e7d828c8-dd0a-48f2-8a43-6d1c93089626",
+       "host_watermark": 1472700,
+       "our_doc_ids": [
+        1472701,
+        1472741
+       ],
+       "host_ids": {
+        "family": 1472742,
+        "surrogate": 1472757,
+        "symbol": 1472758,
+        "symbol_surrogate": 1472759,
+        "instance": -1,
+        "twins": 14
+       }
+      },
+      "roundtrip_gate": {
+       "records": 54,
+       "roundtrip_ok": 54,
+       "failed": 0,
+       "encoded_bytes": 20394,
+       "failures": []
+      },
+      "save_unit": {
+       "guid": "e7d828c8-dd0a-48f2-8a43-6d1c93089626",
+       "records": 41,
+       "bytes": 7415,
+       "segments": {
+        "101": 6895,
+        "102": 29838,
+        "103": 5380
+       }
+      },
+      "content_documents": {
+       "entries_before": 3,
+       "entries_after": 4,
+       "ours_present": true,
+       "end_record_intact": true,
+       "delta_bytes": 3053
+      },
+      "adocument_reencode": {
+       "clean": true,
+       "bytes_before": 1580414,
+       "bytes_after": 1580526
+      }
+     },
+     "acceptance": [
+      "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+      "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+      "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+      "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+      "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+      "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+     ],
+     "seconds": 1.5,
+     "report": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L4_lp1.rvt.load.json"
+    }
+   ],
+   "final": "experiments/frontdoor/prompt-electrical-room-v2/_stages/stage_L4_lp1.rvt",
+   "blocker": null,
+   "order": [
+    "MSB",
+    "DP-1",
+    "T1",
+    "LP-1"
+   ],
+   "loaded": {
+    "MSB": {
+     "symbol_id": 1472586,
+     "family_id": 1472568,
+     "content_guid": "07240249-5543-403f-95d1-27bc2420d966"
+    },
+    "DP-1": {
+     "symbol_id": 1472645,
+     "family_id": 1472629,
+     "content_guid": "aafd7ceb-cd8c-4d6f-be05-e48df81bfe34"
+    },
+    "T1": {
+     "symbol_id": 1472699,
+     "family_id": 1472686,
+     "content_guid": "3fece8d0-5ea5-4282-b54e-892fb76c483d"
+    },
+    "LP-1": {
+     "symbol_id": 1472758,
+     "family_id": 1472742,
+     "content_guid": "e7d828c8-dd0a-48f2-8a43-6d1c93089626"
+    }
+   },
+   "n_loaded": 4,
+   "n_planned": 4
+  },
+  "families": {
+   "stage": "F",
+   "dir": "experiments/frontdoor/prompt-electrical-room-v2/families",
+   "all_ok": true,
+   "built": 4
+  },
+  "family_files": [
+   {
+    "tag": "MSB",
+    "path": "experiments/frontdoor/prompt-electrical-room-v2/families/msb_switchboard_msb_2500a_480y_277.rfa",
+    "ok": true,
+    "catalog": null,
+    "variant": null,
+    "reason": null
+   },
+   {
+    "tag": "DP-1",
+    "path": "experiments/frontdoor/prompt-electrical-room-v2/families/dp1_eaton_prl2x_400a_42sp_480y_277.rfa",
+    "ok": true,
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "reason": null
+   },
+   {
+    "tag": "LP-1",
+    "path": "experiments/frontdoor/prompt-electrical-room-v2/families/lp1_eaton_prl2x_100a_42sp_480y_277.rfa",
+    "ok": true,
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "reason": null
+   },
+   {
+    "tag": "T1",
+    "path": "experiments/frontdoor/prompt-electrical-room-v2/families/t1_xfmr_75kva_480_208y_120.rfa",
+    "ok": true,
+    "catalog": "eaton/dry-type-transformers",
+    "variant": "V48M28T7516",
+    "reason": null
+   }
+  ],
+  "elements_created": [
+   {
+    "kind": "family(.rfa)",
+    "tag": "MSB",
+    "name": "Switchboard MSB 2500A 480Y/277",
+    "path": "experiments/frontdoor/prompt-electrical-room-v2/families/msb_switchboard_msb_2500a_480y_277.rfa",
+    "catalog": null,
+    "variant": null,
+    "ok": true
+   },
+   {
+    "kind": "family(.rfa)",
+    "tag": "DP-1",
+    "name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+    "path": "experiments/frontdoor/prompt-electrical-room-v2/families/dp1_eaton_prl2x_400a_42sp_480y_277.rfa",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true
+   },
+   {
+    "kind": "family(.rfa)",
+    "tag": "LP-1",
+    "name": "Lighting Panelboard LP-1 480Y/277 100A MLO 42sp",
+    "path": "experiments/frontdoor/prompt-electrical-room-v2/families/lp1_eaton_prl2x_100a_42sp_480y_277.rfa",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true
+   },
+   {
+    "kind": "family(.rfa)",
+    "tag": "T1",
+    "name": "Dry Type Transformer T1 75kVA 480-208Y/120",
+    "path": "experiments/frontdoor/prompt-electrical-room-v2/families/t1_xfmr_75kva_480_208y_120.rfa",
+    "catalog": "eaton/dry-type-transformers",
+    "variant": "V48M28T7516",
+    "ok": true
+   },
+   {
+    "kind": "wall",
+    "tag": "W-S",
+    "elem_id": 1472760,
+    "length_m": 9.144,
+    "height_ft": 12.0,
+    "file_role": "W"
+   },
+   {
+    "kind": "wall",
+    "tag": "W-E",
+    "elem_id": 1472761,
+    "length_m": 6.096,
+    "height_ft": 12.0,
+    "file_role": "W"
+   },
+   {
+    "kind": "wall",
+    "tag": "W-N",
+    "elem_id": 1472762,
+    "length_m": 9.144,
+    "height_ft": 12.0,
+    "file_role": "W"
+   },
+   {
+    "kind": "wall",
+    "tag": "W-W",
+    "elem_id": 1472763,
+    "length_m": 6.096,
+    "height_ft": 12.0,
+    "file_role": "W"
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "MSB",
+    "elem_id": 1472764,
+    "symbol": 1472586,
+    "family": 1472568,
+    "equip_kind": "switchboard",
+    "position_ft": [
+     -1.763,
+     7.839,
+     0.328
+    ],
+    "frame_kind": "yaw",
+    "connector_slots_panel": 2,
+    "file_role": "E"
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "DP-1",
+    "elem_id": 1472765,
+    "symbol": 1472645,
+    "family": 1472629,
+    "equip_kind": "distribution_panelboard",
+    "position_ft": [
+     -14.667,
+     6.865,
+     4.659
+    ],
+    "frame_kind": "upright",
+    "connector_slots_panel": 1,
+    "file_role": "E"
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "LP-1",
+    "elem_id": 1472766,
+    "symbol": 1472758,
+    "family": 1472742,
+    "equip_kind": "lighting_panelboard",
+    "position_ft": [
+     14.667,
+     6.865,
+     4.659
+    ],
+    "frame_kind": "upright",
+    "connector_slots_panel": 0,
+    "file_role": "E"
+   },
+   {
+    "kind": "equipment-instance",
+    "tag": "T1",
+    "elem_id": 1472767,
+    "symbol": 1472699,
+    "family": 1472686,
+    "equip_kind": "transformer",
+    "position_ft": [
+     6.89,
+     8.339,
+     0.328
+    ],
+    "frame_kind": "yaw",
+    "connector_slots_panel": 0,
+    "file_role": "E"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "MSB",
+    "symbol_id": 1472586,
+    "family_id": 1472568,
+    "content_guid": "07240249-5543-403f-95d1-27bc2420d966"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "DP-1",
+    "symbol_id": 1472645,
+    "family_id": 1472629,
+    "content_guid": "aafd7ceb-cd8c-4d6f-be05-e48df81bfe34"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "T1",
+    "symbol_id": 1472699,
+    "family_id": 1472686,
+    "content_guid": "3fece8d0-5ea5-4282-b54e-892fb76c483d"
+   },
+   {
+    "kind": "loaded-family",
+    "tag": "LP-1",
+    "symbol_id": 1472758,
+    "family_id": 1472742,
+    "content_guid": "e7d828c8-dd0a-48f2-8a43-6d1c93089626"
+   }
+  ],
+  "degradations": [
+   "feeder CIRCUITS not authored: NO CIRCUIT SPECIMEN in the base or the loaded file (the family-free structural-lineage base carries no RbsElectricalSystem; rvt.mutate.add_circuit CLONES one) -- an RbsElectricalSystem CONSTRUCTOR is the exact missing piece.  The feeder tree is fully resolved (edges + ratings + poles + voltage, corroborated by the conduit geometry) and every placed board carries an unconnected 50000-series slot per outgoing feeder, so each edge is one add_circuit(panel, load) call once a constructor / same-commit circuit template exists.  (LookupError: prompt_room: no 2-connector circuit specimen to clone) -- the resolved circuit PLAN rides in the manifest (rvt.mep add_circuit / a Revit-side add-in build them from it)"
+  ],
+  "circuits": {
+   "stage": "C",
+   "in": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+   "circuits_planned": [
+    {
+     "panel": "MSB",
+     "load": "DP-1",
+     "rating_a": 400.0,
+     "voltage": "480Y/277 V",
+     "poles": 3,
+     "description": "DP-1 feeder from MSB"
+    },
+    {
+     "panel": "MSB",
+     "load": "T1",
+     "rating_a": 90.2,
+     "voltage": "480 V delta",
+     "poles": 3,
+     "description": "T1 feeder from MSB"
+    },
+    {
+     "panel": "DP-1",
+     "load": "LP-1",
+     "rating_a": 100.0,
+     "voltage": "480Y/277 V",
+     "poles": 3,
+     "description": "LP-1 feeder from DP-1"
+    }
+   ],
+   "ok": false,
+   "blocker": "NO CIRCUIT SPECIMEN in the base or the loaded file (the family-free structural-lineage base carries no RbsElectricalSystem; rvt.mutate.add_circuit CLONES one) -- an RbsElectricalSystem CONSTRUCTOR is the exact missing piece.  The feeder tree is fully resolved (edges + ratings + poles + voltage, corroborated by the conduit geometry) and every placed board carries an unconnected 50000-series slot per outgoing feeder, so each edge is one add_circuit(panel, load) call once a constructor / same-commit circuit template exists.  (LookupError: prompt_room: no 2-connector circuit specimen to clone)",
+   "notes": [
+    "MEP HARD LIMIT recorded in KNOWLEDGE.md: circuits are Revit-side connectivity; the intent carries the whole tree so the electrical stream / a Revit-side add-in can build them from the same JSON"
+   ]
+  },
+  "validation": {
+   "combined": {
+    "validate": {
+     "path": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+     "md5": "22ecb0fc65ab39df7b0536a548eb350c",
+     "size": 622592,
+     "verdict": "VALID",
+     "n_errors": 0,
+     "n_warnings": 1,
+     "errors": [],
+     "warnings": [
+      {
+       "severity": "warning",
+       "layer": "semantic",
+       "where": "objects",
+       "message": "1/3345 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+      }
+     ],
+     "stats": {
+      "streams": 12,
+      "pages_checked": 15,
+      "gzip_members": 8,
+      "partition_blocks": 26,
+      "records": 10050,
+      "elements_decoded": 3345,
+      "decode_failures": 1,
+      "refs_checked": 50449,
+      "connector_edges": 0,
+      "circuits": 0
+     },
+     "seconds": 0.3
+    },
+    "census": {
+     "save_units": 5,
+     "contentdocs_entries": 4,
+     "contentdocs_guids": [
+      "07240249-5543-403f-95d1-27bc2420d966",
+      "3fece8d0-5ea5-4282-b54e-892fb76c483d",
+      "aafd7ceb-cd8c-4d6f-be05-e48df81bfe34",
+      "e7d828c8-dd0a-48f2-8a43-6d1c93089626"
+     ],
+     "contenttable_records": 4,
+     "contenttable_guids": [
+      "07240249-5543-403f-95d1-27bc2420d966",
+      "3fece8d0-5ea5-4282-b54e-892fb76c483d",
+      "aafd7ceb-cd8c-4d6f-be05-e48df81bfe34",
+      "e7d828c8-dd0a-48f2-8a43-6d1c93089626"
+     ],
+     "familymgr_entries": 13,
+     "familymgr_guids": [
+      "07240249-5543-403f-95d1-27bc2420d966",
+      "3fece8d0-5ea5-4282-b54e-892fb76c483d",
+      "aafd7ceb-cd8c-4d6f-be05-e48df81bfe34",
+      "e7d828c8-dd0a-48f2-8a43-6d1c93089626"
+     ],
+     "coherent": true
+    },
+    "identity": {
+     "status": "PASS",
+     "issues": [],
+     "identity": {
+      "author": "rvt-writer",
+      "client_app_name": "rvt-writer",
+      "username": "",
+      "last_save_path": "prompt_room.rvt",
+      "central_model_path": "",
+      "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+      "format": "2026",
+      "build": "20250227_1515(x64)",
+      "locale": "ENU",
+      "unique_document_increments": "22"
+     },
+     "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+    },
+    "self_checks_ok": true
+   }
+  },
+  "status_gate": {
+   "status": "PROOF-ONLY, NOT-DELIVERABLE",
+   "deliverable": false,
+   "base": "/Users/ck/dev/things/tekton/experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "base_is_autodesk_sample": false,
+   "g1": {
+    "passes": false,
+    "verdict": "FAIL \u2014 3,054 Autodesk-derived element(s) in expression-bearing categories",
+    "blocking": [
+     {
+      "category": "loadable-families",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "autodesk-sample",
+      "count": 2,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "transitive-cloned",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "autodesk-sample",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "autodesk-sample",
+      "count": 87,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "autodesk-sample",
+      "count": 1591,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "autodesk-sample",
+      "count": 71,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "autodesk-sample",
+      "count": 17,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "parameter-definitions",
+      "provenance": "autodesk-sample",
+      "count": 822,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "autodesk-sample",
+      "count": 11,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "autodesk-sample",
+      "count": 37,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "mep-electrical-definitions",
+      "provenance": "autodesk-sample",
+      "count": 354,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ]
+   },
+   "provenance_totals": {
+    "autodesk-sample": 3102,
+    "ours-created": 67,
+    "transitive-cloned": 12
+   },
+   "created_elements": [
+    {
+     "id": 1472568,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472569,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472569 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472570,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472570 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472571,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472571 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472572,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472572 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472573,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472573 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472574,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472574 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472575,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472575 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472576,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472576 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472577,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472577 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472578,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472578 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472579,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472579 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472580,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472580 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472581,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472581 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472582,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472582 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472583,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472583 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472584,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472584 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472585,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472585 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472586,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472587,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472587 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472629,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472630,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472630 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472631,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472631 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472632,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472632 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472633,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472633 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472634,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472634 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472635,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472635 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472636,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472636 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472637,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472637 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472638,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472638 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472639,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472639 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472640,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472640 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472641,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472641 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472642,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472642 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472643,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472643 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472644,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472644 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472645,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472646,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472646 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472686,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472687,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472687 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472688,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472688 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472689,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472689 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472690,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472690 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472691,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472691 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472692,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472692 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472693,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472693 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472694,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472694 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472695,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472695 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472696,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472696 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472697,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472697 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472698,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472698 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472699,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472700,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472700 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472742,
+     "class": "Family",
+     "category": "loadable-families",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_coreIds[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_coreIds[0]",
+       "name": "style:Electrical Equipment"
+      },
+      {
+       "id": 35,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_predefinedLimitIdx",
+       "name": "style:Windows"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472743,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472743 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472744,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472744 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472745,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472745 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472746,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472746 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472747,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472747 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472748,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472748 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472749,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472749 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472750,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472750 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472751,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472751 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472752,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472752 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472753,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472753 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472754,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472754 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472755,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472755 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472756,
+     "class": "ParamElemFamily",
+     "category": "parameter-definitions",
+     "provenance": "ours-created",
+     "reason": "id 1472756 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472757,
+     "class": "FamilySurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472757 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472758,
+     "class": "FamilySymbol",
+     "category": "family-types-symbols",
+     "provenance": "transitive-cloned",
+     "reason": "references sample object-styles GStyleElem 124 via m_regenOnly[0]",
+     "lineage": [
+      {
+       "id": 124,
+       "class": "GStyleElem",
+       "category": "object-styles",
+       "via": "m_regenOnly[0]",
+       "name": "style:Electrical Equipment"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472759,
+     "class": "FamSymSurrogate",
+     "category": "loadable-families",
+     "provenance": "ours-created",
+     "reason": "id 1472759 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472760,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+     "lineage": [
+      {
+       "id": 600634,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "GEN Wall - Interior Partition 121mm"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472761,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+     "lineage": [
+      {
+       "id": 600634,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "GEN Wall - Interior Partition 121mm"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472762,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+     "lineage": [
+      {
+       "id": 600634,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "GEN Wall - Interior Partition 121mm"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472763,
+     "class": "SWall",
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "reason": "references sample system-family-types BasicWallType 600634 via m_WallAttributesId",
+     "lineage": [
+      {
+       "id": 600634,
+       "class": "BasicWallType",
+       "category": "system-family-types",
+       "via": "m_WallAttributesId",
+       "name": "GEN Wall - Interior Partition 121mm"
+      }
+     ],
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472764,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472764 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472765,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472765 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472766,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472766 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    },
+    {
+     "id": 1472767,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-created",
+     "reason": "id 1472767 > watermark 1472524; no lineage into sample expression (max clone overlap 0%)",
+     "attribution": "G_ABPD"
+    }
+   ],
+   "reason": "P0 genesis gate G1 fails (the base carries derived expression that G1 blocks): FAIL \u2014 3,054 Autodesk-derived element(s) in expression-bearing categories. Nothing built on a sample base is a product; ship only from a certified genesis base.",
+   "elapsed_s": 0.1
+  },
+  "seconds": 13.1,
+  "errors": []
+ },
+ "crud": {
+  "entrypoint": "python tools/frontdoor.py author --rvt experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt --edit \"<sentence | ops.json | inline JSON>\" --out <dir>",
+  "note": "every element the front door created is EDITABLE and DELETABLE through the same front door (--rvt --edit) or the underlying rvt_edit.py / rvt_job.py ops -- one ops vocabulary for all of them",
+  "elements": [
+   {
+    "tag": "W-S",
+    "elem_id": 1472760,
+    "kind": "wall",
+    "file": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "modify": {
+     "note": "a wall's geometry is its location line + type + level; move / delete are supported; length / type changes are the walls stream's modify path",
+     "delete": {
+      "text_edit": "delete 1472760",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt delete --id 1472760 -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472760,
+       "cascade": true
+      }
+     }
+    }
+   },
+   {
+    "tag": "W-E",
+    "elem_id": 1472761,
+    "kind": "wall",
+    "file": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "modify": {
+     "note": "a wall's geometry is its location line + type + level; move / delete are supported; length / type changes are the walls stream's modify path",
+     "delete": {
+      "text_edit": "delete 1472761",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt delete --id 1472761 -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472761,
+       "cascade": true
+      }
+     }
+    }
+   },
+   {
+    "tag": "W-N",
+    "elem_id": 1472762,
+    "kind": "wall",
+    "file": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "modify": {
+     "note": "a wall's geometry is its location line + type + level; move / delete are supported; length / type changes are the walls stream's modify path",
+     "delete": {
+      "text_edit": "delete 1472762",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt delete --id 1472762 -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472762,
+       "cascade": true
+      }
+     }
+    }
+   },
+   {
+    "tag": "W-W",
+    "elem_id": 1472763,
+    "kind": "wall",
+    "file": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "modify": {
+     "note": "a wall's geometry is its location line + type + level; move / delete are supported; length / type changes are the walls stream's modify path",
+     "delete": {
+      "text_edit": "delete 1472763",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt delete --id 1472763 -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472763,
+       "cascade": true
+      }
+     }
+    }
+   },
+   {
+    "tag": "MSB",
+    "elem_id": 1472764,
+    "kind": "equipment-instance",
+    "file": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move MSB to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt move --id 1472764 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472764,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype MSB to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt retype --id 1472764 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472764,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete MSB with cascade",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt delete --id 1472764 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472764,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   },
+   {
+    "tag": "DP-1",
+    "elem_id": 1472765,
+    "kind": "equipment-instance",
+    "file": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move DP-1 to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt move --id 1472765 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472765,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype DP-1 to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt retype --id 1472765 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472765,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete DP-1 with cascade",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt delete --id 1472765 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472765,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   },
+   {
+    "tag": "LP-1",
+    "elem_id": 1472766,
+    "kind": "equipment-instance",
+    "file": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move LP-1 to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt move --id 1472766 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472766,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype LP-1 to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt retype --id 1472766 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472766,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete LP-1 with cascade",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt delete --id 1472766 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472766,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   },
+   {
+    "tag": "T1",
+    "elem_id": 1472767,
+    "kind": "equipment-instance",
+    "file": "experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt",
+    "modify": {
+     "move": {
+      "text_edit": "move T1 to X,Y,Z ft",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt move --id 1472767 --to X Y Z [--rotation-deg N] -o edited.rvt",
+      "op": {
+       "op": "move",
+       "id": 1472767,
+       "to": [
+        "X",
+        "Y",
+        "Z"
+       ],
+       "rotation_deg": 0
+      }
+     },
+     "retype": {
+      "text_edit": "retype T1 to <symbol id>",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt retype --id 1472767 --symbol S -o edited.rvt",
+      "op": {
+       "op": "retype",
+       "id": 1472767,
+       "symbol": "<symbol id>"
+      }
+     },
+     "delete": {
+      "text_edit": "delete T1 with cascade",
+      "cli": "python tools/rvt_edit.py experiments/frontdoor/prompt-electrical-room-v2/prompt_room.rvt delete --id 1472767 --cascade -o edited.rvt",
+      "op": {
+       "op": "delete",
+       "id": 1472767,
+       "cascade": true
+      }
+     }
+    },
+    "not_available": {
+     "rename / set-mark": "front-door instances are specimen-scaffolded clones with NO instance parameter rows (the tag/PanelName rides on each board's own generated family + type) -- rename = regenerate with a new tag; `rename`/`set-mark` DO work on native instances in a user's file (--rvt route)"
+    }
+   }
+  ],
+  "layer_operations": {
+   "recreate": "re-run the same `frontdoor author` command (deterministic for the same inputs) -- outputs are regenerated from the intent",
+   "start_over": "the base is untouched; delete the output directory to discard the whole created layer",
+   "circuits": "feeder circuits are NOT authored on this base yet (named blocker in the manifest); the resolved circuit plan is in the intent's feederTree.circuitPlan -- rvt.mep add_circuit / a Revit-side add-in consume it"
+  }
+ },
+ "coverage_matrix": {
+  "matrix": "docs/coverage/matrix.json (28 categories x 6 verbs; tools/coverage.py)",
+  "cells_exercised": [
+   {
+    "category": "electrical_equipment",
+    "verb": "create"
+   },
+   {
+    "category": "families",
+    "verb": "create"
+   },
+   {
+    "category": "walls",
+    "verb": "create"
+   }
+  ],
+  "affordances": "modify / move / retype / delete over every created element are the manipulate stream's certified cells (M2/M3/M4); the front door's --rvt route drives them"
+ },
+ "honesty": {
+  "tiers": {
+   "self_checks": "rvt.validate (0 errors), four-registry coherence, identity gate -- prove OUR OWN invariants; reported per file below",
+   "autodesk_acceptance": "NOT claimed by this run: only the Autodesk Viewer / Revit prove acceptance (upload -> 'translated' -> open the {3D} view). Report both tiers separately, never conflated.",
+   "load_vs_render": "every certification behind these shapes is a LOAD pass; created walls carry a SerializedDummy rep (desktop Revit regenerates; the cloud viewer does NOT) and our loaded symbols carry real solids -- RENDER (baked geometry) is the render stream's second gate"
+  },
+  "proof_only_stamps": [
+   "PROOF-ONLY: walls+families combination unverified",
+   "PROOF-ONLY, NOT-DELIVERABLE"
+  ],
+  "release": "Revit 2026 target (the base and the schema are 2026); Revit cannot open a newer file -- confirm the customer's Revit version before promising a .rvt (`--target-version N` makes the front door check, and degrade honestly, for you)"
+ },
+ "status": "PROOF-ONLY (self-checks PASS; see honesty.proof_only_stamps + status_gate)"
+}

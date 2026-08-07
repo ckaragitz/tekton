@@ -1,0 +1,3455 @@
+{
+ "rung": "RA_2025",
+ "label": "the residue-A round (2025): sub-categories + annotation types/fonts/arrowheads + datum content (grids + surplus levels) + pattern surplus + appearance assets, IN PLACE, port2025-adapted",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seq 102 (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+ "base": {
+  "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  },
+  "note": "the parent Y9_2025 is a STAGED chain file (certification pending its viewer round); the certified ancestor is B2025_K4"
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+  "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4_2025/Y9_2025.rvt",
+ "out": "experiments/genesis/subst_k4_2025/RA_2025.rvt",
+ "landed_by_class": {
+  "GStyleElem": 246,
+  "CategoryElem": 169,
+  "AppearanceAssetElem": 18,
+  "FontElem": 11,
+  "Level": 7,
+  "LeaderStyle": 5,
+  "DimensionStyle": 4,
+  "FillPatternElem": 4,
+  "Grid": 3,
+  "LinePatternElem": 3,
+  "GridAttributes": 1,
+  "InteriorElevAttributes": 1,
+  "CalloutTag": 1
+ },
+ "notes": [
+  "[Z_subcat] CategoryElem residue 209: project 169 SUBSTITUTED, family-scoped 40 left (curtain constellation)",
+  "[Z_annot] DimensionStyle: 4 project = the SECRET INTERNAL temporary-dimension styles (roles ['SecretInternalLinAngDimSty', 'SecretInternalRadDimStyle5', 'SecretInternalTypePreviewD', 'SecretInternalDiameterDimS']) -> our name tokens + our annotation values on the format machinery (overlay); 8 family-scoped 'Diameter' styles left (curtain)",
+  "[Z_datum] grids 3 -> our bay ['01', '02', '03'] at our 8.4 m module, 42.0 m long, our elevation 0.0 m; the sample bay's orientation + its GridAttributes type wiring kept (referrers: the plan's ExtentElem only)",
+  "[Z_pattern] surplus patterns: 4 fill + 3 line -> our extra house patterns ['GEN Brick Coursing 75mm', 'GEN Steel Section Hatch 1.5mm', 'GEN Gypsum Stipple 2mm', 'GEN Vertical Lines 4mm', 'GEN Dash Dot 6mm', 'GEN Phantom 12mm', 'GEN Border 10mm']",
+  "[Z_asset] appearance assets 18 -> our generic appearance palette (Protein GenericSchema, frozen 59-property skeleton, our colour / gloss / transparency); MaterialElem companions keep referencing the same ids",
+  "[port2025] 473 objects adapted to the 2025 schema; 0 dropped as 2026-only"
+ ],
+ "info": {
+  "Z_subcat": {
+   "slots": 415,
+   "by_class": {
+    "GStyleElem": 246,
+    "CategoryElem": 169
+   }
+  },
+  "Z_annot": {
+   "slots": 23,
+   "by_class": {
+    "FontElem": 11,
+    "LeaderStyle": 5,
+    "DimensionStyle": 4,
+    "GridAttributes": 1,
+    "InteriorElevAttributes": 1,
+    "CalloutTag": 1
+   }
+  },
+  "Z_datum": {
+   "slots": 10,
+   "by_class": {
+    "Level": 7,
+    "Grid": 3
+   }
+  },
+  "Z_pattern": {
+   "slots": 7,
+   "by_class": {
+    "FillPatternElem": 4,
+    "LinePatternElem": 3
+   }
+  },
+  "Z_asset": {
+   "slots": 18,
+   "by_class": {
+    "AppearanceAssetElem": 18
+   }
+  },
+  "port2025_dropped": []
+ },
+ "residue_left_in_place": {
+  "CategoryElem(family-scoped)": {
+   "count": 40,
+   "ids": [
+    49580,
+    49590,
+    49598,
+    49608,
+    49616,
+    49626,
+    49634,
+    49644,
+    49652,
+    49662,
+    49670,
+    49680,
+    49688,
+    49698,
+    49706,
+    49716,
+    907055,
+    907058,
+    907060,
+    907063,
+    907066,
+    907068,
+    907071,
+    907074,
+    907076,
+    907079,
+    907082,
+    907084,
+    907087,
+    907090,
+    907092,
+    907095,
+    907098,
+    907100,
+    907103,
+    907106,
+    907108,
+    907111,
+    907114,
+    907116
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "GStyleElem(family-scoped)": {
+   "count": 40,
+   "ids": [
+    49581,
+    49591,
+    49599,
+    49609,
+    49617,
+    49627,
+    49635,
+    49645,
+    49653,
+    49663,
+    49671,
+    49681,
+    49689,
+    49699,
+    49707,
+    49717,
+    907056,
+    907059,
+    907061,
+    907064,
+    907067,
+    907069,
+    907072,
+    907075,
+    907077,
+    907080,
+    907083,
+    907085,
+    907088,
+    907091,
+    907093,
+    907096,
+    907099,
+    907101,
+    907104,
+    907107,
+    907109,
+    907112,
+    907115,
+    907117
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "DimensionStyle(family-scoped)": {
+   "count": 8,
+   "ids": [
+    907054,
+    907062,
+    907070,
+    907078,
+    907086,
+    907094,
+    907102,
+    907110
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "LeaderStyle(family-scoped)": {
+   "count": 0,
+   "ids": [],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "GridAttributes(family-scoped)": {
+   "count": 0,
+   "ids": [],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "InteriorElevAttributes(family-scoped)": {
+   "count": 8,
+   "ids": [
+    49589,
+    49607,
+    49625,
+    49643,
+    49661,
+    49679,
+    49697,
+    49715
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "CalloutTag(family-scoped)": {
+   "count": 8,
+   "ids": [
+    49583,
+    49601,
+    49619,
+    49637,
+    49655,
+    49673,
+    49691,
+    49709
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "FontElem(family-scoped)": {
+   "count": 24,
+   "ids": [
+    49582,
+    49592,
+    49600,
+    49610,
+    49618,
+    49628,
+    49636,
+    49646,
+    49654,
+    49664,
+    49672,
+    49682,
+    49690,
+    49700,
+    49708,
+    49718,
+    907057,
+    907065,
+    907073,
+    907081,
+    907089,
+    907097,
+    907105,
+    907113
+   ],
+   "reason": "family-scoped (curtain constellation)"
+  },
+  "LinearDimString(content)": {
+   "count": 1,
+   "ids": [
+    763420
+   ],
+   "reason": "ONE locked EQ-constraint dimension (category OST_Constraints -2000262, typed by the secret internal LinAng dimension style 277) tying three project reference planes -- CONSTRAINT CONTENT: it leaves with the reference planes it constrains (Group B's ref-plane content rung); a constraint's 'value' is the geometry it constrains -- nothing of ours"
+  },
+  "CurveElem(content)": {
+   "count": 5,
+   "ids": [
+    1004904,
+    1004905,
+    1004906,
+    1004907,
+    1004908
+   ],
+   "reason": "the 5 residue CurveElems are the ROOM/AREA-SEPARATION boundary loop of the ONE placed room (RoomElem 1004910 + LevelRoomPlan 1004909 + AreaSchemePlanTopologies 9744) -- placed CONTENT: a room-removal rung's business (the boundary leaves with the room), no constructor value"
+  },
+  "LegendComponent(content)": {
+   "count": 4,
+   "ids": [
+    907404,
+    907423,
+    907424,
+    1201130
+   ],
+   "reason": "4 legend graphics displaying TYPES (a wall type, a floor type, two curtain surrogates) in a legend view -- placed CONTENT referencing type layers other streams own; removed with those / with the legend view"
+  },
+  "LevelRoomPlan(content)": {
+   "count": 1,
+   "ids": [
+    1004909
+   ],
+   "reason": "the plan-topology companion of the one placed room (its 5 boundary CurveElems + AreaSchemePlanTopologies) -- placed CONTENT, removed with the room"
+  }
+ },
+ "record_selfcheck": {
+  "objects": 473,
+  "failures": []
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3333,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "seconds": 1.7
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/20"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   16,
+   277,
+   279,
+   280,
+   282,
+   285,
+   287,
+   288,
+   290,
+   291,
+   293,
+   296,
+   298,
+   308,
+   341,
+   344,
+   357,
+   360,
+   442,
+   448,
+   449,
+   694,
+   942,
+   1951,
+   2029,
+   2090,
+   2466,
+   2489,
+   2497,
+   2498,
+   2685,
+   2687,
+   3443,
+   3444,
+   6473,
+   6553,
+   6876,
+   6877,
+   6878,
+   7000,
+   7007,
+   7175,
+   8612,
+   8613,
+   8616,
+   8617,
+   8618,
+   8619,
+   9195,
+   9196,
+   9197,
+   9198,
+   11799,
+   11800,
+   11801,
+   11802,
+   11803,
+   11804,
+   12099,
+   12100,
+   12101,
+   18403,
+   18404,
+   18452,
+   18454,
+   18811,
+   18812,
+   18813,
+   19788,
+   19789,
+   19790,
+   20184,
+   20185,
+   21874,
+   21875,
+   21876,
+   23763,
+   23765,
+   23766,
+   23768,
+   23772,
+   23773,
+   23775,
+   26032,
+   29091,
+   41944,
+   41945,
+   49508,
+   69708,
+   69709,
+   69711,
+   69713,
+   69715,
+   69717,
+   69719,
+   69721,
+   88900,
+   88901,
+   171886,
+   171938,
+   171941,
+   171944,
+   172415,
+   172485,
+   172497,
+   174486,
+   174600,
+   194609,
+   195338,
+   195411,
+   195418,
+   196629,
+   198347,
+   198348,
+   198349,
+   198350,
+   198351,
+   198352,
+   211321,
+   211322,
+   212927,
+   212928,
+   244070,
+   244071,
+   249226,
+   249227,
+   249228,
+   249229,
+   249230,
+   249231,
+   292930,
+   292931,
+   314569,
+   314570,
+   314571,
+   314609,
+   314610,
+   314611,
+   314675,
+   314676,
+   314677,
+   314678,
+   314679,
+   314680,
+   314681,
+   314682,
+   314683,
+   314709,
+   314710,
+   314711,
+   314712,
+   314713,
+   314714,
+   314715,
+   314716,
+   314717,
+   314718,
+   314719,
+   314720,
+   314721,
+   314722,
+   314723,
+   314762,
+   314763,
+   314764,
+   314765,
+   314766,
+   314767,
+   314934,
+   314935,
+   314936,
+   314946,
+   314947,
+   314948,
+   314949,
+   314950,
+   314951,
+   314952,
+   314953,
+   314954,
+   315895,
+   315896,
+   315897,
+   315899,
+   315900,
+   315901,
+   315902,
+   315903,
+   315904,
+   319637,
+   319638,
+   319639,
+   319644,
+   319645,
+   417275,
+   470740,
+   470741,
+   470742,
+   473030,
+   473031,
+   473032,
+   511122,
+   515270,
+   713052,
+   713053,
+   713054,
+   726583,
+   726584,
+   726585,
+   726586,
+   726587,
+   726588,
+   726597,
+   726598,
+   726599,
+   726600,
+   726601,
+   726602,
+   726603,
+   726604,
+   726605,
+   726606,
+   726607,
+   726608,
+   726612,
+   726613,
+   726614,
+   726631,
+   726632,
+   726775,
+   726776,
+   726777,
+   726778,
+   726779,
+   726780,
+   731794,
+   731795,
+   731798,
+   731799,
+   741094,
+   741095,
+   779722,
+   779723,
+   779725,
+   779726,
+   779772,
+   779773,
+   780500,
+   780501,
+   780505,
+   780506,
+   803765,
+   803766,
+   803767,
+   803768,
+   805387,
+   805388,
+   805414,
+   805415,
+   805610,
+   805611,
+   805613,
+   805614,
+   928347,
+   928348,
+   928349,
+   928350,
+   928351,
+   928507,
+   928508,
+   928509,
+   928510,
+   928560,
+   928561,
+   928562,
+   928607,
+   928608,
+   928740,
+   928741,
+   928742,
+   928743,
+   928744,
+   983598,
+   983599,
+   983600,
+   1028789,
+   1039009,
+   1039010,
+   1040868,
+   1063569,
+   1063570,
+   1063571,
+   1063574,
+   1063575,
+   1063576,
+   1069217,
+   1069218,
+   1070263,
+   1170094,
+   1177772,
+   1300863,
+   1348713,
+   1348714,
+   1351691,
+   1352207,
+   1352208,
+   1352209,
+   1352210,
+   1352211,
+   1352212,
+   1352213,
+   1352214,
+   1352215,
+   1352216,
+   1352218,
+   1352219,
+   1352220,
+   1352223,
+   1352224,
+   1352225,
+   1352226,
+   1352227,
+   1352228,
+   1352231,
+   1352232,
+   1352233,
+   1352234,
+   1352235,
+   1352236,
+   1352237,
+   1352238,
+   1352239,
+   1352240,
+   1352241,
+   1352242,
+   1352243,
+   1352244,
+   1352248,
+   1352249,
+   1352250,
+   1352251,
+   1352254,
+   1352255,
+   1352256,
+   1352263,
+   1352679,
+   1352680,
+   1352681,
+   1352682,
+   1352777,
+   1352894,
+   1352895,
+   1352896,
+   1352900,
+   1352901,
+   1352902,
+   1353125,
+   1353126,
+   1383131,
+   1383132,
+   1383133,
+   1383134,
+   1383551,
+   1383552,
+   1383567,
+   1383568,
+   1384367,
+   1384368,
+   1384404,
+   1384405,
+   1384428,
+   1384429,
+   1384556,
+   1384557,
+   1385530,
+   1385531,
+   1386735,
+   1386736,
+   1389754,
+   1389770,
+   1389771,
+   1389772,
+   1420868,
+   1420869,
+   1420870,
+   1420871,
+   1420872,
+   1420873,
+   1420874,
+   1420875,
+   1420876,
+   1420877,
+   1420878,
+   1420879,
+   1420880,
+   1420881,
+   1420882,
+   1420883,
+   1462679,
+   1462680,
+   1468016,
+   1468018,
+   1468021,
+   1468023,
+   1468024,
+   1468026,
+   1471069,
+   1471071,
+   1471674,
+   1471675,
+   1471676,
+   1471677,
+   1471681,
+   1471682,
+   1471684,
+   1471687,
+   1471688,
+   1471689,
+   1471690,
+   1471691,
+   1471692,
+   1471693,
+   1471694,
+   1471695,
+   1471696,
+   1471697,
+   1471699,
+   1471706,
+   1471709,
+   1471710,
+   1471711
+  ],
+  "records_changed_count": 431,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 473,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 42,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 16,
+    "len_ours": 229,
+    "len_parent": 233,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "LinePatternElem",
+      "class_parent": "LinePatternElem"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_name",
+      "ours": "'GEN Dash Dot 6mm'",
+      "parent": "'Dash dot'"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_segs[0].m_data",
+      "ours": "0.01968503937007874",
+      "parent": "0.020833333333333332"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_segs[1].m_data",
+      "ours": "0.006561679790026247",
+      "parent": "0.015625"
+     },
+     {
+      "path": ".m_pLinePattern.value.m_segs[3].m_data",
+      "ours": "0.006561679790026247",
+      "parent": "0.015625"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 277,
+    "len_ours": 1235,
+    "len_parent": 1233,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "DimensionStyle",
+      "class_parent": "DimensionStyle"
+     },
+     {
+      "path": ".m_dimLineSnapDist",
+      "ours": "0.026246719160104987",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_leaderShoulderLength",
+      "ours": "0.00984251968503937",
+      "parent": "0.0"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[1].m_value",
+      "ours": "0.008202099737532808",
+      "parent": "0.007812499999999999"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[3].m_value",
+      "ours": "0.0032808398950131233",
+      "parent": "0.010416666666666664"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[4].m_value",
+      "ours": "0.006561679790026247",
+      "parent": "0.005208333333333332"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[5].m_value",
+      "ours": "0.008202099737532808",
+      "parent": "0.007812499999999999"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[6].m_value",
+      "ours": "0.006561679790026247",
+      "parent": "0.002604166666666666"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'SecretInternalLinAngDimStyle714q616180'",
+      "parent": "'SecretInternalLinAngDimStyle5p4736185'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 279,
+    "len_ours": 214,
+    "len_parent": 214,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "GStyleElem",
+      "class_parent": "GStyleElem"
+     },
+     {
+      "path": ".m_pGStyle.value.m_color",
+      "ours": "0",
+      "parent": "16741179"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 280,
+    "len_ours": 203,
+    "len_parent": 203,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "FontElem",
+      "class_parent": "FontElem"
+     },
+     {
+      "path": ".m_pFont.value.m_size",
+      "ours": "0.008202099737532808",
+      "parent": "0.007812499999999999"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 12,
+    "blocks_out": 10
+   },
+   {
+    "what": "42 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     278,
+     281,
+     286,
+     289,
+     292,
+     297,
+     306,
+     307,
+     309,
+     310,
+     342,
+     343,
+     358,
+     359,
+     9676,
+     9677,
+     18451,
+     18453,
+     23764,
+     23767,
+     23771,
+     23774,
+     26030,
+     26031,
+     29089,
+     29090,
+     69710,
+     69712,
+     69714,
+     69716,
+     69718,
+     69720,
+     102463,
+     102464,
+     102465,
+     102466,
+     1468017,
+     1468019,
+     1468020,
+     1468022
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 473,
+  "slots_with_registry_surface": 462,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 16,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LinePatternTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 277,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 278,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CategoryTracking.m_categoryData[*].m_categoryId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CategoryTracking.m_gstyleData[*].m_categoryId"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 279,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CategoryTracking.m_gstyleData[*].m_gstyleId"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 281,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CategoryTracking.m_categoryData[*].m_categoryId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CategoryTracking.m_gstyleData[*].m_categoryId"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 282,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CategoryTracking.m_gstyleData[*].m_gstyleId"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 285,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 286,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CategoryTracking.m_categoryData[*].m_categoryId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CategoryTracking.m_gstyleData[*].m_categoryId"
+    ],
+    "n_paths": 2
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 473,
+  "pairs_ok": 473,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 16,
+   "class": "LinePatternElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 277,
+   "class": "DimensionStyle",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 278,
+   "class": "CategoryElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": 277,
+    "id_band": "<5k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 279,
+   "class": "GStyleElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": 278,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 280,
+   "class": "FontElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": 277,
+    "id_band": "<5k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 281,
+   "class": "CategoryElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": 277,
+    "id_band": "<5k"
+   },
+   "surface_paths": 2
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 15,
+   "records": 10002,
+   "elements_decoded": 3333,
+   "decode_failures": 1,
+   "refs_checked": 51061
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4_2025/RA_2025.rvt",
+  "elements": 3333,
+  "file_size": 598016,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "field_delta_by_class": {
+  "CategoryElem": {
+   "slots": 169,
+   "differing_field_paths": {
+    "m_pCategory.value.m_name": 137
+   },
+   "declared_ours": [
+    "m_pCategory.value.m_name"
+   ]
+  },
+  "GStyleElem": {
+   "slots": 246,
+   "differing_field_paths": {
+    "m_pGStyle.value.m_color": 235,
+    "m_pGStyle.value.m_penNumber": 125
+   },
+   "declared_ours": [
+    "m_pGStyle.value.m_color",
+    "m_pGStyle.value.m_penNumber"
+   ]
+  },
+  "DimensionStyle": {
+   "slots": 4,
+   "differing_field_paths": {
+    "m_dimLineSnapDist": 4,
+    "m_leaderShoulderLength": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[1].m_value": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[3].m_value": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[4].m_value": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[5].m_value": 4,
+    "m_pParamValueSetDouble.value.m_paramSet.[6].m_value": 4,
+    "m_symbolInfo.value.m_name": 4,
+    "m_radiusDiameterPrefixText": 1
+   },
+   "declared_ours": [
+    "changed param ids [-1006433, -1006431, -1006407, -1006405, -1006404, -1006401, -1006327]",
+    "m_dimLineSnapDist",
+    "m_equalityText / m_radiusDiameterPrefixText / prefixes",
+    "m_leaderShoulderLength",
+    "m_oLinFormatOptions.accuracy (our 1 mm) / m_oAngFormatOptions.accuracy",
+    "m_symbolInfo.value.m_name",
+    "paramSet[-1006327] (width factor)",
+    "paramSet[-1006401] (witness offset)",
+    "paramSet[-1006404] (text size)",
+    "paramSet[-1006405] (witness extension)",
+    "paramSet[-1006407] (text offset)",
+    "paramSet[-1006431] (line extension)",
+    "paramSet[-1006433] (tick size)"
+   ]
+  },
+  "LeaderStyle": {
+   "slots": 5,
+   "differing_field_paths": {
+    "m_pParamValueSetDouble.value.m_paramSet.[0].m_paramId": 5,
+    "m_pParamValueSetDouble.value.m_paramSet.[0].m_value": 5,
+    "m_pParamValueSetDouble.value.m_paramSet.[1].m_paramId": 5,
+    "m_pParamValueSetDouble.value.m_paramSet.[1].m_value": 5,
+    "m_symbolInfo.value.m_name": 5,
+    "m_tickType": 2,
+    "m_arrowClosed": 1
+   },
+   "declared_ours": [
+    "m_arrowCentered",
+    "m_arrowClosed",
+    "m_arrowFilled",
+    "m_symbolInfo.value.m_name",
+    "m_tickType",
+    "param -1006414 (angle)",
+    "param -1006426 (size)",
+    "param -1006447 (width pen)"
+   ]
+  },
+  "GridAttributes": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_bubbleAtEnd1": 1,
+    "m_endSegmentsLength": 1,
+    "m_symbolInfo.value.m_name": 1
+   },
+   "declared_ours": [
+    "m_bubbleAtEnd1",
+    "m_bubbleAtEnd2",
+    "m_centerSegmentStyle",
+    "m_endSegmentsLength",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "InteriorElevAttributes": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_ahAngleDouble": 1,
+    "m_orderedSubIndices.#len": 1,
+    "m_symbolInfo.value.m_name": 1,
+    "m_width": 1
+   },
+   "declared_ours": [
+    "m_ahAngleDouble",
+    "m_ahFilled",
+    "m_orderedSubIndices",
+    "m_shape",
+    "m_showViewName",
+    "m_symbolInfo.value.m_name",
+    "m_textPos",
+    "m_viewNamePos",
+    "m_width"
+   ]
+  },
+  "CalloutTag": {
+   "slots": 1,
+   "differing_field_paths": {
+    "m_cornerRadius": 1,
+    "m_symbolInfo.value.m_name": 1
+   },
+   "declared_ours": [
+    "m_cornerRadius",
+    "m_symbolInfo.value.m_name"
+   ]
+  },
+  "FontElem": {
+   "slots": 11,
+   "differing_field_paths": {
+    "m_pFont.value.m_size": 10,
+    "m_pFont.value.m_color": 2
+   },
+   "declared_ours": [
+    "m_pFont.value.m_color",
+    "m_pFont.value.m_name",
+    "m_pFont.value.m_size"
+   ]
+  },
+  "Grid": {
+   "slots": 3,
+   "differing_field_paths": {
+    "m_pFace.value.m_pSurf.value.m_Envelope.m_corners.[0].[0]": 3,
+    "m_pFace.value.m_pSurf.value.m_Envelope.m_corners.[0].[1]": 3,
+    "m_pFace.value.m_pSurf.value.m_Envelope.m_corners.[1].[0]": 3,
+    "m_pFace.value.m_pSurf.value.m_Envelope.m_corners.[1].[1]": 3,
+    "m_pFace.value.m_pSurf.value.m_origin.[2]": 3,
+    "m_pFace.value.m_pSurf.value.m_xVec.[1]": 3,
+    "m_pSurface.value.m_Envelope.m_corners.[0].[0]": 3,
+    "m_pSurface.value.m_Envelope.m_corners.[0].[1]": 3,
+    "m_pSurface.value.m_Envelope.m_corners.[1].[0]": 3,
+    "m_pSurface.value.m_Envelope.m_corners.[1].[1]": 3,
+    "m_pSurface.value.m_origin.[2]": 3,
+    "m_pSurface.value.m_xVec.[1]": 3,
+    "m_text": 3,
+    "m_pFace.value.m_pSurf.value.m_origin.[0]": 2,
+    "m_pFace.value.m_pSurf.value.m_origin.[1]": 2,
+    "m_pFace.value.m_pSurf.value.m_xVec.[2]": 2,
+    "m_pSurface.value.m_origin.[0]": 2,
+    "m_pSurface.value.m_origin.[1]": 2,
+    "m_pSurface.value.m_xVec.[2]": 2
+   },
+   "declared_ours": [
+    "envelope (extents)",
+    "m_pSurface / m_pFace plane (line geometry)",
+    "m_text (name)"
+   ]
+  },
+  "Level": {
+   "slots": 7,
+   "differing_field_paths": {
+    "m_text": 7,
+    "m_pFace.value.m_pSurf.value.m_origin.[0]": 1,
+    "m_pFace.value.m_pSurf.value.m_origin.[1]": 1,
+    "m_pFace.value.m_pSurf.value.m_origin.[2]": 1,
+    "m_pFace.value.m_pSurf.value.m_xVec.[1]": 1,
+    "m_pFace.value.m_pSurf.value.m_xVec.[2]": 1,
+    "m_pFace.value.m_pSurf.value.m_yVec.[0]": 1,
+    "m_pFace.value.m_pSurf.value.m_yVec.[2]": 1,
+    "m_pSurface.value.m_origin.[0]": 1,
+    "m_pSurface.value.m_origin.[1]": 1,
+    "m_pSurface.value.m_origin.[2]": 1,
+    "m_pSurface.value.m_xVec.[1]": 1,
+    "m_pSurface.value.m_xVec.[2]": 1,
+    "m_pSurface.value.m_yVec.[0]": 1,
+    "m_pSurface.value.m_yVec.[2]": 1
+   },
+   "declared_ours": [
+    "m_pSurface / m_pFace origin z (elevation)",
+    "m_text (name)"
+   ]
+  },
+  "FillPatternElem": {
+   "slots": 4,
+   "differing_field_paths": {
+    "m_cellList": 4,
+    "m_pFillPattern.value.m_name": 4,
+    "m_pFillPattern.value.m_windowSize": 4,
+    "m_pGeomTable": 4,
+    "m_pFillPattern.value.m_gridsArr.#len": 3,
+    "m_pFillPattern.value.m_gridsArr.[0].value.m_angle": 1,
+    "m_pFillPattern.value.m_gridsArr.[0].value.m_deltas.[1]": 1,
+    "m_pFillPattern.value.m_gridsArr.[0].value.m_segs.#len": 1,
+    "m_pFillPattern.value.m_gridsArr.[1].value.m_angle": 1,
+    "m_pFillPattern.value.m_gridsArr.[1].value.m_deltas.[1]": 1,
+    "m_pFillPattern.value.m_gridsArr.[1].value.m_origin.[1]": 1,
+    "m_pFillPattern.value.m_gridsArr.[1].value.m_segs.#len": 1
+   },
+   "declared_ours": [
+    "m_pFillPattern (name / grids / scale)"
+   ]
+  },
+  "LinePatternElem": {
+   "slots": 3,
+   "differing_field_paths": {
+    "m_pLinePattern.value.m_name": 3,
+    "m_cellList": 2,
+    "m_pLinePattern.value.m_segs.#len": 2,
+    "m_pLinePattern.value.m_segs.[0].m_data": 1,
+    "m_pLinePattern.value.m_segs.[1].m_data": 1,
+    "m_pLinePattern.value.m_segs.[3].m_data": 1
+   },
+   "declared_ours": [
+    "m_pLinePattern (name / segments)"
+   ]
+  },
+  "AppearanceAssetElem": {
+   "slots": 18,
+   "differing_field_paths": {
+    "m_pAppearanceAsset.value.m_Asset.m_aAProperties.#len": 18,
+    "m_pAppearanceAsset.value.m_color": 18,
+    "m_pThumbnail": 18,
+    "m_pAppearanceAsset.value.m_Name": 17,
+    "m_pAppearanceAsset.value.m_Asset.m_sName": 9,
+    "m_cellList": 4,
+    "m_materialPathMap.#len": 4,
+    "m_pAppearanceAsset.value.m_transparency": 2
+   },
+   "declared_ours": [
+    "UIName",
+    "VersionGUID",
+    "category",
+    "common_Tint_color",
+    "description",
+    "generic_diffuse",
+    "generic_glossiness",
+    "generic_is_metal",
+    "generic_reflectivity_*",
+    "generic_transparency",
+    "keyword",
+    "m_color",
+    "m_transparency",
+    "thumbnail"
+   ]
+  }
+ },
+ "landed_slots": [
+  {
+   "slot": 16,
+   "class": "LinePatternElem"
+  },
+  {
+   "slot": 277,
+   "class": "DimensionStyle"
+  },
+  {
+   "slot": 278,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 279,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 280,
+   "class": "FontElem"
+  },
+  {
+   "slot": 281,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 282,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 285,
+   "class": "LeaderStyle"
+  },
+  {
+   "slot": 286,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 287,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 288,
+   "class": "DimensionStyle"
+  },
+  {
+   "slot": 289,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 290,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 291,
+   "class": "FontElem"
+  },
+  {
+   "slot": 292,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 293,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 296,
+   "class": "LeaderStyle"
+  },
+  {
+   "slot": 297,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 298,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 306,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 307,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 308,
+   "class": "FontElem"
+  },
+  {
+   "slot": 309,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 310,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 341,
+   "class": "GridAttributes"
+  },
+  {
+   "slot": 342,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 343,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 344,
+   "class": "FontElem"
+  },
+  {
+   "slot": 357,
+   "class": "InteriorElevAttributes"
+  },
+  {
+   "slot": 358,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 359,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 360,
+   "class": "FontElem"
+  },
+  {
+   "slot": 442,
+   "class": "FillPatternElem"
+  },
+  {
+   "slot": 448,
+   "class": "FillPatternElem"
+  },
+  {
+   "slot": 449,
+   "class": "FillPatternElem"
+  },
+  {
+   "slot": 694,
+   "class": "Level"
+  },
+  {
+   "slot": 942,
+   "class": "LinePatternElem"
+  },
+  {
+   "slot": 1951,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 2029,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 2090,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 2466,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 2489,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 2497,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 2498,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 2685,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 2687,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 3443,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 3444,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 6473,
+   "class": "FillPatternElem"
+  },
+  {
+   "slot": 6553,
+   "class": "LinePatternElem"
+  },
+  {
+   "slot": 6876,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 6877,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 6878,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 7000,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 7007,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 7175,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 8612,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 8613,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 8616,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 8617,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 8618,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 8619,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 9195,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 9196,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 9197,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 9198,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 9676,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 9677,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 11799,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 11800,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 11801,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 11802,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 11803,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 11804,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 12099,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 12100,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 12101,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 18403,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 18404,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 18451,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 18452,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 18453,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 18454,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 18811,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 18812,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 18813,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 19788,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 19789,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 19790,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 20184,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 20185,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 21874,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 21875,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 21876,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 23763,
+   "class": "DimensionStyle"
+  },
+  {
+   "slot": 23764,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 23765,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 23766,
+   "class": "FontElem"
+  },
+  {
+   "slot": 23767,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 23768,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 23771,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 23772,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 23773,
+   "class": "LeaderStyle"
+  },
+  {
+   "slot": 23774,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 23775,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 26030,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 26031,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 26032,
+   "class": "FontElem"
+  },
+  {
+   "slot": 29089,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 29090,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 29091,
+   "class": "FontElem"
+  },
+  {
+   "slot": 41944,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 41945,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 49508,
+   "class": "CalloutTag"
+  },
+  {
+   "slot": 69708,
+   "class": "FontElem"
+  },
+  {
+   "slot": 69709,
+   "class": "FontElem"
+  },
+  {
+   "slot": 69710,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 69711,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 69712,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 69713,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 69714,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 69715,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 69716,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 69717,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 69718,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 69719,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 69720,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 69721,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 88900,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 88901,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 102463,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 102464,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 102465,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 102466,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 171886,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 171938,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 171941,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 171944,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 172415,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 172485,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 172497,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 174486,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 174600,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 194609,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 195338,
+   "class": "Grid"
+  },
+  {
+   "slot": 195411,
+   "class": "Grid"
+  },
+  {
+   "slot": 195418,
+   "class": "Grid"
+  },
+  {
+   "slot": 196629,
+   "class": "Level"
+  },
+  {
+   "slot": 198347,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 198348,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 198349,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 198350,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 198351,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 198352,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 211321,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 211322,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 212927,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 212928,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 244070,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 244071,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 249226,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 249227,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 249228,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 249229,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 249230,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 249231,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 292930,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 292931,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314569,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314570,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314571,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314609,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314610,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314611,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314675,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314676,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314677,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314678,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314679,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314680,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314681,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314682,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314683,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314709,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314710,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314711,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314712,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314713,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314714,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314715,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314716,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314717,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314718,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314719,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314720,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314721,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314722,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314723,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314762,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314763,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314764,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314765,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314766,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314767,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314934,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314935,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314936,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314946,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314947,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314948,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314949,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314950,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314951,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314952,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 314953,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 314954,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 315895,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 315896,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 315897,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 315899,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 315900,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 315901,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 315902,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 315903,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 315904,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 319637,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 319638,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 319639,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 319644,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 319645,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 417275,
+   "class": "Level"
+  },
+  {
+   "slot": 470740,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 470741,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 470742,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 473030,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 473031,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 473032,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 511122,
+   "class": "Level"
+  },
+  {
+   "slot": 515270,
+   "class": "Level"
+  },
+  {
+   "slot": 713052,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 713053,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 713054,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726583,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726584,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726585,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726586,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726587,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726588,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726597,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726598,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726599,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726600,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726601,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726602,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726603,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726604,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726605,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726606,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726607,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726608,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726612,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726613,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726614,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726631,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726632,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726775,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726776,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726777,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726778,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 726779,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 726780,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 731794,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 731795,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 731798,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 731799,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 741094,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 741095,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 779722,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 779723,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 779725,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 779726,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 779772,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 779773,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 780500,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 780501,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 780505,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 780506,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 803765,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 803766,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 803767,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 803768,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 805387,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 805388,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 805414,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 805415,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 805610,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 805611,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 805613,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 805614,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928347,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928348,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928349,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928350,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 928351,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928507,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 928508,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928509,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 928510,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928560,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 928561,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928562,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928607,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 928608,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 928740,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 928741,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 928742,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 928743,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 928744,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 983598,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 983599,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 983600,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1028789,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1039009,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1039010,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1040868,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1063569,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1063570,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1063571,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1063574,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1063575,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1063576,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1069217,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1069218,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1070263,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1170094,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1177772,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1300863,
+   "class": "Level"
+  },
+  {
+   "slot": 1348713,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1348714,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1351691,
+   "class": "Level"
+  },
+  {
+   "slot": 1352207,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352208,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352209,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352210,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352211,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352212,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352213,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352214,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352215,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352216,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352218,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352219,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352220,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352223,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352224,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352225,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352226,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352227,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352228,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352231,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352232,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352233,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352234,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352235,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352236,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352237,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352238,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352239,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352240,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352241,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352242,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352243,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352244,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352248,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352249,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352250,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352251,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352254,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352255,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352256,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352263,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352679,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352680,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352681,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352682,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352777,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1352894,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352895,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352896,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352900,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1352901,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1352902,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1353125,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1353126,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1383131,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1383132,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1383133,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1383134,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1383551,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1383552,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1383567,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1383568,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1384367,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1384368,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1384404,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1384405,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1384428,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1384429,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1384556,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1384557,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1385530,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1385531,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1386735,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1386736,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1389754,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1389770,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1389771,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1389772,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1420868,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1420869,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1420870,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1420871,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1420872,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1420873,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1420874,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1420875,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1420876,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1420877,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1420878,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1420879,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1420880,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1420881,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1420882,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1420883,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1462679,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1462680,
+   "class": "AppearanceAssetElem"
+  },
+  {
+   "slot": 1468016,
+   "class": "DimensionStyle"
+  },
+  {
+   "slot": 1468017,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1468018,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1468019,
+   "class": "FontElem"
+  },
+  {
+   "slot": 1468020,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1468021,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1468022,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1468023,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1468024,
+   "class": "LeaderStyle"
+  },
+  {
+   "slot": 1468025,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1468026,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471069,
+   "class": "LeaderStyle"
+  },
+  {
+   "slot": 1471070,
+   "class": "CategoryElem"
+  },
+  {
+   "slot": 1471071,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471674,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471675,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471676,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471677,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471681,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471682,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471684,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471687,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471688,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471689,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471690,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471691,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471692,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471693,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471694,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471695,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471696,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471697,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471699,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471706,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471709,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471710,
+   "class": "GStyleElem"
+  },
+  {
+   "slot": 1471711,
+   "class": "GStyleElem"
+  }
+ ],
+ "object_notes_sample": [
+  {
+   "slot": 16,
+   "class": "LinePatternElem",
+   "notes": [
+    "replaces line pattern 'Dash dot' with 'GEN Dash Dot 6mm'"
+   ]
+  },
+  {
+   "slot": 277,
+   "class": "DimensionStyle",
+   "notes": [
+    "secret internal dimension style role LinAngDimStyle: our name token + our annotation values overlaid on the unit-format / param-set MACHINERY of the slot (overlay constructor -- said so); field delta ['m_dimLineSnapDist', 'm_leaderShoulderLength', 'm_pParamValueSetDouble.value.m_paramSet.[1].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[3].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[4].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[5].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[6].m_value', 'm_symbolInfo.value.m_name']"
+   ]
+  },
+  {
+   "slot": 278,
+   "class": "CategoryElem",
+   "notes": [
+    "our sub-category name ''; wiring (parent -2000059, owner 277, gstyles [279]) + cells / type / flags = the slot's structural profile; field delta []"
+   ]
+  },
+  {
+   "slot": 279,
+   "class": "GStyleElem",
+   "notes": [
+    "our pen 1 / colour 0x000000 (pattern wiring kept); category / owner / material wiring + cells + screen-sized = profile"
+   ]
+  },
+  {
+   "slot": 280,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 277 + cells = wiring",
+    "replaces font Arial @ owner 277"
+   ]
+  },
+  {
+   "slot": 281,
+   "class": "CategoryElem",
+   "notes": [
+    "our sub-category name ''; wiring (parent -2000059, owner 277, gstyles [282]) + cells / type / flags = the slot's structural profile; field delta []"
+   ]
+  },
+  {
+   "slot": 282,
+   "class": "GStyleElem",
+   "notes": [
+    "our pen 1 / colour 0x000000 (pattern wiring kept); category / owner / material wiring + cells + screen-sized = profile"
+   ]
+  },
+  {
+   "slot": 285,
+   "class": "LeaderStyle",
+   "notes": [
+    "our arrowhead 'SecretInternalLinAngArrowhead148q039326': tick 0, filled 0, angle 15.0 deg, size 2.5 mm; category 286 + cells = wiring"
+   ]
+  },
+  {
+   "slot": 286,
+   "class": "CategoryElem",
+   "notes": [
+    "our sub-category name ''; wiring (parent -2000059, owner 285, gstyles [287]) + cells / type / flags = the slot's structural profile; field delta []"
+   ]
+  },
+  {
+   "slot": 287,
+   "class": "GStyleElem",
+   "notes": [
+    "our pen 1 / colour 0x000000 (pattern wiring kept); category / owner / material wiring + cells + screen-sized = profile"
+   ]
+  },
+  {
+   "slot": 288,
+   "class": "DimensionStyle",
+   "notes": [
+    "secret internal dimension style role RadDimStyle: our name token + our annotation values overlaid on the unit-format / param-set MACHINERY of the slot (overlay constructor -- said so); field delta ['m_dimLineSnapDist', 'm_leaderShoulderLength', 'm_pParamValueSetDouble.value.m_paramSet.[1].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[3].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[4].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[5].m_value', 'm_pParamValueSetDouble.value.m_paramSet.[6].m_value', 'm_symbolInfo.value.m_name']"
+   ]
+  },
+  {
+   "slot": 289,
+   "class": "CategoryElem",
+   "notes": [
+    "our sub-category name ''; wiring (parent -2000059, owner 288, gstyles [290]) + cells / type / flags = the slot's structural profile; field delta []"
+   ]
+  },
+  {
+   "slot": 290,
+   "class": "GStyleElem",
+   "notes": [
+    "our pen 1 / colour 0x000000 (pattern wiring kept); category / owner / material wiring + cells + screen-sized = profile"
+   ]
+  },
+  {
+   "slot": 291,
+   "class": "FontElem",
+   "notes": [
+    "our font Arial 2.5 mm, colour 0x1000000; owner 288 + cells = wiring",
+    "replaces font Arial @ owner 288"
+   ]
+  },
+  {
+   "slot": 292,
+   "class": "CategoryElem",
+   "notes": [
+    "our sub-category name ''; wiring (parent -2000059, owner 288, gstyles [293]) + cells / type / flags = the slot's structural profile; field delta []"
+   ]
+  },
+  {
+   "slot": 293,
+   "class": "GStyleElem",
+   "notes": [
+    "our pen 1 / colour 0x000000 (pattern wiring kept); category / owner / material wiring + cells + screen-sized = profile"
+   ]
+  },
+  {
+   "slot": 296,
+   "class": "LeaderStyle",
+   "notes": [
+    "our arrowhead 'SecretInternalRadArrowhead640d780868': tick 0, filled 0, angle 15.0 deg, size 2.5 mm; category 297 + cells = wiring"
+   ]
+  },
+  {
+   "slot": 297,
+   "class": "CategoryElem",
+   "notes": [
+    "our sub-category name ''; wiring (parent -2000059, owner 296, gstyles [298]) + cells / type / flags = the slot's structural profile; field delta []"
+   ]
+  },
+  {
+   "slot": 298,
+   "class": "GStyleElem",
+   "notes": [
+    "our pen 1 / colour 0x000000 (pattern wiring kept); category / owner / material wiring + cells + screen-sized = profile"
+   ]
+  },
+  {
+   "slot": 306,
+   "class": "CategoryElem",
+   "notes": [
+    "our sub-category name ''; wiring (parent -2000059, owner 305, gstyles [307]) + cells / type / flags = the slot's structural profile; field delta []"
+   ]
+  }
+ ],
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 598016,
+ "seconds": 2.4,
+ "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+ "stream": "y2025-views"
+}

@@ -1,0 +1,271 @@
+{
+  "input": "/Users/ck/dev/things/tekton/usecases/chicago-plenum-electrical-room/original.ifc",
+  "output": "/Users/ck/dev/things/tekton/usecases/chicago-plenum-electrical-room/hardened.ifc",
+  "before": {
+    "entities": 329,
+    "elements": 11,
+    "type_objects": 0,
+    "rel_defines_by_type": 0,
+    "triangulated_facesets": 50,
+    "extruded_solids": 0,
+    "tessellated_elements": 11,
+    "spaces": 0,
+    "property_sets": 11,
+    "identity_placements": 11,
+    "size_bytes": 83780,
+    "duplicate_type_objects": 0,
+    "untyped_elements": 11,
+    "score": 31.4,
+    "tier": "Tier 0 (v1-like) -- imports as frozen DirectShape blobs with baked coordinates"
+  },
+  "after": {
+    "entities": 727,
+    "elements": 11,
+    "type_objects": 4,
+    "rel_defines_by_type": 4,
+    "triangulated_facesets": 4,
+    "extruded_solids": 61,
+    "tessellated_elements": 1,
+    "spaces": 0,
+    "property_sets": 11,
+    "identity_placements": 1,
+    "size_bytes": 81767,
+    "duplicate_type_objects": 0,
+    "untyped_elements": 0,
+    "score": 89.0,
+    "tier": "Tier 1 (partial) -- imports usably but some elements come in as frozen blobs / at the origin"
+  },
+  "diff": {
+    "entities": {
+      "before": 329,
+      "after": 727
+    },
+    "elements": {
+      "before": 11,
+      "after": 11
+    },
+    "type_objects": {
+      "before": 0,
+      "after": 4
+    },
+    "rel_defines_by_type": {
+      "before": 0,
+      "after": 4
+    },
+    "triangulated_facesets": {
+      "before": 50,
+      "after": 4
+    },
+    "extruded_solids": {
+      "before": 0,
+      "after": 61
+    },
+    "tessellated_elements": {
+      "before": 11,
+      "after": 1
+    },
+    "spaces": {
+      "before": 0,
+      "after": 0
+    },
+    "property_sets": {
+      "before": 11,
+      "after": 11
+    },
+    "identity_placements": {
+      "before": 11,
+      "after": 1
+    },
+    "size_bytes": {
+      "before": 83780,
+      "after": 81767
+    },
+    "duplicate_type_objects": {
+      "before": 0,
+      "after": 0
+    },
+    "untyped_elements": {
+      "before": 11,
+      "after": 0
+    },
+    "score": {
+      "before": 31.4,
+      "after": 89.0
+    },
+    "tier": {
+      "before": "Tier 0 (v1-like) -- imports as frozen DirectShape blobs with baked coordinates",
+      "after": "Tier 1 (partial) -- imports usably but some elements come in as frozen blobs / at the origin"
+    }
+  },
+  "actions": {
+    "owner_history_fields_repaired": 2,
+    "duplicate_types_merged": 0,
+    "shared_types_created": 4,
+    "psets_moved_to_types": 0,
+    "phantom_products_removed": 0,
+    "phantom_items_removed": 0,
+    "phantom_converted_to_space": 0,
+    "products_converted_to_extrusions": 10,
+    "boxes_converted": 61,
+    "orphans_contained": 0,
+    "product_globalids_preserved": 11,
+    "products_before": 11,
+    "products_after": 11
+  },
+  "schema_after": {
+    "errors": 0,
+    "warnings": 0,
+    "reopened": true
+  },
+  "log": [
+    {
+      "action": "fix_owner_history",
+      "fields_repaired": 2
+    },
+    {
+      "action": "create_shared_type",
+      "type": "#330 IfcBuildingElementProxyType 'Building Element Proxy 10763x6096x200mm'",
+      "occurrences": [
+        "Bus storage electrical room shell \u2014 Area E"
+      ]
+    },
+    {
+      "action": "create_shared_type",
+      "type": "#332 IfcTransformerType 'Transformer 760x610x510mm'",
+      "occurrences": [
+        "XFMR-LR1",
+        "XFMR-LQ1",
+        "XFMR-B-SLQ1"
+      ]
+    },
+    {
+      "action": "create_shared_type",
+      "type": "#334 IfcElectricDistributionBoardType 'Electric Distribution Board 914x508x150mm'",
+      "occurrences": [
+        "B-HG4",
+        "B-LR1",
+        "B-HQ1",
+        "B-LQ1",
+        "B-SLQ1",
+        "B-SHQ1"
+      ]
+    },
+    {
+      "action": "create_shared_type",
+      "type": "#336 IfcDiscreteAccessoryType 'Discrete Accessory 1520x1076x60mm'",
+      "occurrences": [
+        "Trapeze hangers \u2014 1-5/8 in strut on 3/8 in rods, rack at 16 ft 6 in AFF"
+      ]
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "Bus storage electrical room shell \u2014 Area E",
+      "boxes": 4,
+      "insertion_point": [
+        0.0,
+        2.5384,
+        0.0
+      ],
+      "yaw_deg": 0.0
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "XFMR-LR1",
+      "boxes": 7,
+      "insertion_point": [
+        -2.987,
+        -2.0334,
+        0.1
+      ],
+      "yaw_deg": 0.0
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "XFMR-LQ1",
+      "boxes": 7,
+      "insertion_point": [
+        -0.3658,
+        -2.0334,
+        0.1
+      ],
+      "yaw_deg": 0.0
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "XFMR-B-SLQ1",
+      "boxes": 7,
+      "insertion_point": [
+        1.7069,
+        -2.0334,
+        0.1
+      ],
+      "yaw_deg": 0.0
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "B-HG4",
+      "boxes": 6,
+      "insertion_point": [
+        -3.7826,
+        2.3184,
+        1.0672
+      ],
+      "yaw_deg": 0.0
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "B-LR1",
+      "boxes": 6,
+      "insertion_point": [
+        -2.987,
+        2.3184,
+        1.0672
+      ],
+      "yaw_deg": 0.0
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "B-HQ1",
+      "boxes": 6,
+      "insertion_point": [
+        -0.2743,
+        2.3184,
+        1.0672
+      ],
+      "yaw_deg": 0.0
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "B-LQ1",
+      "boxes": 6,
+      "insertion_point": [
+        0.4328,
+        2.3184,
+        1.0672
+      ],
+      "yaw_deg": 0.0
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "B-SLQ1",
+      "boxes": 6,
+      "insertion_point": [
+        1.1278,
+        2.3184,
+        1.0672
+      ],
+      "yaw_deg": 0.0
+    },
+    {
+      "action": "boxes_to_extrusions",
+      "element": "B-SHQ1",
+      "boxes": 6,
+      "insertion_point": [
+        3.6515,
+        2.3184,
+        1.0672
+      ],
+      "yaw_deg": 0.0
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+ "op": "substitute_element",
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR_null.rvt",
+ "target_id": 2,
+ "class_name": "PenWidthTableElem",
+ "seqs_replaced": [
+  101,
+  102,
+  103
+ ],
+ "null_mode": true,
+ "row_before": {
+  "original_id": 2,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 2,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "row_after": {
+  "original_id": 2,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 2,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "positions_before": {
+  "101": 2516,
+  "102": 2516,
+  "103": 2516
+ },
+ "positions_after": {
+  "101": 2516,
+  "102": 2516,
+  "103": 2516
+ },
+ "record_len_delta": {
+  "101": 0,
+  "102": 0,
+  "103": 0
+ },
+ "identity_at_original": {
+  "element": 2,
+  "seqs": {
+   "101": {
+    "identical": true,
+    "class": "ElementHeader",
+    "bytes": 135
+   },
+   "102": {
+    "identical": true,
+    "class": "PenWidthTableElem",
+    "bytes": 1223
+   },
+   "103": {
+    "identical": true,
+    "class": "SerializedDummy",
+    "bytes": 22
+   }
+  },
+  "all_identical": true
+ },
+ "emit": {
+  "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR_null.rvt",
+  "partition": "Partitions/21",
+  "unit0_blocks_after": {
+   "101": 8,
+   "102": 47,
+   "103": 25
+  },
+  "elemtable_count": 6540,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "notes": [
+  "1 element(s) substituted in place: ids [2]"
+ ],
+ "diff_summary": {
+  "streams_differing": [],
+  "streams_identical_count": 12,
+  "partition_logical_identical": true,
+  "records_added": 0,
+  "records_removed": 0,
+  "records_changed": 0,
+  "changed_ids": [],
+  "id_order_identical": true,
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "latest_identical": true,
+  "embedded_units_identical": true
+ },
+ "probe": "XR_null",
+ "role": "BATCH POSITIVE CONTROL + zero-motion proof",
+ "one_change_vs_K1": "NONE by content: element 2 re-written with its own exact bytes",
+ "raw_stream_identity_vs_K1": {
+  "identical": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "Partitions/21",
+   "ProjectInformation",
+   "TransmissionData"
+  ],
+  "differing": [],
+  "all_identical": true
+ },
+ "the_assertion": "every stream RAW-byte-identical to K1 (a content-identical sibling of the certified base): this file MUST pass",
+ "if_PASS": "the upload/viewer batch is healthy and the reduce-writer mechanics under regadd are zero-motion: read the other probes",
+ "if_FAIL": "A CONTENT-IDENTICAL COPY OF K1 FAILS => the batch / viewer / upload pipeline is broken, NOT any file.  STOP: every genesis verdict since the last certified file (~21:05 08-03) is suspect and must be re-read beside a fresh control.  Re-upload K1.rvt itself to confirm.",
+ "seconds": 9.1
+}

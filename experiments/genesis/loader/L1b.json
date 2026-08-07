@@ -1,0 +1,599 @@
+{
+ "probe": "L1b",
+ "out": "experiments/genesis/loader/L1b_rstbasic_our_heads_active.rvt",
+ "ok": true,
+ "seconds": 32.4,
+ "families": [
+  {
+   "key": "section_head_open",
+   "guid": "1e2cbeed-351b-4434-a084-88b4ca6c9cec",
+   "host_family": 1472544,
+   "symbols": [
+    1472548
+   ],
+   "twins": 1,
+   "unit_records": 19,
+   "doc_ids": [
+    1472525,
+    1472543
+   ]
+  },
+  {
+   "key": "section_head_filled",
+   "guid": "5bbb4a7e-541e-4280-9118-cfb0f569ba0e",
+   "host_family": 1472620,
+   "symbols": [
+    1472624
+   ],
+   "twins": 1,
+   "unit_records": 19,
+   "doc_ids": [
+    1472601,
+    1472619
+   ]
+  },
+  {
+   "key": "section_tail_filled",
+   "guid": "96b22da3-9454-4f84-a8c9-eb2cd5b1d15d",
+   "host_family": 1472721,
+   "symbols": [
+    1472726
+   ],
+   "twins": 2,
+   "unit_records": 20,
+   "doc_ids": [
+    1472701,
+    1472720
+   ]
+  },
+  {
+   "key": "section_tail_horizontal",
+   "guid": "88ffc7b6-993d-46b8-8f9d-8826c25a45e0",
+   "host_family": 1472821,
+   "symbols": [
+    1472826
+   ],
+   "twins": 2,
+   "unit_records": 20,
+   "doc_ids": [
+    1472801,
+    1472820
+   ]
+  },
+  {
+   "key": "level_head",
+   "guid": "c4f72671-540e-4a19-a275-61683887e009",
+   "host_family": 1472922,
+   "symbols": [
+    1472928
+   ],
+   "twins": 3,
+   "unit_records": 21,
+   "doc_ids": [
+    1472901,
+    1472921
+   ]
+  },
+  {
+   "key": "grid_head",
+   "guid": "2180b613-0c7d-4b63-bcd6-15a2ed79e27e",
+   "host_family": 1473021,
+   "symbols": [
+    1473026
+   ],
+   "twins": 2,
+   "unit_records": 20,
+   "doc_ids": [
+    1473001,
+    1473020
+   ]
+  },
+  {
+   "key": "callout_head",
+   "guid": "0ce992c9-803c-4244-809f-a19afac40151",
+   "host_family": 1473120,
+   "symbols": [
+    1473124
+   ],
+   "twins": 1,
+   "unit_records": 19,
+   "doc_ids": [
+    1473101,
+    1473119
+   ]
+  },
+  {
+   "key": "elevation_body",
+   "guid": "3314705a-71c5-40fa-9ea5-21e03b659085",
+   "host_family": 1473220,
+   "symbols": [
+    1473224
+   ],
+   "twins": 1,
+   "unit_records": 19,
+   "doc_ids": [
+    1473201,
+    1473219
+   ]
+  },
+  {
+   "key": "elevation_pointer_1",
+   "guid": "998c4c44-a9d8-466d-a744-ef9980efaaf5",
+   "host_family": 1473320,
+   "symbols": [
+    1473324
+   ],
+   "twins": 1,
+   "unit_records": 19,
+   "doc_ids": [
+    1473301,
+    1473319
+   ]
+  },
+  {
+   "key": "elevation_pointer_2",
+   "guid": "f635b1a6-103b-4a08-b17f-50994a2a160d",
+   "host_family": 1473420,
+   "symbols": [
+    1473424
+   ],
+   "twins": 1,
+   "unit_records": 19,
+   "doc_ids": [
+    1473401,
+    1473419
+   ]
+  },
+  {
+   "key": "view_title",
+   "guid": "42a45df4-94f4-4607-99ae-bc0fe418ffe3",
+   "host_family": 1473520,
+   "symbols": [
+    1473524
+   ],
+   "twins": 1,
+   "unit_records": 19,
+   "doc_ids": [
+    1473501,
+    1473519
+   ]
+  },
+  {
+   "key": "boundary_condition",
+   "guid": "3f1ee649-77af-4bac-9a85-6bcf10b33c53",
+   "host_family": 1473622,
+   "symbols": [
+    1473628
+   ],
+   "twins": 3,
+   "unit_records": 21,
+   "doc_ids": [
+    1473601,
+    1473621
+   ]
+  }
+ ],
+ "registries_after": {
+  "save_units": 65,
+  "contentdocs_entries": 64,
+  "contenttable_records": 64,
+  "familymgr_entries": 62,
+  "coherent": true,
+  "ours_in_all_four": true,
+  "units_added": 12
+ },
+ "registries_before": {
+  "save_units": 53,
+  "contentdocs_entries": 52,
+  "contenttable_records": 52,
+  "familymgr_entries": 50,
+  "coherent": true
+ },
+ "elemtable": {
+  "records": 14003,
+  "watermark": 1473628,
+  "our_host_ids_present": true,
+  "watermark_covers_documents": true
+ },
+ "container": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": 0,
+  "stamps_ok": true,
+  "host_records_missing": [],
+  "host_records_unclean": []
+ },
+ "host_linkage_ok": true,
+ "family_inventory_ok": true,
+ "validate": {
+  "verdict": "VALID",
+  "n_errors": 0,
+  "n_warnings": 1,
+  "errors": [],
+  "warnings": [
+   "[semantic] objects: 7/32313 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+  ]
+ },
+ "usage_repoint": {
+  "edits": [
+   {
+    "referrer": 305,
+    "class": "LevelAttributes",
+    "field": "m_familyTagId",
+    "symbol": 1472928,
+    "old_value": 1417017,
+    "deletion_added": 1472928,
+    "ok": true
+   },
+   {
+    "referrer": 341,
+    "class": "GridAttributes",
+    "field": "m_familyTagId",
+    "symbol": 1473026,
+    "old_value": 1417016,
+    "deletion_added": 1473026,
+    "ok": true
+   },
+   {
+    "referrer": 26029,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": 1389859,
+    "deletion_added": 1472548,
+    "ok": true
+   },
+   {
+    "referrer": 29088,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": 1389869,
+    "deletion_added": 1472548,
+    "ok": true
+   },
+   {
+    "referrer": 49579,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49597,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49615,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49633,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49651,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49669,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49687,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49705,
+    "class": "SectionAttributes",
+    "field": "m_sectionHeadFamilyTagId",
+    "symbol": 1472548,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 26029,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": 1389868,
+    "deletion_added": 1472726,
+    "ok": true
+   },
+   {
+    "referrer": 29088,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": 1389871,
+    "deletion_added": 1472726,
+    "ok": true
+   },
+   {
+    "referrer": 49579,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49597,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49615,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49633,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49651,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49669,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49687,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49705,
+    "class": "SectionAttributes",
+    "field": "m_sectionTailFamilyTagId",
+    "symbol": 1472726,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49583,
+    "class": "CalloutTag",
+    "field": "m_familyTagId",
+    "symbol": 1473124,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49601,
+    "class": "CalloutTag",
+    "field": "m_familyTagId",
+    "symbol": 1473124,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49619,
+    "class": "CalloutTag",
+    "field": "m_familyTagId",
+    "symbol": 1473124,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49637,
+    "class": "CalloutTag",
+    "field": "m_familyTagId",
+    "symbol": 1473124,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49655,
+    "class": "CalloutTag",
+    "field": "m_familyTagId",
+    "symbol": 1473124,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49673,
+    "class": "CalloutTag",
+    "field": "m_familyTagId",
+    "symbol": 1473124,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49691,
+    "class": "CalloutTag",
+    "field": "m_familyTagId",
+    "symbol": 1473124,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49709,
+    "class": "CalloutTag",
+    "field": "m_familyTagId",
+    "symbol": 1473124,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49508,
+    "class": "CalloutTag",
+    "field": "m_familyTagId",
+    "symbol": 1473124,
+    "old_value": 1389858,
+    "deletion_added": 1473124,
+    "ok": true
+   },
+   {
+    "referrer": 324,
+    "class": "ViewportAttributes",
+    "field": "m_familyTagId",
+    "symbol": 1473524,
+    "old_value": 1389860,
+    "deletion_added": 1473524,
+    "ok": true
+   },
+   {
+    "referrer": 1441530,
+    "class": "ViewportAttributes",
+    "field": "m_familyTagId",
+    "symbol": 1473524,
+    "old_value": 1389860,
+    "deletion_added": 1473524,
+    "ok": true
+   },
+   {
+    "referrer": 357,
+    "class": "InteriorElevAttributes",
+    "field": "m_elevationSymbolId",
+    "symbol": 1473224,
+    "old_value": 1389945,
+    "deletion_added": 1473224,
+    "ok": true
+   },
+   {
+    "referrer": 49589,
+    "class": "InteriorElevAttributes",
+    "field": "m_elevationSymbolId",
+    "symbol": 1473224,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49607,
+    "class": "InteriorElevAttributes",
+    "field": "m_elevationSymbolId",
+    "symbol": 1473224,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49625,
+    "class": "InteriorElevAttributes",
+    "field": "m_elevationSymbolId",
+    "symbol": 1473224,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49643,
+    "class": "InteriorElevAttributes",
+    "field": "m_elevationSymbolId",
+    "symbol": 1473224,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49661,
+    "class": "InteriorElevAttributes",
+    "field": "m_elevationSymbolId",
+    "symbol": 1473224,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49679,
+    "class": "InteriorElevAttributes",
+    "field": "m_elevationSymbolId",
+    "symbol": 1473224,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49697,
+    "class": "InteriorElevAttributes",
+    "field": "m_elevationSymbolId",
+    "symbol": 1473224,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 49715,
+    "class": "InteriorElevAttributes",
+    "field": "m_elevationSymbolId",
+    "symbol": 1473224,
+    "old_value": -1,
+    "skipped": "field unset (-1) and only_if_set"
+   },
+   {
+    "referrer": 54663,
+    "class": "StructSettingsElem",
+    "field": "m_bcFixedFamilyId",
+    "symbol": 1473628,
+    "old_value": 1389927,
+    "deletion_added": 1473628,
+    "ok": true
+   }
+  ],
+  "written": true,
+  "plans": 11,
+  "verify": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "stamps_ok": true,
+   "elemtable_count": 14003,
+   "isize_identity_mismatches": 0
+  }
+ },
+ "acceptance": [
+  "H1: an EMBEDDED family ADocument with an all-null 239-slot AppInfoManager (the specimen carries ~110 populated family-editor registries) -- the factory's L3 open question, unchanged",
+  "H2: an annotation FamilySymbol whose seq-103 rep is a SerializedDummy and whose geometry bookkeeping (m_geomSteps / m_pGeomTable / m_refFaces / m_tagNoteData) is EMPTY -- Revit must regenerate the symbol graphics from the family document",
+  "H3: our family documents carry the S0 skeleton (self-Family, Ref. Level, origin planes, units, one plan view, parameters, one type) and NO detail geometry / label -- the head SHAPE is absent",
+  "H4: host Family.m_coreIds bind only the host's category GStyle rows (none when the host lacks that category); big2small maps only the parameter twins (our documents reference no host catalog rows)",
+  "H5: the ContentTable record's author is 'rvt-writer'; the load reuses the host's current episode (no new History row / DIT record)",
+  "H6: the host FamilyTypeTable = one blank ' ' row and the type lives as the FamilySymbol (the annotation flavour); OUR embedded document carries its single named type too (the specimen embedded head document's type table is empty)"
+ ],
+ "base": "samples/rstbasicsampleproject.rvt",
+ "base_verdict": "sample (viewer PASS)",
+ "tests": "Our twelve head family DOCUMENTS become the project's ACTIVE heads (LevelAttributes / GridAttributes / SectionAttributes head+tail / CalloutTag / ViewportAttributes / InteriorElevAttributes / StructSettingsElem usage fields all name OUR symbols; the Autodesk heads remain loaded but unreferenced).  Is an annotation-skeleton family (no detail geometry / label) an acceptable REFERENCED head?",
+ "if_PASS": "Our head family documents satisfy the reader as active heads: family-document CONTENT (the head shape / label) is NOT required by the reader -- L3's remaining variable is the constructed base itself.",
+ "if_FAIL": "(with L1a PASSING) the reader requires MORE content in a referenced head family document than our skeleton carries (detail geometry / label / the annotation view constellation) -- the head CONTENT ladder is the next stream; L3 cannot pass with these families."
+}

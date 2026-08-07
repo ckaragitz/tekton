@@ -1,0 +1,2234 @@
+{
+ "AllProjectPhases|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 7,
+  "bands": {
+   "<5k": 7
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 1,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1,
+    "ce": 0,
+    "me": 378,
+    "ue": 378,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 1,
+    "ce": 0,
+    "me": 767,
+    "ue": 767,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "AllProjectRevisions|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 1,
+  "bands": {
+   "<50k": 6,
+   "<5k": 1
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 49031,
+    "ce": 277,
+    "me": 1011,
+    "ue": 1011,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 49031,
+    "ce": 277,
+    "me": 1011,
+    "ue": 1011,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 49031,
+    "ce": 277,
+    "me": 790,
+    "ue": 790,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 49031,
+    "ce": 277,
+    "me": 841,
+    "ue": 841,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "AssemblyCodeTable|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<5M": 5,
+   "<500k": 2
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 1218726,
+    "ce": 907,
+    "me": 1016,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1218726,
+    "ce": 907,
+    "me": 1016,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 749598,
+    "ce": 765,
+    "me": 795,
+    "ue": 765,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 1002459,
+    "ce": 803,
+    "me": 847,
+    "ue": 803,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "AutoJoinTracker|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 6,
+   "<5M": 1
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 102467,
+    "ce": 410,
+    "me": 1014,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 102467,
+    "ce": 410,
+    "me": 1014,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 293247,
+    "ce": 455,
+    "me": 792,
+    "ue": 703,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 102467,
+    "ce": 410,
+    "me": 842,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "BasePoint|project": {
+  "n": 14,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 10,
+   "<5M": 4
+  },
+  "owners": {
+   "null": 14
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 111426,
+    "ce": 452,
+    "me": 1003,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 111429,
+    "ce": 452,
+    "me": 1003,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 111426,
+    "ce": 452,
+    "me": 1003,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 111429,
+    "ce": 452,
+    "me": 1003,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "BrowserOrganization|project": {
+  "n": 79,
+  "files": 7,
+  "creation_ep0": 3,
+  "bands": {
+   "<5M": 14,
+   "<50k": 54,
+   "<500k": 5,
+   "<5k": 6
+  },
+  "owners": {
+   "null": 79
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 39,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 1472524,
+    "ce": 1015,
+    "me": 1015,
+    "ue": 1015,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1468599,
+    "ce": 1002,
+    "me": 1002,
+    "ue": 1002,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 24945,
+    "ce": 247,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 24946,
+    "ce": 247,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "CategoryElem|project": {
+  "n": 2079,
+  "files": 7,
+  "creation_ep0": 167,
+  "bands": {
+   "<5k": 278,
+   "<500k": 508,
+   "<5M": 1026,
+   "<50k": 267
+  },
+  "owners": {
+   "null": 865,
+   "DBViewGraphSchedColumn": 9,
+   "SpotElevationStyle": 147,
+   "LeaderStyle": 111,
+   "DimensionStyle": 228,
+   "FilledRegionAttributes": 52,
+   "TextNoteAttributes": 68,
+   "LevelAttributes": 26,
+   "GridAttributes": 49,
+   "InteriorElevAttributes": 9,
+   "TagNoteAttributes": 7,
+   "ViewportAttributes": 22,
+   "ContourLabelingAttributes": 7,
+   "SectionAttributes": 16,
+   "StairsAttributes": 16,
+   "RampAttributes": 7,
+   "ColorFillSymbol": 20,
+   "AreaReportSettingsElem": 42,
+   "MasterImportSymbol": 164,
+   "DBViewSchedule": 144,
+   "PanelScheduleView": 24,
+   "AnalysisDisplayStyle": 46
+  },
+  "usermod_never": 64,
+  "ce_eq_me": 765,
+  "renumbered": 21,
+  "sample": [
+   {
+    "id": 1647,
+    "ce": 12,
+    "me": 1013,
+    "ue": 1013,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1648,
+    "ce": 12,
+    "me": 1013,
+    "ue": 1013,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 211321,
+    "ce": 572,
+    "me": 1013,
+    "ue": 1013,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 212927,
+    "ce": 572,
+    "me": 1013,
+    "ue": 1013,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "CategoryElem|scoped": {
+  "n": 6754,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 1850,
+   "<5M": 4791,
+   "<50k": 100,
+   "<5k": 13
+  },
+  "owners": {
+   "TextNoteAttributes": 2048,
+   "TagNoteAttributes": 1616,
+   "LeaderStyle": 1492,
+   "FilledRegionAttributes": 1320,
+   "SectionAttributes": 49,
+   "InteriorElevAttributes": 49,
+   "DimensionStyle": 178,
+   "LevelAttributes": 2
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 4279,
+  "renumbered": 112,
+  "sample": [
+   {
+    "id": 147290,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "TextNoteAttributes",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 147292,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "TagNoteAttributes",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 147310,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "LeaderStyle",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 147325,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "FilledRegionAttributes",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "ConstructionSetProject|project": {
+  "n": 6,
+  "files": 6,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 6
+  },
+  "owners": {
+   "null": 6
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 2,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 99928,
+    "ce": 393,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 99928,
+    "ce": 393,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 270260,
+    "ce": 434,
+    "me": 520,
+    "ue": 520,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 99928,
+    "ce": 393,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "DBDrawing|project": {
+  "n": 879,
+  "files": 7,
+  "creation_ep0": 12,
+  "bands": {
+   "<5M": 698,
+   "<50k": 19,
+   "<500k": 145,
+   "<5k": 17
+  },
+  "owners": {
+   "DBViewDrafting": 63,
+   "DBViewSection": 197,
+   "DBViewPlan": 236,
+   "DBView3d": 147,
+   "DBViewGraphSchedColumn": 3,
+   "DBViewAnonDrafting": 18,
+   "DBViewProject": 7,
+   "RbsDbViewSystemNavigator": 7,
+   "DBViewRendering": 36,
+   "DBViewSchedule": 128,
+   "PanelScheduleView": 24,
+   "DBViewLegend": 12,
+   "DBViewHVACLoadsReport": 1
+  },
+  "usermod_never": 1,
+  "ce_eq_me": 414,
+  "renumbered": 13,
+  "sample": [
+   {
+    "id": 1456980,
+    "ce": 981,
+    "me": 981,
+    "ue": 981,
+    "owner_cls": "DBViewDrafting",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1457031,
+    "ce": 982,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": "DBViewDrafting",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1457048,
+    "ce": 982,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": "DBViewDrafting",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1457067,
+    "ce": 982,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": "DBViewDrafting",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "DBDrawing|scoped": {
+  "n": 1,
+  "files": 1,
+  "creation_ep0": 0,
+  "bands": {
+   "<5k": 1
+  },
+  "owners": {
+   "DBViewPlan": 1
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 3391,
+    "ce": 17,
+    "me": 236,
+    "ue": 17,
+    "owner_cls": "DBViewPlan",
+    "renum": false,
+    "part": 0,
+    "max_ep": 616
+   }
+  ]
+ },
+ "DBViewProject|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 7,
+  "bands": {
+   "<5k": 7
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 230,
+    "ce": 0,
+    "me": 1003,
+    "ue": 988,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 230,
+    "ce": 0,
+    "me": 1003,
+    "ue": 988,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 230,
+    "ce": 0,
+    "me": 783,
+    "ue": 378,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 230,
+    "ce": 0,
+    "me": 833,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "ElectricalSetting|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 5,
+   "<5M": 2
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 3,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 121706,
+    "ce": 476,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 121706,
+    "ce": 476,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 639116,
+    "ce": 716,
+    "me": 716,
+    "ue": 716,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 121706,
+    "ce": 476,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "FillPatternElem|project": {
+  "n": 766,
+  "files": 7,
+  "creation_ep0": 155,
+  "bands": {
+   "<5k": 245,
+   "<50k": 71,
+   "<500k": 99,
+   "<5M": 351
+  },
+  "owners": {
+   "null": 766
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 221,
+  "renumbered": 13,
+  "sample": [
+   {
+    "id": 3,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 4,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 5,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 6,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "FontElem|project": {
+  "n": 1084,
+  "files": 7,
+  "creation_ep0": 68,
+  "bands": {
+   "<5M": 783,
+   "<5k": 77,
+   "<50k": 74,
+   "<500k": 150
+  },
+  "owners": {
+   "DBViewGraphSchedColumn": 9,
+   "SpotElevationStyle": 49,
+   "DimensionStyle": 76,
+   "FilledRegionAttributes": 52,
+   "TextNoteAttributes": 68,
+   "LevelAttributes": 14,
+   "GridAttributes": 13,
+   "InteriorElevAttributes": 10,
+   "TagNoteAttributes": 8,
+   "Text3dAttrSymbol": 8,
+   "ContourLabelingAttributes": 7,
+   "SectionAttributes": 16,
+   "StairsAttributes": 16,
+   "RampAttributes": 7,
+   "ColorFillSymbol": 20,
+   "AreaReportSettingsElem": 14,
+   "MasterImportSymbol": 24,
+   "DBViewSchedule": 579,
+   "FamilyInstance": 2,
+   "PanelScheduleView": 92
+  },
+  "usermod_never": 308,
+  "ce_eq_me": 410,
+  "renumbered": 6,
+  "sample": [
+   {
+    "id": 1250048,
+    "ce": 909,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": "DBViewGraphSchedColumn",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1250051,
+    "ce": 909,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": "DBViewGraphSchedColumn",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1250054,
+    "ce": 909,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": "DBViewGraphSchedColumn",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1471221,
+    "ce": 1009,
+    "me": 1009,
+    "ue": 1009,
+    "owner_cls": "SpotElevationStyle",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "FontElem|scoped": {
+  "n": 5143,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 1405,
+   "<5M": 3631,
+   "<50k": 99,
+   "<5k": 8
+  },
+  "owners": {
+   "TextNoteAttributes": 2048,
+   "TagNoteAttributes": 1616,
+   "FilledRegionAttributes": 1320,
+   "SectionAttributes": 49,
+   "InteriorElevAttributes": 49,
+   "DimensionStyle": 60,
+   "LevelAttributes": 1
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 3176,
+  "renumbered": 89,
+  "sample": [
+   {
+    "id": 147319,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "TextNoteAttributes",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 147320,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "TagNoteAttributes",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 147327,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "FilledRegionAttributes",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 147355,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "FilledRegionAttributes",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "GStyleElem|builtin": {
+  "n": 9849,
+  "files": 7,
+  "creation_ep0": 1697,
+  "bands": {
+   "<5M": 2599,
+   "<50k": 834,
+   "<5k": 1697,
+   "<500k": 4719
+  },
+  "owners": {
+   "null": 9849
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 4952,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 1472449,
+    "ce": 1015,
+    "me": 1015,
+    "ue": 1015,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1472450,
+    "ce": 1015,
+    "me": 1015,
+    "ue": 1015,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1472452,
+    "ce": 1015,
+    "me": 1015,
+    "ue": 1015,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1472453,
+    "ce": 1015,
+    "me": 1015,
+    "ue": 1015,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "GStyleElem|sub/other": {
+  "n": 9439,
+  "files": 7,
+  "creation_ep0": 171,
+  "bands": {
+   "<5k": 332,
+   "<500k": 2475,
+   "<5M": 6194,
+   "<50k": 438
+  },
+  "owners": {
+   "CategoryElem": 9346,
+   "MasterImportSymbol": 93
+  },
+  "usermod_never": 64,
+  "ce_eq_me": 5294,
+  "renumbered": 133,
+  "sample": [
+   {
+    "id": 1661,
+    "ce": 12,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": "CategoryElem",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1662,
+    "ce": 12,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": "CategoryElem",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 147311,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "CategoryElem",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 147315,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "CategoryElem",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "InitialViewSettings|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 5,
+   "<5M": 2
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 2,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 133303,
+    "ce": 516,
+    "me": 984,
+    "ue": 984,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 133303,
+    "ce": 516,
+    "me": 984,
+    "ue": 984,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 713051,
+    "ce": 734,
+    "me": 734,
+    "ue": 734,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 133303,
+    "ce": 516,
+    "me": 759,
+    "ue": 759,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "KeynoteTable|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 1,
+  "bands": {
+   "<500k": 6,
+   "<5k": 1
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 86291,
+    "ce": 366,
+    "me": 1016,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 86291,
+    "ce": 366,
+    "me": 1016,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 86291,
+    "ce": 366,
+    "me": 795,
+    "ue": 374,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 86291,
+    "ce": 366,
+    "me": 847,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "KeynotingSystem|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 1,
+  "bands": {
+   "<500k": 6,
+   "<5k": 1
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 3,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 86315,
+    "ce": 368,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 86315,
+    "ce": 368,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 86315,
+    "ce": 368,
+    "me": 368,
+    "ue": 368,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 86315,
+    "ce": 368,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "LinePatternElem|project": {
+  "n": 635,
+  "files": 7,
+  "creation_ep0": 91,
+  "bands": {
+   "<5k": 113,
+   "<50k": 17,
+   "<500k": 134,
+   "<5M": 371
+  },
+  "owners": {
+   "null": 635
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 182,
+  "renumbered": 1,
+  "sample": [
+   {
+    "id": 10,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 11,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 12,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 13,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "MaterialElem|project": {
+  "n": 1161,
+  "files": 7,
+  "creation_ep0": 110,
+  "bands": {
+   "<5M": 477,
+   "<500k": 378,
+   "<5k": 235,
+   "<50k": 71
+  },
+  "owners": {
+   "null": 1161
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 112,
+  "renumbered": 1,
+  "sample": [
+   {
+    "id": 1471662,
+    "ce": 1013,
+    "me": 1013,
+    "ue": 1013,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1471873,
+    "ce": 1013,
+    "me": 1013,
+    "ue": 1013,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1470386,
+    "ce": 1007,
+    "me": 1007,
+    "ue": 1007,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1471041,
+    "ce": 1007,
+    "me": 1007,
+    "ue": 1007,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "PenWidthTableElem|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 7,
+  "bands": {
+   "<5k": 7
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 1,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 2,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 2,
+    "ce": 0,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 2,
+    "ce": 0,
+    "me": 443,
+    "ue": 443,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 2,
+    "ce": 0,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "PenWidthTableElem|scoped": {
+  "n": 58,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<5M": 41,
+   "<500k": 17
+  },
+  "owners": {
+   "Family": 58
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 51,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 1218557,
+    "ce": 907,
+    "me": 907,
+    "ue": 907,
+    "owner_cls": "Family",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1218558,
+    "ce": 907,
+    "me": 907,
+    "ue": 907,
+    "owner_cls": "Family",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1218559,
+    "ce": 907,
+    "me": 907,
+    "ue": 907,
+    "owner_cls": "Family",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1218560,
+    "ce": 907,
+    "me": 907,
+    "ue": 907,
+    "owner_cls": "Family",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "ProjectInfo|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 1,
+  "bands": {
+   "<50k": 6,
+   "<5k": 1
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 2,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 49504,
+    "ce": 279,
+    "me": 981,
+    "ue": 981,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 49504,
+    "ce": 279,
+    "me": 981,
+    "ue": 981,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 49504,
+    "ce": 279,
+    "me": 279,
+    "ue": 279,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 49504,
+    "ce": 279,
+    "me": 769,
+    "ue": 769,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "RbsDbViewSystemNavigator|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 1,
+  "bands": {
+   "<500k": 6,
+   "<5k": 1
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 69851,
+    "ce": 346,
+    "me": 1003,
+    "ue": 988,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 69851,
+    "ce": 346,
+    "me": 1003,
+    "ue": 988,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 69851,
+    "ce": 346,
+    "me": 794,
+    "ue": 677,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 69851,
+    "ce": 346,
+    "me": 846,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "ReconcileBrowserSettingsElem|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 5,
+   "<5M": 2
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 3,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 116120,
+    "ce": 472,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 116120,
+    "ce": 472,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 639089,
+    "ce": 716,
+    "me": 716,
+    "ue": 716,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 116120,
+    "ce": 472,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "RevisionNumberingSequence|project": {
+  "n": 14,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<5M": 10,
+   "<500k": 4
+  },
+  "owners": {
+   "AllProjectRevisions": 14
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 14,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 1471493,
+    "ce": 1011,
+    "me": 1011,
+    "ue": 1011,
+    "owner_cls": "AllProjectRevisions",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1471494,
+    "ce": 1011,
+    "me": 1011,
+    "ue": 1011,
+    "owner_cls": "AllProjectRevisions",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1471493,
+    "ce": 1011,
+    "me": 1011,
+    "ue": 1011,
+    "owner_cls": "AllProjectRevisions",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1471494,
+    "ce": 1011,
+    "me": 1011,
+    "ue": 1011,
+    "owner_cls": "AllProjectRevisions",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "StructSettingsElem|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 1,
+  "bands": {
+   "<500k": 5,
+   "<50k": 1,
+   "<5k": 1
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 2,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 54663,
+    "ce": 302,
+    "me": 999,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 54663,
+    "ce": 302,
+    "me": 999,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 54663,
+    "ce": 302,
+    "me": 302,
+    "ue": 302,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 54663,
+    "ce": 302,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "TextNoteAttributes|project": {
+  "n": 68,
+  "files": 7,
+  "creation_ep0": 8,
+  "bands": {
+   "<5M": 48,
+   "<5k": 10,
+   "<500k": 7,
+   "<50k": 3
+  },
+  "owners": {
+   "null": 68
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 21,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 1457021,
+    "ce": 982,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1456487,
+    "ce": 981,
+    "me": 981,
+    "ue": 981,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 907370,
+    "ce": 752,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1386046,
+    "ce": 936,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "TextNoteAttributes|scoped": {
+  "n": 2048,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 522,
+   "<5M": 1524,
+   "<5k": 1,
+   "<50k": 1
+  },
+  "owners": {
+   "Family": 2048
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 1412,
+  "renumbered": 26,
+  "sample": [
+   {
+    "id": 147289,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "Family",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 152251,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "Family",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 157318,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "Family",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 160576,
+    "ce": 548,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": "Family",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "TrueNorth|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 2,
+  "bands": {
+   "<50k": 5,
+   "<5k": 2
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 2,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 7850,
+    "ce": 144,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 7850,
+    "ce": 144,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 7850,
+    "ce": 144,
+    "me": 144,
+    "ue": 144,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 7850,
+    "ce": 144,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "UnitsElem|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 1,
+  "bands": {
+   "<50k": 6,
+   "<5k": 1
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 1,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 19236,
+    "ce": 144,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 19236,
+    "ce": 144,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 19236,
+    "ce": 144,
+    "me": 443,
+    "ue": 443,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 19236,
+    "ce": 144,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ },
+ "Viewer|project": {
+  "n": 530,
+  "files": 7,
+  "creation_ep0": 11,
+  "bands": {
+   "<5M": 417,
+   "<500k": 97,
+   "<5k": 13,
+   "<50k": 3
+  },
+  "owners": {
+   "DBViewDrafting": 63,
+   "DBViewPlan": 234,
+   "DBViewAnonDrafting": 18,
+   "DBViewProject": 7,
+   "RbsDbViewSystemNavigator": 7,
+   "DBViewRendering": 36,
+   "DBViewSchedule": 128,
+   "PanelScheduleView": 24,
+   "DBViewLegend": 12,
+   "DBViewHVACLoadsReport": 1
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 86,
+  "renumbered": 4,
+  "sample": [
+   {
+    "id": 1456978,
+    "ce": 981,
+    "me": 981,
+    "ue": 981,
+    "owner_cls": "DBViewDrafting",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1457029,
+    "ce": 982,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": "DBViewDrafting",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1457046,
+    "ce": 982,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": "DBViewDrafting",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1457065,
+    "ce": 982,
+    "me": 982,
+    "ue": 982,
+    "owner_cls": "DBViewDrafting",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "Viewer|scoped": {
+  "n": 1,
+  "files": 1,
+  "creation_ep0": 0,
+  "bands": {
+   "<5k": 1
+  },
+  "owners": {
+   "DBViewPlan": 1
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 3389,
+    "ce": 17,
+    "me": 573,
+    "ue": 210,
+    "owner_cls": "DBViewPlan",
+    "renum": false,
+    "part": 0,
+    "max_ep": 616
+   }
+  ]
+ },
+ "Viewport|project": {
+  "n": 1096,
+  "files": 7,
+  "creation_ep0": 2,
+  "bands": {
+   "<5M": 901,
+   "<50k": 19,
+   "<500k": 159,
+   "<5k": 17
+  },
+  "owners": {
+   "DBDrawing": 1096
+  },
+  "usermod_never": 1,
+  "ce_eq_me": 530,
+  "renumbered": 26,
+  "sample": [
+   {
+    "id": 1456979,
+    "ce": 981,
+    "me": 981,
+    "ue": 981,
+    "owner_cls": "DBDrawing",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1457000,
+    "ce": 981,
+    "me": 981,
+    "ue": 981,
+    "owner_cls": "DBDrawing",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1457002,
+    "ce": 981,
+    "me": 981,
+    "ue": 981,
+    "owner_cls": "DBDrawing",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 1457017,
+    "ce": 981,
+    "me": 981,
+    "ue": 981,
+    "owner_cls": "DBDrawing",
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   }
+  ]
+ },
+ "Viewport|scoped": {
+  "n": 1,
+  "files": 1,
+  "creation_ep0": 0,
+  "bands": {
+   "<5k": 1
+  },
+  "owners": {
+   "DBDrawing": 1
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 0,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 3392,
+    "ce": 17,
+    "me": 236,
+    "ue": 17,
+    "owner_cls": "DBDrawing",
+    "renum": false,
+    "part": 0,
+    "max_ep": 616
+   }
+  ]
+ },
+ "WallJoinDefaultSetting|project": {
+  "n": 7,
+  "files": 7,
+  "creation_ep0": 0,
+  "bands": {
+   "<500k": 6,
+   "<5M": 1
+  },
+  "owners": {
+   "null": 7
+  },
+  "usermod_never": 0,
+  "ce_eq_me": 3,
+  "renumbered": 0,
+  "sample": [
+   {
+    "id": 102105,
+    "ce": 408,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 102105,
+    "ce": 408,
+    "me": 976,
+    "ue": 976,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 1016
+   },
+   {
+    "id": 293118,
+    "ce": 454,
+    "me": 454,
+    "ue": 454,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 795
+   },
+   {
+    "id": 102105,
+    "ce": 408,
+    "me": 551,
+    "ue": 551,
+    "owner_cls": null,
+    "renum": false,
+    "part": 0,
+    "max_ep": 847
+   }
+  ]
+ }
+}

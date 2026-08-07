@@ -1,0 +1,453 @@
+{
+  "specVersion": "1.0",
+  "project": {
+    "name": "Electrical room - 2500 A service",
+    "description": "Derived from inputs/ifc/electrical-room-2500a.ifc by ifc_to_spec.py"
+  },
+  "units": {
+    "length": "m",
+    "angle": "deg"
+  },
+  "levels": [
+    {
+      "id": "L1",
+      "name": "Level 1",
+      "elevation": 0.0
+    }
+  ],
+  "walls": [
+    {
+      "id": "W-S",
+      "start": [
+        -5.5286,
+        -3.0
+      ],
+      "end": [
+        5.5286,
+        -3.0
+      ],
+      "thickness": 0.2,
+      "height": 3.81,
+      "type": "Room shell (derived from proxy footprint)",
+      "derivedFrom": "Electrical room shell"
+    },
+    {
+      "id": "W-E",
+      "start": [
+        5.5286,
+        -3.0
+      ],
+      "end": [
+        5.5286,
+        3.2
+      ],
+      "thickness": 0.2,
+      "height": 3.81,
+      "type": "Room shell (derived from proxy footprint)",
+      "derivedFrom": "Electrical room shell"
+    },
+    {
+      "id": "W-N",
+      "start": [
+        5.5286,
+        3.2
+      ],
+      "end": [
+        -5.5286,
+        3.2
+      ],
+      "thickness": 0.2,
+      "height": 3.81,
+      "type": "Room shell (derived from proxy footprint)",
+      "derivedFrom": "Electrical room shell"
+    },
+    {
+      "id": "W-W",
+      "start": [
+        -5.5286,
+        3.2
+      ],
+      "end": [
+        -5.5286,
+        -3.0
+      ],
+      "thickness": 0.2,
+      "height": 3.81,
+      "type": "Room shell (derived from proxy footprint)",
+      "derivedFrom": "Electrical room shell"
+    }
+  ],
+  "equipment": [
+    {
+      "kind": "panelboard",
+      "name": "MSB - main switchboard 2500 A, 480Y/277 V",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "Front-accessible switchboard - 2500 A, 65 kA SCCR",
+      "description": "4-section front-accessible lineup: utility CT / metering, 2500 A main breaker, two group-mounted feeder distribution sections; all feeders exit the top in conduit",
+      "tag": "MSB",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 4.27,
+        "d": 0.7,
+        "h": 2.286
+      },
+      "psets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "Pow-R-Line C style switchboard"
+        },
+        "SwitchboardSchedule": {
+          "BusRating": 2500.0,
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "MainDevice": "2500 A, 3-pole insulated-case main breaker, 100% rated",
+          "ShortCircuitRatingkA": 65.0,
+          "Sections": 4,
+          "Mounting": "Floor, on 100 mm housekeeping pad, front accessible",
+          "FeederEntry": "Top; overhead EMT on trapeze hangers"
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "DP-1 - distribution panelboard, 480Y/277 V",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "Distribution panelboard - 400 A MB - 42 space",
+      "description": "Distribution panelboard, surface mounted on strut backing, top-fed overhead in EMT from MSB",
+      "tag": "DP-1",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.2485,
+        "d": 0.508,
+        "h": 2.3
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "DP-1",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 400.0,
+          "MainsType": "Main breaker",
+          "NumberOfCircuits": 42,
+          "FedFrom": "MSB",
+          "Mounting": "Surface, wall, unistrut backing",
+          "FeederEntry": "Top, overhead EMT"
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "LP-1 - lighting panelboard, 480Y/277 V",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "Lighting panelboard - 100 A MLO - 30 space",
+      "description": "Lighting panelboard, surface mounted on strut backing, top-fed overhead in EMT from MSB",
+      "tag": "LP-1",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.2085,
+        "d": 0.508,
+        "h": 2.3
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "LP-1",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 100.0,
+          "MainsType": "Main lugs only",
+          "NumberOfCircuits": 30,
+          "FedFrom": "MSB",
+          "Mounting": "Surface, wall, unistrut backing",
+          "FeederEntry": "Top, overhead EMT"
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "LP-2 - lighting panelboard, 480Y/277 V",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "Lighting panelboard - 100 A MLO - 30 space",
+      "description": "Lighting panelboard, surface mounted on strut backing, top-fed overhead in EMT from MSB",
+      "tag": "LP-2",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.2085,
+        "d": 0.508,
+        "h": 2.3
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "LP-2",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 100.0,
+          "MainsType": "Main lugs only",
+          "NumberOfCircuits": 30,
+          "FedFrom": "MSB",
+          "Mounting": "Surface, wall, unistrut backing",
+          "FeederEntry": "Top, overhead EMT"
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "DP-2 - distribution panelboard, 480Y/277 V",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "Distribution panelboard - 400 A MB - 42 space",
+      "description": "Distribution panelboard, surface mounted on strut backing, top-fed overhead in EMT from MSB",
+      "tag": "DP-2",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.2485,
+        "d": 0.508,
+        "h": 2.3
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "DP-2",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 400.0,
+          "MainsType": "Main breaker",
+          "NumberOfCircuits": 42,
+          "FedFrom": "MSB",
+          "Mounting": "Surface, wall, unistrut backing",
+          "FeederEntry": "Top, overhead EMT"
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "LP-3 - lighting panelboard, 480Y/277 V",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "Lighting panelboard - 100 A MLO - 30 space",
+      "description": "Lighting panelboard, surface mounted on strut backing, top-fed overhead in EMT from MSB",
+      "tag": "LP-3",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.2085,
+        "d": 0.508,
+        "h": 2.3
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "LP-3",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 100.0,
+          "MainsType": "Main lugs only",
+          "NumberOfCircuits": 30,
+          "FedFrom": "MSB",
+          "Mounting": "Surface, wall, unistrut backing",
+          "FeederEntry": "Top, overhead EMT"
+        }
+      }
+    },
+    {
+      "kind": "panelboard",
+      "name": "LP-4 - receptacle / appliance panelboard, 208Y/120 V",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "Receptacle / appliance panelboard - 225 A MB - 42 space",
+      "description": "Receptacle / appliance panelboard, surface mounted on strut backing, top-fed overhead in EMT from T1",
+      "tag": "LP-4",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "dims": {
+        "w": 0.2085,
+        "d": 0.508,
+        "h": 2.3
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "LP-4",
+          "Voltage": "208Y/120 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 225.0,
+          "MainsType": "Main breaker",
+          "NumberOfCircuits": 42,
+          "FedFrom": "T1",
+          "Mounting": "Surface, wall, unistrut backing",
+          "FeederEntry": "Top, overhead EMT"
+        }
+      }
+    },
+    {
+      "kind": "transformer",
+      "name": "T1 - 150 kVA dry-type transformer",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "transformer",
+      "description": "Ventilated NEMA 1 enclosure on housekeeping pad; primary from MSB, secondary to LP-4, both overhead in EMT",
+      "tag": "T1",
+      "ifcClass": "IfcTransformer",
+      "dims": {
+        "w": 0.9,
+        "d": 0.756,
+        "h": 1.14
+      },
+      "psets": {
+        "TransformerSchedule": {
+          "RatingkVA": 150.0,
+          "Primary": "480 V delta",
+          "Secondary": "208Y/120 V",
+          "ImpedancePercent": 4.5,
+          "TemperatureRise": "150 C",
+          "FedFrom": "MSB"
+        }
+      }
+    },
+    {
+      "kind": "proxy",
+      "name": "Overhead conduit supports - trapeze strut and clevis hangers",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "proxy",
+      "description": "1-5/8 in strut trapezes on 3/8 in threaded rod with beam clamps at the deck; clevis hangers on the transformer primary",
+      "tag": "HANGERS",
+      "ifcClass": "IfcDiscreteAccessory",
+      "dims": {
+        "w": 8.26,
+        "d": 2.96,
+        "h": 0.865
+      },
+      "psets": {
+        "SupportSchedule": {
+          "StrutSize": "1-5/8 in x 1-5/8 in",
+          "RodSize": "3/8 in threaded rod",
+          "MaxSpacingM": 3.0,
+          "AttachTo": "Beam clamps at deck steel"
+        }
+      }
+    },
+    {
+      "kind": "proxy",
+      "name": "TMGB - wall-mounted main ground bus bar",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "proxy",
+      "description": "Copper bus 4 in x 1/4 in on insulated standoffs",
+      "tag": "TMGB",
+      "ifcClass": "IfcBuildingElementProxy",
+      "dims": {
+        "w": 0.5,
+        "d": 0.053,
+        "h": 0.05
+      }
+    },
+    {
+      "kind": "proxy",
+      "name": "Electrical room shell",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "proxy",
+      "description": "Floor slab, back and side walls with two out-swinging egress doors (front wall cut away for viewing)",
+      "tag": "ROOM",
+      "ifcClass": "IfcBuildingElementProxy",
+      "dims": {
+        "w": 11.0573,
+        "d": 6.2,
+        "h": 3.81
+      },
+      "psets": {
+        "RoomInformation": {
+          "RoomName": "Main electrical room",
+          "ClearWidth": 9.0,
+          "ClearDepth": 6.0,
+          "ClearHeight": 3.66,
+          "Egress": "Two doors, out-swinging with panic hardware per NEC 110.26(C)"
+        }
+      }
+    },
+    {
+      "kind": "proxy",
+      "name": "NEC 110.26 working clearances",
+      "level": "L1",
+      "position": [
+        0.0,
+        0.0
+      ],
+      "rotationDeg": 0.0,
+      "elevation": 0.0,
+      "typeName": "proxy",
+      "description": "Condition 2: 1.07 m (3.5 ft) at the 2500 A switchboard; 0.914 m (3 ft) x 0.762 m x 1.98 m at panelboards and transformer",
+      "tag": "CLEARANCE",
+      "ifcClass": "IfcBuildingElementProxy",
+      "dims": {
+        "w": 8.59,
+        "d": 3.201,
+        "h": 2.39
+      }
+    }
+  ],
+  "notes": [
+    "walls synthesized from the footprint of IfcBuildingElementProxy 'Electrical room shell' (11.06 x 6.2 m, h=3.81 m)"
+  ]
+}

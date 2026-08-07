@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "vendor": "eaton",
+  "line": "pow-r-line-panelboards",
+  "product_line": "Eaton Pow-R-Line panelboards (legacy 1a / 2a / 3a / 4 / 4B and current Pow-R-Line Xpert 1X / 2X / 3X / 3E / 4X)",
+  "category": "panelboard",
+  "revit_category": "OST_ElectricalEquipment",
+  "license_note": "Dimensional and rating FACTS only. No Eaton drawings, CAD/BIM files, catalog prose or images are stored. See ../LICENSE_NOTES.md.",
+  "collection_posture": {
+    "summary": "eaton.com pages and PDFs block scripted clients (timeouts to automated fetch, confirmed 2026-08-03). Facts were read from Eaton-authored documents (catalog CA08100003E Vol 2 Tab 3 June 2020; renewal parts RP01400001E April 2021) hosted by Eaton's authorized regional distributor site eatonarabia.com, and from the Eaton Arabia product technical page. Eaton's website terms default to personal/non-commercial download 'unless otherwise specified' (docs/product/content-strategy.md row 2); we copy nothing but factual figures (Feist basis), one manual-equivalent read per document, no bulk crawling.",
+    "primary_reachable": false,
+    "method": "single WebFetch per document + local text extraction of the returned PDF; figures transcribed by hand into this file"
+  },
+  "sources": {
+    "S1": {
+      "url": "https://eatonarabia.com/wp-content/uploads/2022/03/panelboard-and-lighting-control.pdf",
+      "canonical_url": "https://www.eaton.com/us/en-us/support/technical-resources/design-guides.html",
+      "doc": "Eaton Volume 2 - Commercial Distribution, Tab 3 'Panelboards and Lighting Control', CA08100003E, June 2020 (pages V2-T3-2 .. V2-T3-134)",
+      "publisher": "Eaton",
+      "doc_date": "2020-06",
+      "accessed": "2026-08-03",
+      "verification": "VERIFIED",
+      "note": "Eaton catalog PDF hosted by authorized regional distributor; text extracted locally, tables read directly (Panelboard Selection Guide V2-T3-11; PRL1X/2X/3X/4X sizing pages)."
+    },
+    "S2": {
+      "url": "https://eatonarabia.com/wp-content/uploads/2022/03/pow-r-line-1.pdf",
+      "doc": "Eaton Renewal Parts RP01400001E 'Pow-R-Line Xpert and legacy', effective April 2021",
+      "publisher": "Eaton",
+      "doc_date": "2021-04",
+      "accessed": "2026-08-03",
+      "verification": "VERIFIED",
+      "note": "States standard box widths shared by legacy and Xpert types, and the product-history timeline."
+    },
+    "S3": {
+      "url": "https://eatonarabia.com/products/pow-r-line-1a-lighting-and-appliance-panelboards/pow-r-line-1a-technical/",
+      "doc": "Eaton Arabia (authorized distributor) - Pow-R-Line 1a technical data page",
+      "publisher": "Eaton Arabia",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "VERIFIED",
+      "note": "Legacy 1a technical table (voltage, bus current, IR, standards, enclosure types, box W/D/H options)."
+    },
+    "S4": {
+      "url": "https://www.eaton.com/us/en-us/catalog/low-voltage-power-distribution-controls-systems/pow-r-line-1a-lighting-and-appliance-panelboards.html",
+      "doc": "Eaton product page - Pow-R-Line 1a",
+      "publisher": "Eaton",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "UNVERIFIED",
+      "note": "PRIMARY (eaton.com) - unreachable by automated fetch (connection timeout). Recorded for a human to verify; nothing in this file depends solely on it."
+    }
+  },
+  "line_facts": {
+    "box_width_standard_in": {"value": 20.00, "unit": "in", "provenance": "fact", "source": "S1,S2", "note": "Standard box width 20.00 in (508.0 mm) for PRL1X/2X/3X (100-600 A) AND legacy PRL1a/2a/3a (RP01400001E)."},
+    "box_width_optional_in": {"value": 28.00, "unit": "in", "provenance": "fact", "source": "S1,S3", "note": "Optional 28-inch (711.2 mm) wide box; required for PRL3X 800 A."},
+    "box_depth_standard_in": {"value": 5.75, "unit": "in", "provenance": "fact", "source": "S1,S3", "note": "Standard box depth 5-3/4 in (146.1 mm) for the 20/28-in wide types."},
+    "box_heights_available_in": {"value": [36, 42, 48, 60, 72, 90], "unit": "in", "provenance": "fact", "source": "S1,S3", "note": "YS/EZB box heights 36/42/48/60/72/90 in (914.4/1066.8/1219.2/1524.0/1828.8/2286.0 mm). Height is chosen from mains rating + branch-circuit count (options.box_height_by_circuits)."},
+    "gutter_top_bottom_min_in": {"value": 5.5, "unit": "in", "provenance": "fact", "source": "S1", "note": "Top and bottom gutters 5-1/2 in (139.7 mm) minimum (PRL1X/2X/3X sizing pages)."},
+    "gutter_side_min_in": {"value": 4.0, "unit": "in", "provenance": "fact", "source": "S1", "note": "Side gutters 4 in (101.6 mm) minimum."},
+    "mounting": {"value": ["surface", "flush"], "provenance": "fact", "source": "S1", "note": "Specify surface or flush mounting; EZ/LT trims have S (surface) and F (flush) variants."},
+    "enclosure_nema_types": {"value": ["1", "2", "3R", "4", "4X", "12"], "provenance": "fact", "source": "S3", "note": "NEMA Type 1, 2, 3R, 4, 4X and 12 (1a technical page). NEMA classification PB-1; UL 67 / CSA."},
+    "standards": {"value": ["UL 67", "UL 50", "NEMA PB1", "Federal specifications", "NEC"], "provenance": "fact", "source": "S1,S3", "note": ""},
+    "pr4_box_widths_in": {"value": [24.00, 36.00, 44.00], "unit": "in", "provenance": "fact", "source": "S1,S2", "note": "PRL4X and legacy PRL4/4B standard widths 24.00, 36.00, 44.00 in (609.6 / 914.4 / 1117.6 mm)."},
+    "pr4_box_depth_in": {"value": 11.31, "unit": "in", "provenance": "fact", "source": "S1", "note": "PRL4X box catalog depth column 11.31 in (287.0 mm); note reads box depth 10.40 in (264.2 mm), cover adds 0.90 in (22.9 mm)."},
+    "pr4_box_heights_in": {"value": [57.00, 73.50, 90.00], "unit": "in", "provenance": "fact", "source": "S1", "note": "PRL4X boxes: 26X BX2457 57.00 in (24 W only); 38X BX24/36/4473 73.50 in; 50X BX24/36/4490 90.00 in."},
+    "pr4_gutters_in": {"value": {"top_bottom_min": 10.63, "side_min_by_width": {"24": 5.00, "36": 6.00, "44": 8.00}}, "unit": "in", "provenance": "fact", "source": "S1", "note": "PRL4X: top/bottom 10.63 in (269.9 mm) min; side gutters 5.00 / 6.00 / 8.00 in for 24 / 36 / 44 in wide boxes."},
+    "weights": {"value": null, "provenance": "assumed", "source": null, "note": "NOT SOURCED - the catalog sections read do not tabulate panelboard weights. Do not emit a weight parameter."},
+    "legacy_history": {"value": {"PRL1a_2a": "Oct 1996", "PRL3a": "Mar 1994", "PRL4B_F": "Oct 1987", "PRL1X_2X_3X_4X": "May 2020"}, "provenance": "fact", "source": "S2", "note": "Product-history timeline; the user's 1a/2a/3a/4B spec maps to the current Xpert 1X/2X/3X/4X with the same standard box widths."}
+  },
+  "variants": [
+    {
+      "model": "PRL1a",
+      "aliases": ["Pow-R-Line 1a", "Pow-R-Line C 1a"],
+      "role": "lighting and appliance panelboard (legacy line the user specifies)",
+      "ratings": {
+        "voltage_max_ac_v": 240,
+        "voltage_class": "240 Vac maximum (single-phase / three-phase)",
+        "bus_current_range_a": [100, 600],
+        "mains_options": ["main lugs only", "main circuit breaker"],
+        "interrupting_ka_fully_rated_240v": [10, 22],
+        "interrupting_ka_series_rated_240v": [22, 200],
+        "branch_devices": "bolt-on or plug-in molded case / miniature circuit breakers"
+      },
+      "dims_in": {"w": 20.00, "d": 5.75, "h": "VARIABLE", "h_options": [36, 42, 48, 60, 72, 90], "w_optional": 28.00},
+      "options": {"nema_types": ["1", "2", "3R", "4", "4X", "12"], "mounting": ["surface", "flush"], "spd": true, "metering": "IQ 35"},
+      "source": {"url": "https://eatonarabia.com/products/pow-r-line-1a-lighting-and-appliance-panelboards/pow-r-line-1a-technical/", "doc": "Eaton Arabia - Pow-R-Line 1a technical data", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_max_ac_v": "fact",
+        "ratings.voltage_class": "fact",
+        "ratings.bus_current_range_a": "fact",
+        "ratings.mains_options": "assumed",
+        "ratings.interrupting_ka_fully_rated_240v": "fact",
+        "ratings.interrupting_ka_series_rated_240v": "fact",
+        "ratings.branch_devices": "fact",
+        "dims_in.w": "fact",
+        "dims_in.d": "fact",
+        "dims_in.h": "fact",
+        "dims_in.h_options": "fact",
+        "dims_in.w_optional": "fact",
+        "options.nema_types": "fact",
+        "options.mounting": "assumed",
+        "options.spd": "fact",
+        "options.metering": "fact"
+      },
+      "notes": "h is null on purpose: box height is a function of circuit count and mains (see PRL1X box_height_by_circuits, which the legacy 1a follows dimensionally per RP01400001E). mains_options 'assumed' = MLO/MCB choice is standard for the line but the 1a technical page reads only 'continuous main bus current'."
+    },
+    {
+      "model": "PRL1X",
+      "aliases": ["Pow-R-Line Xpert 1X", "PRL1a-equivalent"],
+      "role": "lighting and appliance panelboard, 240 Vac (current successor to 1a)",
+      "ratings": {
+        "voltage_max_ac_v": 240,
+        "voltage_class": "240 Vac; 250 Vdc not offered on 1X (see 2X)",
+        "mlo_max_a": 600,
+        "main_device_max_a": 600,
+        "branch_range_a": [15, 100],
+        "sub_feed_max_a": 600,
+        "interrupting_ka_fully_rated": [10, 22],
+        "interrupting_ka_series_rated": [22, 100],
+        "mains_ratings_available_a": [100, 225, 400, 600]
+      },
+      "dims_in": {"w": 20.00, "d": 5.75, "h": "VARIABLE", "h_options": [36, 48, 60, 72, 90], "w_optional": 28.00},
+      "options": {
+        "mounting": ["surface", "flush"],
+        "box_catalog_prefix": "YS20xx (steel box) / EZB20xxR (EZ box); trims LT20xxS(F) / EZT20xxS(F)",
+        "box_height_by_circuits": [
+          {"mains_a": 100, "config": "main breaker BAB/QBHW (horizontal)", "rows": [[15, 36.00], [27, 48.00], [39, 48.00], [42, 60.00]]},
+          {"mains_a": 100, "config": "main lugs or main breaker PDG2xF/G/M (vertical)", "rows": [[18, 36.00], [30, 48.00], [42, 48.00]]},
+          {"mains_a": 100, "config": "MLO or MCB with 100 A through-feed lugs or sub-feed breaker", "rows": [[18, 48.00], [30, 48.00], [42, 60.00]]},
+          {"mains_a": 225, "config": "main lugs or main breaker (PDD2x / PDG2x, vertical)", "rows": [[18, 36.00], [30, 48.00], [42, 48.00]]},
+          {"mains_a": 225, "config": "MLO or MCB with 225 A through-feed lugs or sub-feed breaker", "rows": [[18, 48.00], [30, 60.00], [42, 60.00]]},
+          {"mains_a": 400, "config": "main breaker PDD3xG/PDG3xG/M/P/LHH (vertical)", "rows": [[18, 48.00], [30, 60.00], [42, 60.00]]},
+          {"mains_a": 400, "config": "MLO or MCB with 225 A through-feed lugs or sub-feed breaker", "rows": [[18, 60.00], [30, 60.00], [42, 72.00]]},
+          {"mains_a": 400, "config": "MCB with 400 A through-feed lugs or sub-feed breaker", "rows": [[18, 72.00], [30, 72.00], [42, 90.00]]},
+          {"mains_a": 600, "config": "main breaker PDG3xG/LGS/PDG3xM/P (vertical)", "rows": [[18, 60.00], [30, 60.00], [42, 72.00]]},
+          {"mains_a": 600, "config": "MLO or MCB with 225 A through-feed lugs or sub-feed breaker", "rows": [[18, 72.00], [30, 72.00], [42, 90.00]]},
+          {"mains_a": 600, "config": "MCB with 400 A through-feed lugs or sub-feed breaker", "rows": [[18, 72.00], [30, 90.00], [42, 90.00]]},
+          {"mains_a": 600, "config": "MCB with 600 A through-feed lugs or sub-feed breaker", "rows": [[18, 72.00], [30, 90.00], [42, 90.00]]}
+        ],
+        "max_branch_circuits_single_section": 42
+      },
+      "source": {"url": "https://eatonarabia.com/wp-content/uploads/2022/03/panelboard-and-lighting-control.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 3 (June 2020) - Panelboard Selection Guide V2-T3-11 and PRL1X Panelboard Sizing (Approximate Dimensions in Inches (mm))", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_max_ac_v": "fact",
+        "ratings.voltage_class": "fact",
+        "ratings.mlo_max_a": "fact",
+        "ratings.main_device_max_a": "fact",
+        "ratings.branch_range_a": "fact",
+        "ratings.sub_feed_max_a": "fact",
+        "ratings.interrupting_ka_fully_rated": "fact",
+        "ratings.interrupting_ka_series_rated": "fact",
+        "ratings.mains_ratings_available_a": "fact",
+        "dims_in.w": "fact",
+        "dims_in.d": "fact",
+        "dims_in.h": "fact",
+        "dims_in.h_options": "fact",
+        "dims_in.w_optional": "fact",
+        "options.mounting": "fact",
+        "options.box_catalog_prefix": "fact",
+        "options.box_height_by_circuits": "fact",
+        "options.max_branch_circuits_single_section": "fact"
+      },
+      "notes": "rows are [max branch circuits including provisions, box height in]. Catalog note: 'Smaller panelboard box sizes are available if required.' A single 20-in section tops out at 42 branch circuits; 54/66/84-space needs multiple sections (no single-box height is sourced for those - do not invent one)."
+    },
+    {
+      "model": "PRL2X",
+      "aliases": ["Pow-R-Line Xpert 2X", "PRL2a-equivalent"],
+      "role": "lighting and appliance panelboard, 240 Vac and 480Y/277 Vac (successor to 2a)",
+      "ratings": {
+        "voltage_max_ac_v": 480,
+        "voltage_class": "240 Vac (250 Vdc max) and 480Y/277 Vac (250 Vdc max)",
+        "mlo_max_a": 600,
+        "main_device_max_a": 600,
+        "branch_range_a": [15, 100],
+        "sub_feed_max_a": 600,
+        "interrupting_ka_fully_rated": {"240": 65, "480Y/277": 14},
+        "interrupting_ka_series_rated": {"240": [65, 200], "480Y/277": [22, 150]}
+      },
+      "dims_in": {"w": 20.00, "d": 5.75, "h": "VARIABLE", "h_options": [36, 48, 60, 72, 90], "w_optional": 28.00},
+      "options": {"mounting": ["surface", "flush"], "sizing": "same H x 20 W x 5.75 D box family as PRL1X; heights by mains rating and branch-circuit count per the PRL2X Panelboard Sizing table (36/48/60/72/90 in)"},
+      "source": {"url": "https://eatonarabia.com/wp-content/uploads/2022/03/panelboard-and-lighting-control.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 3 (June 2020) - Panelboard Selection Guide V2-T3-11 and PRL2X Panelboard Sizing", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_max_ac_v": "fact",
+        "ratings.voltage_class": "fact",
+        "ratings.mlo_max_a": "fact",
+        "ratings.main_device_max_a": "fact",
+        "ratings.branch_range_a": "fact",
+        "ratings.sub_feed_max_a": "fact",
+        "ratings.interrupting_ka_fully_rated": "fact",
+        "ratings.interrupting_ka_series_rated": "fact",
+        "dims_in.w": "fact",
+        "dims_in.d": "fact",
+        "dims_in.h": "fact",
+        "dims_in.h_options": "fact",
+        "dims_in.w_optional": "fact",
+        "options.mounting": "fact",
+        "options.sizing": "fact"
+      },
+      "notes": ""
+    },
+    {
+      "model": "PRL3X",
+      "aliases": ["Pow-R-Line Xpert 3X", "PRL3a-equivalent"],
+      "role": "power / distribution panelboard, up to 600 Vac (successor to 3a)",
+      "ratings": {
+        "voltage_max_ac_v": 600,
+        "voltage_class": "240 Vac / 480 Vac / 600 Vac (250 Vdc max)",
+        "mlo_max_a": 800,
+        "main_device_max_a": 600,
+        "branch_range_a": [15, 225],
+        "sub_feed_max_a": 600,
+        "interrupting_ka_fully_rated": {"240": [10, 200], "480": [14, 100], "600": [14, 35]},
+        "interrupting_ka_series_rated": {"240": [22, 200], "480": [22, 150]},
+        "bus": "tin plated copper bus available (PRL3FQS explicitly tin-plated copper); aluminum standard on some legacy interiors"
+      },
+      "dims_in": {"w": 20.00, "d": 5.75, "h": "VARIABLE", "h_options": [72, 90], "w_optional": 28.00},
+      "options": {
+        "mounting": ["surface", "flush"],
+        "width_by_mains": {"100-600 A": 20.00, "800 A": 28.00},
+        "gutters_in": {"top_bottom_min": 5.5, "side_min": 4.0},
+        "layout_x_units": "panel height computed in 'X' units (e.g. 12 poles = 5X, 400 A neutral = 8X, 400 A main PDD3xG = 15X); 40X -> 72.00 in box (YS2072), 53X -> 90.00 in box (YS2090); 800 A boxes 28 in wide (YS2848/2860/2872/2890 = 48/60/72/90 in)"
+      },
+      "source": {"url": "https://eatonarabia.com/wp-content/uploads/2022/03/panelboard-and-lighting-control.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 3 (June 2020) - Panelboard Selection Guide V2-T3-11 and PRL3X Box Sizing and Selection", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_max_ac_v": "fact",
+        "ratings.voltage_class": "fact",
+        "ratings.mlo_max_a": "fact",
+        "ratings.main_device_max_a": "fact",
+        "ratings.branch_range_a": "fact",
+        "ratings.sub_feed_max_a": "fact",
+        "ratings.interrupting_ka_fully_rated": "fact",
+        "ratings.interrupting_ka_series_rated": "fact",
+        "ratings.bus": "assumed",
+        "dims_in.w": "fact",
+        "dims_in.d": "fact",
+        "dims_in.h": "fact",
+        "dims_in.h_options": "fact",
+        "dims_in.w_optional": "fact",
+        "options.mounting": "fact",
+        "options.width_by_mains": "fact",
+        "options.gutters_in": "fact",
+        "options.layout_x_units": "fact"
+      },
+      "notes": "h_options lists only the 20-in-wide PRL3X box heights explicitly tabulated on the box-sizing page read (40X -> 72 in, 53X -> 90 in); the 800 A 28-in boxes come in 48/60/72/90 in."
+    },
+    {
+      "model": "PRL3E",
+      "aliases": ["Pow-R-Line Xpert 3E"],
+      "role": "distribution panelboard, 240 / 480 Vac",
+      "ratings": {
+        "voltage_max_ac_v": 480,
+        "voltage_class": "240 Vac, 480Y/277 Vac, 480 Vac (250 Vdc max)",
+        "mlo_max_a": 600,
+        "main_device_max_a": 600,
+        "branch_range_a": [15, 125],
+        "sub_feed_max_a": 400,
+        "interrupting_ka_fully_rated": {"240": [25, 100], "480Y/277": [18, 65], "480": [18, 65]},
+        "interrupting_ka_series_rated": {"240": [100, 200], "480Y/277": [65, 100], "480": [65, 100]}
+      },
+      "dims_in": {"w": 20.00, "d": 5.75, "h": "VARIABLE", "h_options": [36, 42, 48, 60, 72, 90], "w_optional": 28.00},
+      "options": {"mounting": ["surface", "flush"]},
+      "source": {"url": "https://eatonarabia.com/wp-content/uploads/2022/03/panelboard-and-lighting-control.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 3 (June 2020) - Panelboard Selection Guide V2-T3-11", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_max_ac_v": "fact",
+        "ratings.voltage_class": "fact",
+        "ratings.mlo_max_a": "fact",
+        "ratings.main_device_max_a": "fact",
+        "ratings.branch_range_a": "fact",
+        "ratings.sub_feed_max_a": "fact",
+        "ratings.interrupting_ka_fully_rated": "fact",
+        "ratings.interrupting_ka_series_rated": "fact",
+        "dims_in.w": "fact",
+        "dims_in.d": "fact",
+        "dims_in.h": "fact",
+        "dims_in.h_options": "assumed",
+        "dims_in.w_optional": "fact",
+        "options.mounting": "fact"
+      },
+      "notes": "PRL3E box heights follow the same YS/EZB box family; the PRL3E-specific sizing table was not transcribed, so h_options is 'assumed' (the shared box family), not read from the PRL3E page."
+    },
+    {
+      "model": "PRL4X",
+      "aliases": ["Pow-R-Line Xpert 4X", "PRL4/4B-equivalent", "PRL4B", "PRL4"],
+      "role": "power distribution panelboard, up to 1200 A (successor to 4/4B/F)",
+      "ratings": {
+        "voltage_max_ac_v": 600,
+        "voltage_class": "240 / 480 / 600 Vac (600 Vdc max)",
+        "mlo_max_a": 1200,
+        "main_device_max_a": 1200,
+        "branch_range_a": [15, 1200],
+        "interrupting_ka_fully_rated": {"240": [10, 200], "480": [14, 200], "600": [14, 200]},
+        "interrupting_ka_series_rated": {"240": [22, 200], "480": [22, 150]}
+      },
+      "dims_in": {"w": 36.00, "d": 11.31, "h": "VARIABLE", "h_options": [57.00, 73.50, 90.00], "w_options": [24.00, 36.00, 44.00]},
+      "options": {
+        "mounting": ["surface", "flush"],
+        "boxes": [
+          {"catalog": "BX2457", "x_units": 26, "h": 57.00, "w": 24.00, "d": 11.31},
+          {"catalog": "BX2473", "x_units": 38, "h": 73.50, "w": 24.00, "d": 11.31},
+          {"catalog": "BX2490", "x_units": 50, "h": 90.00, "w": 24.00, "d": 11.31},
+          {"catalog": "BX3673", "x_units": 38, "h": 73.50, "w": 36.00, "d": 11.31},
+          {"catalog": "BX3690", "x_units": 50, "h": 90.00, "w": 36.00, "d": 11.31},
+          {"catalog": "BX4473", "x_units": 38, "h": 73.50, "w": 44.00, "d": 11.31},
+          {"catalog": "BX4490", "x_units": 50, "h": 90.00, "w": 44.00, "d": 11.31}
+        ],
+        "gutters_in": {"top_bottom_min": 10.63, "side_min_by_width": {"24": 5.00, "36": 6.00, "44": 8.00}},
+        "depth_note": "box depth 10.40 in (264.2 mm); cover adds 0.90 in (22.9 mm); catalog depth column 11.31 in"
+      },
+      "source": {"url": "https://eatonarabia.com/wp-content/uploads/2022/03/panelboard-and-lighting-control.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 3 (June 2020) - Panelboard Selection Guide V2-T3-11 and Box Dimensions-PRL4X", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_max_ac_v": "fact",
+        "ratings.voltage_class": "fact",
+        "ratings.mlo_max_a": "fact",
+        "ratings.main_device_max_a": "fact",
+        "ratings.branch_range_a": "fact",
+        "ratings.interrupting_ka_fully_rated": "fact",
+        "ratings.interrupting_ka_series_rated": "fact",
+        "dims_in.w": "fact",
+        "dims_in.d": "fact",
+        "dims_in.h": "fact",
+        "dims_in.h_options": "fact",
+        "dims_in.w_options": "fact",
+        "options.mounting": "fact",
+        "options.boxes": "fact",
+        "options.gutters_in": "fact",
+        "options.depth_note": "fact"
+      },
+      "notes": "dims_in.w = 36.00 is the mid-width default for family generation; the real width follows layout X units (options.boxes)."
+    }
+  ]
+}

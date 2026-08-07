@@ -1,0 +1,18 @@
+{
+ "rung": "D_curtain",
+ "before": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+ "after": "experiments/genesis/subst_k4/deletion/D_curtain.rvt",
+ "assert_edit_free": "PASS",
+ "summary": "[EDIT-FREE] D_curtain vs ZA_deep: removed 234, added 0, common 3,108, SURVIVORS EDITED 0 (vindicated 0)",
+ "report": {
+  "ok": true,
+  "verdict": "EDIT-FREE",
+  "removed": 234,
+  "added": 0,
+  "common": 3108,
+  "survivors_edited": 0,
+  "vindicated": 0,
+  "clause_counts": {},
+  "edits": []
+ }
+}

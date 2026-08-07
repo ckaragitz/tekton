@@ -1,0 +1,123 @@
+{
+ "stream": "instbug-residual: corner the instance residual (the audit rejects famgen's baked FamilySymbol geometry when an instance references it -- kill or confirm)",
+ "prompt": "an electrical room rated for 250V with 6 panels",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "note": "BXns rungs: the demo's own code path (prompt_to_intent -> famgen loader chain place=False -> stage_equipment ConstructedSpecimens + add_family_instance + commit) with ONE change: host symbols authored symbol_solid=False (SerializedDummy -- famload's exact form; embedded documents keep their solid).  SL rungs: the SAME generated family documents loaded by CERTIFIED rvt.famload (L_v2's recipe) + the demo's own placement.  Fresh GUIDs are minted per rebuild -- re-hash after any rerun.",
+ "upload_order_max_information_first": [
+  "BXns_f1i1",
+  "SL_f6i6",
+  "BXns_f6i6",
+  "SL_f1i1"
+ ],
+ "control": {
+  "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "note": "control = byte-identical G_ABPD copy (probe_batch stage --control-from)"
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID (oracle/environment) -- interpret nothing",
+  "BXns_f1i1 PASS": "THE GEOMETRY HYPOTHESIS CONFIRMED: the ONE change vs the FAILED BXfix_f1i1 is the host symbol's baked geometry (GElement + m_geomSteps + m_pGeomTable -> SerializedDummy). The audit rejects famgen's baked symbol geometry when an instance references it.  Fix fork: (a) author the corpus-lawful baked grammar (matched_pair_delta.json + mine's corpus shapes = the spec), or (b) ship symbol_solid=False on the product path (the no-solid product decision; geometry regenerates from the embedded document).",
+  "BXns_f1i1 FAIL": "the geometry hypothesis is DEAD at N=1: even the famload-shaped dummy symbol fails under an instance on G_ABPD via the demo path.  The residual is in the demo placement path itself (stage_equipment template scaffolding) or the famgen host-side registration -- read SL_f6i6 to split those.",
+  "SL_f6i6 PASS": "PATH ATTRIBUTION PROVEN at N=6: the identical base + family documents + instance placement pass when the LOAD is rvt.famload.  With SX_f6i6 FAILED, the defect set is famgen-loader host-side authorship: the ranked matched_pair_delta.json IS the fix spec ('make famgen register/author what famload does').",
+  "SL_f6i6 FAIL": "the famload path ALSO fails once instances reference the symbols => the residual is the INSTANCE side (the ConstructedSpecimens template / stage_equipment shape), not the load side; L_v2's no-instance PASS bounded nothing about placement.  BXns verdicts then attribute within the instance path.",
+  "BXns_f6i6 PASS with BXns_f1i1 PASS": "the no-solid variant holds at the demo's full shape -- the product decision is live: DEMO can re-emit with symbol_solid=False today.",
+  "BXns_f6i6 FAIL with BXns_f1i1 PASS": "N=1 clean, N=6 fails on the no-solid variant: a second, scale-dependent defect beyond the symbol geometry (diff BXns_f1i1 vs BXns_f6i6 accounting).",
+  "SL_f1i1 vs BXns_f1i1": "the same N=1 instance question asked of both paths; any split localizes the residual to what still differs between them (see matched_pair_delta.json pair P3)."
+ },
+ "companion_evidence": {
+  "matched_pair_delta": "experiments/instbug/residual/matched_pair_delta.json",
+  "delta_matrix": "experiments/instbug/residual/delta_matrix.json",
+  "surveys": "experiments/instbug/residual/forensics_surveys.json",
+  "corpus_symbol_shapes": "experiments/instbug/residual/corpus_symbols.json",
+  "accounting": "experiments/instbug/residual/accounting.json"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "BXns_f1i1",
+   "file": "experiments/instbug/residual/BXns_f1i1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "path": "famgen_nosolid",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "ONE famgen family + ONE placed instance on G_ABPD by the demo's own path, with the host symbol authored symbol_solid=False (SerializedDummy rep, no geometry history; embedded document keeps its solid).  The ONE change vs the FAILED BXfix_f1i1 is the baked symbol geometry -- one verdict kills or confirms the geometry hypothesis.",
+   "expected": "PASS if the baked-symbol-geometry hypothesis is right (stage_L8-era precedent: dummy symbol forms have loaded; the instance reference is the new part)",
+   "md5": "c4ee7223e825841d885b284e8fbad6c5",
+   "immediate_parent": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L1_pp1.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   }
+  },
+  {
+   "order": 2,
+   "rung": "SL_f6i6",
+   "file": "experiments/instbug/residual/SL_f6i6.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "path": "famload",
+   "n_families": 6,
+   "n_instances": 6,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "SIX of the demo's own generated family documents loaded into the rst sample by the CERTIFIED rvt.famload path (L_v2's recipe) + SIX instances placed by the demo's own stage_equipment.  The famload cross-check at SX_f6i6's exact shape: PASS here + SX FAIL = path attribution proven at N=6.",
+   "expected": "PASS (famload's host shapes are the certified L1a/L_v2 lineage; instances are the demo's own, D-fixed)",
+   "md5": "3459beef77cdd5174bf5075b501e2508",
+   "immediate_parent": "experiments/instbug/residual/_build/famload_sl_f6i6/SL_load6.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   }
+  },
+  {
+   "order": 3,
+   "rung": "BXns_f6i6",
+   "file": "experiments/instbug/residual/BXns_f6i6.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "path": "famgen_nosolid",
+   "n_families": 6,
+   "n_instances": 6,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the demo shape (6 families + 6 instances) on G_ABPD with no-solid host symbols -- the product-decision rung: can the demo re-emit clean today by regenerating symbols?",
+   "expected": "as BXns_f1i1 at scale",
+   "md5": "ff708a0ffb8afceac7a8e8e4f5781dd1",
+   "immediate_parent": "experiments/instbug/residual/_build/nosolid_gabpd/stage_L6_pp6.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   }
+  },
+  {
+   "order": 4,
+   "rung": "SL_f1i1",
+   "file": "experiments/instbug/residual/SL_f1i1.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "path": "famload",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "ONE family famload-loaded + ONE instance on the rst sample -- the N=1 famload point (pairs with BXns_f1i1 across the path axis).",
+   "expected": "as SL_f6i6 at N=1",
+   "md5": "f326f0dc9e00fbd9806e5b1b2d4f73e7",
+   "immediate_parent": "experiments/instbug/residual/_build/famload_sl_f1i1/SL_load1.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   }
+  }
+ ]
+}

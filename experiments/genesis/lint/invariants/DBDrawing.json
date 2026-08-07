@@ -1,0 +1,2150 @@
+{
+ "class": "DBDrawing",
+ "cohort": "",
+ "n_specimens": 831,
+ "per_file": {
+  "rstbasicsampleproject": 59,
+  "rstadvancedsampleproject": 53,
+  "racbasicsampleproject": 43,
+  "racadvancedsampleproject": 56,
+  "rmebasicsampleproject": 142,
+  "dach-sample-project": 478
+ },
+ "seq103_classes": {
+  "SerializedDummy": 831
+ },
+ "owned_children": {
+  "@Viewport": 830,
+  "@GCSViewport": 9
+ },
+ "rules": [
+  {
+   "path": "m_pParamValueSetDouble.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_pParamValueSetInt.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_pParamValueSetAString.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_pParamValueSetElementId.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_geomSteps.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_pGeomTable.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_constrInfo.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_cellList.#ptr",
+   "rule": "PTR_CLASS_SET",
+   "expect": [
+    null,
+    "CellList"
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_cellList->CellList.m_cells.#len",
+   "rule": "CONST_LEN",
+   "expect": 1,
+   "support": 14,
+   "files": 2,
+   "total": 831,
+   "ftype": "len",
+   "scope": "body",
+   "present": 14
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[].#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 14,
+   "files": 2,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 14
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[].#ptr",
+   "rule": "IDENTICAL",
+   "expect": "PatternHelper",
+   "support": 14,
+   "files": 2,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "body",
+   "present": 14
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->PatternHelper.m_PatternPositionMap.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 14,
+   "files": 2,
+   "total": 831,
+   "ftype": "len",
+   "scope": "body",
+   "present": 14
+  },
+  {
+   "path": "m_cellList->CellList.m_cells[]->PatternHelper.m_substituteFaceMap.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 14,
+   "files": 2,
+   "total": 831,
+   "ftype": "len",
+   "scope": "body",
+   "present": 14
+  },
+  {
+   "path": "m_docAccess.m_pDoc",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_docAccess.m_pDoc",
+   "rule": "IDENTICAL",
+   "expect": "@weakref",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_assocLevelId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_famId",
+   "rule": "ENUM",
+   "expect": [
+    null,
+    "@Family"
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_unplacedOwnerId",
+   "rule": "ENUM",
+   "expect": [
+    null,
+    "@ElementGroupType"
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_ownerDBViewId",
+   "rule": "ENUM",
+   "expect": [
+    null,
+    "@DBViewDrafting"
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_createdPhaseId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_demolishedPhaseId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_designOptionId",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_designOptionId",
+   "rule": "IDENTICAL",
+   "expect": -4,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_locked",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_moribund",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_dummy",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "bool",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_viewports.#len",
+   "rule": "RANGE",
+   "expect": [
+    1,
+    14
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_viewports[]",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 1037,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_viewports[]",
+   "rule": "ENUM",
+   "expect": [
+    "@GCSViewport",
+    "@Viewport"
+   ],
+   "support": 1037,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_pADoc",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "m_pADoc",
+   "rule": "IDENTICAL",
+   "expect": "@weakref",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "weak",
+   "scope": "body",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_regenHistory.m_historyMap.#len",
+   "rule": "LEN_SET",
+   "expect": [
+    0,
+    1
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_categroryId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_familyId",
+   "rule": "ENUM",
+   "expect": [
+    null,
+    "@Family"
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_ownerViewId",
+   "rule": "ENUM",
+   "expect": [
+    null,
+    "@DBViewDrafting"
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_designOptionId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_unplacedOwnerId",
+   "rule": "ENUM",
+   "expect": [
+    null,
+    "@ElementGroupType"
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_miscId",
+   "rule": "ALWAYS_NULL",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_viewRules.m_nVisibleViewFlags",
+   "rule": "IDENTICAL",
+   "expect": -32768,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "int",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_abFlags4Bytes",
+   "rule": "ENUM",
+   "expect": [
+    2074,
+    8202,
+    8218
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "int",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_classDef.m_ref",
+   "rule": "IDENTICAL",
+   "expect": "DBDrawing",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "classref",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_pBBox.#ptr",
+   "rule": "PTR_ABSENT",
+   "expect": "null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents.#ptr",
+   "rule": "PTR_PRESENT",
+   "expect": "non-null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents.#ptr",
+   "rule": "IDENTICAL",
+   "expect": "ElementParents",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "ptr",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deletion.#len",
+   "rule": "RANGE",
+   "expect": [
+    2,
+    15
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deletion[]",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 1950,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deletion[]",
+   "rule": "ENUM",
+   "expect": [
+    "@DBDrawing",
+    "@DBViewDrafting",
+    "@ElementGroupType",
+    "@Family",
+    "@GCSViewport",
+    "@Viewport"
+   ],
+   "support": 1950,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_regenOnly.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_regenWildcards.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_nonDetermRegenChildren.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_dependencyParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_appearanceParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deferredParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_deferredPropagationParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_computedParametersParents.#len",
+   "rule": "CONST_LEN",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_parents->ElementParents.m_hasNonDetermRegenChildren",
+   "rule": "IDENTICAL",
+   "expect": false,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "bool",
+   "scope": "header",
+   "present": 831
+  },
+  {
+   "path": "ETR.has_owner",
+   "rule": "IDENTICAL",
+   "expect": true,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "ETR.owner_class",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "ETR.owned.#len",
+   "rule": "RANGE",
+   "expect": [
+    1,
+    14
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "len",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "ETR.owned[]",
+   "rule": "NEVER_NULL",
+   "expect": "non-null",
+   "support": 1037,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "ETR.owned[]",
+   "rule": "ENUM",
+   "expect": [
+    "@GCSViewport",
+    "@Viewport"
+   ],
+   "support": 1037,
+   "files": 6,
+   "total": 831,
+   "ftype": "eid",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "ETR.created_at_birth",
+   "rule": "ENUM",
+   "expect": [
+    false,
+    true
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "ETR.id_band",
+   "rule": "ENUM",
+   "expect": [
+    "<500k",
+    "<50k",
+    "<5M",
+    "<5k"
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "classref",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "ETR.renumbered",
+   "rule": "ENUM",
+   "expect": [
+    false,
+    true
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "ETR.usermod_never",
+   "rule": "ENUM",
+   "expect": [
+    false,
+    true
+   ],
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "bool",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "ETR.partition_id",
+   "rule": "IDENTICAL",
+   "expect": 0,
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "int",
+   "scope": "elemtable",
+   "present": 831
+  },
+  {
+   "path": "REP.seq103_class",
+   "rule": "IDENTICAL",
+   "expect": "SerializedDummy",
+   "support": 831,
+   "files": 6,
+   "total": 831,
+   "ftype": "classref",
+   "scope": "rep",
+   "present": 831
+  },
+  {
+   "path": "HDR.m_regenHistory.m_historyMap[].first.m_otherInt64",
+   "rule": "IDENTICAL",
+   "expect": -1,
+   "support": 367,
+   "files": 1,
+   "total": 831,
+   "ftype": "int",
+   "scope": "header",
+   "present": 367
+  },
+  {
+   "path": "HDR.m_regenHistory.m_historyMap[].first.m_nAtomType",
+   "rule": "IDENTICAL",
+   "expect": 1,
+   "support": 367,
+   "files": 1,
+   "total": 831,
+   "ftype": "int",
+   "scope": "header",
+   "present": 367
+  },
+  {
+   "path": "HDR.m_regenHistory.m_historyMap[].second.m_id",
+   "rule": "IDENTICAL",
+   "expect": 2352,
+   "support": 367,
+   "files": 1,
+   "total": 831,
+   "ftype": "int",
+   "scope": "header",
+   "present": 367
+  }
+ ],
+ "paths": {
+  "ETR.created_at_birth": {
+   "ftype": "bool",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "true": 11,
+    "false": 820
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "ETR.has_owner": {
+   "ftype": "bool",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "true": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "ETR.id_band": {
+   "ftype": "classref",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "\"<5k\"": 17,
+    "\"<50k\"": 16,
+    "\"<500k\"": 140,
+    "\"<5M\"": 658
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "ETR.owned.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "1": 781,
+    "5": 8,
+    "3": 7,
+    "4": 7,
+    "2": 11,
+    "7": 3,
+    "6": 5,
+    "14": 1,
+    "9": 2,
+    "8": 2,
+    "13": 2,
+    "10": 2
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 14,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "ETR.owned[]": {
+   "ftype": "eid",
+   "n_seen": 1037,
+   "n_null": 0,
+   "values": {
+    "\"@Viewport\"": 1028,
+    "\"@GCSViewport\"": 9
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "ETR.owner_class": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "\"@DBViewProject\"": 6,
+    "\"@DBViewSection\"": 185,
+    "\"@RbsDbViewSystemNavigator\"": 6,
+    "\"@DBViewPlan\"": 229,
+    "\"@DBView3d\"": 135,
+    "\"@DBViewGraphSchedColumn\"": 2,
+    "\"@DBViewSchedule\"": 128,
+    "\"@DBViewAnonDrafting\"": 13,
+    "\"@DBViewRendering\"": 35,
+    "\"@DBViewDrafting\"": 55,
+    "\"@DBViewLegend\"": 12,
+    "\"@DBViewHVACLoadsReport\"": 1
+   },
+   "overflow": true,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "ETR.partition_id": {
+   "ftype": "int",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "ETR.renumbered": {
+   "ftype": "bool",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "false": 818,
+    "true": 13
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "ETR.usermod_never": {
+   "ftype": "bool",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "false": 830,
+    "true": 1
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_abFlags4Bytes": {
+   "ftype": "int",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "2074": 14,
+    "8202": 652,
+    "8218": 165
+   },
+   "overflow": false,
+   "num_min": 2074,
+   "num_max": 8218,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_categroryId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_classDef.m_ref": {
+   "ftype": "classref",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "\"DBDrawing\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_designOptionId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_familyId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 830,
+   "values": {
+    "\"NULL\"": 830,
+    "\"@Family\"": 1
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_miscId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_ownerViewId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 790,
+   "values": {
+    "\"NULL\"": 790,
+    "\"@DBViewDrafting\"": 41
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_pBBox.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_appearanceParents.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_computedParametersParents.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_deferredParents.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_deferredPropagationParents.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_deletion.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "2": 699,
+    "6": 8,
+    "4": 7,
+    "5": 7,
+    "3": 93,
+    "8": 3,
+    "7": 5,
+    "15": 1,
+    "10": 2,
+    "9": 2,
+    "14": 2,
+    "11": 2
+   },
+   "overflow": false,
+   "num_min": 2,
+   "num_max": 15,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_deletion[]": {
+   "ftype": "eid",
+   "n_seen": 1950,
+   "n_null": 0,
+   "values": {
+    "\"@Viewport\"": 1028,
+    "\"@DBDrawing\"": 831,
+    "\"@GCSViewport\"": 9,
+    "\"@DBViewDrafting\"": 41,
+    "\"@Family\"": 1,
+    "\"@ElementGroupType\"": 40
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_dependencyParents.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_hasNonDetermRegenChildren": {
+   "ftype": "bool",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "false": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_nonDetermRegenChildren.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_regenOnly.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents->ElementParents.m_regenWildcards.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_parents.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "\"ElementParents\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_regenHistory.m_historyMap.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 464,
+    "1": 367
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 1,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_regenHistory.m_historyMap[].first.m_nAtomType": {
+   "ftype": "int",
+   "n_seen": 367,
+   "n_null": 0,
+   "values": {
+    "1": 367
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 367
+  },
+  "HDR.m_regenHistory.m_historyMap[].first.m_otherElementId": {
+   "ftype": "eid",
+   "n_seen": 367,
+   "n_null": 367,
+   "values": {
+    "\"NULL\"": 367
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 367
+  },
+  "HDR.m_regenHistory.m_historyMap[].first.m_otherInt64": {
+   "ftype": "int",
+   "n_seen": 367,
+   "n_null": 0,
+   "values": {
+    "-1": 367
+   },
+   "overflow": false,
+   "num_min": -1,
+   "num_max": -1,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 367
+  },
+  "HDR.m_regenHistory.m_historyMap[].second.m_id": {
+   "ftype": "int",
+   "n_seen": 367,
+   "n_null": 0,
+   "values": {
+    "2352": 367
+   },
+   "overflow": false,
+   "num_min": 2352,
+   "num_max": 2352,
+   "files": [
+    "dach-sample-project"
+   ],
+   "present": 367
+  },
+  "HDR.m_unplacedOwnerId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 791,
+   "values": {
+    "\"NULL\"": 791,
+    "\"@ElementGroupType\"": 40
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "HDR.m_viewRules.m_nVisibleViewFlags": {
+   "ftype": "int",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "-32768": 831
+   },
+   "overflow": false,
+   "num_min": -32768,
+   "num_max": -32768,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "REP.seq103_class": {
+   "ftype": "classref",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "\"SerializedDummy\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_assocLevelId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_cellList->CellList.m_cells.#len": {
+   "ftype": "len",
+   "n_seen": 14,
+   "n_null": 0,
+   "values": {
+    "1": 14
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 1,
+   "files": [
+    "racbasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 14
+  },
+  "m_cellList->CellList.m_cells[]->PatternHelper.m_PatternPositionMap.#len": {
+   "ftype": "len",
+   "n_seen": 14,
+   "n_null": 0,
+   "values": {
+    "0": 14
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 14
+  },
+  "m_cellList->CellList.m_cells[]->PatternHelper.m_substituteFaceMap.#len": {
+   "ftype": "len",
+   "n_seen": 14,
+   "n_null": 0,
+   "values": {
+    "0": 14
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "racbasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 14
+  },
+  "m_cellList->CellList.m_cells[].#ptr": {
+   "ftype": "ptr",
+   "n_seen": 14,
+   "n_null": 0,
+   "values": {
+    "\"PatternHelper\"": 14
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "racbasicsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 14
+  },
+  "m_cellList.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 831,
+   "n_null": 817,
+   "values": {
+    "\"CellList\"": 14,
+    "\"NULL\"": 817
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_constrInfo.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "0": 831
+   },
+   "overflow": false,
+   "num_min": 0,
+   "num_max": 0,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_createdPhaseId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_demolishedPhaseId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_designOptionId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "-4": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_docAccess.m_pDoc": {
+   "ftype": "weak",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "\"@weakref\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_dummy": {
+   "ftype": "bool",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "false": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_famId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 830,
+   "values": {
+    "\"NULL\"": 830,
+    "\"@Family\"": 1
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_geomSteps.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_locked": {
+   "ftype": "bool",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "false": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_moribund": {
+   "ftype": "bool",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "false": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_ownerDBViewId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 790,
+   "values": {
+    "\"NULL\"": 790,
+    "\"@DBViewDrafting\"": 41
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_pADoc": {
+   "ftype": "weak",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "\"@weakref\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_pGeomTable.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_pParamValueSetAString.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_pParamValueSetDouble.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_pParamValueSetElementId.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_pParamValueSetInt.#ptr": {
+   "ftype": "ptr",
+   "n_seen": 831,
+   "n_null": 831,
+   "values": {
+    "\"NULL\"": 831
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_unplacedOwnerId": {
+   "ftype": "eid",
+   "n_seen": 831,
+   "n_null": 791,
+   "values": {
+    "\"NULL\"": 791,
+    "\"@ElementGroupType\"": 40
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_viewports.#len": {
+   "ftype": "len",
+   "n_seen": 831,
+   "n_null": 0,
+   "values": {
+    "1": 781,
+    "5": 8,
+    "3": 7,
+    "4": 7,
+    "2": 11,
+    "7": 3,
+    "6": 5,
+    "14": 1,
+    "9": 2,
+    "8": 2,
+    "13": 2,
+    "10": 2
+   },
+   "overflow": false,
+   "num_min": 1,
+   "num_max": 14,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  },
+  "m_viewports[]": {
+   "ftype": "eid",
+   "n_seen": 1037,
+   "n_null": 0,
+   "values": {
+    "\"@Viewport\"": 1028,
+    "\"@GCSViewport\"": 9
+   },
+   "overflow": false,
+   "num_min": null,
+   "num_max": null,
+   "files": [
+    "dach-sample-project",
+    "racadvancedsampleproject",
+    "racbasicsampleproject",
+    "rmebasicsampleproject",
+    "rstadvancedsampleproject",
+    "rstbasicsampleproject"
+   ],
+   "present": 831
+  }
+ },
+ "notes": []
+}

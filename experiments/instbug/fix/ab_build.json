@@ -1,0 +1,45 @@
+{
+ "A": {
+  "out": "/Users/ck/dev/things/tekton/experiments/instbug/fix/AB_A_wallsfirst.rvt",
+  "ok": true,
+  "stop": "",
+  "plan": {
+   "guid": "75930822-0a5a-4c34-bb00-d9f1eb6f70e2",
+   "host_family_id": 1472557,
+   "surrogate_id": 1472561,
+   "symbol_id": 1472562,
+   "symbol_surrogate_id": 1472563,
+   "instance_id": -1
+  },
+  "twins": {
+   "1472547": 1472558,
+   "1472548": 1472559,
+   "1472549": 1472560
+  }
+ },
+ "B": {
+  "out": "/Users/ck/dev/things/tekton/experiments/instbug/fix/AB_B_loadfirst.rvt",
+  "load_ok": true,
+  "plan": {
+   "guid": "feb9c9fe-dd61-48a7-920e-19955330f747",
+   "host_family_id": 1472553,
+   "surrogate_id": 1472557,
+   "symbol_id": 1472558,
+   "symbol_surrogate_id": 1472559,
+   "instance_id": -1
+  },
+  "twins": {
+   "1472543": 1472554,
+   "1472544": 1472555,
+   "1472545": 1472556
+  },
+  "walls_ok": true,
+  "wall_ids": [
+   1472560,
+   1472561,
+   1472562,
+   1472563
+  ],
+  "walls_error": null
+ }
+}

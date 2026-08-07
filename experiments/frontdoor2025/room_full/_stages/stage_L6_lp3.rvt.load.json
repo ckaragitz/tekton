@@ -1,0 +1,753 @@
+{
+ "ok": true,
+ "out_path": "experiments/frontdoor2025/room_full/_stages/stage_L6_lp3.rvt",
+ "plan": {
+  "guid": "fe65c7c3-debf-4842-b8a8-40d45eb7d8db",
+  "fam_doc_guid": "a28ba4ea-6808-4242-807a-c2d60bbcfbef",
+  "session_guid_hex": "3f42ab2556a74a7e9c46bcfd4496c288",
+  "family_name": "Lighting Panelboard LP-3 480Y/277 100A MLO 42sp",
+  "type_name": "100A MLO 42ckt",
+  "host_family_id": 1472789,
+  "surrogate_id": 1472804,
+  "symbol_id": 1472805,
+  "symbol_surrogate_id": 1472806,
+  "instance_id": -1,
+  "twin_of": {
+   "1472766": 1472790,
+   "1472767": 1472791,
+   "1472768": 1472792,
+   "1472769": 1472793,
+   "1472770": 1472794,
+   "1472771": 1472795,
+   "1472772": 1472796,
+   "1472773": 1472797,
+   "1472774": 1472798,
+   "1472775": 1472799,
+   "1472776": 1472800,
+   "1472777": 1472801,
+   "1472778": 1472802,
+   "1472779": 1472803
+  },
+  "abs_index": {
+   "1472749": 0,
+   "1472750": 1,
+   "1472753": 2,
+   "1472754": 3,
+   "1472755": 4,
+   "1472752": 5,
+   "1472756": 6,
+   "1472758": 7,
+   "1472759": 8,
+   "1472760": 9,
+   "1472761": 10,
+   "1472762": 11,
+   "1472763": 12,
+   "1472757": 13,
+   "1472751": 14,
+   "1472764": 15,
+   "1472765": 16,
+   "1472766": 17,
+   "1472767": 18,
+   "1472768": 19,
+   "1472769": 20,
+   "1472770": 21,
+   "1472771": 22,
+   "1472772": 23,
+   "1472773": 24,
+   "1472774": 25,
+   "1472775": 26,
+   "1472776": 27,
+   "1472777": 28,
+   "1472778": 29,
+   "1472779": 30,
+   "1472780": 31,
+   "1472781": 32,
+   "1472782": 33,
+   "1472783": 34,
+   "1472784": 35,
+   "1472785": 36,
+   "1472786": 37,
+   "1472787": 38,
+   "1472788": 39
+  },
+  "core_ids": [
+   124,
+   113944
+  ],
+  "load_class_host": 113944,
+  "load_class_name": "Power",
+  "episode": 1014,
+  "notes": []
+ },
+ "proofs": {
+  "plan": {
+   "content_guid": "fe65c7c3-debf-4842-b8a8-40d45eb7d8db",
+   "fam_doc_guid": "a28ba4ea-6808-4242-807a-c2d60bbcfbef",
+   "host_watermark": 1472747,
+   "our_doc_ids": [
+    1472748,
+    1472788
+   ],
+   "host_ids": {
+    "family": 1472789,
+    "surrogate": 1472804,
+    "symbol": 1472805,
+    "symbol_surrogate": 1472806,
+    "instance": -1,
+    "twins": 14
+   },
+   "resolved": {
+    "category_gstyle": 124,
+    "load_classification": {
+     "name": "Power",
+     "host_id": 113944
+    },
+    "core_ids": [
+     124,
+     113944
+    ],
+    "template_instance": -1,
+    "template_host": -1
+   },
+   "notes": [
+    "no host FamilyInstance of category -2001040: placement scaffolding unavailable (family loads unplaced)"
+   ]
+  },
+  "roundtrip_gate": {
+   "records": 54,
+   "roundtrip_ok": 54,
+   "failed": 0,
+   "encoded_bytes": 20415,
+   "failures": []
+  },
+  "embedded_adocument": {
+   "decodes_clean": true,
+   "roundtrip_equal": true,
+   "bytes": 3041,
+   "elem_recs": 41,
+   "appinfo_slots_null": 239,
+   "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+  },
+  "save_unit": {
+   "guid": "fe65c7c3-debf-4842-b8a8-40d45eb7d8db",
+   "records": 41,
+   "bytes": 7412,
+   "segments": {
+    "101": 6895,
+    "102": 29845,
+    "103": 5380
+   }
+  },
+  "adocument_registrations": {
+   "content_table_records": 6,
+   "family_mgr_entries": 15,
+   "element_tracking": {
+    "m_symbols": 6
+   }
+  },
+  "adocument_reencode": {
+   "clean": true,
+   "bytes_before": 1363910,
+   "bytes_after": 1364022
+  },
+  "content_documents": {
+   "entries_before": 5,
+   "entries_after": 6,
+   "ours_present": true,
+   "end_record_intact": true,
+   "delta_bytes": 3077
+  },
+  "symbol_geometry": {
+   "faces": 6,
+   "edges": 12,
+   "nodes": 2,
+   "geom_table": 21
+  },
+  "pass1_commit": {
+   "new_element_ids": [
+    1472789,
+    1472790,
+    1472791,
+    1472792,
+    1472793,
+    1472794,
+    1472795,
+    1472796,
+    1472797,
+    1472798,
+    1472799,
+    1472800,
+    1472801,
+    1472802,
+    1472803,
+    1472804,
+    1472805,
+    1472806
+   ],
+   "elemtable_count_before": 3408,
+   "elemtable_count_after": 3426,
+   "watermark_after": 1472806,
+   "per_seq_bytes_added": {
+    "101": 3056,
+    "102": 14986,
+    "103": 3489
+   }
+  },
+  "pass2_partition_splice": {
+   "units_before": 6,
+   "units_after": 7,
+   "walker_errors": [],
+   "our_unit_guid": "fe65c7c3-debf-4842-b8a8-40d45eb7d8db",
+   "our_unit_records": {
+    "101": 42,
+    "102": 42,
+    "103": 42
+   },
+   "id_sets_identical": true
+  },
+  "verify_written": {
+   "path": "experiments/frontdoor2025/room_full/_stages/stage_L6_lp3.rvt",
+   "container": {
+    "crc_failures": 0,
+    "ecc_mismatches_heuristic": 0,
+    "walker_errors": 0,
+    "new_ids_found": {
+     "101": {
+      "1472789": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472790": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472791": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472792": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472793": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472794": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472795": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472796": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472797": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472798": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472799": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472800": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472801": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472802": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472803": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472804": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472805": {
+       "class": 1479,
+       "clean": true
+      },
+      "1472806": {
+       "class": 1479,
+       "clean": true
+      }
+     },
+     "102": {
+      "1472789": {
+       "class": 1929,
+       "clean": true
+      },
+      "1472790": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472791": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472792": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472793": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472794": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472795": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472796": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472797": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472798": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472799": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472800": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472801": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472802": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472803": {
+       "class": 3091,
+       "clean": true
+      },
+      "1472804": {
+       "class": 1981,
+       "clean": true
+      },
+      "1472805": {
+       "class": 1984,
+       "clean": true
+      },
+      "1472806": {
+       "class": 1926,
+       "clean": true
+      }
+     },
+     "103": {
+      "1472789": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472790": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472791": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472792": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472793": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472794": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472795": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472796": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472797": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472798": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472799": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472800": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472801": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472802": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472803": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472804": {
+       "class": 3805,
+       "clean": true
+      },
+      "1472805": {
+       "class": 2166,
+       "clean": true
+      },
+      "1472806": {
+       "class": 3805,
+       "clean": true
+      }
+     }
+    }
+   },
+   "structure_layer": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "pages_checked": 16,
+    "errors": []
+   },
+   "partition": {
+    "units": 7,
+    "walker_errors": [],
+    "our_unit_index": 6
+   },
+   "elemtable": {
+    "records": 3426,
+    "watermark": 1472806,
+    "our_host_ids_present": true
+   },
+   "adocument": {
+    "clean": true,
+    "content_table_record": true,
+    "family_mgr_entry": true,
+    "symbol_tracked": true
+   },
+   "family_documents": {
+    "total_host_families": 14,
+    "ours": [
+     {
+      "family_id": 1472789,
+      "family_name": "Lighting Panelboard LP-3 480Y/277 100A MLO 42sp",
+      "category": -2001040,
+      "unit": 6,
+      "n_records": 41,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1472805,
+        "name": "100A MLO 42ckt"
+       }
+      ],
+      "big2small_count": 14,
+      "n_connectors": 1,
+      "n_family_params": 14
+     }
+    ],
+    "ok": true
+   },
+   "provenance_ours": {
+    "our_unit": {
+     "unit": 6,
+     "elements": 41,
+     "n_distinct_strings": 162
+    },
+    "host_elements": {
+     "count": 18,
+     "n_distinct_strings": 70
+    },
+    "suspects": {
+     "our_unit": [],
+     "host_elements": []
+    },
+    "forge_vocabulary_ids": [
+     "autodesk.parameter.group:dimensions-1.0.0",
+     "autodesk.parameter.group:electrical-1.0.0",
+     "autodesk.parameter.group:identityData-1.0.0",
+     "autodesk.spec.aec.electrical:apparentPower-1.0.0",
+     "autodesk.spec.aec.electrical:current-1.0.0",
+     "autodesk.spec.aec.electrical:current-2.0.0",
+     "autodesk.spec.aec.electrical:potential-1.0.0",
+     "autodesk.spec.aec.electrical:potential-2.0.0",
+     "autodesk.spec.aec:angle-2.0.0",
+     "autodesk.spec.aec:area-2.0.0",
+     "autodesk.spec.aec:length-1.0.0",
+     "autodesk.spec.aec:length-2.0.0",
+     "autodesk.spec.aec:number-1.0.1",
+     "autodesk.spec.aec:number-2.0.0",
+     "autodesk.spec.aec:volume-2.0.0",
+     "autodesk.spec:spec.int64-1.0.0",
+     "autodesk.spec:spec.string-1.0.0",
+     "autodesk.unit.symbol:ampere-1.0.1",
+     "autodesk.unit.symbol:cf-1.0.1",
+     "autodesk.unit.symbol:degreeSymbol-1.0.1",
+     "autodesk.unit.symbol:sf-1.0.1",
+     "autodesk.unit.symbol:vA-1.0.1",
+     "autodesk.unit.symbol:volt-1.0.1",
+     "autodesk.unit.unit:amperes-1.0.1",
+     "autodesk.unit.unit:cubicFeet-1.0.1",
+     "autodesk.unit.unit:degrees-1.0.1",
+     "autodesk.unit.unit:feetFractionalInches-1.0.0",
+     "autodesk.unit.unit:general-1.0.1",
+     "autodesk.unit.unit:squareFeet-1.0.1",
+     "autodesk.unit.unit:voltAmperes-1.0.1",
+     "autodesk.unit.unit:volts-1.0.1",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c28800167916-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c28800167917-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c28800167918-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c28800167919-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c2880016791a-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c2880016791b-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c2880016791c-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c2880016791d-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c2880016791e-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c2880016791f-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c28800167920-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c28800167921-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c28800167922-1.0.0",
+     "revit.local.family:3f42ab2556a74a7e9c46bcfd4496c28800167923-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f2001678fe-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f2001678ff-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167900-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167901-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167902-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167903-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167904-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167905-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167906-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167907-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167908-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f200167909-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f20016790a-1.0.0",
+     "revit.local.family:ab97555459254d3792f724cd6e8f24f20016790b-1.0.0"
+    ],
+    "sample_strings": [
+     " ",
+     "%1!s! Connected Apparent Power",
+     "%1!s! Connected Current",
+     "%1!s! Demand Apparent Power",
+     "%1!s! Demand Factor",
+     "%1!s! Estimated Demand Current",
+     "00000000-0000-0000-0000-000000000000",
+     "100%",
+     "100A MLO 42ckt",
+     "480Y/277 V, 3-phase 4-wire, 100 A main-lugs-only panelboard, 42 circuits, surface mounted (box 20 W x 48 H x 5.75 D in; generated from catalog facts)",
+     "<In-session, Still>",
+     "???",
+     "APropertyDouble1",
+     "APropertyFloat",
+     "APropertyInteger",
+     "Actual %1!s! Load",
+     "AdHocOverrides",
+     "AnnotationCropOffsets",
+     "BaseFamilySymbolGStep",
+     "BusRating",
+     "CellList",
+     "Center (Front/Back)",
+     "Center (Left/Right)",
+     "ColorFillSchemaSetting",
+     "ConnectorDataCell",
+     "ConnectorElemDomainElectrical",
+     "ConnectorElemGStep",
+     "CurveElemData",
+     "CurveElemDriver",
+     "CurveElemGStep"
+    ],
+    "ok": true
+   },
+   "ok": true
+  }
+ },
+ "acceptance": [
+  "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+  "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+  "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+  "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+  "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+  "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+ ],
+ "elements": [
+  {
+   "elem_id": 1472789,
+   "class": "Family",
+   "kind": "host_family",
+   "owner_id": -1,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472790,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472791,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472792,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472793,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472794,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472795,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472796,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472797,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472798,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472799,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472800,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472801,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472802,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472803,
+   "class": "ParamElemFamily",
+   "kind": "param_twin",
+   "owner_id": 1472789,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472804,
+   "class": "FamilySurrogate",
+   "kind": "family_surrogate",
+   "owner_id": -1,
+   "rep": "SerializedDummy",
+   "notes": []
+  },
+  {
+   "elem_id": 1472805,
+   "class": "FamilySymbol",
+   "kind": "family_symbol",
+   "owner_id": -1,
+   "rep": "GElement",
+   "notes": []
+  },
+  {
+   "elem_id": 1472806,
+   "class": "FamSymSurrogate",
+   "kind": "famsym_surrogate",
+   "owner_id": -1,
+   "rep": "SerializedDummy",
+   "notes": []
+  }
+ ],
+ "report_path": null,
+ "stop_reason": ""
+}

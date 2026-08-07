@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "vendor": "lithonia",
+  "line": "ldn6-led-downlight",
+  "product_line": "Lithonia Lighting (Acuity Brands) LDN6 6-inch round open / wallwash LED recessed downlight (non-IC new construction), with 'Chicago Plenum' (CP) option",
+  "category": "luminaire",
+  "revit_category": "OST_LightingFixtures",
+  "purpose": "Closest published archetype for the user's flagship 'Chicago plenum recessed light': a commercial 6 in recessed LED downlight orderable with a Chicago-Plenum-rated housing. OUR family models the archetype's ENVELOPE (aperture, housing box, plenum flag) from these facts - geometry and parameters are ours.",
+  "license_note": "Rating / option FACTS only (search-summary level, see field flags). NO Acuity .rfa, IES files, cut sheets, images or prose stored. Photometry referenced by manufacturer URL only. See ../LICENSE_NOTES.md.",
+  "collection_posture": {
+    "summary": "Same posture as the BLT record: acuitybrands.com is NOT fetched (ToU collection restrictions, content-strategy row 10 / section 5.2); distributor pages carrying full LDN6 CP specs returned HTTP 403 to automated fetch (graybar.com, 2026-08-03). Every value below therefore comes from search-engine summaries of distributor / manufacturer listings and is flagged 'assumed' at the field level. This record intentionally demonstrates the store's honesty rule: no dimension is a 'fact' until a document is actually read.",
+    "primary_reachable": true,
+    "primary_deliberately_not_fetched": true,
+    "method": "search summaries only; no page read directly"
+  },
+  "sources": {
+    "S1": {
+      "url": "https://www.acuitybrands.com/products/detail/564909/lithonia-lighting/ldn6-round-series/ldn6-round---6-open-and-wallwash",
+      "doc": "Acuity Brands - LDN6 Round Series 6 in open and wallwash product page (spec sheet + IES downloads)",
+      "publisher": "Acuity Brands / Lithonia Lighting",
+      "doc_date": null,
+      "accessed": null,
+      "verification": "UNVERIFIED",
+      "note": "PRIMARY - deliberately NOT fetched. Photometric IES files REFERENCED here by URL only."
+    },
+    "S2": {
+      "url": "https://www.graybar.com/ldn6-series-open-and-wallwash-led-downlight-3500k-1500-lm-0-to-10v-dimming-chicago-plenum-non-ic-6-in-l/p/26398063",
+      "doc": "Graybar listing - Lithonia LDN6 35/15 MVOLT GZ10 CP HSG (Chicago Plenum, non-IC), title/summary via search engine",
+      "publisher": "Graybar (distributor)",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "SEARCH-SUMMARY",
+      "note": "Page returned 403 to automated fetch; only the search-engine title/snippet was seen: '3500K, 1500 lm, 0 to 10 V dimming, Chicago Plenum, Non-IC, 6 in'."
+    },
+    "S3": {
+      "url": "https://www.platt.com/p/2026479/lithonia-lighting/led-downlight-6-selectable-cct-and-lumen-120-277v/194994869917/litldn6alo2sww1mvo",
+      "doc": "Platt Electric listing - LDN6 6 in LED downlight, selectable CCT and lumen, 120-277 V (search summary)",
+      "publisher": "Platt Electric Supply (distributor)",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "SEARCH-SUMMARY",
+      "note": "Corroborates 120-277 V input."
+    }
+  },
+  "line_facts": {
+    "aperture_nominal_in": {"value": 6, "provenance": "assumed", "source": "S1", "note": "'6 in open and wallwash' in the product name (search summary)."},
+    "lumen_packages": {"value": [500, 1000, 1500, 2000, 2500, 3000, 4000, 5000], "unit": "lm", "provenance": "assumed", "source": "S1", "note": "search summary of the LDN6 range (nomenclature LDN6 35/15 = 3500 K / 1500 lm)."},
+    "cct_options_k": {"value": [2700, 3000, 3500, 4000, 5000], "provenance": "assumed", "source": "S1", "note": "search summary; 3500 K confirmed by the S2 catalog string '35/15'."},
+    "voltage_input_v": {"value": [120, 277], "provenance": "assumed", "source": "S3", "note": "MVOLT = 120-277 V (a 347 V option also exists per summary)."},
+    "dimming": {"value": "0-10 V (GZ10) dims to 10 % (EZ10 driver dims to 1 % per summary)", "provenance": "assumed", "source": "S2", "note": ""},
+    "chicago_plenum_option": {"value": "CP = Chicago Plenum housing option (airtight construction for use in plenum ceilings under Chicago code)", "provenance": "assumed", "source": "S2", "note": "The 'CP' option code and 'Chicago Plenum' description appear in the distributor catalog string; the exact listing standard is not read."},
+    "ic_rating": {"value": "non-IC (new construction)", "provenance": "assumed", "source": "S1", "note": "'Non-IC New Construction Downlight' in the product naming."},
+    "housing_dims_in": {"value": {"w": null, "h": null, "d": null}, "provenance": "assumed", "source": null, "note": "NOT SOURCED - housing length/width/height and ceiling cutout are on the spec sheet (S1) which was not read. Left null on purpose; the generated family uses OUR OWN parametric housing envelope until sourced."},
+    "photometry_reference": {"value": "IES LM-63 files at S1 (manufacturer downloads) - referenced by URL, never redistributed", "provenance": "fact", "source": "S1", "note": "Policy fact (docs/product/content-strategy.md Pipeline 3), not a product fact."},
+    "weights": {"value": null, "provenance": "assumed", "source": null, "note": "NOT SOURCED."}
+  },
+  "variants": [
+    {
+      "model": "LDN6-35/15-CP",
+      "aliases": ["LDN6 35/15 MVOLT GZ10 CP HSG", "LDN6 Chicago Plenum 3500K 1500lm"],
+      "role": "6 in round open LED downlight, 3500 K, 1500 lm, 0-10 V dimming, Chicago-Plenum housing, non-IC",
+      "ratings": {"lumens": 1500, "cct_k": 3500, "voltage_v": [120, 277], "dimming": "0-10 V", "aperture_in": 6},
+      "dims_in": {"w": null, "h": null, "d": null},
+      "options": {"housing": "CP - Chicago Plenum", "ic_rating": "non-IC", "aperture_style": "open reflector / wallwash"},
+      "source": {"url": "https://www.graybar.com/ldn6-series-open-and-wallwash-led-downlight-3500k-1500-lm-0-to-10v-dimming-chicago-plenum-non-ic-6-in-l/p/26398063", "doc": "Graybar catalog string via search summary (page not readable)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.lumens": "assumed",
+        "ratings.cct_k": "assumed",
+        "ratings.voltage_v": "assumed",
+        "ratings.dimming": "assumed",
+        "ratings.aperture_in": "assumed",
+        "dims_in.w": "assumed",
+        "dims_in.h": "assumed",
+        "dims_in.d": "assumed",
+        "options.housing": "assumed",
+        "options.ic_rating": "assumed",
+        "options.aperture_style": "assumed"
+      },
+      "notes": "Every field is 'assumed' (search-summary provenance); housing dims null. This variant exists so the generator can be exercised on the flagship archetype while the record is honestly marked as unsourced."
+    }
+  ]
+}

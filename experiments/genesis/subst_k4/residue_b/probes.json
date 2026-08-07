@@ -1,0 +1,1245 @@
+{
+ "stream": "genesis-residue-B (RESIDUE CONSTRUCTORS, GROUP B: the residue classes M..Z + the endgame)",
+ "situation": "Y9 (certified, VERDICTS #17) leaves 2,009 residue elements in 11 buckets; Group B owns the 29 classes sorting M..Z (997 elements). Each ZB rung substitutes one bucket's residue slots IN PLACE with OUR constructors' objects; ZB_deep = Y9 + every ZB rung.",
+ "the_operation": "In-place substitution (rvt.regadd.substitute_elements): our object record (seq-102) replaces the sample's at the SAME id / ElemTable row / record position / registry slots; Global/Latest + Global/ElemTable BYTE-IDENTICAL to the parent; nothing added or deleted; the Y-ladder's landed slots are protected.",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  },
+  "lineage": "Y9 = the deepest CERTIFIED in-place rung on K4 (VERDICTS #17: Y1, Y_cat, Y9 ALL PASS); K4 = the certified family-free base"
+ },
+ "standing_control": {
+  "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+  "md5": "aa5952bceeb5830790f289af0d7cee27",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "controls_discipline": "EVERY batch is uploaded with the certified control (a byte-identical copy of Y9). If the CONTROL fails, the batch is VOID and nothing about our constructors is read from it. Only with the control PASSING are the probe verdicts read.",
+ "upload_order_bisection_first": [
+  "ZB_deep",
+  "Z_defs",
+  "Z_mepcat",
+  "Z_pens",
+  "Z_annot",
+  "Z_palette",
+  "Z_filters",
+  "Z_machinery",
+  "Z_content",
+  "ZB1_defs",
+  "ZB2_mepcat",
+  "ZB3_pens",
+  "ZB4_annot",
+  "ZB5_palette",
+  "ZB6_filters",
+  "ZB7_machinery",
+  "ZB8_content"
+ ],
+ "reading_the_results": {
+  "how": "ZB_deep FIRST: a PASS proves every Group-B constructor loads at Autodesk's registrations in ONE verdict. ZB_deep FAIL -> read the singles Z_defs, Z_mepcat, Z_pens, Z_annot, Z_palette, Z_filters, Z_machinery, Z_content: each is Y9 + ONE bucket, so the first FAIL (control passing) convicts exactly that bucket's constructors; the chain rungs ZB1..ZB8 bracket a combination.",
+  "Z_machinery FAIL": "cannot be our content (the reproduced machinery slots are byte-identical) -> read the print / worksharing / drafting-companion sub-groups (the report lists which slots CHANGED).",
+  "ALL PASS": "Group B's residue is retired as an engineering question: what remains is the endgame (docs/writer/genesis-endgame.md): the thermal-asset gap, the external-link deletion, and the choice deletion-vs-ours for sample content."
+ },
+ "verdicts_local_self_checks": {
+  "ZB1_defs": "VALID",
+  "ZB2_mepcat": "VALID",
+  "ZB3_pens": "VALID",
+  "ZB4_annot": "VALID",
+  "ZB5_palette": "VALID",
+  "ZB6_filters": "VALID",
+  "ZB7_machinery": "VALID",
+  "ZB8_content": "VALID",
+  "ZB_deep": "VALID",
+  "Z_defs": "VALID",
+  "Z_mepcat": "VALID",
+  "Z_pens": "VALID",
+  "Z_annot": "VALID",
+  "Z_palette": "VALID",
+  "Z_filters": "VALID",
+  "Z_machinery": "VALID",
+  "Z_content": "VALID"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "ZB_deep",
+   "file": "experiments/genesis/subst_k4/residue_b/ZB_deep.rvt",
+   "class_layer_substituted": "the cumulative Group-B residue ladder",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "EVERY Group-B residue constructor at once (the deepest ZB file)",
+   "if_PASS": "every Group-B constructor loads at Autodesk's registrations; what remains of Group B = the documented gaps (thermal assets) + the endgame's deletion set (external link, sample content by choice)",
+   "if_FAIL": "read the single-change probes Z_<bucket> in order: the first FAIL whose parent PASSED convicts exactly that bucket",
+   "elements_substituted_in_place": {
+    "landed": null,
+    "by_class": null,
+    "by_match": null
+   },
+   "ours_not_landed": null,
+   "byte_delta": null,
+   "registry_parity": null,
+   "validator": {
+    "ok": null,
+    "errors": null,
+    "warnings": null
+   },
+   "structural_ok": null,
+   "document_coherence": null,
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": null,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/ZB_deep.json",
+   "note": "ZB_deep.rvt is a byte-identical copy of the deepest CHAIN rung (see ZB_deep.json alias_of); upload ONCE and record the verdict for both"
+  },
+  {
+   "order": 2,
+   "rung": "Z_defs",
+   "file": "experiments/genesis/subst_k4/residue_b/Z_defs.rvt",
+   "class_layer_substituted": "the parameter-DEFINITIONS layer (791 shared / project / load-class params + bindings) -> ours, IN PLACE at the sample's GUID / typeId registrations",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR ParamDef objects (captions / specs / groups) at Autodesk's own shared / project / load-classification parameter registrations.",
+   "if_PASS": "Our parameter-definition constructors are reader-accepted; the layer's true retirement (DELETION -- a genesis file carries none of the sample's shared parameters) is a removal rung, the registry left dangling (tolerated, R5/R9).",
+   "if_FAIL": "A ParamDef object of ours is rejected -- bisect by ParamDef kind (Value / String / YesNo / ...) with single-kind in-place probes; diff a rejected slot's ParamDef vs the sample's field by field.",
+   "elements_substituted_in_place": {
+    "landed": 791,
+    "by_class": {
+     "ParamElemExternal": 466,
+     "ParamBinding": 209,
+     "ParamElemElectricalLoadClassification": 108,
+     "ParamElemProject": 8
+    },
+    "by_match": {
+     "role": 791
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 583,
+    "expected_slots": 791,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 208
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 782336,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/Z_defs.json"
+  },
+  {
+   "order": 3,
+   "rung": "Z_mepcat",
+   "file": "experiments/genesis/subst_k4/residue_b/Z_mepcat.rvt",
+   "class_layer_substituted": "the MEP CATALOG (wire materials/insulations/ratings + pipe schedules/materials/connections + pipe segments) -> our conductor & piping catalog",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our MEP catalog objects + our pipe-segment dimension data.",
+   "if_PASS": "Our MEP catalog constructors are reader-accepted.",
+   "if_FAIL": "A catalog object is rejected -- bisect wire vs pipe symbols vs pipe segments.",
+   "elements_substituted_in_place": {
+    "landed": 74,
+    "by_class": {
+     "RbsWireInsulationType": 26,
+     "PipeSegment": 15,
+     "RbsPipeScheduleType": 13,
+     "RbsPipeConnectionType": 8,
+     "RbsPipeMaterialType": 5,
+     "RbsWireMaterialType": 4,
+     "RbsWireTemperatureRatingType": 3
+    },
+    "by_match": {
+     "role": 74
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 40,
+    "expected_slots": 74,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 34
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/Z_mepcat.json"
+  },
+  {
+   "order": 4,
+   "rung": "Z_pens",
+   "file": "experiments/genesis/subst_k4/residue_b/Z_pens.rvt",
+   "class_layer_substituted": "the 8 curtain-family-scoped pen tables -> our ISO-128 pen series (family scope kept)",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether a family-SCOPED pen table of ours loads (the project one passed at Y1).",
+   "if_PASS": "Family-scoped pen tables are ours too.",
+   "if_FAIL": "Our pen values are rejected in FAMILY scope while Y1 passed -> the family scoping (m_famId) is the variable: diff vs the Y1 table.",
+   "elements_substituted_in_place": {
+    "landed": 8,
+    "by_class": {
+     "PenWidthTableElem": 8
+    },
+    "by_match": {
+     "role": 8
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 8,
+    "expected_slots": 8,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/Z_pens.json"
+  },
+  {
+   "order": 5,
+   "rung": "Z_annot",
+   "file": "experiments/genesis/subst_k4/residue_b/Z_annot.rvt",
+   "class_layer_substituted": "SectionAttributes + ViewportAttributes -> our section-mark / viewport-title types",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our annotation ATTRIBUTE types with the sample's companions.",
+   "if_PASS": "Annotation attribute types are constructible ours (the 'no-constructor' bucket shrinks by these two classes).",
+   "if_FAIL": "An attribute type of ours is rejected -- bisect section types vs the viewport type.",
+   "elements_substituted_in_place": {
+    "landed": 11,
+    "by_class": {
+     "SectionAttributes": 10,
+     "ViewportAttributes": 1
+    },
+    "by_match": {
+     "role": 11
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 11,
+    "expected_slots": 11,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 778240,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/Z_annot.json"
+  },
+  {
+   "order": 6,
+   "rung": "Z_palette",
+   "file": "experiments/genesis/subst_k4/residue_b/Z_palette.rvt",
+   "class_layer_substituted": "the 10 SURPLUS materials -> our extended palette; the 28 asset PropertySetElements -> our structural + thermal assets",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our extra materials + our structural-asset property sets.",
+   "if_PASS": "Our extended palette + structural / thermal assets are reader-accepted; of the palette companions only the appearance assets (Group A) remain.",
+   "if_FAIL": "Bisect materials vs property sets (single-class probes); a structural-asset FAIL names the -1140300 id block (diff vs rst 194585).",
+   "elements_substituted_in_place": {
+    "landed": 38,
+    "by_class": {
+     "PropertySetElement": 28,
+     "MaterialElem": 10
+    },
+    "by_match": {
+     "role": 38
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 38,
+    "expected_slots": 38,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 761856,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/Z_palette.json"
+  },
+  {
+   "order": 7,
+   "rung": "Z_filters",
+   "file": "experiments/genesis/subst_k4/residue_b/Z_filters.rvt",
+   "class_layer_substituted": "the 7 view filters -> our house electrical / MEP coordination filters",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our ParameterFilterElement objects.",
+   "if_PASS": "View filters are constructible ours.",
+   "if_FAIL": "Our filter object shape is rejected -- diff vs the sample's category-only filter 116099.",
+   "elements_substituted_in_place": {
+    "landed": 7,
+    "by_class": {
+     "ParameterFilterElement": 7
+    },
+    "by_match": {
+     "role": 7
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 7,
+    "expected_slots": 7,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/Z_filters.json"
+  },
+  {
+   "order": 8,
+   "rung": "Z_machinery",
+   "file": "experiments/genesis/subst_k4/residue_b/Z_machinery.rvt",
+   "class_layer_substituted": "empty/built-in machinery reproduced (sun annotations / numbering schemas / slave tracker) + surplus print & worksharing setups + the drafting view's viewer/viewports -> ours",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether our print / worksharing setups and the rebuilt view companions load (the reproduced machinery cannot fail).",
+   "if_PASS": "The machinery buckets are honestly emptied; the two identity leaks are retired.",
+   "if_FAIL": "Bisect print setups vs the worksharing copy vs the drafting companions.",
+   "elements_substituted_in_place": {
+    "landed": 14,
+    "by_class": {
+     "SunAnnotationElem": 3,
+     "NumberingSchema": 3,
+     "Viewport": 3,
+     "PrintSettings": 2,
+     "SlaveSymbolTrackerElem": 1,
+     "WorksharingViewModeSettings": 1,
+     "Viewer": 1
+    },
+    "by_match": {
+     "role": 14
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 6,
+    "expected_slots": 14,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 8
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/Z_machinery.json"
+  },
+  {
+   "order": 9,
+   "rung": "Z_content",
+   "file": "experiments/genesis/subst_k4/residue_b/Z_content.rvt",
+   "class_layer_substituted": "reference planes / sketch planes / the room -> OUR content at the same registrations",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our reference-plane / sketch-plane geometry objects and the room's identity strings.",
+   "if_PASS": "Our datum-content constructors load; the content bucket is retired as an engineering question (deletion or ours, both certified paths).",
+   "if_FAIL": "Our refplane/sketch-plane geometry object is rejected -- bisect refplanes vs sketch planes vs the room (single-class probes); diff a rejected refplane vs rst 273446 field by field.",
+   "elements_substituted_in_place": {
+    "landed": 52,
+    "by_class": {
+     "SketchPlane": 30,
+     "RefPlane": 21,
+     "RoomElem": 1
+    },
+    "by_match": {
+     "role": 52
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 31,
+    "expected_slots": 52,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 21
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/Z_content.json"
+  },
+  {
+   "order": 10,
+   "rung": "ZB1_defs",
+   "file": "experiments/genesis/subst_k4/residue_b/ZB1_defs.rvt",
+   "class_layer_substituted": "the parameter-DEFINITIONS layer (791 shared / project / load-class params + bindings) -> ours, IN PLACE at the sample's GUID / typeId registrations",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/Y9.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR ParamDef objects (captions / specs / groups) at Autodesk's own shared / project / load-classification parameter registrations.",
+   "if_PASS": "Our parameter-definition constructors are reader-accepted; the layer's true retirement (DELETION -- a genesis file carries none of the sample's shared parameters) is a removal rung, the registry left dangling (tolerated, R5/R9).",
+   "if_FAIL": "A ParamDef object of ours is rejected -- bisect by ParamDef kind (Value / String / YesNo / ...) with single-kind in-place probes; diff a rejected slot's ParamDef vs the sample's field by field.",
+   "elements_substituted_in_place": {
+    "landed": 791,
+    "by_class": {
+     "ParamElemExternal": 466,
+     "ParamBinding": 209,
+     "ParamElemElectricalLoadClassification": 108,
+     "ParamElemProject": 8
+    },
+    "by_match": {
+     "role": 791
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 583,
+    "expected_slots": 791,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 208
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 782336,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/ZB1_defs.json"
+  },
+  {
+   "order": 11,
+   "rung": "ZB2_mepcat",
+   "file": "experiments/genesis/subst_k4/residue_b/ZB2_mepcat.rvt",
+   "class_layer_substituted": "the MEP CATALOG (wire materials/insulations/ratings + pipe schedules/materials/connections + pipe segments) -> our conductor & piping catalog",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_b/ZB1_defs.rvt",
+   "parent_rung": "ZB1_defs",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our MEP catalog objects + our pipe-segment dimension data.",
+   "if_PASS": "Our MEP catalog constructors are reader-accepted.",
+   "if_FAIL": "A catalog object is rejected -- bisect wire vs pipe symbols vs pipe segments.",
+   "elements_substituted_in_place": {
+    "landed": 74,
+    "by_class": {
+     "RbsWireInsulationType": 26,
+     "PipeSegment": 15,
+     "RbsPipeScheduleType": 13,
+     "RbsPipeConnectionType": 8,
+     "RbsPipeMaterialType": 5,
+     "RbsWireMaterialType": 4,
+     "RbsWireTemperatureRatingType": 3
+    },
+    "by_match": {
+     "role": 74
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 40,
+    "expected_slots": 74,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 34
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 778240,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/ZB2_mepcat.json"
+  },
+  {
+   "order": 12,
+   "rung": "ZB3_pens",
+   "file": "experiments/genesis/subst_k4/residue_b/ZB3_pens.rvt",
+   "class_layer_substituted": "the 8 curtain-family-scoped pen tables -> our ISO-128 pen series (family scope kept)",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_b/ZB2_mepcat.rvt",
+   "parent_rung": "ZB2_mepcat",
+   "the_ONE_thing_it_tests": "Whether a family-SCOPED pen table of ours loads (the project one passed at Y1).",
+   "if_PASS": "Family-scoped pen tables are ours too.",
+   "if_FAIL": "Our pen values are rejected in FAMILY scope while Y1 passed -> the family scoping (m_famId) is the variable: diff vs the Y1 table.",
+   "elements_substituted_in_place": {
+    "landed": 8,
+    "by_class": {
+     "PenWidthTableElem": 8
+    },
+    "by_match": {
+     "role": 8
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 8,
+    "expected_slots": 8,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 778240,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/ZB3_pens.json"
+  },
+  {
+   "order": 13,
+   "rung": "ZB4_annot",
+   "file": "experiments/genesis/subst_k4/residue_b/ZB4_annot.rvt",
+   "class_layer_substituted": "SectionAttributes + ViewportAttributes -> our section-mark / viewport-title types",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_b/ZB3_pens.rvt",
+   "parent_rung": "ZB3_pens",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our annotation ATTRIBUTE types with the sample's companions.",
+   "if_PASS": "Annotation attribute types are constructible ours (the 'no-constructor' bucket shrinks by these two classes).",
+   "if_FAIL": "An attribute type of ours is rejected -- bisect section types vs the viewport type.",
+   "elements_substituted_in_place": {
+    "landed": 11,
+    "by_class": {
+     "SectionAttributes": 10,
+     "ViewportAttributes": 1
+    },
+    "by_match": {
+     "role": 11
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 11,
+    "expected_slots": 11,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 778240,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/ZB4_annot.json"
+  },
+  {
+   "order": 14,
+   "rung": "ZB5_palette",
+   "file": "experiments/genesis/subst_k4/residue_b/ZB5_palette.rvt",
+   "class_layer_substituted": "the 10 SURPLUS materials -> our extended palette; the 28 asset PropertySetElements -> our structural + thermal assets",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_b/ZB4_annot.rvt",
+   "parent_rung": "ZB4_annot",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our extra materials + our structural-asset property sets.",
+   "if_PASS": "Our extended palette + structural / thermal assets are reader-accepted; of the palette companions only the appearance assets (Group A) remain.",
+   "if_FAIL": "Bisect materials vs property sets (single-class probes); a structural-asset FAIL names the -1140300 id block (diff vs rst 194585).",
+   "elements_substituted_in_place": {
+    "landed": 38,
+    "by_class": {
+     "PropertySetElement": 28,
+     "MaterialElem": 10
+    },
+    "by_match": {
+     "role": 38
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 38,
+    "expected_slots": 38,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 765952,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/ZB5_palette.json"
+  },
+  {
+   "order": 15,
+   "rung": "ZB6_filters",
+   "file": "experiments/genesis/subst_k4/residue_b/ZB6_filters.rvt",
+   "class_layer_substituted": "the 7 view filters -> our house electrical / MEP coordination filters",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_b/ZB5_palette.rvt",
+   "parent_rung": "ZB5_palette",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our ParameterFilterElement objects.",
+   "if_PASS": "View filters are constructible ours.",
+   "if_FAIL": "Our filter object shape is rejected -- diff vs the sample's category-only filter 116099.",
+   "elements_substituted_in_place": {
+    "landed": 7,
+    "by_class": {
+     "ParameterFilterElement": 7
+    },
+    "by_match": {
+     "role": 7
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 7,
+    "expected_slots": 7,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 0
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 765952,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/ZB6_filters.json"
+  },
+  {
+   "order": 16,
+   "rung": "ZB7_machinery",
+   "file": "experiments/genesis/subst_k4/residue_b/ZB7_machinery.rvt",
+   "class_layer_substituted": "empty/built-in machinery reproduced (sun annotations / numbering schemas / slave tracker) + surplus print & worksharing setups + the drafting view's viewer/viewports -> ours",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_b/ZB6_filters.rvt",
+   "parent_rung": "ZB6_filters",
+   "the_ONE_thing_it_tests": "Whether our print / worksharing setups and the rebuilt view companions load (the reproduced machinery cannot fail).",
+   "if_PASS": "The machinery buckets are honestly emptied; the two identity leaks are retired.",
+   "if_FAIL": "Bisect print setups vs the worksharing copy vs the drafting companions.",
+   "elements_substituted_in_place": {
+    "landed": 14,
+    "by_class": {
+     "SunAnnotationElem": 3,
+     "NumberingSchema": 3,
+     "Viewport": 3,
+     "PrintSettings": 2,
+     "SlaveSymbolTrackerElem": 1,
+     "WorksharingViewModeSettings": 1,
+     "Viewer": 1
+    },
+    "by_match": {
+     "role": 14
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 6,
+    "expected_slots": 14,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 8
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 765952,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/ZB7_machinery.json"
+  },
+  {
+   "order": 17,
+   "rung": "ZB8_content",
+   "file": "experiments/genesis/subst_k4/residue_b/ZB8_content.rvt",
+   "class_layer_substituted": "reference planes / sketch planes / the room -> OUR content at the same registrations",
+   "base": {
+    "file": "experiments/genesis/subst_k4/Y9.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/residue_b/ZB7_machinery.rvt",
+   "parent_rung": "ZB7_machinery",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our reference-plane / sketch-plane geometry objects and the room's identity strings.",
+   "if_PASS": "Our datum-content constructors load; the content bucket is retired as an engineering question (deletion or ours, both certified paths).",
+   "if_FAIL": "Our refplane/sketch-plane geometry object is rejected -- bisect refplanes vs sketch planes vs the room (single-class probes); diff a rejected refplane vs rst 273446 field by field.",
+   "elements_substituted_in_place": {
+    "landed": 52,
+    "by_class": {
+     "SketchPlane": 30,
+     "RefPlane": 21,
+     "RoomElem": 1
+    },
+    "by_match": {
+     "role": 52
+    }
+   },
+   "ours_not_landed": {},
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 31,
+    "expected_slots": 52,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true,
+    "landed_but_unchanged_slots": 21
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 765952,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+    "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+    "md5": "aa5952bceeb5830790f289af0d7cee27",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/Y9.rvt",
+     "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+    }
+   },
+   "report": "experiments/genesis/subst_k4/residue_b/ZB8_content.json"
+  }
+ ],
+ "derivation_chain": [
+  "ZB1_defs <- BASE",
+  "ZB2_mepcat <- ZB1_defs",
+  "ZB3_pens <- ZB2_mepcat",
+  "ZB4_annot <- ZB3_pens",
+  "ZB5_palette <- ZB4_annot",
+  "ZB6_filters <- ZB5_palette",
+  "ZB7_machinery <- ZB6_filters",
+  "ZB8_content <- ZB7_machinery",
+  "Z_defs <- BASE(Y9)",
+  "Z_mepcat <- BASE(Y9)",
+  "Z_pens <- BASE(Y9)",
+  "Z_annot <- BASE(Y9)",
+  "Z_palette <- BASE(Y9)",
+  "Z_filters <- BASE(Y9)",
+  "Z_machinery <- BASE(Y9)",
+  "Z_content <- BASE(Y9)"
+ ],
+ "endgame": "docs/writer/genesis-endgame.md",
+ "record": "docs/inbox/genesis-residue-B.md"
+}

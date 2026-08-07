@@ -1,0 +1,1651 @@
+{
+ "rung": "ZB2_mepcat",
+ "label": "the MEP CATALOG (wire materials/insulations/ratings + pipe schedules/materials/connections + pipe segments) -> our conductor & piping catalog",
+ "kind": "inplace",
+ "stream": "genesis-residue-B",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; one our-record per residue slot",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+  "md5": "aa5952bceeb5830790f289af0d7cee27",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/residue_b/ZB1_defs.rvt",
+ "parent_rung": "ZB1_defs",
+ "out": "experiments/genesis/subst_k4/residue_b/ZB2_mepcat.rvt",
+ "description": "The wire and piping catalog symbols become OUR objects (industry designations, our published roughness + ASME/ASTM/AWWA dimension rows); the Y4 size tables and the segment->material/schedule wiring hold by construction (ids preserved).",
+ "tests": "Whether the reader accepts our MEP catalog objects + our pipe-segment dimension data.",
+ "if_PASS": "Our MEP catalog constructors are reader-accepted.",
+ "if_FAIL": "A catalog object is rejected -- bisect wire vs pipe symbols vs pipe segments.",
+ "stages": [],
+ "group_b_classes": {
+  "RbsWireInsulationType": 26,
+  "RbsWireMaterialType": 4,
+  "RbsWireTemperatureRatingType": 3,
+  "RbsPipeScheduleType": 13,
+  "RbsPipeConnectionType": 8,
+  "RbsPipeMaterialType": 5,
+  "PipeSegment": 15
+ },
+ "parent_context": {
+  "host_elements": 3342,
+  "watermark": 1472524,
+  "protected_slots_from_earlier_rungs": 2124
+ },
+ "candidates_old_by_class": {
+  "RbsWireInsulationType": 26,
+  "PipeSegment": 15,
+  "RbsPipeScheduleType": 13,
+  "RbsPipeConnectionType": 8,
+  "RbsPipeMaterialType": 5,
+  "RbsWireMaterialType": 4,
+  "RbsWireTemperatureRatingType": 3
+ },
+ "our_records_by_class": {
+  "RbsWireInsulationType": 26,
+  "PipeSegment": 15,
+  "RbsPipeScheduleType": 13,
+  "RbsPipeConnectionType": 8,
+  "RbsPipeMaterialType": 5,
+  "RbsWireMaterialType": 4,
+  "RbsWireTemperatureRatingType": 3
+ },
+ "build_notes": [
+  "wire catalog: 4 materials + 3 ratings + 26 insulations <- ours (industry designations; objects ours)",
+  "piping catalog: 13 schedules + 8 joining methods + 5 materials <- ours (published roughness)",
+  "pipe segments: 15 <- our ASME/ASTM/AWWA size rows (table chosen by the slot's schedule/material designation; material/schedule wiring kept)"
+ ],
+ "build_info": {
+  "records": 74
+ },
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 74,
+  "by_match": {
+   "role": 74
+  },
+  "landed_by_class": {
+   "RbsWireInsulationType": 26,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "RbsPipeConnectionType": 8,
+   "RbsPipeMaterialType": 5,
+   "RbsWireMaterialType": 4,
+   "RbsWireTemperatureRatingType": 3
+  },
+  "dropped_ours": 0,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 0,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 74,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 74,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.2
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   102356,
+   102359,
+   102362,
+   102363,
+   102364,
+   102365,
+   102368,
+   102369,
+   102370,
+   102371,
+   102372,
+   102373,
+   102374,
+   102375,
+   102376,
+   102377,
+   102378,
+   102412,
+   102413,
+   102414,
+   102417,
+   102425,
+   137323,
+   137324,
+   137325,
+   137326,
+   137327,
+   137328,
+   137329,
+   137330,
+   137331,
+   137332,
+   137333,
+   137334,
+   1352587,
+   1352597,
+   1352598,
+   1353274,
+   1353275,
+   1353276
+  ],
+  "records_changed_count": 40,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 74,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 34,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 102356,
+    "len_ours": 223,
+    "len_parent": 223,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "RbsPipeMaterialType",
+      "class_parent": "RbsPipeMaterialType"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[0].m_value",
+      "ours": "0.045",
+      "parent": "0.04572"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 102359,
+    "len_ours": 199,
+    "len_parent": 189,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "RbsPipeConnectionType",
+      "class_parent": "RbsPipeConnectionType"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'Butt Welded'",
+      "parent": "'Welded'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 102362,
+    "len_ours": 229,
+    "len_parent": 229,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "RbsPipeMaterialType",
+      "class_parent": "RbsPipeMaterialType"
+     },
+     {
+      "path": ".m_pParamValueSetDouble.value.m_paramSet[0].m_value",
+      "ours": "0.002",
+      "parent": "0.0018"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 102363,
+    "len_ours": 199,
+    "len_parent": 181,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "RbsPipeScheduleType",
+      "class_parent": "RbsPipeScheduleType"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'Schedule 5S'",
+      "parent": "'5S'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 13,
+    "blocks_out": 13
+   },
+   {
+    "what": "34 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     102357,
+     102358,
+     102360,
+     102361,
+     102366,
+     102367,
+     102411,
+     102415,
+     102416,
+     102418,
+     102419,
+     102420,
+     102421,
+     102422,
+     102423,
+     102424,
+     102426,
+     102427,
+     102428,
+     102429,
+     102430,
+     102431,
+     102432,
+     102433,
+     102434,
+     102435,
+     102436,
+     102437,
+     102438,
+     102439,
+     102440,
+     102441,
+     102442,
+     102443
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 74,
+  "slots_with_registry_surface": 60,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 102356,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 102357,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 102358,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 102359,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 102360,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value"
+    ],
+    "n_paths": 4
+   },
+   {
+    "slot": 102361,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 102362,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 102363,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_symbols[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 74,
+  "pairs_ok": 74,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 102356,
+   "class": "RbsPipeMaterialType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 410,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 102357,
+   "class": "RbsPipeConnectionType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 410,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 102358,
+   "class": "RbsPipeConnectionType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 410,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 102359,
+   "class": "RbsPipeConnectionType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 410,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 102360,
+   "class": "RbsPipeScheduleType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 410,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 4
+  },
+  {
+   "slot": 102361,
+   "class": "RbsPipeScheduleType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 410,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51478
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_b/ZB2_mepcat.rvt",
+  "elements": 3342,
+  "file_size": 778240,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500054,
+   "slot": 102356,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Carbon Steel"
+  },
+  {
+   "ours_tmp": 1500046,
+   "slot": 102357,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Threaded"
+  },
+  {
+   "ours_tmp": 1500047,
+   "slot": 102358,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Flanged"
+  },
+  {
+   "ours_tmp": 1500048,
+   "slot": 102359,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Butt Welded"
+  },
+  {
+   "ours_tmp": 1500033,
+   "slot": 102360,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Schedule 40"
+  },
+  {
+   "ours_tmp": 1500034,
+   "slot": 102361,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Schedule 80"
+  },
+  {
+   "ours_tmp": 1500055,
+   "slot": 102362,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Stainless Steel"
+  },
+  {
+   "ours_tmp": 1500035,
+   "slot": 102363,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Schedule 5S"
+  },
+  {
+   "ours_tmp": 1500036,
+   "slot": 102364,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Schedule 10S"
+  },
+  {
+   "ours_tmp": 1500056,
+   "slot": 102365,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Copper (drawn tube)"
+  },
+  {
+   "ours_tmp": 1500049,
+   "slot": 102366,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Soldered"
+  },
+  {
+   "ours_tmp": 1500050,
+   "slot": 102367,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Brazed"
+  },
+  {
+   "ours_tmp": 1500037,
+   "slot": 102368,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Type K"
+  },
+  {
+   "ours_tmp": 1500038,
+   "slot": 102369,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Type L"
+  },
+  {
+   "ours_tmp": 1500039,
+   "slot": 102370,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Type M"
+  },
+  {
+   "ours_tmp": 1500040,
+   "slot": 102371,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "SDR 26"
+  },
+  {
+   "ours_tmp": 1500057,
+   "slot": 102372,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "PVC (plastic)"
+  },
+  {
+   "ours_tmp": 1500051,
+   "slot": 102373,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Press-Fit"
+  },
+  {
+   "ours_tmp": 1500058,
+   "slot": 102374,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Ductile Iron"
+  },
+  {
+   "ours_tmp": 1500052,
+   "slot": 102375,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Bell and Spigot (push-on)"
+  },
+  {
+   "ours_tmp": 1500053,
+   "slot": 102376,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Grooved"
+  },
+  {
+   "ours_tmp": 1500041,
+   "slot": 102377,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Class 350 (AWWA C151)"
+  },
+  {
+   "ours_tmp": 1500042,
+   "slot": 102378,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Class 250 (AWWA C151)"
+  },
+  {
+   "ours_tmp": 1500000,
+   "slot": 102411,
+   "class": "RbsWireMaterialType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Copper"
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 102412,
+   "class": "RbsWireMaterialType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Aluminum"
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 102413,
+   "class": "RbsWireMaterialType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Steel (bond/messenger)"
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 102414,
+   "class": "RbsWireMaterialType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "Copper-Clad Aluminum"
+  },
+  {
+   "ours_tmp": 1500007,
+   "slot": 102415,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "FEP"
+  },
+  {
+   "ours_tmp": 1500008,
+   "slot": 102416,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "FEPB"
+  },
+  {
+   "ours_tmp": 1500009,
+   "slot": 102417,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "MC-cable"
+  },
+  {
+   "ours_tmp": 1500010,
+   "slot": 102418,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "MI"
+  },
+  {
+   "ours_tmp": 1500011,
+   "slot": 102419,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "RH"
+  },
+  {
+   "ours_tmp": 1500012,
+   "slot": 102420,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "RHH"
+  },
+  {
+   "ours_tmp": 1500013,
+   "slot": 102421,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "RHW"
+  },
+  {
+   "ours_tmp": 1500014,
+   "slot": 102422,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "RHW-2"
+  },
+  {
+   "ours_tmp": 1500015,
+   "slot": 102423,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "SA"
+  },
+  {
+   "ours_tmp": 1500016,
+   "slot": 102424,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "SIS"
+  },
+  {
+   "ours_tmp": 1500017,
+   "slot": 102425,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "AC-cable"
+  },
+  {
+   "ours_tmp": 1500018,
+   "slot": 102426,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "TBS"
+  },
+  {
+   "ours_tmp": 1500019,
+   "slot": 102427,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "THHN"
+  },
+  {
+   "ours_tmp": 1500020,
+   "slot": 102428,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "THHW"
+  },
+  {
+   "ours_tmp": 1500021,
+   "slot": 102429,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "THW"
+  },
+  {
+   "ours_tmp": 1500022,
+   "slot": 102430,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "THW-2"
+  },
+  {
+   "ours_tmp": 1500023,
+   "slot": 102431,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "THWN"
+  },
+  {
+   "ours_tmp": 1500024,
+   "slot": 102432,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "THWN-2"
+  },
+  {
+   "ours_tmp": 1500025,
+   "slot": 102433,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "TW"
+  },
+  {
+   "ours_tmp": 1500026,
+   "slot": 102434,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "UF"
+  },
+  {
+   "ours_tmp": 1500027,
+   "slot": 102435,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "USE"
+  },
+  {
+   "ours_tmp": 1500028,
+   "slot": 102436,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "USE-2"
+  },
+  {
+   "ours_tmp": 1500029,
+   "slot": 102437,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "XHH"
+  },
+  {
+   "ours_tmp": 1500030,
+   "slot": 102438,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "XHHW"
+  },
+  {
+   "ours_tmp": 1500031,
+   "slot": 102439,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "XHHW-2"
+  },
+  {
+   "ours_tmp": 1500032,
+   "slot": 102440,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "ZW"
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 102441,
+   "class": "RbsWireTemperatureRatingType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "60"
+  },
+  {
+   "ours_tmp": 1500005,
+   "slot": 102442,
+   "class": "RbsWireTemperatureRatingType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "75"
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 102443,
+   "class": "RbsWireTemperatureRatingType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "90"
+  },
+  {
+   "ours_tmp": 1500059,
+   "slot": 137323,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASME B36.10 Sch 40"
+  },
+  {
+   "ours_tmp": 1500060,
+   "slot": 137324,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASME B36.10 Sch 80"
+  },
+  {
+   "ours_tmp": 1500061,
+   "slot": 137325,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASME B36.19 Sch 5S"
+  },
+  {
+   "ours_tmp": 1500062,
+   "slot": 137326,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASME B36.19 Sch 10S"
+  },
+  {
+   "ours_tmp": 1500063,
+   "slot": 137327,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASTM B88 Type K"
+  },
+  {
+   "ours_tmp": 1500064,
+   "slot": 137328,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASTM B88 Type L"
+  },
+  {
+   "ours_tmp": 1500065,
+   "slot": 137329,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASTM B88 Type M"
+  },
+  {
+   "ours_tmp": 1500066,
+   "slot": 137330,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASTM B88 Type M"
+  },
+  {
+   "ours_tmp": 1500067,
+   "slot": 137331,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASME B36.10 Sch 40"
+  },
+  {
+   "ours_tmp": 1500068,
+   "slot": 137332,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASME B36.10 Sch 80"
+  },
+  {
+   "ours_tmp": 1500069,
+   "slot": 137333,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - AWWA C151 Class 350"
+  },
+  {
+   "ours_tmp": 1500070,
+   "slot": 137334,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - AWWA C151 Class 350"
+  },
+  {
+   "ours_tmp": 1500071,
+   "slot": 1352587,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASTM B88 Type K"
+  },
+  {
+   "ours_tmp": 1500072,
+   "slot": 1352597,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASTM B88 Type L"
+  },
+  {
+   "ours_tmp": 1500073,
+   "slot": 1352598,
+   "class": "PipeSegment",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Steel Pipe - ASTM B88 Type M"
+  },
+  {
+   "ours_tmp": 1500043,
+   "slot": 1353274,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "SDR 21"
+  },
+  {
+   "ours_tmp": 1500044,
+   "slot": 1353275,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "Schedule 120"
+  },
+  {
+   "ours_tmp": 1500045,
+   "slot": 1353276,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "STD"
+  }
+ ],
+ "landed_slots": [
+  {
+   "slot": 102411,
+   "class": "RbsWireMaterialType",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 102412,
+   "class": "RbsWireMaterialType",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 102413,
+   "class": "RbsWireMaterialType",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 102414,
+   "class": "RbsWireMaterialType",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 102441,
+   "class": "RbsWireTemperatureRatingType",
+   "match": "role",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 102442,
+   "class": "RbsWireTemperatureRatingType",
+   "match": "role",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 102443,
+   "class": "RbsWireTemperatureRatingType",
+   "match": "role",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 102415,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500007
+  },
+  {
+   "slot": 102416,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500008
+  },
+  {
+   "slot": 102417,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500009
+  },
+  {
+   "slot": 102418,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500010
+  },
+  {
+   "slot": 102419,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500011
+  },
+  {
+   "slot": 102420,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500012
+  },
+  {
+   "slot": 102421,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500013
+  },
+  {
+   "slot": 102422,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500014
+  },
+  {
+   "slot": 102423,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500015
+  },
+  {
+   "slot": 102424,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500016
+  },
+  {
+   "slot": 102425,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500017
+  },
+  {
+   "slot": 102426,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500018
+  },
+  {
+   "slot": 102427,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500019
+  },
+  {
+   "slot": 102428,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500020
+  },
+  {
+   "slot": 102429,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500021
+  },
+  {
+   "slot": 102430,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500022
+  },
+  {
+   "slot": 102431,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500023
+  },
+  {
+   "slot": 102432,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500024
+  },
+  {
+   "slot": 102433,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500025
+  },
+  {
+   "slot": 102434,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500026
+  },
+  {
+   "slot": 102435,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500027
+  },
+  {
+   "slot": 102436,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500028
+  },
+  {
+   "slot": 102437,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500029
+  },
+  {
+   "slot": 102438,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500030
+  },
+  {
+   "slot": 102439,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500031
+  },
+  {
+   "slot": 102440,
+   "class": "RbsWireInsulationType",
+   "match": "role",
+   "ours_tmp": 1500032
+  },
+  {
+   "slot": 102360,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500033
+  },
+  {
+   "slot": 102361,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500034
+  },
+  {
+   "slot": 102363,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500035
+  },
+  {
+   "slot": 102364,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500036
+  },
+  {
+   "slot": 102368,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500037
+  },
+  {
+   "slot": 102369,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500038
+  },
+  {
+   "slot": 102370,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500039
+  },
+  {
+   "slot": 102371,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500040
+  },
+  {
+   "slot": 102377,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500041
+  },
+  {
+   "slot": 102378,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500042
+  },
+  {
+   "slot": 1353274,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500043
+  },
+  {
+   "slot": 1353275,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500044
+  },
+  {
+   "slot": 1353276,
+   "class": "RbsPipeScheduleType",
+   "match": "role",
+   "ours_tmp": 1500045
+  },
+  {
+   "slot": 102357,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "ours_tmp": 1500046
+  },
+  {
+   "slot": 102358,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "ours_tmp": 1500047
+  },
+  {
+   "slot": 102359,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "ours_tmp": 1500048
+  },
+  {
+   "slot": 102366,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "ours_tmp": 1500049
+  },
+  {
+   "slot": 102367,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "ours_tmp": 1500050
+  },
+  {
+   "slot": 102373,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "ours_tmp": 1500051
+  },
+  {
+   "slot": 102375,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "ours_tmp": 1500052
+  },
+  {
+   "slot": 102376,
+   "class": "RbsPipeConnectionType",
+   "match": "role",
+   "ours_tmp": 1500053
+  },
+  {
+   "slot": 102356,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "ours_tmp": 1500054
+  },
+  {
+   "slot": 102362,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "ours_tmp": 1500055
+  },
+  {
+   "slot": 102365,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "ours_tmp": 1500056
+  },
+  {
+   "slot": 102372,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "ours_tmp": 1500057
+  },
+  {
+   "slot": 102374,
+   "class": "RbsPipeMaterialType",
+   "match": "role",
+   "ours_tmp": 1500058
+  },
+  {
+   "slot": 137323,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500059
+  },
+  {
+   "slot": 137324,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500060
+  },
+  {
+   "slot": 137325,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500061
+  },
+  {
+   "slot": 137326,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500062
+  },
+  {
+   "slot": 137327,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500063
+  },
+  {
+   "slot": 137328,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500064
+  },
+  {
+   "slot": 137329,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500065
+  },
+  {
+   "slot": 137330,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500066
+  },
+  {
+   "slot": 137331,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500067
+  },
+  {
+   "slot": 137332,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500068
+  },
+  {
+   "slot": 137333,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500069
+  },
+  {
+   "slot": 137334,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500070
+  },
+  {
+   "slot": 1352587,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500071
+  },
+  {
+   "slot": 1352597,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500072
+  },
+  {
+   "slot": 1352598,
+   "class": "PipeSegment",
+   "match": "role",
+   "ours_tmp": 1500073
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": []
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {}
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 778240,
+ "seconds": 2.0
+}

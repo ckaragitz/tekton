@@ -1,0 +1,1145 @@
+{
+ "law": "A = the donor (Autodesk) frame element; B = OURS.  The frame = the six famdoc elements outside all six content axis sets (batch 44's B1..B6 categories).  Rank = deep-walk order from a placed instance.  disposition = what the F-probe swap did with each self-Family key: 'donor' keys ARE tested by F1/F2 (donor value swapped in); 'kept_ours_*' keys are the recorded residue the swap cannot test (membership registries, identity, registry-coupled counters).",
+ "frame_roster": [
+  {
+   "role": "self_family",
+   "id": 2000000,
+   "class": "Family",
+   "kind": "self_family",
+   "owner": -1
+  },
+  {
+   "role": "units",
+   "id": 2000001,
+   "class": "UnitsElem",
+   "kind": "registry",
+   "owner": -1
+  },
+  {
+   "role": "proj_view",
+   "id": 2000004,
+   "class": "DBViewProject",
+   "kind": "view",
+   "owner": -1
+  },
+  {
+   "role": "proj_viewer",
+   "id": 2000005,
+   "class": "Viewer",
+   "kind": "view_satellite",
+   "owner": 2000004
+  },
+  {
+   "role": "proj_drawing",
+   "id": 2000007,
+   "class": "DBDrawing",
+   "kind": "view_satellite",
+   "owner": 2000004
+  },
+  {
+   "role": "proj_viewport",
+   "id": 2000006,
+   "class": "Viewport",
+   "kind": "view_satellite",
+   "owner": 2000007
+  }
+ ],
+ "donor_roles": {
+  "self_family": 1410872,
+  "units": 1411008,
+  "proj_view": 1410913,
+  "proj_viewer": 1410912,
+  "proj_drawing": 1410914,
+  "proj_viewport": 1410915
+ },
+ "donor_browser_org_imports": [
+  1411145,
+  1411146
+ ],
+ "checklist": [
+  {
+   "rank": 1,
+   "role": "self_family",
+   "class": "Family",
+   "B_id": 2000000,
+   "A_id": 1410872,
+   "ownership": {
+    "A_owner": null,
+    "B_owner": null,
+    "differs": false,
+    "note": "owner rides in the inline ADocument ElemTable row (m_OwningElementId), not the element bytes; the F-swap ADOPTS the donor topology"
+   },
+   "obj_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_appVersionAtInitialLoad": {
+      "A": 2659,
+      "B": -2
+     },
+     "m_appVersionAtLoad": {
+      "A": 2660,
+      "B": -2
+     },
+     "m_bHasAnyDummyRefs": {
+      "A": true,
+      "B": false
+     },
+     "m_bIsSavable": {
+      "A": false,
+      "B": true
+     },
+     "m_categoryId": {
+      "A": -2001330,
+      "B": -2001040
+     },
+     "m_cellList": {
+      "A": {
+       "ptr": "CellList",
+       "value": {
+        "m_cells": "list(1)"
+       }
+      },
+      "B": {
+       "ptr": "CellList",
+       "value": {
+        "m_cells": "list(1)"
+       }
+      }
+     },
+     "m_defaultColumnHeight": {
+      "A": 8.2021,
+      "B": 0.0
+     },
+     "m_defaultHeightAboveLevel": {
+      "A": -1e+30,
+      "B": 0.0
+     },
+     "m_defaultHostThickness": {
+      "A": -1e+30,
+      "B": 0.0
+     },
+     "m_deletableElements": {
+      "A": "list(9)",
+      "B": []
+     },
+     "m_eStructMaterialType": {
+      "A": 2,
+      "B": 4
+     },
+     "m_familyIds": {
+      "A": {
+       "ptr": "ElementIdIndexPairSet",
+       "value": {
+        "m_data": "list(304)"
+       }
+      },
+      "B": {
+       "ptr": "ElementIdIndexPairSet",
+       "value": {
+        "m_data": "list(40)"
+       }
+      }
+     },
+     "m_familyParams": {
+      "A": {
+       "ptr": "FamilyParams",
+       "value": {
+        "m_params": "list(2)",
+        "m_geomRefHandles": "dict(1)"
+       }
+      },
+      "B": {
+       "ptr": "FamilyParams",
+       "value": {
+        "m_params": "list(17)",
+        "m_geomRefHandles": "dict(1)"
+       }
+      }
+     },
+     "m_fsdos": {
+      "A": [
+       {
+        "ptr": "MaterialFSDO",
+        "value": "dict(3)"
+       }
+      ],
+      "B": []
+     },
+     "m_id": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_isVertical": {
+      "A": true,
+      "B": false
+     },
+     "m_isWorkPlaneBased": {
+      "A": false,
+      "B": true
+     },
+     "m_lockedParameterIdsForDirectManipulation": {
+      "A": [
+       -1001205,
+       1411000
+      ],
+      "B": [
+       2000018,
+       2000019,
+       2000020
+      ]
+     },
+     "m_nextAbsorbedIndex": {
+      "A": 3165,
+      "B": 40
+     },
+     "m_oFamDimConstrMgr": {
+      "A": {
+       "ptr": "FamDimConstrMgrImpl",
+       "value": {
+        "m_pFam": "dict(1)",
+        "m_paramExprs": "list(2)",
+        "m_drivenDimSegs": "list(2)",
+        "m_ignoredDimValueExprs": "list(0)",
+        "m_overconstrDimSegs": "list(0)",
+        "m_fixedRefs": "list(3)",
+        "m_redundantConstrs": "list(0)",
+        "m_propagatedDrivers": "list(2)",
+        "m_dimSegDataMap": "list(0)",
+        "m_additionalParamExprs": "list(0)",
+        "m_additionalFixedRefs": "list(0)"
+       }
+      },
+      "B": {
+       "ptr": "FamDimConstrMgrImpl",
+       "value": {
+        "m_pFam": "dict(1)",
+        "m_paramExprs": "list(0)",
+        "m_drivenDimSegs": "list(0)",
+        "m_ignoredDimValueExprs": "list(0)",
+        "m_overconstrDimSegs": "list(0)",
+        "m_fixedRefs": "list(0)",
+        "m_redundantConstrs": "list(0)",
+        "m_propagatedDrivers": "list(0)",
+        "m_dimSegDataMap": "list(0)",
+        "m_additionalParamExprs": "list(0)",
+        "m_additionalFixedRefs": "list(0)"
+       }
+      }
+     },
+     "m_omniClassCode": {
+      "A": "23.25.30.11.14.11",
+      "B": ""
+     },
+     "m_pFamilyTypes": {
+      "A": {
+       "ptr": "FamilyTypeTable",
+       "value": {
+        "m_idx": 1,
+        "m_pairs": "list(5)"
+       }
+      },
+      "B": {
+       "ptr": "FamilyTypeTable",
+       "value": {
+        "m_idx": 0,
+        "m_pairs": "list(1)"
+       }
+      }
+     },
+     "m_pParamValueSetInt": {
+      "A": {
+       "ptr": "ParamValueSetInt",
+       "value": {
+        "m_paramSet": "list(1)"
+       }
+      },
+      "B": null
+     },
+     "m_partType": {
+      "A": -1,
+      "B": 14
+     },
+     "m_predefinedLimitIdx": {
+      "A": 1963,
+      "B": 35
+     },
+     "m_refTypeIds": {
+      "A": [
+       4
+      ],
+      "B": []
+     },
+     "m_refs": {
+      "A": [
+       {
+        "ptr": "FamilyElemRef",
+        "value": "dict(1)"
+       },
+       {
+        "ptr": "FamilyElemRef",
+        "value": "dict(1)"
+       }
+      ],
+      "B": []
+     },
+     "m_seekItemId": {
+      "A": "Concrete-Square-Column-0000-CAN-ENU",
+      "B": ""
+     },
+     "m_shouldStayParametric": {
+      "A": true,
+      "B": false
+     }
+    },
+    "n_equal": 98
+   },
+   "header_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_parents": {
+      "A": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(309)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      },
+      "B": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(41)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      }
+     }
+    },
+    "n_equal": 11
+   },
+   "swap_disposition_obj": {
+    "m_pParamValueSetDouble": "donor_equal",
+    "m_pParamValueSetInt": "donor",
+    "m_pParamValueSetAString": "donor_equal",
+    "m_pParamValueSetElementId": "donor_equal",
+    "m_geomSteps": "donor_equal",
+    "m_pGeomTable": "donor_equal",
+    "m_constrInfo": "donor_equal",
+    "m_cellList": "kept_ours_membership",
+    "m_docAccess": "donor_equal",
+    "m_id": "kept_ours_identity",
+    "m_assocLevelId": "donor_equal",
+    "m_famId": "kept_ours_identity",
+    "m_unplacedOwnerId": "donor_equal",
+    "m_ownerDBViewId": "donor_equal",
+    "m_createdPhaseId": "donor_equal",
+    "m_demolishedPhaseId": "donor_equal",
+    "m_designOptionId": "donor_equal",
+    "m_locked": "donor_equal",
+    "m_moribund": "donor_equal",
+    "m_dummy": "donor_equal",
+    "m_familyParams": "kept_ours_membership",
+    "m_trivialParamIds": "kept_ours_registry_coupled",
+    "m_name": "kept_ours_identity",
+    "m_path": "donor_equal",
+    "m_famCatalogKeys": "donor_equal",
+    "m_pFamilyTypes": "kept_ours_membership",
+    "m_pADoc": "donor_equal",
+    "m_oFamDoc": "donor_equal",
+    "m_deletableElements": "kept_ours_membership",
+    "m_oldCurveElemsWithBadSketchAndSP": "donor_equal",
+    "m_lockedParameterIdsForDirectManipulation": "kept_ours_membership",
+    "m_familyIds": "kept_ours_membership",
+    "m_oHostFaceGeomRef": "donor_equal",
+    "m_dbviewInfos": "donor_equal",
+    "m_fsdos": "donor",
+    "m_dumpSymName": "donor_equal",
+    "m_omniClassCode": "donor",
+    "m_classificationDescription": "donor_equal",
+    "m_seekItemId": "donor",
+    "m_familyNameKeyText": "donor_equal",
+    "m_structuralCodeName": "donor_equal",
+    "m_protectionAccessKey": "donor_equal",
+    "m_tagCurveAttachmentProportion": "donor_equal",
+    "m_categoryId": "kept_ours_identity",
+    "m_keyExtParamId": "kept_ours_registry_coupled",
+    "m_ownerSymbolId": "donor_equal",
+    "m_regeneratingGroupId": "donor_equal",
+    "m_famDocGUID": "kept_ours_identity",
+    "m_nextAbsorbedIndex": "kept_ours_registry_coupled",
+    "m_predefinedLimitIdx": "kept_ours_registry_coupled",
+    "m_appVersionAtLoad": "donor",
+    "m_appVersionAtInitialLoad": "donor",
+    "m_eRenderModelType": "donor_equal",
+    "m_eSymbolicRepType": "donor_equal",
+    "m_eStructConnectionApplyTo": "donor_equal",
+    "m_eBraceRepType": "donor_equal",
+    "m_eStructMaterialType": "donor",
+    "m_eBeamCutbackForColumn": "donor_equal",
+    "m_eStructHiddenViewDisplayType": "donor_equal",
+    "m_lightSourceDefBits": "donor_equal",
+    "m_eProfileFamUsage": "donor_equal",
+    "m_eProfileFamDefinition": "donor_equal",
+    "m_eProteinRenderType": "donor_equal",
+    "m_partType": "kept_ours_identity",
+    "m_roundConnDimType": "donor_equal",
+    "m_panelConfig": "donor_equal",
+    "m_familyNestingBehavior": "donor_equal",
+    "m_tagOrientationBehavior": "donor_equal",
+    "m_bFromADPx": "donor_equal",
+    "m_inPlace": "donor_equal",
+    "m_isCurtainPanel": "donor_equal",
+    "m_isModel": "donor_equal",
+    "m_is2d": "donor_equal",
+    "m_isCrvDriven": "donor_equal",
+    "m_isVertical": "donor",
+    "m_rotateTagWithComponent": "donor_equal",
+    "m_keepTextReadable": "donor_equal",
+    "m_isParametric": "donor_equal",
+    "m_shouldStayParametric": "donor",
+    "m_contentProtected": "donor_equal",
+    "m_isAboutToBecomeParametric": "donor_equal",
+    "m_couldAutojoin": "donor_equal",
+    "m_bIsSavable": "donor",
+    "m_bHasTypesFromCatalog": "donor_equal",
+    "m_bHasSimpleCuts": "donor_equal",
+    "m_bHasComplexCuts": "donor_equal",
+    "m_bHasBaseArrays": "donor_equal",
+    "m_bIsHostBased": "donor_equal",
+    "m_bHasInstances": "donor_equal",
+    "m_isWorkPlaneBased": "donor",
+    "m_bShared": "donor_equal",
+    "m_bUsePreCutShape": "donor_equal",
+    "m_bElevationMarkBody": "donor_equal",
+    "m_bForceProperMirroring": "donor_equal",
+    "m_bStructUseCap": "donor_equal",
+    "m_curveBased": "donor_equal",
+    "m_bElecKeepAnnotationOrientation": "donor_equal",
+    "m_isRebarShape": "donor_equal",
+    "m_bStretchingDisallowed": "donor_equal",
+    "m_bIsNew2010": "donor_equal",
+    "m_bHasLabeledDimensions": "donor_equal",
+    "m_bCutback": "donor_equal",
+    "m_bAllowCutWithUnattachedVoids": "donor_equal",
+    "m_canHostRebar": "donor_equal",
+    "m_isSpiralShape": "donor_equal",
+    "m_enableCuttingInViews": "donor_equal",
+    "m_hasRoomCalculationPoint": "donor_equal",
+    "m_bIsSelfOrienting": "donor_equal",
+    "m_rotateTagTextWithComponent": "donor_equal",
+    "m_oFamDimConstrMgr": "kept_ours_membership",
+    "m_refs": "kept_ours_membership",
+    "m_refTypeIds": "kept_ours_registry_coupled",
+    "m_oDefaultStretchLine": "donor_equal",
+    "m_outOfFamilyRefs": "donor_equal",
+    "m_outOfFamilyHostIds": "donor_equal",
+    "m_outOfFamilyHostGrefs": "donor_equal",
+    "m_oFamilyReferenceIdxMgr": "donor_equal",
+    "m_fixedElevation": "donor_equal",
+    "m_defaultColumnHeight": "donor",
+    "m_defaultHostThickness": "donor",
+    "m_defaultHeightAboveLevel": "donor",
+    "m_inplaceFamElevation": "donor_equal",
+    "m_surrogateId": "kept_ours_identity",
+    "m_elevationFixed": "donor_equal",
+    "m_isUserCreated": "donor_equal",
+    "m_setCreated2011FaceBasedFamily": "donor_equal",
+    "m_bHasAnyDummyRefs": "donor"
+   },
+   "swap_disposition_header": {
+    "m_regenHistory": "donor_equal",
+    "m_categroryId": "donor_equal",
+    "m_familyId": "donor_equal",
+    "m_ownerViewId": "donor_equal",
+    "m_designOptionId": "donor_equal",
+    "m_unplacedOwnerId": "donor_equal",
+    "m_miscId": "donor_equal",
+    "m_viewRules": "donor_equal",
+    "m_abFlags4Bytes": "donor_equal",
+    "m_classDef": "donor_equal",
+    "m_pBBox": "donor_equal",
+    "m_parents": "kept_ours_membership"
+   },
+   "untested_by_swap": [
+    "m_categoryId",
+    "m_cellList",
+    "m_deletableElements",
+    "m_familyIds",
+    "m_familyParams",
+    "m_id",
+    "m_lockedParameterIdsForDirectManipulation",
+    "m_nextAbsorbedIndex",
+    "m_oFamDimConstrMgr",
+    "m_pFamilyTypes",
+    "m_partType",
+    "m_predefinedLimitIdx",
+    "m_refTypeIds",
+    "m_refs"
+   ]
+  },
+  {
+   "rank": 2,
+   "role": "units",
+   "class": "UnitsElem",
+   "B_id": 2000001,
+   "A_id": 1411008,
+   "ownership": {
+    "A_owner": "self_family",
+    "B_owner": null,
+    "differs": true,
+    "note": "owner rides in the inline ADocument ElemTable row (m_OwningElementId), not the element bytes; the F-swap ADOPTS the donor topology"
+   },
+   "obj_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_cellList": {
+      "A": null,
+      "B": {
+       "ptr": "CellList",
+       "value": {
+        "m_cells": "list(1)"
+       }
+      }
+     },
+     "m_designOptionId": {
+      "A": -4,
+      "B": -1
+     },
+     "m_famId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_id": {
+      "A": 1411008,
+      "B": 2000001
+     },
+     "m_units": {
+      "A": {
+       "m_formatOptionsMap": "list(136)",
+       "m_universalUnitSystem": 1,
+       "m_decimalSymbol": 0,
+       "m_digitGroupingSymbol": 1,
+       "m_digitGroupingAmount": 1
+      },
+      "B": {
+       "m_formatOptionsMap": "list(8)",
+       "m_universalUnitSystem": 1,
+       "m_decimalSymbol": 0,
+       "m_digitGroupingSymbol": 1,
+       "m_digitGroupingAmount": 1
+      }
+     }
+    },
+    "n_equal": 16
+   },
+   "header_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_abFlags4Bytes": {
+      "A": 8218,
+      "B": 8222
+     },
+     "m_familyId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_parents": {
+      "A": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(2)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      },
+      "B": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(1)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      }
+     }
+    },
+    "n_equal": 9
+   }
+  },
+  {
+   "rank": 3,
+   "role": "proj_drawing",
+   "class": "DBDrawing",
+   "B_id": 2000007,
+   "A_id": 1410914,
+   "ownership": {
+    "A_owner": "proj_view",
+    "B_owner": "proj_view",
+    "differs": false,
+    "note": "owner rides in the inline ADocument ElemTable row (m_OwningElementId), not the element bytes; the F-swap ADOPTS the donor topology"
+   },
+   "obj_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_cellList": {
+      "A": null,
+      "B": {
+       "ptr": "CellList",
+       "value": {
+        "m_cells": "list(1)"
+       }
+      }
+     },
+     "m_famId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_id": {
+      "A": 1410914,
+      "B": 2000007
+     },
+     "m_viewports": {
+      "A": [
+       1410915
+      ],
+      "B": [
+       2000006
+      ]
+     }
+    },
+    "n_equal": 18
+   },
+   "header_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_abFlags4Bytes": {
+      "A": 8218,
+      "B": 2074
+     },
+     "m_familyId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_parents": {
+      "A": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(3)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      },
+      "B": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(2)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      }
+     }
+    },
+    "n_equal": 9
+   }
+  },
+  {
+   "rank": 3,
+   "role": "proj_view",
+   "class": "DBViewProject",
+   "B_id": 2000004,
+   "A_id": 1410913,
+   "ownership": {
+    "A_owner": "self_family",
+    "B_owner": null,
+    "differs": true,
+    "note": "owner rides in the inline ADocument ElemTable row (m_OwningElementId), not the element bytes; the F-swap ADOPTS the donor topology"
+   },
+   "obj_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_cellList": {
+      "A": null,
+      "B": {
+       "ptr": "CellList",
+       "value": {
+        "m_cells": "list(1)"
+       }
+      }
+     },
+     "m_dbDrawingId": {
+      "A": 1410914,
+      "B": 2000007
+     },
+     "m_famId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_id": {
+      "A": 1410913,
+      "B": 2000004
+     },
+     "m_oaDrawFilters": {
+      "A": [
+       {
+        "ptr": "IckyExcludedCategoriesSetPtrWrapper",
+        "value": "dict(6)"
+       },
+       {
+        "ptr": "PartitionVisibilityDrawFilter",
+        "value": "dict(0)"
+       },
+       {
+        "ptr": "RvtLinkDrawFilter",
+        "value": "dict(0)"
+       },
+       {
+        "ptr": "HideElementsDrawFilter",
+        "value": "dict(0)"
+       }
+      ],
+      "B": "list(6)"
+     },
+     "m_pDetailDrawOrderMgr": {
+      "A": {
+       "ptr": "DrawOrderMgr3dFamily",
+       "value": {
+        "m_pADoc": "dict(1)",
+        "m_pDBView": "dict(1)"
+       }
+      },
+      "B": {
+       "ptr": "DrawOrderMgr",
+       "value": {
+        "m_pADoc": "dict(1)",
+        "m_pDBView": "dict(1)",
+        "m_aDrawOrder": "list(0)"
+       }
+      }
+     },
+     "m_pParamValueSetElementId": {
+      "A": null,
+      "B": {
+       "ptr": "ParamValueSetElementId",
+       "value": {
+        "m_paramSet": "list(2)"
+       }
+      }
+     },
+     "m_pRetouchTable": {
+      "A": {
+       "ptr": "RetouchTable",
+       "value": {
+        "m_lineworkMap4": "list(0)",
+        "m_invisibleGStyleId": 201,
+        "m_notSilhouetteGStyleId": 55150,
+        "m_bFaceRecsUpgraded": true
+       }
+      },
+      "B": {
+       "ptr": "RetouchTable",
+       "value": {
+        "m_lineworkMap4": "list(0)",
+        "m_invisibleGStyleId": -1,
+        "m_notSilhouetteGStyleId": -1,
+        "m_bFaceRecsUpgraded": true
+       }
+      }
+     },
+     "m_pViewDisplayMgr": {
+      "A": {
+       "ptr": "ViewDisplayMgr",
+       "value": {
+        "m_background": "dict(8)",
+        "m_fog": "dict(5)",
+        "m_lights": "dict(4)",
+        "m_model": "dict(7)",
+        "m_oRaytraceSettings": {
+         "ptr": "GRenderSettings",
+         "value": "..."
+        },
+        "m_sketchyLines": "dict(3)",
+        "m_oStaticRRTRenderSettings": {
+         "ptr": "GRenderSettings",
+         "value": "..."
+        },
+        "m_exposure": "dict(10)",
+        "m_waterColorType": 0,
+        "m_hlr": true,
+        "m_lighting": false,
+        "m_shadows": "dict(2)"
+       }
+      },
+      "B": {
+       "ptr": "ViewDisplayMgr",
+       "value": {
+        "m_background": "dict(8)",
+        "m_fog": "dict(5)",
+        "m_lights": "dict(4)",
+        "m_model": "dict(7)",
+        "m_oRaytraceSettings": {
+         "ptr": "GRenderSettings",
+         "value": "..."
+        },
+        "m_sketchyLines": "dict(3)",
+        "m_oStaticRRTRenderSettings": {
+         "ptr": "GRenderSettings",
+         "value": "..."
+        },
+        "m_exposure": "dict(10)",
+        "m_waterColorType": 0,
+        "m_hlr": true,
+        "m_lighting": false,
+        "m_shadows": "dict(2)"
+       }
+      }
+     },
+     "m_scale": {
+      "A": 0.041667,
+      "B": 0.01
+     },
+     "m_viewerId": {
+      "A": 1410912,
+      "B": 2000005
+     }
+    },
+    "n_equal": 57
+   },
+   "header_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_abFlags4Bytes": {
+      "A": 26,
+      "B": 67610
+     },
+     "m_familyId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_parents": {
+      "A": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(6)",
+        "m_regenOnly": "list(2)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      },
+      "B": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(3)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      }
+     }
+    },
+    "n_equal": 9
+   }
+  },
+  {
+   "rank": 3,
+   "role": "proj_viewer",
+   "class": "Viewer",
+   "B_id": 2000005,
+   "A_id": 1410912,
+   "ownership": {
+    "A_owner": "proj_view",
+    "B_owner": "proj_view",
+    "differs": false,
+    "note": "owner rides in the inline ADocument ElemTable row (m_OwningElementId), not the element bytes; the F-swap ADOPTS the donor topology"
+   },
+   "obj_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_boundedSpace": {
+      "A": {
+       "m_orig": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "m_basis": [
+        "list(3)",
+        "list(3)",
+        "list(3)"
+       ],
+       "m_boundOffset": [
+        "list(2)",
+        "list(2)",
+        "list(2)"
+       ],
+       "m_boundActive": [
+        "list(2)",
+        "list(2)",
+        "list(2)"
+       ],
+       "m_isOn": true
+      },
+      "B": {
+       "m_orig": [
+        0.0,
+        0.0,
+        0.0
+       ],
+       "m_basis": [
+        "list(3)",
+        "list(3)",
+        "list(3)"
+       ],
+       "m_boundOffset": [
+        "list(2)",
+        "list(2)",
+        "list(2)"
+       ],
+       "m_boundActive": [
+        "list(2)",
+        "list(2)",
+        "list(2)"
+       ],
+       "m_isOn": true
+      }
+     },
+     "m_cellList": {
+      "A": null,
+      "B": {
+       "ptr": "CellList",
+       "value": {
+        "m_cells": "list(1)"
+       }
+      }
+     },
+     "m_dbViewId": {
+      "A": 1410913,
+      "B": 2000004
+     },
+     "m_famId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_id": {
+      "A": 1410912,
+      "B": 2000005
+     }
+    },
+    "n_equal": 31
+   },
+   "header_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_abFlags4Bytes": {
+      "A": 26,
+      "B": 2074
+     },
+     "m_familyId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_parents": {
+      "A": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(3)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      },
+      "B": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(2)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(0)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      }
+     }
+    },
+    "n_equal": 9
+   }
+  },
+  {
+   "rank": 3,
+   "role": "proj_viewport",
+   "class": "Viewport",
+   "B_id": 2000006,
+   "A_id": 1410915,
+   "ownership": {
+    "A_owner": "proj_drawing",
+    "B_owner": "proj_drawing",
+    "differs": false,
+    "note": "owner rides in the inline ADocument ElemTable row (m_OwningElementId), not the element bytes; the F-swap ADOPTS the donor topology"
+   },
+   "obj_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_cellList": {
+      "A": null,
+      "B": {
+       "ptr": "CellList",
+       "value": {
+        "m_cells": "list(1)"
+       }
+      }
+     },
+     "m_dbDrawingId": {
+      "A": 1410914,
+      "B": 2000007
+     },
+     "m_dbViewId": {
+      "A": 1410913,
+      "B": 2000004
+     },
+     "m_famId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_id": {
+      "A": 1410915,
+      "B": 2000006
+     },
+     "m_labelOrigin": {
+      "A": [
+       0.0,
+       0.0,
+       -0.683508
+      ],
+      "B": [
+       0.0,
+       0.0,
+       -0.164042
+      ]
+     }
+    },
+    "n_equal": 29
+   },
+   "header_diff": {
+    "only_in_A": {},
+    "only_in_B": {},
+    "differing": {
+     "m_abFlags4Bytes": {
+      "A": 26,
+      "B": 2074
+     },
+     "m_familyId": {
+      "A": 1410872,
+      "B": 2000000
+     },
+     "m_parents": {
+      "A": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(4)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(1)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      },
+      "B": {
+       "ptr": "ElementParents",
+       "value": {
+        "m_deletion": "list(3)",
+        "m_regenOnly": "list(0)",
+        "m_regenWildcards": "list(0)",
+        "m_nonDetermRegenChildren": "list(0)",
+        "m_dependencyParents": "list(1)",
+        "m_appearanceParents": "list(0)",
+        "m_deferredParents": "list(0)",
+        "m_deferredPropagationParents": "list(0)",
+        "m_computedParametersParents": "list(0)",
+        "m_hasNonDetermRegenChildren": false
+       }
+      }
+     }
+    },
+    "n_equal": 9
+   }
+  }
+ ],
+ "seconds": 0.1
+}

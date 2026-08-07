@@ -1,0 +1,49 @@
+{
+ "complete": true,
+ "out": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+ "md5": "470087732a98168af313f8a253f65edd",
+ "sha256": "6242c3aaccf86e7187fbd56879d450089c6fd33ad677d5847cb7c56d5e2b1171",
+ "bytes": 598016,
+ "verdict": "COMPOSED-VALID",
+ "problems": [],
+ "manifest": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.manifest.json",
+ "phase1_manifest": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.phase1.manifest.json",
+ "substitute_then_delete_overlap_slots": [
+  1250031
+ ],
+ "layers": {
+  "y_rungs": [
+   "Y2025:Y1_2025",
+   "Y2025:Y2_2025",
+   "Y2025:Y3_2025",
+   "Y2025:Y4_2025",
+   "Y2025:Y5_2025",
+   "Y2025:Y6_2025",
+   "Y2025:Y7_2025",
+   "Y2025:Y8_2025",
+   "Y2025:Y9_2025"
+  ],
+  "residue_rungs": [
+   "R2025:Z_RA_2025",
+   "R2025:Z_RB_2025",
+   "R2025:Z_RC_2025",
+   "R2025:RC_2025_inplace"
+  ],
+  "deletion_sets": [
+   "D_2025_stragglers_full"
+  ]
+ },
+ "inplace_layer_byte_identical_to_deepest_chain_file": {
+  "file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.inplace.rvt",
+  "deepest_chain_file": "experiments/genesis/subst_k4_2025/RC_2025_inplace.rvt",
+  "identical": true,
+  "note": "expected identical when the deletion set overlaps no substituted slot; delete-wins slots legitimately differ at this layer -- the FINAL proof below is the binding one"
+ },
+ "final_byte_identical_to_sibling_deletion_proof": {
+  "file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+  "deletion_proof_file": "experiments/genesis/subst_k4_2025/RC_2025.rvt",
+  "identical": true
+ },
+ "registry_relpath": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+ "seconds": 21.3
+}

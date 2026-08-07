@@ -1,0 +1,1541 @@
+{
+ "element_id": 198367,
+ "note": "BasicWallType 'Wall - Timber Clad'",
+ "elemtable": {
+  "found_in_ElemTable": true,
+  "raw_40_bytes_hex": "df 06 03 00 00 00 00 00 3b 02 00 00 41 03 00 00 c7 02 00 00 df 06 03 00 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00",
+  "fields": {
+   "+0 u64 m_history.m_originalElementId": 198367,
+   "+8 u32 m_history.m_creationDate (EpisodeId)": 571,
+   "+12 u32 m_history.m_lastModificationDate (EpisodeId)": 833,
+   "+16 u32 m_history.m_lastUserModificationDate": 711,
+   "+20 u64 m_id": 198367,
+   "+28 u64 m_OwningElementId": -1,
+   "+36 u32 m_partitionId": 0
+  }
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 877674,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 198367,
+  "stamp": null,
+  "psize": 175,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 173,
+  "total_record_bytes": 191,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 75 7b e1 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "173/173",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -2000011,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -32640
+   },
+   "m_abFlags4Bytes": 2348,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "BasicWallType"
+    }
+   },
+   "m_pBBox": null,
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      3,
+      198367,
+      198369,
+      198370,
+      198372,
+      198373,
+      198374,
+      974967
+     ],
+     "m_regenOnly": [],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -2000011,
+  "builtin": "OST_Walls"
+ },
+ "classDef": "BasicWallType",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 6285361,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 198367,
+  "stamp": 3325734228,
+  "psize": 1693,
+  "class_id_hex": "0x025b",
+  "object_bytes": 1691,
+  "total_record_bytes": 1713,
+  "size_trailer_ok": true,
+  "payload_head_hex": "ff ff ff ff 5d 0c 00 00 00 00 ff ff ff ff 5c 0c 00 00 00 00 ff ff ff ff f6 08 00 00 00 00 00 00",
+  "class": "BasicWallType",
+  "clean": true,
+  "consumed_of_object": "1691/1691",
+  "value": {
+   "m_pParamValueSetDouble": {
+    "ptr_class": "ParamValueSetDouble",
+    "pid": -1,
+    "value": {
+     "m_paramSet": []
+    }
+   },
+   "m_pParamValueSetInt": null,
+   "m_pParamValueSetAString": {
+    "ptr_class": "ParamValueSetAString",
+    "pid": -1,
+    "value": {
+     "m_paramSet": [
+      {
+       "m_paramId": -1140422,
+       "m_value": "F10"
+      },
+      {
+       "m_paramId": -1010103,
+       "m_value": "Structural Insulation Panel Wall with Kiln Dried Timber Panel Rainscreen"
+      }
+     ]
+    }
+   },
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": {
+    "ptr_class": "GeomStepList",
+    "pid": -1,
+    "value": {
+     "m_nonBRepGList": [],
+     "m_bRepFormGList": [
+      {
+       "ptr_class": "VertCompoundStructureGStep",
+       "pid": -1,
+       "value": {
+        "m_faceHistTable": [],
+        "m_curveHistTableSet": [],
+        "m_edgeHistTable": [],
+        "m_edgeHistTableReverse": [],
+        "m_id": 1,
+        "m_version": 0,
+        "m_flags": 13,
+        "m_pElem": {
+         "weakref": 2
+        },
+        "m_oExtraDatas": null,
+        "m_minimumWallHeight": 0.0
+       }
+      }
+     ],
+     "m_bRepAdjustGList": [],
+     "m_bRepCutOutGList": [],
+     "m_bRepPostCutOutGList": [],
+     "m_bRepTweakGList": [],
+     "m_bRepFormSnapshot": null,
+     "m_bRepAdjustSnapshot": null,
+     "m_bRepCutOutSnapshot": null,
+     "m_bRepPostCutOutSnapshot": null,
+     "m_pElem": {
+      "weakref": 2
+     },
+     "m_latestGStepTypeInPrevRegenCycle": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "m_idCounter": 2,
+     "m_flags": 9
+    }
+   },
+   "m_pGeomTable": null,
+   "m_constrInfo": [],
+   "m_cellList": {
+    "ptr_class": "CellList",
+    "pid": -1,
+    "value": {
+     "m_cells": [
+      {
+       "ptr_class": "AnalyticalPropertiesCell",
+       "pid": -1,
+       "value": {
+        "m_absorptance": 0.1,
+        "m_roughness": 1
+       }
+      },
+      {
+       "ptr_class": "PatternHelper",
+       "pid": -1,
+       "value": {
+        "m_PatternPositionMap": [],
+        "m_substituteFaceMap": []
+       }
+      },
+      {
+       "ptr_class": "TaperableWallTypeAngleParametersCell",
+       "pid": -1,
+       "value": {
+        "m_defaultTaperedExteriorAngle": 0.0,
+        "m_defaultTaperedInteriorAngle": 0.0
+       }
+      },
+      {
+       "ptr_class": "TaperableWallTypeWidthAtParametersCell",
+       "pid": -1,
+       "value": {
+        "m_widthMeasuredAt": 0
+       }
+      }
+     ]
+    }
+   },
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 198367,
+   "m_assocLevelId": -1,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_symbolInfo": {
+    "ptr_class": "SymbolInfo",
+    "pid": -1,
+    "value": {
+     "m_name": "Wall - Timber Clad"
+    }
+   },
+   "m_renderStyleId": -1,
+   "m_previewElemId": 974967,
+   "m_pCompoundStructure": {
+    "ptr_class": "CompoundStructure",
+    "pid": -1,
+    "value": {
+     "m_oVertRegStructure": {
+      "ptr_class": "VerticalRegionsStructure",
+      "pid": -1,
+      "value": {
+       "m_extendableRegionIdsTop": [],
+       "m_extendableRegionIdsBottom": [],
+       "m_regionToLayerMap": [
+        {
+         "first": 3,
+         "second": 5
+        },
+        {
+         "first": 4,
+         "second": 0
+        },
+        {
+         "first": 5,
+         "second": 3
+        },
+        {
+         "first": 6,
+         "second": 1
+        },
+        {
+         "first": 7,
+         "second": 2
+        },
+        {
+         "first": 8,
+         "second": 4
+        }
+       ],
+       "m_grid": {
+        "m_segments": [
+         {
+          "m_coordinate": 0.0,
+          "m_id": 15,
+          "m_orientation": 1,
+          "m_regionId": [
+           4,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 0.0,
+          "m_id": 22,
+          "m_orientation": 1,
+          "m_regionId": [
+           6,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 0.0,
+          "m_id": 25,
+          "m_orientation": 1,
+          "m_regionId": [
+           7,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 0.0,
+          "m_id": 19,
+          "m_orientation": 1,
+          "m_regionId": [
+           5,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 0.0,
+          "m_id": 28,
+          "m_orientation": 1,
+          "m_regionId": [
+           8,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 0.0,
+          "m_id": 12,
+          "m_orientation": 1,
+          "m_regionId": [
+           3,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 20.0,
+          "m_id": 14,
+          "m_orientation": 1,
+          "m_regionId": [
+           4,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 20.0,
+          "m_id": 21,
+          "m_orientation": 1,
+          "m_regionId": [
+           6,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 20.0,
+          "m_id": 24,
+          "m_orientation": 1,
+          "m_regionId": [
+           7,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 20.0,
+          "m_id": 18,
+          "m_orientation": 1,
+          "m_regionId": [
+           5,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 20.0,
+          "m_id": 27,
+          "m_orientation": 1,
+          "m_regionId": [
+           8,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": 20.0,
+          "m_id": 13,
+          "m_orientation": 1,
+          "m_regionId": [
+           3,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": -0.154199475,
+          "m_id": 16,
+          "m_orientation": 0,
+          "m_regionId": [
+           4,
+           -1
+          ]
+         },
+         {
+          "m_coordinate": -0.082020997,
+          "m_id": 3,
+          "m_orientation": 0,
+          "m_regionId": [
+           4,
+           6
+          ]
+         },
+         {
+          "m_coordinate": -0.0,
+          "m_id": 20,
+          "m_orientation": 0,
+          "m_regionId": [
+           6,
+           7
+          ]
+         },
+         {
+          "m_coordinate": 0.049212598,
+          "m_id": 23,
+          "m_orientation": 0,
+          "m_regionId": [
+           5,
+           7
+          ]
+         },
+         {
+          "m_coordinate": 0.416666667,
+          "m_id": 17,
+          "m_orientation": 0,
+          "m_regionId": [
+           5,
+           8
+          ]
+         },
+         {
+          "m_coordinate": 0.465879265,
+          "m_id": 26,
+          "m_orientation": 0,
+          "m_regionId": [
+           3,
+           8
+          ]
+         },
+         {
+          "m_coordinate": 0.508530184,
+          "m_id": 4,
+          "m_orientation": 0,
+          "m_regionId": [
+           3,
+           -1
+          ]
+         }
+        ],
+        "m_regions": [
+         {
+          "m_id": 3,
+          "m_segmentIds": [
+           12,
+           4,
+           13,
+           26
+          ]
+         },
+         {
+          "m_id": 4,
+          "m_segmentIds": [
+           14,
+           16,
+           15,
+           3
+          ]
+         },
+         {
+          "m_id": 5,
+          "m_segmentIds": [
+           19,
+           17,
+           18,
+           23
+          ]
+         },
+         {
+          "m_id": 6,
+          "m_segmentIds": [
+           22,
+           20,
+           21,
+           3
+          ]
+         },
+         {
+          "m_id": 7,
+          "m_segmentIds": [
+           24,
+           20,
+           25,
+           23
+          ]
+         },
+         {
+          "m_id": 8,
+          "m_segmentIds": [
+           27,
+           17,
+           28,
+           26
+          ]
+         }
+        ],
+        "m_tol": 1e-09
+       },
+       "m_sampleHeight": 20.0,
+       "m_cutOffHeight": 10.0,
+       "m_bPreviewDimsAreValid": false,
+       "m_wallSweeps": [],
+       "m_reveals": []
+      }
+     },
+     "m_layers": [
+      {
+       "m_layerWidth": 0.072178478,
+       "m_materialId": 198374,
+       "m_profileId": -1,
+       "m_layerFunction": 5,
+       "m_layerPriority": 5,
+       "m_embeddingType": -1,
+       "m_layerId": 0,
+       "m_layerCapFlag": true
+      },
+      {
+       "m_layerWidth": 0.082020997,
+       "m_materialId": 198370,
+       "m_profileId": -1,
+       "m_layerFunction": 4,
+       "m_layerPriority": 4,
+       "m_embeddingType": -1,
+       "m_layerId": 1,
+       "m_layerCapFlag": true
+      },
+      {
+       "m_layerWidth": 0.049212598,
+       "m_materialId": 198373,
+       "m_profileId": -1,
+       "m_layerFunction": 1,
+       "m_layerPriority": 1,
+       "m_embeddingType": -1,
+       "m_layerId": 2,
+       "m_layerCapFlag": true
+      },
+      {
+       "m_layerWidth": 0.367454068,
+       "m_materialId": 198372,
+       "m_profileId": -1,
+       "m_layerFunction": 1,
+       "m_layerPriority": 1,
+       "m_embeddingType": -1,
+       "m_layerId": 3,
+       "m_layerCapFlag": true
+      },
+      {
+       "m_layerWidth": 0.049212598,
+       "m_materialId": 198373,
+       "m_profileId": -1,
+       "m_layerFunction": 1,
+       "m_layerPriority": 1,
+       "m_embeddingType": -1,
+       "m_layerId": 4,
+       "m_layerCapFlag": true
+      },
+      {
+       "m_layerWidth": 0.042650919,
+       "m_materialId": 198369,
+       "m_profileId": -1,
+       "m_layerFunction": 4,
+       "m_layerPriority": 4,
+       "m_embeddingType": -1,
+       "m_layerId": 5,
+       "m_layerCapFlag": true
+      }
+     ],
+     "m_coarseScaleFillPatternElemId": 3,
+     "m_coarseScaleFillColor": 0,
+     "m_endCap": 0,
+     "m_openingWrapping": 3,
+     "m_numShellLayersExt": 2,
+     "m_numShellLayersInt": 1,
+     "m_variableLayerIdx": -1,
+     "m_structuralMaterialLayerIndex": 3,
+     "m_segRefFaceKeys": [
+      {
+       "m_id": 3,
+       "m_key0": 31,
+       "m_key1": 0
+      },
+      {
+       "m_id": 17,
+       "m_key0": 32,
+       "m_key1": 1
+      },
+      {
+       "m_id": 20,
+       "m_key0": 29,
+       "m_key1": 0
+      },
+      {
+       "m_id": 23,
+       "m_key0": 32,
+       "m_key1": 0
+      },
+      {
+       "m_id": 26,
+       "m_key0": 30,
+       "m_key1": 0
+      }
+     ],
+     "m_segRefFaceKeysPre40": []
+    }
+   },
+   "m_panel": -1,
+   "m_intMullions": [
+    -1,
+    -1
+   ],
+   "m_bordMullions": [
+    [
+     -1,
+     -1
+    ],
+    [
+     -1,
+     -1
+    ]
+   ],
+   "m_autoJoinCond": 0,
+   "m_structHiddenViewDisplayType": 0,
+   "m_defHeightConstraint": 1,
+   "m_function": 1,
+   "m_fixed": false,
+   "m_allowAutoEmbed": false,
+   "m_oULineSpec": null,
+   "m_oVLineSpec": null
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 13139161,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 198367,
+  "stamp": 1804289926,
+  "psize": 192,
+  "class_id_hex": "0x089e",
+  "object_bytes": 190,
+  "total_record_bytes": 212,
+  "size_trailer_ok": true,
+  "payload_head_hex": "ff ff ff ff ff ff ff ff df 06 03 00 00 00 00 00 04 80 08 00 01 00 00 00 03 00 00 00 fc 08 ea 8c",
+  "class": "GElement",
+  "clean": true,
+  "consumed_of_object": "190/190",
+  "value": {
+   "m_GInfo": {
+    "m_categoryId": -1,
+    "m_tag": 198367,
+    "m_controlCommand": 0,
+    "m_flags": 557060
+   },
+   "m_subNodes": [
+    {
+     "ptr_class": "Geometry",
+     "pid": 3,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": -1,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "m_pFaces": [],
+      "m_flags": 7,
+      "m_geometryTag": -1,
+      "m_tessEpsCntrl": {
+       "m_type": 0,
+       "m_TessEpsCntrlVersion": 1
+      },
+      "m_pEdges": [],
+      "m_sharedSurfInfo": []
+     }
+    }
+   ],
+   "m_bBox": [
+    [
+     1e+30,
+     1e+30,
+     1e+30
+    ],
+    [
+     -1e+30,
+     -1e+30,
+     -1e+30
+    ]
+   ],
+   "m_tightbBox": [
+    [
+     1e+30,
+     1e+30,
+     1e+30
+    ],
+    [
+     -1e+30,
+     -1e+30,
+     -1e+30
+    ]
+   ],
+   "m_elementId": 198367,
+   "m_gElemType": 3,
+   "m_flags": 0
+  }
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[0]",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[1]",
+   "id": 198367,
+   "target_class": "BasicWallType",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[2]",
+   "id": 198369,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[3]",
+   "id": 198370,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[4]",
+   "id": 198372,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[5]",
+   "id": 198373,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[6]",
+   "id": 198374,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[7]",
+   "id": 974967,
+   "target_class": "LegendComponent",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_bRepFormGList[0].value.m_id",
+   "id": 1,
+   "target_class": "AllProjectPhases",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_idCounter",
+   "id": 2,
+   "target_class": "PenWidthTableElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 198367,
+   "target_class": "BasicWallType",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_previewElemId",
+   "id": 974967,
+   "target_class": "LegendComponent",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[0].m_id",
+   "id": 15,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[0].m_regionId[0]",
+   "id": 4,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[1].m_id",
+   "id": 22,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[1].m_regionId[0]",
+   "id": 6,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[2].m_id",
+   "id": 25,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[2].m_regionId[0]",
+   "id": 7,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[3].m_id",
+   "id": 19,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[3].m_regionId[0]",
+   "id": 5,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[4].m_id",
+   "id": 28,
+   "target_class": null,
+   "in_ElemTable": false,
+   "in_partitions": false
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[4].m_regionId[0]",
+   "id": 8,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[5].m_id",
+   "id": 12,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[5].m_regionId[0]",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[6].m_id",
+   "id": 14,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[6].m_regionId[0]",
+   "id": 4,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[7].m_id",
+   "id": 21,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[7].m_regionId[0]",
+   "id": 6,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[8].m_id",
+   "id": 24,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[8].m_regionId[0]",
+   "id": 7,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[9].m_id",
+   "id": 18,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[9].m_regionId[0]",
+   "id": 5,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[10].m_id",
+   "id": 27,
+   "target_class": null,
+   "in_ElemTable": false,
+   "in_partitions": false
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[10].m_regionId[0]",
+   "id": 8,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[11].m_id",
+   "id": 13,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[11].m_regionId[0]",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[12].m_id",
+   "id": 16,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[12].m_regionId[0]",
+   "id": 4,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[13].m_id",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[13].m_regionId[0]",
+   "id": 4,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[13].m_regionId[1]",
+   "id": 6,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[14].m_id",
+   "id": 20,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[14].m_regionId[0]",
+   "id": 6,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[14].m_regionId[1]",
+   "id": 7,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[15].m_id",
+   "id": 23,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[15].m_regionId[0]",
+   "id": 5,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[15].m_regionId[1]",
+   "id": 7,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[16].m_id",
+   "id": 17,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[16].m_regionId[0]",
+   "id": 5,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[16].m_regionId[1]",
+   "id": 8,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[17].m_id",
+   "id": 26,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[17].m_regionId[0]",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[17].m_regionId[1]",
+   "id": 8,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[18].m_id",
+   "id": 4,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_segments[18].m_regionId[0]",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_id",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_segmentIds[0]",
+   "id": 12,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_segmentIds[1]",
+   "id": 4,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_segmentIds[2]",
+   "id": 13,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[0].m_segmentIds[3]",
+   "id": 26,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[1].m_id",
+   "id": 4,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[1].m_segmentIds[0]",
+   "id": 14,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[1].m_segmentIds[1]",
+   "id": 16,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[1].m_segmentIds[2]",
+   "id": 15,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[1].m_segmentIds[3]",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[2].m_id",
+   "id": 5,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[2].m_segmentIds[0]",
+   "id": 19,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[2].m_segmentIds[1]",
+   "id": 17,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[2].m_segmentIds[2]",
+   "id": 18,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[2].m_segmentIds[3]",
+   "id": 23,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[3].m_id",
+   "id": 6,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[3].m_segmentIds[0]",
+   "id": 22,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[3].m_segmentIds[1]",
+   "id": 20,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[3].m_segmentIds[2]",
+   "id": 21,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[3].m_segmentIds[3]",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[4].m_id",
+   "id": 7,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[4].m_segmentIds[0]",
+   "id": 24,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[4].m_segmentIds[1]",
+   "id": 20,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[4].m_segmentIds[2]",
+   "id": 25,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[4].m_segmentIds[3]",
+   "id": 23,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[5].m_id",
+   "id": 8,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[5].m_segmentIds[0]",
+   "id": 27,
+   "target_class": null,
+   "in_ElemTable": false,
+   "in_partitions": false
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[5].m_segmentIds[1]",
+   "id": 17,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[5].m_segmentIds[2]",
+   "id": 28,
+   "target_class": null,
+   "in_ElemTable": false,
+   "in_partitions": false
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_oVertRegStructure.value.m_grid.m_regions[5].m_segmentIds[3]",
+   "id": 26,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[0].m_materialId",
+   "id": 198374,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[1].m_materialId",
+   "id": 198370,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[1].m_layerId",
+   "id": 1,
+   "target_class": "AllProjectPhases",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[2].m_materialId",
+   "id": 198373,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[2].m_layerId",
+   "id": 2,
+   "target_class": "PenWidthTableElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[3].m_materialId",
+   "id": 198372,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[3].m_layerId",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[4].m_materialId",
+   "id": 198373,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[4].m_layerId",
+   "id": 4,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[5].m_materialId",
+   "id": 198369,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_layers[5].m_layerId",
+   "id": 5,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_coarseScaleFillPatternElemId",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_segRefFaceKeys[0].m_id",
+   "id": 3,
+   "target_class": "FillPatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_segRefFaceKeys[1].m_id",
+   "id": 17,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_segRefFaceKeys[2].m_id",
+   "id": 20,
+   "target_class": "LinePatternElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_segRefFaceKeys[3].m_id",
+   "id": 23,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_pCompoundStructure.value.m_segRefFaceKeys[4].m_id",
+   "id": 26,
+   "target_class": "MaterialElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 103,
+   "path": "m_elementId",
+   "id": 198367,
+   "target_class": "BasicWallType",
+   "in_ElemTable": true,
+   "in_partitions": true
+  }
+ ]
+}

@@ -1,0 +1,1621 @@
+{
+ "purpose": "IF the ladder convicts S5 and/or S6, this is what famgen must learn to AUTHOR for a panelboard-class family document.  Element STRUCTURE measured on the structural-column donor (rst unit 36); COUNTS for the electrical/panelboard class measured on the RME panelboard donor (rme unit 30, M_Lighting and Appliance Panelboard - 208V MCB - Surface, 549 elements, nested => diff-only reference).",
+ "S5_styles_categories_fonts": {
+  "what": "the family editor's annotation-style constellations: each style/attr element OWNS its CategoryElem locals (which own their GStyleElem) and FontElems.  There is NO free-floating category table -- every CategoryElem in both donors is owned by an annotation attr.",
+  "ownership_law": "attr -> CategoryElem -> GStyleElem; attr -> FontElem.  Backrefs: child obj.m_ownerId / hdr m_parents lists mirror the owner; Category<->GStyle reference each other (m_gstyleIds[] / m_categoryId).",
+  "registration": "every element registered in the self-Family (m_familyIds absorbed index + header m_deletion) exactly like geometry members.",
+  "panelboard_counts": {
+   "DimensionStyle": 13,
+   "LeaderStyle": 13,
+   "SpotElevationStyle": 3,
+   "TextNoteAttributes": 5,
+   "TagNoteAttributes": 4,
+   "FilledRegionAttributes": 5,
+   "Text3dAttrSymbol": 3,
+   "RevisionCloudAttr": 1,
+   "ReferenceViewerAttributes": 1,
+   "CategoryElem": 84,
+   "GStyleElem": 84,
+   "FontElem": 41
+  },
+  "column_donor_constellations": [
+   {
+    "class": "DimensionStyle",
+    "id": 1410865,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410866
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1410867
+     },
+     {
+      "class": "FontElem",
+      "id": 1410928
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411009
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions",
+     "m_oAngFormatOptionsAlternate",
+     "m_oLinFormatOptions"
+    ]
+   },
+   {
+    "class": "TextNoteAttributes",
+    "id": 1410868,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410869
+     },
+     {
+      "class": "FontElem",
+      "id": 1410929
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_assocLevelId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_leaderOffsetSheet",
+     "m_lineAndTextAttr",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_textBoxVisibility",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "TagNoteAttributes",
+    "id": 1410870,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410871
+     },
+     {
+      "class": "FontElem",
+      "id": 1410930
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem"
+    ],
+    "obj_top_keys": [
+     "m_assocLevelId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_leaderOffsetSheet",
+     "m_lineAndTextAttr",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_textBoxVisibility",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "LeaderStyle",
+    "id": 1410924,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410925
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family"
+    ],
+    "obj_top_keys": [
+     "m_arrowCentered",
+     "m_arrowClosed",
+     "m_arrowFilled",
+     "m_assocLevelId",
+     "m_categoryId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_tickType",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "DimensionStyle",
+    "id": 1410934,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410935
+     },
+     {
+      "class": "FontElem",
+      "id": 1410937
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1410938
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411011
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions",
+     "m_oAngFormatOptionsAlternate",
+     "m_oLinFormatOptions"
+    ]
+   },
+   {
+    "class": "DimensionStyle",
+    "id": 1410940,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410941
+     },
+     {
+      "class": "FontElem",
+      "id": 1410943
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1410944
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411013
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions",
+     "m_oAngFormatOptionsAlternate",
+     "m_oLinFormatOptions"
+    ]
+   },
+   {
+    "class": "LeaderStyle",
+    "id": 1410948,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410949
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family"
+    ],
+    "obj_top_keys": [
+     "m_arrowCentered",
+     "m_arrowClosed",
+     "m_arrowFilled",
+     "m_assocLevelId",
+     "m_categoryId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_tickType",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "DimensionStyle",
+    "id": 1410951,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410952
+     },
+     {
+      "class": "FontElem",
+      "id": 1410954
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1410955
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411015
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions",
+     "m_oAngFormatOptionsAlternate",
+     "m_oLinFormatOptions"
+    ]
+   },
+   {
+    "class": "LeaderStyle",
+    "id": 1410957,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410958
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "DimensionStyle",
+     "Family"
+    ],
+    "obj_top_keys": [
+     "m_arrowCentered",
+     "m_arrowClosed",
+     "m_arrowFilled",
+     "m_assocLevelId",
+     "m_categoryId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_tickType",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "DimensionStyle",
+    "id": 1410960,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410961
+     },
+     {
+      "class": "FontElem",
+      "id": 1410963
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1410964
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411017
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions",
+     "m_oAngFormatOptionsAlternate",
+     "m_oLinFormatOptions"
+    ]
+   },
+   {
+    "class": "LeaderStyle",
+    "id": 1410966,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1410967
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "DimensionStyle",
+     "Family"
+    ],
+    "obj_top_keys": [
+     "m_arrowCentered",
+     "m_arrowClosed",
+     "m_arrowFilled",
+     "m_assocLevelId",
+     "m_categoryId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_tickType",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "Text3dAttrSymbol",
+    "id": 1410987,
+    "owned_children": [
+     {
+      "class": "FontElem",
+      "id": 1410988
+     }
+    ],
+    "hard_refs_out": [
+     "Family",
+     "FontElem"
+    ],
+    "obj_top_keys": [
+     "m_assocLevelId",
+     "m_bBold",
+     "m_bItalic",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_fontId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "SpotElevationStyle",
+    "id": 1411023,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1411024
+     },
+     {
+      "class": "FontElem",
+      "id": 1411026
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411027
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411029
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_aslIncludeStation",
+     "m_aslIndStation",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions"
+    ]
+   },
+   {
+    "class": "LeaderStyle",
+    "id": 1411031,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1411032
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family"
+    ],
+    "obj_top_keys": [
+     "m_arrowCentered",
+     "m_arrowClosed",
+     "m_arrowFilled",
+     "m_assocLevelId",
+     "m_categoryId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_tickType",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "DimensionStyle",
+    "id": 1411035,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1411036
+     },
+     {
+      "class": "FontElem",
+      "id": 1411038
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411039
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411041
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions",
+     "m_oAngFormatOptionsAlternate",
+     "m_oLinFormatOptions"
+    ]
+   },
+   {
+    "class": "LeaderStyle",
+    "id": 1411043,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1411044
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "DimensionStyle",
+     "Family"
+    ],
+    "obj_top_keys": [
+     "m_arrowCentered",
+     "m_arrowClosed",
+     "m_arrowFilled",
+     "m_assocLevelId",
+     "m_categoryId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_tickType",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "RevisionCloudAttr",
+    "id": 1411160,
+    "owned_children": [],
+    "hard_refs_out": [
+     "Family"
+    ],
+    "obj_top_keys": [
+     "m_assocLevelId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "SpotElevationStyle",
+    "id": 1411205,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1411206
+     },
+     {
+      "class": "FontElem",
+      "id": 1411208
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411209
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411211
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_aslIncludeStation",
+     "m_aslIndStation",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions"
+    ]
+   },
+   {
+    "class": "SpotElevationStyle",
+    "id": 1411215,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1411216
+     },
+     {
+      "class": "FontElem",
+      "id": 1411218
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411219
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411221
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_aslIncludeStation",
+     "m_aslIndStation",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions"
+    ]
+   },
+   {
+    "class": "ReferenceViewerAttributes",
+    "id": 1411224,
+    "owned_children": [],
+    "hard_refs_out": [
+     "Family"
+    ],
+    "obj_top_keys": [
+     "m_assocLevelId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_familyTagId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "DimensionStyle",
+    "id": 1411244,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1411245
+     },
+     {
+      "class": "FontElem",
+      "id": 1411247
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411248
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1411250
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions",
+     "m_oAngFormatOptionsAlternate",
+     "m_oLinFormatOptions"
+    ]
+   },
+   {
+    "class": "TextNoteAttributes",
+    "id": 1411261,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1411262
+     },
+     {
+      "class": "FontElem",
+      "id": 1411264
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_assocLevelId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_leaderOffsetSheet",
+     "m_lineAndTextAttr",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_textBoxVisibility",
+     "m_unplacedOwnerId"
+    ]
+   },
+   {
+    "class": "DimensionStyle",
+    "id": 1468412,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1468413
+     },
+     {
+      "class": "FontElem",
+      "id": 1468415
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1468416
+     },
+     {
+      "class": "CategoryElem",
+      "id": 1468418
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "Family",
+     "FontElem",
+     "LeaderStyle"
+    ],
+    "obj_top_keys": [
+     "m_alternateUnits",
+     "m_alternateUnitsPrefix",
+     "m_alternateUnitsSuffix",
+     "m_arcCenterMark",
+     "m_arrowHeadStyleId",
+     "m_assocLevelId",
+     "m_cellList",
+     "m_centerlinePatternCatId",
+     "m_centerlineTickMarkStyleId",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_dimLineSnapDist",
+     "m_dimWitnCntrlExtBelow",
+     "m_dimensionStyleType",
+     "m_docAccess",
+     "m_dummy",
+     "m_equalityFormattingArr",
+     "m_equalityText",
+     "m_equalityWitnessDisplay",
+     "m_famId",
+     "m_geomSteps",
+     "m_heavyEndCatId",
+     "m_id",
+     "m_interiorTickMarkDisplay",
+     "m_interiorTickMarkStyleId",
+     "m_leaderDisplayCondition",
+     "m_leaderShoulderLength",
+     "m_leaderTextLocation",
+     "m_leaderTickMarkStyleId",
+     "m_leaderType",
+     "m_linearDimType",
+     "m_linearFilledTick",
+     "m_linearTickType",
+     "m_locked",
+     "m_moribund",
+     "m_oAngFormatOptions",
+     "m_oAngFormatOptionsAlternate",
+     "m_oLinFormatOptions"
+    ]
+   },
+   {
+    "class": "LeaderStyle",
+    "id": 1468420,
+    "owned_children": [
+     {
+      "class": "CategoryElem",
+      "id": 1468421
+     }
+    ],
+    "hard_refs_out": [
+     "CategoryElem",
+     "DimensionStyle",
+     "Family"
+    ],
+    "obj_top_keys": [
+     "m_arrowCentered",
+     "m_arrowClosed",
+     "m_arrowFilled",
+     "m_assocLevelId",
+     "m_categoryId",
+     "m_cellList",
+     "m_constrInfo",
+     "m_createdPhaseId",
+     "m_demolishedPhaseId",
+     "m_designOptionId",
+     "m_docAccess",
+     "m_dummy",
+     "m_famId",
+     "m_geomSteps",
+     "m_id",
+     "m_locked",
+     "m_moribund",
+     "m_ownerDBViewId",
+     "m_pGeomTable",
+     "m_pParamValueSetAString",
+     "m_pParamValueSetDouble",
+     "m_pParamValueSetElementId",
+     "m_pParamValueSetInt",
+     "m_previewElemId",
+     "m_renderStyleId",
+     "m_symbolInfo",
+     "m_tickType",
+     "m_unplacedOwnerId"
+    ]
+   }
+  ],
+  "unknowns": [
+   "field VALUES per style (tick marks, font names, sizes): measured dumps exist per element in the donor units; which values are category-generic vs family-specific is NOT yet established",
+   "whether the audit requires ALL constellations or a minimal subset (SUB_S5A/S5B begin that bisection)",
+   "the m_cellList group ids on CategoryElem rows (observed m_groupId -> owner style) -- semantics inferred, not proven"
+  ]
+ },
+ "S6_nested_annotation_family": {
+  "what": "a COMPLETE nested annotation symbol family (the column donor nests 'Level Head - Upgrade'): a second Family element owned by the self-Family, carrying its own m_familyIds registry over 112 members resident in the SAME unit (its 2D curves, filled regions, tag notes, dims, view types, drafting-view chain), plus FamilySymbol (the type, owned by the nested family), FamilySurrogate + FamSymSurrogate (owned by the self-Family).  The nested Family carries NO content document (famdoc_bisect: measured).",
+  "binding": "LevelAttributes.obj.m_familyTagId -> the nested FamilySymbol (the level datum draws its head with it).  OUR famgen authors m_familyTagId = -1.",
+  "panelboard_counts": {
+   "Family_total_incl_self": 4,
+   "FamilySymbol": 4,
+   "FamilySurrogate": 3,
+   "FamSymSurrogate": 4,
+   "note": "the panelboard donor nests THREE annotation families (4 Family elements incl. self) -- electrical famdocs carry MORE nested furniture than the structural column, not less"
+  },
+  "column_donor_cluster": {
+   "family": 1411054,
+   "n_registered_members": 112,
+   "member_census": {
+    "BaseLevelTracker": 1,
+    "CalloutTag": 1,
+    "CategoryElem": 18,
+    "CorniceAttr": 1,
+    "CoverType": 1,
+    "CurveElem": 7,
+    "DBDrawing": 1,
+    "DBViewDrafting": 1,
+    "DBViewType": 10,
+    "DaylightSourceIdSet": 1,
+    "DimensionStyle": 3,
+    "FilledRegion": 2,
+    "FilledRegionAttributes": 2,
+    "FontElem": 10,
+    "GStyleElem": 18,
+    "InteriorElevAttributes": 1,
+    "LeaderStyle": 3,
+    "LinearDimString": 7,
+    "ParamElemFamily": 1,
+    "PenWidthTableElem": 1,
+    "PropertyAttr": 1,
+    "RadialDim": 3,
+    "RefPlane": 2,
+    "RevealAttr": 1,
+    "SectionAttributes": 1,
+    "SketchPlane": 3,
+    "TagNote": 2,
+    "TagNoteAttributes": 1,
+    "Text3dAttrSymbol": 1,
+    "TextNoteAttributes": 1,
+    "TrueNorth": 1,
+    "VarSketch": 3,
+    "Viewer": 1,
+    "Viewport": 1
+   },
+   "surrogate_shape": [
+    {
+     "class": "FamilySurrogate",
+     "id": 1411142,
+     "owned_children": [],
+     "hard_refs_out": [
+      "Family"
+     ],
+     "obj_top_keys": [
+      "m_assocLevelId",
+      "m_bIsAdaptive",
+      "m_categoryId",
+      "m_cellList",
+      "m_constrInfo",
+      "m_createdPhaseId",
+      "m_demolishedPhaseId",
+      "m_designOptionId",
+      "m_docAccess",
+      "m_dummy",
+      "m_elemId",
+      "m_famId",
+      "m_geomSteps",
+      "m_guid",
+      "m_id",
+      "m_locked",
+      "m_moribund",
+      "m_name",
+      "m_ownerDBViewId",
+      "m_pADoc",
+      "m_pGeomTable",
+      "m_pParamValueSetAString",
+      "m_pParamValueSetDouble",
+      "m_pParamValueSetElementId",
+      "m_pParamValueSetInt",
+      "m_previewElemId",
+      "m_unplacedOwnerId"
+     ]
+    },
+    {
+     "class": "FamilySymbol",
+     "id": 1411143,
+     "owned_children": [],
+     "hard_refs_out": [
+      "FamSymSurrogate",
+      "Family",
+      "GStyleElem",
+      "ParamElemFamily",
+      "TagNoteAttributes"
+     ],
+     "obj_top_keys": [
+      "m_active",
+      "m_arrConnectorData",
+      "m_arrFamSymRegenData",
+      "m_arrProfileLoops",
+      "m_assocLevelId",
+      "m_bCantBeStretched",
+      "m_bConfirmedStretchable",
+      "m_bHasNothingVisible",
+      "m_bHostLayersFlippedY",
+      "m_bMayBeStretchable",
+      "m_cellList",
+      "m_closurePlanes",
+      "m_complexCutGeoms",
+      "m_complexCutRefIds",
+      "m_constrInfo",
+      "m_controlIconTags",
+      "m_controlIcons",
+      "m_createdPhaseId",
+      "m_cutDirs",
+      "m_cutIndices",
+      "m_cutPlaneHeights",
+      "m_demolishedPhaseId",
+      "m_designOptionId",
+      "m_docAccess",
+      "m_dummy",
+      "m_dummyHostCutFaceTags",
+      "m_dummyHostGeoms",
+      "m_dummyHostInsertionFaceTags",
+      "m_faceBasedHostNormal",
+      "m_famId",
+      "m_familyId",
+      "m_flippedGeomRefHandlesSet",
+      "m_gTagDirFlagsPairs",
+      "m_geomSteps",
+      "m_geomTag2MaterialId",
+      "m_geomTagOfDummyCurveRef",
+      "m_handleMgr",
+      "m_hasParamDefValue",
+      "m_hasRotCenter",
+      "m_id"
+     ]
+    },
+    {
+     "class": "FamSymSurrogate",
+     "id": 1411144,
+     "owned_children": [],
+     "hard_refs_out": [
+      "Family",
+      "FamilySurrogate",
+      "FamilySymbol"
+     ],
+     "obj_top_keys": [
+      "m_assocLevelId",
+      "m_categoryId",
+      "m_cellList",
+      "m_constrInfo",
+      "m_createdPhaseId",
+      "m_demolishedPhaseId",
+      "m_designOptionId",
+      "m_docAccess",
+      "m_dummy",
+      "m_elemId",
+      "m_famId",
+      "m_famSurrogateId",
+      "m_geomSteps",
+      "m_id",
+      "m_locked",
+      "m_moribund",
+      "m_name",
+      "m_ownerDBViewId",
+      "m_pADoc",
+      "m_pGeomTable",
+      "m_pParamValueSetAString",
+      "m_pParamValueSetDouble",
+      "m_pParamValueSetElementId",
+      "m_pParamValueSetInt",
+      "m_unplacedOwnerId"
+     ]
+    }
+   ]
+  },
+  "unknowns": [
+   "which nested families a panelboard NEEDS (the RME donor nests 3; their identities/roles need the RME unit's own classification pass)",
+   "whether the audit requires the nested family or only tolerates it (SUB_S6's verdict answers this)",
+   "the FamSymSurrogate <-> host-side type wiring for a nested (non-loadable) family -- unmeasured"
+  ]
+ },
+ "rme_panelboard_reference": {
+  "unit": 30,
+  "n_elements": 549,
+  "census": {
+   "Alignment": 10,
+   "AreaSettingsElem": 1,
+   "AutoCamSettingsElem": 1,
+   "BaseLevelTracker": 3,
+   "BrowserOrganization": 2,
+   "CalloutTag": 3,
+   "CategoryElem": 84,
+   "ConnectorElem": 1,
+   "CorniceAttr": 3,
+   "CoverType": 3,
+   "CurveElem": 18,
+   "DBDrawing": 11,
+   "DBView3d": 2,
+   "DBViewDrafting": 2,
+   "DBViewPlan": 2,
+   "DBViewProject": 1,
+   "DBViewSection": 4,
+   "DBViewType": 31,
+   "DaylightSourceIdSet": 3,
+   "DefaultDivideSettings": 1,
+   "DimensionStyle": 13,
+   "DrawOrder3dElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "ExtentElem": 8,
+   "ExtrusionElem": 2,
+   "FamSymSurrogate": 4,
+   "Family": 4,
+   "FamilySurrogate": 3,
+   "FamilySymbol": 4,
+   "FilledRegion": 2,
+   "FilledRegionAttributes": 5,
+   "FontElem": 41,
+   "GStyleElem": 84,
+   "InteriorElevAttributes": 3,
+   "LeaderStyle": 13,
+   "LegendComponent": 1,
+   "Level": 1,
+   "LevelAttributes": 1,
+   "LinearDimString": 18,
+   "LoadCaseElem": 8,
+   "LoadNatureElem": 8,
+   "ModelClipBox": 2,
+   "ParamElemFamily": 10,
+   "PenWidthTableElem": 3,
+   "PostedWarningElem": 3,
+   "PropertyAttr": 2,
+   "RadialDim": 3,
+   "RefPlane": 14,
+   "ReferenceViewerAttributes": 1,
+   "RevealAttr": 3,
+   "RevisionCloudAttr": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "STEPExportSettings": 1,
+   "SectionAttributes": 4,
+   "SketchGrid": 18,
+   "SketchGridAppearanceParentElem": 1,
+   "SketchPlane": 18,
+   "SpotElevationStyle": 3,
+   "SunAndShadowSettings": 1,
+   "TagNote": 2,
+   "TagNoteAttributes": 4,
+   "Text3dAttrSymbol": 3,
+   "TextNoteAttributes": 5,
+   "TrueNorth": 3,
+   "UnitsElem": 1,
+   "VarSketch": 9,
+   "Viewer": 9,
+   "Viewer3d": 2,
+   "Viewport": 11
+  }
+ }
+}

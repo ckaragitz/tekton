@@ -1,0 +1,3028 @@
+{
+ "tool": "tools/birthright_mine.py mine",
+ "seconds": 1.0,
+ "spec": "experiments/birthright/template_birth.json",
+ "born": {
+  "elements": 1992,
+  "classes": 82
+ },
+ "birth": {
+  "elements": 1683,
+  "classes": [
+   "AnalyticalLinkType",
+   "AppearanceAssetElem",
+   "AreaSettingsElem",
+   "AssemblyCodeTable",
+   "AutoCamSettingsElem",
+   "AutoJoinTracker",
+   "BaseLevelTracker",
+   "BrowserOrganization",
+   "CalloutTag",
+   "CategoryElem",
+   "ComponentRepeaterSlotSpecialType",
+   "CoordinateSystemDisplayElem",
+   "CorniceAttr",
+   "CoverType",
+   "DaylightSourceIdSet",
+   "DefaultDivideSettings",
+   "DimensionStyle",
+   "DrawOrder3dElem",
+   "Dwg2dExportUserSettingsData",
+   "ElectricalDemandFactorDefinition",
+   "FillPatternElem",
+   "FontElem",
+   "GStyleElem",
+   "InteriorElevAttributes",
+   "KeynoteTable",
+   "LeaderStyle",
+   "LinePatternElem",
+   "LoadCaseElem",
+   "LoadNatureElem",
+   "MaterialElem",
+   "PenWidthTableElem",
+   "PropertyAttr",
+   "ReferenceViewerAttributes",
+   "RevealAttr",
+   "RevisionCloudAttr",
+   "RvtLinkInstanceAppearanceParentElem",
+   "STEPExportSettings",
+   "SectionAttributes",
+   "SketchGrid",
+   "SketchGridAppearanceParentElem",
+   "SpotElevationStyle",
+   "StructConnectionType",
+   "StructSettingsElem",
+   "TagNoteAttributes",
+   "Text3dAttrSymbol",
+   "TextNoteAttributes",
+   "TrueNorth"
+  ],
+  "class_counts": {
+   "AnalyticalLinkType": 1,
+   "AppearanceAssetElem": 27,
+   "AreaSettingsElem": 1,
+   "AssemblyCodeTable": 1,
+   "AutoCamSettingsElem": 1,
+   "AutoJoinTracker": 1,
+   "BaseLevelTracker": 1,
+   "BrowserOrganization": 2,
+   "CalloutTag": 1,
+   "CategoryElem": 52,
+   "ComponentRepeaterSlotSpecialType": 2,
+   "CoordinateSystemDisplayElem": 1,
+   "CorniceAttr": 1,
+   "CoverType": 1,
+   "DaylightSourceIdSet": 1,
+   "DefaultDivideSettings": 1,
+   "DimensionStyle": 9,
+   "DrawOrder3dElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "ElectricalDemandFactorDefinition": 1,
+   "FillPatternElem": 7,
+   "FontElem": 21,
+   "GStyleElem": 1459,
+   "InteriorElevAttributes": 1,
+   "KeynoteTable": 1,
+   "LeaderStyle": 7,
+   "LinePatternElem": 14,
+   "LoadCaseElem": 8,
+   "LoadNatureElem": 8,
+   "MaterialElem": 24,
+   "PenWidthTableElem": 1,
+   "PropertyAttr": 1,
+   "ReferenceViewerAttributes": 1,
+   "RevealAttr": 1,
+   "RevisionCloudAttr": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "STEPExportSettings": 1,
+   "SectionAttributes": 3,
+   "SketchGrid": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "SpotElevationStyle": 3,
+   "StructConnectionType": 5,
+   "StructSettingsElem": 1,
+   "TagNoteAttributes": 1,
+   "Text3dAttrSymbol": 1,
+   "TextNoteAttributes": 2,
+   "TrueNorth": 1
+  }
+ },
+ "dropped": {
+  "31": {
+   "class": "DBViewSection",
+   "blocking_refs": [
+    {
+     "id": 30,
+     "class": "Viewer",
+     "why": "excluded-class"
+    },
+    {
+     "id": 32,
+     "class": "DBDrawing",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5552,
+     "class": "ExtentElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6096,
+     "class": "DBViewType",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6832,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "35": {
+   "class": "DBViewSection",
+   "blocking_refs": [
+    {
+     "id": 34,
+     "class": "Viewer",
+     "why": "excluded-class"
+    },
+    {
+     "id": 36,
+     "class": "DBDrawing",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5553,
+     "class": "ExtentElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6096,
+     "class": "DBViewType",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6833,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "39": {
+   "class": "DBViewSection",
+   "blocking_refs": [
+    {
+     "id": 38,
+     "class": "Viewer",
+     "why": "excluded-class"
+    },
+    {
+     "id": 40,
+     "class": "DBDrawing",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5554,
+     "class": "ExtentElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6096,
+     "class": "DBViewType",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6834,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "43": {
+   "class": "DBViewSection",
+   "blocking_refs": [
+    {
+     "id": 42,
+     "class": "Viewer",
+     "why": "excluded-class"
+    },
+    {
+     "id": 44,
+     "class": "DBDrawing",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5555,
+     "class": "ExtentElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6096,
+     "class": "DBViewType",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6835,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "51": {
+   "class": "Viewer3d",
+   "blocking_refs": [
+    {
+     "id": 6097,
+     "class": "DBViewType",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "52": {
+   "class": "DBView3d",
+   "blocking_refs": [
+    {
+     "id": 53,
+     "class": "DBDrawing",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6097,
+     "class": "DBViewType",
+     "why": "excluded-class"
+    },
+    {
+     "id": 7387,
+     "class": "ExtentElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "423": {
+   "class": "Alignment",
+   "blocking_refs": [
+    {
+     "id": 47,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "442": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "472": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 47,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 4208,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "819": {
+   "class": "ModelClipBox",
+   "blocking_refs": [
+    {
+     "id": 51,
+     "class": "Viewer3d",
+     "why": "dropped-candidate"
+    }
+   ]
+  },
+  "3671": {
+   "class": "RadialDim",
+   "blocking_refs": [
+    {
+     "id": 80,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 81,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3644,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3673": {
+   "class": "RadialDim",
+   "blocking_refs": [
+    {
+     "id": 80,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 81,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3637,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3675": {
+   "class": "RadialDim",
+   "blocking_refs": [
+    {
+     "id": 80,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 81,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3631,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3677": {
+   "class": "RadialDim",
+   "blocking_refs": [
+    {
+     "id": 80,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 81,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3626,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3789": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 87,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3741,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3823": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 86,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3741,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3845": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 86,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3747,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3882": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 85,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3747,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3922": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 88,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3758,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3939": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 85,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3758,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3961": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 87,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3772,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3971": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3746,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3972": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3736,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3741,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3974": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3757,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3758,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3975": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3771,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3772,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "3988": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 88,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 612,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 613,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3772,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "4224": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 23,
+     "class": "DBViewPlan",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1084,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1085,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 4209,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "4240": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 23,
+     "class": "DBViewPlan",
+     "why": "excluded-class"
+    },
+    {
+     "id": 48,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1083,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 4253,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "4424": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 23,
+     "class": "DBViewPlan",
+     "why": "excluded-class"
+    },
+    {
+     "id": 46,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1084,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1085,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "4492": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 48,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 80,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 81,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3626,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "4494": {
+   "class": "Alignment",
+   "blocking_refs": [
+    {
+     "id": 80,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 81,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 85,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1085,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "4520": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 80,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 81,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1083,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 3637,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "4527": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 80,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 81,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 87,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1084,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "4618": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 48,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1083,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 4588,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "4701": {
+   "class": "Alignment",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 614,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5675": {
+   "class": "SketchGrid",
+   "blocking_refs": [
+    {
+     "id": 23,
+     "class": "DBViewPlan",
+     "why": "excluded-class"
+    },
+    {
+     "id": 1715,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5676": {
+   "class": "SketchGrid",
+   "blocking_refs": [
+    {
+     "id": 27,
+     "class": "DBViewPlan",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5677": {
+   "class": "SketchGrid",
+   "blocking_refs": [
+    {
+     "id": 31,
+     "class": "DBViewSection",
+     "why": "dropped-candidate"
+    }
+   ]
+  },
+  "5678": {
+   "class": "SketchGrid",
+   "blocking_refs": [
+    {
+     "id": 35,
+     "class": "DBViewSection",
+     "why": "dropped-candidate"
+    }
+   ]
+  },
+  "5679": {
+   "class": "SketchGrid",
+   "blocking_refs": [
+    {
+     "id": 39,
+     "class": "DBViewSection",
+     "why": "dropped-candidate"
+    }
+   ]
+  },
+  "5680": {
+   "class": "SketchGrid",
+   "blocking_refs": [
+    {
+     "id": 43,
+     "class": "DBViewSection",
+     "why": "dropped-candidate"
+    }
+   ]
+  },
+  "5681": {
+   "class": "SketchGrid",
+   "blocking_refs": [
+    {
+     "id": 6081,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5702": {
+   "class": "DimensionStyle",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5703": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5704": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5705": {
+   "class": "TextNoteAttributes",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5706": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5707": {
+   "class": "TagNoteAttributes",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5708": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5710": {
+   "class": "DBViewDrafting",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5709,
+     "class": "Viewer",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5711,
+     "class": "DBDrawing",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5712,
+     "class": "Viewport",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6113,
+     "class": "DBViewType",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5719": {
+   "class": "InteriorElevAttributes",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5720": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5721": {
+   "class": "LeaderStyle",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5722": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5723": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5724": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5725": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5726": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5727": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5728": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5733": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5734": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5735": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5736": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5737": {
+   "class": "BaseLevelTracker",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5740": {
+   "class": "FilledRegionAttributes",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5741": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5742": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5743": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5744": {
+   "class": "DimensionStyle",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5745": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5746": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5747": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5748": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5749": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5752": {
+   "class": "LeaderStyle",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5753": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5754": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5779": {
+   "class": "FilledRegionAttributes",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5780": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5781": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5782": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5784": {
+   "class": "RevealAttr",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5785": {
+   "class": "CorniceAttr",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5786": {
+   "class": "Text3dAttrSymbol",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5787": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5788": {
+   "class": "TrueNorth",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5790": {
+   "class": "DaylightSourceIdSet",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5791": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5792": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5793": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5794": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5810": {
+   "class": "TagNote",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5811": {
+   "class": "TagNote",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5813": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5714,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5777,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5778,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5809,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5814": {
+   "class": "RadialDim",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5777,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5778,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5809,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5815": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5713,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5777,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5778,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5809,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5818": {
+   "class": "FilledRegion",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5817,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5821": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5714,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5816,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5817,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5820,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5822": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5713,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5816,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5817,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5820,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5824": {
+   "class": "RadialDim",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5816,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5817,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5823,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5827": {
+   "class": "FilledRegion",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5826,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5830": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5714,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5825,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5826,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5828,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5831": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5825,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5826,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5828,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5829,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5832": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5713,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5825,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5826,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5828,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5834": {
+   "class": "RadialDim",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5825,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5826,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5833,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5835": {
+   "class": "LeaderStyle",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5836": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5837": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5838": {
+   "class": "PropertyAttr",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5852": {
+   "class": "FamilySurrogate",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5855": {
+   "class": "FamilySymbol",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5809,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5812,
+     "class": "ParamElemFamily",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5819,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5820,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 5823,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "5856": {
+   "class": "FamSymSurrogate",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6100": {
+   "class": "SectionAttributes",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6101": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6102": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6103": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6104": {
+   "class": "CalloutTag",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6663": {
+   "class": "FilledRegion",
+   "blocking_refs": [
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6691": {
+   "class": "Alignment",
+   "blocking_refs": [
+    {
+     "id": 1084,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6661,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6667,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6693": {
+   "class": "Alignment",
+   "blocking_refs": [
+    {
+     "id": 48,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6661,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6668,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6695": {
+   "class": "Alignment",
+   "blocking_refs": [
+    {
+     "id": 1083,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6661,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6670,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6697": {
+   "class": "Alignment",
+   "blocking_refs": [
+    {
+     "id": 1085,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6661,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6669,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6704": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 48,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6661,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6700,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6717": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 1083,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6661,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6713,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6740": {
+   "class": "ArcAlignment",
+   "blocking_refs": [
+    {
+     "id": 82,
+     "class": "ExtrusionElem",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6661,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6739,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6743": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 48,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6661,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6739,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "6765": {
+   "class": "LinearDimString",
+   "blocking_refs": [
+    {
+     "id": 1083,
+     "class": "RefPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6661,
+     "class": "SketchPlane",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6662,
+     "class": "VarSketch",
+     "why": "excluded-class"
+    },
+    {
+     "id": 6669,
+     "class": "CurveElem",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7171": {
+   "class": "DimensionStyle",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7172": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7173": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7174": {
+   "class": "FontElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7175": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7176": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7177": {
+   "class": "CategoryElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7178": {
+   "class": "GStyleElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7200": {
+   "class": "PenWidthTableElem",
+   "blocking_refs": [
+    {
+     "id": 5701,
+     "class": "Family",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7211": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6936,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7212": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6936,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7213": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6936,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7214": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6936,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7215": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6936,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7216": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6936,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7217": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6937,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7218": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6937,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7219": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6937,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7220": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6937,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7221": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6937,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7222": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6937,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7223": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6938,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7224": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6938,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7225": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6938,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7226": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6938,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7227": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6938,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7228": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6938,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7229": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6939,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7230": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6939,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7231": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6939,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7232": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6939,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7233": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6939,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7234": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6939,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7235": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6940,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7236": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6940,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7237": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6940,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7238": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6940,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7239": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6940,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7240": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6940,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7241": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6941,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7242": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6941,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7243": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6941,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7244": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6941,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7245": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6941,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  },
+  "7246": {
+   "class": "ParamElemElectricalLoadClassification",
+   "blocking_refs": [
+    {
+     "id": 6941,
+     "class": "ElectricalLoadClassification",
+     "why": "excluded-class"
+    }
+   ]
+  }
+ },
+ "dropped_by_class": {
+  "DBViewSection": 4,
+  "Viewer3d": 1,
+  "DBView3d": 1,
+  "Alignment": 7,
+  "LinearDimString": 32,
+  "RadialDim": 7,
+  "SketchGrid": 7,
+  "DimensionStyle": 3,
+  "CategoryElem": 18,
+  "TextNoteAttributes": 1,
+  "TagNoteAttributes": 1,
+  "DBViewDrafting": 1,
+  "InteriorElevAttributes": 1,
+  "LeaderStyle": 3,
+  "GStyleElem": 18,
+  "FontElem": 10,
+  "BaseLevelTracker": 1,
+  "FilledRegionAttributes": 2,
+  "RevealAttr": 1,
+  "CorniceAttr": 1,
+  "Text3dAttrSymbol": 1,
+  "TrueNorth": 1,
+  "DaylightSourceIdSet": 1,
+  "TagNote": 2,
+  "FilledRegion": 3,
+  "PropertyAttr": 1,
+  "FamilySurrogate": 1,
+  "FamilySymbol": 1,
+  "FamSymSurrogate": 1,
+  "SectionAttributes": 1,
+  "CalloutTag": 1,
+  "ArcAlignment": 1,
+  "PenWidthTableElem": 1,
+  "ParamElemElectricalLoadClassification": 36,
+  "ModelClipBox": 1
+ },
+ "count_shortfall_overlapping_classes": {
+  "Family": 1,
+  "Viewer": 6,
+  "DBViewPlan": 1,
+  "DBDrawing": 7,
+  "Viewport": 7,
+  "RefPlane": 7,
+  "SketchPlane": 12,
+  "VarSketch": 6,
+  "ExtrusionElem": 1,
+  "CurveElem": 27,
+  "ExtentElem": 6,
+  "DBViewType": 18,
+  "ElectricalLoadClassification": 5
+ },
+ "adoption_census": {
+  "birth_elements": {
+   "scalars": 67513,
+   "refs": 9446,
+   "strings_adopted": 10886,
+   "authored_strings": 300,
+   "authored_string_samples": [
+    "SecretInternalLinAngDimStyle5p4736185",
+    "SecretInternalLinAngArrowhead547r36186",
+    "SecretInternalRadDimStyle54q736186",
+    "SecretInternalRadArrowhead5473s6187",
+    "SecretInternalTypePreviewDimStyle548975981",
+    "SecretInternalTypePreviewgArrowhead5478765182",
+    "Laminate - Ivory, Matte (1)",
+    "C:\\Users\\hansonje\\OneDrive - Autodesk\\FY-2021 Projects\\Revit",
+    "UniformatClassifications.txt",
+    "Relative to Library Locations",
+    "C:\\Users\\hansonje\\Desktop\\Downloadable Files\\UniformatClassi",
+    "UniformatClassifications.txt",
+    "Relative to Library Locations",
+    "Perimeter Insulation - Rigid",
+    "Pressure Injected Grouting",
+    "Pressure Injected Footings",
+    "Other Special Foundation Conditions",
+    "Basement Excavation & Backfill",
+    "Structural Backfill & Compaction",
+    "Basement Wall Construction",
+    "Basement Wall Insulation - Rigid",
+    "Suspended Basement Floor Construction",
+    "Upper Floor Framing - Vertical Elements",
+    "Bearing Walls - Drywall w/Studs",
+    "Bearing Walls - Plaster w/Studs",
+    "Upper Floor Framing - Horizontal Elements",
+    "Beams - Wood (Dimensional Lumber)",
+    "Joists - Wood (Dimensional Lumber)",
+    "Joists - Wood (Manufactured)",
+    "Upper Floor Framing - Systems",
+    "CIP Slabs - Flat Plate w/Drop Panels",
+    "CIP Slabs - Multispan Joist",
+    "CIP Beam & Slab - One Way",
+    "CIP Beam & Slab - Two Way",
+    "Composite Beam, Deck & Slab",
+    "W Shape Composite Deck & Slab",
+    "Precast Beams w/ Precast Planks",
+    "Precast Beams w/Precast Double T",
+    "Steel Girders w/ Steel Beams",
+    "Steel Beams w/ Steel Joists"
+   ],
+   "authored_guids": 36
+  },
+  "self_family": {
+   "scalars": 84
+  }
+ },
+ "n_author_slots_paths": 336,
+ "separators_born": {
+  "cell_dup_identity_groups": false,
+  "cell_no_materials_group": false,
+  "cell_group_keys": [
+   "constraints-1.0.0",
+   "materials-1.0.0",
+   "dimensions-1.0.0",
+   "identityData-1.0.0"
+  ],
+  "hdr_deletion_prefix": [
+   -1154647,
+   -1001205
+  ],
+  "hdr_deletion_elements_only": false,
+  "sf_nextAbsorbedIndex": 3170,
+  "sf_absorbed_dense": false,
+  "sf_familyIds": {
+   "n": 1881,
+   "max_index": 3169,
+   "next_equals_max_plus_1": true,
+   "law": "the born index space carries HISTORY GAPS (sparse indices), next = max + 1"
+  },
+  "sf_category": -2000080,
+  "sf_locked_has_bip": true,
+  "sf_locked": [
+   -1001205,
+   4208,
+   4209,
+   4253
+  ],
+  "sf_partType": 0,
+  "sf_predefinedLimitIdx": 35,
+  "sf_refTypeIds": [],
+  "sf_type_pairs": 4,
+  "sf_type_idx": 2
+ },
+ "topology_flips": [
+  "DBViewPlan",
+  "DBViewProject",
+  "DBViewType",
+  "ElectricalLoadClassification",
+  "ExtentElem",
+  "Level",
+  "LevelAttributes",
+  "ParamElemFamily",
+  "RefPlane",
+  "UnitsElem"
+ ],
+ "fields_lane_keys": [
+  "m_appVersionAtInitialLoad",
+  "m_appVersionAtLoad",
+  "m_assocLevelId",
+  "m_bAllowCutWithUnattachedVoids",
+  "m_bCutback",
+  "m_bElecKeepAnnotationOrientation",
+  "m_bElevationMarkBody",
+  "m_bForceProperMirroring",
+  "m_bFromADPx",
+  "m_bHasAnyDummyRefs",
+  "m_bHasBaseArrays",
+  "m_bHasComplexCuts",
+  "m_bHasInstances",
+  "m_bHasLabeledDimensions",
+  "m_bHasSimpleCuts",
+  "m_bHasTypesFromCatalog",
+  "m_bIsHostBased",
+  "m_bIsNew2010",
+  "m_bIsSavable",
+  "m_bIsSelfOrienting",
+  "m_bShared",
+  "m_bStretchingDisallowed",
+  "m_bStructUseCap",
+  "m_bUsePreCutShape",
+  "m_canHostRebar",
+  "m_constrInfo",
+  "m_contentProtected",
+  "m_couldAutojoin",
+  "m_createdPhaseId",
+  "m_curveBased",
+  "m_defaultColumnHeight",
+  "m_defaultHeightAboveLevel",
+  "m_defaultHostThickness",
+  "m_demolishedPhaseId",
+  "m_designOptionId",
+  "m_dummy",
+  "m_eBeamCutbackForColumn",
+  "m_eBraceRepType",
+  "m_eProfileFamDefinition",
+  "m_eProfileFamUsage",
+  "m_eProteinRenderType",
+  "m_eRenderModelType",
+  "m_eStructConnectionApplyTo",
+  "m_eStructHiddenViewDisplayType",
+  "m_eStructMaterialType",
+  "m_eSymbolicRepType",
+  "m_elevationFixed",
+  "m_enableCuttingInViews",
+  "m_famId",
+  "m_familyNestingBehavior",
+  "m_fixedElevation",
+  "m_fsdos",
+  "m_geomSteps",
+  "m_hasRoomCalculationPoint",
+  "m_inPlace",
+  "m_inplaceFamElevation",
+  "m_is2d",
+  "m_isAboutToBecomeParametric",
+  "m_isCrvDriven",
+  "m_isCurtainPanel",
+  "m_isModel",
+  "m_isParametric",
+  "m_isRebarShape",
+  "m_isSpiralShape",
+  "m_isUserCreated",
+  "m_isVertical",
+  "m_keepTextReadable",
+  "m_lightSourceDefBits",
+  "m_locked",
+  "m_moribund",
+  "m_ownerDBViewId",
+  "m_pGeomTable",
+  "m_pParamValueSetAString",
+  "m_pParamValueSetDouble",
+  "m_pParamValueSetElementId",
+  "m_pParamValueSetInt",
+  "m_panelConfig",
+  "m_predefinedLimitIdx",
+  "m_refTypeIds",
+  "m_rotateTagTextWithComponent",
+  "m_rotateTagWithComponent",
+  "m_roundConnDimType",
+  "m_setCreated2011FaceBasedFamily",
+  "m_shouldStayParametric",
+  "m_tagCurveAttachmentProportion",
+  "m_tagOrientationBehavior",
+  "m_unplacedOwnerId"
+ ],
+ "fields_excluded": {
+  "m_cellList": "policy",
+  "m_docAccess": "policy",
+  "m_id": "policy",
+  "m_familyParams": "policy",
+  "m_trivialParamIds": "policy",
+  "m_name": "policy",
+  "m_path": "policy",
+  "m_famCatalogKeys": "policy",
+  "m_pFamilyTypes": "policy",
+  "m_pADoc": "policy",
+  "m_oFamDoc": "policy",
+  "m_deletableElements": "policy",
+  "m_oldCurveElemsWithBadSketchAndSP": "policy",
+  "m_lockedParameterIdsForDirectManipulation": "policy",
+  "m_familyIds": "policy",
+  "m_oHostFaceGeomRef": "policy",
+  "m_dbviewInfos": "policy",
+  "m_dumpSymName": "policy",
+  "m_omniClassCode": "policy",
+  "m_classificationDescription": "policy",
+  "m_seekItemId": "policy",
+  "m_familyNameKeyText": "policy",
+  "m_structuralCodeName": "policy",
+  "m_protectionAccessKey": "policy",
+  "m_categoryId": "policy",
+  "m_keyExtParamId": "policy",
+  "m_ownerSymbolId": "policy",
+  "m_regeneratingGroupId": "policy",
+  "m_famDocGUID": "policy",
+  "m_nextAbsorbedIndex": "policy",
+  "m_partType": "policy",
+  "m_isWorkPlaneBased": "policy",
+  "m_oFamDimConstrMgr": "policy",
+  "m_refs": "policy",
+  "m_oDefaultStretchLine": "policy",
+  "m_outOfFamilyRefs": "policy",
+  "m_outOfFamilyHostIds": "policy",
+  "m_outOfFamilyHostGrefs": "policy",
+  "m_oFamilyReferenceIdxMgr": "policy",
+  "m_surrogateId": "policy"
+ }
+}

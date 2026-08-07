@@ -1,0 +1,476 @@
+{
+ "stage": "L",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "loads": [
+  {
+   "tag": "PP-1",
+   "in": "experiments/instbug/_build/gabpd/stage_L0_base.rvt",
+   "out": "experiments/instbug/_build/gabpd/stage_L1_pp1.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "host_watermark": 1472524,
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "surrogate_id": 1472581,
+   "content_guid": "8ca82b7d-d398-4e33-9da0-0f4a56dd9c99",
+   "twins": 14,
+   "elements_added": 18,
+   "proofs": {
+    "plan": {
+     "content_guid": "8ca82b7d-d398-4e33-9da0-0f4a56dd9c99",
+     "host_watermark": 1472524,
+     "our_doc_ids": [
+      1472525,
+      1472565
+     ],
+     "host_ids": {
+      "family": 1472566,
+      "surrogate": 1472581,
+      "symbol": 1472582,
+      "symbol_surrogate": 1472583,
+      "instance": -1,
+      "twins": 14
+     }
+    },
+    "roundtrip_gate": {
+     "records": 54,
+     "roundtrip_ok": 54,
+     "failed": 0,
+     "encoded_bytes": 19603,
+     "failures": []
+    },
+    "save_unit": {
+     "guid": "8ca82b7d-d398-4e33-9da0-0f4a56dd9c99",
+     "records": 41,
+     "bytes": 7399,
+     "segments": {
+      "101": 6895,
+      "102": 29838,
+      "103": 5380
+     }
+    },
+    "content_documents": {
+     "entries_before": 0,
+     "entries_after": 1,
+     "ours_present": true,
+     "end_record_intact": true,
+     "delta_bytes": 3053
+    },
+    "adocument_reencode": {
+     "clean": true,
+     "bytes_before": 1580066,
+     "bytes_after": 1580190
+    }
+   },
+   "acceptance": [
+    "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+    "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+    "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+    "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+    "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+    "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+   ],
+   "seconds": 2.4,
+   "report": "experiments/instbug/_build/gabpd/stage_L1_pp1.rvt.load.json"
+  },
+  {
+   "tag": "PP-2",
+   "in": "experiments/instbug/_build/gabpd/stage_L1_pp1.rvt",
+   "out": "experiments/instbug/_build/gabpd/stage_L2_pp2.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "host_watermark": 1472583,
+   "symbol_id": 1472641,
+   "family_id": 1472625,
+   "surrogate_id": 1472640,
+   "content_guid": "c4609977-43d4-4961-9648-19d9fe9f462e",
+   "twins": 14,
+   "elements_added": 18,
+   "proofs": {
+    "plan": {
+     "content_guid": "c4609977-43d4-4961-9648-19d9fe9f462e",
+     "host_watermark": 1472583,
+     "our_doc_ids": [
+      1472584,
+      1472624
+     ],
+     "host_ids": {
+      "family": 1472625,
+      "surrogate": 1472640,
+      "symbol": 1472641,
+      "symbol_surrogate": 1472642,
+      "instance": -1,
+      "twins": 14
+     }
+    },
+    "roundtrip_gate": {
+     "records": 54,
+     "roundtrip_ok": 54,
+     "failed": 0,
+     "encoded_bytes": 19603,
+     "failures": []
+    },
+    "save_unit": {
+     "guid": "c4609977-43d4-4961-9648-19d9fe9f462e",
+     "records": 41,
+     "bytes": 7406,
+     "segments": {
+      "101": 6895,
+      "102": 29838,
+      "103": 5380
+     }
+    },
+    "content_documents": {
+     "entries_before": 1,
+     "entries_after": 2,
+     "ours_present": true,
+     "end_record_intact": true,
+     "delta_bytes": 3053
+    },
+    "adocument_reencode": {
+     "clean": true,
+     "bytes_before": 1580190,
+     "bytes_after": 1580302
+    }
+   },
+   "acceptance": [
+    "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+    "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+    "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+    "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+    "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+    "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+   ],
+   "seconds": 2.5,
+   "report": "experiments/instbug/_build/gabpd/stage_L2_pp2.rvt.load.json"
+  },
+  {
+   "tag": "PP-3",
+   "in": "experiments/instbug/_build/gabpd/stage_L2_pp2.rvt",
+   "out": "experiments/instbug/_build/gabpd/stage_L3_pp3.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "host_watermark": 1472642,
+   "symbol_id": 1472700,
+   "family_id": 1472684,
+   "surrogate_id": 1472699,
+   "content_guid": "8d2a79dc-07a2-4375-816d-4812c471c7c2",
+   "twins": 14,
+   "elements_added": 18,
+   "proofs": {
+    "plan": {
+     "content_guid": "8d2a79dc-07a2-4375-816d-4812c471c7c2",
+     "host_watermark": 1472642,
+     "our_doc_ids": [
+      1472643,
+      1472683
+     ],
+     "host_ids": {
+      "family": 1472684,
+      "surrogate": 1472699,
+      "symbol": 1472700,
+      "symbol_surrogate": 1472701,
+      "instance": -1,
+      "twins": 14
+     }
+    },
+    "roundtrip_gate": {
+     "records": 54,
+     "roundtrip_ok": 54,
+     "failed": 0,
+     "encoded_bytes": 19603,
+     "failures": []
+    },
+    "save_unit": {
+     "guid": "8d2a79dc-07a2-4375-816d-4812c471c7c2",
+     "records": 41,
+     "bytes": 7416,
+     "segments": {
+      "101": 6895,
+      "102": 29838,
+      "103": 5380
+     }
+    },
+    "content_documents": {
+     "entries_before": 2,
+     "entries_after": 3,
+     "ours_present": true,
+     "end_record_intact": true,
+     "delta_bytes": 3053
+    },
+    "adocument_reencode": {
+     "clean": true,
+     "bytes_before": 1580302,
+     "bytes_after": 1580414
+    }
+   },
+   "acceptance": [
+    "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+    "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+    "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+    "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+    "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+    "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+   ],
+   "seconds": 2.5,
+   "report": "experiments/instbug/_build/gabpd/stage_L3_pp3.rvt.load.json"
+  },
+  {
+   "tag": "PP-4",
+   "in": "experiments/instbug/_build/gabpd/stage_L3_pp3.rvt",
+   "out": "experiments/instbug/_build/gabpd/stage_L4_pp4.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "host_watermark": 1472701,
+   "symbol_id": 1472759,
+   "family_id": 1472743,
+   "surrogate_id": 1472758,
+   "content_guid": "3d310e9a-8281-4e5f-a8b9-82ed2a62191e",
+   "twins": 14,
+   "elements_added": 18,
+   "proofs": {
+    "plan": {
+     "content_guid": "3d310e9a-8281-4e5f-a8b9-82ed2a62191e",
+     "host_watermark": 1472701,
+     "our_doc_ids": [
+      1472702,
+      1472742
+     ],
+     "host_ids": {
+      "family": 1472743,
+      "surrogate": 1472758,
+      "symbol": 1472759,
+      "symbol_surrogate": 1472760,
+      "instance": -1,
+      "twins": 14
+     }
+    },
+    "roundtrip_gate": {
+     "records": 54,
+     "roundtrip_ok": 54,
+     "failed": 0,
+     "encoded_bytes": 19603,
+     "failures": []
+    },
+    "save_unit": {
+     "guid": "3d310e9a-8281-4e5f-a8b9-82ed2a62191e",
+     "records": 41,
+     "bytes": 7413,
+     "segments": {
+      "101": 6895,
+      "102": 29838,
+      "103": 5380
+     }
+    },
+    "content_documents": {
+     "entries_before": 3,
+     "entries_after": 4,
+     "ours_present": true,
+     "end_record_intact": true,
+     "delta_bytes": 3053
+    },
+    "adocument_reencode": {
+     "clean": true,
+     "bytes_before": 1580414,
+     "bytes_after": 1580526
+    }
+   },
+   "acceptance": [
+    "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+    "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+    "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+    "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+    "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+    "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+   ],
+   "seconds": 2.6,
+   "report": "experiments/instbug/_build/gabpd/stage_L4_pp4.rvt.load.json"
+  },
+  {
+   "tag": "PP-5",
+   "in": "experiments/instbug/_build/gabpd/stage_L4_pp4.rvt",
+   "out": "experiments/instbug/_build/gabpd/stage_L5_pp5.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "host_watermark": 1472760,
+   "symbol_id": 1472818,
+   "family_id": 1472802,
+   "surrogate_id": 1472817,
+   "content_guid": "0ad359f6-6dcb-4a7d-8fdd-15658adef6e6",
+   "twins": 14,
+   "elements_added": 18,
+   "proofs": {
+    "plan": {
+     "content_guid": "0ad359f6-6dcb-4a7d-8fdd-15658adef6e6",
+     "host_watermark": 1472760,
+     "our_doc_ids": [
+      1472761,
+      1472801
+     ],
+     "host_ids": {
+      "family": 1472802,
+      "surrogate": 1472817,
+      "symbol": 1472818,
+      "symbol_surrogate": 1472819,
+      "instance": -1,
+      "twins": 14
+     }
+    },
+    "roundtrip_gate": {
+     "records": 54,
+     "roundtrip_ok": 54,
+     "failed": 0,
+     "encoded_bytes": 19603,
+     "failures": []
+    },
+    "save_unit": {
+     "guid": "0ad359f6-6dcb-4a7d-8fdd-15658adef6e6",
+     "records": 41,
+     "bytes": 7394,
+     "segments": {
+      "101": 6895,
+      "102": 29838,
+      "103": 5380
+     }
+    },
+    "content_documents": {
+     "entries_before": 4,
+     "entries_after": 5,
+     "ours_present": true,
+     "end_record_intact": true,
+     "delta_bytes": 3053
+    },
+    "adocument_reencode": {
+     "clean": true,
+     "bytes_before": 1580526,
+     "bytes_after": 1580638
+    }
+   },
+   "acceptance": [
+    "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+    "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+    "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+    "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+    "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+    "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+   ],
+   "seconds": 2.6,
+   "report": "experiments/instbug/_build/gabpd/stage_L5_pp5.rvt.load.json"
+  },
+  {
+   "tag": "PP-6",
+   "in": "experiments/instbug/_build/gabpd/stage_L5_pp5.rvt",
+   "out": "experiments/instbug/_build/gabpd/stage_L6_pp6.rvt",
+   "ok": true,
+   "stop_reason": "",
+   "host_watermark": 1472819,
+   "symbol_id": 1472877,
+   "family_id": 1472861,
+   "surrogate_id": 1472876,
+   "content_guid": "b53d0566-83c2-4d99-9311-a9992037a2e2",
+   "twins": 14,
+   "elements_added": 18,
+   "proofs": {
+    "plan": {
+     "content_guid": "b53d0566-83c2-4d99-9311-a9992037a2e2",
+     "host_watermark": 1472819,
+     "our_doc_ids": [
+      1472820,
+      1472860
+     ],
+     "host_ids": {
+      "family": 1472861,
+      "surrogate": 1472876,
+      "symbol": 1472877,
+      "symbol_surrogate": 1472878,
+      "instance": -1,
+      "twins": 14
+     }
+    },
+    "roundtrip_gate": {
+     "records": 54,
+     "roundtrip_ok": 54,
+     "failed": 0,
+     "encoded_bytes": 19603,
+     "failures": []
+    },
+    "save_unit": {
+     "guid": "b53d0566-83c2-4d99-9311-a9992037a2e2",
+     "records": 41,
+     "bytes": 7409,
+     "segments": {
+      "101": 6895,
+      "102": 29838,
+      "103": 5380
+     }
+    },
+    "content_documents": {
+     "entries_before": 5,
+     "entries_after": 6,
+     "ours_present": true,
+     "end_record_intact": true,
+     "delta_bytes": 3053
+    },
+    "adocument_reencode": {
+     "clean": true,
+     "bytes_before": 1580638,
+     "bytes_after": 1580750
+    }
+   },
+   "acceptance": [
+    "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+    "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+    "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+    "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+    "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+    "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+   ],
+   "seconds": 2.6,
+   "report": "experiments/instbug/_build/gabpd/stage_L6_pp6.rvt.load.json"
+  }
+ ],
+ "final": "experiments/instbug/_build/gabpd/stage_L6_pp6.rvt",
+ "blocker": null,
+ "order": [
+  "PP-1",
+  "PP-2",
+  "PP-3",
+  "PP-4",
+  "PP-5",
+  "PP-6"
+ ],
+ "loaded": {
+  "PP-1": {
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "content_guid": "8ca82b7d-d398-4e33-9da0-0f4a56dd9c99"
+  },
+  "PP-2": {
+   "symbol_id": 1472641,
+   "family_id": 1472625,
+   "content_guid": "c4609977-43d4-4961-9648-19d9fe9f462e"
+  },
+  "PP-3": {
+   "symbol_id": 1472700,
+   "family_id": 1472684,
+   "content_guid": "8d2a79dc-07a2-4375-816d-4812c471c7c2"
+  },
+  "PP-4": {
+   "symbol_id": 1472759,
+   "family_id": 1472743,
+   "content_guid": "3d310e9a-8281-4e5f-a8b9-82ed2a62191e"
+  },
+  "PP-5": {
+   "symbol_id": 1472818,
+   "family_id": 1472802,
+   "content_guid": "0ad359f6-6dcb-4a7d-8fdd-15658adef6e6"
+  },
+  "PP-6": {
+   "symbol_id": 1472877,
+   "family_id": 1472861,
+   "content_guid": "b53d0566-83c2-4d99-9311-a9992037a2e2"
+  }
+ },
+ "n_loaded": 6,
+ "n_planned": 6
+}

@@ -1,0 +1,1208 @@
+{
+ "stream": "y2025-settings (THE Y2025 SETTINGS + CATALOG RUNGS -- the certified 2026 ladder's Y1..Y7 on the CERTIFIED 2025 base B2025_K4, constructors through rvt.genesis.port2025, run inside tools/genesis_2025.py::context_2025)",
+ "release": 2025,
+ "situation": "VERDICTS #28: the whole 2025 reduction lineage certified in one round -- B2025_K4 is a CERTIFIED base and the v3 engine's assert_certified gate accepts it (no --allow-uncertified anywhere in this ladder). These rungs put OUR constructors' output at Autodesk's own 2025 registrations, one class layer at a time, zero registration motion.",
+ "the_operation": "In-place substitution (rvt.regadd.substitute_elements): our constructor's OBJECT record (seq-102) replaces the base's at the SAME element id -- same ElemTable row, same record position, same registry slots; Global/Latest and Global/ElemTable BYTE-IDENTICAL to the parent (asserted per rung); nothing added, nothing deleted. Every rung: validator 0 errors, structural proof, four-registry coherence (1/0/0), registry parity, a regdiff registration sample, and the byte-delta assertion table (only the landed slots' seq-102 records change).",
+ "base": {
+  "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  },
+  "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+  "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+ },
+ "standing_control": {
+  "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+  "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  }
+ },
+ "controls_discipline": "EVERY batch is uploaded with the certified control (CTRL_B2025_K4_base.rvt, md5-identical to the certified base; tools/probe_batch.py stage will mint its own CTRL_..._b<n> copy). If the CONTROL fails, the batch is VOID (oracle / service health) and NOTHING about our constructors is read from it.",
+ "upload_order_bisection_first": [
+  "Y7_2025",
+  "Y1s_2025",
+  "Y6s_2025",
+  "Y6_2025",
+  "Y5_2025",
+  "Y4_2025",
+  "Y3_2025",
+  "Y2_2025",
+  "Y1_2025"
+ ],
+ "reading_the_results": {
+  "how": "Upload in the listed order (control first). Y7_2025 is the deepest cumulative rung of this stream: PASS proves every settings + catalog + palette constructor loads at 2025 registrations in one verdict. Y7_2025 FAIL -> read the singles: Y1s_2025 (one pen object) and Y6s_2025 (only the catalog) bracket the layer; then the intermediates deep->shallow -- the first FAIL whose parent PASSED convicts exactly that rung's class layer, every registration variable already eliminated by construction.",
+  "Y1s_2025 FAIL": "even ONE our-object at a 2025 registration fails: the object CONTENT layer is the defect (diff our pen record vs the base's project table).",
+  "Y1s_2025 PASS + Y6s_2025 FAIL": "our catalog VALUES are the 2025 reader's objection, isolated.",
+  "singles PASS, Y7_2025 FAIL": "a settings constructor (Y2..Y5), the cumulative catalog (Y6) or the palette layer (Y7) -- the intermediates name it.",
+  "ALL PASS": "every constructor this stream owns loads on 2025. Next campaign steps (other streams): the Y8/Y9 datum + view rungs, the residue layers, then tools/genesis_compose.py under the same 2025 context => G_ABPD_2025 => the front door's 2025 slot."
+ },
+ "pen_scale_key_verification": {
+  "base_pen_table_elem": 2,
+  "base_model_scales": [
+   10,
+   20,
+   50,
+   100,
+   200,
+   500
+  ],
+  "our_constructor_scales": [
+   10,
+   20,
+   50,
+   100,
+   200,
+   500
+  ],
+  "pens_per_scale": [
+   16
+  ],
+  "perspective_marker": -1,
+  "draft_marker": -1,
+  "match": true,
+  "meaning": "the 2025 corpus scale-key set VERIFIED against the base's own project pen table -- the 2026 constant holds iff match=True (charter: never assume 2026's set)"
+ },
+ "single_change_identity": {
+  "checked": true,
+  "Y1_2025_md5": "cab8bec193e856d3a2d22430a892ca0c",
+  "Y1s_2025_md5": "cab8bec193e856d3a2d22430a892ca0c",
+  "identical": true,
+  "meaning": "Y1s_2025 is the single-change pen probe; identical bytes prove the build is deterministic and the two files carry ONE verdict"
+ },
+ "probe_batch_gate_check": {
+  "ran": true,
+  "files": [
+   "experiments/genesis/subst_k4_2025/Y7_2025.rvt",
+   "experiments/genesis/subst_k4_2025/Y1s_2025.rvt",
+   "experiments/genesis/subst_k4_2025/Y6s_2025.rvt",
+   "experiments/genesis/subst_k4_2025/Y6_2025.rvt",
+   "experiments/genesis/subst_k4_2025/Y5_2025.rvt",
+   "experiments/genesis/subst_k4_2025/Y4_2025.rvt",
+   "experiments/genesis/subst_k4_2025/Y3_2025.rvt",
+   "experiments/genesis/subst_k4_2025/Y2_2025.rvt",
+   "experiments/genesis/subst_k4_2025/Y1_2025.rvt"
+  ],
+  "violations": [],
+  "admissible": true,
+  "entries": [
+   {
+    "file": "experiments/genesis/subst_k4_2025/Y7_2025.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2025/Y1s_2025.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2025/Y6s_2025.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2025/Y6_2025.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2025/Y5_2025.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2025/Y4_2025.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2025/Y3_2025.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2025/Y2_2025.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "base_status": "certified"
+   },
+   {
+    "file": "experiments/genesis/subst_k4_2025/Y1_2025.rvt",
+    "kind": "probe",
+    "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "base_status": "certified"
+   }
+  ],
+  "meaning": "tools/probe_batch.py check_batch dry-run: admissible=True means the standing-controls gate resolves every rung's declared base to the CERTIFIED B2025_K4 -- the K1 law satisfied, nothing staged/uploaded"
+ },
+ "next_steps_other_streams": "Y8_2025 (datum + identity) and Y9_2025 (view layer) mirror v3's Y8/Y9 on top of Y7_2025; then the residue rounds; then compose (genesis_compose) => experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt -- the path src/rvt/frontdoor/assets/genesis_base.json releases.2025 awaits.",
+ "probes": [
+  {
+   "order": 1,
+   "rung": "Y7_2025",
+   "file": "experiments/genesis/subst_k4_2025/Y7_2025.rvt",
+   "release": 2025,
+   "class_layer_substituted": "line/fill patterns + materials + the palette PROPERTY SETS (structural/thermal, corrected constructors) -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2025/Y6_2025.rvt",
+   "parent_rung": "Y6_2025",
+   "the_ONE_thing_it_tests": "Whether the 2025 reader accepts OUR pattern + material + property-set OBJECTS at Autodesk's palette registrations (the deepest rung of this stream: a PASS proves the whole settings + catalog + palette chain on 2025).",
+   "if_PASS": "Every constructor of this stream loads at 2025 registrations; the Y8/Y9 (datum + view) rungs and compose are the remaining campaign steps.",
+   "if_FAIL": "Bisect patterns+materials (the certified X7 half) from the property sets (the certified residue_b2 half) -- two single-layer in-place probes off Y6_2025; read the death signature (AUDIT vs CRASH).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 60,
+    "by_class": {
+     "PropertySetElement": 28,
+     "MaterialElem": 23,
+     "FillPatternElem": 5,
+     "LinePatternElem": 4
+    },
+    "by_match": {
+     "role-primary": 2,
+     "role": 39,
+     "donor": 17,
+     "sibling-donor": 2
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 25,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 60,
+    "expected_slots": 60,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 753664,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2025/Y7_2025.json"
+  },
+  {
+   "order": 2,
+   "rung": "Y1s_2025",
+   "file": "experiments/genesis/subst_k4_2025/Y1s_2025.rvt",
+   "release": 2025,
+   "class_layer_substituted": "the base + ONLY our pen table in place (single-change probe)",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Y1_2025's question isolated: ONE our-object at a 2025 registration.",
+   "if_PASS": "Our pen table loads on 2025 in isolation.",
+   "if_FAIL": "Even ONE our-object at a 2025 registration fails: the object-content layer is the defect; expect the whole ladder to fail until fixed.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1,
+    "by_class": {
+     "PenWidthTableElem": 1
+    },
+    "by_match": {
+     "role": 1
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1,
+    "expected_slots": 1,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 851968,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2025/Y1s_2025.json",
+   "identical_to": {
+    "rung": "Y1_2025",
+    "byte_identical": true,
+    "note": "byte-identical to Y1_2025 (single-change pen probe == ladder rung 1): ONE upload may serve both names if the viewer dedupes; both files are staged"
+   }
+  },
+  {
+   "order": 3,
+   "rung": "Y6s_2025",
+   "file": "experiments/genesis/subst_k4_2025/Y6s_2025.rvt",
+   "release": 2025,
+   "class_layer_substituted": "the base + ONLY the built-in GStyle catalog in place (single-change probe)",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether OUR catalog values load at 2025 registrations, isolated from every other constructor.",
+   "if_PASS": "Our catalog values are 2025-reader-accepted in isolation.",
+   "if_FAIL": "Our catalog VALUES are rejected in isolation on 2025 -- diff a rejected row's pen / colour / pattern values against the base's row.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1165,
+    "by_class": {
+     "GStyleElem": 1165
+    },
+    "by_match": {
+     "role": 1165
+    }
+   },
+   "ours_not_landed": {
+    "GStyleElem": 234
+   },
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1165,
+    "expected_slots": 1165,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 851968,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2025/Y6s_2025.json"
+  },
+  {
+   "order": 4,
+   "rung": "Y6_2025",
+   "file": "experiments/genesis/subst_k4_2025/Y6_2025.rvt",
+   "release": 2025,
+   "class_layer_substituted": "the built-in-category GStyle CATALOG swapped in place, row for row (2025 enum + profile)",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2025/Y5_2025.rvt",
+   "parent_rung": "Y5_2025",
+   "the_ONE_thing_it_tests": "Whether the 2025 reader accepts OUR object-styles VALUES row for row at Autodesk's own catalog registrations.",
+   "if_PASS": "Our catalog values are 2025-reader-accepted.",
+   "if_FAIL": "Our catalog VALUES are the 2025 reader's objection -- diff a rejected (category, type) row vs the base's (field diff sample in the report).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1165,
+    "by_class": {
+     "GStyleElem": 1165
+    },
+    "by_match": {
+     "role": 1165
+    }
+   },
+   "ours_not_landed": {
+    "GStyleElem": 234
+   },
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1165,
+    "expected_slots": 1165,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 770048,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2025/Y6_2025.json"
+  },
+  {
+   "order": 5,
+   "rung": "Y5_2025",
+   "file": "experiments/genesis/subst_k4_2025/Y5_2025.rvt",
+   "release": 2025,
+   "class_layer_substituted": "every remaining settings singleton / tracker with a constructor -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2025/Y4_2025.rvt",
+   "parent_rung": "Y4_2025",
+   "the_ONE_thing_it_tests": "Whether the 2025 reader accepts the WHOLE our-settings constellation at Autodesk's slots.",
+   "if_PASS": "Every settings constructor we own is 2025-reader-accepted; the settings layer is retired.",
+   "if_FAIL": "Bisect Y5 by tier (mep / trackers / revisions).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 51,
+    "by_class": {
+     "ModelGraphicsStyle": 2,
+     "RevisionNumberingSequence": 2,
+     "AreaMeasureElem": 2,
+     "MEPComponentTracker": 1,
+     "LayoutNodesTracker": 1,
+     "MEPSystemTracker": 1,
+     "MEPNetworkDataElem": 1,
+     "MEPNetworkTracker": 1,
+     "MEPHiddenLineSettingsElem": 1,
+     "CircuitNamingTypeSetting": 1,
+     "AssemblyTracker": 1,
+     "KeynoteTagsOnSheetsTracker": 1,
+     "RevisionCloudsOnSheetsTracker": 1,
+     "SheetsInSheetCollectionTracker": 1,
+     "AnalyticalToPhysicalRelationManager": 1,
+     "ReactionsUpToDateElem": 1,
+     "GraphicsCache": 1,
+     "ExternalParamLock": 1,
+     "DaylightSourceIdSet": 1,
+     "WorksetVisibilitySettingsElem": 1,
+     "Dwg2dExportUserSettingsData": 1,
+     "STEPExportSettings": 1,
+     "ZoneScheme": 1,
+     "RvtLinkInstanceAppearanceParentElem": 1,
+     "SketchGridAppearanceParentElem": 1,
+     "FabricationServiceSettings": 1,
+     "CurtaSystemFaceManager": 1,
+     "StructuralConnectionSettings": 1,
+     "AutoCamSettingsElem": 1,
+     "HalftoneUnderlaySettings": 1,
+     "MultipleValuesIndicationSettings": 1,
+     "DefaultDivideSettings": 1,
+     "ProjectCopySettingsElem": 1,
+     "AreaSettingsElem": 1,
+     "RouteAnalysisSettings": 1,
+     "FabricationSettings": 1,
+     "FabricationSettingsElement": 1,
+     "SSEPointVisibilitySettings": 1,
+     "ReinforcementSettings": 1,
+     "CoordinateSystemDisplayElem": 1,
+     "ElectricalSetting": 1,
+     "CopyWatchProperties": 1,
+     "ActiveGeoLocationTrackingElement": 1,
+     "EnergyDataSettings": 1,
+     "WorksharingViewModeSettings": 1,
+     "ProjectRevision": 1,
+     "AllProjectRevisions": 1,
+     "PrintSettings": 1
+    },
+    "by_match": {
+     "role": 51
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 3,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 11,
+    "expected_slots": 51,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2025/Y5_2025.json"
+  },
+  {
+   "order": 6,
+   "rung": "Y4_2025",
+   "file": "experiments/genesis/subst_k4_2025/Y4_2025.rvt",
+   "release": 2025,
+   "class_layer_substituted": "Rbs* settings + sizes tables (wire/duct/pipe/conduit/cable-tray) -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2025/Y3_2025.rvt",
+   "parent_rung": "Y3_2025",
+   "the_ONE_thing_it_tests": "Whether the 2025 reader accepts our MEP settings + OUR size-table DATA at Autodesk's slots.",
+   "if_PASS": "Our MEP settings / sizes constructors + data are 2025-reader-accepted.",
+   "if_FAIL": "Bisect settings vs sizes vs the conduit/cable-tray pair.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 8,
+    "by_class": {
+     "RbsWireSettingsElem": 1,
+     "RbsWireSizesElem": 1,
+     "RbsPipeSettingsElem": 1,
+     "RbsPipeSizesElem": 1,
+     "RbsDuctSettingsElem": 1,
+     "RbsDuctSizesElem": 1,
+     "ConduitSettingsElem": 1,
+     "CableTraySettingsElem": 1
+    },
+    "by_match": {
+     "role": 8
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 8,
+    "expected_slots": 8,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 774144,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2025/Y4_2025.json"
+  },
+  {
+   "order": 7,
+   "rung": "Y3_2025",
+   "file": "experiments/genesis/subst_k4_2025/Y3_2025.rvt",
+   "release": 2025,
+   "class_layer_substituted": "StructSettings / wall-join / auto-join / keynote pair -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2025/Y2_2025.rvt",
+   "parent_rung": "Y2_2025",
+   "the_ONE_thing_it_tests": "Whether the 2025 reader accepts our named settings singletons (incl. an EMPTY keynote table).",
+   "if_PASS": "The named singleton constructors are 2025-reader-accepted.",
+   "if_FAIL": "Bisect the keynote pair from the joins pair from StructSettings.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 5,
+    "by_class": {
+     "StructSettingsElem": 1,
+     "WallJoinDefaultSetting": 1,
+     "AutoJoinTracker": 1,
+     "KeynoteTable": 1,
+     "KeynotingSystem": 1
+    },
+    "by_match": {
+     "role": 5
+    }
+   },
+   "ours_not_landed": {
+    "InitialViewSettings": 1
+   },
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 2,
+    "expected_slots": 5,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 778240,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2025/Y3_2025.json"
+  },
+  {
+   "order": 8,
+   "rung": "Y2_2025",
+   "file": "experiments/genesis/subst_k4_2025/Y2_2025.rvt",
+   "release": 2025,
+   "class_layer_substituted": "BrowserOrganization set + system-navigator constellation -> ours, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis/subst_k4_2025/Y1_2025.rvt",
+   "parent_rung": "Y1_2025",
+   "the_ONE_thing_it_tests": "Whether the 2025 reader accepts our browser / navigator OBJECTS at Autodesk's registrations.",
+   "if_PASS": "Our browser / navigator constructors are 2025-reader-accepted.",
+   "if_FAIL": "Bisect the organizations from the navigator (two single-class in-place probes).",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 12,
+    "by_class": {
+     "BrowserOrganization": 6,
+     "ReconcileBrowserSettingsElem": 1,
+     "ConstructionSetProject": 1,
+     "RbsDbViewSystemNavigator": 1,
+     "Viewer": 1,
+     "Viewport": 1,
+     "DBDrawing": 1
+    },
+    "by_match": {
+     "role": 9,
+     "donor": 3
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 4,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 9,
+    "expected_slots": 12,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 851968,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2025/Y2_2025.json"
+  },
+  {
+   "order": 9,
+   "rung": "Y1_2025",
+   "file": "experiments/genesis/subst_k4_2025/Y1_2025.rvt",
+   "release": 2025,
+   "class_layer_substituted": "the project pen table (PenWidthTableElem, m_famId -1) -> OUR pen table, IN PLACE",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    },
+    "certified_by": "ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'.",
+    "lineage": "B2025_K4 = the genesis-2025-reduce stream's family-free 2025 base (sha256 276be333..., 851,968 B, 3,333 host elements): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE) -> K3_2025 (usage nulls, the certified 2026 K3 recipe, edits == neutralised set exactly) -> B2025_K4 (all 52 embedded family documents removed, four-registry coherent 1/0/0/0, residual GUID bytes 0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #28 (docs/inbox/genesis-audit.md, 2026-08-04 ~23:05): ALL FOUR PASS -- the untouched 2025 sample (control: the viewer reads 2025), R9_2025, K3_2025 and B2025_K4 (the 2025 family-free base). The whole 2025 reduction lineage certified in ONE round; B2025_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+   },
+   "derived_from": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "parent_rung": "BASE",
+   "the_ONE_thing_it_tests": "Whether the 2025 reader accepts OUR pen-table CONTENT when nothing but the object bytes at Autodesk's own registration change.",
+   "if_PASS": "Our pen constructor's values load at a 2025 registration (the 2026 Y1 result transfers).",
+   "if_FAIL": "Our pen VALUES are what the 2025 reader rejects (the only variable): diff our record vs the base's project pen table field by field.",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+   "elements_substituted_in_place": {
+    "landed": 1,
+    "by_class": {
+     "PenWidthTableElem": 1
+    },
+    "by_match": {
+     "role": 1
+    }
+   },
+   "ours_not_landed": {},
+   "residue_left_in_place": 0,
+   "byte_delta": {
+    "only_partition_differs": true,
+    "records_changed_count": 1,
+    "expected_slots": 1,
+    "unexpected_changed_ids": [],
+    "records_added_ids": [],
+    "records_removed_ids": [],
+    "elemtable_identical": true,
+    "adocument_identical": true,
+    "assertion_holds": true
+   },
+   "registry_parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "adocument_clean": true,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 851968,
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "report": "experiments/genesis/subst_k4_2025/Y1_2025.json"
+  },
+  {
+   "order": 1,
+   "rung": "RC_2025",
+   "stream": "y2025-views",
+   "file": "experiments/genesis/subst_k4_2025/RC_2025.rvt",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2025/RC_2025_inplace.rvt",
+   "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+   "the_ONE_thing_it_tests": "THE DEEPEST 2025 CHAIN FILE: every rung of this stream + the lawful straggler deletions. PASS proves the whole Y8/Y9 + residue A/B/C chain + the deletion layer at 2025 registrations in one verdict.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "byte_delta_assertion_holds": null,
+   "reduce_law": "EDIT-FREE",
+   "report": "experiments/genesis/subst_k4_2025/RC_2025.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   }
+  },
+  {
+   "order": 2,
+   "rung": "RC_2025_inplace",
+   "stream": "y2025-views",
+   "file": "experiments/genesis/subst_k4_2025/RC_2025_inplace.rvt",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2025/Z_RC_2025.rvt",
+   "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+   "the_ONE_thing_it_tests": "the overlap fixes alone (view headers + area unwiring).",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2025/RC_2025_inplace.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   }
+  },
+  {
+   "order": 3,
+   "rung": "Z_RC_2025",
+   "stream": "y2025-views",
+   "file": "experiments/genesis/subst_k4_2025/Z_RC_2025.rvt",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2025/RB_2025.rvt",
+   "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+   "the_ONE_thing_it_tests": "year-schedule names + preview nulls + the drafting link pin removal.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2025/Z_RC_2025.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   }
+  },
+  {
+   "order": 4,
+   "rung": "RB_2025",
+   "stream": "y2025-views",
+   "file": "experiments/genesis/subst_k4_2025/RB_2025.rvt",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2025/RA_2025.rvt",
+   "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+   "the_ONE_thing_it_tests": "alias of the deepest residue-B chain file (defs + MEP catalog).",
+   "alias_of": "RB2_mepcat_2025",
+   "verdict": "VALID",
+   "validator": null,
+   "byte_delta_assertion_holds": null,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2025/RB_2025.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   }
+  },
+  {
+   "order": 5,
+   "rung": "RB2_mepcat_2025",
+   "stream": "y2025-views",
+   "file": "experiments/genesis/subst_k4_2025/RB2_mepcat_2025.rvt",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2025/RB1_defs_2025.rvt",
+   "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+   "the_ONE_thing_it_tests": "our MEP wire/pipe catalog objects at 2025 registrations.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2025/RB2_mepcat_2025.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   }
+  },
+  {
+   "order": 6,
+   "rung": "RB1_defs_2025",
+   "stream": "y2025-views",
+   "file": "experiments/genesis/subst_k4_2025/RB1_defs_2025.rvt",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2025/RA_2025.rvt",
+   "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+   "the_ONE_thing_it_tests": "our parameter definitions at the 2025 file's own shared-parameter GUID registry keys.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2025/RB1_defs_2025.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   }
+  },
+  {
+   "order": 7,
+   "rung": "RA_2025",
+   "stream": "y2025-views",
+   "file": "experiments/genesis/subst_k4_2025/RA_2025.rvt",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2025/Y9_2025.rvt",
+   "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+   "the_ONE_thing_it_tests": "ALL Group-A residue constructors at once (subcategories, annotation types + fonts, datum content, pattern surplus, appearance assets) on the 2025 chain.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2025/RA_2025.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   }
+  },
+  {
+   "order": 8,
+   "rung": "Y9_2025",
+   "stream": "y2025-views",
+   "file": "experiments/genesis/subst_k4_2025/Y9_2025.rvt",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2025/Y8_2025.rvt",
+   "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+   "the_ONE_thing_it_tests": "our view layer in the 2025 LAYOUT (DBView without m_viewPositionId, Viewport v10) at Autodesk's 2025 registrations -- the deepest Y rung.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2025/Y9_2025.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   }
+  },
+  {
+   "order": 9,
+   "rung": "Y8_2025",
+   "stream": "y2025-views",
+   "file": "experiments/genesis/subst_k4_2025/Y8_2025.rvt",
+   "base": {
+    "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   },
+   "parent": "experiments/genesis/subst_k4_2025/Y7_2025.rvt",
+   "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+   "the_ONE_thing_it_tests": "our datum + identity layer at 2025 registrations.",
+   "alias_of": null,
+   "verdict": "VALID",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "byte_delta_assertion_holds": true,
+   "reduce_law": null,
+   "report": "experiments/genesis/subst_k4_2025/Y8_2025.json",
+   "control_to_upload_with_batch": {
+    "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+    "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+    "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+    "certification": {
+     "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+     "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+    }
+   }
+  }
+ ],
+ "derivation_chain": [
+  "Y1_2025 <- BASE",
+  "Y2_2025 <- Y1_2025",
+  "Y3_2025 <- Y2_2025",
+  "Y4_2025 <- Y3_2025",
+  "Y5_2025 <- Y4_2025",
+  "Y6_2025 <- Y5_2025",
+  "Y7_2025 <- Y6_2025",
+  "Y1s_2025 <- BASE",
+  "Y6s_2025 <- BASE"
+ ],
+ "manifest": "experiments/genesis/subst_k4_2025 -- the certified-base 2025 substitution chain (shared by the settings stream and the y2025-views stream; entries keyed by rung)",
+ "y2025_views_upload_order_bisection_first": [
+  "RC_2025",
+  "RC_2025_inplace",
+  "Z_RC_2025",
+  "RB_2025",
+  "RB2_mepcat_2025",
+  "RB1_defs_2025",
+  "RA_2025",
+  "Y9_2025",
+  "Y8_2025"
+ ],
+ "parent_mode_now": "settings-chain (Y7_2025 landed by the settings stream)"
+}

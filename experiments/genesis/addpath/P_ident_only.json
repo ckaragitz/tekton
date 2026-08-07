@@ -1,0 +1,290 @@
+{
+ "probe": "P_ident_only",
+ "family": "from-K1",
+ "label": "K1 with ONLY the add path's identity scrub applied (BasicFileInfo author/username/last_save_path + DIT usernames -> 'rvt-writer'); document GUID kept",
+ "order": 9,
+ "upload": "OPTIONAL",
+ "file": "experiments/genesis/addpath/P_ident_only.rvt",
+ "template": "K1",
+ "sibling": "K1.rvt (viewer PASS)",
+ "one_change": "the identity scrub (two streams: BasicFileInfo + DocumentIncrementTable) -- the V30/V31/V32-PROVEN path, carried by every X0-class file",
+ "factors": {
+  "id": "orig",
+  "episodes": "orig",
+  "position": "orig",
+  "identity": "scrub"
+ },
+ "target_id": 2,
+ "tests": "The accounting single for the FOURTH dimension.  The scrub is viewer-proven on the rst working base (V30 own BasicFileInfo, V31 own author, V32 own DIT usernames PASS); this re-proves it on the K-lineage skeleton so no dimension is left unmeasured.  Upload only if the primary batch leaves the fourth dimension in question.",
+ "if_PASS": "the identity scrub is tolerated on the K1 lineage too (expected; V30..V32).",
+ "if_FAIL": "the identity scrub is NOT tolerated on the reduced K1 lineage (contradicts V30..V32 -- would point at a lineage-specific BasicFileInfo dependence).",
+ "build_info": {
+  "template": "K1",
+  "template_path": "experiments/genesis/triage/K1.rvt",
+  "template_partition_roundtrip_ok": true,
+  "target_id": 2,
+  "episodes": {
+   "creation": 0,
+   "modified": 976,
+   "user_modified": 976,
+   "source": "orig"
+  },
+  "position": "orig",
+  "identity": {
+   "scrubbed_by": "rvt.identity.own_basic_file_info + own_increment_table_stream (the commit path's identity treatment, document GUID kept)"
+  },
+  "partition": {
+   "copied_verbatim_from_template": true
+  },
+  "elemtable": {
+   "changes": [],
+   "row_after": {
+    "elem_id": 2,
+    "original_id": 2,
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "user_modified_ep": 976,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "count": 6540,
+   "watermark_before": 1472524,
+   "watermark_after": 1472524
+  },
+  "latest": {
+   "copied_verbatim_from_template": true
+  },
+  "streams_written_new": [
+   "BasicFileInfo",
+   "Global/DocumentIncrementTable"
+  ],
+  "seconds_build": 0.0
+ },
+ "streams_vs": {
+  "K1": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "DIFFERS",
+   "Global/ElemTable": "identical",
+   "Global/History": "identical",
+   "Global/Latest": "identical",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "identical",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "identical",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0k": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "identical",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "identical",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  }
+ },
+ "changed_vs_template": [
+  "BasicFileInfo",
+  "Global/DocumentIncrementTable"
+ ],
+ "expected_changed_vs_template": [
+  "BasicFileInfo",
+  "Global/DocumentIncrementTable"
+ ],
+ "changed_set_as_expected": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "verify_written": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": 0,
+  "stamps_ok": true,
+  "elemtable_count": 6540,
+  "header_count": 6540
+ },
+ "target_records": {
+  "id": 2,
+  "found_clean": true,
+  "per_seq": {
+   "101": {
+    "class": 1509,
+    "clean": true
+   },
+   "102": {
+    "class": 3231,
+    "clean": true
+   },
+   "103": {
+    "class": 3884,
+    "clean": true
+   }
+  }
+ },
+ "intended_state": {
+  "elemtable_row": {
+   "elem_id": 2,
+   "original_id": 2,
+   "creation_ep": 0,
+   "modified_ep": 976,
+   "user_modified_ep": 976,
+   "owner_id": -1,
+   "partition_id": 0
+  },
+  "row_ok": true,
+  "record_position": "orig",
+  "position_ok": true,
+  "adocument_surface": {
+   "2": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PenWidthTableInfo.m_penWidthTableElemId"
+   ]
+  },
+  "latest_ok": true,
+  "watermark": 1472524,
+  "watermark_ok": true,
+  "counts_6540_coherent": true,
+  "three_seq_orders_equal": true,
+  "elemtable_ids_equal_record_ids": true
+ },
+ "semantic_diff": {
+  "elemtable_vs_K1": {
+   "removed_rows": [],
+   "added_rows": [],
+   "changed_rows": [],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1472524
+   ]
+  },
+  "elemtable_vs_template": {
+   "removed_rows": [],
+   "added_rows": [],
+   "changed_rows": [],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1472524
+   ]
+  },
+  "record_order_vs_K1": {
+   "K1_len": 6541,
+   "probe_len": 6541,
+   "backbone_order_identical_excluding_target": true,
+   "K1_index_of_2": 2516,
+   "probe_index_of_target": 2516,
+   "probe_target_neighbours": [
+    1455333,
+    1455335,
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "record_bytes_at_target_equal_K1_element_2": {
+    "101": {
+     "identical": true,
+     "differing_bytes": 0,
+     "len": [
+      135,
+      135
+     ]
+    },
+    "102": {
+     "identical": true,
+     "differing_bytes": 0,
+     "len": [
+      1223,
+      1223
+     ]
+    },
+    "103": {
+     "identical": true,
+     "differing_bytes": 0,
+     "len": [
+      22,
+      22
+     ]
+    }
+   }
+  },
+  "adocument_leaf_diff_vs_K1": [],
+  "identity_vs_K1": {
+   "BasicFileInfo": {
+    "client_app_name": [
+     "RevitApplication",
+     "rvt-writer"
+    ],
+    "username": [
+     "",
+     "rvt-writer"
+    ],
+    "author": [
+     "Autodesk Revit",
+     "rvt-writer"
+    ],
+    "last_save_path": [
+     "'C:\\\\Users\\\\hansonje\\\\Desktop\\\\Downloadable Files\\\\rstbasics...",
+     "P_ident_only.rvt"
+    ]
+   },
+   "DIT_usernames": [
+    "rvt-writer"
+   ],
+   "note": "last_save_path/username/author/client_app are the identity scrub; identical == K1's originals"
+  }
+ },
+ "anchor_proof": null,
+ "problems": [],
+ "verdict": "CERTIFIED",
+ "bytes": 4489216,
+ "seconds": 12.0
+}

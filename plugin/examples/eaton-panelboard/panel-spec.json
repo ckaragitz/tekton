@@ -1,0 +1,66 @@
+{
+  "specVersion": "0.1.0",
+  "project": {
+    "name": "Eaton Pow-R-Line 4 panelboard - parametric equipment spec",
+    "number": "EQ-PRL4-400MB-42",
+    "buildingName": "Panelboard product model",
+    "author": "tekton-ifc",
+    "organisation": "C. Karagitz Electric",
+    "issueDate": "2026-08-03",
+    "description": "Single-equipment model of the Eaton Pow-R-Line 4 style panelboard from the customer's Claude Design panel-meta.js: 480Y/277 V, 3-phase 4-wire, 400 A bus, main breaker, 42 spaces, 65 kA SCCR, surface mounted. Enclosure W 0.508 m x H 1.372 m x D 0.190 m; insertion point = bottom-centre of the enclosure back, mounting height 1.067 m (bottom of enclosure) so the top of panel sits at ~2.44 m. Door swing and NEC 110.26 working clearance are recorded as PanelSchedule properties, never as solid geometry. Occurrence data (PanelSchedule, Pset_ElectricDistributionBoardTypeCommon) lands as instance parameters; catalogue data (Pset_ManufacturerTypeInformation) lands on the shared type."
+  },
+  "units": { "length": "m", "angle": "deg" },
+  "defaults": {
+    "storeyHeight": 3.048,
+    "roofForm": "none",
+    "autoOpenings": false
+  },
+  "levels": [
+    { "id": "L1", "name": "Level 1", "elevation": 0.0 }
+  ],
+  "equipment": [
+    {
+      "kind": "panelboard", "name": "PANEL-A", "level": "L1",
+      "position": [0.0, 0.0], "rotationDeg": 0, "elevation": 1.067,
+      "dims": { "w": 0.508, "d": 0.190, "h": 1.372 },
+      "ifcClass": "IfcElectricDistributionBoard", "predefinedType": "DISTRIBUTIONBOARD",
+      "typeName": "Eaton Pow-R-Line 4 (style) - 400A MB - 42 space",
+      "description": "Panelboard, 480Y/277 V, 3-phase 4-wire, 400 A bus, main breaker, 42 spaces, 65 kA SCCR, surface mount",
+      "tag": "PANEL-A",
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "PANEL-A",
+          "Voltage": { "value": 480, "type": "voltage" },
+          "SystemDesignation": "480Y/277 V, 3PH, 4W",
+          "Phases": { "value": 3, "type": "integer" },
+          "Wires": { "value": 4, "type": "integer" },
+          "BusRating": { "value": 400, "type": "current" },
+          "MainsType": "Main Breaker",
+          "MainsRating": { "value": 400, "type": "current" },
+          "ShortCircuitRatingkA": { "value": 65, "type": "real" },
+          "Mounting": "Surface",
+          "NumberOfCircuits": { "value": 42, "type": "count" },
+          "NeutralRating": "100%",
+          "DoorPosition": "Right-hinged, door closed",
+          "DoorSwingRadius": { "value": 0.508, "type": "length" },
+          "WorkingClearanceShown": { "value": false, "type": "boolean" },
+          "WorkingClearanceDepth": { "value": 1.067, "type": "length" },
+          "WorkingClearanceWidth": { "value": 0.762, "type": "length" },
+          "WorkingClearanceHeight": { "value": 1.981, "type": "length" }
+        },
+        "Pset_ElectricDistributionBoardTypeCommon": {
+          "Reference": "PRL4-400MB-42",
+          "IsMain": { "value": true, "type": "boolean" },
+          "NumberOfCircuits": { "value": 42, "type": "count" }
+        }
+      },
+      "typePsets": {
+        "Pset_ManufacturerTypeInformation": {
+          "Manufacturer": "Eaton",
+          "ModelLabel": "Pow-R-Line 4",
+          "ModelReference": "PRL4-400MB-42"
+        }
+      }
+    }
+  ]
+}

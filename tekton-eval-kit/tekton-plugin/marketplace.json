@@ -1,0 +1,26 @@
+{
+  "name": "tekton",
+  "owner": {
+    "name": "tekton project"
+  },
+  "metadata": {
+    "description": "Local single-plugin marketplace for tekton (plugin working name tekton). Add it with `/plugin marketplace add ./plugin` (this directory) then `/plugin install tekton@tekton`."
+  },
+  "plugins": [
+    {
+      "name": "tekton",
+      "source": "./",
+      "description": "tekton \u2014 author native Revit .rvt files from a prompt, an IFC, or an existing .rvt (tekton-author), edit/delete inside them (tekton-edit), validate / render-inspect / audit / schedule (tekton-inspect), plus the Claude-Design IFC workflow (tekton-ifc); bundles the engine (lib/), the certified genesis base asset, job agents and the /revit-* commands. Working name: tekton.",
+      "category": "engineering",
+      "tags": [
+        "tekton",
+        "revit",
+        "bim",
+        "ifc",
+        "mep",
+        "electrical"
+      ],
+      "strict": true
+    }
+  ]
+}

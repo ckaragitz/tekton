@@ -1,0 +1,380 @@
+{
+  "V0_control_roundtrip": {
+    "desc": "CFB round-trip; every stream byte-identical to original",
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  },
+  "V1_elemtable_zero_trailers": {
+    "desc": "Global/ElemTable recompressed by us; its page trailers ZEROED",
+    "report": {
+      "in": "/Users/ck/dev/things/rev-revit/tools/../samples/rstbasicsampleproject.rvt",
+      "out": "/Users/ck/dev/things/rev-revit/tools/../experiments/acceptance/V1_elemtable_zero_trailers.rvt",
+      "streams": [
+        {
+          "name": "Global/ElemTable",
+          "kind": "single",
+          "raw_size": 72440,
+          "orig_raw_size": 72440,
+          "payload": 557470,
+          "full_page_trailers": 1
+        }
+      ]
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  },
+  "V2_elemtable_copied_trailers": {
+    "desc": "Global/ElemTable recompressed; ORIGINAL trailers copied (content mismatch)",
+    "report": {
+      "in": "/Users/ck/dev/things/rev-revit/tools/../samples/rstbasicsampleproject.rvt",
+      "out": "/Users/ck/dev/things/rev-revit/tools/../experiments/acceptance/V2_elemtable_copied_trailers.rvt",
+      "streams": [
+        {
+          "name": "Global/ElemTable",
+          "kind": "single",
+          "raw_size": 72440,
+          "orig_raw_size": 72440,
+          "payload": 557470,
+          "full_page_trailers": 1
+        }
+      ]
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  },
+  "V3_allstreams_zero_trailers": {
+    "desc": "ALL single-member streams recompressed; trailers ZEROED",
+    "streams": [
+      "Contents",
+      "Formats/Latest",
+      "Global/ContentDocuments",
+      "Global/DocumentIncrementTable",
+      "Global/ElemTable",
+      "Global/History",
+      "Global/Latest",
+      "Global/PartitionTable"
+    ],
+    "report": {
+      "in": "/Users/ck/dev/things/rev-revit/tools/../samples/rstbasicsampleproject.rvt",
+      "out": "/Users/ck/dev/things/rev-revit/tools/../experiments/acceptance/V3_allstreams_zero_trailers.rvt",
+      "streams": [
+        {
+          "name": "Contents",
+          "kind": "single",
+          "raw_size": 212,
+          "orig_raw_size": 212,
+          "payload": 240,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Formats/Latest",
+          "kind": "single",
+          "raw_size": 182953,
+          "orig_raw_size": 182953,
+          "payload": 496597,
+          "full_page_trailers": 2
+        },
+        {
+          "name": "Global/ContentDocuments",
+          "kind": "single",
+          "raw_size": 224661,
+          "orig_raw_size": 224661,
+          "payload": 1365825,
+          "full_page_trailers": 3
+        },
+        {
+          "name": "Global/DocumentIncrementTable",
+          "kind": "single",
+          "raw_size": 1096,
+          "orig_raw_size": 1096,
+          "payload": 5086,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Global/ElemTable",
+          "kind": "single",
+          "raw_size": 72440,
+          "orig_raw_size": 72440,
+          "payload": 557470,
+          "full_page_trailers": 1
+        },
+        {
+          "name": "Global/History",
+          "kind": "single",
+          "raw_size": 17144,
+          "orig_raw_size": 17144,
+          "payload": 18163,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Global/Latest",
+          "kind": "single",
+          "raw_size": 129986,
+          "orig_raw_size": 129986,
+          "payload": 1586246,
+          "full_page_trailers": 1
+        },
+        {
+          "name": "Global/PartitionTable",
+          "kind": "single",
+          "raw_size": 134,
+          "orig_raw_size": 134,
+          "payload": 87,
+          "full_page_trailers": 0
+        }
+      ]
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  },
+  "V4_schema_zero_trailers": {
+    "desc": "Formats/Latest recompressed; trailers ZEROED",
+    "report": {
+      "in": "/Users/ck/dev/things/rev-revit/tools/../samples/rstbasicsampleproject.rvt",
+      "out": "/Users/ck/dev/things/rev-revit/tools/../experiments/acceptance/V4_schema_zero_trailers.rvt",
+      "streams": [
+        {
+          "name": "Formats/Latest",
+          "kind": "single",
+          "raw_size": 182953,
+          "orig_raw_size": 182953,
+          "payload": 496597,
+          "full_page_trailers": 2
+        }
+      ]
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  },
+  "V5_allstreams_random_trailers": {
+    "desc": "ALL single-member streams recompressed; RANDOM trailers",
+    "report": {
+      "in": "/Users/ck/dev/things/rev-revit/tools/../samples/rstbasicsampleproject.rvt",
+      "out": "/Users/ck/dev/things/rev-revit/tools/../experiments/acceptance/V5_allstreams_random_trailers.rvt",
+      "streams": [
+        {
+          "name": "Contents",
+          "kind": "single",
+          "raw_size": 212,
+          "orig_raw_size": 212,
+          "payload": 240,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Formats/Latest",
+          "kind": "single",
+          "raw_size": 182953,
+          "orig_raw_size": 182953,
+          "payload": 496597,
+          "full_page_trailers": 2
+        },
+        {
+          "name": "Global/ContentDocuments",
+          "kind": "single",
+          "raw_size": 224661,
+          "orig_raw_size": 224661,
+          "payload": 1365825,
+          "full_page_trailers": 3
+        },
+        {
+          "name": "Global/DocumentIncrementTable",
+          "kind": "single",
+          "raw_size": 1096,
+          "orig_raw_size": 1096,
+          "payload": 5086,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Global/ElemTable",
+          "kind": "single",
+          "raw_size": 72440,
+          "orig_raw_size": 72440,
+          "payload": 557470,
+          "full_page_trailers": 1
+        },
+        {
+          "name": "Global/History",
+          "kind": "single",
+          "raw_size": 17144,
+          "orig_raw_size": 17144,
+          "payload": 18163,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Global/Latest",
+          "kind": "single",
+          "raw_size": 129986,
+          "orig_raw_size": 129986,
+          "payload": 1586246,
+          "full_page_trailers": 1
+        },
+        {
+          "name": "Global/PartitionTable",
+          "kind": "single",
+          "raw_size": 134,
+          "orig_raw_size": 134,
+          "payload": 87,
+          "full_page_trailers": 0
+        }
+      ]
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    }
+  },
+  "V6_partitions_zero_trailers": {
+    "desc": "Partitions/21 (element data) recompressed block-by-block, re-framed; trailers ZEROED",
+    "report": {
+      "in": "/Users/ck/dev/things/rev-revit/tools/../samples/rstbasicsampleproject.rvt",
+      "out": "/Users/ck/dev/things/rev-revit/tools/../experiments/acceptance/V6_partitions_zero_trailers.rvt",
+      "streams": [
+        {
+          "name": "Partitions/21",
+          "kind": "partition",
+          "raw_size": 5398489,
+          "orig_raw_size": 6003729,
+          "logical_size": 5369284,
+          "orig_logical_size": 5971253,
+          "blocks": 414
+        }
+      ]
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    },
+    "partition_check": {
+      "Partitions/21": {
+        "blocks_orig": 414,
+        "blocks_new": 414,
+        "walker_errors_new": [],
+        "all_new_crc_ok": true,
+        "seq_payload_identical": {
+          "101": true,
+          "102": true,
+          "103": true
+        },
+        "PASS": true
+      }
+    }
+  },
+  "V7_fullfile_zero_trailers": {
+    "desc": "EVERY stream (incl. partitions) recompressed + re-framed by us; trailers ZEROED",
+    "report": {
+      "in": "/Users/ck/dev/things/rev-revit/tools/../samples/rstbasicsampleproject.rvt",
+      "out": "/Users/ck/dev/things/rev-revit/tools/../experiments/acceptance/V7_fullfile_zero_trailers.rvt",
+      "streams": [
+        {
+          "name": "Contents",
+          "kind": "single",
+          "raw_size": 212,
+          "orig_raw_size": 212,
+          "payload": 240,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Formats/Latest",
+          "kind": "single",
+          "raw_size": 182953,
+          "orig_raw_size": 182953,
+          "payload": 496597,
+          "full_page_trailers": 2
+        },
+        {
+          "name": "Global/ContentDocuments",
+          "kind": "single",
+          "raw_size": 224661,
+          "orig_raw_size": 224661,
+          "payload": 1365825,
+          "full_page_trailers": 3
+        },
+        {
+          "name": "Global/DocumentIncrementTable",
+          "kind": "single",
+          "raw_size": 1096,
+          "orig_raw_size": 1096,
+          "payload": 5086,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Global/ElemTable",
+          "kind": "single",
+          "raw_size": 72440,
+          "orig_raw_size": 72440,
+          "payload": 557470,
+          "full_page_trailers": 1
+        },
+        {
+          "name": "Global/History",
+          "kind": "single",
+          "raw_size": 17144,
+          "orig_raw_size": 17144,
+          "payload": 18163,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Global/Latest",
+          "kind": "single",
+          "raw_size": 129986,
+          "orig_raw_size": 129986,
+          "payload": 1586246,
+          "full_page_trailers": 1
+        },
+        {
+          "name": "Global/PartitionTable",
+          "kind": "single",
+          "raw_size": 134,
+          "orig_raw_size": 134,
+          "payload": 87,
+          "full_page_trailers": 0
+        },
+        {
+          "name": "Partitions/21",
+          "kind": "partition",
+          "raw_size": 5398489,
+          "orig_raw_size": 6003729,
+          "logical_size": 5369284,
+          "orig_logical_size": 5971253,
+          "blocks": 414
+        }
+      ]
+    },
+    "readback": {
+      "streams": 12,
+      "members": 422,
+      "crc_failures": 0
+    },
+    "partition_check": {
+      "Partitions/21": {
+        "blocks_orig": 414,
+        "blocks_new": 414,
+        "walker_errors_new": [],
+        "all_new_crc_ok": true,
+        "seq_payload_identical": {
+          "101": true,
+          "102": true,
+          "103": true
+        },
+        "PASS": true
+      }
+    }
+  }
+}

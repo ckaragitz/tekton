@@ -1,0 +1,85 @@
+{
+  "specVersion": "0.1.0",
+  "project": {
+    "name": "Speculative Office",
+    "number": "O-104",
+    "buildingName": "Office Block B",
+    "phase": "New Construction"
+  },
+  "units": { "length": "m" },
+  "defaults": {
+    "storeyHeight": 3.9,
+    "wallThickness": 0.25,
+    "slabThickness": 0.3,
+    "roofForm": "flat",
+    "columnType": "M_Concrete-Rectangular-Column 450 x 600mm",
+    "beamType": "M_Concrete-Rectangular Beam 300 x 600mm",
+    "windowWidth": 2.4,
+    "windowHeight": 2.1,
+    "sillHeight": 0.9
+  },
+  "storeys": 4,
+  "footprint": [[0, 0], [36, 0], [36, 18], [0, 18]],
+  "grids": {
+    "x": { "spacings": [9, 9, 9, 9], "labelStyle": "numeric" },
+    "y": { "spacings": [9, 9], "labelStyle": "alpha" }
+  },
+  "types": {
+    "columns": {
+      "M_Concrete-Rectangular-Column 450 x 600mm": {
+        "ifcType": "COLUMN",
+        "width": 0.45,
+        "depth": 0.6,
+        "revit": { "category": "OST_StructuralColumns", "family": "M_Concrete-Rectangular-Column", "type": "450 x 600mm" }
+      }
+    },
+    "beams": {
+      "M_Concrete-Rectangular Beam 300 x 600mm": {
+        "ifcType": "BEAM",
+        "width": 0.3,
+        "depth": 0.6,
+        "revit": { "category": "OST_StructuralFraming", "family": "M_Concrete-Rectangular Beam", "type": "300 x 600mm" }
+      }
+    }
+  },
+  "columns": [
+    { "id": "C-A1", "grid": "1/A" }, { "id": "C-A2", "grid": "2/A" }, { "id": "C-A3", "grid": "3/A" },
+    { "id": "C-A4", "grid": "4/A" }, { "id": "C-A5", "grid": "5/A" },
+    { "id": "C-B1", "grid": "1/B" }, { "id": "C-B2", "grid": "2/B" }, { "id": "C-B3", "grid": "3/B" },
+    { "id": "C-B4", "grid": "4/B" }, { "id": "C-B5", "grid": "5/B" },
+    { "id": "C-C1", "grid": "1/C" }, { "id": "C-C2", "grid": "2/C" }, { "id": "C-C3", "grid": "3/C" },
+    { "id": "C-C4", "grid": "4/C" }, { "id": "C-C5", "grid": "5/C" }
+  ],
+  "beams": [
+    { "id": "B-A", "start": [0, 0], "end": [36, 0] },
+    { "id": "B-B", "start": [0, 9], "end": [36, 9] },
+    { "id": "B-C", "start": [0, 18], "end": [36, 18] }
+  ],
+  "walls": [
+    { "id": "W-core-1", "start": [15, 6], "end": [21, 6], "type": "Core_200", "function": "coreShaft" },
+    { "id": "W-core-2", "start": [21, 6], "end": [21, 12], "type": "Core_200", "function": "coreShaft" },
+    { "id": "W-core-3", "start": [21, 12], "end": [15, 12], "type": "Core_200", "function": "coreShaft" },
+    { "id": "W-core-4", "start": [15, 12], "end": [15, 6], "type": "Core_200", "function": "coreShaft" }
+  ],
+  "windows": [
+    { "hostWall": "auto-0", "offset": 1.0 }, { "hostWall": "auto-0", "offset": 5.5 },
+    { "hostWall": "auto-0", "offset": 10.0 }, { "hostWall": "auto-0", "offset": 14.5 },
+    { "hostWall": "auto-0", "offset": 19.0 }, { "hostWall": "auto-0", "offset": 23.5 },
+    { "hostWall": "auto-0", "offset": 28.0 }, { "hostWall": "auto-0", "offset": 32.5 },
+    { "hostWall": "auto-2", "offset": 1.0 }, { "hostWall": "auto-2", "offset": 5.5 },
+    { "hostWall": "auto-2", "offset": 10.0 }, { "hostWall": "auto-2", "offset": 14.5 },
+    { "hostWall": "auto-2", "offset": 19.0 }, { "hostWall": "auto-2", "offset": 23.5 },
+    { "hostWall": "auto-2", "offset": 28.0 }, { "hostWall": "auto-2", "offset": 32.5 }
+  ],
+  "doors": [
+    { "id": "D-main", "hostWall": "auto-0", "fraction": 0.5, "width": 1.8, "operation": "DOUBLE_DOOR_SINGLE_SWING" }
+  ],
+  "rooms": [
+    { "name": "Open Office", "number": "101", "level": "Level 1", "point": [8, 9] },
+    { "name": "Core", "number": "102", "level": "Level 1", "point": [18, 9] }
+  ],
+  "targets": {
+    "ifc": { "schema": "IFC4", "mvd": "DesignTransferView" },
+    "revit": { "engine": "Autodesk.Revit+2026", "units": "Metric" }
+  }
+}

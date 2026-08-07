@@ -1,0 +1,1637 @@
+{
+ "rung": "Y9_2025",
+ "label": "the 19 project view types + every view constellation (+ document sun) -> ours, IN PLACE (2025)",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+ "base": {
+  "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  },
+  "lineage": "B2025_K4 = the certified 2025 family-free base (viewer round of 2026-08-04, verdicts #28): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, EDIT-FREE) -> K3_2025 (usage nulls) -> B2025_K4 (all 52 embedded documents removed, four-registry coherent 1/0/0/0). docs/inbox/genesis-2025-reduce.md"
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+  "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4_2025/Y8_2025.rvt",
+ "parent_rung": "Y8_2025",
+ "out": "experiments/genesis/subst_k4_2025/Y9_2025.rvt",
+ "description": "The 2025 twin of the certified v3 Y9: the view layer in place. The port layer emits the 2025 layout -- DBView has NO m_viewPositionId, DBViewDrafting no m_sheetTitleBlockId, Viewport v13->10 (m_viewPosition/m_viewAnchor dropped) -- proven per record by the in-emit 2025 encode->decode->re-encode self-check.",
+ "tests": "Whether the 2025 reader accepts our view/view-type/sun objects (2025 layout) at Autodesk's own registrations -- the deepest cumulative Y rung.",
+ "if_PASS": "Every constructor of the Y chain loads at 2025 registrations.",
+ "if_FAIL": "Bisect view types vs the 3D constellation vs the plans.",
+ "stages": [],
+ "parent_context": {
+  "host_elements": 3333,
+  "watermark": 1472011
+ },
+ "candidates_old_by_class": {
+  "DBViewType": 19,
+  "Viewport": 8,
+  "DBDrawing": 6,
+  "Viewer": 5,
+  "SunAndShadowSettings": 4,
+  "ExtentElem": 3,
+  "SunAnnotationElem": 3,
+  "SketchPlane": 3,
+  "DBViewPlan": 2,
+  "DBViewProject": 1,
+  "LevelRoomPlan": 1,
+  "Viewer3d": 1,
+  "ModelClipBox": 1,
+  "DBView3d": 1,
+  "LightSchemeElement": 1,
+  "DBViewDrafting": 1
+ },
+ "our_records_by_class": {
+  "DBViewType": 19,
+  "SunAndShadowSettings": 4,
+  "Viewport": 4,
+  "DBDrawing": 4,
+  "TextNoteAttributes": 3,
+  "FontElem": 3,
+  "CategoryElem": 3,
+  "GStyleElem": 3,
+  "Viewer": 3,
+  "ExtentElem": 3,
+  "DBViewPlan": 2,
+  "SketchPlane": 2,
+  "DBViewProject": 1,
+  "DBView3d": 1,
+  "Viewer3d": 1,
+  "ModelClipBox": 1,
+  "LightSchemeElement": 1
+ },
+ "build_notes": [
+  "[X9-view layer] catalog re-wiring: 23 reference(s) re-pointed to the current file's elements: [('LinePatternElem', 'GEN Hidden 2mm'), ('FillPatternElem', 'GEN Solid Fill'), ('MaterialElem', 'GEN Phase - Existing'), ('MaterialElem', 'GEN Phase - Demolition'), ('MaterialElem', 'GEN Phase - New'), ('MaterialElem', 'GEN Phase - Temporary'), ('UnitsElem', ''), ('GeoLocation', 'GEN Project Position')]",
+  "[X9-view layer] project view: sample view 230 constellation 4 -> ours 4 records; 4 role-matched",
+  "[X9-view layer] 3D view '{3D}': sample view 1454508 constellation 9 -> ours 8 records; 8 role-matched",
+  "[X9-view layer] plan 1: sample view 1064656 constellation 16 -> ours 7 records; 7 role-matched",
+  "[X9-view layer] plan 2: sample view 245443 constellation 17 -> ours 7 records; 7 role-matched",
+  "[X9-view layer] view layer: 41 sample elements (6 view roots); mapped constellations 23; deleted 18",
+  "[X9-view layer] view types: sample project types 19 -> ours 19 (by m_systemFamilyIdx); family-scoped (curtain) types untouched: 72",
+  "[X9-view layer] levels: sample 9 -> ours 2; mapped 2 (the levels the mapped plans sit on -> our L1/L2); the rest deleted with their views",
+  "[X9-view layer] phases: sample 2 -> ours 2 (by sequence order); phase set 1:1; filters sample 1 -> ours 5 (by role; unmatched sample filters deleted)",
+  "Y9 = the VIEW layer of X9 (view types + view constellations + document sun + text types); the level / phase layer landed at Y8, so this rung's references to our levels / phases resolve to those slots by (class, name).",
+  "[port2025] 58 records adapted to the Revit-2025 schema (2025 class ordinals, confirmed field maps); 0 record(s) of 2026-only classes emit nothing on 2025"
+ ],
+ "build_info": {
+  "mapped_views": {
+   "project_view": 230,
+   "view_3d": 1454508,
+   "plans": [
+    1064656,
+    245443
+   ]
+  },
+  "level_correspondence_from_plans": [
+   [
+    311,
+    0
+   ],
+   [
+    245423,
+    1
+   ]
+  ],
+  "our_constellation_sizes": {
+   "project": 4,
+   "3d": 8,
+   "plans": [
+    7,
+    7
+   ]
+  },
+  "port2025": {
+   "adapted": 58,
+   "dropped_2026_only": []
+  }
+ },
+ "residue_named_by_builder": {
+  "DBViewType(curtain-family-scoped)": "72 kept -- the 8 curtain SYSTEM families' editor types",
+  "DimensionStyle/LeaderStyle/SectionAttributes/CalloutTag/InteriorElevAttributes/ViewportAttributes/GridAttributes/SpotElevationStyle/FilledRegionAttributes": "annotation attribute types kept -- NO our-constructor (dimension / arrowhead / view-tag types)",
+  "FontElem": "35 kept -- the residue annotation types' fonts",
+  "Grid/RefPlane/MultiSegGrid": "sample datum content kept -- a datum-content rung (our grid/refplane constructors exist in the skeleton) or a removal rung"
+ },
+ "plan": {
+  "landed": 46,
+  "by_match": {
+   "role": 42,
+   "donor": 4
+  },
+  "landed_by_class": {
+   "DBViewType": 19,
+   "Viewport": 4,
+   "DBDrawing": 4,
+   "SunAndShadowSettings": 4,
+   "Viewer": 3,
+   "ExtentElem": 3,
+   "DBViewPlan": 2,
+   "SketchPlane": 2,
+   "DBViewProject": 1,
+   "DBView3d": 1,
+   "Viewer3d": 1,
+   "ModelClipBox": 1,
+   "LightSchemeElement": 1
+  },
+  "dropped_ours": 12,
+  "residue_olds": 11,
+  "class_mismatch": [],
+  "protected_slots_from_earlier_rungs": [
+   {
+    "id": 69852,
+    "class": "Viewer"
+   },
+   {
+    "id": 69853,
+    "class": "Viewport"
+   },
+   {
+    "id": 69854,
+    "class": "DBDrawing"
+   }
+  ],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 53,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [
+   {
+    "in_slot": 230,
+    "seq": 102,
+    "our_record": 1500198,
+    "class": "PhaseFilterElem",
+    "name": "GEN All Phases",
+    "resolved_to": 375,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 230,
+    "seq": 102,
+    "our_record": 1500197,
+    "class": "ProjectPhase",
+    "name": "New Work",
+    "resolved_to": 86961,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 245443,
+    "seq": 102,
+    "our_record": 1500198,
+    "class": "PhaseFilterElem",
+    "name": "GEN All Phases",
+    "resolved_to": 375,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 245443,
+    "seq": 102,
+    "our_record": 1500197,
+    "class": "ProjectPhase",
+    "name": "New Work",
+    "resolved_to": 86961,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 245443,
+    "seq": 102,
+    "our_record": 1500194,
+    "class": "Level",
+    "name": "L2 - Second Floor",
+    "resolved_to": 245423,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 245443,
+    "seq": 102,
+    "our_record": 1500193,
+    "class": "Level",
+    "name": "L1 - Ground Floor",
+    "resolved_to": 311,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 1064656,
+    "seq": 102,
+    "our_record": 1500198,
+    "class": "PhaseFilterElem",
+    "name": "GEN All Phases",
+    "resolved_to": 375,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 1064656,
+    "seq": 102,
+    "our_record": 1500197,
+    "class": "ProjectPhase",
+    "name": "New Work",
+    "resolved_to": 86961,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 1064656,
+    "seq": 102,
+    "our_record": 1500193,
+    "class": "Level",
+    "name": "L1 - Ground Floor",
+    "resolved_to": 311,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 1454508,
+    "seq": 102,
+    "our_record": 1500198,
+    "class": "PhaseFilterElem",
+    "name": "GEN All Phases",
+    "resolved_to": 375,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 1454508,
+    "seq": 102,
+    "our_record": 1500197,
+    "class": "ProjectPhase",
+    "name": "New Work",
+    "resolved_to": 86961,
+    "how": "class+name-in-current-file"
+   },
+   {
+    "in_slot": 1454509,
+    "seq": 102,
+    "our_record": 1500193,
+    "class": "Level",
+    "name": "L1 - Ground Floor",
+    "resolved_to": 311,
+    "how": "class+name-in-current-file"
+   }
+  ],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 46,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 46,
+  "would_differ_103": 1,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3333,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/20"
+  ],
+  "seconds": 1.9
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/20"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   230,
+   49552,
+   49553,
+   49554,
+   49555,
+   49556,
+   49557,
+   49559,
+   49560,
+   49561,
+   49562,
+   49563,
+   49564,
+   54520,
+   54529,
+   56404,
+   56405,
+   56406,
+   69693,
+   69847,
+   245443,
+   245445,
+   245446,
+   245448,
+   245451,
+   1064656,
+   1064657,
+   1064658,
+   1064659,
+   1064661,
+   1454506,
+   1454508,
+   1454509,
+   1454511,
+   1470264,
+   1470382
+  ],
+  "records_changed_count": 36,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 46,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 10,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 230,
+    "len_ours": 1914,
+    "len_parent": 2817,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "DBViewProject",
+      "class_parent": "DBViewProject"
+     },
+     {
+      "path": ".m_oaDrawFilters[0].value.m_categoryIds[len]",
+      "ours": 0,
+      "parent": 6
+     },
+     {
+      "path": ".m_pRetouchTable.value.m_invisibleGStyleId",
+      "ours": "-1",
+      "parent": "201"
+     },
+     {
+      "path": ".m_pRetouchTable.value.m_notSilhouetteGStyleId",
+      "ours": "-1",
+      "parent": "55150"
+     },
+     {
+      "path": ".m_pRvtLinkOverrides.value.m_displaySettingsMap[len]",
+      "ours": 0,
+      "parent": 1
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_background.m_groundColor",
+      "ours": "10855845",
+      "parent": "10201261"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_model.m_surfaces",
+      "ours": "2",
+      "parent": "1"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oRaytraceSettings.value.m_customQualityAsset.m_sLibrary",
+      "ours": "''",
+      "parent": "'assetlibrary_base.fbx'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oRaytraceSettings.value.m_customQualityAsset.m_sName",
+      "ours": "''",
+      "parent": "'Generic'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oRaytraceSettings.value.m_oEnvironmentAssets.m_sLibrary",
+      "ours": "''",
+      "parent": "'assetlibrary_base.fbx'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oRaytraceSettings.value.m_oEnvironmentAssets.m_sName",
+      "ours": "''",
+      "parent": "'SunAndSky-002'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oRaytraceSettings.value.m_oExposureAssets.m_sLibrary",
+      "ours": "''",
+      "parent": "'assetlibrary_base.fbx'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oRaytraceSettings.value.m_oExposureAssets.m_sName",
+      "ours": "''",
+      "parent": "'Generic'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oStaticRRTRenderSettings.value.m_BkIamgeSettings.m_FitType",
+      "ours": "43",
+      "parent": "0"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oStaticRRTRenderSettings.value.m_customQualityAsset.m_sLibrary",
+      "ours": "''",
+      "parent": "'assetlibrary_base.fbx'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oStaticRRTRenderSettings.value.m_customQualityAsset.m_sName",
+      "ours": "''",
+      "parent": "'Generic'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oStaticRRTRenderSettings.value.m_iPrintPageWidth",
+      "ours": "6",
+      "parent": "12"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oStaticRRTRenderSettings.value.m_oEnvironmentAssets.m_sLibrary",
+      "ours": "''",
+      "parent": "'assetlibrary_base.fbx'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oStaticRRTRenderSettings.value.m_oEnvironmentAssets.m_sName",
+      "ours": "''",
+      "parent": "'SunAndSky-002'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oStaticRRTRenderSettings.value.m_oExposureAssets.m_sLibrary",
+      "ours": "''",
+      "parent": "'assetlibrary_base.fbx'"
+     },
+     {
+      "path": ".m_pViewDisplayMgr.value.m_oStaticRRTRenderSettings.value.m_oExposureAssets.m_sName",
+      "ours": "''",
+      "parent": "'Generic'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 49552,
+    "len_ours": 260,
+    "len_parent": 250,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "DBViewType",
+      "class_parent": "DBViewType"
+     },
+     {
+      "path": ".m_calloutAttrId",
+      "ours": "-1",
+      "parent": "49508"
+     },
+     {
+      "path": ".m_refLabelStr",
+      "ours": "'SIM.'",
+      "parent": "'Sim'"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Floor Plan'",
+      "parent": "'Floor Plan'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 49553,
+    "len_ours": 264,
+    "len_parent": 254,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "DBViewType",
+      "class_parent": "DBViewType"
+     },
+     {
+      "path": ".m_calloutAttrId",
+      "ours": "-1",
+      "parent": "49508"
+     },
+     {
+      "path": ".m_refLabelStr",
+      "ours": "'SIM.'",
+      "parent": "'Sim'"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Ceiling Plan'",
+      "parent": "'Ceiling Plan'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 49554,
+    "len_ours": 254,
+    "len_parent": 262,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "DBViewType",
+      "class_parent": "DBViewType"
+     },
+     {
+      "path": ".m_calloutAttrId",
+      "ours": "-1",
+      "parent": "49508"
+     },
+     {
+      "path": ".m_refLabelStr",
+      "ours": "'SIM.'",
+      "parent": "'Sim'"
+     },
+     {
+      "path": ".m_sectionAttrId",
+      "ours": "-1",
+      "parent": "26029"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Section'",
+      "parent": "'Building Section'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 12,
+    "blocks_out": 12
+   },
+   {
+    "what": "10 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     231,
+     232,
+     233,
+     245444,
+     245449,
+     1064662,
+     1064664,
+     1454507,
+     1454512,
+     1454513
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 46,
+  "slots_with_registry_surface": 31,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 230,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewProjectId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 233,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 49552,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewTypesForNewLevel.m_newLevelDBViewTypes[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 49553,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewTypesForNewLevel.m_newLevelDBViewTypes[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 49554,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 3
+   },
+   {
+    "slot": 49555,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 49556,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 49557,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 3
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 46,
+  "pairs_ok": 46,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 230,
+   "class": "DBViewProject",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 231,
+   "class": "Viewer",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": 230,
+    "id_band": "<5k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 232,
+   "class": "Viewport",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 247,
+    "modified_ep": 551,
+    "owner_id": 233,
+    "id_band": "<5k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 233,
+   "class": "DBDrawing",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": 230,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 49552,
+   "class": "DBViewType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 279,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 3
+  },
+  {
+   "slot": 49553,
+   "class": "DBViewType",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 279,
+    "modified_ep": 551,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 3
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 17,
+   "records": 10002,
+   "elements_decoded": 3333,
+   "decode_failures": 1,
+   "refs_checked": 51061
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4_2025/Y9_2025.rvt",
+  "elements": 3333,
+  "file_size": 749568,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "classes_top": {
+   "GStyleElem": 1451,
+   "ParamElemExternal": 466,
+   "CategoryElem": 209,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "MaterialElem": 23,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 10,
+   "SectionAttributes": 10,
+   "PenWidthTableElem": 9,
+   "FillPatternElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "ColorFillSchema": 9
+  }
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.6,
+ "correspondence": [
+  {
+   "ours_tmp": 1500205,
+   "slot": 230,
+   "class": "DBViewProject",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "???"
+  },
+  {
+   "ours_tmp": 1500206,
+   "slot": 231,
+   "class": "Viewer",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500207,
+   "slot": 232,
+   "class": "Viewport",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500208,
+   "slot": 233,
+   "class": "DBDrawing",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500210,
+   "slot": 49552,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Floor Plan"
+  },
+  {
+   "ours_tmp": 1500211,
+   "slot": 49553,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Ceiling Plan"
+  },
+  {
+   "ours_tmp": 1500240,
+   "slot": 49554,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Section"
+  },
+  {
+   "ours_tmp": 1500241,
+   "slot": 49555,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Detail Section"
+  },
+  {
+   "ours_tmp": 1500239,
+   "slot": 49556,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Drafting"
+  },
+  {
+   "ours_tmp": 1500242,
+   "slot": 49557,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Elevation"
+  },
+  {
+   "ours_tmp": 1500209,
+   "slot": 49559,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN 3D View"
+  },
+  {
+   "ours_tmp": 1500236,
+   "slot": 49560,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Schedule"
+  },
+  {
+   "ours_tmp": 1500238,
+   "slot": 49561,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Sheet"
+  },
+  {
+   "ours_tmp": 1500234,
+   "slot": 49562,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Walkthrough"
+  },
+  {
+   "ours_tmp": 1500235,
+   "slot": 49563,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Render"
+  },
+  {
+   "ours_tmp": 1500237,
+   "slot": 49564,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Cost Report"
+  },
+  {
+   "ours_tmp": 1500204,
+   "slot": 54520,
+   "class": "SunAndShadowSettings",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 3,
+   "our_name": "GEN Still Sun - South 45"
+  },
+  {
+   "ours_tmp": 1500245,
+   "slot": 54529,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Legend"
+  },
+  {
+   "ours_tmp": 1500243,
+   "slot": 56404,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Loads Report"
+  },
+  {
+   "ours_tmp": 1500244,
+   "slot": 56405,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Pressure Loss Report"
+  },
+  {
+   "ours_tmp": 1500246,
+   "slot": 56406,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Panel Schedule"
+  },
+  {
+   "ours_tmp": 1500247,
+   "slot": 69693,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Column Schedule"
+  },
+  {
+   "ours_tmp": 1500248,
+   "slot": 69847,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Framing Plan"
+  },
+  {
+   "ours_tmp": 1500227,
+   "slot": 245443,
+   "class": "DBViewPlan",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "L2 - Second Floor"
+  },
+  {
+   "ours_tmp": 1500233,
+   "slot": 245444,
+   "class": "ExtentElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500228,
+   "slot": 245445,
+   "class": "Viewer",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500230,
+   "slot": 245446,
+   "class": "SunAndShadowSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Still Sun - South 45"
+  },
+  {
+   "ours_tmp": 1500231,
+   "slot": 245448,
+   "class": "Viewport",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500232,
+   "slot": 245449,
+   "class": "DBDrawing",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500229,
+   "slot": 245451,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500220,
+   "slot": 1064656,
+   "class": "DBViewPlan",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "L1 - Ground Floor"
+  },
+  {
+   "ours_tmp": 1500226,
+   "slot": 1064657,
+   "class": "ExtentElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500221,
+   "slot": 1064658,
+   "class": "Viewer",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500223,
+   "slot": 1064659,
+   "class": "SunAndShadowSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Still Sun - South 45"
+  },
+  {
+   "ours_tmp": 1500224,
+   "slot": 1064661,
+   "class": "Viewport",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500225,
+   "slot": 1064662,
+   "class": "DBDrawing",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500222,
+   "slot": 1064664,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500213,
+   "slot": 1454506,
+   "class": "Viewer3d",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500214,
+   "slot": 1454507,
+   "class": "ModelClipBox",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500212,
+   "slot": 1454508,
+   "class": "DBView3d",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Working 3D"
+  },
+  {
+   "ours_tmp": 1500215,
+   "slot": 1454509,
+   "class": "SunAndShadowSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Still Sun - South 45"
+  },
+  {
+   "ours_tmp": 1500216,
+   "slot": 1454511,
+   "class": "Viewport",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500217,
+   "slot": 1454512,
+   "class": "DBDrawing",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500218,
+   "slot": 1454513,
+   "class": "LightSchemeElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500219,
+   "slot": 1470264,
+   "class": "ExtentElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500249,
+   "slot": 1470382,
+   "class": "DBViewType",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Analysis Report"
+  }
+ ],
+ "correspondence_note": "all pairs stored",
+ "landed_slots": [
+  {
+   "slot": 230,
+   "class": "DBViewProject",
+   "match": "role",
+   "ours_tmp": 1500205
+  },
+  {
+   "slot": 231,
+   "class": "Viewer",
+   "match": "role",
+   "ours_tmp": 1500206
+  },
+  {
+   "slot": 232,
+   "class": "Viewport",
+   "match": "role",
+   "ours_tmp": 1500207
+  },
+  {
+   "slot": 233,
+   "class": "DBDrawing",
+   "match": "role",
+   "ours_tmp": 1500208
+  },
+  {
+   "slot": 49559,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500209
+  },
+  {
+   "slot": 49552,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500210
+  },
+  {
+   "slot": 49553,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500211
+  },
+  {
+   "slot": 1454508,
+   "class": "DBView3d",
+   "match": "role",
+   "ours_tmp": 1500212
+  },
+  {
+   "slot": 1454506,
+   "class": "Viewer3d",
+   "match": "role",
+   "ours_tmp": 1500213
+  },
+  {
+   "slot": 1454507,
+   "class": "ModelClipBox",
+   "match": "role",
+   "ours_tmp": 1500214
+  },
+  {
+   "slot": 1454509,
+   "class": "SunAndShadowSettings",
+   "match": "role",
+   "ours_tmp": 1500215
+  },
+  {
+   "slot": 1454511,
+   "class": "Viewport",
+   "match": "role",
+   "ours_tmp": 1500216
+  },
+  {
+   "slot": 1454512,
+   "class": "DBDrawing",
+   "match": "role",
+   "ours_tmp": 1500217
+  },
+  {
+   "slot": 1454513,
+   "class": "LightSchemeElement",
+   "match": "role",
+   "ours_tmp": 1500218
+  },
+  {
+   "slot": 1470264,
+   "class": "ExtentElem",
+   "match": "role",
+   "ours_tmp": 1500219
+  },
+  {
+   "slot": 1064656,
+   "class": "DBViewPlan",
+   "match": "role",
+   "ours_tmp": 1500220
+  },
+  {
+   "slot": 1064664,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500222
+  },
+  {
+   "slot": 1064659,
+   "class": "SunAndShadowSettings",
+   "match": "role",
+   "ours_tmp": 1500223
+  },
+  {
+   "slot": 1064657,
+   "class": "ExtentElem",
+   "match": "role",
+   "ours_tmp": 1500226
+  },
+  {
+   "slot": 245443,
+   "class": "DBViewPlan",
+   "match": "role",
+   "ours_tmp": 1500227
+  },
+  {
+   "slot": 245445,
+   "class": "Viewer",
+   "match": "role",
+   "ours_tmp": 1500228
+  },
+  {
+   "slot": 245451,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500229
+  },
+  {
+   "slot": 245446,
+   "class": "SunAndShadowSettings",
+   "match": "role",
+   "ours_tmp": 1500230
+  },
+  {
+   "slot": 245448,
+   "class": "Viewport",
+   "match": "role",
+   "ours_tmp": 1500231
+  },
+  {
+   "slot": 245449,
+   "class": "DBDrawing",
+   "match": "role",
+   "ours_tmp": 1500232
+  },
+  {
+   "slot": 245444,
+   "class": "ExtentElem",
+   "match": "role",
+   "ours_tmp": 1500233
+  },
+  {
+   "slot": 49562,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500234
+  },
+  {
+   "slot": 49563,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500235
+  },
+  {
+   "slot": 49560,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500236
+  },
+  {
+   "slot": 49564,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500237
+  },
+  {
+   "slot": 49561,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500238
+  },
+  {
+   "slot": 49556,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500239
+  },
+  {
+   "slot": 49554,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500240
+  },
+  {
+   "slot": 49555,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500241
+  },
+  {
+   "slot": 49557,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500242
+  },
+  {
+   "slot": 56404,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500243
+  },
+  {
+   "slot": 56405,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500244
+  },
+  {
+   "slot": 54529,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500245
+  },
+  {
+   "slot": 56406,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500246
+  },
+  {
+   "slot": 69693,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500247
+  },
+  {
+   "slot": 69847,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500248
+  },
+  {
+   "slot": 1470382,
+   "class": "DBViewType",
+   "match": "role",
+   "ours_tmp": 1500249
+  },
+  {
+   "slot": 54520,
+   "class": "SunAndShadowSettings",
+   "match": "donor",
+   "ours_tmp": 1500204
+  },
+  {
+   "slot": 1064658,
+   "class": "Viewer",
+   "match": "donor",
+   "ours_tmp": 1500221
+  },
+  {
+   "slot": 1064661,
+   "class": "Viewport",
+   "match": "donor",
+   "ours_tmp": 1500224
+  },
+  {
+   "slot": 1064662,
+   "class": "DBDrawing",
+   "match": "donor",
+   "ours_tmp": 1500225
+  }
+ ],
+ "ours_not_landed": {
+  "count": 12,
+  "by_class": {
+   "TextNoteAttributes": 3,
+   "FontElem": 3,
+   "CategoryElem": 3,
+   "GStyleElem": 3
+  },
+  "examples": [
+   {
+    "ours": 1500077,
+    "class": "TextNoteAttributes",
+    "name": "GEN 2.5mm Text",
+    "reason": "no free TextNoteAttributes slot in the base (0 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500078,
+    "class": "FontElem",
+    "name": "",
+    "reason": "no free FontElem slot in the base (35 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500079,
+    "class": "CategoryElem",
+    "name": "",
+    "reason": "no free CategoryElem slot in the base (209 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500080,
+    "class": "GStyleElem",
+    "name": "",
+    "reason": "no free GStyleElem slot in the base (1451 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500081,
+    "class": "TextNoteAttributes",
+    "name": "GEN 3.5mm Text Bold",
+    "reason": "no free TextNoteAttributes slot in the base (0 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500082,
+    "class": "FontElem",
+    "name": "",
+    "reason": "no free FontElem slot in the base (35 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500083,
+    "class": "CategoryElem",
+    "name": "",
+    "reason": "no free CategoryElem slot in the base (209 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500084,
+    "class": "GStyleElem",
+    "name": "",
+    "reason": "no free GStyleElem slot in the base (1451 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500085,
+    "class": "TextNoteAttributes",
+    "name": "GEN 5mm Title",
+    "reason": "no free TextNoteAttributes slot in the base (0 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500086,
+    "class": "FontElem",
+    "name": "",
+    "reason": "no free FontElem slot in the base (35 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500087,
+    "class": "CategoryElem",
+    "name": "",
+    "reason": "no free CategoryElem slot in the base (209 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500088,
+    "class": "GStyleElem",
+    "name": "",
+    "reason": "no free GStyleElem slot in the base (1451 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   }
+  ],
+  "meaning": "our records that found NO in-place slot in the parent (the parent lacks an element of the class, or fewer than we build); landing them requires the ADD path -- deliberately NOT this ladder's variable"
+ },
+ "residue_olds_left_in_place": {
+  "count": 11,
+  "by_class": {
+   "SunAnnotationElem": 3,
+   "Viewport": 3,
+   "LevelRoomPlan": 1,
+   "DBViewDrafting": 1,
+   "Viewer": 1,
+   "DBDrawing": 1,
+   "SketchPlane": 1
+  },
+  "meaning": "the parent's candidate elements our set did not land on (surplus sample instances / companions): left EXACTLY as they were -- residue for the census"
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 749568,
+ "seconds": 3.2,
+ "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+ "stream": "y2025-views"
+}

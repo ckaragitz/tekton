@@ -1,0 +1,193 @@
+PROVENANCE LEDGER v2 — G1b.rvt
+baselines (multi, union): dach-sample-project.rvt, racadvancedsampleproject.rvt, racbasicsampleproject.rvt, rmebasicsampleproject.rvt, rstadvancedsampleproject.rvt, rstbasicsampleproject.rvt
+primary baseline: dach-sample-project.rvt   watermark: 4294190   overlap: 0.0
+layers ledgered: elements + streams + strings + identity
+host elements: 234   embedded family documents: 0 
+element totals: created=99  cloned=135
+
+STREAM LEDGER (byte-weighted):
+  ALL STREAMS: of 674,423 total inflated bytes, 78.01% identical-to-baseline, 2.53% modified-lineage, 19.46% ours
+  EXCLUDING Formats/Latest (schema, counsel C4): of 177,826 total inflated bytes, 16.61% identical-to-baseline, 9.58% modified-lineage, 73.81% ours
+  stream / unit                            R    inflated   identical  %ident  class            best-baseline
+  ----------------------------------------------------------------------------------------------------------
+  BasicFileInfo                            F       1,919         256   13.3%  modified-lineage racadvancedsampleproject
+  Contents                                 F         264           0    0.0%  prefix-shared    rstbasicsampleproject
+  Formats/Latest                           S     496,597     496,597  100.0%  identical        dach-sample-project
+  Global/ContentDocuments                  E          22           0    0.0%  ours             racadvancedsampleproject
+  Global/DocumentIncrementTable            F       5,608           0    0.0%  ours             dach-sample-project
+  Global/ElemTable                         F       9,398           0    0.0%  ours             dach-sample-project
+  Global/History                           F      18,188      17,408   95.7%  modified-lineage rstbasicsampleproject
+  Global/Latest                            E      26,110      11,776   45.1%  modified-lineage racadvancedsampleproject
+  Global/PartitionTable                    F          95          95  100.0%  identical        rstbasicsampleproject
+  Partitions/21#host                       H     115,267           0    0.0%  ours             -
+  ProjectInformation                       F         741           0    0.0%  ours             dach-sample-project
+  TransmissionData                         F         214           0    0.0%  ours             dach-sample-project
+  R: E=expression-bearing (gated)  S=schema (counsel C4)  F=fingerprint (identity/lineage)  H=host element records
+
+AUTODESK RESOURCE REFS (G1c): 107 in document content (7 host elements carry them); 0 more inside the schema stream
+    forge-typeid                    71
+    revit-resource-string           36
+
+IDENTITY (G2 policy): author='rvt-writer' username='rvt-writer' last_save_path='G1b.rvt'
+    (no identity violations)
+
+MULTI-BASELINE ELEMENT TABLE (per baseline, then union over all):
+    dach-sample-project              unmatched=234
+    racadvancedsampleproject         created=105  cloned=129
+    racbasicsampleproject            created=110  cloned=124
+    rmebasicsampleproject            created=107  cloned=127
+    rstadvancedsampleproject         created=106  cloned=128
+    rstbasicsampleproject            created=108  cloned=126
+    UNION (any baseline)             created=99  cloned=135
+    derived elements attributed to: racadvancedsampleproject=110, rstbasicsampleproject=9, rmebasicsampleproject=8, rstadvancedsampleproject=4, racbasicsampleproject=4
+
+category                                     E    created     cloned
+--------------------------------------------------------------------
+System-family types                          E         14          3
+Views & view templates                       E         11         12
+Object styles (categories / graphics styles) E          8         93
+Fill / line patterns, materials, appearance  E         22          4
+Text / dimension / arrowhead / annotation ty E          2          2
+Phases / design options / revisions          E          7          1
+Project info & settings elements             E          7          3
+MEP / electrical definition tables           E         24          4
+Datums (levels / grids / reference planes)              4          1
+Placed model content (sample geometry)       E          0          9
+View-owned 2D / annotation content           E          0          3
+
+E = expression-bearing (gated).  Per-class detail (top classes, example ids : name):
+
+[system-family-types]  System-family types
+  RbsConduitType                           created=5
+         created: 1500056:GEN Conduit - EMT with Fittings ~268924(0.42), 1500057:GEN Conduit - EMT (no fittings) ~268924(0.42), 1500058:GEN Conduit - IMC with Fittings ~268924(0.42)
+  BasicWallType                            created=3
+         created: 1500022:GEN Interior - 124mm Gypsum Partition ~403(0.38), 1500023:GEN Exterior - 200mm CIP Concrete ~563414(0.35), 1500024:GEN Interior - 190mm CMU ~563468(0.46)
+  RbsCableTrayType                         cloned=3
+          cloned: 1500062:GEN Cable Tray - Ladder ~268921(0.52), 1500063:GEN Cable Tray - Ventilated Trough ~268920(0.5), 1500064:GEN Cable Tray - Solid Bottom ~268920(0.54)
+  RbsWireType                              created=3
+         created: 1500074:GEN Wire - Cu THWN-2 75C ~55171(0.46), 1500075:GEN Wire - Cu THHN 90C ~55171(0.46), 1500076:GEN Wire - Al XHHW-2 75C ~55171(0.46)
+  FloorAttributes                          created=1
+         created: 1500025:GEN Slab on Grade - 150mm Concrete ~469350(0.49)
+  RoofAttributes                           created=1
+         created: 1500026:GEN Roof - Concrete Deck 200mm with In ~142294(0.3)
+  CompoundCeilingType                      created=1
+         created: 1500027:GEN Ceiling - 16mm GWB on Furring ~19849(0.41)
+
+[views-and-templates]  Views & view templates
+  SunAndShadowSettings                     created=4
+         created: 1500204:GEN Still Sun - South 45 ~233067(0.32), 1500215:GEN Still Sun - South 45 ~55158(0.26), 1500223:GEN Still Sun - South 45 ~233067(0.3)
+  Viewport                                 cloned=4
+          cloned: 1500207:- ~232(0.71), 1500216:- ~212138(0.64), 1500224:- ~212138(0.64)
+  DBDrawing                                cloned=4
+          cloned: 1500208:- ~98987(0.58), 1500217:- ~353024(0.62), 1500225:- ~353024(0.62)
+  Viewer                                   cloned=3
+          cloned: 1500206:- ~231(0.9), 1500221:- ~177344(0.8), 1500228:- ~177344(0.77)
+  DBViewType                               created=3
+         created: 1500209:GEN 3D View ~49665(0.3), 1500210:GEN Floor Plan ~49665(0.3), 1500211:GEN Ceiling Plan ~49665(0.29)
+  DBViewPlan                               created=2
+         created: 1500220:L1 - Ground Floor ~178630(0.44), 1500227:L2 - Second Floor ~178630(0.43)
+  DBViewProject                            cloned=1
+          cloned: 1500205:??? ~230(0.7)
+  DBView3d                                 created=1
+         created: 1500212:GEN Working 3D ~215078(0.5)
+    ... 1 more class(es)
+
+[object-styles]  Object styles (categories / graphics styles)
+  GStyleElem                               created=4 cloned=90
+         created: 1500177:style:GEN Fire-Rated Assembly Line ~86299(0.33), 1500179:style:GEN Above-Ceiling Conduit ~86299(0.33), 1500181:style:GEN Demolition (Existing to Remo ~86299(0.33)
+          cloned: 1500080:style:Category(1500079) ~219143(0.69), 1500084:style:Category(1500083) ~219143(0.69), 1500088:style:Category(1500087) ~219143(0.69)
+  CategoryElem                             created=4 cloned=3
+         created: 1500176:GEN Fire-Rated Assembly Line ~41944(0.33), 1500178:GEN Above-Ceiling Conduit ~41944(0.35), 1500180:GEN Demolition (Existing to Remove) ~20184(0.3)
+          cloned: 1500079:- ~90542(0.5), 1500083:- ~86450(0.5), 1500087:- ~49590(0.5)
+
+[patterns-materials]  Fill / line patterns, materials, appearance assets
+  MaterialElem                             created=13
+         created: 1500009:GEN Concrete, Cast-in-Place ~813(0.31), 1500010:GEN Concrete Masonry Units ~293370(0.35), 1500011:GEN Gypsum Wall Board
+  FillPatternElem                          created=5
+         created: 1500004:GEN Solid Fill ~6473(0.44), 1500005:GEN Diagonal Crosshatch 3mm ~6473(0.41), 1500006:GEN Diagonal Up 4mm ~6473(0.32)
+  LinePatternElem                          created=4
+         created: 1500000:GEN Dash 3mm ~17(0.43), 1500001:GEN Hidden 2mm ~105500(0.4), 1500002:GEN Centre 8mm ~105500(0.35)
+  FontElem                                 cloned=3
+          cloned: 1500078:Arial ~116144(0.64), 1500082:Arial ~86452(0.55), 1500086:Arial ~623053(0.64)
+  LightSchemeElement                       cloned=1
+          cloned: 1500218:- ~258664(0.56)
+
+[text-dimension-types]  Text / dimension / arrowhead / annotation types
+  TextNoteAttributes                       created=1 cloned=2
+         created: 1500081:GEN 3.5mm Text Bold ~618030(0.48)
+          cloned: 1500077:GEN 2.5mm Text ~618030(0.5), 1500085:GEN 5mm Title ~618030(0.5)
+  LevelAttributes                          created=1
+         created: 1500192:GEN Level Head - Circle ~305(0.38)
+
+[phases-design-options]  Phases / design options / revisions
+  PhaseFilterElem                          created=5
+         created: 1500198:GEN All Phases, 1500199:GEN Existing Conditions Only ~24937(0.33), 1500200:GEN Demolition Plan ~371(0.33)
+  ProjectPhase                             created=2
+         created: 1500196:Existing Conditions, 1500197:New Work
+  AllProjectPhases                         cloned=1
+          cloned: 1500195:- ~1(0.63)
+
+[project-info-settings]  Project info & settings elements
+  GeoSite                                  created=2
+         created: 1500186:- ~21747(0.26), 1500187:- ~21747(0.26)
+  GeoLocation                              created=2
+         created: 1500188:GEN Internal Origin ~250336(0.39), 1500189:GEN Project Position ~21748(0.39)
+  BasePoint                                cloned=2
+          cloned: 1500190:- ~250337(0.89), 1500191:- ~250337(0.95)
+  ElectricalSetting                        created=1
+         created: 1500050:-
+  UnitsElem                                cloned=1
+          cloned: 1500184:- ~8301(0.57)
+  TrueNorth                                created=1
+         created: 1500185:- ~7850(0.46)
+  ProjectInfo                              created=1
+         created: 1500203:-
+
+[mep-electrical-definitions]  MEP / electrical definition tables
+  RbsVoltageType                           created=6
+         created: 1500028:GEN 120 V ~55359(0.43), 1500029:GEN 208 V ~55359(0.43), 1500030:GEN 240 V ~55359(0.43)
+  ElectricalLoadClassification             created=6
+         created: 1500044:GEN Lighting, 1500045:GEN Receptacle, 1500046:GEN Motor
+  RbsDistributionSysType                   created=5
+         created: 1500034:GEN 120/240 V Single-Phase 3W ~277809(0.35), 1500035:GEN 208Y/120 V Three-Phase 4W Wye ~277810(0.33), 1500036:GEN 480Y/277 V Three-Phase 4W Wye ~277810(0.33)
+  ElectricalDemandFactorDefinition         created=5
+         created: 1500039:GEN Continuous Load 125% (NEC 210.19) ~252000(0.25), 1500040:GEN Receptacle Demand (NEC 220.44), 1500041:GEN Motor Demand (NEC 430.24) ~638831(0.43)
+  ConduitStandardType                      cloned=4
+          cloned: 1500051:GEN EMT ~251876(0.62), 1500052:GEN IMC ~251876(0.62), 1500053:GEN RMC ~251876(0.62)
+  ConduitSizesElem                         created=1
+         created: 1500055:-
+  CableTraySizesElem                       created=1
+         created: 1500061:- ~638846(0.27)
+
+[datums]  Datums (levels / grids / reference planes)
+  ExtentElem                               created=2 cloned=1
+         created: 1500219:- ~224385(0.25), 1500226:- ~136344(0.45)
+          cloned: 1500233:- ~136772(0.55)
+  Level                                    created=2
+         created: 1500193:L1 - Ground Floor ~800333(0.46), 1500194:L2 - Second Floor ~800333(0.43)
+
+[placed-model-content]  Placed model content (sample geometry)
+  CustomElement                            cloned=9
+          cloned: 1500065:- ~1472460(0.82), 1500066:- ~1472518(0.64), 1500067:- ~1472516(0.8)
+
+[view-annotation-2d-content]  View-owned 2D / annotation content
+  SketchPlane                              cloned=2
+          cloned: 1500222:- ~212537(0.65), 1500229:- ~212537(0.65)
+  ModelClipBox                             cloned=1
+          cloned: 1500214:- ~228872(0.8)
+
+G1 GATE: FAIL — 134 Autodesk-derived element(s) in expression-bearing categories; 11,776 byte(s) byte-identical to baseline in expression-bearing streams; 107 Autodesk resource identifier(s)
+   x [elements] system-family-types                transitive-cloned                 3
+   x [elements] views-and-templates                transitive-cloned                12
+   x [elements] object-styles                      transitive-cloned                93
+   x [elements] patterns-materials                 transitive-cloned                 4
+   x [elements] text-dimension-types               transitive-cloned                 2
+   x [elements] phases-design-options              transitive-cloned                 1
+   x [elements] project-info-settings              transitive-cloned                 3
+   x [elements] mep-electrical-definitions         transitive-cloned                 4
+   x [elements] placed-model-content               transitive-cloned                 9
+   x [elements] view-annotation-2d-content         transitive-cloned                 3
+   x [streams ] Global/Latest                      stream-modified-lineag       11,776
+   x [strings ] autodesk-resource-refs             autodesk-resource-refs          107
+   ? [counsel ] C4 schema-stream Formats/Latest — Formats/Latest is Autodesk's serialized class model shipped byte-identical — counsel decides ship-verbatim vs clean-room
+   ~ 4 advisory item(s) (lineage fingerprints / identity notes) in JSON

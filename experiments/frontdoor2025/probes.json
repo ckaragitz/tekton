@@ -1,0 +1,30 @@
+{
+ "stream": "build-2025 (release-aware front-door build: author --target-version 2025 emits a NATIVE Revit-2025 file on the certified G_ABPD_2025 base)",
+ "created": "2026-08-05",
+ "law": "certified base + >=1 control per staged batch (tools/probe_batch.py); reading order control-first; control FAIL => round VOID",
+ "base_2025": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt (viewer-certified, ledger entry; sha256 6242c3aa..., the registry releases.2025 pin)",
+ "emission_gates": "each probe passed the FIVE-GATE emission check (experiments/frontdoor2025/emission_check.py): BasicFileInfo Format 2025, pinned 2025 schema aboard, partitions walk clean under 2025 ordinals AND refuse under 2026 ordinals (only 0x0ed9-family framing on disk), validator 0 errors in-context, four-registry coherent + ADocument clean",
+ "known_limit": "placed equipment INSTANCES carry the OPEN instance-audit residual (docs/inbox: BXfix_f1i1 / BXfix_f6i6 / SX_f6i6 FAILED while no-instance famgen files PASS; discriminator = the famgen code path, symbol geometry under the audit's deep walk) -- the residual is release-independent and the 2025 full-room probe shares whatever that fate is.  Walls+base are the certified-clean subset: the walls-only probe isolates exactly that layer on 2025.",
+ "probes": [
+  {
+   "name": "ROOM2025_walls",
+   "file": "experiments/frontdoor2025/room_walls/ROOM2025_walls.rvt",
+   "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "built_by": "rvt.frontdoor.author (prompt 'an electrical room 30x20 ft', target_version=2025) inside rvt.frontdoor.release_ctx",
+   "contents": "4 SWall on the base's own wall type (constructed specimen templates, port2025-adapted); NO families, NO instances",
+   "question": "does the 2025 walls layer (the certified-clean 2026 subset) hold on the 2025 base?",
+   "expected": "PASS (walls-alone is the viewer-proven 2026 shape; base certified)",
+   "if_fail": "the 2025 wall-clone/mutate path differs from 2026 -- bisect against the certified base control (walls are the ONLY delta)"
+  },
+  {
+   "name": "ROOM2025_full",
+   "file": "experiments/frontdoor2025/room_full/ROOM2025_full.rvt",
+   "base": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "built_by": "rvt.frontdoor.author (the worked 2500 A room prompt, target_version=2025) inside rvt.frontdoor.release_ctx",
+   "contents": "4 walls + 7 generated families (.rfa emitted, family-mode VALID 0 errors, provenance clean) loaded four-registry + 7 placed instances",
+   "question": "does the FULL 2025 author output load? (carries the open instance-audit residual by construction)",
+   "expected": "UNKNOWN -- the 2026 twin of this shape is the OPEN residual (SX_f6i6 FAILED on the sample base); a FAIL here is the residual, NOT a 2025-specific regression, unless the walls-only probe also fails",
+   "if_fail": "read against ROOM2025_walls: walls PASS + full FAIL reproduces the 2026 instance residual on 2025 (code-path discriminator confirmed); walls FAIL too => 2025 build-path problem, bisect from the control"
+  }
+ ]
+}

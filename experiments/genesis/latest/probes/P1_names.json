@@ -1,0 +1,439 @@
+{
+  "probe": "P1_names",
+  "file": "experiments/genesis/latest/probes/P1_names.rvt",
+  "base": {
+    "id": "rst",
+    "path": "samples/rstbasicsampleproject.rvt",
+    "label": "rstbasicsampleproject (working sample; all Latest ids LIVE)"
+  },
+  "title": "every PROJECT-data name string replaced by same-length neutral text",
+  "reader_question": "Can the sample project's authored names (rooms, sheet nos/names, view names, assembly, materials, usernames) be renamed inside the ADocument without an encoder?",
+  "verdict_unlocks": "PASS => genesis can strip ALL sample naming from Latest by length-preserving substitution TODAY (retires audit exhibit B2 'the sample's room/sheet names survive').  Bonus tell: if the sheet list still shows 'FOUNDATION-2700'/'S206', the Latest name registry is not the display source.",
+  "method": "ONLY Global/Latest is rewritten: prefix u64 5 kept, payload edited in place (every edit byte-length-preserving => no offset shifts), re-gzipped by our writer (zlib level 3 + sync-flush, mimics Revit), re-framed with real CRCIO page ECC, container rebuilt with all other streams copied byte-for-byte.",
+  "latest": {
+    "inflated_bytes": 1586246,
+    "sha256_base": "3cf64f8f4b375ba8a67553f1e351097914b6ebf460e078a12c00acdf274e590d",
+    "sha256_probe": "056b95fad369a00b9a490acccd5e0ae54f4ae7012db23de4e73ce8a2a32c2dfa",
+    "bytes_changed": 230,
+    "logical_bytes": 128762,
+    "raw_bytes": 129474,
+    "gzip_bytes": 128754
+  },
+  "edits": {
+    "count": 48,
+    "by_kind": {
+      "name": 48
+    },
+    "bytes_by_kind": {
+      "name": 470
+    },
+    "id_ranges_compact": [],
+    "ranges": [
+      {
+        "offset": 51044,
+        "length": 2,
+        "kind": "name",
+        "before": "6",
+        "after": "b",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51078,
+        "length": 2,
+        "kind": "name",
+        "before": "6",
+        "after": "c",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51112,
+        "length": 4,
+        "kind": "name",
+        "before": "52",
+        "after": "ab",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51148,
+        "length": 2,
+        "kind": "name",
+        "before": "8",
+        "after": "d",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51182,
+        "length": 4,
+        "kind": "name",
+        "before": "19",
+        "after": "ac",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51218,
+        "length": 4,
+        "kind": "name",
+        "before": "13",
+        "after": "ad",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51254,
+        "length": 2,
+        "kind": "name",
+        "before": "5",
+        "after": "e",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51288,
+        "length": 2,
+        "kind": "name",
+        "before": "8",
+        "after": "f",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51322,
+        "length": 2,
+        "kind": "name",
+        "before": "3",
+        "after": "g",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51356,
+        "length": 2,
+        "kind": "name",
+        "before": "4",
+        "after": "h",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51390,
+        "length": 2,
+        "kind": "name",
+        "before": "2",
+        "after": "i",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51424,
+        "length": 4,
+        "kind": "name",
+        "before": "12",
+        "after": "ae",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51460,
+        "length": 2,
+        "kind": "name",
+        "before": "1",
+        "after": "j",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51494,
+        "length": 2,
+        "kind": "name",
+        "before": "5",
+        "after": "k",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51528,
+        "length": 4,
+        "kind": "name",
+        "before": "40",
+        "after": "af",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51564,
+        "length": 2,
+        "kind": "name",
+        "before": "4",
+        "after": "l",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51598,
+        "length": 4,
+        "kind": "name",
+        "before": "62",
+        "after": "ag",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51634,
+        "length": 4,
+        "kind": "name",
+        "before": "50",
+        "after": "ah",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51670,
+        "length": 22,
+        "kind": "name",
+        "before": "Elevation 1",
+        "after": "Nm000000001",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51724,
+        "length": 2,
+        "kind": "name",
+        "before": "1",
+        "after": "m",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51758,
+        "length": 8,
+        "kind": "name",
+        "before": "S206",
+        "after": "Nm02",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51798,
+        "length": 2,
+        "kind": "name",
+        "before": "1",
+        "after": "n",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51832,
+        "length": 30,
+        "kind": "name",
+        "before": "FOUNDATION-2700",
+        "after": "Nm0000000000003",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51894,
+        "length": 2,
+        "kind": "name",
+        "before": "8",
+        "after": "o",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51928,
+        "length": 18,
+        "kind": "name",
+        "before": "Section 1",
+        "after": "Nm0000004",
+        "note": "project.naming"
+      },
+      {
+        "offset": 51978,
+        "length": 4,
+        "kind": "name",
+        "before": "18",
+        "after": "ai",
+        "note": "project.naming"
+      },
+      {
+        "offset": 52014,
+        "length": 4,
+        "kind": "name",
+        "before": "78",
+        "after": "aj",
+        "note": "project.naming"
+      },
+      {
+        "offset": 52050,
+        "length": 4,
+        "kind": "name",
+        "before": "86",
+        "after": "ak",
+        "note": "project.naming"
+      },
+      {
+        "offset": 52086,
+        "length": 4,
+        "kind": "name",
+        "before": "84",
+        "after": "al",
+        "note": "project.naming"
+      },
+      {
+        "offset": 52122,
+        "length": 6,
+        "kind": "name",
+        "before": "101",
+        "after": "Nm5",
+        "note": "project.naming"
+      },
+      {
+        "offset": 52160,
+        "length": 40,
+        "kind": "name",
+        "before": "L1 wall frame hall 5",
+        "after": "Nm000000000000000006",
+        "note": "project.naming"
+      },
+      {
+        "offset": 52232,
+        "length": 4,
+        "kind": "name",
+        "before": "12",
+        "after": "am",
+        "note": "project.naming"
+      },
+      {
+        "offset": 52268,
+        "length": 4,
+        "kind": "name",
+        "before": "16",
+        "after": "an",
+        "note": "project.naming"
+      },
+      {
+        "offset": 158238,
+        "length": 8,
+        "kind": "name",
+        "before": "liqi",
+        "after": "us01",
+        "note": "user"
+      },
+      {
+        "offset": 1497373,
+        "length": 14,
+        "kind": "name",
+        "before": "macalis",
+        "after": "us00002",
+        "note": "user"
+      },
+      {
+        "offset": 1535696,
+        "length": 16,
+        "kind": "name",
+        "before": "Bathroom",
+        "after": "Rm000001",
+        "note": "project.room"
+      },
+      {
+        "offset": 1535762,
+        "length": 20,
+        "kind": "name",
+        "before": "Bathroom 1",
+        "after": "Rm00000002",
+        "note": "project.room"
+      },
+      {
+        "offset": 1535832,
+        "length": 20,
+        "kind": "name",
+        "before": "Bathroom 2",
+        "after": "Rm00000003",
+        "note": "project.room"
+      },
+      {
+        "offset": 1535902,
+        "length": 18,
+        "kind": "name",
+        "before": "Bedroom 1",
+        "after": "Rm0000004",
+        "note": "project.room"
+      },
+      {
+        "offset": 1535970,
+        "length": 18,
+        "kind": "name",
+        "before": "Bedroom 2",
+        "after": "Rm0000005",
+        "note": "project.room"
+      },
+      {
+        "offset": 1536038,
+        "length": 14,
+        "kind": "name",
+        "before": "Ensuite",
+        "after": "Rm00006",
+        "note": "project.room"
+      },
+      {
+        "offset": 1536102,
+        "length": 8,
+        "kind": "name",
+        "before": "Hall",
+        "after": "Rm07",
+        "note": "project.room"
+      },
+      {
+        "offset": 1536160,
+        "length": 32,
+        "kind": "name",
+        "before": "Kitchen & Dining",
+        "after": "Rm00000000000008",
+        "note": "project.room"
+      },
+      {
+        "offset": 1536242,
+        "length": 14,
+        "kind": "name",
+        "before": "Laundry",
+        "after": "Rm00009",
+        "note": "project.room"
+      },
+      {
+        "offset": 1536306,
+        "length": 12,
+        "kind": "name",
+        "before": "Living",
+        "after": "Rm0010",
+        "note": "project.room"
+      },
+      {
+        "offset": 1536368,
+        "length": 28,
+        "kind": "name",
+        "before": "Master Bedroom",
+        "after": "Rm000000000011",
+        "note": "project.room"
+      },
+      {
+        "offset": 1550989,
+        "length": 14,
+        "kind": "name",
+        "before": "250 MPa",
+        "after": "Mt00001",
+        "note": "project.material"
+      },
+      {
+        "offset": 1551239,
+        "length": 30,
+        "kind": "name",
+        "before": "Concrete 10 MPa",
+        "after": "Mt0000000000002",
+        "note": "project.material"
+      }
+    ]
+  },
+  "self_verification": {
+    "payload_identical_to_edited": true,
+    "payload_sha256": "056b95fad369a00b9a490acccd5e0ae54f4ae7012db23de4e73ce8a2a32c2dfa",
+    "prefix_hex": "0500000000000000",
+    "prefix_ok": true,
+    "gzip_members": 1,
+    "gzip_crc_ok": true,
+    "full_pages_ecc_checked": 1,
+    "full_pages_ecc_bad": 0
+  },
+  "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1,
+    "summary": "OK   experiments/genesis/latest/probes/P1_names.rvt  errors=0 warnings=1 | streams=12 pages_checked=108 gzip_members=8 partition_blocks=414 records=96192 elements_decoded=32011 decode_failures=7 refs_checked=585040",
+    "error_messages": [],
+    "warning_messages": [
+      "7/32011 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+    ]
+  },
+  "elapsed_s": 3.09
+}

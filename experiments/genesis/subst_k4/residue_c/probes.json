@@ -1,0 +1,161 @@
+{
+ "stream": "genesis-12 residue-C (THE RESIDUE ENDGAME on the composed base G_ABPD)",
+ "situation": "G_ABPD is viewer-certified (VERDICTS #24). The byte census against ancestor K4 leaves 422 Autodesk-serialization-identical elements: 27 value-carrying year schedules + 2 stale type-preview caches (both reached IN PLACE here), 11 straggler elements (deleted lawfully here), and machinery/coincident classes already retired by certified rungs. RC_zero is the endgame candidate.",
+ "base": {
+  "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ },
+ "standing_control": {
+  "file": "experiments/genesis/subst_k4/residue_c/CTRL_G_ABPD_base.rvt",
+  "copied_from": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "md5": "1f1ff65bd68415a05228d6b6ac2bf271",
+  "note": "byte-identical to the certified G_ABPD; read FIRST -- a failing control voids the round",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  }
+ },
+ "upload_order_bisection_first": [
+  "RC_zero",
+  "RC_deep",
+  "RC_year",
+  "RC_preview",
+  "RC_hdr",
+  "RC_area"
+ ],
+ "probes": [
+  {
+   "order": 1,
+   "rung": "RC_zero",
+   "file": "experiments/genesis/subst_k4/residue_c/RC_zero.rvt",
+   "base": {
+    "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+     "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "mechanism": "tools/genesis_compose.py compose: in-place layer first (zero registration motion), then the reduce-law-governed maxgc deletions, one deterministic build from the certified base",
+   "the_ONE_thing_it_tests": "THE ENDGAME CANDIDATE: RC_deep's in-place layer + the three lawful maxgc deletion sets (link symbol, vendor DataStorage, room constellation) composed directly from certified G_ABPD -- the deepest genesis base yet: zero never-landed Autodesk elements remain.",
+   "deleted": [
+    9744,
+    245433,
+    1004904,
+    1004905,
+    1004906,
+    1004907,
+    1004908,
+    1004909,
+    1004910,
+    1250029,
+    1382860
+   ],
+   "if_PASS": "the stragglers are retired lawfully and the residue-C layer loads: the element-layer genesis endgame is COMPLETE (only the two counsel corpora + own-save container work remain)",
+   "if_FAIL": "read RC_deep: RC_deep PASS + RC_zero FAIL convicts the deletion layer (read the three specs' evidence blocks); RC_deep FAIL names the in-place layer -- read the four singles",
+   "md5": "c599554c82893310901c428b2a0cf208"
+  },
+  {
+   "order": 2,
+   "rung": "RC_deep",
+   "file": "experiments/genesis/subst_k4/residue_c/RC_deep.rvt",
+   "base": {
+    "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+     "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [101, 102], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "the_ONE_thing_it_tests": "ALL residue-C groups in one in-place rung: our year-schedule names, nulled preview caches, clean view headers, unwired area measure.",
+   "if_PASS": "this layer is clean; a deeper failure lies elsewhere",
+   "if_FAIL": "this single names the rejected group exactly (parent certified)",
+   "md5": "3547df82bb8bdb8c14ac6102faca9d90"
+  },
+  {
+   "order": 3,
+   "rung": "RC_year",
+   "file": "experiments/genesis/subst_k4/residue_c/RC_year.rvt",
+   "base": {
+    "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+     "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "the_ONE_thing_it_tests": "OUR names on the 27 operating-year schedules (free value, dach-proven).",
+   "if_PASS": "this layer is clean; a deeper failure lies elsewhere",
+   "if_FAIL": "this single names the rejected group exactly (parent certified)",
+   "md5": "48716d09e558cbdca36ff24cdc25c44a"
+  },
+  {
+   "order": 4,
+   "rung": "RC_preview",
+   "file": "experiments/genesis/subst_k4/residue_c/RC_preview.rvt",
+   "base": {
+    "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+     "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "the_ONE_thing_it_tests": "the 2 type previews with the Autodesk-rendered PNG cache nulled.",
+   "if_PASS": "this layer is clean; a deeper failure lies elsewhere",
+   "if_FAIL": "this single names the rejected group exactly (parent certified)",
+   "md5": "f7d3b4ed33b5a3919018ebdfff388946"
+  },
+  {
+   "order": 5,
+   "rung": "RC_hdr",
+   "file": "experiments/genesis/subst_k4/residue_c/RC_hdr.rvt",
+   "base": {
+    "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+     "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [101], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "the_ONE_thing_it_tests": "the clean-header rung alone (seq-101 on our six view slots).",
+   "if_PASS": "this layer is clean; a deeper failure lies elsewhere",
+   "if_FAIL": "this single names the rejected group exactly (parent certified)",
+   "md5": "c490876145e386790ee3f01976f344c7"
+  },
+  {
+   "order": 6,
+   "rung": "RC_area",
+   "file": "experiments/genesis/subst_k4/residue_c/RC_area.rvt",
+   "base": {
+    "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "certification": {
+     "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+     "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+    }
+   },
+   "derived_from": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [101, 102], keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted",
+   "the_ONE_thing_it_tests": "the area-wiring rung alone (9490 unwired from topology 9744).",
+   "if_PASS": "this layer is clean; a deeper failure lies elsewhere",
+   "if_FAIL": "this single names the rejected group exactly (parent certified)",
+   "md5": "e12ac5248aa24ec94a6829a826ab8a4f"
+  }
+ ],
+ "not_needed_any_more": {
+  "RvtLinkInstance 1250030 + CopyWatchProperties 1250031": "already retired (D_links c D_all; verified ABSENT from G_ABPD)"
+ }
+}

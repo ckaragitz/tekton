@@ -1,0 +1,236 @@
+{
+ "tool": "tools/birthright_mine.py diff",
+ "created": "2026-08-05T09:51:29-0500",
+ "spec": "experiments/birthright/template_birth.json",
+ "spec_source_sha256": "00425e9d0766c3d520df344189375970c5219bd5f48e58b399484132fdb41e8d",
+ "doc": {
+  "n_elements_before": 41,
+  "n_elements_after": 1724,
+  "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+ },
+ "lanes": {
+  "roster": {
+   "n_added": 1683,
+   "id_range": [
+    1000041,
+    1001723
+   ],
+   "class_histogram": {
+    "DimensionStyle": 9,
+    "CategoryElem": 52,
+    "FillPatternElem": 7,
+    "TextNoteAttributes": 2,
+    "TagNoteAttributes": 1,
+    "InteriorElevAttributes": 1,
+    "LeaderStyle": 7,
+    "GStyleElem": 1459,
+    "PenWidthTableElem": 1,
+    "LinePatternElem": 14,
+    "FontElem": 21,
+    "BaseLevelTracker": 1,
+    "MaterialElem": 24,
+    "RevealAttr": 1,
+    "CorniceAttr": 1,
+    "Text3dAttrSymbol": 1,
+    "TrueNorth": 1,
+    "DaylightSourceIdSet": 1,
+    "SectionAttributes": 3,
+    "SpotElevationStyle": 3,
+    "PropertyAttr": 1,
+    "SketchGrid": 1,
+    "BrowserOrganization": 2,
+    "RevisionCloudAttr": 1,
+    "CalloutTag": 1,
+    "LoadNatureElem": 8,
+    "LoadCaseElem": 8,
+    "StructSettingsElem": 1,
+    "CoordinateSystemDisplayElem": 1,
+    "KeynoteTable": 1,
+    "CoverType": 1,
+    "ReferenceViewerAttributes": 1,
+    "Dwg2dExportUserSettingsData": 1,
+    "AutoJoinTracker": 1,
+    "AutoCamSettingsElem": 1,
+    "StructConnectionType": 5,
+    "ElectricalDemandFactorDefinition": 1,
+    "AppearanceAssetElem": 27,
+    "RvtLinkInstanceAppearanceParentElem": 1,
+    "SketchGridAppearanceParentElem": 1,
+    "ComponentRepeaterSlotSpecialType": 2,
+    "AnalyticalLinkType": 1,
+    "DefaultDivideSettings": 1,
+    "AssemblyCodeTable": 1,
+    "AreaSettingsElem": 1,
+    "DrawOrder3dElem": 1,
+    "STEPExportSettings": 1
+   }
+  },
+  "topology": {
+   "flip_classes": [
+    "DBViewPlan",
+    "DBViewProject",
+    "DBViewType",
+    "ElectricalLoadClassification",
+    "ExtentElem",
+    "Level",
+    "LevelAttributes",
+    "ParamElemFamily",
+    "RefPlane",
+    "UnitsElem"
+   ],
+   "n_flipped": 24,
+   "flipped": [
+    {
+     "id": 1000001,
+     "class": "UnitsElem"
+    },
+    {
+     "id": 1000002,
+     "class": "LevelAttributes"
+    },
+    {
+     "id": 1000004,
+     "class": "DBViewProject"
+    },
+    {
+     "id": 1000008,
+     "class": "DBViewType"
+    },
+    {
+     "id": 1000015,
+     "class": "ExtentElem"
+    },
+    {
+     "id": 1000009,
+     "class": "DBViewPlan"
+    },
+    {
+     "id": 1000003,
+     "class": "Level"
+    },
+    {
+     "id": 1000016,
+     "class": "RefPlane"
+    },
+    {
+     "id": 1000017,
+     "class": "RefPlane"
+    },
+    {
+     "id": 1000018,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000019,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000020,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000021,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000022,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000023,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000024,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000025,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000026,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000027,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000028,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000029,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000030,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000031,
+     "class": "ParamElemFamily"
+    },
+    {
+     "id": 1000039,
+     "class": "ElectricalLoadClassification"
+    }
+   ]
+  },
+  "types": {
+   "applied": true,
+   "n_pairs": 2,
+   "current_type": 1,
+   "law": "the born table opens with the blank ' ' current-values pair; m_idx names the current REAL type (types5 law, confirmed standalone)"
+  },
+  "fields": {
+   "fields_set": [
+    "m_eRenderModelType",
+    "m_isVertical",
+    "m_bIsSavable",
+    "m_bShared",
+    "m_enableCuttingInViews",
+    "m_defaultHostThickness",
+    "m_defaultHeightAboveLevel",
+    "m_elevationFixed"
+   ],
+   "header_set": [],
+   "skipped_unknown": [],
+   "deletion_prefix": [
+    -1154647,
+    -1001205
+   ]
+  },
+  "indices": {
+   "applied": true,
+   "born_indices": 1683,
+   "our_continuation": 40,
+   "next_absorbed_index": 3210,
+   "law": "born indices carried (counter shapes); our elements continue above the born max; next = max + 1"
+  },
+  "authored": {
+   "guids": 36,
+   "strings": 300,
+   "bytes": 0
+  }
+ },
+ "verify": {
+  "ok": true,
+  "counts": {
+   "equal": 78399,
+   "refs_remapped": 9446,
+   "authored": 336
+  },
+  "n_elements": 1683,
+  "n_mismatches": 0,
+  "mismatches_first_40": []
+ },
+ "roundtrip_encode": {
+  "failures": [],
+  "ok": true
+ },
+ "equality_law": "field-model equality MODULO IDENTITY: adoptable laws/shapes byte-equal; every element reference equals the id-map image; every identity slot (GUIDs, long strings, blobs) AUTHORED fresh -- counted, never compared to the specimen",
+ "ok": true,
+ "seconds": 0.4
+}

@@ -1,0 +1,129 @@
+{
+ "task": "walls+families fix probes",
+ "base": {
+  "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+  "certification": {
+   "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+   "proves": "joined room shell on ZA_deep LOADS \u2014 walls present but no baked geometry; 3D view shows only the datum"
+  }
+ },
+ "family": {
+  "name": "Render Probe Box",
+  "loader": "rvt.famgen.loader.load_family_into_project(place=False, symbol_solid=True)",
+  "host_family_id": 1472557,
+  "symbol_ids": [
+   1472562
+  ],
+  "content_guid": "0b4a6fb1-2fc0-4429-909b-ed03a0b1ca01"
+ },
+ "defect_present_in_nofix": {
+  "family_m_oFamDimConstrMgr_null": true,
+  "symbol_m_pMoveRestrictions_null": true
+ },
+ "fix_substitution": {
+  "verdict": "VALID",
+  "problems": [],
+  "records": [
+   1472557,
+   1472562
+  ],
+  "empty_forms": {
+   "m_oFamDimConstrMgr": {
+    "ptr_class": "FamDimConstrMgrImpl",
+    "pid": -1,
+    "value": {
+     "m_pFam": {
+      "weakref": 2
+     },
+     "m_paramExprs": [],
+     "m_drivenDimSegs": [],
+     "m_ignoredDimValueExprs": [],
+     "m_overconstrDimSegs": [],
+     "m_fixedRefs": [],
+     "m_redundantConstrs": [],
+     "m_propagatedDrivers": [],
+     "m_dimSegDataMap": [],
+     "m_additionalParamExprs": [],
+     "m_additionalFixedRefs": []
+    }
+   },
+   "m_pMoveRestrictions": {
+    "ptr_class": "Matrix",
+    "pid": -1,
+    "value": {
+     "m_nRows": 0,
+     "m_ncols": 3,
+     "m_bUseSingleArray": true,
+     "m_arr": [],
+     "m_rows": []
+    }
+   }
+  }
+ },
+ "pair_delta": {
+  "changed_ids": [
+   1472557,
+   1472562
+  ],
+  "changed_count": 2,
+  "added": [],
+  "removed": [],
+  "elemtable_identical": true,
+  "latest_identical": true,
+  "embedded_units_identical": true,
+  "assertion_exactly_the_two_records": true
+ },
+ "defect_absent_in_fix": {
+  "family_m_oFamDimConstrMgr_present": true,
+  "symbol_m_pMoveRestrictions_present": true
+ },
+ "objlint_critical_findings": {
+  "WF_nofix": [
+   {
+    "element": 1472557,
+    "field": "m_oFamDimConstrMgr.#ptr",
+    "rule": "PTR_PRESENT",
+    "support": 831
+   },
+   {
+    "element": 1472557,
+    "field": "m_oFamDimConstrMgr.#ptr",
+    "rule": "IDENTICAL",
+    "support": 831
+   },
+   {
+    "element": 1472562,
+    "field": "m_pMoveRestrictions.#ptr",
+    "rule": "PTR_PRESENT",
+    "support": 2710
+   },
+   {
+    "element": 1472562,
+    "field": "m_pMoveRestrictions.#ptr",
+    "rule": "IDENTICAL",
+    "support": 2710
+   }
+  ],
+  "WF_fix": []
+ },
+ "objlint_mechanism_confirmed": true,
+ "validator_WF_nofix": {
+  "errors": 0,
+  "warnings": 1
+ },
+ "validator_WF_fix": {
+  "errors": 0,
+  "warnings": 1
+ },
+ "files": {
+  "WF_nofix": {
+   "file": "experiments/render/g12/WF_nofix.rvt",
+   "md5": "c2b4ae0aeaff3c5d11eddf8dd4246df8"
+  },
+  "WF_fix": {
+   "file": "experiments/render/g12/WF_fix.rvt",
+   "md5": "aabb8eb60758e6cdafa067eb054a3d0b"
+  }
+ },
+ "seconds": 10.5
+}

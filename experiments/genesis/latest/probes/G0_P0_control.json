@@ -1,0 +1,48 @@
+{
+  "probe": "P0_control",
+  "file": "experiments/genesis/latest/probes/G0_P0_control.rvt",
+  "base": {
+    "id": "G0",
+    "path": "experiments/genesis/G0.rvt",
+    "label": "G0 genesis candidate (Latest verbatim from rstbasic; its ids are all DANGLING here)"
+  },
+  "title": "control: Latest re-encoded by us (gzip level 3 + sync-flush, real ECC), payload byte-identical",
+  "reader_question": "Is OUR re-encoding of Global/Latest (nothing else) accepted?  (V15 whole-file precedent says yes.)",
+  "verdict_unlocks": "Nothing new \u2014 this is the yardstick.  If it FAILS the whole set is void and the fault is our Latest framing, not content.",
+  "method": "ONLY Global/Latest is rewritten: prefix u64 5 kept, payload edited in place (every edit byte-length-preserving => no offset shifts), re-gzipped by our writer (zlib level 3 + sync-flush, mimics Revit), re-framed with real CRCIO page ECC, container rebuilt with all other streams copied byte-for-byte.",
+  "latest": {
+    "inflated_bytes": 1586246,
+    "sha256_base": "3cf64f8f4b375ba8a67553f1e351097914b6ebf460e078a12c00acdf274e590d",
+    "sha256_probe": "3cf64f8f4b375ba8a67553f1e351097914b6ebf460e078a12c00acdf274e590d",
+    "bytes_changed": 0,
+    "logical_bytes": 128869,
+    "raw_bytes": 129986,
+    "gzip_bytes": 128861
+  },
+  "edits": {
+    "count": 0,
+    "by_kind": {},
+    "bytes_by_kind": {},
+    "id_ranges_compact": [],
+    "ranges": []
+  },
+  "self_verification": {
+    "payload_identical_to_edited": true,
+    "payload_sha256": "3cf64f8f4b375ba8a67553f1e351097914b6ebf460e078a12c00acdf274e590d",
+    "prefix_hex": "0500000000000000",
+    "prefix_ok": true,
+    "gzip_members": 1,
+    "gzip_crc_ok": true,
+    "full_pages_ecc_checked": 1,
+    "full_pages_ecc_bad": 0
+  },
+  "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 0,
+    "summary": "OK   experiments/genesis/latest/probes/G0_P0_control.rvt  errors=0 warnings=0 | streams=12 pages_checked=12 gzip_members=8 partition_blocks=3 records=618 elements_decoded=205 decode_failures=0 refs_checked=2679",
+    "error_messages": [],
+    "warning_messages": []
+  },
+  "elapsed_s": 0.28
+}

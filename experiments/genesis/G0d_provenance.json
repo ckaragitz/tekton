@@ -1,0 +1,3650 @@
+{
+ "candidate": "/Users/ck/dev/things/rev-revit/experiments/genesis/G0d.rvt",
+ "baseline": "/Users/ck/dev/things/rev-revit/samples/rstbasicsampleproject.rvt",
+ "baselines": [
+  "/Users/ck/dev/things/rev-revit/samples/rstbasicsampleproject.rvt"
+ ],
+ "multi_baseline": false,
+ "baseline_watermark": 1472524,
+ "candidate_watermark": 1500233,
+ "host_elements": 234,
+ "baseline_host_elements": 13936,
+ "baseline_id_overlap": 0.0,
+ "provenance_totals": {
+  "ours-created": 108,
+  "transitive-cloned": 126
+ },
+ "embedded_family_documents": {
+  "count": 0,
+  "by_provenance": {}
+ },
+ "categories": {
+  "system-family-types": {
+   "label": "System-family types",
+   "expression_bearing": true,
+   "description": "wall / floor / roof / ceiling / duct / pipe / conduit / cable-tray types, curtain systems, stairs / railing types (HostObjAttr + *Type)",
+   "counts": {
+    "ours-created": 15,
+    "transitive-cloned": 2
+   },
+   "classes": {
+    "RbsConduitType": {
+     "counts": {
+      "ours-created": 5
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500056,
+        "class": "RbsConduitType",
+        "name": "GEN Conduit - EMT with Fittings",
+        "clone_of": 907368,
+        "clone_similarity": 0.42
+       },
+       {
+        "id": 1500057,
+        "class": "RbsConduitType",
+        "name": "GEN Conduit - EMT (no fittings)",
+        "clone_of": 907368,
+        "clone_similarity": 0.42
+       },
+       {
+        "id": 1500058,
+        "class": "RbsConduitType",
+        "name": "GEN Conduit - IMC with Fittings",
+        "clone_of": 907368,
+        "clone_similarity": 0.42
+       }
+      ]
+     }
+    },
+    "BasicWallType": {
+     "counts": {
+      "ours-created": 3
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500022,
+        "class": "BasicWallType",
+        "name": "GEN Interior - 124mm Gypsum Partition"
+       },
+       {
+        "id": 1500023,
+        "class": "BasicWallType",
+        "name": "GEN Exterior - 200mm CIP Concrete"
+       },
+       {
+        "id": 1500024,
+        "class": "BasicWallType",
+        "name": "GEN Interior - 190mm CMU"
+       }
+      ]
+     }
+    },
+    "RbsCableTrayType": {
+     "counts": {
+      "ours-created": 1,
+      "transitive-cloned": 2
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500062,
+        "class": "RbsCableTrayType",
+        "name": "GEN Cable Tray - Ladder",
+        "clone_of": 907364,
+        "clone_similarity": 0.48
+       }
+      ],
+      "transitive-cloned": [
+       {
+        "id": 1500063,
+        "class": "RbsCableTrayType",
+        "name": "GEN Cable Tray - Ventilated Trough",
+        "clone_of": 907364,
+        "clone_similarity": 0.5
+       },
+       {
+        "id": 1500064,
+        "class": "RbsCableTrayType",
+        "name": "GEN Cable Tray - Solid Bottom",
+        "clone_of": 907364,
+        "clone_similarity": 0.54
+       }
+      ]
+     }
+    },
+    "RbsWireType": {
+     "counts": {
+      "ours-created": 3
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500074,
+        "class": "RbsWireType",
+        "name": "GEN Wire - Cu THWN-2 75C",
+        "clone_of": 55171,
+        "clone_similarity": 0.46
+       },
+       {
+        "id": 1500075,
+        "class": "RbsWireType",
+        "name": "GEN Wire - Cu THHN 90C",
+        "clone_of": 55171,
+        "clone_similarity": 0.46
+       },
+       {
+        "id": 1500076,
+        "class": "RbsWireType",
+        "name": "GEN Wire - Al XHHW-2 75C",
+        "clone_of": 55171,
+        "clone_similarity": 0.46
+       }
+      ]
+     }
+    },
+    "FloorAttributes": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500025,
+        "class": "FloorAttributes",
+        "name": "GEN Slab on Grade - 150mm Concrete",
+        "clone_of": 581371,
+        "clone_similarity": 0.33
+       }
+      ]
+     }
+    },
+    "RoofAttributes": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500026,
+        "class": "RoofAttributes",
+        "name": "GEN Roof - Concrete Deck 200mm with Insulation"
+       }
+      ]
+     }
+    },
+    "CompoundCeilingType": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500027,
+        "class": "CompoundCeilingType",
+        "name": "GEN Ceiling - 16mm GWB on Furring",
+        "clone_of": 1093707,
+        "clone_similarity": 0.25
+       }
+      ]
+     }
+    }
+   }
+  },
+  "views-and-templates": {
+   "label": "Views & view templates",
+   "expression_bearing": true,
+   "description": "views, view templates, sheets, viewports, schedules, browser organization",
+   "counts": {
+    "ours-created": 12,
+    "transitive-cloned": 11
+   },
+   "classes": {
+    "SunAndShadowSettings": {
+     "counts": {
+      "ours-created": 4
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500204,
+        "class": "SunAndShadowSettings",
+        "name": "GEN Still Sun - South 45",
+        "clone_of": 713086,
+        "clone_similarity": 0.32
+       },
+       {
+        "id": 1500215,
+        "class": "SunAndShadowSettings",
+        "name": "GEN Still Sun - South 45",
+        "clone_of": 55158,
+        "clone_similarity": 0.26
+       },
+       {
+        "id": 1500223,
+        "class": "SunAndShadowSettings",
+        "name": "GEN Still Sun - South 45",
+        "clone_of": 713086,
+        "clone_similarity": 0.3
+       }
+      ]
+     }
+    },
+    "Viewport": {
+     "counts": {
+      "transitive-cloned": 4
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500207,
+        "class": "Viewport",
+        "name": null,
+        "clone_of": 232,
+        "clone_similarity": 0.71
+       },
+       {
+        "id": 1500216,
+        "class": "Viewport",
+        "name": null,
+        "clone_of": 1457153,
+        "clone_similarity": 0.57
+       },
+       {
+        "id": 1500224,
+        "class": "Viewport",
+        "name": null,
+        "clone_of": 1457153,
+        "clone_similarity": 0.57
+       }
+      ]
+     }
+    },
+    "DBDrawing": {
+     "counts": {
+      "transitive-cloned": 4
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500208,
+        "class": "DBDrawing",
+        "name": null,
+        "clone_of": 98987,
+        "clone_similarity": 0.58
+       },
+       {
+        "id": 1500217,
+        "class": "DBDrawing",
+        "name": null,
+        "clone_of": 1472132,
+        "clone_similarity": 0.62
+       },
+       {
+        "id": 1500225,
+        "class": "DBDrawing",
+        "name": null,
+        "clone_of": 1472132,
+        "clone_similarity": 0.62
+       }
+      ]
+     }
+    },
+    "Viewer": {
+     "counts": {
+      "transitive-cloned": 3
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500206,
+        "class": "Viewer",
+        "name": null,
+        "clone_of": 231,
+        "clone_similarity": 0.9
+       },
+       {
+        "id": 1500221,
+        "class": "Viewer",
+        "name": null,
+        "clone_of": 1351713,
+        "clone_similarity": 0.8
+       },
+       {
+        "id": 1500228,
+        "class": "Viewer",
+        "name": null,
+        "clone_of": 1351713,
+        "clone_similarity": 0.77
+       }
+      ]
+     }
+    },
+    "DBViewType": {
+     "counts": {
+      "ours-created": 3
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500209,
+        "class": "DBViewType",
+        "name": "GEN 3D View",
+        "clone_of": 49665,
+        "clone_similarity": 0.3
+       },
+       {
+        "id": 1500210,
+        "class": "DBViewType",
+        "name": "GEN Floor Plan",
+        "clone_of": 49665,
+        "clone_similarity": 0.3
+       },
+       {
+        "id": 1500211,
+        "class": "DBViewType",
+        "name": "GEN Ceiling Plan",
+        "clone_of": 49665,
+        "clone_similarity": 0.29
+       }
+      ]
+     }
+    },
+    "DBViewPlan": {
+     "counts": {
+      "ours-created": 2
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500220,
+        "class": "DBViewPlan",
+        "name": "L1 - Ground Floor",
+        "clone_of": 9599,
+        "clone_similarity": 0.37
+       },
+       {
+        "id": 1500227,
+        "class": "DBViewPlan",
+        "name": "L2 - Second Floor",
+        "clone_of": 9599,
+        "clone_similarity": 0.37
+       }
+      ]
+     }
+    },
+    "DBViewProject": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500205,
+        "class": "DBViewProject",
+        "name": "???",
+        "clone_of": 230,
+        "clone_similarity": 0.26
+       }
+      ]
+     }
+    },
+    "DBView3d": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500212,
+        "class": "DBView3d",
+        "name": "GEN Working 3D",
+        "clone_of": 1386343,
+        "clone_similarity": 0.29
+       }
+      ]
+     }
+    },
+    "Viewer3d": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500213,
+        "class": "Viewer3d",
+        "name": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  "object-styles": {
+   "label": "Object styles (categories / graphics styles)",
+   "expression_bearing": true,
+   "description": "CategoryElem, GStyleElem, ModelGraphicsStyle \u2014 subcategories and their graphics",
+   "counts": {
+    "ours-created": 8,
+    "transitive-cloned": 93
+   },
+   "classes": {
+    "GStyleElem": {
+     "counts": {
+      "ours-created": 4,
+      "transitive-cloned": 90
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500177,
+        "class": "GStyleElem",
+        "name": "style:GEN Fire-Rated Assembly Line",
+        "clone_of": 983057,
+        "clone_similarity": 0.33
+       },
+       {
+        "id": 1500179,
+        "class": "GStyleElem",
+        "name": "style:GEN Above-Ceiling Conduit",
+        "clone_of": 983057,
+        "clone_similarity": 0.33
+       },
+       {
+        "id": 1500181,
+        "class": "GStyleElem",
+        "name": "style:GEN Demolition (Existing to Remove)",
+        "clone_of": 983057,
+        "clone_similarity": 0.33
+       }
+      ],
+      "transitive-cloned": [
+       {
+        "id": 1500080,
+        "class": "GStyleElem",
+        "name": "style:Category(1500079)",
+        "clone_of": 983061,
+        "clone_similarity": 0.69
+       },
+       {
+        "id": 1500084,
+        "class": "GStyleElem",
+        "name": "style:Category(1500083)",
+        "clone_of": 983061,
+        "clone_similarity": 0.69
+       },
+       {
+        "id": 1500088,
+        "class": "GStyleElem",
+        "name": "style:Category(1500087)",
+        "clone_of": 983061,
+        "clone_similarity": 0.69
+       }
+      ]
+     }
+    },
+    "CategoryElem": {
+     "counts": {
+      "ours-created": 4,
+      "transitive-cloned": 3
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500176,
+        "class": "CategoryElem",
+        "name": "GEN Fire-Rated Assembly Line",
+        "clone_of": 1352207,
+        "clone_similarity": 0.33
+       },
+       {
+        "id": 1500178,
+        "class": "CategoryElem",
+        "name": "GEN Above-Ceiling Conduit",
+        "clone_of": 1352207,
+        "clone_similarity": 0.35
+       },
+       {
+        "id": 1500180,
+        "class": "CategoryElem",
+        "name": "GEN Demolition (Existing to Remove)",
+        "clone_of": 1352207,
+        "clone_similarity": 0.3
+       }
+      ],
+      "transitive-cloned": [
+       {
+        "id": 1500079,
+        "class": "CategoryElem",
+        "name": null,
+        "clone_of": 1390254,
+        "clone_similarity": 0.5
+       },
+       {
+        "id": 1500083,
+        "class": "CategoryElem",
+        "name": null,
+        "clone_of": 1464242,
+        "clone_similarity": 0.5
+       },
+       {
+        "id": 1500087,
+        "class": "CategoryElem",
+        "name": null,
+        "clone_of": 1253558,
+        "clone_similarity": 0.5
+       }
+      ]
+     }
+    }
+   }
+  },
+  "patterns-materials": {
+   "label": "Fill / line patterns, materials, appearance assets",
+   "expression_bearing": true,
+   "description": "FillPatternElem, LinePatternElem, MaterialElem, AppearanceAssetElem, tile / conceptual types, fonts, pen tables",
+   "counts": {
+    "ours-created": 22,
+    "transitive-cloned": 4
+   },
+   "classes": {
+    "MaterialElem": {
+     "counts": {
+      "ours-created": 13
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500009,
+        "class": "MaterialElem",
+        "name": "GEN Concrete, Cast-in-Place",
+        "clone_of": 1389254,
+        "clone_similarity": 0.31
+       },
+       {
+        "id": 1500010,
+        "class": "MaterialElem",
+        "name": "GEN Concrete Masonry Units",
+        "clone_of": 414,
+        "clone_similarity": 0.26
+       },
+       {
+        "id": 1500011,
+        "class": "MaterialElem",
+        "name": "GEN Gypsum Wall Board"
+       }
+      ]
+     }
+    },
+    "FillPatternElem": {
+     "counts": {
+      "ours-created": 5
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500004,
+        "class": "FillPatternElem",
+        "name": "GEN Solid Fill",
+        "clone_of": 3,
+        "clone_similarity": 0.28
+       },
+       {
+        "id": 1500005,
+        "class": "FillPatternElem",
+        "name": "GEN Diagonal Crosshatch 3mm"
+       },
+       {
+        "id": 1500006,
+        "class": "FillPatternElem",
+        "name": "GEN Diagonal Up 4mm"
+       }
+      ]
+     }
+    },
+    "LinePatternElem": {
+     "counts": {
+      "ours-created": 4
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500000,
+        "class": "LinePatternElem",
+        "name": "GEN Dash 3mm",
+        "clone_of": 17,
+        "clone_similarity": 0.43
+       },
+       {
+        "id": 1500001,
+        "class": "LinePatternElem",
+        "name": "GEN Hidden 2mm",
+        "clone_of": 1351854,
+        "clone_similarity": 0.4
+       },
+       {
+        "id": 1500002,
+        "class": "LinePatternElem",
+        "name": "GEN Centre 8mm",
+        "clone_of": 1351854,
+        "clone_similarity": 0.35
+       }
+      ]
+     }
+    },
+    "FontElem": {
+     "counts": {
+      "transitive-cloned": 3
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500078,
+        "class": "FontElem",
+        "name": "Arial",
+        "clone_of": 137228,
+        "clone_similarity": 0.55
+       },
+       {
+        "id": 1500082,
+        "class": "FontElem",
+        "name": "Arial",
+        "clone_of": 1464244,
+        "clone_similarity": 0.55
+       },
+       {
+        "id": 1500086,
+        "class": "FontElem",
+        "name": "Arial",
+        "clone_of": 137228,
+        "clone_similarity": 0.55
+       }
+      ]
+     }
+    },
+    "LightSchemeElement": {
+     "counts": {
+      "transitive-cloned": 1
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500218,
+        "class": "LightSchemeElement",
+        "name": null,
+        "clone_of": 1138913,
+        "clone_similarity": 0.56
+       }
+      ]
+     }
+    }
+   }
+  },
+  "text-dimension-types": {
+   "label": "Text / dimension / arrowhead / annotation types",
+   "expression_bearing": true,
+   "description": "TextNoteAttributes, DimensionStyle, LeaderStyle (arrowheads), FilledRegionAttributes, spot / section / callout styles",
+   "counts": {
+    "ours-created": 4
+   },
+   "classes": {
+    "TextNoteAttributes": {
+     "counts": {
+      "ours-created": 3
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500077,
+        "class": "TextNoteAttributes",
+        "name": "GEN 2.5mm Text",
+        "clone_of": 1456487,
+        "clone_similarity": 0.43
+       },
+       {
+        "id": 1500081,
+        "class": "TextNoteAttributes",
+        "name": "GEN 3.5mm Text Bold",
+        "clone_of": 1456487,
+        "clone_similarity": 0.41
+       },
+       {
+        "id": 1500085,
+        "class": "TextNoteAttributes",
+        "name": "GEN 5mm Title",
+        "clone_of": 1456487,
+        "clone_similarity": 0.43
+       }
+      ]
+     }
+    },
+    "LevelAttributes": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500192,
+        "class": "LevelAttributes",
+        "name": "GEN Level Head - Circle",
+        "clone_of": 305,
+        "clone_similarity": 0.38
+       }
+      ]
+     }
+    }
+   }
+  },
+  "phases-design-options": {
+   "label": "Phases / design options / revisions",
+   "expression_bearing": true,
+   "description": "ProjectPhase, PhaseFilterElem, DesignOption(Set), revision sequences",
+   "counts": {
+    "ours-created": 7,
+    "transitive-cloned": 1
+   },
+   "classes": {
+    "PhaseFilterElem": {
+     "counts": {
+      "ours-created": 5
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500198,
+        "class": "PhaseFilterElem",
+        "name": "GEN All Phases"
+       },
+       {
+        "id": 1500199,
+        "class": "PhaseFilterElem",
+        "name": "GEN Existing Conditions Only",
+        "clone_of": 24937,
+        "clone_similarity": 0.33
+       },
+       {
+        "id": 1500200,
+        "class": "PhaseFilterElem",
+        "name": "GEN Demolition Plan",
+        "clone_of": 371,
+        "clone_similarity": 0.33
+       }
+      ]
+     }
+    },
+    "ProjectPhase": {
+     "counts": {
+      "ours-created": 2
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500196,
+        "class": "ProjectPhase",
+        "name": "Existing Conditions"
+       },
+       {
+        "id": 1500197,
+        "class": "ProjectPhase",
+        "name": "New Work"
+       }
+      ]
+     }
+    },
+    "AllProjectPhases": {
+     "counts": {
+      "transitive-cloned": 1
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500195,
+        "class": "AllProjectPhases",
+        "name": null,
+        "clone_of": 1,
+        "clone_similarity": 0.63
+       }
+      ]
+     }
+    }
+   }
+  },
+  "project-info-settings": {
+   "label": "Project info & settings elements",
+   "expression_bearing": true,
+   "description": "ProjectInfo, UnitsElem, keynote table, ElectricalSetting, all *Settings singletons",
+   "counts": {
+    "ours-created": 7,
+    "transitive-cloned": 3
+   },
+   "classes": {
+    "GeoSite": {
+     "counts": {
+      "ours-created": 2
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500186,
+        "class": "GeoSite",
+        "name": null,
+        "clone_of": 21747,
+        "clone_similarity": 0.26
+       },
+       {
+        "id": 1500187,
+        "class": "GeoSite",
+        "name": null,
+        "clone_of": 21747,
+        "clone_similarity": 0.26
+       }
+      ]
+     }
+    },
+    "GeoLocation": {
+     "counts": {
+      "ours-created": 2
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500188,
+        "class": "GeoLocation",
+        "name": "GEN Internal Origin",
+        "clone_of": 111428,
+        "clone_similarity": 0.39
+       },
+       {
+        "id": 1500189,
+        "class": "GeoLocation",
+        "name": "GEN Project Position",
+        "clone_of": 21748,
+        "clone_similarity": 0.39
+       }
+      ]
+     }
+    },
+    "BasePoint": {
+     "counts": {
+      "transitive-cloned": 2
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500190,
+        "class": "BasePoint",
+        "name": null,
+        "clone_of": 111426,
+        "clone_similarity": 0.78
+       },
+       {
+        "id": 1500191,
+        "class": "BasePoint",
+        "name": null,
+        "clone_of": 111429,
+        "clone_similarity": 0.84
+       }
+      ]
+     }
+    },
+    "ElectricalSetting": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500050,
+        "class": "ElectricalSetting",
+        "name": null
+       }
+      ]
+     }
+    },
+    "UnitsElem": {
+     "counts": {
+      "transitive-cloned": 1
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500184,
+        "class": "UnitsElem",
+        "name": null,
+        "clone_of": 19236,
+        "clone_similarity": 0.54
+       }
+      ]
+     }
+    },
+    "TrueNorth": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500185,
+        "class": "TrueNorth",
+        "name": null,
+        "clone_of": 7850,
+        "clone_similarity": 0.46
+       }
+      ]
+     }
+    },
+    "ProjectInfo": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500203,
+        "class": "ProjectInfo",
+        "name": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  "mep-electrical-definitions": {
+   "label": "MEP / electrical definition tables",
+   "expression_bearing": true,
+   "description": "voltage & distribution-system types, demand factors, load classifications, wire / pipe / duct material tables, panel schedule templates",
+   "counts": {
+    "ours-created": 28
+   },
+   "classes": {
+    "RbsVoltageType": {
+     "counts": {
+      "ours-created": 6
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500028,
+        "class": "RbsVoltageType",
+        "name": "GEN 120 V"
+       },
+       {
+        "id": 1500029,
+        "class": "RbsVoltageType",
+        "name": "GEN 208 V"
+       },
+       {
+        "id": 1500030,
+        "class": "RbsVoltageType",
+        "name": "GEN 240 V"
+       }
+      ]
+     }
+    },
+    "ElectricalLoadClassification": {
+     "counts": {
+      "ours-created": 6
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500044,
+        "class": "ElectricalLoadClassification",
+        "name": "GEN Lighting"
+       },
+       {
+        "id": 1500045,
+        "class": "ElectricalLoadClassification",
+        "name": "GEN Receptacle"
+       },
+       {
+        "id": 1500046,
+        "class": "ElectricalLoadClassification",
+        "name": "GEN Motor"
+       }
+      ]
+     }
+    },
+    "RbsDistributionSysType": {
+     "counts": {
+      "ours-created": 5
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500034,
+        "class": "RbsDistributionSysType",
+        "name": "GEN 120/240 V Single-Phase 3W"
+       },
+       {
+        "id": 1500035,
+        "class": "RbsDistributionSysType",
+        "name": "GEN 208Y/120 V Three-Phase 4W Wye"
+       },
+       {
+        "id": 1500036,
+        "class": "RbsDistributionSysType",
+        "name": "GEN 480Y/277 V Three-Phase 4W Wye"
+       }
+      ]
+     }
+    },
+    "ElectricalDemandFactorDefinition": {
+     "counts": {
+      "ours-created": 5
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500039,
+        "class": "ElectricalDemandFactorDefinition",
+        "name": "GEN Continuous Load 125% (NEC 210.19)",
+        "clone_of": 237140,
+        "clone_similarity": 0.25
+       },
+       {
+        "id": 1500040,
+        "class": "ElectricalDemandFactorDefinition",
+        "name": "GEN Receptacle Demand (NEC 220.44)"
+       },
+       {
+        "id": 1500041,
+        "class": "ElectricalDemandFactorDefinition",
+        "name": "GEN Motor Demand (NEC 430.24)"
+       }
+      ]
+     }
+    },
+    "ConduitStandardType": {
+     "counts": {
+      "ours-created": 4
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500051,
+        "class": "ConduitStandardType",
+        "name": "GEN EMT"
+       },
+       {
+        "id": 1500052,
+        "class": "ConduitStandardType",
+        "name": "GEN IMC"
+       },
+       {
+        "id": 1500053,
+        "class": "ConduitStandardType",
+        "name": "GEN RMC"
+       }
+      ]
+     }
+    },
+    "ConduitSizesElem": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500055,
+        "class": "ConduitSizesElem",
+        "name": null
+       }
+      ]
+     }
+    },
+    "CableTraySizesElem": {
+     "counts": {
+      "ours-created": 1
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500061,
+        "class": "CableTraySizesElem",
+        "name": null
+       }
+      ]
+     }
+    }
+   }
+  },
+  "datums": {
+   "label": "Datums (levels / grids / reference planes)",
+   "expression_bearing": false,
+   "description": "Level, Grid, RefPlane, extents \u2014 near-trivial numeric definitions (reported, not gated)",
+   "counts": {
+    "ours-created": 5
+   },
+   "classes": {
+    "ExtentElem": {
+     "counts": {
+      "ours-created": 3
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500219,
+        "class": "ExtentElem",
+        "name": null,
+        "clone_of": 1382273,
+        "clone_similarity": 0.25
+       },
+       {
+        "id": 1500226,
+        "class": "ExtentElem",
+        "name": null,
+        "clone_of": 1382273,
+        "clone_similarity": 0.45
+       },
+       {
+        "id": 1500233,
+        "class": "ExtentElem",
+        "name": null,
+        "clone_of": 1382273,
+        "clone_similarity": 0.45
+       }
+      ]
+     }
+    },
+    "Level": {
+     "counts": {
+      "ours-created": 2
+     },
+     "examples": {
+      "ours-created": [
+       {
+        "id": 1500193,
+        "class": "Level",
+        "name": "L1 - Ground Floor",
+        "clone_of": 1351691,
+        "clone_similarity": 0.27
+       },
+       {
+        "id": 1500194,
+        "class": "Level",
+        "name": "L2 - Second Floor"
+       }
+      ]
+     }
+    }
+   }
+  },
+  "placed-model-content": {
+   "label": "Placed model content (sample geometry)",
+   "expression_bearing": true,
+   "description": "instances, walls, floors, ceilings, MEP curves, rooms/spaces/zones, circuits, rebar, loads \u2014 the sample's model",
+   "counts": {
+    "transitive-cloned": 9
+   },
+   "classes": {
+    "CustomElement": {
+     "counts": {
+      "transitive-cloned": 9
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500065,
+        "class": "CustomElement",
+        "name": null,
+        "clone_of": 1472460,
+        "clone_similarity": 0.82
+       },
+       {
+        "id": 1500066,
+        "class": "CustomElement",
+        "name": null,
+        "clone_of": 1472518,
+        "clone_similarity": 0.64
+       },
+       {
+        "id": 1500067,
+        "class": "CustomElement",
+        "name": null,
+        "clone_of": 1472516,
+        "clone_similarity": 0.8
+       }
+      ]
+     }
+    }
+   }
+  },
+  "view-annotation-2d-content": {
+   "label": "View-owned 2D / annotation content",
+   "expression_bearing": true,
+   "description": "detail lines, text notes, dimensions, tags, filled regions, sketches, legend components",
+   "counts": {
+    "transitive-cloned": 3
+   },
+   "classes": {
+    "SketchPlane": {
+     "counts": {
+      "transitive-cloned": 2
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500222,
+        "class": "SketchPlane",
+        "name": null,
+        "clone_of": 1457155,
+        "clone_similarity": 0.65
+       },
+       {
+        "id": 1500229,
+        "class": "SketchPlane",
+        "name": null,
+        "clone_of": 1457155,
+        "clone_similarity": 0.65
+       }
+      ]
+     }
+    },
+    "ModelClipBox": {
+     "counts": {
+      "transitive-cloned": 1
+     },
+     "examples": {
+      "transitive-cloned": [
+       {
+        "id": 1500214,
+        "class": "ModelClipBox",
+        "name": null,
+        "clone_of": 1138915,
+        "clone_similarity": 0.8
+       }
+      ]
+     }
+    }
+   }
+  }
+ },
+ "created_elements": [
+  {
+   "id": 1500000,
+   "class": "LinePatternElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500000 > watermark 1472524; no lineage into sample expression (max clone overlap 43%)",
+   "clone_of": 17,
+   "clone_similarity": 0.429,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500001,
+   "class": "LinePatternElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500001 > watermark 1472524; no lineage into sample expression (max clone overlap 40%)",
+   "clone_of": 1351854,
+   "clone_similarity": 0.4,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500002,
+   "class": "LinePatternElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500002 > watermark 1472524; no lineage into sample expression (max clone overlap 35%)",
+   "clone_of": 1351854,
+   "clone_similarity": 0.353,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500003,
+   "class": "LinePatternElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500003 > watermark 1472524; no lineage into sample expression (max clone overlap 38%)",
+   "clone_of": 713005,
+   "clone_similarity": 0.375,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500004,
+   "class": "FillPatternElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500004 > watermark 1472524; no lineage into sample expression (max clone overlap 28%)",
+   "clone_of": 3,
+   "clone_similarity": 0.278,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500005,
+   "class": "FillPatternElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500005 > watermark 1472524; no lineage into sample expression (max clone overlap 16%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500006,
+   "class": "FillPatternElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500006 > watermark 1472524; no lineage into sample expression (max clone overlap 20%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500007,
+   "class": "FillPatternElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500007 > watermark 1472524; no lineage into sample expression (max clone overlap 17%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500008,
+   "class": "FillPatternElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500008 > watermark 1472524; no lineage into sample expression (max clone overlap 19%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500009,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500009 > watermark 1472524; no lineage into sample expression (max clone overlap 31%)",
+   "clone_of": 1389254,
+   "clone_similarity": 0.312,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500010,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500010 > watermark 1472524; no lineage into sample expression (max clone overlap 26%)",
+   "clone_of": 414,
+   "clone_similarity": 0.258,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500011,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500011 > watermark 1472524; no lineage into sample expression (max clone overlap 23%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500012,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500012 > watermark 1472524; no lineage into sample expression (max clone overlap 32%)",
+   "clone_of": 137434,
+   "clone_similarity": 0.321,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500013,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500013 > watermark 1472524; no lineage into sample expression (max clone overlap 28%)",
+   "clone_of": 1040388,
+   "clone_similarity": 0.276,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500014,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500014 > watermark 1472524; no lineage into sample expression (max clone overlap 27%)",
+   "clone_of": 198362,
+   "clone_similarity": 0.267,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500015,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500015 > watermark 1472524; no lineage into sample expression (max clone overlap 31%)",
+   "clone_of": 1471059,
+   "clone_similarity": 0.308,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500016,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500016 > watermark 1472524; no lineage into sample expression (max clone overlap 26%)",
+   "clone_of": 1040388,
+   "clone_similarity": 0.259,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500017,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500017 > watermark 1472524; no lineage into sample expression (max clone overlap 28%)",
+   "clone_of": 24,
+   "clone_similarity": 0.28,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500018,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500018 > watermark 1472524; no lineage into sample expression (max clone overlap 26%)",
+   "clone_of": 956706,
+   "clone_similarity": 0.259,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500019,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500019 > watermark 1472524; no lineage into sample expression (max clone overlap 36%)",
+   "clone_of": 1471043,
+   "clone_similarity": 0.357,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500020,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500020 > watermark 1472524; no lineage into sample expression (max clone overlap 27%)",
+   "clone_of": 1471051,
+   "clone_similarity": 0.269,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500021,
+   "class": "MaterialElem",
+   "category": "patterns-materials",
+   "provenance": "ours-created",
+   "reason": "id 1500021 > watermark 1472524; no lineage into sample expression (max clone overlap 35%)",
+   "clone_of": 1471045,
+   "clone_similarity": 0.346,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500022,
+   "class": "BasicWallType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500022 > watermark 1472524; no lineage into sample expression (max clone overlap 17%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500023,
+   "class": "BasicWallType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500023 > watermark 1472524; no lineage into sample expression (max clone overlap 16%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500024,
+   "class": "BasicWallType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500024 > watermark 1472524; no lineage into sample expression (max clone overlap 16%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500025,
+   "class": "FloorAttributes",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500025 > watermark 1472524; no lineage into sample expression (max clone overlap 33%)",
+   "clone_of": 581371,
+   "clone_similarity": 0.333,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500026,
+   "class": "RoofAttributes",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500026 > watermark 1472524; no lineage into sample expression (max clone overlap 7%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500027,
+   "class": "CompoundCeilingType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500027 > watermark 1472524; no lineage into sample expression (max clone overlap 25%)",
+   "clone_of": 1093707,
+   "clone_similarity": 0.25,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500028,
+   "class": "RbsVoltageType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500028 > watermark 1472524; no lineage into sample expression (max clone overlap 14%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500029,
+   "class": "RbsVoltageType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500029 > watermark 1472524; no lineage into sample expression (max clone overlap 14%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500030,
+   "class": "RbsVoltageType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500030 > watermark 1472524; no lineage into sample expression (max clone overlap 14%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500031,
+   "class": "RbsVoltageType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500031 > watermark 1472524; no lineage into sample expression (max clone overlap 14%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500032,
+   "class": "RbsVoltageType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500032 > watermark 1472524; no lineage into sample expression (max clone overlap 14%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500033,
+   "class": "RbsVoltageType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500033 > watermark 1472524; no lineage into sample expression (max clone overlap 14%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500034,
+   "class": "RbsDistributionSysType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500034 > watermark 1472524; no lineage into sample expression (max clone overlap 22%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500035,
+   "class": "RbsDistributionSysType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500035 > watermark 1472524; no lineage into sample expression (max clone overlap 21%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500036,
+   "class": "RbsDistributionSysType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500036 > watermark 1472524; no lineage into sample expression (max clone overlap 21%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500037,
+   "class": "RbsDistributionSysType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500037 > watermark 1472524; no lineage into sample expression (max clone overlap 22%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500038,
+   "class": "RbsDistributionSysType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500038 > watermark 1472524; no lineage into sample expression (max clone overlap 22%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500039,
+   "class": "ElectricalDemandFactorDefinition",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500039 > watermark 1472524; no lineage into sample expression (max clone overlap 25%)",
+   "clone_of": 237140,
+   "clone_similarity": 0.25,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500040,
+   "class": "ElectricalDemandFactorDefinition",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500040 > watermark 1472524; no lineage into sample expression (max clone overlap 13%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500041,
+   "class": "ElectricalDemandFactorDefinition",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500041 > watermark 1472524; no lineage into sample expression (max clone overlap 19%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500042,
+   "class": "ElectricalDemandFactorDefinition",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500042 > watermark 1472524; no lineage into sample expression (max clone overlap 12%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500043,
+   "class": "ElectricalDemandFactorDefinition",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500043 > watermark 1472524; no lineage into sample expression (max clone overlap 38%)",
+   "clone_of": 237140,
+   "clone_similarity": 0.375,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500044,
+   "class": "ElectricalLoadClassification",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500044 > watermark 1472524; no lineage into sample expression (max clone overlap 23%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500045,
+   "class": "ElectricalLoadClassification",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500045 > watermark 1472524; no lineage into sample expression (max clone overlap 22%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500046,
+   "class": "ElectricalLoadClassification",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500046 > watermark 1472524; no lineage into sample expression (max clone overlap 22%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500047,
+   "class": "ElectricalLoadClassification",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500047 > watermark 1472524; no lineage into sample expression (max clone overlap 23%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500048,
+   "class": "ElectricalLoadClassification",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500048 > watermark 1472524; no lineage into sample expression (max clone overlap 21%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500049,
+   "class": "ElectricalLoadClassification",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500049 > watermark 1472524; no lineage into sample expression (max clone overlap 22%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500050,
+   "class": "ElectricalSetting",
+   "category": "project-info-settings",
+   "provenance": "ours-created",
+   "reason": "id 1500050 > watermark 1472524; no lineage into sample expression (max clone overlap 7%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500051,
+   "class": "ConduitStandardType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500051 > watermark 1472524; no lineage into sample expression (max clone overlap 23%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500052,
+   "class": "ConduitStandardType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500052 > watermark 1472524; no lineage into sample expression (max clone overlap 23%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500053,
+   "class": "ConduitStandardType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500053 > watermark 1472524; no lineage into sample expression (max clone overlap 23%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500054,
+   "class": "ConduitStandardType",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500054 > watermark 1472524; no lineage into sample expression (max clone overlap 19%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500055,
+   "class": "ConduitSizesElem",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500055 > watermark 1472524; no lineage into sample expression (max clone overlap 2%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500056,
+   "class": "RbsConduitType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500056 > watermark 1472524; no lineage into sample expression (max clone overlap 42%)",
+   "clone_of": 907368,
+   "clone_similarity": 0.417,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500057,
+   "class": "RbsConduitType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500057 > watermark 1472524; no lineage into sample expression (max clone overlap 42%)",
+   "clone_of": 907368,
+   "clone_similarity": 0.417,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500058,
+   "class": "RbsConduitType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500058 > watermark 1472524; no lineage into sample expression (max clone overlap 42%)",
+   "clone_of": 907368,
+   "clone_similarity": 0.417,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500059,
+   "class": "RbsConduitType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500059 > watermark 1472524; no lineage into sample expression (max clone overlap 42%)",
+   "clone_of": 907368,
+   "clone_similarity": 0.417,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500060,
+   "class": "RbsConduitType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500060 > watermark 1472524; no lineage into sample expression (max clone overlap 38%)",
+   "clone_of": 907368,
+   "clone_similarity": 0.385,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500061,
+   "class": "CableTraySizesElem",
+   "category": "mep-electrical-definitions",
+   "provenance": "ours-created",
+   "reason": "id 1500061 > watermark 1472524; no lineage into sample expression (max clone overlap 19%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500062,
+   "class": "RbsCableTrayType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500062 > watermark 1472524; no lineage into sample expression (max clone overlap 48%)",
+   "clone_of": 907364,
+   "clone_similarity": 0.478,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500063,
+   "class": "RbsCableTrayType",
+   "category": "system-family-types",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample RbsCableTrayType 907364 (50% shingle overlap)",
+   "clone_of": 907364,
+   "clone_similarity": 0.5,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500064,
+   "class": "RbsCableTrayType",
+   "category": "system-family-types",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample RbsCableTrayType 907364 (54% shingle overlap)",
+   "clone_of": 907364,
+   "clone_similarity": 0.542,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500065,
+   "class": "CustomElement",
+   "category": "placed-model-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CustomElement 1472460 (82% shingle overlap)",
+   "clone_of": 1472460,
+   "clone_similarity": 0.818,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500066,
+   "class": "CustomElement",
+   "category": "placed-model-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CustomElement 1472518 (64% shingle overlap)",
+   "clone_of": 1472518,
+   "clone_similarity": 0.636,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500067,
+   "class": "CustomElement",
+   "category": "placed-model-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CustomElement 1472516 (80% shingle overlap)",
+   "clone_of": 1472516,
+   "clone_similarity": 0.8,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500068,
+   "class": "CustomElement",
+   "category": "placed-model-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CustomElement 1472517 (80% shingle overlap)",
+   "clone_of": 1472517,
+   "clone_similarity": 0.8,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500069,
+   "class": "CustomElement",
+   "category": "placed-model-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CustomElement 1472507 (82% shingle overlap)",
+   "clone_of": 1472507,
+   "clone_similarity": 0.818,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500070,
+   "class": "CustomElement",
+   "category": "placed-model-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CustomElement 1472502 (80% shingle overlap)",
+   "clone_of": 1472502,
+   "clone_similarity": 0.8,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500071,
+   "class": "CustomElement",
+   "category": "placed-model-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CustomElement 1472514 (82% shingle overlap)",
+   "clone_of": 1472514,
+   "clone_similarity": 0.818,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500072,
+   "class": "CustomElement",
+   "category": "placed-model-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CustomElement 1472462 (64% shingle overlap)",
+   "clone_of": 1472462,
+   "clone_similarity": 0.636,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500073,
+   "class": "CustomElement",
+   "category": "placed-model-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CustomElement 1472462 (64% shingle overlap)",
+   "clone_of": 1472462,
+   "clone_similarity": 0.636,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500074,
+   "class": "RbsWireType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500074 > watermark 1472524; no lineage into sample expression (max clone overlap 46%)",
+   "clone_of": 55171,
+   "clone_similarity": 0.458,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500075,
+   "class": "RbsWireType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500075 > watermark 1472524; no lineage into sample expression (max clone overlap 46%)",
+   "clone_of": 55171,
+   "clone_similarity": 0.458,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500076,
+   "class": "RbsWireType",
+   "category": "system-family-types",
+   "provenance": "ours-created",
+   "reason": "id 1500076 > watermark 1472524; no lineage into sample expression (max clone overlap 46%)",
+   "clone_of": 55171,
+   "clone_similarity": 0.458,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500077,
+   "class": "TextNoteAttributes",
+   "category": "text-dimension-types",
+   "provenance": "ours-created",
+   "reason": "id 1500077 > watermark 1472524; no lineage into sample expression (max clone overlap 43%)",
+   "clone_of": 1456487,
+   "clone_similarity": 0.429,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500078,
+   "class": "FontElem",
+   "category": "patterns-materials",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample FontElem 137228 (55% shingle overlap)",
+   "clone_of": 137228,
+   "clone_similarity": 0.545,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500079,
+   "class": "CategoryElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CategoryElem 1390254 (50% shingle overlap)",
+   "clone_of": 1390254,
+   "clone_similarity": 0.5,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500080,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 983061 (69% shingle overlap)",
+   "clone_of": 983061,
+   "clone_similarity": 0.692,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500081,
+   "class": "TextNoteAttributes",
+   "category": "text-dimension-types",
+   "provenance": "ours-created",
+   "reason": "id 1500081 > watermark 1472524; no lineage into sample expression (max clone overlap 41%)",
+   "clone_of": 1456487,
+   "clone_similarity": 0.414,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500082,
+   "class": "FontElem",
+   "category": "patterns-materials",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample FontElem 1464244 (55% shingle overlap)",
+   "clone_of": 1464244,
+   "clone_similarity": 0.545,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500083,
+   "class": "CategoryElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CategoryElem 1464242 (50% shingle overlap)",
+   "clone_of": 1464242,
+   "clone_similarity": 0.5,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500084,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 983061 (69% shingle overlap)",
+   "clone_of": 983061,
+   "clone_similarity": 0.692,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500085,
+   "class": "TextNoteAttributes",
+   "category": "text-dimension-types",
+   "provenance": "ours-created",
+   "reason": "id 1500085 > watermark 1472524; no lineage into sample expression (max clone overlap 43%)",
+   "clone_of": 1456487,
+   "clone_similarity": 0.429,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500086,
+   "class": "FontElem",
+   "category": "patterns-materials",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample FontElem 137228 (55% shingle overlap)",
+   "clone_of": 137228,
+   "clone_similarity": 0.545,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500087,
+   "class": "CategoryElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample CategoryElem 1253558 (50% shingle overlap)",
+   "clone_of": 1253558,
+   "clone_similarity": 0.5,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500088,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 983061 (69% shingle overlap)",
+   "clone_of": 983061,
+   "clone_similarity": 0.692,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500089,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 30 (67% shingle overlap)",
+   "clone_of": 30,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500090,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 31 (67% shingle overlap)",
+   "clone_of": 31,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500091,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (75% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500092,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 35 (75% shingle overlap)",
+   "clone_of": 35,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500093,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 44 (75% shingle overlap)",
+   "clone_of": 44,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500094,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 136 (67% shingle overlap)",
+   "clone_of": 136,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500095,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 54 (67% shingle overlap)",
+   "clone_of": 54,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500096,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 55 (67% shingle overlap)",
+   "clone_of": 55,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500097,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 58 (67% shingle overlap)",
+   "clone_of": 58,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500098,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 59 (67% shingle overlap)",
+   "clone_of": 59,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500099,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 62 (75% shingle overlap)",
+   "clone_of": 62,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500100,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 63 (75% shingle overlap)",
+   "clone_of": 63,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500101,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500102,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500103,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 1471670 (75% shingle overlap)",
+   "clone_of": 1471670,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500104,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 80 (67% shingle overlap)",
+   "clone_of": 80,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500105,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 80 (75% shingle overlap)",
+   "clone_of": 80,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500106,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 82 (67% shingle overlap)",
+   "clone_of": 82,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500107,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 82 (75% shingle overlap)",
+   "clone_of": 82,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500108,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 102 (67% shingle overlap)",
+   "clone_of": 102,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500109,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 102 (75% shingle overlap)",
+   "clone_of": 102,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500110,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500111,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 119 (67% shingle overlap)",
+   "clone_of": 119,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500112,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 119 (75% shingle overlap)",
+   "clone_of": 119,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500113,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500114,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500115,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500116,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500117,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500118,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500119,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500120,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500121,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500122,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500123,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500124,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500125,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500126,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500127,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500128,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 80 (67% shingle overlap)",
+   "clone_of": 80,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500129,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500130,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 123 (67% shingle overlap)",
+   "clone_of": 123,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500131,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 123 (75% shingle overlap)",
+   "clone_of": 123,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500132,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500133,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500134,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500135,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500136,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500137,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 1471707 (75% shingle overlap)",
+   "clone_of": 1471707,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500138,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500139,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 35 (58% shingle overlap)",
+   "clone_of": 35,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500140,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500141,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 35 (58% shingle overlap)",
+   "clone_of": 35,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500142,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500143,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 35 (58% shingle overlap)",
+   "clone_of": 35,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500144,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 135 (75% shingle overlap)",
+   "clone_of": 135,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500145,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 136 (75% shingle overlap)",
+   "clone_of": 136,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500146,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500147,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 35 (58% shingle overlap)",
+   "clone_of": 35,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500148,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500149,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 7846 (75% shingle overlap)",
+   "clone_of": 7846,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500150,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500151,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 1471703 (75% shingle overlap)",
+   "clone_of": 1471703,
+   "clone_similarity": 0.75,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500152,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500153,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500154,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500155,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500156,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500157,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500158,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 150 (67% shingle overlap)",
+   "clone_of": 150,
+   "clone_similarity": 0.667,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500159,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500160,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500161,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500162,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500163,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500164,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500165,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500166,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500167,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500168,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500169,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500170,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500171,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500172,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500173,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500174,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500175,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample GStyleElem 34 (58% shingle overlap)",
+   "clone_of": 34,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500176,
+   "class": "CategoryElem",
+   "category": "object-styles",
+   "provenance": "ours-created",
+   "reason": "id 1500176 > watermark 1472524; no lineage into sample expression (max clone overlap 33%)",
+   "clone_of": 1352207,
+   "clone_similarity": 0.333,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500177,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "ours-created",
+   "reason": "id 1500177 > watermark 1472524; no lineage into sample expression (max clone overlap 33%)",
+   "clone_of": 983057,
+   "clone_similarity": 0.333,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500178,
+   "class": "CategoryElem",
+   "category": "object-styles",
+   "provenance": "ours-created",
+   "reason": "id 1500178 > watermark 1472524; no lineage into sample expression (max clone overlap 35%)",
+   "clone_of": 1352207,
+   "clone_similarity": 0.353,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500179,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "ours-created",
+   "reason": "id 1500179 > watermark 1472524; no lineage into sample expression (max clone overlap 33%)",
+   "clone_of": 983057,
+   "clone_similarity": 0.333,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500180,
+   "class": "CategoryElem",
+   "category": "object-styles",
+   "provenance": "ours-created",
+   "reason": "id 1500180 > watermark 1472524; no lineage into sample expression (max clone overlap 30%)",
+   "clone_of": 1352207,
+   "clone_similarity": 0.3,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500181,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "ours-created",
+   "reason": "id 1500181 > watermark 1472524; no lineage into sample expression (max clone overlap 33%)",
+   "clone_of": 983057,
+   "clone_similarity": 0.333,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500182,
+   "class": "CategoryElem",
+   "category": "object-styles",
+   "provenance": "ours-created",
+   "reason": "id 1500182 > watermark 1472524; no lineage into sample expression (max clone overlap 40%)",
+   "clone_of": 1352207,
+   "clone_similarity": 0.4,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500183,
+   "class": "GStyleElem",
+   "category": "object-styles",
+   "provenance": "ours-created",
+   "reason": "id 1500183 > watermark 1472524; no lineage into sample expression (max clone overlap 33%)",
+   "clone_of": 983057,
+   "clone_similarity": 0.333,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500184,
+   "class": "UnitsElem",
+   "category": "project-info-settings",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample UnitsElem 19236 (54% shingle overlap)",
+   "clone_of": 19236,
+   "clone_similarity": 0.538,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500185,
+   "class": "TrueNorth",
+   "category": "project-info-settings",
+   "provenance": "ours-created",
+   "reason": "id 1500185 > watermark 1472524; no lineage into sample expression (max clone overlap 46%)",
+   "clone_of": 7850,
+   "clone_similarity": 0.462,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500186,
+   "class": "GeoSite",
+   "category": "project-info-settings",
+   "provenance": "ours-created",
+   "reason": "id 1500186 > watermark 1472524; no lineage into sample expression (max clone overlap 26%)",
+   "clone_of": 21747,
+   "clone_similarity": 0.259,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500187,
+   "class": "GeoSite",
+   "category": "project-info-settings",
+   "provenance": "ours-created",
+   "reason": "id 1500187 > watermark 1472524; no lineage into sample expression (max clone overlap 26%)",
+   "clone_of": 21747,
+   "clone_similarity": 0.259,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500188,
+   "class": "GeoLocation",
+   "category": "project-info-settings",
+   "provenance": "ours-created",
+   "reason": "id 1500188 > watermark 1472524; no lineage into sample expression (max clone overlap 39%)",
+   "clone_of": 111428,
+   "clone_similarity": 0.391,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500189,
+   "class": "GeoLocation",
+   "category": "project-info-settings",
+   "provenance": "ours-created",
+   "reason": "id 1500189 > watermark 1472524; no lineage into sample expression (max clone overlap 39%)",
+   "clone_of": 21748,
+   "clone_similarity": 0.391,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500190,
+   "class": "BasePoint",
+   "category": "project-info-settings",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample BasePoint 111426 (78% shingle overlap)",
+   "clone_of": 111426,
+   "clone_similarity": 0.784,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500191,
+   "class": "BasePoint",
+   "category": "project-info-settings",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample BasePoint 111429 (84% shingle overlap)",
+   "clone_of": 111429,
+   "clone_similarity": 0.838,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500192,
+   "class": "LevelAttributes",
+   "category": "text-dimension-types",
+   "provenance": "ours-created",
+   "reason": "id 1500192 > watermark 1472524; no lineage into sample expression (max clone overlap 38%)",
+   "clone_of": 305,
+   "clone_similarity": 0.375,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500193,
+   "class": "Level",
+   "category": "datums",
+   "provenance": "ours-created",
+   "reason": "id 1500193 > watermark 1472524; no lineage into sample expression (max clone overlap 27%)",
+   "clone_of": 1351691,
+   "clone_similarity": 0.268,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500194,
+   "class": "Level",
+   "category": "datums",
+   "provenance": "ours-created",
+   "reason": "id 1500194 > watermark 1472524; no lineage into sample expression (max clone overlap 25%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500195,
+   "class": "AllProjectPhases",
+   "category": "phases-design-options",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample AllProjectPhases 1 (63% shingle overlap)",
+   "clone_of": 1,
+   "clone_similarity": 0.632,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500196,
+   "class": "ProjectPhase",
+   "category": "phases-design-options",
+   "provenance": "ours-created",
+   "reason": "id 1500196 > watermark 1472524; no lineage into sample expression (max clone overlap 19%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500197,
+   "class": "ProjectPhase",
+   "category": "phases-design-options",
+   "provenance": "ours-created",
+   "reason": "id 1500197 > watermark 1472524; no lineage into sample expression (max clone overlap 17%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500198,
+   "class": "PhaseFilterElem",
+   "category": "phases-design-options",
+   "provenance": "ours-created",
+   "reason": "id 1500198 > watermark 1472524; no lineage into sample expression (max clone overlap 24%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500199,
+   "class": "PhaseFilterElem",
+   "category": "phases-design-options",
+   "provenance": "ours-created",
+   "reason": "id 1500199 > watermark 1472524; no lineage into sample expression (max clone overlap 33%)",
+   "clone_of": 24937,
+   "clone_similarity": 0.333,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500200,
+   "class": "PhaseFilterElem",
+   "category": "phases-design-options",
+   "provenance": "ours-created",
+   "reason": "id 1500200 > watermark 1472524; no lineage into sample expression (max clone overlap 33%)",
+   "clone_of": 371,
+   "clone_similarity": 0.333,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500201,
+   "class": "PhaseFilterElem",
+   "category": "phases-design-options",
+   "provenance": "ours-created",
+   "reason": "id 1500201 > watermark 1472524; no lineage into sample expression (max clone overlap 39%)",
+   "clone_of": 23211,
+   "clone_similarity": 0.389,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500202,
+   "class": "PhaseFilterElem",
+   "category": "phases-design-options",
+   "provenance": "ours-created",
+   "reason": "id 1500202 > watermark 1472524; no lineage into sample expression (max clone overlap 19%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500203,
+   "class": "ProjectInfo",
+   "category": "project-info-settings",
+   "provenance": "ours-created",
+   "reason": "id 1500203 > watermark 1472524; no lineage into sample expression (max clone overlap 10%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500204,
+   "class": "SunAndShadowSettings",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500204 > watermark 1472524; no lineage into sample expression (max clone overlap 32%)",
+   "clone_of": 713086,
+   "clone_similarity": 0.32,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500205,
+   "class": "DBViewProject",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500205 > watermark 1472524; no lineage into sample expression (max clone overlap 26%)",
+   "clone_of": 230,
+   "clone_similarity": 0.264,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500206,
+   "class": "Viewer",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample Viewer 231 (90% shingle overlap)",
+   "clone_of": 231,
+   "clone_similarity": 0.902,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500207,
+   "class": "Viewport",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample Viewport 232 (71% shingle overlap)",
+   "clone_of": 232,
+   "clone_similarity": 0.714,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500208,
+   "class": "DBDrawing",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample DBDrawing 98987 (58% shingle overlap)",
+   "clone_of": 98987,
+   "clone_similarity": 0.583,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500209,
+   "class": "DBViewType",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500209 > watermark 1472524; no lineage into sample expression (max clone overlap 30%)",
+   "clone_of": 49665,
+   "clone_similarity": 0.3,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500210,
+   "class": "DBViewType",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500210 > watermark 1472524; no lineage into sample expression (max clone overlap 30%)",
+   "clone_of": 49665,
+   "clone_similarity": 0.3,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500211,
+   "class": "DBViewType",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500211 > watermark 1472524; no lineage into sample expression (max clone overlap 29%)",
+   "clone_of": 49665,
+   "clone_similarity": 0.286,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500212,
+   "class": "DBView3d",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500212 > watermark 1472524; no lineage into sample expression (max clone overlap 29%)",
+   "clone_of": 1386343,
+   "clone_similarity": 0.292,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500213,
+   "class": "Viewer3d",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500213 > watermark 1472524; no lineage into sample expression (max clone overlap 6%)",
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500214,
+   "class": "ModelClipBox",
+   "category": "view-annotation-2d-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample ModelClipBox 1138915 (80% shingle overlap)",
+   "clone_of": 1138915,
+   "clone_similarity": 0.8,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500215,
+   "class": "SunAndShadowSettings",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500215 > watermark 1472524; no lineage into sample expression (max clone overlap 26%)",
+   "clone_of": 55158,
+   "clone_similarity": 0.259,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500216,
+   "class": "Viewport",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample Viewport 1457153 (57% shingle overlap)",
+   "clone_of": 1457153,
+   "clone_similarity": 0.571,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500217,
+   "class": "DBDrawing",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample DBDrawing 1472132 (62% shingle overlap)",
+   "clone_of": 1472132,
+   "clone_similarity": 0.625,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500218,
+   "class": "LightSchemeElement",
+   "category": "patterns-materials",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample LightSchemeElement 1138913 (56% shingle overlap)",
+   "clone_of": 1138913,
+   "clone_similarity": 0.556,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500219,
+   "class": "ExtentElem",
+   "category": "datums",
+   "provenance": "ours-created",
+   "reason": "id 1500219 > watermark 1472524; no lineage into sample expression (max clone overlap 25%)",
+   "clone_of": 1382273,
+   "clone_similarity": 0.25,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500220,
+   "class": "DBViewPlan",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500220 > watermark 1472524; no lineage into sample expression (max clone overlap 37%)",
+   "clone_of": 9599,
+   "clone_similarity": 0.373,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500221,
+   "class": "Viewer",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample Viewer 1351713 (80% shingle overlap)",
+   "clone_of": 1351713,
+   "clone_similarity": 0.804,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500222,
+   "class": "SketchPlane",
+   "category": "view-annotation-2d-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample SketchPlane 1457155 (65% shingle overlap)",
+   "clone_of": 1457155,
+   "clone_similarity": 0.647,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500223,
+   "class": "SunAndShadowSettings",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500223 > watermark 1472524; no lineage into sample expression (max clone overlap 30%)",
+   "clone_of": 713086,
+   "clone_similarity": 0.296,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500224,
+   "class": "Viewport",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample Viewport 1457153 (57% shingle overlap)",
+   "clone_of": 1457153,
+   "clone_similarity": 0.571,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500225,
+   "class": "DBDrawing",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample DBDrawing 1472132 (62% shingle overlap)",
+   "clone_of": 1472132,
+   "clone_similarity": 0.625,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500226,
+   "class": "ExtentElem",
+   "category": "datums",
+   "provenance": "ours-created",
+   "reason": "id 1500226 > watermark 1472524; no lineage into sample expression (max clone overlap 45%)",
+   "clone_of": 1382273,
+   "clone_similarity": 0.455,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500227,
+   "class": "DBViewPlan",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500227 > watermark 1472524; no lineage into sample expression (max clone overlap 37%)",
+   "clone_of": 9599,
+   "clone_similarity": 0.372,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500228,
+   "class": "Viewer",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample Viewer 1351713 (77% shingle overlap)",
+   "clone_of": 1351713,
+   "clone_similarity": 0.771,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500229,
+   "class": "SketchPlane",
+   "category": "view-annotation-2d-content",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample SketchPlane 1457155 (65% shingle overlap)",
+   "clone_of": 1457155,
+   "clone_similarity": 0.647,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500230,
+   "class": "SunAndShadowSettings",
+   "category": "views-and-templates",
+   "provenance": "ours-created",
+   "reason": "id 1500230 > watermark 1472524; no lineage into sample expression (max clone overlap 30%)",
+   "clone_of": 713086,
+   "clone_similarity": 0.296,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500231,
+   "class": "Viewport",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample Viewport 1457153 (57% shingle overlap)",
+   "clone_of": 1457153,
+   "clone_similarity": 0.571,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500232,
+   "class": "DBDrawing",
+   "category": "views-and-templates",
+   "provenance": "transitive-cloned",
+   "reason": "structural clone of sample DBDrawing 1472132 (62% shingle overlap)",
+   "clone_of": 1472132,
+   "clone_similarity": 0.625,
+   "attribution": "rstbasicsampleproject"
+  },
+  {
+   "id": 1500233,
+   "class": "ExtentElem",
+   "category": "datums",
+   "provenance": "ours-created",
+   "reason": "id 1500233 > watermark 1472524; no lineage into sample expression (max clone overlap 45%)",
+   "clone_of": 1382273,
+   "clone_similarity": 0.455,
+   "attribution": "rstbasicsampleproject"
+  }
+ ],
+ "modified_elements": [],
+ "layers": [
+  "elements"
+ ],
+ "warnings": [
+  "baseline mismatch: only 0% of candidate ids exist in the baseline \u2014 0 elements are unattributable; pick the sample this file actually descends from (tools/provenance.py --baseline auto)"
+ ],
+ "gate_G1": {
+  "passes": false,
+  "certifies_G1": false,
+  "layers": [
+   "elements"
+  ],
+  "missing_layers": [
+   "streams",
+   "strings",
+   "identity"
+  ],
+  "strict": false,
+  "verdict": "FAIL \u2014 126 Autodesk-derived element(s) in expression-bearing categories",
+  "blocking": [
+   {
+    "category": "system-family-types",
+    "provenance": "transitive-cloned",
+    "count": 2,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "views-and-templates",
+    "provenance": "transitive-cloned",
+    "count": 11,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "object-styles",
+    "provenance": "transitive-cloned",
+    "count": 93,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "patterns-materials",
+    "provenance": "transitive-cloned",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "phases-design-options",
+    "provenance": "transitive-cloned",
+    "count": 1,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "project-info-settings",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "placed-model-content",
+    "provenance": "transitive-cloned",
+    "count": 9,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "view-annotation-2d-content",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   }
+  ],
+  "counsel": [],
+  "advisories": [],
+  "gap_list": [
+   {
+    "category": "system-family-types",
+    "provenance": "transitive-cloned",
+    "count": 2,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "views-and-templates",
+    "provenance": "transitive-cloned",
+    "count": 11,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "object-styles",
+    "provenance": "transitive-cloned",
+    "count": 93,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "patterns-materials",
+    "provenance": "transitive-cloned",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "phases-design-options",
+    "provenance": "transitive-cloned",
+    "count": 1,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "project-info-settings",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "placed-model-content",
+    "provenance": "transitive-cloned",
+    "count": 9,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "view-annotation-2d-content",
+    "provenance": "transitive-cloned",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   }
+  ],
+  "stream_gap_bytes": 0,
+  "resource_ref_count": 0,
+  "identity_violations": 0
+ },
+ "elapsed_s": 0.4
+}

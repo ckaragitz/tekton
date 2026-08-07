@@ -1,0 +1,529 @@
+{
+  "briefVersion": "1.0",
+  "generator": "rvt.frontdoor.prompt_intent.scene_brief",
+  "prompt": "create an electrical room 30 by 20 feet with a 2500A switchboard, a distribution panel, a lighting panel, and a transformer",
+  "purpose": "Build this scene in Three.js exactly, tag every product with the userData.ifc block given (OUR tagging contract), export IFC4 with the canonical three-d-stage exporter (tekton-ifc assets/ifc-export.js v2), then run: frontdoor author --ifc <export>.ifc",
+  "instructions": "PROMPT_TO_IFC.md",
+  "ifcMeta": {
+    "projectName": "Electrical Room",
+    "fileName": "electrical-room",
+    "author": {
+      "org": "tekton front door"
+    },
+    "storeys": [
+      {
+        "name": "Level 1",
+        "elevation": 0.0
+      }
+    ],
+    "geometry": "auto",
+    "excludeNames": [
+      "working_clearance",
+      "door_swing_clearance"
+    ],
+    "clearanceAs": "skip",
+    "minFeatureSize": 0.01,
+    "guidSeed": "electrical-room-v1"
+  },
+  "room": {
+    "name": "Electrical Room",
+    "width_m": 9.144,
+    "depth_m": 6.096,
+    "height_m": 3.6576,
+    "wall_thickness_m": 0.2032,
+    "service_rating_a": null,
+    "service_voltage": "480Y/277",
+    "origin": "room centred at (0,0); +x east, +y north, +z up (metres)",
+    "walls": [
+      {
+        "group_name": "wall_s",
+        "id": "W-S",
+        "start_m": [
+          -4.572,
+          -3.048
+        ],
+        "end_m": [
+          4.572,
+          -3.048
+        ],
+        "thickness_m": 0.2032,
+        "height_m": 3.6576,
+        "how": "a THREE.BoxGeometry(length, height, thickness) centred on the centerline, base at z=0, named 'wall_<n>' inside ONE room-shell group tagged ifcClass IFCBUILDINGELEMENTPROXY predefinedType USERDEFINED objectType 'room shell' (or model each wall as its own IFCWALL product -- both resolve through the front door)"
+      },
+      {
+        "group_name": "wall_e",
+        "id": "W-E",
+        "start_m": [
+          4.572,
+          -3.048
+        ],
+        "end_m": [
+          4.572,
+          3.048
+        ],
+        "thickness_m": 0.2032,
+        "height_m": 3.6576,
+        "how": "a THREE.BoxGeometry(length, height, thickness) centred on the centerline, base at z=0, named 'wall_<n>' inside ONE room-shell group tagged ifcClass IFCBUILDINGELEMENTPROXY predefinedType USERDEFINED objectType 'room shell' (or model each wall as its own IFCWALL product -- both resolve through the front door)"
+      },
+      {
+        "group_name": "wall_n",
+        "id": "W-N",
+        "start_m": [
+          4.572,
+          3.048
+        ],
+        "end_m": [
+          -4.572,
+          3.048
+        ],
+        "thickness_m": 0.2032,
+        "height_m": 3.6576,
+        "how": "a THREE.BoxGeometry(length, height, thickness) centred on the centerline, base at z=0, named 'wall_<n>' inside ONE room-shell group tagged ifcClass IFCBUILDINGELEMENTPROXY predefinedType USERDEFINED objectType 'room shell' (or model each wall as its own IFCWALL product -- both resolve through the front door)"
+      },
+      {
+        "group_name": "wall_w",
+        "id": "W-W",
+        "start_m": [
+          -4.572,
+          3.048
+        ],
+        "end_m": [
+          -4.572,
+          -3.048
+        ],
+        "thickness_m": 0.2032,
+        "height_m": 3.6576,
+        "how": "a THREE.BoxGeometry(length, height, thickness) centred on the centerline, base at z=0, named 'wall_<n>' inside ONE room-shell group tagged ifcClass IFCBUILDINGELEMENTPROXY predefinedType USERDEFINED objectType 'room shell' (or model each wall as its own IFCWALL product -- both resolve through the front door)"
+      }
+    ],
+    "shell_tagging": {
+      "group_name": "room_shell",
+      "userData_ifc": {
+        "ifcClass": "IFCBUILDINGELEMENTPROXY",
+        "predefinedType": "USERDEFINED",
+        "objectType": "room shell",
+        "name": "Electrical Room",
+        "psets": [
+          {
+            "name": "RoomInformation",
+            "props": {
+              "RoomName": "Electrical Room",
+              "ClearWidth": {
+                "value": 8.9408,
+                "type": "length"
+              },
+              "ClearDepth": {
+                "value": 5.8928,
+                "type": "length"
+              },
+              "ClearHeight": {
+                "value": 3.6576,
+                "type": "length"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "products": [
+    {
+      "group_name": "switchboard_MSB",
+      "tag": "MSB",
+      "kind": "switchboard",
+      "position_m": {
+        "x": -0.5373,
+        "y": 2.3892,
+        "z": 0.1,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        0.0,
+        -1.0
+      ],
+      "yaw_deg": 0.0,
+      "mounting": "floor",
+      "dims_m": {
+        "w": 3.9,
+        "d": 0.9144,
+        "h": 2.286
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCELECTRICDISTRIBUTIONBOARD",
+        "predefinedType": "SWITCHBOARD",
+        "name": "MSB",
+        "tag": "MSB",
+        "storey": "Level 1",
+        "typeName": "SWBD-480Y/277-2500A-MB-4SEC",
+        "psets": [
+          {
+            "name": "SwitchboardSchedule",
+            "props": {
+              "PanelName": "MSB",
+              "Voltage": {
+                "value": 480,
+                "type": "voltage"
+              },
+              "Phases": {
+                "value": 3,
+                "type": "integer"
+              },
+              "Wires": {
+                "value": 4,
+                "type": "integer"
+              },
+              "BusRating": {
+                "value": 2500.0,
+                "type": "current"
+              },
+              "MainsRating": {
+                "value": 2500.0,
+                "type": "current"
+              },
+              "MainDevice": "2500 A main breaker",
+              "ShortCircuitRatingkA": {
+                "value": 65.0,
+                "type": "real"
+              },
+              "Sections": {
+                "value": 4,
+                "type": "count"
+              },
+              "Mounting": "Floor, on housekeeping pad",
+              "FeederEntry": "Top",
+              "MainsType": "Main breaker"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "SWBD-480Y/277-2500A-MB-4SEC"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group_name": "panel_DP-1",
+      "tag": "DP-1",
+      "kind": "distribution_panelboard",
+      "position_m": {
+        "x": -4.4704,
+        "y": 2.0924,
+        "z": 1.42,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        1.0,
+        0.0
+      ],
+      "yaw_deg": 90.0,
+      "mounting": "surface",
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.524
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCELECTRICDISTRIBUTIONBOARD",
+        "predefinedType": "DISTRIBUTIONBOARD",
+        "name": "DP-1",
+        "tag": "DP-1",
+        "storey": "Level 1",
+        "typeName": "PB-480Y/277-400A-MB-42SP",
+        "psets": [
+          {
+            "name": "PanelSchedule",
+            "props": {
+              "PanelName": "DP-1",
+              "Voltage": {
+                "value": 480,
+                "type": "voltage"
+              },
+              "Phases": {
+                "value": 3,
+                "type": "integer"
+              },
+              "Wires": {
+                "value": 4,
+                "type": "integer"
+              },
+              "BusRating": {
+                "value": 400.0,
+                "type": "current"
+              },
+              "MainsRating": {
+                "value": 400.0,
+                "type": "current"
+              },
+              "MainsType": "Main breaker",
+              "NumberOfCircuits": {
+                "value": 42,
+                "type": "count"
+              },
+              "Mounting": "Surface, wall",
+              "FeederEntry": "Top",
+              "FedFrom": "MSB"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "PB-480Y/277-400A-MB-42SP"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group_name": "panel_LP-1",
+      "tag": "LP-1",
+      "kind": "lighting_panelboard",
+      "position_m": {
+        "x": 4.4704,
+        "y": 2.0924,
+        "z": 1.42,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        -1.0,
+        0.0
+      ],
+      "yaw_deg": -90.0,
+      "mounting": "surface",
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCELECTRICDISTRIBUTIONBOARD",
+        "predefinedType": "DISTRIBUTIONBOARD",
+        "name": "LP-1",
+        "tag": "LP-1",
+        "storey": "Level 1",
+        "typeName": "PB-480Y/277-100A-MLO-42SP",
+        "psets": [
+          {
+            "name": "PanelSchedule",
+            "props": {
+              "PanelName": "LP-1",
+              "Voltage": {
+                "value": 480,
+                "type": "voltage"
+              },
+              "Phases": {
+                "value": 3,
+                "type": "integer"
+              },
+              "Wires": {
+                "value": 4,
+                "type": "integer"
+              },
+              "BusRating": {
+                "value": 100.0,
+                "type": "current"
+              },
+              "MainsRating": {
+                "value": 100.0,
+                "type": "current"
+              },
+              "MainsType": "Main lugs only",
+              "NumberOfCircuits": {
+                "value": 42,
+                "type": "count"
+              },
+              "Mounting": "Surface, wall",
+              "FeederEntry": "Top",
+              "FedFrom": "DP-1"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "PB-480Y/277-100A-MLO-42SP"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group_name": "transformer_T1",
+      "tag": "T1",
+      "kind": "transformer",
+      "position_m": {
+        "x": 2.1,
+        "y": 2.5416,
+        "z": 0.1,
+        "note": "Three.js is Y-up: place the group at (x, elevation, -y) if your stage maps IFC(x,y,z) -> THREE(x,z,-y) [the three-d-stage convention]; the exporter writes real IfcLocalPlacements from group positions"
+      },
+      "front_normal": [
+        0.0,
+        -1.0
+      ],
+      "yaw_deg": 0.0,
+      "mounting": "floor",
+      "dims_m": {
+        "w": 0.7747,
+        "d": 0.6096,
+        "h": 1.0922
+      },
+      "storey": "Level 1",
+      "userData_ifc": {
+        "ifcClass": "IFCTRANSFORMER",
+        "predefinedType": "VOLTAGE",
+        "name": "T1",
+        "tag": "T1",
+        "storey": "Level 1",
+        "typeName": "XFMR-75kVA-480D-208Y/120",
+        "psets": [
+          {
+            "name": "TransformerSchedule",
+            "props": {
+              "PanelName": "T1",
+              "RatingkVA": {
+                "value": 75.0,
+                "type": "real"
+              },
+              "Primary": "480 V delta",
+              "Secondary": "208Y/120 V",
+              "TemperatureRise": "150 C",
+              "FedFrom": "MSB"
+            }
+          }
+        ],
+        "typePsets": [
+          {
+            "name": "Pset_ManufacturerTypeInformation",
+            "props": {
+              "Manufacturer": "unspecified",
+              "ModelLabel": "XFMR-75kVA-480D-208Y/120"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "feederTree": [
+    {
+      "from": "MSB",
+      "to": "DP-1",
+      "kind": "feeder",
+      "rating_a": 400.0,
+      "voltage": "480Y/277 V"
+    },
+    {
+      "from": "MSB",
+      "to": "T1",
+      "kind": "primary",
+      "rating_a": 90.2,
+      "voltage": "480 V delta"
+    },
+    {
+      "from": "DP-1",
+      "to": "LP-1",
+      "kind": "feeder",
+      "rating_a": 100.0,
+      "voltage": "480Y/277 V"
+    },
+    {
+      "from": "UTILITY",
+      "to": "MSB",
+      "kind": "service",
+      "rating_a": null,
+      "voltage": null
+    }
+  ],
+  "coverage": {
+    "understood": [
+      {
+        "clause": "30 by 20 feet",
+        "as": "room dimensions",
+        "width_m": 9.144,
+        "depth_m": 6.096,
+        "unit_assumed": "feet"
+      },
+      {
+        "clause": "switchboard",
+        "as": "equipment",
+        "kind": "switchboard",
+        "count": 1,
+        "rating_a": 2500.0,
+        "kva": null,
+        "voltage": null,
+        "mains": null,
+        "spaces": null
+      },
+      {
+        "clause": "distribution panel",
+        "as": "equipment",
+        "kind": "distribution_panelboard",
+        "count": 1,
+        "rating_a": null,
+        "kva": null,
+        "voltage": null,
+        "mains": null,
+        "spaces": null
+      },
+      {
+        "clause": "lighting panel",
+        "as": "equipment",
+        "kind": "lighting_panelboard",
+        "count": 1,
+        "rating_a": null,
+        "kva": null,
+        "voltage": null,
+        "mains": null,
+        "spaces": null
+      },
+      {
+        "clause": "transformer",
+        "as": "equipment",
+        "kind": "transformer",
+        "count": 1,
+        "rating_a": null,
+        "kva": null,
+        "voltage": null,
+        "mains": null,
+        "spaces": null
+      }
+    ],
+    "ignored_words": [],
+    "not_built": [],
+    "defaults_applied": [
+      "room height: 3.6576 m (12 ft)",
+      "wall thickness: 0.2032 m location-line offset (the built wall uses the base wall type's compound structure)",
+      "service voltage system: 480Y/277 V",
+      "MSB: voltage 480Y/277 V (service system)",
+      "MSB: main breaker (switchboard default)",
+      "MSB: SCCR 65 kA (typical 480 V service default; an ordering value, not a catalog fact)",
+      "MSB: 4 sections (lineup sizing rule round(A/625), clamped 2..6)",
+      "DP-1: 400 A bus (kind default)",
+      "DP-1: voltage 480Y/277 V (service system)",
+      "DP-1: MCB (main breaker kind default)",
+      "DP-1: 42 spaces (default)",
+      "LP-1: 100 A bus (kind default)",
+      "LP-1: voltage 480Y/277 V (service system)",
+      "LP-1: MLO (main lugs only kind default)",
+      "LP-1: 42 spaces (default)",
+      "T1: 75 kVA (no rating given)",
+      "T1: 480 V delta primary -> 208Y/120 V secondary (the standard step-down)"
+    ],
+    "warnings": [],
+    "consumed_ratio": 0.707,
+    "statement": "rules-first deterministic parser (no external model call, no API key): everything under 'understood' was normalised into the intent; 'ignored_words' are prompt words the parser did not use; 'not_built' items were recognised but are outside today's model build path; 'defaults_applied' names every value the parser had to assume."
+  },
+  "next_step": "Export the scene (toIfc(THREE, model, stage.ifcMeta)) and hand the .ifc to the front door: `python tools/frontdoor.py author --ifc <file>.ifc --out <dir>` -- the IFC route resolves REAL placements from your geometry, so the built .rvt follows your scene, not this brief."
+}

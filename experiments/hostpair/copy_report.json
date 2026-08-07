@@ -1,0 +1,341 @@
+{
+ "survey": "see _build/load_report.json survey_pins_ok",
+ "ledger": {
+  "elements": [
+   {
+    "native_id": 1410863,
+    "new_id": 1472942,
+    "class": "Family",
+    "rep": "SerializedDummy",
+    "et_owner": -1,
+    "leaf_deltas_total": 112,
+    "id_remapped_leaves": 109,
+    "content_moves": [
+     {
+      "path": "m_name",
+      "old": "M_Concrete-Square-Column",
+      "new": "M Concrete-Square-Column H9"
+     },
+     {
+      "path": "m_famDocGUID",
+      "old": "d7700966-99fe-48a1-b219-cca4cb475ff4",
+      "new": "ae8335d3-03c1-4a0b-90d0-c9a74a764050"
+     },
+     {
+      "path": "m_oFamDoc.value.m_contentDocGUID",
+      "old": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+      "new": "7e0ce8da-e827-448b-9bbb-672dcdcd5c38"
+     }
+    ]
+   },
+   {
+    "native_id": 1411267,
+    "new_id": 1472943,
+    "class": "FamilySurrogate",
+    "rep": "SerializedDummy",
+    "et_owner": -1,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 6,
+    "content_moves": [
+     {
+      "path": "m_name",
+      "old": "M_Concrete-Square-Column",
+      "new": "M Concrete-Square-Column H9"
+     }
+    ]
+   },
+   {
+    "native_id": 1411268,
+    "new_id": 1472944,
+    "class": "LegendComponent",
+    "rep": "GElement",
+    "et_owner": -1,
+    "leaf_deltas_total": 6,
+    "id_remapped_leaves": 6,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411269,
+    "new_id": 1472945,
+    "class": "TextNoteAttributes",
+    "rep": "SerializedDummy",
+    "et_owner": 1472942,
+    "leaf_deltas_total": 12,
+    "id_remapped_leaves": 12,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411270,
+    "new_id": 1472946,
+    "class": "CategoryElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472945,
+    "leaf_deltas_total": 9,
+    "id_remapped_leaves": 9,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411271,
+    "new_id": 1472947,
+    "class": "TagNoteAttributes",
+    "rep": "SerializedDummy",
+    "et_owner": 1472942,
+    "leaf_deltas_total": 10,
+    "id_remapped_leaves": 10,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411272,
+    "new_id": 1472948,
+    "class": "CategoryElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472947,
+    "leaf_deltas_total": 9,
+    "id_remapped_leaves": 9,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411273,
+    "new_id": 1472949,
+    "class": "GStyleElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472946,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 7,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411274,
+    "new_id": 1472950,
+    "class": "GStyleElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472948,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 7,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411275,
+    "new_id": 1472951,
+    "class": "LeaderStyle",
+    "rep": "SerializedDummy",
+    "et_owner": 1472942,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 7,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411276,
+    "new_id": 1472952,
+    "class": "CategoryElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472951,
+    "leaf_deltas_total": 9,
+    "id_remapped_leaves": 9,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411277,
+    "new_id": 1472953,
+    "class": "GStyleElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472952,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 7,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411278,
+    "new_id": 1472954,
+    "class": "FontElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472945,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 7,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411279,
+    "new_id": 1472955,
+    "class": "FontElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472947,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 7,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411280,
+    "new_id": 1472956,
+    "class": "ParamElemFamily",
+    "rep": "SerializedDummy",
+    "et_owner": 1472942,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 6,
+    "content_moves": [
+     {
+      "path": "m_pParamDef.value.m_typeId.m_typeId",
+      "old": "revit.local.family:5f35232bc6ed469cacb37da297e41b3c001588d0-1.0.0",
+      "new": "revit.local.family:5f35232bc6ed469cacb37da297e41b3c001679bc-1.0.0"
+     }
+    ]
+   },
+   {
+    "native_id": 1411281,
+    "new_id": 1472957,
+    "class": "TextNoteAttributes",
+    "rep": "SerializedDummy",
+    "et_owner": 1472942,
+    "leaf_deltas_total": 12,
+    "id_remapped_leaves": 12,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411282,
+    "new_id": 1472958,
+    "class": "CategoryElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472957,
+    "leaf_deltas_total": 9,
+    "id_remapped_leaves": 9,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411283,
+    "new_id": 1472959,
+    "class": "GStyleElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472958,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 7,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411284,
+    "new_id": 1472960,
+    "class": "FontElem",
+    "rep": "SerializedDummy",
+    "et_owner": 1472957,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 7,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411287,
+    "new_id": 1472961,
+    "class": "FamilySymbol",
+    "rep": "GElement",
+    "et_owner": -1,
+    "leaf_deltas_total": 12,
+    "id_remapped_leaves": 12,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411288,
+    "new_id": 1472962,
+    "class": "FamSymSurrogate",
+    "rep": "SerializedDummy",
+    "et_owner": -1,
+    "leaf_deltas_total": 7,
+    "id_remapped_leaves": 7,
+    "content_moves": []
+   },
+   {
+    "native_id": 1411406,
+    "new_id": 1472963,
+    "class": "FamilySymbol",
+    "rep": "GElement",
+    "et_owner": -1,
+    "leaf_deltas_total": 12,
+    "id_remapped_leaves": 12,
+    "content_moves": []
+   }
+  ],
+  "content_moves": [
+   {
+    "element": 1410863,
+    "path": "m_name"
+   },
+   {
+    "element": 1410863,
+    "path": "m_famDocGUID"
+   },
+   {
+    "element": 1410863,
+    "path": "m_oFamDoc.value.m_contentDocGUID"
+   },
+   {
+    "element": 1411267,
+    "path": "m_name"
+   },
+   {
+    "element": 1411280,
+    "path": "m_pParamDef.value.m_typeId.m_typeId"
+   }
+  ],
+  "remapped_leaves": 284
+ },
+ "plan": {
+  "key": "H9",
+  "guid": "7e0ce8da-e827-448b-9bbb-672dcdcd5c38",
+  "fam_doc_guid": "ae8335d3-03c1-4a0b-90d0-c9a74a764050",
+  "session_guid_hex": "5f35232bc6ed469cacb37da297e41b3c",
+  "family_name": "M Concrete-Square-Column H9",
+  "category": -2001330,
+  "part_type": -1,
+  "type_names": [
+   "450 x 450mm"
+  ],
+  "host_family_id": 1472942,
+  "surrogate_id": 1472943,
+  "symbol_ids": [
+   1472961
+  ],
+  "symbol_surrogate_ids": [
+   1472962
+  ],
+  "twin_of": {
+   "1472660": 1472956
+  },
+  "abs_index": {},
+  "core_ids": [],
+  "doc_id_range": [
+   1472525,
+   1472941
+  ],
+  "unit_records": 417,
+  "episode": 1016,
+  "notes": [],
+  "host_ids": [
+   1472942,
+   1472943,
+   1472956,
+   1472961,
+   1472962
+  ]
+ },
+ "host_idmap": {
+  "1410863": 1472942,
+  "1411267": 1472943,
+  "1411268": 1472944,
+  "1411269": 1472945,
+  "1411270": 1472946,
+  "1411271": 1472947,
+  "1411272": 1472948,
+  "1411273": 1472949,
+  "1411274": 1472950,
+  "1411275": 1472951,
+  "1411276": 1472952,
+  "1411277": 1472953,
+  "1411278": 1472954,
+  "1411279": 1472955,
+  "1411280": 1472956,
+  "1411281": 1472957,
+  "1411282": 1472958,
+  "1411283": 1472959,
+  "1411284": 1472960,
+  "1411287": 1472961,
+  "1411288": 1472962,
+  "1411406": 1472963
+ }
+}

@@ -1,0 +1,57 @@
+{
+ "latest_inflated_bytes": 1586246,
+ "latest_dangling_sample_lineage_ids": 6175,
+ "latest_refs_to_our_ids": 0,
+ "contentdocuments_inflated_bytes": 14,
+ "streams": [
+  [
+   "BasicFileInfo",
+   1915
+  ],
+  [
+   "Contents",
+   212
+  ],
+  [
+   "Formats/Latest",
+   182953
+  ],
+  [
+   "Global/ContentDocuments",
+   82
+  ],
+  [
+   "Global/DocumentIncrementTable",
+   1159
+  ],
+  [
+   "Global/ElemTable",
+   1064
+  ],
+  [
+   "Global/History",
+   17144
+  ],
+  [
+   "Global/Latest",
+   129986
+  ],
+  [
+   "Global/PartitionTable",
+   134
+  ],
+  [
+   "Partitions/21",
+   16478
+  ],
+  [
+   "ProjectInformation",
+   741
+  ],
+  [
+   "TransmissionData",
+   214
+  ]
+ ],
+ "source_sample_host_ids": 13936
+}

@@ -1,0 +1,3492 @@
+{
+ "ok": true,
+ "out_path": "experiments/genesis/loader/L1b_rstbasic_our_heads_active.rvt",
+ "plans": [
+  {
+   "key": "section_head_open",
+   "guid": "1e2cbeed-351b-4434-a084-88b4ca6c9cec",
+   "fam_doc_guid": "b28688c9-c72b-4eaa-9b89-398641c58d28",
+   "session_guid_hex": "2ee4456e6d934d9e853316e11613b40e",
+   "family_name": "RW Section Head - Open",
+   "category": -2000400,
+   "part_type": -1,
+   "type_names": [
+    "Section Head - Open"
+   ],
+   "host_family_id": 1472544,
+   "surrogate_id": 1472546,
+   "symbol_ids": [
+    1472548
+   ],
+   "symbol_surrogate_ids": [
+    1472547
+   ],
+   "twin_of": {
+    "1472543": 1472545
+   },
+   "abs_index": {
+    "1472526": 0,
+    "1472527": 1,
+    "1472530": 2,
+    "1472531": 3,
+    "1472532": 4,
+    "1472529": 5,
+    "1472533": 6,
+    "1472535": 7,
+    "1472536": 8,
+    "1472537": 9,
+    "1472538": 10,
+    "1472539": 11,
+    "1472540": 12,
+    "1472534": 13,
+    "1472528": 14,
+    "1472541": 15,
+    "1472542": 16,
+    "1472543": 17
+   },
+   "core_ids": [
+    176
+   ],
+   "doc_id_range": [
+    1472525,
+    1472543
+   ],
+   "unit_records": 19,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1472544,
+    1472545,
+    1472546,
+    1472547,
+    1472548
+   ]
+  },
+  {
+   "key": "section_head_filled",
+   "guid": "5bbb4a7e-541e-4280-9118-cfb0f569ba0e",
+   "fam_doc_guid": "bccc88a9-4f5c-4cd1-b7d8-b2632e4b9d73",
+   "session_guid_hex": "717f5708ea7848a3839e7a1f37622fda",
+   "family_name": "RW Section Head - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "type_names": [
+    "Section Head - Filled"
+   ],
+   "host_family_id": 1472620,
+   "surrogate_id": 1472622,
+   "symbol_ids": [
+    1472624
+   ],
+   "symbol_surrogate_ids": [
+    1472623
+   ],
+   "twin_of": {
+    "1472619": 1472621
+   },
+   "abs_index": {
+    "1472602": 0,
+    "1472603": 1,
+    "1472606": 2,
+    "1472607": 3,
+    "1472608": 4,
+    "1472605": 5,
+    "1472609": 6,
+    "1472611": 7,
+    "1472612": 8,
+    "1472613": 9,
+    "1472614": 10,
+    "1472615": 11,
+    "1472616": 12,
+    "1472610": 13,
+    "1472604": 14,
+    "1472617": 15,
+    "1472618": 16,
+    "1472619": 17
+   },
+   "core_ids": [
+    176
+   ],
+   "doc_id_range": [
+    1472601,
+    1472619
+   ],
+   "unit_records": 19,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1472620,
+    1472621,
+    1472622,
+    1472623,
+    1472624
+   ]
+  },
+  {
+   "key": "section_tail_filled",
+   "guid": "96b22da3-9454-4f84-a8c9-eb2cd5b1d15d",
+   "fam_doc_guid": "94f06e45-aa4d-4899-92ad-6299ad6fcbb1",
+   "session_guid_hex": "50bb2e5fa0514248bf39537b331c6433",
+   "family_name": "RW Section Tail - Filled",
+   "category": -2000400,
+   "part_type": -1,
+   "type_names": [
+    "Section Tail - Filled"
+   ],
+   "host_family_id": 1472721,
+   "surrogate_id": 1472724,
+   "symbol_ids": [
+    1472726
+   ],
+   "symbol_surrogate_ids": [
+    1472725
+   ],
+   "twin_of": {
+    "1472719": 1472722,
+    "1472720": 1472723
+   },
+   "abs_index": {
+    "1472702": 0,
+    "1472703": 1,
+    "1472706": 2,
+    "1472707": 3,
+    "1472708": 4,
+    "1472705": 5,
+    "1472709": 6,
+    "1472711": 7,
+    "1472712": 8,
+    "1472713": 9,
+    "1472714": 10,
+    "1472715": 11,
+    "1472716": 12,
+    "1472710": 13,
+    "1472704": 14,
+    "1472717": 15,
+    "1472718": 16,
+    "1472719": 17,
+    "1472720": 18
+   },
+   "core_ids": [
+    176
+   ],
+   "doc_id_range": [
+    1472701,
+    1472720
+   ],
+   "unit_records": 20,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1472721,
+    1472722,
+    1472723,
+    1472724,
+    1472725,
+    1472726
+   ]
+  },
+  {
+   "key": "section_tail_horizontal",
+   "guid": "88ffc7b6-993d-46b8-8f9d-8826c25a45e0",
+   "fam_doc_guid": "1011e986-c0ce-4128-939e-93afbe6b0994",
+   "session_guid_hex": "d0a87a269065439ea6bbf4bfe3d70a6f",
+   "family_name": "RW Section Tail - Horizontal",
+   "category": -2000400,
+   "part_type": -1,
+   "type_names": [
+    "Section Tail - Horizontal"
+   ],
+   "host_family_id": 1472821,
+   "surrogate_id": 1472824,
+   "symbol_ids": [
+    1472826
+   ],
+   "symbol_surrogate_ids": [
+    1472825
+   ],
+   "twin_of": {
+    "1472819": 1472822,
+    "1472820": 1472823
+   },
+   "abs_index": {
+    "1472802": 0,
+    "1472803": 1,
+    "1472806": 2,
+    "1472807": 3,
+    "1472808": 4,
+    "1472805": 5,
+    "1472809": 6,
+    "1472811": 7,
+    "1472812": 8,
+    "1472813": 9,
+    "1472814": 10,
+    "1472815": 11,
+    "1472816": 12,
+    "1472810": 13,
+    "1472804": 14,
+    "1472817": 15,
+    "1472818": 16,
+    "1472819": 17,
+    "1472820": 18
+   },
+   "core_ids": [
+    176
+   ],
+   "doc_id_range": [
+    1472801,
+    1472820
+   ],
+   "unit_records": 20,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1472821,
+    1472822,
+    1472823,
+    1472824,
+    1472825,
+    1472826
+   ]
+  },
+  {
+   "key": "level_head",
+   "guid": "c4f72671-540e-4a19-a275-61683887e009",
+   "fam_doc_guid": "958135da-b461-493b-a914-153800ffef42",
+   "session_guid_hex": "a2f4642078e84c8f95bed1c9818ef870",
+   "family_name": "RW Level Head - Circle",
+   "category": -2006020,
+   "part_type": -1,
+   "type_names": [
+    "Level Head - Circle"
+   ],
+   "host_family_id": 1472922,
+   "surrogate_id": 1472926,
+   "symbol_ids": [
+    1472928
+   ],
+   "symbol_surrogate_ids": [
+    1472927
+   ],
+   "twin_of": {
+    "1472919": 1472923,
+    "1472920": 1472924,
+    "1472921": 1472925
+   },
+   "abs_index": {
+    "1472902": 0,
+    "1472903": 1,
+    "1472906": 2,
+    "1472907": 3,
+    "1472908": 4,
+    "1472905": 5,
+    "1472909": 6,
+    "1472911": 7,
+    "1472912": 8,
+    "1472913": 9,
+    "1472914": 10,
+    "1472915": 11,
+    "1472916": 12,
+    "1472910": 13,
+    "1472904": 14,
+    "1472917": 15,
+    "1472918": 16,
+    "1472919": 17,
+    "1472920": 18,
+    "1472921": 19
+   },
+   "core_ids": [
+    23795
+   ],
+   "doc_id_range": [
+    1472901,
+    1472921
+   ],
+   "unit_records": 21,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1472922,
+    1472923,
+    1472924,
+    1472925,
+    1472926,
+    1472927,
+    1472928
+   ]
+  },
+  {
+   "key": "grid_head",
+   "guid": "2180b613-0c7d-4b63-bcd6-15a2ed79e27e",
+   "fam_doc_guid": "ac83e105-6548-4fd1-910e-b2590b6ac61c",
+   "session_guid_hex": "38312a8e2cbd4723a9bafa08717731ad",
+   "family_name": "RW Grid Head - Circle",
+   "category": -2006040,
+   "part_type": -1,
+   "type_names": [
+    "Grid Head - Circle"
+   ],
+   "host_family_id": 1473021,
+   "surrogate_id": 1473024,
+   "symbol_ids": [
+    1473026
+   ],
+   "symbol_surrogate_ids": [
+    1473025
+   ],
+   "twin_of": {
+    "1473019": 1473022,
+    "1473020": 1473023
+   },
+   "abs_index": {
+    "1473002": 0,
+    "1473003": 1,
+    "1473006": 2,
+    "1473007": 3,
+    "1473008": 4,
+    "1473005": 5,
+    "1473009": 6,
+    "1473011": 7,
+    "1473012": 8,
+    "1473013": 9,
+    "1473014": 10,
+    "1473015": 11,
+    "1473016": 12,
+    "1473010": 13,
+    "1473004": 14,
+    "1473017": 15,
+    "1473018": 16,
+    "1473019": 17,
+    "1473020": 18
+   },
+   "core_ids": [
+    23796
+   ],
+   "doc_id_range": [
+    1473001,
+    1473020
+   ],
+   "unit_records": 20,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1473021,
+    1473022,
+    1473023,
+    1473024,
+    1473025,
+    1473026
+   ]
+  },
+  {
+   "key": "callout_head",
+   "guid": "0ce992c9-803c-4244-809f-a19afac40151",
+   "fam_doc_guid": "7712f6c5-c89f-4282-b3b8-207df05bfef3",
+   "session_guid_hex": "a9c5647260e74638b0f6787f963dd3ea",
+   "family_name": "RW Callout Head",
+   "category": -2000538,
+   "part_type": -1,
+   "type_names": [
+    "Callout Head"
+   ],
+   "host_family_id": 1473120,
+   "surrogate_id": 1473122,
+   "symbol_ids": [
+    1473124
+   ],
+   "symbol_surrogate_ids": [
+    1473123
+   ],
+   "twin_of": {
+    "1473119": 1473121
+   },
+   "abs_index": {
+    "1473102": 0,
+    "1473103": 1,
+    "1473106": 2,
+    "1473107": 3,
+    "1473108": 4,
+    "1473105": 5,
+    "1473109": 6,
+    "1473111": 7,
+    "1473112": 8,
+    "1473113": 9,
+    "1473114": 10,
+    "1473115": 11,
+    "1473116": 12,
+    "1473110": 13,
+    "1473104": 14,
+    "1473117": 15,
+    "1473118": 16,
+    "1473119": 17
+   },
+   "core_ids": [
+    180
+   ],
+   "doc_id_range": [
+    1473101,
+    1473119
+   ],
+   "unit_records": 19,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1473120,
+    1473121,
+    1473122,
+    1473123,
+    1473124
+   ]
+  },
+  {
+   "key": "elevation_body",
+   "guid": "3314705a-71c5-40fa-9ea5-21e03b659085",
+   "fam_doc_guid": "71383804-429c-4a97-aa89-dc2515107973",
+   "session_guid_hex": "dfebae021a9f4d27b09c42d13dc39140",
+   "family_name": "RW Elevation Mark Body",
+   "category": -2006045,
+   "part_type": -1,
+   "type_names": [
+    "Elevation Mark Body"
+   ],
+   "host_family_id": 1473220,
+   "surrogate_id": 1473222,
+   "symbol_ids": [
+    1473224
+   ],
+   "symbol_surrogate_ids": [
+    1473223
+   ],
+   "twin_of": {
+    "1473219": 1473221
+   },
+   "abs_index": {
+    "1473202": 0,
+    "1473203": 1,
+    "1473206": 2,
+    "1473207": 3,
+    "1473208": 4,
+    "1473205": 5,
+    "1473209": 6,
+    "1473211": 7,
+    "1473212": 8,
+    "1473213": 9,
+    "1473214": 10,
+    "1473215": 11,
+    "1473216": 12,
+    "1473210": 13,
+    "1473204": 14,
+    "1473217": 15,
+    "1473218": 16,
+    "1473219": 17
+   },
+   "core_ids": [
+    113178
+   ],
+   "doc_id_range": [
+    1473201,
+    1473219
+   ],
+   "unit_records": 19,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1473220,
+    1473221,
+    1473222,
+    1473223,
+    1473224
+   ]
+  },
+  {
+   "key": "elevation_pointer_1",
+   "guid": "998c4c44-a9d8-466d-a744-ef9980efaaf5",
+   "fam_doc_guid": "6f9dd1f0-0abb-4ef3-9cd8-7054625106bb",
+   "session_guid_hex": "3ef1063ac5ad4b908f295edf703bc2d5",
+   "family_name": "RW Elevation Mark Pointer",
+   "category": -2006045,
+   "part_type": -1,
+   "type_names": [
+    "Filled Arrow"
+   ],
+   "host_family_id": 1473320,
+   "surrogate_id": 1473322,
+   "symbol_ids": [
+    1473324
+   ],
+   "symbol_surrogate_ids": [
+    1473323
+   ],
+   "twin_of": {
+    "1473319": 1473321
+   },
+   "abs_index": {
+    "1473302": 0,
+    "1473303": 1,
+    "1473306": 2,
+    "1473307": 3,
+    "1473308": 4,
+    "1473305": 5,
+    "1473309": 6,
+    "1473311": 7,
+    "1473312": 8,
+    "1473313": 9,
+    "1473314": 10,
+    "1473315": 11,
+    "1473316": 12,
+    "1473310": 13,
+    "1473304": 14,
+    "1473317": 15,
+    "1473318": 16,
+    "1473319": 17
+   },
+   "core_ids": [
+    113178
+   ],
+   "doc_id_range": [
+    1473301,
+    1473319
+   ],
+   "unit_records": 19,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1473320,
+    1473321,
+    1473322,
+    1473323,
+    1473324
+   ]
+  },
+  {
+   "key": "elevation_pointer_2",
+   "guid": "f635b1a6-103b-4a08-b17f-50994a2a160d",
+   "fam_doc_guid": "d7c5cd32-ac5e-4eae-866f-7ecbc269c4a3",
+   "session_guid_hex": "2ca7410b74f24047ae6b02840303ef0b",
+   "family_name": "RW Elevation Mark Pointer 2",
+   "category": -2006045,
+   "part_type": -1,
+   "type_names": [
+    "Detail Number"
+   ],
+   "host_family_id": 1473420,
+   "surrogate_id": 1473422,
+   "symbol_ids": [
+    1473424
+   ],
+   "symbol_surrogate_ids": [
+    1473423
+   ],
+   "twin_of": {
+    "1473419": 1473421
+   },
+   "abs_index": {
+    "1473402": 0,
+    "1473403": 1,
+    "1473406": 2,
+    "1473407": 3,
+    "1473408": 4,
+    "1473405": 5,
+    "1473409": 6,
+    "1473411": 7,
+    "1473412": 8,
+    "1473413": 9,
+    "1473414": 10,
+    "1473415": 11,
+    "1473416": 12,
+    "1473410": 13,
+    "1473404": 14,
+    "1473417": 15,
+    "1473418": 16,
+    "1473419": 17
+   },
+   "core_ids": [
+    113178
+   ],
+   "doc_id_range": [
+    1473401,
+    1473419
+   ],
+   "unit_records": 19,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1473420,
+    1473421,
+    1473422,
+    1473423,
+    1473424
+   ]
+  },
+  {
+   "key": "view_title",
+   "guid": "42a45df4-94f4-4607-99ae-bc0fe418ffe3",
+   "fam_doc_guid": "e5a27f20-5800-4685-8ee9-9b9d7dedafb8",
+   "session_guid_hex": "fdb183d6b89a4b1a9f52e5fb039e4e83",
+   "family_name": "RW View Title",
+   "category": -2000515,
+   "part_type": -1,
+   "type_names": [
+    "View Title"
+   ],
+   "host_family_id": 1473520,
+   "surrogate_id": 1473522,
+   "symbol_ids": [
+    1473524
+   ],
+   "symbol_surrogate_ids": [
+    1473523
+   ],
+   "twin_of": {
+    "1473519": 1473521
+   },
+   "abs_index": {
+    "1473502": 0,
+    "1473503": 1,
+    "1473506": 2,
+    "1473507": 3,
+    "1473508": 4,
+    "1473505": 5,
+    "1473509": 6,
+    "1473511": 7,
+    "1473512": 8,
+    "1473513": 9,
+    "1473514": 10,
+    "1473515": 11,
+    "1473516": 12,
+    "1473510": 13,
+    "1473504": 14,
+    "1473517": 15,
+    "1473518": 16,
+    "1473519": 17
+   },
+   "core_ids": [
+    154
+   ],
+   "doc_id_range": [
+    1473501,
+    1473519
+   ],
+   "unit_records": 19,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1473520,
+    1473521,
+    1473522,
+    1473523,
+    1473524
+   ]
+  },
+  {
+   "key": "boundary_condition",
+   "guid": "3f1ee649-77af-4bac-9a85-6bcf10b33c53",
+   "fam_doc_guid": "2dbde90d-6b4a-4e82-ad61-e0dbc96b8ccc",
+   "session_guid_hex": "8d4473bb86e54d0a9acc778ff1831c6c",
+   "family_name": "RW Boundary Condition - Fixed",
+   "category": -2005301,
+   "part_type": -1,
+   "type_names": [
+    "Boundary Condition - Fixed"
+   ],
+   "host_family_id": 1473622,
+   "surrogate_id": 1473626,
+   "symbol_ids": [
+    1473628
+   ],
+   "symbol_surrogate_ids": [
+    1473627
+   ],
+   "twin_of": {
+    "1473619": 1473623,
+    "1473620": 1473624,
+    "1473621": 1473625
+   },
+   "abs_index": {
+    "1473602": 0,
+    "1473603": 1,
+    "1473606": 2,
+    "1473607": 3,
+    "1473608": 4,
+    "1473605": 5,
+    "1473609": 6,
+    "1473611": 7,
+    "1473612": 8,
+    "1473613": 9,
+    "1473614": 10,
+    "1473615": 11,
+    "1473616": 12,
+    "1473610": 13,
+    "1473604": 14,
+    "1473617": 15,
+    "1473618": 16,
+    "1473619": 17,
+    "1473620": 18,
+    "1473621": 19
+   },
+   "core_ids": [
+    99788
+   ],
+   "doc_id_range": [
+    1473601,
+    1473621
+   ],
+   "unit_records": 21,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1473622,
+    1473623,
+    1473624,
+    1473625,
+    1473626,
+    1473627,
+    1473628
+   ]
+  }
+ ],
+ "proofs": {
+  "host": {
+   "path": "samples/rstbasicsampleproject.rvt",
+   "watermark": 1472524,
+   "episode": 1016,
+   "partition": "Partitions/21",
+   "elements": 13936,
+   "category_gstyles": {
+    "-2000515": 154,
+    "-2000400": 176,
+    "-2000538": 180,
+    "-2006020": 23795,
+    "-2006040": 23796,
+    "-2005301": 99788,
+    "-2006045": 113178
+   },
+   "usage_referrers": {
+    "LevelAttributes": [
+     305
+    ],
+    "GridAttributes": [
+     341
+    ],
+    "CalloutTag": [
+     49508,
+     49583,
+     49601,
+     49619,
+     49637,
+     49655,
+     49673,
+     49691,
+     49709
+    ],
+    "ViewportAttributes": [
+     324,
+     1441530
+    ],
+    "SectionAttributes": [
+     26029,
+     29088,
+     49579,
+     49597,
+     49615,
+     49633,
+     49651,
+     49669,
+     49687,
+     49705
+    ],
+    "InteriorElevAttributes": [
+     357,
+     49589,
+     49607,
+     49625,
+     49643,
+     49661,
+     49679,
+     49697,
+     49715
+    ],
+    "StructSettingsElem": [
+     54663
+    ]
+   },
+   "registries_before": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_entries": 50,
+    "coherent": true
+   },
+   "notes": []
+  },
+  "plans": [
+   {
+    "key": "section_head_open",
+    "guid": "1e2cbeed-351b-4434-a084-88b4ca6c9cec",
+    "fam_doc_guid": "b28688c9-c72b-4eaa-9b89-398641c58d28",
+    "session_guid_hex": "2ee4456e6d934d9e853316e11613b40e",
+    "family_name": "RW Section Head - Open",
+    "category": -2000400,
+    "part_type": -1,
+    "type_names": [
+     "Section Head - Open"
+    ],
+    "host_family_id": 1472544,
+    "surrogate_id": 1472546,
+    "symbol_ids": [
+     1472548
+    ],
+    "symbol_surrogate_ids": [
+     1472547
+    ],
+    "twin_of": {
+     "1472543": 1472545
+    },
+    "abs_index": {
+     "1472526": 0,
+     "1472527": 1,
+     "1472530": 2,
+     "1472531": 3,
+     "1472532": 4,
+     "1472529": 5,
+     "1472533": 6,
+     "1472535": 7,
+     "1472536": 8,
+     "1472537": 9,
+     "1472538": 10,
+     "1472539": 11,
+     "1472540": 12,
+     "1472534": 13,
+     "1472528": 14,
+     "1472541": 15,
+     "1472542": 16,
+     "1472543": 17
+    },
+    "core_ids": [
+     176
+    ],
+    "doc_id_range": [
+     1472525,
+     1472543
+    ],
+    "unit_records": 19,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1472544,
+     1472545,
+     1472546,
+     1472547,
+     1472548
+    ]
+   },
+   {
+    "key": "section_head_filled",
+    "guid": "5bbb4a7e-541e-4280-9118-cfb0f569ba0e",
+    "fam_doc_guid": "bccc88a9-4f5c-4cd1-b7d8-b2632e4b9d73",
+    "session_guid_hex": "717f5708ea7848a3839e7a1f37622fda",
+    "family_name": "RW Section Head - Filled",
+    "category": -2000400,
+    "part_type": -1,
+    "type_names": [
+     "Section Head - Filled"
+    ],
+    "host_family_id": 1472620,
+    "surrogate_id": 1472622,
+    "symbol_ids": [
+     1472624
+    ],
+    "symbol_surrogate_ids": [
+     1472623
+    ],
+    "twin_of": {
+     "1472619": 1472621
+    },
+    "abs_index": {
+     "1472602": 0,
+     "1472603": 1,
+     "1472606": 2,
+     "1472607": 3,
+     "1472608": 4,
+     "1472605": 5,
+     "1472609": 6,
+     "1472611": 7,
+     "1472612": 8,
+     "1472613": 9,
+     "1472614": 10,
+     "1472615": 11,
+     "1472616": 12,
+     "1472610": 13,
+     "1472604": 14,
+     "1472617": 15,
+     "1472618": 16,
+     "1472619": 17
+    },
+    "core_ids": [
+     176
+    ],
+    "doc_id_range": [
+     1472601,
+     1472619
+    ],
+    "unit_records": 19,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1472620,
+     1472621,
+     1472622,
+     1472623,
+     1472624
+    ]
+   },
+   {
+    "key": "section_tail_filled",
+    "guid": "96b22da3-9454-4f84-a8c9-eb2cd5b1d15d",
+    "fam_doc_guid": "94f06e45-aa4d-4899-92ad-6299ad6fcbb1",
+    "session_guid_hex": "50bb2e5fa0514248bf39537b331c6433",
+    "family_name": "RW Section Tail - Filled",
+    "category": -2000400,
+    "part_type": -1,
+    "type_names": [
+     "Section Tail - Filled"
+    ],
+    "host_family_id": 1472721,
+    "surrogate_id": 1472724,
+    "symbol_ids": [
+     1472726
+    ],
+    "symbol_surrogate_ids": [
+     1472725
+    ],
+    "twin_of": {
+     "1472719": 1472722,
+     "1472720": 1472723
+    },
+    "abs_index": {
+     "1472702": 0,
+     "1472703": 1,
+     "1472706": 2,
+     "1472707": 3,
+     "1472708": 4,
+     "1472705": 5,
+     "1472709": 6,
+     "1472711": 7,
+     "1472712": 8,
+     "1472713": 9,
+     "1472714": 10,
+     "1472715": 11,
+     "1472716": 12,
+     "1472710": 13,
+     "1472704": 14,
+     "1472717": 15,
+     "1472718": 16,
+     "1472719": 17,
+     "1472720": 18
+    },
+    "core_ids": [
+     176
+    ],
+    "doc_id_range": [
+     1472701,
+     1472720
+    ],
+    "unit_records": 20,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1472721,
+     1472722,
+     1472723,
+     1472724,
+     1472725,
+     1472726
+    ]
+   },
+   {
+    "key": "section_tail_horizontal",
+    "guid": "88ffc7b6-993d-46b8-8f9d-8826c25a45e0",
+    "fam_doc_guid": "1011e986-c0ce-4128-939e-93afbe6b0994",
+    "session_guid_hex": "d0a87a269065439ea6bbf4bfe3d70a6f",
+    "family_name": "RW Section Tail - Horizontal",
+    "category": -2000400,
+    "part_type": -1,
+    "type_names": [
+     "Section Tail - Horizontal"
+    ],
+    "host_family_id": 1472821,
+    "surrogate_id": 1472824,
+    "symbol_ids": [
+     1472826
+    ],
+    "symbol_surrogate_ids": [
+     1472825
+    ],
+    "twin_of": {
+     "1472819": 1472822,
+     "1472820": 1472823
+    },
+    "abs_index": {
+     "1472802": 0,
+     "1472803": 1,
+     "1472806": 2,
+     "1472807": 3,
+     "1472808": 4,
+     "1472805": 5,
+     "1472809": 6,
+     "1472811": 7,
+     "1472812": 8,
+     "1472813": 9,
+     "1472814": 10,
+     "1472815": 11,
+     "1472816": 12,
+     "1472810": 13,
+     "1472804": 14,
+     "1472817": 15,
+     "1472818": 16,
+     "1472819": 17,
+     "1472820": 18
+    },
+    "core_ids": [
+     176
+    ],
+    "doc_id_range": [
+     1472801,
+     1472820
+    ],
+    "unit_records": 20,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1472821,
+     1472822,
+     1472823,
+     1472824,
+     1472825,
+     1472826
+    ]
+   },
+   {
+    "key": "level_head",
+    "guid": "c4f72671-540e-4a19-a275-61683887e009",
+    "fam_doc_guid": "958135da-b461-493b-a914-153800ffef42",
+    "session_guid_hex": "a2f4642078e84c8f95bed1c9818ef870",
+    "family_name": "RW Level Head - Circle",
+    "category": -2006020,
+    "part_type": -1,
+    "type_names": [
+     "Level Head - Circle"
+    ],
+    "host_family_id": 1472922,
+    "surrogate_id": 1472926,
+    "symbol_ids": [
+     1472928
+    ],
+    "symbol_surrogate_ids": [
+     1472927
+    ],
+    "twin_of": {
+     "1472919": 1472923,
+     "1472920": 1472924,
+     "1472921": 1472925
+    },
+    "abs_index": {
+     "1472902": 0,
+     "1472903": 1,
+     "1472906": 2,
+     "1472907": 3,
+     "1472908": 4,
+     "1472905": 5,
+     "1472909": 6,
+     "1472911": 7,
+     "1472912": 8,
+     "1472913": 9,
+     "1472914": 10,
+     "1472915": 11,
+     "1472916": 12,
+     "1472910": 13,
+     "1472904": 14,
+     "1472917": 15,
+     "1472918": 16,
+     "1472919": 17,
+     "1472920": 18,
+     "1472921": 19
+    },
+    "core_ids": [
+     23795
+    ],
+    "doc_id_range": [
+     1472901,
+     1472921
+    ],
+    "unit_records": 21,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1472922,
+     1472923,
+     1472924,
+     1472925,
+     1472926,
+     1472927,
+     1472928
+    ]
+   },
+   {
+    "key": "grid_head",
+    "guid": "2180b613-0c7d-4b63-bcd6-15a2ed79e27e",
+    "fam_doc_guid": "ac83e105-6548-4fd1-910e-b2590b6ac61c",
+    "session_guid_hex": "38312a8e2cbd4723a9bafa08717731ad",
+    "family_name": "RW Grid Head - Circle",
+    "category": -2006040,
+    "part_type": -1,
+    "type_names": [
+     "Grid Head - Circle"
+    ],
+    "host_family_id": 1473021,
+    "surrogate_id": 1473024,
+    "symbol_ids": [
+     1473026
+    ],
+    "symbol_surrogate_ids": [
+     1473025
+    ],
+    "twin_of": {
+     "1473019": 1473022,
+     "1473020": 1473023
+    },
+    "abs_index": {
+     "1473002": 0,
+     "1473003": 1,
+     "1473006": 2,
+     "1473007": 3,
+     "1473008": 4,
+     "1473005": 5,
+     "1473009": 6,
+     "1473011": 7,
+     "1473012": 8,
+     "1473013": 9,
+     "1473014": 10,
+     "1473015": 11,
+     "1473016": 12,
+     "1473010": 13,
+     "1473004": 14,
+     "1473017": 15,
+     "1473018": 16,
+     "1473019": 17,
+     "1473020": 18
+    },
+    "core_ids": [
+     23796
+    ],
+    "doc_id_range": [
+     1473001,
+     1473020
+    ],
+    "unit_records": 20,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1473021,
+     1473022,
+     1473023,
+     1473024,
+     1473025,
+     1473026
+    ]
+   },
+   {
+    "key": "callout_head",
+    "guid": "0ce992c9-803c-4244-809f-a19afac40151",
+    "fam_doc_guid": "7712f6c5-c89f-4282-b3b8-207df05bfef3",
+    "session_guid_hex": "a9c5647260e74638b0f6787f963dd3ea",
+    "family_name": "RW Callout Head",
+    "category": -2000538,
+    "part_type": -1,
+    "type_names": [
+     "Callout Head"
+    ],
+    "host_family_id": 1473120,
+    "surrogate_id": 1473122,
+    "symbol_ids": [
+     1473124
+    ],
+    "symbol_surrogate_ids": [
+     1473123
+    ],
+    "twin_of": {
+     "1473119": 1473121
+    },
+    "abs_index": {
+     "1473102": 0,
+     "1473103": 1,
+     "1473106": 2,
+     "1473107": 3,
+     "1473108": 4,
+     "1473105": 5,
+     "1473109": 6,
+     "1473111": 7,
+     "1473112": 8,
+     "1473113": 9,
+     "1473114": 10,
+     "1473115": 11,
+     "1473116": 12,
+     "1473110": 13,
+     "1473104": 14,
+     "1473117": 15,
+     "1473118": 16,
+     "1473119": 17
+    },
+    "core_ids": [
+     180
+    ],
+    "doc_id_range": [
+     1473101,
+     1473119
+    ],
+    "unit_records": 19,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1473120,
+     1473121,
+     1473122,
+     1473123,
+     1473124
+    ]
+   },
+   {
+    "key": "elevation_body",
+    "guid": "3314705a-71c5-40fa-9ea5-21e03b659085",
+    "fam_doc_guid": "71383804-429c-4a97-aa89-dc2515107973",
+    "session_guid_hex": "dfebae021a9f4d27b09c42d13dc39140",
+    "family_name": "RW Elevation Mark Body",
+    "category": -2006045,
+    "part_type": -1,
+    "type_names": [
+     "Elevation Mark Body"
+    ],
+    "host_family_id": 1473220,
+    "surrogate_id": 1473222,
+    "symbol_ids": [
+     1473224
+    ],
+    "symbol_surrogate_ids": [
+     1473223
+    ],
+    "twin_of": {
+     "1473219": 1473221
+    },
+    "abs_index": {
+     "1473202": 0,
+     "1473203": 1,
+     "1473206": 2,
+     "1473207": 3,
+     "1473208": 4,
+     "1473205": 5,
+     "1473209": 6,
+     "1473211": 7,
+     "1473212": 8,
+     "1473213": 9,
+     "1473214": 10,
+     "1473215": 11,
+     "1473216": 12,
+     "1473210": 13,
+     "1473204": 14,
+     "1473217": 15,
+     "1473218": 16,
+     "1473219": 17
+    },
+    "core_ids": [
+     113178
+    ],
+    "doc_id_range": [
+     1473201,
+     1473219
+    ],
+    "unit_records": 19,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1473220,
+     1473221,
+     1473222,
+     1473223,
+     1473224
+    ]
+   },
+   {
+    "key": "elevation_pointer_1",
+    "guid": "998c4c44-a9d8-466d-a744-ef9980efaaf5",
+    "fam_doc_guid": "6f9dd1f0-0abb-4ef3-9cd8-7054625106bb",
+    "session_guid_hex": "3ef1063ac5ad4b908f295edf703bc2d5",
+    "family_name": "RW Elevation Mark Pointer",
+    "category": -2006045,
+    "part_type": -1,
+    "type_names": [
+     "Filled Arrow"
+    ],
+    "host_family_id": 1473320,
+    "surrogate_id": 1473322,
+    "symbol_ids": [
+     1473324
+    ],
+    "symbol_surrogate_ids": [
+     1473323
+    ],
+    "twin_of": {
+     "1473319": 1473321
+    },
+    "abs_index": {
+     "1473302": 0,
+     "1473303": 1,
+     "1473306": 2,
+     "1473307": 3,
+     "1473308": 4,
+     "1473305": 5,
+     "1473309": 6,
+     "1473311": 7,
+     "1473312": 8,
+     "1473313": 9,
+     "1473314": 10,
+     "1473315": 11,
+     "1473316": 12,
+     "1473310": 13,
+     "1473304": 14,
+     "1473317": 15,
+     "1473318": 16,
+     "1473319": 17
+    },
+    "core_ids": [
+     113178
+    ],
+    "doc_id_range": [
+     1473301,
+     1473319
+    ],
+    "unit_records": 19,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1473320,
+     1473321,
+     1473322,
+     1473323,
+     1473324
+    ]
+   },
+   {
+    "key": "elevation_pointer_2",
+    "guid": "f635b1a6-103b-4a08-b17f-50994a2a160d",
+    "fam_doc_guid": "d7c5cd32-ac5e-4eae-866f-7ecbc269c4a3",
+    "session_guid_hex": "2ca7410b74f24047ae6b02840303ef0b",
+    "family_name": "RW Elevation Mark Pointer 2",
+    "category": -2006045,
+    "part_type": -1,
+    "type_names": [
+     "Detail Number"
+    ],
+    "host_family_id": 1473420,
+    "surrogate_id": 1473422,
+    "symbol_ids": [
+     1473424
+    ],
+    "symbol_surrogate_ids": [
+     1473423
+    ],
+    "twin_of": {
+     "1473419": 1473421
+    },
+    "abs_index": {
+     "1473402": 0,
+     "1473403": 1,
+     "1473406": 2,
+     "1473407": 3,
+     "1473408": 4,
+     "1473405": 5,
+     "1473409": 6,
+     "1473411": 7,
+     "1473412": 8,
+     "1473413": 9,
+     "1473414": 10,
+     "1473415": 11,
+     "1473416": 12,
+     "1473410": 13,
+     "1473404": 14,
+     "1473417": 15,
+     "1473418": 16,
+     "1473419": 17
+    },
+    "core_ids": [
+     113178
+    ],
+    "doc_id_range": [
+     1473401,
+     1473419
+    ],
+    "unit_records": 19,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1473420,
+     1473421,
+     1473422,
+     1473423,
+     1473424
+    ]
+   },
+   {
+    "key": "view_title",
+    "guid": "42a45df4-94f4-4607-99ae-bc0fe418ffe3",
+    "fam_doc_guid": "e5a27f20-5800-4685-8ee9-9b9d7dedafb8",
+    "session_guid_hex": "fdb183d6b89a4b1a9f52e5fb039e4e83",
+    "family_name": "RW View Title",
+    "category": -2000515,
+    "part_type": -1,
+    "type_names": [
+     "View Title"
+    ],
+    "host_family_id": 1473520,
+    "surrogate_id": 1473522,
+    "symbol_ids": [
+     1473524
+    ],
+    "symbol_surrogate_ids": [
+     1473523
+    ],
+    "twin_of": {
+     "1473519": 1473521
+    },
+    "abs_index": {
+     "1473502": 0,
+     "1473503": 1,
+     "1473506": 2,
+     "1473507": 3,
+     "1473508": 4,
+     "1473505": 5,
+     "1473509": 6,
+     "1473511": 7,
+     "1473512": 8,
+     "1473513": 9,
+     "1473514": 10,
+     "1473515": 11,
+     "1473516": 12,
+     "1473510": 13,
+     "1473504": 14,
+     "1473517": 15,
+     "1473518": 16,
+     "1473519": 17
+    },
+    "core_ids": [
+     154
+    ],
+    "doc_id_range": [
+     1473501,
+     1473519
+    ],
+    "unit_records": 19,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1473520,
+     1473521,
+     1473522,
+     1473523,
+     1473524
+    ]
+   },
+   {
+    "key": "boundary_condition",
+    "guid": "3f1ee649-77af-4bac-9a85-6bcf10b33c53",
+    "fam_doc_guid": "2dbde90d-6b4a-4e82-ad61-e0dbc96b8ccc",
+    "session_guid_hex": "8d4473bb86e54d0a9acc778ff1831c6c",
+    "family_name": "RW Boundary Condition - Fixed",
+    "category": -2005301,
+    "part_type": -1,
+    "type_names": [
+     "Boundary Condition - Fixed"
+    ],
+    "host_family_id": 1473622,
+    "surrogate_id": 1473626,
+    "symbol_ids": [
+     1473628
+    ],
+    "symbol_surrogate_ids": [
+     1473627
+    ],
+    "twin_of": {
+     "1473619": 1473623,
+     "1473620": 1473624,
+     "1473621": 1473625
+    },
+    "abs_index": {
+     "1473602": 0,
+     "1473603": 1,
+     "1473606": 2,
+     "1473607": 3,
+     "1473608": 4,
+     "1473605": 5,
+     "1473609": 6,
+     "1473611": 7,
+     "1473612": 8,
+     "1473613": 9,
+     "1473614": 10,
+     "1473615": 11,
+     "1473616": 12,
+     "1473610": 13,
+     "1473604": 14,
+     "1473617": 15,
+     "1473618": 16,
+     "1473619": 17,
+     "1473620": 18,
+     "1473621": 19
+    },
+    "core_ids": [
+     99788
+    ],
+    "doc_id_range": [
+     1473601,
+     1473621
+    ],
+    "unit_records": 21,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1473622,
+     1473623,
+     1473624,
+     1473625,
+     1473626,
+     1473627,
+     1473628
+    ]
+   }
+  ],
+  "host_elements": {
+   "count": 67,
+   "by_family": {
+    "section_head_open": [
+     {
+      "elem_id": 1472544,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1472545,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472544,
+      "notes": [
+       "twin of embedded param 1472543 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1472546,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472547,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472548,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "section_head_filled": [
+     {
+      "elem_id": 1472620,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1472621,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472620,
+      "notes": [
+       "twin of embedded param 1472619 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1472622,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472623,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472624,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "section_tail_filled": [
+     {
+      "elem_id": 1472721,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1472722,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472721,
+      "notes": [
+       "twin of embedded param 1472719 (Width)"
+      ]
+     },
+     {
+      "elem_id": 1472723,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472721,
+      "notes": [
+       "twin of embedded param 1472720 (Height)"
+      ]
+     },
+     {
+      "elem_id": 1472724,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472725,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472726,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "section_tail_horizontal": [
+     {
+      "elem_id": 1472821,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1472822,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472821,
+      "notes": [
+       "twin of embedded param 1472819 (Width)"
+      ]
+     },
+     {
+      "elem_id": 1472823,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472821,
+      "notes": [
+       "twin of embedded param 1472820 (Height)"
+      ]
+     },
+     {
+      "elem_id": 1472824,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472825,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472826,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "level_head": [
+     {
+      "elem_id": 1472922,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1472923,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472922,
+      "notes": [
+       "twin of embedded param 1472919 (Name)"
+      ]
+     },
+     {
+      "elem_id": 1472924,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472922,
+      "notes": [
+       "twin of embedded param 1472920 (Elevation)"
+      ]
+     },
+     {
+      "elem_id": 1472925,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472922,
+      "notes": [
+       "twin of embedded param 1472921 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1472926,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472927,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472928,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "grid_head": [
+     {
+      "elem_id": 1473021,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1473022,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473021,
+      "notes": [
+       "twin of embedded param 1473019 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1473023,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473021,
+      "notes": [
+       "twin of embedded param 1473020 (Name)"
+      ]
+     },
+     {
+      "elem_id": 1473024,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473025,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473026,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "callout_head": [
+     {
+      "elem_id": 1473120,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1473121,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473120,
+      "notes": [
+       "twin of embedded param 1473119 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1473122,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473123,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473124,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "elevation_body": [
+     {
+      "elem_id": 1473220,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1473221,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473220,
+      "notes": [
+       "twin of embedded param 1473219 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1473222,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473223,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473224,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "elevation_pointer_1": [
+     {
+      "elem_id": 1473320,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1473321,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473320,
+      "notes": [
+       "twin of embedded param 1473319 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1473322,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473323,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473324,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "elevation_pointer_2": [
+     {
+      "elem_id": 1473420,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1473421,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473420,
+      "notes": [
+       "twin of embedded param 1473419 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1473422,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473423,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473424,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "view_title": [
+     {
+      "elem_id": 1473520,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1473521,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473520,
+      "notes": [
+       "twin of embedded param 1473519 (Line Length)"
+      ]
+     },
+     {
+      "elem_id": 1473522,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473523,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473524,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ],
+    "boundary_condition": [
+     {
+      "elem_id": 1473622,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1473623,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473622,
+      "notes": [
+       "twin of embedded param 1473619 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1473624,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473622,
+      "notes": [
+       "twin of embedded param 1473620 (Width)"
+      ]
+     },
+     {
+      "elem_id": 1473625,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1473622,
+      "notes": [
+       "twin of embedded param 1473621 (Length)"
+      ]
+     },
+     {
+      "elem_id": 1473626,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473627,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1473628,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ]
+   }
+  },
+  "roundtrip_gate": {
+   "records": 201,
+   "roundtrip_ok": 201,
+   "failed": 0,
+   "encoded_bytes": 43037,
+   "failures": []
+  },
+  "embedded": {
+   "section_head_open": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2137,
+     "elem_recs": 19,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "1e2cbeed-351b-4434-a084-88b4ca6c9cec",
+     "records": 19,
+     "bytes": 3694,
+     "segments": {
+      "101": 3029,
+      "102": 14458,
+      "103": 438
+     }
+    }
+   },
+   "section_head_filled": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2137,
+     "elem_recs": 19,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "5bbb4a7e-541e-4280-9118-cfb0f569ba0e",
+     "records": 19,
+     "bytes": 3701,
+     "segments": {
+      "101": 3029,
+      "102": 14462,
+      "103": 438
+     }
+    }
+   },
+   "section_tail_filled": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2177,
+     "elem_recs": 20,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "96b22da3-9454-4f84-a8c9-eb2cd5b1d15d",
+     "records": 20,
+     "bytes": 3787,
+     "segments": {
+      "101": 3180,
+      "102": 15020,
+      "103": 460
+     }
+    }
+   },
+   "section_tail_horizontal": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2177,
+     "elem_recs": 20,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "88ffc7b6-993d-46b8-8f9d-8826c25a45e0",
+     "records": 20,
+     "bytes": 3788,
+     "segments": {
+      "101": 3180,
+      "102": 15028,
+      "103": 460
+     }
+    }
+   },
+   "level_head": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2217,
+     "elem_recs": 21,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "c4f72671-540e-4a19-a275-61683887e009",
+     "records": 21,
+     "bytes": 3878,
+     "segments": {
+      "101": 3331,
+      "102": 15666,
+      "103": 482
+     }
+    }
+   },
+   "grid_head": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2177,
+     "elem_recs": 20,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "2180b613-0c7d-4b63-bcd6-15a2ed79e27e",
+     "records": 20,
+     "bytes": 3813,
+     "segments": {
+      "101": 3180,
+      "102": 15104,
+      "103": 460
+     }
+    }
+   },
+   "callout_head": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2137,
+     "elem_recs": 19,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "0ce992c9-803c-4244-809f-a19afac40151",
+     "records": 19,
+     "bytes": 3695,
+     "segments": {
+      "101": 3029,
+      "102": 14444,
+      "103": 438
+     }
+    }
+   },
+   "elevation_body": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2137,
+     "elem_recs": 19,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "3314705a-71c5-40fa-9ea5-21e03b659085",
+     "records": 19,
+     "bytes": 3703,
+     "segments": {
+      "101": 3029,
+      "102": 14458,
+      "103": 438
+     }
+    }
+   },
+   "elevation_pointer_1": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2137,
+     "elem_recs": 19,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "998c4c44-a9d8-466d-a744-ef9980efaaf5",
+     "records": 19,
+     "bytes": 3685,
+     "segments": {
+      "101": 3029,
+      "102": 14444,
+      "103": 438
+     }
+    }
+   },
+   "elevation_pointer_2": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2137,
+     "elem_recs": 19,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "f635b1a6-103b-4a08-b17f-50994a2a160d",
+     "records": 19,
+     "bytes": 3686,
+     "segments": {
+      "101": 3029,
+      "102": 14446,
+      "103": 438
+     }
+    }
+   },
+   "view_title": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2137,
+     "elem_recs": 19,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "42a45df4-94f4-4607-99ae-bc0fe418ffe3",
+     "records": 19,
+     "bytes": 3689,
+     "segments": {
+      "101": 3029,
+      "102": 14450,
+      "103": 438
+     }
+    }
+   },
+   "boundary_condition": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2217,
+     "elem_recs": 21,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "3f1ee649-77af-4bac-9a85-6bcf10b33c53",
+     "records": 21,
+     "bytes": 3844,
+     "segments": {
+      "101": 3331,
+      "102": 15590,
+      "103": 482
+     }
+    }
+   }
+  },
+  "pass1_commit": {
+   "new_element_ids": [
+    1472544,
+    1472545,
+    1472546,
+    1472547,
+    1472548,
+    1472620,
+    1472621,
+    1472622,
+    1472623,
+    1472624,
+    1472721,
+    1472722,
+    1472723,
+    1472724,
+    1472725,
+    1472726,
+    1472821,
+    1472822,
+    1472823,
+    1472824,
+    1472825,
+    1472826,
+    1472922,
+    1472923,
+    1472924,
+    1472925,
+    1472926,
+    1472927,
+    1472928,
+    1473021,
+    1473022,
+    1473023,
+    1473024,
+    1473025,
+    1473026,
+    1473120,
+    1473121,
+    1473122,
+    1473123,
+    1473124,
+    1473220,
+    1473221,
+    1473222,
+    1473223,
+    1473224,
+    1473320,
+    1473321,
+    1473322,
+    1473323,
+    1473324,
+    1473420,
+    1473421,
+    1473422,
+    1473423,
+    1473424,
+    1473520,
+    1473521,
+    1473522,
+    1473523,
+    1473524,
+    1473622,
+    1473623,
+    1473624,
+    1473625,
+    1473626,
+    1473627,
+    1473628
+   ],
+   "elemtable_count_before": 13936,
+   "elemtable_count_after": 14003,
+   "watermark_after": 1473628,
+   "per_seq_bytes_added": {
+    "101": 10869,
+    "102": 34848,
+    "103": 1474
+   }
+  },
+  "pass2_partition_splices": {
+   "section_head_open": {
+    "units_before": 53,
+    "units_after": 54,
+    "walker_errors": [],
+    "our_unit_guid": "1e2cbeed-351b-4434-a084-88b4ca6c9cec",
+    "our_unit_records": {
+     "101": 20,
+     "102": 20,
+     "103": 20
+    },
+    "id_sets_identical": true
+   },
+   "section_head_filled": {
+    "units_before": 54,
+    "units_after": 55,
+    "walker_errors": [],
+    "our_unit_guid": "5bbb4a7e-541e-4280-9118-cfb0f569ba0e",
+    "our_unit_records": {
+     "101": 20,
+     "102": 20,
+     "103": 20
+    },
+    "id_sets_identical": true
+   },
+   "section_tail_filled": {
+    "units_before": 55,
+    "units_after": 56,
+    "walker_errors": [],
+    "our_unit_guid": "96b22da3-9454-4f84-a8c9-eb2cd5b1d15d",
+    "our_unit_records": {
+     "101": 21,
+     "102": 21,
+     "103": 21
+    },
+    "id_sets_identical": true
+   },
+   "section_tail_horizontal": {
+    "units_before": 56,
+    "units_after": 57,
+    "walker_errors": [],
+    "our_unit_guid": "88ffc7b6-993d-46b8-8f9d-8826c25a45e0",
+    "our_unit_records": {
+     "101": 21,
+     "102": 21,
+     "103": 21
+    },
+    "id_sets_identical": true
+   },
+   "level_head": {
+    "units_before": 57,
+    "units_after": 58,
+    "walker_errors": [],
+    "our_unit_guid": "c4f72671-540e-4a19-a275-61683887e009",
+    "our_unit_records": {
+     "101": 22,
+     "102": 22,
+     "103": 22
+    },
+    "id_sets_identical": true
+   },
+   "grid_head": {
+    "units_before": 58,
+    "units_after": 59,
+    "walker_errors": [],
+    "our_unit_guid": "2180b613-0c7d-4b63-bcd6-15a2ed79e27e",
+    "our_unit_records": {
+     "101": 21,
+     "102": 21,
+     "103": 21
+    },
+    "id_sets_identical": true
+   },
+   "callout_head": {
+    "units_before": 59,
+    "units_after": 60,
+    "walker_errors": [],
+    "our_unit_guid": "0ce992c9-803c-4244-809f-a19afac40151",
+    "our_unit_records": {
+     "101": 20,
+     "102": 20,
+     "103": 20
+    },
+    "id_sets_identical": true
+   },
+   "elevation_body": {
+    "units_before": 60,
+    "units_after": 61,
+    "walker_errors": [],
+    "our_unit_guid": "3314705a-71c5-40fa-9ea5-21e03b659085",
+    "our_unit_records": {
+     "101": 20,
+     "102": 20,
+     "103": 20
+    },
+    "id_sets_identical": true
+   },
+   "elevation_pointer_1": {
+    "units_before": 61,
+    "units_after": 62,
+    "walker_errors": [],
+    "our_unit_guid": "998c4c44-a9d8-466d-a744-ef9980efaaf5",
+    "our_unit_records": {
+     "101": 20,
+     "102": 20,
+     "103": 20
+    },
+    "id_sets_identical": true
+   },
+   "elevation_pointer_2": {
+    "units_before": 62,
+    "units_after": 63,
+    "walker_errors": [],
+    "our_unit_guid": "f635b1a6-103b-4a08-b17f-50994a2a160d",
+    "our_unit_records": {
+     "101": 20,
+     "102": 20,
+     "103": 20
+    },
+    "id_sets_identical": true
+   },
+   "view_title": {
+    "units_before": 63,
+    "units_after": 64,
+    "walker_errors": [],
+    "our_unit_guid": "42a45df4-94f4-4607-99ae-bc0fe418ffe3",
+    "our_unit_records": {
+     "101": 20,
+     "102": 20,
+     "103": 20
+    },
+    "id_sets_identical": true
+   },
+   "boundary_condition": {
+    "units_before": 64,
+    "units_after": 65,
+    "walker_errors": [],
+    "our_unit_guid": "3f1ee649-77af-4bac-9a85-6bcf10b33c53",
+    "our_unit_records": {
+     "101": 22,
+     "102": 22,
+     "103": 22
+    },
+    "id_sets_identical": true
+   }
+  },
+  "pass2_content_documents": {
+   "entries_before": 52,
+   "entries_after": 64,
+   "ours_all_present": true,
+   "end_record_intact": true,
+   "delta_bytes": 26356
+  },
+  "pass2_adocument_registrations": {
+   "content_table_records": 64,
+   "family_mgr_entries": 62,
+   "element_tracking": {
+    "-2000400": "no host row (skipped)",
+    "-2006020": "no host row (skipped)",
+    "-2006040": "no host row (skipped)",
+    "-2000538": "no host row (skipped)",
+    "-2006045": "no host row (skipped)",
+    "-2000515": "no host row (skipped)",
+    "-2005301": "no host row (skipped)"
+   }
+  },
+  "pass2_adocument_reencode": {
+   "clean": true,
+   "bytes_before": 1586246,
+   "bytes_after": 1587494
+  },
+  "pass3_usage_repoint": {
+   "edits": [
+    {
+     "referrer": 305,
+     "class": "LevelAttributes",
+     "field": "m_familyTagId",
+     "symbol": 1472928,
+     "old_value": 1417017,
+     "deletion_added": 1472928,
+     "ok": true
+    },
+    {
+     "referrer": 341,
+     "class": "GridAttributes",
+     "field": "m_familyTagId",
+     "symbol": 1473026,
+     "old_value": 1417016,
+     "deletion_added": 1473026,
+     "ok": true
+    },
+    {
+     "referrer": 26029,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": 1389859,
+     "deletion_added": 1472548,
+     "ok": true
+    },
+    {
+     "referrer": 29088,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": 1389869,
+     "deletion_added": 1472548,
+     "ok": true
+    },
+    {
+     "referrer": 49579,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49597,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49615,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49633,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49651,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49669,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49687,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49705,
+     "class": "SectionAttributes",
+     "field": "m_sectionHeadFamilyTagId",
+     "symbol": 1472548,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 26029,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": 1389868,
+     "deletion_added": 1472726,
+     "ok": true
+    },
+    {
+     "referrer": 29088,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": 1389871,
+     "deletion_added": 1472726,
+     "ok": true
+    },
+    {
+     "referrer": 49579,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49597,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49615,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49633,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49651,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49669,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49687,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49705,
+     "class": "SectionAttributes",
+     "field": "m_sectionTailFamilyTagId",
+     "symbol": 1472726,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49583,
+     "class": "CalloutTag",
+     "field": "m_familyTagId",
+     "symbol": 1473124,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49601,
+     "class": "CalloutTag",
+     "field": "m_familyTagId",
+     "symbol": 1473124,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49619,
+     "class": "CalloutTag",
+     "field": "m_familyTagId",
+     "symbol": 1473124,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49637,
+     "class": "CalloutTag",
+     "field": "m_familyTagId",
+     "symbol": 1473124,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49655,
+     "class": "CalloutTag",
+     "field": "m_familyTagId",
+     "symbol": 1473124,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49673,
+     "class": "CalloutTag",
+     "field": "m_familyTagId",
+     "symbol": 1473124,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49691,
+     "class": "CalloutTag",
+     "field": "m_familyTagId",
+     "symbol": 1473124,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49709,
+     "class": "CalloutTag",
+     "field": "m_familyTagId",
+     "symbol": 1473124,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49508,
+     "class": "CalloutTag",
+     "field": "m_familyTagId",
+     "symbol": 1473124,
+     "old_value": 1389858,
+     "deletion_added": 1473124,
+     "ok": true
+    },
+    {
+     "referrer": 324,
+     "class": "ViewportAttributes",
+     "field": "m_familyTagId",
+     "symbol": 1473524,
+     "old_value": 1389860,
+     "deletion_added": 1473524,
+     "ok": true
+    },
+    {
+     "referrer": 1441530,
+     "class": "ViewportAttributes",
+     "field": "m_familyTagId",
+     "symbol": 1473524,
+     "old_value": 1389860,
+     "deletion_added": 1473524,
+     "ok": true
+    },
+    {
+     "referrer": 357,
+     "class": "InteriorElevAttributes",
+     "field": "m_elevationSymbolId",
+     "symbol": 1473224,
+     "old_value": 1389945,
+     "deletion_added": 1473224,
+     "ok": true
+    },
+    {
+     "referrer": 49589,
+     "class": "InteriorElevAttributes",
+     "field": "m_elevationSymbolId",
+     "symbol": 1473224,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49607,
+     "class": "InteriorElevAttributes",
+     "field": "m_elevationSymbolId",
+     "symbol": 1473224,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49625,
+     "class": "InteriorElevAttributes",
+     "field": "m_elevationSymbolId",
+     "symbol": 1473224,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49643,
+     "class": "InteriorElevAttributes",
+     "field": "m_elevationSymbolId",
+     "symbol": 1473224,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49661,
+     "class": "InteriorElevAttributes",
+     "field": "m_elevationSymbolId",
+     "symbol": 1473224,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49679,
+     "class": "InteriorElevAttributes",
+     "field": "m_elevationSymbolId",
+     "symbol": 1473224,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49697,
+     "class": "InteriorElevAttributes",
+     "field": "m_elevationSymbolId",
+     "symbol": 1473224,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 49715,
+     "class": "InteriorElevAttributes",
+     "field": "m_elevationSymbolId",
+     "symbol": 1473224,
+     "old_value": -1,
+     "skipped": "field unset (-1) and only_if_set"
+    },
+    {
+     "referrer": 54663,
+     "class": "StructSettingsElem",
+     "field": "m_bcFixedFamilyId",
+     "symbol": 1473628,
+     "old_value": 1389927,
+     "deletion_added": 1473628,
+     "ok": true
+    }
+   ],
+   "written": true,
+   "plans": 11,
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_count": 14003,
+    "isize_identity_mismatches": 0
+   }
+  },
+  "verify_written": {
+   "path": "experiments/genesis/loader/L1b_rstbasic_our_heads_active.rvt",
+   "container": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "host_records_missing": [],
+    "host_records_unclean": []
+   },
+   "registries": {
+    "save_units": 65,
+    "contentdocs_entries": 64,
+    "contenttable_records": 64,
+    "familymgr_entries": 62,
+    "coherent": true,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "units_missing_from_contentdocs": [],
+    "units_missing_from_contenttable": [],
+    "units_missing_from_familymgr": [],
+    "contenttable_dangling": [],
+    "familymgr_dangling": [],
+    "before": {
+     "save_units": 53,
+     "contentdocs_entries": 52,
+     "contenttable_records": 52,
+     "familymgr_entries": 50,
+     "coherent": true
+    },
+    "units_added": 12,
+    "units_added_ok": true,
+    "ours_in_all_four": true
+   },
+   "elemtable": {
+    "records": 14003,
+    "watermark": 1473628,
+    "our_host_ids_present": true,
+    "watermark_covers_documents": true
+   },
+   "host_linkage": {
+    "ok": true,
+    "families": [
+     {
+      "key": "section_head_open",
+      "family": 1472544,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1472548": true,
+       "symsurrogate_1472547": true,
+       "twin_1472545": true
+      },
+      "ok": true
+     },
+     {
+      "key": "section_head_filled",
+      "family": 1472620,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1472624": true,
+       "symsurrogate_1472623": true,
+       "twin_1472621": true
+      },
+      "ok": true
+     },
+     {
+      "key": "section_tail_filled",
+      "family": 1472721,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1472726": true,
+       "symsurrogate_1472725": true,
+       "twin_1472722": true,
+       "twin_1472723": true
+      },
+      "ok": true
+     },
+     {
+      "key": "section_tail_horizontal",
+      "family": 1472821,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1472826": true,
+       "symsurrogate_1472825": true,
+       "twin_1472822": true,
+       "twin_1472823": true
+      },
+      "ok": true
+     },
+     {
+      "key": "level_head",
+      "family": 1472922,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1472928": true,
+       "symsurrogate_1472927": true,
+       "twin_1472923": true,
+       "twin_1472924": true,
+       "twin_1472925": true
+      },
+      "ok": true
+     },
+     {
+      "key": "grid_head",
+      "family": 1473021,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1473026": true,
+       "symsurrogate_1473025": true,
+       "twin_1473022": true,
+       "twin_1473023": true
+      },
+      "ok": true
+     },
+     {
+      "key": "callout_head",
+      "family": 1473120,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1473124": true,
+       "symsurrogate_1473123": true,
+       "twin_1473121": true
+      },
+      "ok": true
+     },
+     {
+      "key": "elevation_body",
+      "family": 1473220,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1473224": true,
+       "symsurrogate_1473223": true,
+       "twin_1473221": true
+      },
+      "ok": true
+     },
+     {
+      "key": "elevation_pointer_1",
+      "family": 1473320,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1473324": true,
+       "symsurrogate_1473323": true,
+       "twin_1473321": true
+      },
+      "ok": true
+     },
+     {
+      "key": "elevation_pointer_2",
+      "family": 1473420,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1473424": true,
+       "symsurrogate_1473423": true,
+       "twin_1473421": true
+      },
+      "ok": true
+     },
+     {
+      "key": "view_title",
+      "family": 1473520,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1473524": true,
+       "symsurrogate_1473523": true,
+       "twin_1473521": true
+      },
+      "ok": true
+     },
+     {
+      "key": "boundary_condition",
+      "family": 1473622,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1473628": true,
+       "symsurrogate_1473627": true,
+       "twin_1473623": true,
+       "twin_1473624": true,
+       "twin_1473625": true
+      },
+      "ok": true
+     }
+    ]
+   },
+   "family_inventory": {
+    "total_host_families": 62,
+    "ours": [
+     {
+      "key": "section_head_open",
+      "found": 1,
+      "family_id": 1472544,
+      "family_name": "RW Section Head - Open",
+      "category": -2000400,
+      "unit": 53,
+      "n_records": 19,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1472548,
+        "name": "Section Head - Open"
+       }
+      ],
+      "big2small_count": 1,
+      "n_family_params": 1,
+      "ok": true
+     },
+     {
+      "key": "section_head_filled",
+      "found": 1,
+      "family_id": 1472620,
+      "family_name": "RW Section Head - Filled",
+      "category": -2000400,
+      "unit": 54,
+      "n_records": 19,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1472624,
+        "name": "Section Head - Filled"
+       }
+      ],
+      "big2small_count": 1,
+      "n_family_params": 1,
+      "ok": true
+     },
+     {
+      "key": "section_tail_filled",
+      "found": 1,
+      "family_id": 1472721,
+      "family_name": "RW Section Tail - Filled",
+      "category": -2000400,
+      "unit": 55,
+      "n_records": 20,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1472726,
+        "name": "Section Tail - Filled"
+       }
+      ],
+      "big2small_count": 2,
+      "n_family_params": 2,
+      "ok": true
+     },
+     {
+      "key": "section_tail_horizontal",
+      "found": 1,
+      "family_id": 1472821,
+      "family_name": "RW Section Tail - Horizontal",
+      "category": -2000400,
+      "unit": 56,
+      "n_records": 20,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1472826,
+        "name": "Section Tail - Horizontal"
+       }
+      ],
+      "big2small_count": 2,
+      "n_family_params": 2,
+      "ok": true
+     },
+     {
+      "key": "level_head",
+      "found": 1,
+      "family_id": 1472922,
+      "family_name": "RW Level Head - Circle",
+      "category": -2006020,
+      "unit": 57,
+      "n_records": 21,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1472928,
+        "name": "Level Head - Circle"
+       }
+      ],
+      "big2small_count": 3,
+      "n_family_params": 3,
+      "ok": true
+     },
+     {
+      "key": "grid_head",
+      "found": 1,
+      "family_id": 1473021,
+      "family_name": "RW Grid Head - Circle",
+      "category": -2006040,
+      "unit": 58,
+      "n_records": 20,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1473026,
+        "name": "Grid Head - Circle"
+       }
+      ],
+      "big2small_count": 2,
+      "n_family_params": 2,
+      "ok": true
+     },
+     {
+      "key": "callout_head",
+      "found": 1,
+      "family_id": 1473120,
+      "family_name": "RW Callout Head",
+      "category": -2000538,
+      "unit": 59,
+      "n_records": 19,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1473124,
+        "name": "Callout Head"
+       }
+      ],
+      "big2small_count": 1,
+      "n_family_params": 1,
+      "ok": true
+     },
+     {
+      "key": "elevation_body",
+      "found": 1,
+      "family_id": 1473220,
+      "family_name": "RW Elevation Mark Body",
+      "category": -2006045,
+      "unit": 60,
+      "n_records": 19,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1473224,
+        "name": "Elevation Mark Body"
+       }
+      ],
+      "big2small_count": 1,
+      "n_family_params": 1,
+      "ok": true
+     },
+     {
+      "key": "elevation_pointer_1",
+      "found": 1,
+      "family_id": 1473320,
+      "family_name": "RW Elevation Mark Pointer",
+      "category": -2006045,
+      "unit": 61,
+      "n_records": 19,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1473324,
+        "name": "Filled Arrow"
+       }
+      ],
+      "big2small_count": 1,
+      "n_family_params": 1,
+      "ok": true
+     },
+     {
+      "key": "elevation_pointer_2",
+      "found": 1,
+      "family_id": 1473420,
+      "family_name": "RW Elevation Mark Pointer 2",
+      "category": -2006045,
+      "unit": 62,
+      "n_records": 19,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1473424,
+        "name": "Detail Number"
+       }
+      ],
+      "big2small_count": 1,
+      "n_family_params": 1,
+      "ok": true
+     },
+     {
+      "key": "view_title",
+      "found": 1,
+      "family_id": 1473520,
+      "family_name": "RW View Title",
+      "category": -2000515,
+      "unit": 63,
+      "n_records": 19,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1473524,
+        "name": "View Title"
+       }
+      ],
+      "big2small_count": 1,
+      "n_family_params": 1,
+      "ok": true
+     },
+     {
+      "key": "boundary_condition",
+      "found": 1,
+      "family_id": 1473622,
+      "family_name": "RW Boundary Condition - Fixed",
+      "category": -2005301,
+      "unit": 64,
+      "n_records": 21,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1473628,
+        "name": "Boundary Condition - Fixed"
+       }
+      ],
+      "big2small_count": 3,
+      "n_family_params": 3,
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": [],
+    "warnings": [
+     "[semantic] objects: 7/32313 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+    ]
+   },
+   "ok": true
+  }
+ },
+ "acceptance": [
+  "H1: an EMBEDDED family ADocument with an all-null 239-slot AppInfoManager (the specimen carries ~110 populated family-editor registries) -- the factory's L3 open question, unchanged",
+  "H2: an annotation FamilySymbol whose seq-103 rep is a SerializedDummy and whose geometry bookkeeping (m_geomSteps / m_pGeomTable / m_refFaces / m_tagNoteData) is EMPTY -- Revit must regenerate the symbol graphics from the family document",
+  "H3: our family documents carry the S0 skeleton (self-Family, Ref. Level, origin planes, units, one plan view, parameters, one type) and NO detail geometry / label -- the head SHAPE is absent",
+  "H4: host Family.m_coreIds bind only the host's category GStyle rows (none when the host lacks that category); big2small maps only the parameter twins (our documents reference no host catalog rows)",
+  "H5: the ContentTable record's author is 'rvt-writer'; the load reuses the host's current episode (no new History row / DIT record)",
+  "H6: the host FamilyTypeTable = one blank ' ' row and the type lives as the FamilySymbol (the annotation flavour); OUR embedded document carries its single named type too (the specimen embedded head document's type table is empty)"
+ ],
+ "stop_reason": "",
+ "seconds": 32.4
+}

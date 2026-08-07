@@ -1,0 +1,127 @@
+{
+  "specVersion": "0.1.0",
+  "kind": "tekton.electrical-job",
+  "project": {
+    "name": "DDOT Coolidge - Area E bus storage electrical room (Chicago-plenum job)",
+    "number": "BS-EP7-00",
+    "buildingName": "Bus Storage Building - Area E",
+    "room": "Electrical Room E101",
+    "author": "tekton-ifc / rvt.electrical calc engine",
+    "organisation": "C. Karagitz Electric",
+    "issueDate": "2026-08-03"
+  },
+  "example": true,
+  "notes": "EXAMPLE DATA - a plausible, illustrative circuit/load list for the Area E electrical room panels so the calc engine and the panelboard-schedule deliverable can be demonstrated end to end. This is NOT the issued DDOT panel schedule. Panel/transformer identities (B-HG4 480Y/277 400A MCB feeding three 45 kVA dry-type transformers; 208Y/120 MLO branch panels B-LR1, B-LQ1, B-SLQ1) come from usecases/chicago-plenum-electrical-room/room-spec.json; every individual load below is invented for the example. All computed values are a DESIGN AID reviewed by the licensed engineer of record.",
+  "panels": [
+    {
+      "name": "B-HG4",
+      "system": "480Y/277",
+      "mainsType": "MCB",
+      "mainsRatingA": 400,
+      "busRatingA": 400,
+      "spaces": 42,
+      "aicKA": 35,
+      "mounting": "Surface",
+      "minBranchBreakerA": 20,
+      "fedFrom": "MDB via BS-FD1020",
+      "feeder": "BS-FD1020",
+      "notes": "Area E 480Y/277 V distribution panel; feeds the three 45 kVA dry-type transformers plus 277 V plenum lighting and 480 V HVAC/motor loads. EXAMPLE data.",
+      "circuits": [
+        { "number": 1, "description": "XFMR-LR1 45 kVA 480-208Y/120 primary", "kva": 45, "phases": 3, "poles": 3, "loadClass": "xfmr", "continuous": true, "equipment": "XFMR-LR1" },
+        { "number": 2, "description": "XFMR-LQ1 45 kVA 480-208Y/120 primary", "kva": 45, "phases": 3, "poles": 3, "loadClass": "xfmr", "continuous": true, "equipment": "XFMR-LQ1" },
+        { "number": 7, "description": "XFMR-B-SLQ1 45 kVA 480-208Y/120 primary", "kva": 45, "phases": 3, "poles": 3, "loadClass": "xfmr", "continuous": true, "equipment": "XFMR-B-SLQ1" },
+        { "description": "Plenum recessed lighting - Area E row 1 (277 V)", "va": 3600, "phases": 1, "poles": 1, "loadClass": "lighting", "continuous": true },
+        { "description": "Plenum recessed lighting - Area E row 2 (277 V)", "va": 3600, "phases": 1, "poles": 1, "loadClass": "lighting", "continuous": true },
+        { "description": "Plenum recessed lighting - Area E row 3 (277 V)", "va": 3600, "phases": 1, "poles": 1, "loadClass": "lighting", "continuous": true },
+        { "description": "Plenum recessed lighting - Area E row 4 (277 V)", "va": 3600, "phases": 1, "poles": 1, "loadClass": "lighting", "continuous": true },
+        { "description": "EF-E1 exhaust fan 3 HP 480 V (NEC 430.250 FLA 4.8 A)", "amps": 4.8, "phases": 3, "poles": 3, "loadClass": "motor" },
+        { "description": "UH-E1 unit heater 10 kW 480 V 3-ph", "va": 10000, "phases": 3, "poles": 3, "loadClass": "hvac", "continuous": true },
+        { "description": "SPARE", "va": 0, "phases": 1, "poles": 1, "loadClass": "misc", "breaker": 20 },
+        { "description": "SPARE", "va": 0, "phases": 1, "poles": 1, "loadClass": "misc", "breaker": 20 }
+      ]
+    },
+    {
+      "name": "B-LR1",
+      "system": "208Y/120",
+      "mainsType": "MLO",
+      "mainsRatingA": 225,
+      "busRatingA": 225,
+      "spaces": 42,
+      "aicKA": 10,
+      "mounting": "Surface",
+      "minBranchBreakerA": 20,
+      "fedFrom": "XFMR-LR1 via BS-FD1011",
+      "feeder": "BS-FD1011",
+      "notes": "208Y/120 V branch panel serving the electrical room and Area E receptacles/small loads; fed from XFMR-LR1 secondary. EXAMPLE data - receptacle count sized to demonstrate the NEC 220.44 first-10-kVA rule.",
+      "circuits": [
+        { "description": "Recepts - Area E bus bay north 1 (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Area E bus bay north 2 (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Area E bus bay north 3 (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Area E bus bay south 1 (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Area E bus bay south 2 (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Area E bus bay south 3 (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Elec Rm E101 (4 duplex @ 180 VA)", "va": 720, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Area E workbench (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Area E charging alcove (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Battery charger receptacle 1 (dedicated 20 A)", "va": 1200, "phases": 1, "poles": 1, "loadClass": "misc" },
+        { "description": "Battery charger receptacle 2 (dedicated 20 A)", "va": 1200, "phases": 1, "poles": 1, "loadClass": "misc" },
+        { "description": "Water cooler / bottle filler", "va": 500, "phases": 1, "poles": 1, "loadClass": "misc" },
+        { "description": "Egress / exit lighting 120 V (Area E)", "va": 800, "phases": 1, "poles": 1, "loadClass": "lighting", "continuous": true },
+        { "description": "UH-E101 unit heater 5 kW 208 V 1-ph (Elec Rm)", "va": 5000, "phases": 1, "poles": 2, "loadClass": "hvac", "continuous": true },
+        { "description": "SP-E101 sump pump 1/2 HP 120 V (NEC 430.248 FLA 9.8 A)", "amps": 9.8, "phases": 1, "poles": 1, "loadClass": "motor" },
+        { "description": "SPARE", "va": 0, "phases": 1, "poles": 1, "loadClass": "misc", "breaker": 20 },
+        { "description": "SPARE", "va": 0, "phases": 1, "poles": 1, "loadClass": "misc", "breaker": 20 }
+      ]
+    },
+    {
+      "name": "B-LQ1",
+      "system": "208Y/120",
+      "mainsType": "MLO",
+      "mainsRatingA": 225,
+      "busRatingA": 225,
+      "spaces": 42,
+      "aicKA": 10,
+      "mounting": "Surface",
+      "minBranchBreakerA": 20,
+      "fedFrom": "XFMR-LQ1 via BS-FD1013",
+      "feeder": "BS-FD1013",
+      "notes": "208Y/120 V branch panel for Area E bus-bay convenience power, door operators and work lighting; fed from XFMR-LQ1 secondary. EXAMPLE data.",
+      "circuits": [
+        { "description": "Recepts - Area E maintenance aisle 1 (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Area E maintenance aisle 2 (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "Recepts - Area E maintenance aisle 3 (8 duplex @ 180 VA)", "va": 1440, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "OHD-E1 roll-up door operator 1/2 HP 120 V", "amps": 9.8, "phases": 1, "poles": 1, "loadClass": "motor" },
+        { "description": "OHD-E2 roll-up door operator 1/2 HP 120 V", "amps": 9.8, "phases": 1, "poles": 1, "loadClass": "motor" },
+        { "description": "Work-area lighting 120 V (Area E)", "va": 1200, "phases": 1, "poles": 1, "loadClass": "lighting", "continuous": true },
+        { "description": "Bus wash pressure washer 208 V 1-ph 3 kVA", "kva": 3, "phases": 1, "poles": 2, "loadClass": "misc" },
+        { "description": "SPARE", "va": 0, "phases": 1, "poles": 1, "loadClass": "misc", "breaker": 20 }
+      ]
+    },
+    {
+      "name": "B-SLQ1",
+      "system": "208Y/120",
+      "mainsType": "MLO",
+      "mainsRatingA": 225,
+      "busRatingA": 225,
+      "spaces": 42,
+      "aicKA": 10,
+      "mounting": "Surface",
+      "minBranchBreakerA": 20,
+      "fedFrom": "XFMR-B-SLQ1 (verify)",
+      "feeder": "verify - not in BS-EP7-00",
+      "notes": "208Y/120 V panel fed from XFMR-B-SLQ1; feeder run not shown on BS-EP7-00 - VERIFY. Only site/lighting loads carried as placeholders. EXAMPLE data.",
+      "circuits": [
+        { "description": "Site lighting contactor - Area E yard 1", "va": 2400, "phases": 1, "poles": 1, "loadClass": "lighting", "continuous": true },
+        { "description": "Site lighting contactor - Area E yard 2", "va": 2400, "phases": 1, "poles": 1, "loadClass": "lighting", "continuous": true },
+        { "description": "Exterior GFCI receptacles (4 @ 180 VA)", "va": 720, "phases": 1, "poles": 1, "loadClass": "receptacle" },
+        { "description": "SPARE", "va": 0, "phases": 1, "poles": 1, "loadClass": "misc", "breaker": 20 },
+        { "description": "SPARE", "va": 0, "phases": 1, "poles": 1, "loadClass": "misc", "breaker": 20 }
+      ]
+    }
+  ],
+  "transformers": [
+    { "name": "XFMR-LR1", "kva": 45, "primaryV": 480, "secondaryV": 208, "phases": 3, "secondarySystem": "208Y/120", "fedFrom": "B-HG4", "feeds": "B-LR1", "notes": "45 kVA dry-type per room-spec TransformerSchedule; primary breaker = FLA x 125% -> next standard (NEC 450.3(B)-style)" },
+    { "name": "XFMR-LQ1", "kva": 45, "primaryV": 480, "secondaryV": 208, "phases": 3, "secondarySystem": "208Y/120", "fedFrom": "B-HG4", "feeds": "B-LQ1" },
+    { "name": "XFMR-B-SLQ1", "kva": 45, "primaryV": 480, "secondaryV": 208, "phases": 3, "secondarySystem": "208Y/120", "fedFrom": "B-HG4", "feeds": "B-SLQ1" }
+  ]
+}

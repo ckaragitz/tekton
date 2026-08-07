@@ -1,0 +1,77 @@
+{
+ "probe": "L1a",
+ "out": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+ "ok": true,
+ "seconds": 20.4,
+ "families": [
+  {
+   "key": "level_head",
+   "guid": "bee1932a-8bd8-4d8d-8c5d-af2913c9813d",
+   "host_family": 1472546,
+   "symbols": [
+    1472552
+   ],
+   "twins": 3,
+   "unit_records": 21,
+   "doc_ids": [
+    1472525,
+    1472545
+   ]
+  }
+ ],
+ "registries_after": {
+  "save_units": 54,
+  "contentdocs_entries": 53,
+  "contenttable_records": 53,
+  "familymgr_entries": 51,
+  "coherent": true,
+  "ours_in_all_four": true,
+  "units_added": 1
+ },
+ "registries_before": {
+  "save_units": 53,
+  "contentdocs_entries": 52,
+  "contenttable_records": 52,
+  "familymgr_entries": 50,
+  "coherent": true
+ },
+ "elemtable": {
+  "records": 13943,
+  "watermark": 1472552,
+  "our_host_ids_present": true,
+  "watermark_covers_documents": true
+ },
+ "container": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": 0,
+  "stamps_ok": true,
+  "host_records_missing": [],
+  "host_records_unclean": []
+ },
+ "host_linkage_ok": true,
+ "family_inventory_ok": true,
+ "validate": {
+  "verdict": "VALID",
+  "n_errors": 0,
+  "n_warnings": 1,
+  "errors": [],
+  "warnings": [
+   "[semantic] objects: 7/32039 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+  ]
+ },
+ "usage_repoint": null,
+ "acceptance": [
+  "H1: an EMBEDDED family ADocument with an all-null 239-slot AppInfoManager (the specimen carries ~110 populated family-editor registries) -- the factory's L3 open question, unchanged",
+  "H2: an annotation FamilySymbol whose seq-103 rep is a SerializedDummy and whose geometry bookkeeping (m_geomSteps / m_pGeomTable / m_refFaces / m_tagNoteData) is EMPTY -- Revit must regenerate the symbol graphics from the family document",
+  "H3: our family documents carry the S0 skeleton (self-Family, Ref. Level, origin planes, units, one plan view, parameters, one type) and NO detail geometry / label -- the head SHAPE is absent",
+  "H4: host Family.m_coreIds bind only the host's category GStyle rows (none when the host lacks that category); big2small maps only the parameter twins (our documents reference no host catalog rows)",
+  "H5: the ContentTable record's author is 'rvt-writer'; the load reuses the host's current episode (no new History row / DIT record)",
+  "H6: the host FamilyTypeTable = one blank ' ' row and the type lives as the FamilySymbol (the annotation flavour); OUR embedded document carries its single named type too (the specimen embedded head document's type table is empty)"
+ ],
+ "base": "samples/rstbasicsampleproject.rvt",
+ "base_verdict": "sample (viewer PASS)",
+ "tests": "Does the reader accept a project into which OUR family document was LOADED (four registries coherent, host Family / symbol / surrogates / twins ours, embedded document ours), the family referenced by nothing?  The pure loader proof.",
+ "if_PASS": "The load mechanism is reader-accepted: an OUR-authored embedded family document coexists with the sample's.  L1b / L3 read cleanly on top of it.",
+ "if_FAIL": "The loader corrupts a passing file: one of the four registries or a host record shape is wrong -- bisect with the four-registry census + the acceptance list (H1-H6); L3's verdict is moot until this passes."
+}

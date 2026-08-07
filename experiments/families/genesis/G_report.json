@@ -1,0 +1,1095 @@
+{
+ "topology_proof": {
+  "specimens": {
+   "786837": {
+    "extrusion_id": 786837,
+    "inputs": {
+     "vertices": [
+      [
+       4.00000000000002,
+       3.9999999999999725
+      ],
+      [
+       -3.9999999999999796,
+       3.9999999999999734
+      ],
+      [
+       -3.9999999999999796,
+       -6.750000000000027
+      ],
+      [
+       4.00000000000002,
+       -6.750000000000027
+      ]
+     ],
+     "start": 0.0,
+     "end": -1.0,
+     "sketch_z": 0.0,
+     "geometry_style_id": 124,
+     "control_command": 67145729
+    },
+    "structural_mismatches": [
+     "$.m_subNodes[0].value.m_pFaces[1].value.m_GInfo.m_flags: 558596 != 558084",
+     "$.m_subNodes[0].value.m_pFaces[2].value.m_GInfo.m_flags: 558596 != 558084",
+     "$.m_subNodes[0].value.m_pFaces[3].value.m_GInfo.m_flags: 558596 != 558084",
+     "$.m_subNodes[0].value.m_pFaces[4].value.m_GInfo.m_flags: 558596 != 558084",
+     "$.m_subNodes[0].value.m_pFaces[5].value.m_GInfo.m_flags: 558596 != 558084",
+     "$.m_subNodes[0].value.m_pEdges[0].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[1].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[2].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[3].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[4].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[5].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[6].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[7].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[8].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[9].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[10].value.m_GInfo.m_flags: 557572 != 557060",
+     "$.m_subNodes[0].value.m_pEdges[11].value.m_GInfo.m_flags: 557572 != 557060"
+    ],
+    "structurally_exact": false,
+    "structurally_exact_modulo_volatile_bit": true,
+    "n_leaves": 533,
+    "max_float_dev": 6.217248937900877e-15,
+    "float_devs_over_tol": [],
+    "canonical_bytes_ours": 3058,
+    "canonical_bytes_specimen": 3058,
+    "canonical_byte_exact": true,
+    "raw_byte_exact": false,
+    "raw_len_ours": 3058,
+    "raw_len_specimen": 3058,
+    "digits": 9
+   },
+   "786867": {
+    "extrusion_id": 786867,
+    "inputs": {
+     "vertices": [
+      [
+       0.8333333333333948,
+       0.8333333333332503
+      ],
+      [
+       -0.8333333333332718,
+       0.8333333333332504
+      ],
+      [
+       -0.8333333333332716,
+       -3.5833333333334165
+      ],
+      [
+       0.8333333333333949,
+       -3.5833333333334165
+      ]
+     ],
+     "start": 0.47933070866141725,
+     "end": -1.0180745135812685e-13,
+     "sketch_z": 0.0,
+     "geometry_style_id": 124,
+     "control_command": 32768
+    },
+    "structural_mismatches": [],
+    "structurally_exact": true,
+    "structurally_exact_modulo_volatile_bit": true,
+    "n_leaves": 533,
+    "max_float_dev": 1.0791367799356522e-13,
+    "float_devs_over_tol": [],
+    "canonical_bytes_ours": 3058,
+    "canonical_bytes_specimen": 3058,
+    "canonical_byte_exact": true,
+    "raw_byte_exact": false,
+    "raw_len_ours": 3058,
+    "raw_len_specimen": 3058,
+    "digits": 9
+   }
+  },
+  "cylinder_specimen": {
+   "614": {
+    "extrusion_id": 614,
+    "inputs": {
+     "circles": [
+      {
+       "center": [
+        0.2622494432071103,
+        1.5
+       ],
+       "radius": 0.12500000000000003
+      },
+      {
+       "center": [
+        0.26224944320711024,
+        -0.49999999999999983
+       ],
+       "radius": 0.12499999999999982
+      },
+      {
+       "center": [
+        2.2622494432071645,
+        -0.4999999999999998
+       ],
+       "radius": 0.1249999999999997
+      },
+      {
+       "center": [
+        2.2622494432071645,
+        1.5
+       ],
+       "radius": 0.12500000000000072
+      }
+     ],
+     "start": 0.0,
+     "end": 1.249343832020997,
+     "tag_bases": [
+      114,
+      122,
+      130,
+      138
+     ],
+     "u_shifts": [
+      0.0,
+      6.283185307179579,
+      6.283185307179579,
+      0.0
+     ],
+     "geometry_style_id": 4087,
+     "control_command": 0,
+     "tess_version": 0
+    },
+    "n_faces": 10,
+    "n_edges": 24,
+    "structural_mismatches": [],
+    "structurally_exact": true,
+    "n_leaves": 1421,
+    "n_envelope_leaves": 104,
+    "n_geometry_leaves": 678,
+    "geometry_max_float_dev": 1.51e-14,
+    "geometry_devs_over_1e9": [],
+    "geometry_exact": true,
+    "envelope_max_dev": 0.000117,
+    "envelope_within_tol": true,
+    "ok": true
+   }
+  },
+  "all_structurally_exact_modulo_volatile_bit": true,
+  "all_canonical_byte_exact": true,
+  "cylinder_ok": true
+ },
+ "families": {
+  "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+  "context": {
+   "family_id": 17,
+   "level_id": 21,
+   "geometry_style_id": 4087,
+   "curve_style_id": 4123,
+   "solid_control_command": 0,
+   "extra_regen_ids": [
+    47
+   ],
+   "embedded": false,
+   "fam_elem_visibility": 57398,
+   "tess_version": 0
+  },
+  "watermark": 7674,
+  "files": {
+   "G_box_solid.rfa": {
+    "kind": "box",
+    "rep": "solid",
+    "ids": [
+     7675,
+     7676,
+     7677,
+     7678,
+     7679,
+     7680,
+     7681
+    ],
+    "params": {
+     "width_ft": 1.6404199475065617,
+     "depth_ft": 0.9842519685039369,
+     "height_ft": 2.2965879265091864,
+     "base_z_ft": 0.0,
+     "start_ft": 2.2965879265091864,
+     "end_ft": 0.0,
+     "center": [
+      9.84251968503937,
+      0.0,
+      0.0
+     ],
+     "rep": "solid",
+     "vertices": [
+      [
+       10.662729658792651,
+       0.49212598425196846,
+       0.0
+      ],
+      [
+       9.02230971128609,
+       0.49212598425196846,
+       0.0
+      ],
+      [
+       9.02230971128609,
+       -0.49212598425196846,
+       0.0
+      ],
+      [
+       10.662729658792651,
+       -0.49212598425196846,
+       0.0
+      ]
+     ]
+    },
+    "schema_roundtrip_ok": true,
+    "emit": {
+     "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+     "out": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/G_box_solid.rfa",
+     "new_ids": [
+      7675,
+      7676,
+      7677,
+      7678,
+      7679,
+      7680,
+      7681
+     ],
+     "bundles": [
+      "box"
+     ],
+     "elemtable": {
+      "count_before": 1992,
+      "count_after": 1999,
+      "watermark_before": 7674,
+      "watermark_after": 7681,
+      "graveyard_bytes": 580
+     },
+     "episode": 144,
+     "partition": "Partitions/69",
+     "bytes_added_per_seq": {
+      "101": 1537,
+      "102": 5188,
+      "103": 4612
+     },
+     "size": 434176
+    },
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/G_box_solid.rfa",
+     "gzip_members": 18,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 5,
+     "ecc_mismatch": 0,
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 2000,
+      "102": 2000,
+      "103": 2000
+     },
+     "decode_seq102": {
+      "records": 1999,
+      "clean": 1999,
+      "error_classes": {}
+     },
+     "ok": true,
+     "new_elements": {
+      "7675": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 143
+       },
+       "102": {
+        "class": "SketchPlane",
+        "clean": true,
+        "psize": 312
+       },
+       "103": {
+        "class": "SerializedDummy",
+        "clean": true,
+        "psize": 2
+       }
+      },
+      "7676": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 183
+       },
+       "102": {
+        "class": "VarSketch",
+        "clean": true,
+        "psize": 1262
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 498
+       }
+      },
+      "7677": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 233
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 585
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 228
+       }
+      },
+      "7678": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 233
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 585
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 228
+       }
+      },
+      "7679": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 233
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 585
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 228
+       }
+      },
+      "7680": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 233
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 585
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 228
+       }
+      },
+      "7681": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 167
+       },
+       "102": {
+        "class": "ExtrusionElem",
+        "clean": true,
+        "psize": 1134
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 3060
+       }
+      }
+     },
+     "new_all_clean": true,
+     "donor_ids_preserved": true,
+     "record_counts_donor": {
+      "101": 1992,
+      "102": 1992,
+      "103": 1992
+     },
+     "record_counts_out": {
+      "101": 1999,
+      "102": 1999,
+      "103": 1999
+     }
+    },
+    "validate": {
+     "donor_errors": 5,
+     "out_errors": 5,
+     "errors_beyond_baseline": [],
+     "parity": true,
+     "out_stats": {
+      "records": 6000,
+      "elements_decoded": 1999,
+      "decode_failures": 0,
+      "refs_checked": 30481,
+      "gzip_members": 8,
+      "pages_checked": 14
+     },
+     "donor_stats": {
+      "records": 5979,
+      "elements_decoded": 1992,
+      "decode_failures": 0,
+      "refs_checked": 30353,
+      "gzip_members": 8,
+      "pages_checked": 14
+     }
+    }
+   },
+   "G_box_dummy.rfa": {
+    "kind": "box",
+    "rep": "dummy",
+    "ids": [
+     7675,
+     7676,
+     7677,
+     7678,
+     7679,
+     7680,
+     7681
+    ],
+    "params": {
+     "width_ft": 1.6404199475065617,
+     "depth_ft": 0.9842519685039369,
+     "height_ft": 2.2965879265091864,
+     "base_z_ft": 0.0,
+     "start_ft": 2.2965879265091864,
+     "end_ft": 0.0,
+     "center": [
+      9.84251968503937,
+      0.0,
+      0.0
+     ],
+     "rep": "dummy",
+     "vertices": [
+      [
+       10.662729658792651,
+       0.49212598425196846,
+       0.0
+      ],
+      [
+       9.02230971128609,
+       0.49212598425196846,
+       0.0
+      ],
+      [
+       9.02230971128609,
+       -0.49212598425196846,
+       0.0
+      ],
+      [
+       10.662729658792651,
+       -0.49212598425196846,
+       0.0
+      ]
+     ]
+    },
+    "schema_roundtrip_ok": true,
+    "emit": {
+     "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+     "out": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/G_box_dummy.rfa",
+     "new_ids": [
+      7675,
+      7676,
+      7677,
+      7678,
+      7679,
+      7680,
+      7681
+     ],
+     "bundles": [
+      "box"
+     ],
+     "elemtable": {
+      "count_before": 1992,
+      "count_after": 1999,
+      "watermark_before": 7674,
+      "watermark_after": 7681,
+      "graveyard_bytes": 580
+     },
+     "episode": 144,
+     "partition": "Partitions/69",
+     "bytes_added_per_seq": {
+      "101": 1537,
+      "102": 5188,
+      "103": 1554
+     },
+     "size": 434176
+    },
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/G_box_dummy.rfa",
+     "gzip_members": 18,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 5,
+     "ecc_mismatch": 0,
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 2000,
+      "102": 2000,
+      "103": 2000
+     },
+     "decode_seq102": {
+      "records": 1999,
+      "clean": 1999,
+      "error_classes": {}
+     },
+     "ok": true,
+     "new_elements": {
+      "7675": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 143
+       },
+       "102": {
+        "class": "SketchPlane",
+        "clean": true,
+        "psize": 312
+       },
+       "103": {
+        "class": "SerializedDummy",
+        "clean": true,
+        "psize": 2
+       }
+      },
+      "7676": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 183
+       },
+       "102": {
+        "class": "VarSketch",
+        "clean": true,
+        "psize": 1262
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 498
+       }
+      },
+      "7677": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 233
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 585
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 228
+       }
+      },
+      "7678": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 233
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 585
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 228
+       }
+      },
+      "7679": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 233
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 585
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 228
+       }
+      },
+      "7680": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 233
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 585
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 228
+       }
+      },
+      "7681": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 167
+       },
+       "102": {
+        "class": "ExtrusionElem",
+        "clean": true,
+        "psize": 1134
+       },
+       "103": {
+        "class": "SerializedDummy",
+        "clean": true,
+        "psize": 2
+       }
+      }
+     },
+     "new_all_clean": true,
+     "donor_ids_preserved": true,
+     "record_counts_donor": {
+      "101": 1992,
+      "102": 1992,
+      "103": 1992
+     },
+     "record_counts_out": {
+      "101": 1999,
+      "102": 1999,
+      "103": 1999
+     }
+    },
+    "validate": {
+     "donor_errors": 5,
+     "out_errors": 5,
+     "errors_beyond_baseline": [],
+     "parity": true,
+     "out_stats": {
+      "records": 6000,
+      "elements_decoded": 1999,
+      "decode_failures": 0,
+      "refs_checked": 30481,
+      "gzip_members": 8,
+      "pages_checked": 14
+     },
+     "donor_stats": {
+      "records": 5979,
+      "elements_decoded": 1992,
+      "decode_failures": 0,
+      "refs_checked": 30353,
+      "gzip_members": 8,
+      "pages_checked": 14
+     }
+    }
+   },
+   "G_cyl_solid.rfa": {
+    "kind": "cylinder",
+    "rep": "solid",
+    "ids": [
+     7675,
+     7676,
+     7677,
+     7678,
+     7679
+    ],
+    "params": {
+     "radius_ft": 0.25,
+     "height_ft": 0.6233595800524934,
+     "base_z_ft": 0.0,
+     "start_ft": 0.0,
+     "end_ft": 0.6233595800524934,
+     "center": [
+      9.84251968503937,
+      3.2808398950131235
+     ],
+     "rep": "solid"
+    },
+    "schema_roundtrip_ok": true,
+    "emit": {
+     "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+     "out": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/G_cyl_solid.rfa",
+     "new_ids": [
+      7675,
+      7676,
+      7677,
+      7678,
+      7679
+     ],
+     "bundles": [
+      "cylinder"
+     ],
+     "elemtable": {
+      "count_before": 1992,
+      "count_after": 1997,
+      "watermark_before": 7674,
+      "watermark_after": 7679,
+      "graveyard_bytes": 580
+     },
+     "episode": 144,
+     "partition": "Partitions/69",
+     "bytes_added_per_seq": {
+      "101": 1107,
+      "102": 3740,
+      "103": 3642
+     },
+     "size": 434176
+    },
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/G_cyl_solid.rfa",
+     "gzip_members": 18,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 5,
+     "ecc_mismatch": 0,
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 1998,
+      "102": 1998,
+      "103": 1998
+     },
+     "decode_seq102": {
+      "records": 1997,
+      "clean": 1997,
+      "error_classes": {}
+     },
+     "ok": true,
+     "new_elements": {
+      "7675": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 143
+       },
+       "102": {
+        "class": "SketchPlane",
+        "clean": true,
+        "psize": 312
+       },
+       "103": {
+        "class": "SerializedDummy",
+        "clean": true,
+        "psize": 2
+       }
+      },
+      "7676": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 217
+       },
+       "102": {
+        "class": "VarSketch",
+        "clean": true,
+        "psize": 1016
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 384
+       }
+      },
+      "7677": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 225
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 738
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 261
+       }
+      },
+      "7678": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 225
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 738
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 261
+       }
+      },
+      "7679": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 217
+       },
+       "102": {
+        "class": "ExtrusionElem",
+        "clean": true,
+        "psize": 836
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 2634
+       }
+      }
+     },
+     "new_all_clean": true,
+     "donor_ids_preserved": true,
+     "record_counts_donor": {
+      "101": 1992,
+      "102": 1992,
+      "103": 1992
+     },
+     "record_counts_out": {
+      "101": 1997,
+      "102": 1997,
+      "103": 1997
+     }
+    },
+    "validate": {
+     "donor_errors": 5,
+     "out_errors": 5,
+     "errors_beyond_baseline": [],
+     "parity": true,
+     "out_stats": {
+      "records": 5994,
+      "elements_decoded": 1997,
+      "decode_failures": 0,
+      "refs_checked": 30437,
+      "gzip_members": 8,
+      "pages_checked": 14
+     },
+     "donor_stats": {
+      "records": 5979,
+      "elements_decoded": 1992,
+      "decode_failures": 0,
+      "refs_checked": 30353,
+      "gzip_members": 8,
+      "pages_checked": 14
+     }
+    }
+   },
+   "G_cyl_dummy.rfa": {
+    "kind": "cylinder",
+    "rep": "dummy",
+    "ids": [
+     7675,
+     7676,
+     7677,
+     7678,
+     7679
+    ],
+    "params": {
+     "radius_ft": 0.25,
+     "height_ft": 0.6233595800524934,
+     "base_z_ft": 0.0,
+     "start_ft": 0.0,
+     "end_ft": 0.6233595800524934,
+     "center": [
+      9.84251968503937,
+      3.2808398950131235
+     ],
+     "rep": "dummy"
+    },
+    "schema_roundtrip_ok": true,
+    "emit": {
+     "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+     "out": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/G_cyl_dummy.rfa",
+     "new_ids": [
+      7675,
+      7676,
+      7677,
+      7678,
+      7679
+     ],
+     "bundles": [
+      "cylinder"
+     ],
+     "elemtable": {
+      "count_before": 1992,
+      "count_after": 1997,
+      "watermark_before": 7674,
+      "watermark_after": 7679,
+      "graveyard_bytes": 580
+     },
+     "episode": 144,
+     "partition": "Partitions/69",
+     "bytes_added_per_seq": {
+      "101": 1107,
+      "102": 3740,
+      "103": 1010
+     },
+     "size": 430080
+    },
+    "verify": {
+     "path": "/Users/ck/dev/things/rev-revit/experiments/families/genesis/G_cyl_dummy.rfa",
+     "gzip_members": 18,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 5,
+     "ecc_mismatch": 0,
+     "walker_errors": [],
+     "n_units": 1,
+     "record_counts": {
+      "101": 1998,
+      "102": 1998,
+      "103": 1998
+     },
+     "decode_seq102": {
+      "records": 1997,
+      "clean": 1997,
+      "error_classes": {}
+     },
+     "ok": true,
+     "new_elements": {
+      "7675": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 143
+       },
+       "102": {
+        "class": "SketchPlane",
+        "clean": true,
+        "psize": 312
+       },
+       "103": {
+        "class": "SerializedDummy",
+        "clean": true,
+        "psize": 2
+       }
+      },
+      "7676": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 217
+       },
+       "102": {
+        "class": "VarSketch",
+        "clean": true,
+        "psize": 1016
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 384
+       }
+      },
+      "7677": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 225
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 738
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 261
+       }
+      },
+      "7678": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 225
+       },
+       "102": {
+        "class": "CurveElem",
+        "clean": true,
+        "psize": 738
+       },
+       "103": {
+        "class": "GElement",
+        "clean": true,
+        "psize": 261
+       }
+      },
+      "7679": {
+       "101": {
+        "class": "ElementHeader",
+        "clean": true,
+        "psize": 217
+       },
+       "102": {
+        "class": "ExtrusionElem",
+        "clean": true,
+        "psize": 836
+       },
+       "103": {
+        "class": "SerializedDummy",
+        "clean": true,
+        "psize": 2
+       }
+      }
+     },
+     "new_all_clean": true,
+     "donor_ids_preserved": true,
+     "record_counts_donor": {
+      "101": 1992,
+      "102": 1992,
+      "103": 1992
+     },
+     "record_counts_out": {
+      "101": 1997,
+      "102": 1997,
+      "103": 1997
+     }
+    },
+    "validate": {
+     "donor_errors": 5,
+     "out_errors": 5,
+     "errors_beyond_baseline": [],
+     "parity": true,
+     "out_stats": {
+      "records": 5994,
+      "elements_decoded": 1997,
+      "decode_failures": 0,
+      "refs_checked": 30437,
+      "gzip_members": 8,
+      "pages_checked": 14
+     },
+     "donor_stats": {
+      "records": 5979,
+      "elements_decoded": 1992,
+      "decode_failures": 0,
+      "refs_checked": 30353,
+      "gzip_members": 8,
+      "pages_checked": 14
+     }
+    }
+   }
+  }
+ }
+}

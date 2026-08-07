@@ -1,0 +1,500 @@
+{
+ "path": "/Users/ck/dev/things/rev-revit/experiments/frontdoor/prompt-electrical-room-strict/families/msb_switchboard_msb_2500a_480y_277.rfa",
+ "family": {
+  "kind": "switchboard",
+  "family_name": "Switchboard MSB 2500A 480Y/277",
+  "category": "Electrical Equipment",
+  "part_type": 16,
+  "elements": 43,
+  "types": [
+   "2500A 4-section"
+  ],
+  "parameters": [
+   "BusRating",
+   "Depth",
+   "FeederEntry",
+   "Height",
+   "MainsRating",
+   "MainsType",
+   "Mounting",
+   "NeutralRating",
+   "NumberOfCircuits",
+   "PanelName",
+   "Phases",
+   "Sections",
+   "ShortCircuitRatingkA",
+   "Voltage",
+   "Width",
+   "Wires"
+  ],
+  "forms": [
+   {
+    "kind": "box",
+    "width_ft": 12.79527559055118,
+    "depth_ft": 2.9999999999999996,
+    "height_ft": 7.499999999999999,
+    "base_z_ft": 0.0,
+    "rep": "solid"
+   }
+  ],
+  "connectors": 1,
+  "assumed_fields": [],
+  "unverified_fields": [
+   "bus_rating_a",
+   "depth_in",
+   "height_in",
+   "mains_rating_a",
+   "mains_type",
+   "mounting",
+   "panel_name",
+   "phases",
+   "sccr_ka",
+   "sections",
+   "voltage_ll_v",
+   "voltage_system",
+   "width_in",
+   "wires"
+  ],
+  "notes": [
+   "house switchboard from OUR IFC-modeled dimensions (no catalog record); ratings are Pset values, identity strings are ifc-declared"
+  ]
+ },
+ "facts": {
+  "subject": "house switchboard MSB 2500 A 480Y/277",
+  "catalog": "none (our IFC-modeled dimensions)",
+  "variant": "house-switchboard",
+  "values": {
+   "width_in": {
+    "value": 153.54330708661416,
+    "provenance": "given",
+    "source": "ifc:tessellated body",
+    "note": "OUR IFC-modeled width (front-lineup extent)"
+   },
+   "depth_in": {
+    "value": 36.0,
+    "provenance": "given",
+    "source": "ifc:tessellated body",
+    "note": ""
+   },
+   "height_in": {
+    "value": 90.0,
+    "provenance": "given",
+    "source": "ifc:tessellated body",
+    "note": ""
+   },
+   "voltage_ll_v": {
+    "value": 480.0,
+    "provenance": "given",
+    "source": "",
+    "note": "480Y/277"
+   },
+   "voltage_system": {
+    "value": "480Y/277",
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "phases": {
+    "value": 3,
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "wires": {
+    "value": 4,
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "mains_rating_a": {
+    "value": 2500.0,
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "bus_rating_a": {
+    "value": 2500.0,
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "mains_type": {
+    "value": "MCB",
+    "provenance": "given",
+    "source": "",
+    "note": "2500 A main breaker"
+   },
+   "sccr_ka": {
+    "value": 65.0,
+    "provenance": "given",
+    "source": "",
+    "note": "SwitchboardSchedule.ShortCircuitRatingkA"
+   },
+   "sections": {
+    "value": 4,
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "mounting": {
+    "value": "Floor, on housekeeping pad",
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "panel_name": {
+    "value": "MSB",
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "manufacturer": {
+    "value": "unspecified",
+    "provenance": "ifc-declared",
+    "source": "",
+    "note": "Pset_ManufacturerTypeInformation.Manufacturer (declared identity, not a catalog fact; no manufacturer geometry / data is carried)"
+   },
+   "model": {
+    "value": "house switchboard",
+    "provenance": "ifc-declared",
+    "source": "",
+    "note": "Pset_ManufacturerTypeInformation.ModelLabel as the Model VALUE"
+   }
+  },
+  "assumed_fields": [],
+  "notes": [
+   "HOUSE SWITCHBOARD: no catalog line on record covers 2500 A (the Pow-R-Line PANELBOARD members top out below it and no switchboard product exists in the factory) -- dimensions are OUR OWN IFC-modeled lineup extents (our authoring), never a manufacturer's; the ratings ride as tagging-contract parameter values from the SwitchboardSchedule Pset."
+  ]
+ },
+ "emit": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/frontdoor/prompt-electrical-room-strict/families/msb_switchboard_msb_2500a_480y_277.rfa",
+  "size": 270336,
+  "donor": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+  "elements": 43,
+  "elem_table_count": 43,
+  "partition_stream": "Partitions/0",
+  "logical_partition_bytes": 7770,
+  "document_guid": "195d5d18-5353-42a2-a025-6f3853b7a583",
+  "streams": {
+   "Partitions/0": 7865,
+   "Global/ElemTable": 342,
+   "Global/History": 130,
+   "Global/DocumentIncrementTable": 122,
+   "Global/PartitionTable": 126,
+   "Global/ContentDocuments": 82,
+   "Contents": 204,
+   "Formats/Latest": 165553,
+   "Global/Latest": 68508,
+   "BasicFileInfo": 2037,
+   "TransmissionData": 214,
+   "PartAtom": 802
+  },
+  "ours": [
+   "Partitions save unit",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/DocumentIncrementTable",
+   "Global/PartitionTable",
+   "Global/ContentDocuments",
+   "Contents",
+   "BasicFileInfo",
+   "TransmissionData",
+   "PartAtom"
+  ],
+  "carried_from_donor": [
+   "Formats/Latest (per-release schema constant)",
+   "Global/Latest (ADocument -- NO encoder; gate G1a)",
+   "unit footer blob + stream end record (opaque)"
+  ],
+  "notes": [
+   "house switchboard: floor-standing lineup box at OUR IFC-modeled extents; one 3-pole supply connector on the top face (top-entry service / feeders per the FeederEntry pset)"
+  ]
+ },
+ "verify": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/frontdoor/prompt-electrical-room-strict/families/msb_switchboard_msb_2500a_480y_277.rfa",
+  "gzip_members": 11,
+  "gzip_crc_failures": 0,
+  "ecc_full_pages": 3,
+  "ecc_mismatch": 0,
+  "streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "PartAtom",
+   "Partitions/0",
+   "TransmissionData"
+  ],
+  "walker_errors": [],
+  "n_units": 1,
+  "record_counts": {
+   "101": 44,
+   "102": 44,
+   "103": 44
+  },
+  "decode_seq102": {
+   "records": 43,
+   "clean": 43,
+   "error_classes": {}
+  },
+  "id_sets_identical_across_seqs": true,
+  "ok": true
+ },
+ "validate": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/frontdoor/prompt-electrical-room-strict/families/msb_switchboard_msb_2500a_480y_277.rfa",
+  "family_mode": {
+   "verdict": "VALID",
+   "n_errors": 0,
+   "errors": [],
+   "n_warnings": 0,
+   "warnings": [],
+   "stats": {
+    "streams": 12,
+    "pages_checked": 12,
+    "gzip_members": 8,
+    "partition_blocks": 3,
+    "records": 132,
+    "elements_decoded": 43,
+    "decode_failures": 0,
+    "refs_checked": 726,
+    "connector_edges": 0,
+    "circuits": 0
+   }
+  },
+  "project_mode": {
+   "verdict": "INVALID",
+   "n_errors": 3,
+   "errors": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block (802 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+    "structure PartAtom: no gzip member found in framed stream"
+   ],
+   "n_warnings": 0,
+   "warnings": [],
+   "stats": {
+    "streams": 12,
+    "pages_checked": 12,
+    "gzip_members": 8,
+    "partition_blocks": 3,
+    "records": 132,
+    "elements_decoded": 43,
+    "decode_failures": 0,
+    "refs_checked": 726,
+    "connector_edges": 0,
+    "circuits": 0
+   }
+  },
+  "ok": true
+ },
+ "provenance": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/frontdoor/prompt-electrical-room-strict/families/msb_switchboard_msb_2500a_480y_277.rfa",
+  "checks": {
+   "family_document_strings_clean": true,
+   "part_atom_ours": true,
+   "basic_file_info_ours": true,
+   "formats_latest_is_format_constant": true
+  },
+  "findings": [],
+  "family_document": {
+   "n_elements": 43,
+   "id_range": [
+    1000,
+    1042
+   ],
+   "classes": {
+    "Family": 1,
+    "UnitsElem": 1,
+    "LevelAttributes": 1,
+    "Level": 1,
+    "DBViewProject": 1,
+    "Viewer": 2,
+    "Viewport": 2,
+    "DBDrawing": 2,
+    "DBViewType": 1,
+    "DBViewPlan": 1,
+    "SketchPlane": 2,
+    "SunAndShadowSettings": 1,
+    "ExtentElem": 1,
+    "RefPlane": 2,
+    "ParamElemFamily": 16,
+    "VarSketch": 1,
+    "CurveElem": 4,
+    "ExtrusionElem": 1,
+    "ElectricalLoadClassification": 1,
+    "ConnectorElem": 1
+   },
+   "undecoded": 0,
+   "n_distinct_strings": 167,
+   "forge_vocabulary_ids": [
+    "autodesk.parameter.group:dimensions-1.0.0",
+    "autodesk.parameter.group:electrical-1.0.0",
+    "autodesk.parameter.group:identityData-1.0.0",
+    "autodesk.spec.aec.electrical:apparentPower-1.0.0",
+    "autodesk.spec.aec.electrical:current-1.0.0",
+    "autodesk.spec.aec.electrical:current-2.0.0",
+    "autodesk.spec.aec.electrical:potential-1.0.0",
+    "autodesk.spec.aec.electrical:potential-2.0.0",
+    "autodesk.spec.aec:angle-2.0.0",
+    "autodesk.spec.aec:area-2.0.0",
+    "autodesk.spec.aec:length-1.0.0",
+    "autodesk.spec.aec:length-2.0.0",
+    "autodesk.spec.aec:number-1.0.1",
+    "autodesk.spec.aec:number-2.0.0",
+    "autodesk.spec.aec:volume-2.0.0",
+    "autodesk.spec:spec.int64-1.0.0",
+    "autodesk.spec:spec.string-1.0.0",
+    "autodesk.unit.symbol:ampere-1.0.1",
+    "autodesk.unit.symbol:cf-1.0.1",
+    "autodesk.unit.symbol:degreeSymbol-1.0.1",
+    "autodesk.unit.symbol:sf-1.0.1",
+    "autodesk.unit.symbol:vA-1.0.1",
+    "autodesk.unit.symbol:volt-1.0.1",
+    "autodesk.unit.unit:amperes-1.0.1",
+    "autodesk.unit.unit:cubicFeet-1.0.1",
+    "autodesk.unit.unit:degrees-1.0.1",
+    "autodesk.unit.unit:feetFractionalInches-1.0.0",
+    "autodesk.unit.unit:general-1.0.1",
+    "autodesk.unit.unit:squareFeet-1.0.1",
+    "autodesk.unit.unit:voltAmperes-1.0.1",
+    "autodesk.unit.unit:volts-1.0.1",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b9291000003fa-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b9291000003fb-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b9291000003fc-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b9291000003fd-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b9291000003fe-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b9291000003ff-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000400-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000401-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000402-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000403-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000404-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000405-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000406-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000407-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000408-1.0.0",
+    "revit.local.family:911e222f3f4e4bac97ea8dd9a02b929100000409-1.0.0"
+   ],
+   "sample_strings": [
+    "%1!s! Connected Apparent Power",
+    "%1!s! Connected Current",
+    "%1!s! Demand Apparent Power",
+    "%1!s! Demand Factor",
+    "%1!s! Estimated Demand Current",
+    "00000000-0000-0000-0000-000000000000",
+    "100%",
+    "2500A 4-section",
+    "480Y/277 V, 3-phase 4-wire, 2500 A 2500 A main breaker, 65 kA SCCR, 4-section switchboard lineup (3.9 W x 2.286 H x 0.9144 D m -- OUR IFC-modeled extents; house family, no catalog record)",
+    "<In-session, Still>",
+    "???",
+    "APropertyDouble1",
+    "APropertyFloat",
+    "APropertyInteger",
+    "Actual %1!s! Load",
+    "AdHocOverrides",
+    "AnnotationCropOffsets",
+    "BusRating",
+    "CellList",
+    "Center (Front/Back)",
+    "Center (Left/Right)",
+    "ColorFillSchemaSetting",
+    "ConnectorElemDomainElectrical",
+    "ConnectorElemGStep",
+    "CurveElemData",
+    "CurveElemDriver",
+    "CurveElemGStep",
+    "CurveLoop",
+    "DatumPlaneGeomStep",
+    "Depth",
+    "DesignOptionDrawFilter",
+    "DesignOptionViewSettings",
+    "DirectContext3DHandleOverrides",
+    "DrawOrderMgr",
+    "EdgeLoopRef",
+    "ElementIdIndexPairSet",
+    "ExposureValue",
+    "ExtrusionElemExtrusionHelper",
+    "ExtrusionGStep",
+    "Face"
+   ]
+  },
+  "streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "PartAtom",
+   "Partitions/0",
+   "TransmissionData"
+  ],
+  "part_atom": {
+   "bytes": 802,
+   "product": true,
+   "no_autodesk_product_label": true,
+   "no_omniclass": true,
+   "namespace_note": "uses the partatom XML VOCABULARY (urn:schemas-autodesk-com:partatom) -- format interoperability, values are ours"
+  },
+  "basic_file_info": {
+   "bytes": 2037,
+   "author_rvt_writer": true,
+   "no_windows_user_path": true,
+   "no_autodesk_employee_path": true
+  },
+  "carried_format_constants": {
+   "Formats/Latest": {
+    "inflated_bytes": 496597,
+    "sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+    "is_corpus_schema_constant": true,
+    "note": "the per-release archive class map, byte-identical in every Revit 2026 file (.rvt and .rfa) -- FORMAT, not content"
+   },
+   "Global/Latest": {
+    "inflated_bytes": 1381296,
+    "status": "decoded",
+    "clean": true,
+    "distinct_element_ids_referenced": 1727,
+    "references_to_our_elements": 0,
+    "dangling_references_to_donor_ids": 1727,
+    "content_records": 0,
+    "n_distinct_strings": 2815,
+    "characterisation": "the DONOR container's serialized ADocument (family-editor / document registries): its element-tracking registries reference donor element ids that do NOT exist in this file (dangling), plus the Revit-shipped Forge unit/spec corpus (a per-release constant, identical in every file).  It carries NO family geometry, NO type table, NO parameter definitions and NO manufacturer content -- those live in the partition save unit and PartAtom, which are ours.  It is the one honest carried non-constant, retired by authoring OUR ADocument (the codec exists: rvt.adocument.encode_latest; acceptance of an empty-registry family document is the open viewer question)."
+   },
+   "opaque": [
+    "Partitions unit footer blob (64 B) + stream end record (~92 B): opaque format bytes from the donor container (V15/V20 proved the reader accepts foreign / re-blocked content beside them)"
+   ]
+  },
+  "ours": [
+   "Partitions save unit (every element of the family document)",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/DocumentIncrementTable",
+   "Global/PartitionTable",
+   "Global/ContentDocuments (empty)",
+   "Contents",
+   "BasicFileInfo",
+   "TransmissionData",
+   "PartAtom",
+   "CFB container, gzip framing, CRCIO page ECC"
+  ],
+  "patterns_checked": [
+   "C:\\\\",
+   "Users\\\\",
+   "\\bAutodesk\\b",
+   "OmniClass",
+   "Table[- ]End",
+   "racbasic",
+   "rmebasic",
+   "Documents and Settings"
+  ],
+  "ok": true
+ },
+ "ok": true
+}

@@ -1,0 +1,493 @@
+{
+ "certified": {
+  "experiments/acceptance/V15_regzip_ecc_full.rvt": {
+   "status": "NOT-ON-DISK"
+  },
+  "experiments/acceptance/V18_first_authored_change.rvt": {
+   "errors": 0,
+   "warnings": 2,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V19_authored_change_stamped.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V20_first_created_element.rvt": {
+   "errors": 0,
+   "warnings": 2,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V21_batch_four_columns.rvt": {
+   "errors": 0,
+   "warnings": 2,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V22_first_created_wall.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V23_electrical_room.rvt": {
+   "errors": 0,
+   "warnings": 3,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V25_room_from_ifc.rvt": {
+   "errors": 0,
+   "warnings": 3,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V26_room_from_ifc_with_walls.rvt": {
+   "errors": 0,
+   "warnings": 3,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V27_room_from_file_template.rvt": {
+   "errors": 0,
+   "warnings": 3,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V28_room_clean_connectors.rvt": {
+   "errors": 0,
+   "warnings": 2,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V29_room_with_circuits.rvt": {
+   "errors": 0,
+   "warnings": 2,
+   "loaded_content_errors": []
+  },
+  "experiments/hosting/H1_panel_on_existing_wall.rvt": {
+   "errors": 0,
+   "warnings": 2,
+   "loaded_content_errors": []
+  },
+  "experiments/hosting/H2_panel_on_created_wall.rvt": {
+   "errors": 0,
+   "warnings": 2,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/R0_identity.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/R4s.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/manipulate/M2_delete_cascade.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/manipulate/M3_modify.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/manipulate/M4_move_retype.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/manipulate/M2_delete_cascade_rac.rvt": {
+   "errors": 0,
+   "warnings": 0,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/V30_own_identity_keep_author.rvt": {
+   "errors": 1,
+   "warnings": 2,
+   "loaded_content_errors": [],
+   "first_errors": [
+    "[consistency] BasicFileInfo: Unique Document GUID != History entry[0] GUID"
+   ]
+  },
+  "experiments/acceptance/V31_own_identity_own_author.rvt": {
+   "errors": 1,
+   "warnings": 2,
+   "loaded_content_errors": [],
+   "first_errors": [
+    "[consistency] BasicFileInfo: Unique Document GUID != History entry[0] GUID"
+   ]
+  },
+  "experiments/acceptance/V32_own_dit_usernames.rvt": {
+   "errors": 1,
+   "warnings": 2,
+   "loaded_content_errors": [],
+   "first_errors": [
+    "[consistency] BasicFileInfo: Unique Document GUID != History entry[0] GUID"
+   ]
+  },
+  "experiments/genesis/types/T_conduit_types.rvt": {
+   "errors": 0,
+   "warnings": 2,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/R5.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/R5s.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/R9.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/triage/K4.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/triage/KD1.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/triage/K3.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_L1a_recheck.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_R9_recheck.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_R9_recheck_b15.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_K4_base_b15.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/Y1.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/Y_cat.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/Y9.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/autopsy/K1a_editfree.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/autopsy/K1_suspect.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_Y9_base_b16.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_a/Z_subcat.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_b/Z_defs.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_Y9_base_b17.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_b/Z_mepcat.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_b/Z_pens.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_b/Z_annot.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_b/Z_filters.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_b/Z_machinery.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_b/Z_content.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_ZA_deep_b20.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_a2/ZC_deep.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/palette_fix/Z_palette_v2.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/families/ifc/L_downlight_loaded.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_ZA_deep_b21.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/ifc_room/electrical_room_2500a_walls_only.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/ifc_room/stage_L8_lp4.rvt": {
+   "errors": 1,
+   "warnings": 4,
+   "loaded_content_errors": [
+    "loaded-content: ContentTable.m_ContentRecSet is NOT ascending by ContentKey GUID (corpus order; rvt.famload sorts, chained rvt.famgen.loader loads did not). order: ['7f64f7ef', 'fcc93665', 'e1e7b380',"
+   ],
+   "first_errors": [
+    "[semantic] loaded-content: ContentTable.m_ContentRecSet is NOT ascending by ContentKey GUID (corpus order; rvt.famload sorts, chained rvt.famgen.loader loads did not). order: ['7f64f7ef', 'fcc93665', "
+   ],
+   "known_nontest": "its viewer 'PASS' was the 'Design is empty' extractor short-circuit (docs/inbox/render-instances.md \u00a71; verdict #25 RETRACTION in docs/inbox/genesis-audit.md; the discipline stream's control-source warning) \u2014 the loaded-family layer was NEVER audited in it; the file IS unsorted (8 chained famgen loads), so the E2 error states a true fact about an unaudited file, not a false positive on an audited pass"
+  },
+  "experiments/acceptance/CTRL_ZCdeep_b23.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/compose/G_ABP.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/compose/G_ABPD.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_render_b25.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/ifc_room/render/wall_baked_min.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/render/RSOLID_walls_A_solid.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_GABPD_b27.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/acceptance/CTRL_wallsonly_b27.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_c/RC_zero.rvt": {
+   "errors": 0,
+   "warnings": 0,
+   "loaded_content_errors": []
+  },
+  "experiments/genesis/subst_k4/residue_c/RC_deep.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/render/g12/W1_gabpd_wall_solid.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/render/g12/WF_fix.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "experiments/render/g12/WF_nofix.rvt": {
+   "errors": 0,
+   "warnings": 3,
+   "loaded_content_errors": []
+  },
+  "samples/2025/rstbasicsampleproject.rvt": {
+   "errors": 4,
+   "warnings": 1,
+   "loaded_content_errors": [],
+   "first_errors": [
+    "[structure] Partitions/20: partition header/framing: unexpected Partitions header: v=9 cls=0x391",
+    "[consistency] Partitions/20: partition walker: unexpected Partitions header: v=9 cls=0x391",
+    "[consistency] Global/PartitionTable: workset table does not decode: unexpected PartitionTable class ordinal 0xc40"
+   ]
+  },
+  "experiments/genesis2025/reduce/B2025_K4.rvt": {
+   "errors": 4,
+   "warnings": 1,
+   "loaded_content_errors": [],
+   "first_errors": [
+    "[structure] Partitions/20: partition header/framing: unexpected Partitions header: v=9 cls=0x391",
+    "[consistency] Partitions/20: partition walker: unexpected Partitions header: v=9 cls=0x391",
+    "[consistency] Global/PartitionTable: workset table does not decode: unexpected PartitionTable class ordinal 0xc40"
+   ]
+  },
+  "experiments/genesis2025/reduce/K3_2025.rvt": {
+   "errors": 4,
+   "warnings": 1,
+   "loaded_content_errors": [],
+   "first_errors": [
+    "[structure] Partitions/20: partition header/framing: unexpected Partitions header: v=9 cls=0x391",
+    "[consistency] Partitions/20: partition walker: unexpected Partitions header: v=9 cls=0x391",
+    "[consistency] Global/PartitionTable: workset table does not decode: unexpected PartitionTable class ordinal 0xc40"
+   ]
+  },
+  "experiments/genesis2025/reduce/R9_2025.rvt": {
+   "errors": 4,
+   "warnings": 1,
+   "loaded_content_errors": [],
+   "first_errors": [
+    "[structure] Partitions/20: partition header/framing: unexpected Partitions header: v=9 cls=0x391",
+    "[consistency] Partitions/20: partition walker: unexpected Partitions header: v=9 cls=0x391",
+    "[consistency] Global/PartitionTable: workset table does not decode: unexpected PartitionTable class ordinal 0xc40"
+   ]
+  },
+  "samples/rstbasicsampleproject.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "samples/rstadvancedsampleproject.rvt": {
+   "errors": 0,
+   "warnings": 0,
+   "loaded_content_errors": []
+  },
+  "samples/racbasicsampleproject.rvt": {
+   "errors": 0,
+   "warnings": 0,
+   "loaded_content_errors": []
+  },
+  "samples/racadvancedsampleproject.rvt": {
+   "errors": 0,
+   "warnings": 0,
+   "loaded_content_errors": []
+  },
+  "samples/rmebasicsampleproject.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  },
+  "samples/dach-sample-project.rvt": {
+   "errors": 0,
+   "warnings": 1,
+   "loaded_content_errors": []
+  }
+ },
+ "failed_product_path": {
+  "experiments/frontdoor/demo-250v/prompt_room.rvt": {
+   "errors": 2,
+   "loaded_content_errors": [
+    "loaded-content: 6 placed FamilyInstance(s) carry a connector manager of an unlawful class (corpus 13,636/13,636 = FamilyInstanceConnectorManager or null). e.g. ",
+    "loaded-content: ContentTable.m_ContentRecSet is NOT ascending by ContentKey GUID (corpus order; rvt.famload sorts, chained rvt.famgen.loader loads did not). ord"
+   ],
+   "now_detected": true
+  },
+  "experiments/ifc_room/electrical_room_2500a.rvt": {
+   "errors": 2,
+   "loaded_content_errors": [
+    "loaded-content: 8 placed FamilyInstance(s) carry a connector manager of an unlawful class (corpus 13,636/13,636 = FamilyInstanceConnectorManager or null). e.g. ",
+    "loaded-content: ContentTable.m_ContentRecSet is NOT ascending by ContentKey GUID (corpus order; rvt.famload sorts, chained rvt.famgen.loader loads did not). ord"
+   ],
+   "now_detected": true
+  },
+  "experiments/ifc_room/stage_W_loaded_walls.rvt": {
+   "errors": 1,
+   "loaded_content_errors": [
+    "loaded-content: ContentTable.m_ContentRecSet is NOT ascending by ContentKey GUID (corpus order; rvt.famload sorts, chained rvt.famgen.loader loads did not). ord"
+   ],
+   "now_detected": true
+  },
+  "experiments/ifc_room/render_probes/R_inst_box.rvt": {
+   "errors": 0,
+   "loaded_content_errors": [],
+   "now_detected": false
+  },
+  "experiments/ifc_room/render_probes/F_lp4.rvt": {
+   "errors": 0,
+   "loaded_content_errors": [],
+   "now_detected": false
+  },
+  "experiments/ifc_room/render_probes/F_msb.rvt": {
+   "errors": 0,
+   "loaded_content_errors": [],
+   "now_detected": false
+  }
+ },
+ "new_false_positives": [],
+ "seconds": 596.9,
+ "ok": true,
+ "known_nontest_flags": [
+  "experiments/ifc_room/stage_L8_lp4.rvt"
+ ]
+}

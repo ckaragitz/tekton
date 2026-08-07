@@ -1,0 +1,162 @@
+{
+ "features": {
+  "our_instance_reaches_our_baked_geometry": {
+   "present_in_fail": "9/12",
+   "present_in_pass": "0/11",
+   "fail_files": [
+    "experiments/instbug/BX_f1i1.rvt",
+    "experiments/instbug/SX_f6i6.rvt",
+    "experiments/instbug/fix/BXfix_f1i1.rvt",
+    "experiments/instbug/fix/BXfix_f6i6.rvt",
+    "experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+    "experiments/acceptance/DEMO_250v_room.rvt",
+    "experiments/ifc_room/render_probes/R_inst_box.rvt",
+    "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+    "experiments/ifc_room/electrical_room_2500a.rvt"
+   ],
+   "pass_files": [],
+   "separates": true
+  },
+  "our_instance_of_our_family": {
+   "present_in_fail": "9/12",
+   "present_in_pass": "0/11",
+   "fail_files": [
+    "experiments/instbug/BX_f1i1.rvt",
+    "experiments/instbug/SX_f6i6.rvt",
+    "experiments/instbug/fix/BXfix_f1i1.rvt",
+    "experiments/instbug/fix/BXfix_f6i6.rvt",
+    "experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+    "experiments/acceptance/DEMO_250v_room.rvt",
+    "experiments/ifc_room/render_probes/R_inst_box.rvt",
+    "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+    "experiments/ifc_room/electrical_room_2500a.rvt"
+   ],
+   "pass_files": [],
+   "separates": true
+  },
+  "our_instanced_baked_symbol": {
+   "present_in_fail": "8/12",
+   "present_in_pass": "0/11",
+   "fail_files": [
+    "experiments/instbug/BX_f1i1.rvt",
+    "experiments/instbug/SX_f6i6.rvt",
+    "experiments/instbug/fix/BXfix_f1i1.rvt",
+    "experiments/instbug/fix/BXfix_f6i6.rvt",
+    "experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+    "experiments/acceptance/DEMO_250v_room.rvt",
+    "experiments/ifc_room/render_probes/R_inst_box.rvt",
+    "experiments/ifc_room/electrical_room_2500a.rvt"
+   ],
+   "pass_files": [],
+   "separates": true
+  },
+  "our_baked_symbol": {
+   "present_in_fail": "11/12",
+   "present_in_pass": "4/11",
+   "fail_files": [
+    "experiments/instbug/BX_f1i1.rvt",
+    "experiments/instbug/SX_f6i6.rvt",
+    "experiments/instbug/fix/BXfix_f1i1.rvt",
+    "experiments/instbug/fix/BXfix_f6i6.rvt",
+    "experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+    "experiments/acceptance/DEMO_250v_room.rvt",
+    "experiments/ifc_room/render_probes/R_inst_box.rvt",
+    "experiments/ifc_room/render_probes/F_lp4.rvt",
+    "experiments/ifc_room/render_probes/F_msb.rvt",
+    "experiments/ifc_room/stage_W_loaded_walls.rvt",
+    "experiments/ifc_room/electrical_room_2500a.rvt"
+   ],
+   "pass_files": [
+    "experiments/instbug/BX_f2.rvt",
+    "experiments/render/g12/WF_fix.rvt",
+    "experiments/render/g12/WF_nofix.rvt",
+    "experiments/ifc_room/stage_L8_lp4.rvt"
+   ],
+   "separates": false
+  },
+  "our_instanced_dummy_symbol": {
+   "present_in_fail": "1/12",
+   "present_in_pass": "0/11",
+   "fail_files": [
+    "experiments/ifc_room/render_probes/R_inst_downlight.rvt"
+   ],
+   "pass_files": [],
+   "separates": true
+  },
+  "our_dummy_symbol": {
+   "present_in_fail": "1/12",
+   "present_in_pass": "3/11",
+   "fail_files": [
+    "experiments/ifc_room/render_probes/R_inst_downlight.rvt"
+   ],
+   "pass_files": [
+    "experiments/families/genesis2/L_v2_panel_loaded.rvt",
+    "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+    "experiments/families/ifc/L_downlight_loaded.rvt"
+   ],
+   "separates": false
+  },
+  "our_uninstanced_baked_symbol": {
+   "present_in_fail": "3/12",
+   "present_in_pass": "4/11",
+   "fail_files": [
+    "experiments/ifc_room/render_probes/F_lp4.rvt",
+    "experiments/ifc_room/render_probes/F_msb.rvt",
+    "experiments/ifc_room/stage_W_loaded_walls.rvt"
+   ],
+   "pass_files": [
+    "experiments/instbug/BX_f2.rvt",
+    "experiments/render/g12/WF_fix.rvt",
+    "experiments/render/g12/WF_nofix.rvt",
+    "experiments/ifc_room/stage_L8_lp4.rvt"
+   ],
+   "separates": false
+  },
+  "our_instance_gelement_rep": {
+   "present_in_fail": "3/12",
+   "present_in_pass": "3/11",
+   "fail_files": [
+    "experiments/ifc_room/render_probes/R_inst_box.rvt",
+    "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+    "experiments/ifc_room/electrical_room_2500a.rvt"
+   ],
+   "pass_files": [
+    "experiments/hosting/H1_panel_on_existing_wall.rvt",
+    "experiments/hosting/H2_panel_on_created_wall.rvt",
+    "experiments/acceptance/V20_first_created_element.rvt"
+   ],
+   "separates": false
+  },
+  "sample_symbol_instanced_by_us": {
+   "present_in_fail": "0/12",
+   "present_in_pass": "3/11",
+   "fail_files": [],
+   "pass_files": [
+    "experiments/hosting/H1_panel_on_existing_wall.rvt",
+    "experiments/hosting/H2_panel_on_created_wall.rvt",
+    "experiments/acceptance/V20_first_created_element.rvt"
+   ],
+   "separates": false
+  }
+ },
+ "law": "rank = present-in-fail / absent-in-pass across every recorded verdict",
+ "headline": {
+  "feature": "our_instanced_baked_symbol",
+  "reading": {
+   "present_in_fail": "8/12",
+   "present_in_pass": "0/11",
+   "fail_files": [
+    "experiments/instbug/BX_f1i1.rvt",
+    "experiments/instbug/SX_f6i6.rvt",
+    "experiments/instbug/fix/BXfix_f1i1.rvt",
+    "experiments/instbug/fix/BXfix_f6i6.rvt",
+    "experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+    "experiments/acceptance/DEMO_250v_room.rvt",
+    "experiments/ifc_room/render_probes/R_inst_box.rvt",
+    "experiments/ifc_room/electrical_room_2500a.rvt"
+   ],
+   "pass_files": [],
+   "separates": true
+  }
+ }
+}

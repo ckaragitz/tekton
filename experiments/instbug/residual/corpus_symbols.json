@@ -1,0 +1,447 @@
+{
+ "samples": {
+  "samples/rstbasicsampleproject.rvt": {
+   "n_family_symbols": 106,
+   "cells_all": {
+    "GElement+steps": 106,
+    "GElement+nosteps": 0,
+    "SerializedDummy+steps": 0,
+    "SerializedDummy+nosteps": 0,
+    "other": 0
+   },
+   "cells_with_instances": {
+    "GElement+steps": 21,
+    "GElement+nosteps": 0,
+    "SerializedDummy+steps": 0,
+    "SerializedDummy+nosteps": 0,
+    "other": 0
+   },
+   "n_instanced_symbols": 21
+  },
+  "samples/rstadvancedsampleproject.rvt": {
+   "n_family_symbols": 280,
+   "cells_all": {
+    "GElement+steps": 202,
+    "GElement+nosteps": 0,
+    "SerializedDummy+steps": 78,
+    "SerializedDummy+nosteps": 0,
+    "other": 0
+   },
+   "cells_with_instances": {
+    "GElement+steps": 27,
+    "GElement+nosteps": 0,
+    "SerializedDummy+steps": 0,
+    "SerializedDummy+nosteps": 0,
+    "other": 0
+   },
+   "n_instanced_symbols": 27
+  },
+  "samples/racbasicsampleproject.rvt": {
+   "n_family_symbols": 142,
+   "cells_all": {
+    "GElement+steps": 142,
+    "GElement+nosteps": 0,
+    "SerializedDummy+steps": 0,
+    "SerializedDummy+nosteps": 0,
+    "other": 0
+   },
+   "cells_with_instances": {
+    "GElement+steps": 68,
+    "GElement+nosteps": 0,
+    "SerializedDummy+steps": 0,
+    "SerializedDummy+nosteps": 0,
+    "other": 0
+   },
+   "n_instanced_symbols": 70
+  },
+  "samples/rmebasicsampleproject.rvt": {
+   "n_family_symbols": 632,
+   "cells_all": {
+    "GElement+steps": 612,
+    "GElement+nosteps": 0,
+    "SerializedDummy+steps": 20,
+    "SerializedDummy+nosteps": 0,
+    "other": 0
+   },
+   "cells_with_instances": {
+    "GElement+steps": 85,
+    "GElement+nosteps": 0,
+    "SerializedDummy+steps": 0,
+    "SerializedDummy+nosteps": 0,
+    "other": 0
+   },
+   "n_instanced_symbols": 90
+  }
+ },
+ "examples_dummy_instanced": [],
+ "examples_dummy_uninstanced": [
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 1744,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 1,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "1800 x 1200 x 450mm",
+   "family": 70070
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 1746,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 1,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "2400 x 1800 x 450mm",
+   "family": 70070
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 3465,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "305x165x40UB",
+   "family": 61384
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 23660,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "200 x 150mm Nominal",
+   "family": 61719
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 23662,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "200 x 100mm Nominal",
+   "family": 61719
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 69330,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 1,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "300 x 450mm",
+   "family": 70488
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 69332,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 1,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "450 x 600mm",
+   "family": 70488
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 69334,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 1,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "600 x 750mm",
+   "family": 70488
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 71873,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 2,
+   "n_strong_refs": 3,
+   "n_connector_data": 0,
+   "name": "UB406x178x60",
+   "family": 259201
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 72810,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 2,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "UC254x254x73",
+   "family": 257235
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 72812,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 2,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "UC203x203x52",
+   "family": 257235
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 73776,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 2,
+   "n_strong_refs": 3,
+   "n_connector_data": 0,
+   "name": "HSS152.4X152.4X9.5",
+   "family": 258185
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 74253,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "0915 x 2134mm",
+   "family": 73795
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 74255,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "0762 x 2134mm",
+   "family": 73795
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 74257,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "0762 x 2032mm",
+   "family": 73795
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 74259,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "0813 x 2134mm",
+   "family": 73795
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 74261,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "0864 x 2032mm",
+   "family": 73795
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 74263,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "0864 x 2134mm",
+   "family": 73795
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 74265,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "0915 x 2032mm",
+   "family": 73795
+  },
+  {
+   "sample": "samples/rstadvancedsampleproject.rvt",
+   "symbol": 74717,
+   "n_instances": 0,
+   "rep_class": "SerializedDummy",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 4,
+   "n_connector_data": 0,
+   "name": "0900 x 1200mm",
+   "family": 74271
+  }
+ ],
+ "examples_baked_instanced": [
+  {
+   "sample": "samples/rstbasicsampleproject.rvt",
+   "symbol": 382615,
+   "n_instances": 8,
+   "rep_class": "GElement",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 0,
+   "n_connector_data": 0,
+   "name": "A1 metric",
+   "family": 1456494
+  },
+  {
+   "sample": "samples/rstbasicsampleproject.rvt",
+   "symbol": 509468,
+   "n_instances": 17,
+   "rep_class": "GElement",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 1,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "600mm Diameter",
+   "family": 1174712
+  },
+  {
+   "sample": "samples/rstbasicsampleproject.rvt",
+   "symbol": 512173,
+   "n_instances": 8,
+   "rep_class": "GElement",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 1,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "600 x 600 x 900mm",
+   "family": 1452705
+  },
+  {
+   "sample": "samples/rstbasicsampleproject.rvt",
+   "symbol": 876569,
+   "n_instances": 1,
+   "rep_class": "GElement",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 2,
+   "n_strong_refs": 0,
+   "n_connector_data": 0,
+   "name": "building option 1",
+   "family": 876493
+  },
+  {
+   "sample": "samples/rstbasicsampleproject.rvt",
+   "symbol": 975202,
+   "n_instances": 2,
+   "rep_class": "GElement",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 0,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "Standard",
+   "family": 974585
+  },
+  {
+   "sample": "samples/rstbasicsampleproject.rvt",
+   "symbol": 984452,
+   "n_instances": 27,
+   "rep_class": "GElement",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 22,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "356mm",
+   "family": 983011
+  },
+  {
+   "sample": "samples/rstbasicsampleproject.rvt",
+   "symbol": 1030516,
+   "n_instances": 16,
+   "rep_class": "GElement",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 1,
+   "n_strong_refs": 3,
+   "n_connector_data": 0,
+   "name": "30mm",
+   "family": 1030135
+  },
+  {
+   "sample": "samples/rstbasicsampleproject.rvt",
+   "symbol": 1040365,
+   "n_instances": 17,
+   "rep_class": "GElement",
+   "geom_steps": true,
+   "geom_table": true,
+   "n_geomtag2material": 2,
+   "n_strong_refs": 2,
+   "n_connector_data": 0,
+   "name": "200UB25.4",
+   "family": 1463265
+  }
+ ],
+ "reading": "MEASURED LAW: every corpus FamilySymbol referenced by a FamilyInstance is GElement+steps (the baked cache) -- ZERO instanced SerializedDummy symbols anywhere; the SerializedDummy form exists only UNINSTANCED and even then still carries m_geomSteps (dummy+nosteps -- famload's and BXns's exact shape -- appears in NO sample). So the BXns/SL rungs' dummy-under-instance form is OFF-CORPUS: their viewer verdict decides whether Revit's regeneration path tolerates it (PASS => the no-solid product decision is viable anyway; FAIL => the fix MUST author the corpus-lawful baked grammar, and the 201 instanced GElement+steps symbols here are the grammar-mining corpus to replace the [H] one-specimen inference).",
+ "seconds": 6.1
+}

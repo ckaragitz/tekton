@@ -1,0 +1,1882 @@
+{
+ "summary": {
+  "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/types/T_conduit_types.rvt",
+  "records": 16,
+  "classes": [
+   "CableTraySizesElem",
+   "ConduitSizesElem",
+   "ConduitStandardType",
+   "CustomElement",
+   "RbsCableTrayType",
+   "RbsConduitType",
+   "RbsWireInsulationType",
+   "RbsWireMaterialType",
+   "RbsWireTemperatureRatingType",
+   "RbsWireType"
+  ],
+  "roundtrip_ok": "16/16",
+  "dangling_refs": 0,
+  "commit": {
+   "elemtable_before": 28132,
+   "elemtable_after": 28148,
+   "watermark_after": 888041,
+   "bytes_added": {
+    "101": 2224,
+    "102": 4241,
+    "103": 352
+   },
+   "seconds": 55.1
+  },
+  "readback": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "elemtable_count": 28148,
+   "header_count": 28148,
+   "sentinel_last": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "stamps_ok": true,
+   "new_ids_found_seq102": 16,
+   "new_ids_clean_seq102": 16
+  },
+  "validator": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 2,
+   "seconds": 12.4,
+   "error_list": []
+  }
+ },
+ "catalog": {
+  "count": 16,
+  "records": [
+   {
+    "elem_id": 888026,
+    "kind": "conduit_standard",
+    "class": "ConduitStandardType",
+    "class_id": "0x0370",
+    "category_id": -2008144,
+    "refs": {},
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008144,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32768
+     },
+     "m_abFlags4Bytes": 14,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "ConduitStandardType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888026
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": {
+      "ptr_class": "ParamValueSetAString",
+      "pid": -1,
+      "value": {
+       "m_paramSet": []
+      }
+     },
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888026,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "GEN EMT"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888027,
+    "kind": "conduit_standard",
+    "class": "ConduitStandardType",
+    "class_id": "0x0370",
+    "category_id": -2008144,
+    "refs": {},
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008144,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32768
+     },
+     "m_abFlags4Bytes": 14,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "ConduitStandardType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888027
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": {
+      "ptr_class": "ParamValueSetAString",
+      "pid": -1,
+      "value": {
+       "m_paramSet": []
+      }
+     },
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888027,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "GEN RMC"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888028,
+    "kind": "conduit_sizes",
+    "class": "ConduitSizesElem",
+    "class_id": "0x036d",
+    "category_id": -1,
+    "refs": {
+     "standards": [
+      888026,
+      888027
+     ]
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -1,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32768
+     },
+     "m_abFlags4Bytes": 8206,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "ConduitSizesElem"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888026,
+        888027,
+        888028
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888028,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_sizes": [
+      {
+       "first": 888026,
+       "second": {
+        "m_sizeData": [
+         {
+          "m_dSize": 0.041666666666666664,
+          "m_dInnerDiameter": 0.051833333333333335,
+          "m_dOuterDiameter": 0.05883333333333333,
+          "m_dBendRadius": 0.3625,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.0625,
+          "m_dInnerDiameter": 0.06866666666666667,
+          "m_dOuterDiameter": 0.07683333333333334,
+          "m_dBendRadius": 0.41333333333333333,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.08333333333333333,
+          "m_dInnerDiameter": 0.08741666666666666,
+          "m_dOuterDiameter": 0.09691666666666666,
+          "m_dBendRadius": 0.5275,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.10416666666666667,
+          "m_dInnerDiameter": 0.11499999999999999,
+          "m_dOuterDiameter": 0.12583333333333332,
+          "m_dBendRadius": 0.6666666666666666,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.125,
+          "m_dInnerDiameter": 0.13416666666666668,
+          "m_dOuterDiameter": 0.145,
+          "m_dBendRadius": 0.7599999999999999,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.16666666666666666,
+          "m_dInnerDiameter": 0.17225000000000001,
+          "m_dOuterDiameter": 0.18308333333333335,
+          "m_dBendRadius": 0.8833333333333333,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.20833333333333334,
+          "m_dInnerDiameter": 0.22758333333333333,
+          "m_dOuterDiameter": 0.23958333333333334,
+          "m_dBendRadius": 0.8833333333333333,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.25,
+          "m_dInnerDiameter": 0.2796666666666667,
+          "m_dOuterDiameter": 0.2916666666666667,
+          "m_dBendRadius": 1.0833333333333333,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.2916666666666667,
+          "m_dInnerDiameter": 0.3195,
+          "m_dOuterDiameter": 0.3333333333333333,
+          "m_dBendRadius": 1.25,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.3333333333333333,
+          "m_dInnerDiameter": 0.36116666666666664,
+          "m_dOuterDiameter": 0.375,
+          "m_dBendRadius": 1.3333333333333333,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         }
+        ]
+       }
+      },
+      {
+       "first": 888027,
+       "second": {
+        "m_sizeData": [
+         {
+          "m_dSize": 0.041666666666666664,
+          "m_dInnerDiameter": 0.05266666666666667,
+          "m_dOuterDiameter": 0.06999999999999999,
+          "m_dBendRadius": 0.3625,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.0625,
+          "m_dInnerDiameter": 0.06966666666666667,
+          "m_dOuterDiameter": 0.08750000000000001,
+          "m_dBendRadius": 0.41333333333333333,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.08333333333333333,
+          "m_dInnerDiameter": 0.08858333333333333,
+          "m_dOuterDiameter": 0.10958333333333332,
+          "m_dBendRadius": 0.4791666666666667,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.16666666666666666,
+          "m_dInnerDiameter": 0.17358333333333334,
+          "m_dOuterDiameter": 0.19791666666666666,
+          "m_dBendRadius": 0.7916666666666666,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.25,
+          "m_dInnerDiameter": 0.2575,
+          "m_dOuterDiameter": 0.2916666666666667,
+          "m_dBendRadius": 1.0833333333333333,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         },
+         {
+          "m_dSize": 0.3333333333333333,
+          "m_dInnerDiameter": 0.33749999999999997,
+          "m_dOuterDiameter": 0.375,
+          "m_dBendRadius": 1.3333333333333333,
+          "m_bInSizeList": true,
+          "m_bUsedBySizing": true
+         }
+        ]
+       }
+      }
+     ]
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": [
+     "singleton: one ConduitSizesElem per document"
+    ]
+   },
+   {
+    "elem_id": 888029,
+    "kind": "conduit_type",
+    "class": "RbsConduitType",
+    "class_id": "0x0d64",
+    "category_id": -2008132,
+    "refs": {
+     "standard": 888026,
+     "fittings": [],
+     "preview": -1
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008132,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32640
+     },
+     "m_abFlags4Bytes": 14,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "RbsConduitType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888026,
+        888029
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888029,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "GEN Conduit - EMT (no fittings)"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1,
+     "m_pCompoundStructure": null,
+     "m_dRoughness": 0.0003,
+     "m_dMaxHeight": 8.0,
+     "m_dMaxWidth": 8.0,
+     "m_idDefaultElbow": -1,
+     "m_idDefaultTee": -1,
+     "m_idDefaultCross": -1,
+     "m_idDefaultTransition": -1,
+     "m_idDefaultMultiShape": -1,
+     "m_idDefaultUnion": -1,
+     "m_idDefaultTakeoff": -1,
+     "m_idDefaultElbowUp": -1,
+     "m_idDefaultElbowDown": -1,
+     "m_idDefaultTeeUp": -1,
+     "m_idDefaultTeeDown": -1,
+     "m_idDefaultMultiShapeRectToOval": -1,
+     "m_idDefaultMultiShapeOvalToRound": -1,
+     "m_idMechJoint": -1,
+     "m_eRiseDropType": 0,
+     "m_bBranchTypeTee": true,
+     "m_Profile": {
+      "ptr_class": "AbsSysCircSweepProfile",
+      "pid": -1,
+      "value": {}
+     },
+     "m_idStandardType": 888026,
+     "m_bWithFitting": false
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": [
+     "default fitting symbols -1: fitting families are loadable content, authored separately"
+    ]
+   },
+   {
+    "elem_id": 888030,
+    "kind": "conduit_type",
+    "class": "RbsConduitType",
+    "class_id": "0x0d64",
+    "category_id": -2008132,
+    "refs": {
+     "standard": 888027,
+     "fittings": [],
+     "preview": -1
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008132,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32640
+     },
+     "m_abFlags4Bytes": 14,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "RbsConduitType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888027,
+        888030
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888030,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "GEN Conduit - RMC with Fittings"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1,
+     "m_pCompoundStructure": null,
+     "m_dRoughness": 0.0003,
+     "m_dMaxHeight": 8.0,
+     "m_dMaxWidth": 8.0,
+     "m_idDefaultElbow": -1,
+     "m_idDefaultTee": -1,
+     "m_idDefaultCross": -1,
+     "m_idDefaultTransition": -1,
+     "m_idDefaultMultiShape": -1,
+     "m_idDefaultUnion": -1,
+     "m_idDefaultTakeoff": -1,
+     "m_idDefaultElbowUp": -1,
+     "m_idDefaultElbowDown": -1,
+     "m_idDefaultTeeUp": -1,
+     "m_idDefaultTeeDown": -1,
+     "m_idDefaultMultiShapeRectToOval": -1,
+     "m_idDefaultMultiShapeOvalToRound": -1,
+     "m_idMechJoint": -1,
+     "m_eRiseDropType": 0,
+     "m_bBranchTypeTee": true,
+     "m_Profile": {
+      "ptr_class": "AbsSysCircSweepProfile",
+      "pid": -1,
+      "value": {}
+     },
+     "m_idStandardType": 888027,
+     "m_bWithFitting": true
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": [
+     "default fitting symbols -1: fitting families are loadable content, authored separately"
+    ]
+   },
+   {
+    "elem_id": 888031,
+    "kind": "cable_tray_sizes",
+    "class": "CableTraySizesElem",
+    "class_id": "0x02c7",
+    "category_id": -1,
+    "refs": {},
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -1,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32768
+     },
+     "m_abFlags4Bytes": 8206,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "CableTraySizesElem"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888031
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888031,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_sizes": {
+      "m_sizeData": [
+       {
+        "m_dSize": 0.3333333333333333,
+        "m_dInnerDiameter": 0.0,
+        "m_dOuterDiameter": 0.0,
+        "m_bInSizeList": true,
+        "m_bUsedBySizing": true
+       },
+       {
+        "m_dSize": 0.5,
+        "m_dInnerDiameter": 0.0,
+        "m_dOuterDiameter": 0.0,
+        "m_bInSizeList": true,
+        "m_bUsedBySizing": true
+       },
+       {
+        "m_dSize": 0.6666666666666666,
+        "m_dInnerDiameter": 0.0,
+        "m_dOuterDiameter": 0.0,
+        "m_bInSizeList": true,
+        "m_bUsedBySizing": true
+       },
+       {
+        "m_dSize": 1.0,
+        "m_dInnerDiameter": 0.0,
+        "m_dOuterDiameter": 0.0,
+        "m_bInSizeList": true,
+        "m_bUsedBySizing": true
+       },
+       {
+        "m_dSize": 1.5,
+        "m_dInnerDiameter": 0.0,
+        "m_dOuterDiameter": 0.0,
+        "m_bInSizeList": true,
+        "m_bUsedBySizing": true
+       },
+       {
+        "m_dSize": 2.0,
+        "m_dInnerDiameter": 0.0,
+        "m_dOuterDiameter": 0.0,
+        "m_bInSizeList": true,
+        "m_bUsedBySizing": true
+       },
+       {
+        "m_dSize": 2.5,
+        "m_dInnerDiameter": 0.0,
+        "m_dOuterDiameter": 0.0,
+        "m_bInSizeList": true,
+        "m_bUsedBySizing": true
+       },
+       {
+        "m_dSize": 3.0,
+        "m_dInnerDiameter": 0.0,
+        "m_dOuterDiameter": 0.0,
+        "m_bInSizeList": true,
+        "m_bUsedBySizing": true
+       }
+      ]
+     }
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": [
+     "singleton: one CableTraySizesElem per document"
+    ]
+   },
+   {
+    "elem_id": 888032,
+    "kind": "cable_tray_type",
+    "class": "RbsCableTrayType",
+    "class_id": "0x0d5a",
+    "category_id": -2008130,
+    "refs": {
+     "fittings": [],
+     "preview": -1,
+     "shape": "ladder"
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008130,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32640
+     },
+     "m_abFlags4Bytes": 14,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "RbsCableTrayType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888032
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888032,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "GEN Ladder Cable Tray"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1,
+     "m_pCompoundStructure": null,
+     "m_dRoughness": 0.0003,
+     "m_dMaxHeight": 8.0,
+     "m_dMaxWidth": 8.0,
+     "m_idDefaultElbow": -1,
+     "m_idDefaultTee": -1,
+     "m_idDefaultCross": -1,
+     "m_idDefaultTransition": -1,
+     "m_idDefaultMultiShape": -1,
+     "m_idDefaultUnion": -1,
+     "m_idDefaultTakeoff": -1,
+     "m_idDefaultElbowUp": -1,
+     "m_idDefaultElbowDown": -1,
+     "m_idDefaultTeeUp": -1,
+     "m_idDefaultTeeDown": -1,
+     "m_idDefaultMultiShapeRectToOval": -1,
+     "m_idDefaultMultiShapeOvalToRound": -1,
+     "m_idMechJoint": -1,
+     "m_eRiseDropType": 0,
+     "m_bBranchTypeTee": true,
+     "m_Profile": {
+      "ptr_class": "LadderSweepProfile",
+      "pid": -1,
+      "value": {}
+     },
+     "m_dMinBendMultiplier": 1.0,
+     "m_eCableTrayType": 2,
+     "m_bWithFitting": true
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888033,
+    "kind": "cable_tray_type",
+    "class": "RbsCableTrayType",
+    "class_id": "0x0d5a",
+    "category_id": -2008130,
+    "refs": {
+     "fittings": [],
+     "preview": -1,
+     "shape": "ushape"
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008130,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32640
+     },
+     "m_abFlags4Bytes": 14,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "RbsCableTrayType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888033
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888033,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "GEN Solid Bottom Cable Tray"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1,
+     "m_pCompoundStructure": null,
+     "m_dRoughness": 0.0003,
+     "m_dMaxHeight": 8.0,
+     "m_dMaxWidth": 8.0,
+     "m_idDefaultElbow": -1,
+     "m_idDefaultTee": -1,
+     "m_idDefaultCross": -1,
+     "m_idDefaultTransition": -1,
+     "m_idDefaultMultiShape": -1,
+     "m_idDefaultUnion": -1,
+     "m_idDefaultTakeoff": -1,
+     "m_idDefaultElbowUp": -1,
+     "m_idDefaultElbowDown": -1,
+     "m_idDefaultTeeUp": -1,
+     "m_idDefaultTeeDown": -1,
+     "m_idDefaultMultiShapeRectToOval": -1,
+     "m_idDefaultMultiShapeOvalToRound": -1,
+     "m_idMechJoint": -1,
+     "m_eRiseDropType": 0,
+     "m_bBranchTypeTee": true,
+     "m_Profile": {
+      "ptr_class": "UShapeSweepProfile",
+      "pid": -1,
+      "value": {}
+     },
+     "m_dMinBendMultiplier": 1.0,
+     "m_eCableTrayType": 1,
+     "m_bWithFitting": true
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888034,
+    "kind": "conductor_material",
+    "class": "CustomElement",
+    "class_id": "0x0442",
+    "category_id": -1,
+    "refs": {
+     "cell": "RbsConductorMaterial",
+     "name": "Copper"
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -1,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -4225
+     },
+     "m_abFlags4Bytes": 8206,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "CustomElement"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888034
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": {
+      "ptr_class": "CellList",
+      "pid": -1,
+      "value": {
+       "m_cells": [
+        {
+         "ptr_class": "RbsConductorMaterial",
+         "pid": -1,
+         "value": {}
+        },
+        {
+         "ptr_class": "NamingCell",
+         "pid": -1,
+         "value": {
+          "m_name": "Copper"
+         }
+        }
+       ]
+      }
+     },
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888034,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888035,
+    "kind": "conductor_temperature",
+    "class": "CustomElement",
+    "class_id": "0x0442",
+    "category_id": -1,
+    "refs": {
+     "cell": "RbsConductorTemperatureRating",
+     "name": "75"
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -1,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -4225
+     },
+     "m_abFlags4Bytes": 8206,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "CustomElement"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888035
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": {
+      "ptr_class": "CellList",
+      "pid": -1,
+      "value": {
+       "m_cells": [
+        {
+         "ptr_class": "RbsConductorTemperatureRating",
+         "pid": -1,
+         "value": {}
+        },
+        {
+         "ptr_class": "NamingCell",
+         "pid": -1,
+         "value": {
+          "m_name": "75"
+         }
+        }
+       ]
+      }
+     },
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888035,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888036,
+    "kind": "conductor_insulation",
+    "class": "CustomElement",
+    "class_id": "0x0442",
+    "category_id": -1,
+    "refs": {
+     "cell": "RbsConductorInsulationMaterial",
+     "name": "THWN"
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -1,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -4225
+     },
+     "m_abFlags4Bytes": 8206,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "CustomElement"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888036
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": {
+      "ptr_class": "CellList",
+      "pid": -1,
+      "value": {
+       "m_cells": [
+        {
+         "ptr_class": "RbsConductorInsulationMaterial",
+         "pid": -1,
+         "value": {}
+        },
+        {
+         "ptr_class": "NamingCell",
+         "pid": -1,
+         "value": {
+          "m_name": "THWN"
+         }
+        }
+       ]
+      }
+     },
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888036,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888037,
+    "kind": "conductor_size",
+    "class": "CustomElement",
+    "class_id": "0x0442",
+    "category_id": -1,
+    "refs": {
+     "cell": "RbsConductorSize",
+     "name": "500"
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -1,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -4225
+     },
+     "m_abFlags4Bytes": 8206,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "CustomElement"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888037
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": {
+      "ptr_class": "CellList",
+      "pid": -1,
+      "value": {
+       "m_cells": [
+        {
+         "ptr_class": "RbsConductorSize",
+         "pid": -1,
+         "value": {
+          "m_diameter": 0.07148950131233595
+         }
+        },
+        {
+         "ptr_class": "NamingCell",
+         "pid": -1,
+         "value": {
+          "m_name": "500"
+         }
+        }
+       ]
+      }
+     },
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888037,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888038,
+    "kind": "wire_type",
+    "class": "RbsWireType",
+    "class_id": "0x0ded",
+    "category_id": -2008039,
+    "refs": {
+     "material": 888034,
+     "temperature": 888035,
+     "insulation": 888036,
+     "max_size": 888037
+    },
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008039,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32640
+     },
+     "m_abFlags4Bytes": 30,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "RbsWireType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888034,
+        888035,
+        888036,
+        888037,
+        888038
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": null,
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888038,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "GEN THWN Copper"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1,
+     "m_strConduitType": "Non-Magnetic",
+     "m_dNeutralMultiplier": 1.0,
+     "m_idMaterial": 888034,
+     "m_idTempratureRating": 888035,
+     "m_idInsulation": 888036,
+     "m_idMaxConductorSize": 888037,
+     "m_eNeutralMode": 0,
+     "m_bNeutralIncludedInBalancedLoad": true,
+     "m_bShareNeutral": true,
+     "m_bShareGround": true
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888039,
+    "kind": "wire_material_type",
+    "class": "RbsWireMaterialType",
+    "class_id": "0x0de5",
+    "category_id": -2008111,
+    "refs": {},
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008111,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32768
+     },
+     "m_abFlags4Bytes": 14,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "RbsWireMaterialType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888039
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": {
+      "ptr_class": "ParamValueSetAString",
+      "pid": -1,
+      "value": {
+       "m_paramSet": []
+      }
+     },
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888039,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "GEN Copper"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888040,
+    "kind": "wire_insulation_type",
+    "class": "RbsWireInsulationType",
+    "class_id": "0x0ddd",
+    "category_id": -2008112,
+    "refs": {},
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008112,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32768
+     },
+     "m_abFlags4Bytes": 30,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "RbsWireInsulationType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888040
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": {
+      "ptr_class": "ParamValueSetAString",
+      "pid": -1,
+      "value": {
+       "m_paramSet": []
+      }
+     },
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888040,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "GEN THWN"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   },
+   {
+    "elem_id": 888041,
+    "kind": "wire_temperature_rating_type",
+    "class": "RbsWireTemperatureRatingType",
+    "class_id": "0x0dec",
+    "category_id": -2008113,
+    "refs": {},
+    "seq101_ElementHeader": {
+     "m_regenHistory": {
+      "m_historyMap": []
+     },
+     "m_categroryId": -2008113,
+     "m_familyId": -1,
+     "m_ownerViewId": -1,
+     "m_designOptionId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_miscId": -1,
+     "m_viewRules": {
+      "m_nVisibleViewFlags": -32768
+     },
+     "m_abFlags4Bytes": 30,
+     "m_classDef": {
+      "m_ref": {
+       "classref": "RbsWireTemperatureRatingType"
+      }
+     },
+     "m_pBBox": null,
+     "m_parents": {
+      "ptr_class": "ElementParents",
+      "pid": -1,
+      "value": {
+       "m_deletion": [
+        888041
+       ],
+       "m_regenOnly": [],
+       "m_regenWildcards": [],
+       "m_nonDetermRegenChildren": [],
+       "m_dependencyParents": [],
+       "m_appearanceParents": [],
+       "m_deferredParents": [],
+       "m_deferredPropagationParents": [],
+       "m_computedParametersParents": [],
+       "m_hasNonDetermRegenChildren": false
+      }
+     }
+    },
+    "seq102_object": {
+     "m_pParamValueSetDouble": null,
+     "m_pParamValueSetInt": null,
+     "m_pParamValueSetAString": {
+      "ptr_class": "ParamValueSetAString",
+      "pid": -1,
+      "value": {
+       "m_paramSet": []
+      }
+     },
+     "m_pParamValueSetElementId": null,
+     "m_geomSteps": null,
+     "m_pGeomTable": null,
+     "m_constrInfo": [],
+     "m_cellList": null,
+     "m_docAccess": {
+      "m_pDoc": {
+       "weakref": 1
+      }
+     },
+     "m_id": 888041,
+     "m_assocLevelId": -1,
+     "m_famId": -1,
+     "m_unplacedOwnerId": -1,
+     "m_ownerDBViewId": -1,
+     "m_createdPhaseId": -1,
+     "m_demolishedPhaseId": -1,
+     "m_designOptionId": -1,
+     "m_locked": false,
+     "m_moribund": false,
+     "m_dummy": false,
+     "m_symbolInfo": {
+      "ptr_class": "SymbolInfo",
+      "pid": -1,
+      "value": {
+       "m_name": "75"
+      }
+     },
+     "m_renderStyleId": -1,
+     "m_previewElemId": -1
+    },
+    "seq103": {
+     "class": "SerializedDummy",
+     "psize": 2
+    },
+    "notes": []
+   }
+  ]
+ }
+}

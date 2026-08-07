@@ -1,0 +1,668 @@
+{
+ "ok": true,
+ "out_path": "experiments/subtractive/_build/SUB_ALL/SUB_ALL_load.rvt",
+ "plans": [
+  {
+   "key": "SUB_ALL",
+   "guid": "0ab0a4c4-2ed1-4fb1-9fe4-c9c6773acdf0",
+   "fam_doc_guid": "21f18b66-5804-4197-9d9c-8021a96da219",
+   "session_guid_hex": "efa83d9a6a87413fa231595258f08613",
+   "family_name": "M Concrete-Square-Column U16",
+   "category": -2001330,
+   "part_type": -1,
+   "type_names": [
+    "450 x 450mm"
+   ],
+   "host_family_id": 1474565,
+   "surrogate_id": 1474580,
+   "symbol_ids": [
+    1474582
+   ],
+   "symbol_surrogate_ids": [
+    1474581
+   ],
+   "twin_of": {
+    "1474542": 1474566,
+    "1474543": 1474567,
+    "1474544": 1474568,
+    "1474545": 1474569,
+    "1474546": 1474570,
+    "1474547": 1474571,
+    "1474548": 1474572,
+    "1474549": 1474573,
+    "1474550": 1474574,
+    "1474551": 1474575,
+    "1474552": 1474576,
+    "1474553": 1474577,
+    "1474554": 1474578,
+    "1474555": 1474579
+   },
+   "abs_index": {
+    "1472572": 43,
+    "1472573": 44,
+    "1472574": 45,
+    "1472575": 46,
+    "1472668": 1988,
+    "1474526": 3165,
+    "1474527": 3166,
+    "1474532": 3167,
+    "1474533": 3168,
+    "1474534": 3169,
+    "1474535": 3170,
+    "1474536": 3171,
+    "1474537": 3172,
+    "1474538": 3173,
+    "1474539": 3174,
+    "1474540": 3175,
+    "1474541": 3176,
+    "1474542": 3177,
+    "1474543": 3178,
+    "1474544": 3179,
+    "1474545": 3180,
+    "1474546": 3181,
+    "1474547": 3182,
+    "1474548": 3183,
+    "1474549": 3184,
+    "1474550": 3185,
+    "1474551": 3186,
+    "1474552": 3187,
+    "1474553": 3188,
+    "1474554": 3189,
+    "1474555": 3190,
+    "1474556": 3191,
+    "1474557": 3192,
+    "1474558": 3193,
+    "1474559": 3194,
+    "1474560": 3195,
+    "1474561": 3196,
+    "1474562": 3197,
+    "1474563": 3198,
+    "1474564": 3199
+   },
+   "core_ids": [
+    7845
+   ],
+   "doc_id_range": [
+    1472532,
+    1474564
+   ],
+   "unit_records": 41,
+   "episode": 1016,
+   "notes": [],
+   "host_ids": [
+    1474565,
+    1474566,
+    1474567,
+    1474568,
+    1474569,
+    1474570,
+    1474571,
+    1474572,
+    1474573,
+    1474574,
+    1474575,
+    1474576,
+    1474577,
+    1474578,
+    1474579,
+    1474580,
+    1474581,
+    1474582
+   ]
+  }
+ ],
+ "proofs": {
+  "host": {
+   "path": "samples/rstbasicsampleproject.rvt",
+   "watermark": 1472524,
+   "episode": 1016,
+   "partition": "Partitions/21",
+   "elements": 13936,
+   "category_gstyles": {
+    "-2001330": 7845
+   },
+   "usage_referrers": {
+    "LevelAttributes": [
+     305
+    ],
+    "GridAttributes": [
+     341
+    ],
+    "CalloutTag": [
+     49508,
+     49583,
+     49601,
+     49619,
+     49637,
+     49655,
+     49673,
+     49691,
+     49709
+    ],
+    "ViewportAttributes": [
+     324,
+     1441530
+    ],
+    "SectionAttributes": [
+     26029,
+     29088,
+     49579,
+     49597,
+     49615,
+     49633,
+     49651,
+     49669,
+     49687,
+     49705
+    ],
+    "InteriorElevAttributes": [
+     357,
+     49589,
+     49607,
+     49625,
+     49643,
+     49661,
+     49679,
+     49697,
+     49715
+    ],
+    "StructSettingsElem": [
+     54663
+    ]
+   },
+   "registries_before": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_entries": 50,
+    "coherent": true
+   },
+   "notes": []
+  },
+  "plans": [
+   {
+    "key": "SUB_ALL",
+    "guid": "0ab0a4c4-2ed1-4fb1-9fe4-c9c6773acdf0",
+    "fam_doc_guid": "21f18b66-5804-4197-9d9c-8021a96da219",
+    "session_guid_hex": "efa83d9a6a87413fa231595258f08613",
+    "family_name": "M Concrete-Square-Column U16",
+    "category": -2001330,
+    "part_type": -1,
+    "type_names": [
+     "450 x 450mm"
+    ],
+    "host_family_id": 1474565,
+    "surrogate_id": 1474580,
+    "symbol_ids": [
+     1474582
+    ],
+    "symbol_surrogate_ids": [
+     1474581
+    ],
+    "twin_of": {
+     "1474542": 1474566,
+     "1474543": 1474567,
+     "1474544": 1474568,
+     "1474545": 1474569,
+     "1474546": 1474570,
+     "1474547": 1474571,
+     "1474548": 1474572,
+     "1474549": 1474573,
+     "1474550": 1474574,
+     "1474551": 1474575,
+     "1474552": 1474576,
+     "1474553": 1474577,
+     "1474554": 1474578,
+     "1474555": 1474579
+    },
+    "abs_index": {
+     "1472572": 43,
+     "1472573": 44,
+     "1472574": 45,
+     "1472575": 46,
+     "1472668": 1988,
+     "1474526": 3165,
+     "1474527": 3166,
+     "1474532": 3167,
+     "1474533": 3168,
+     "1474534": 3169,
+     "1474535": 3170,
+     "1474536": 3171,
+     "1474537": 3172,
+     "1474538": 3173,
+     "1474539": 3174,
+     "1474540": 3175,
+     "1474541": 3176,
+     "1474542": 3177,
+     "1474543": 3178,
+     "1474544": 3179,
+     "1474545": 3180,
+     "1474546": 3181,
+     "1474547": 3182,
+     "1474548": 3183,
+     "1474549": 3184,
+     "1474550": 3185,
+     "1474551": 3186,
+     "1474552": 3187,
+     "1474553": 3188,
+     "1474554": 3189,
+     "1474555": 3190,
+     "1474556": 3191,
+     "1474557": 3192,
+     "1474558": 3193,
+     "1474559": 3194,
+     "1474560": 3195,
+     "1474561": 3196,
+     "1474562": 3197,
+     "1474563": 3198,
+     "1474564": 3199
+    },
+    "core_ids": [
+     7845
+    ],
+    "doc_id_range": [
+     1472532,
+     1474564
+    ],
+    "unit_records": 41,
+    "episode": 1016,
+    "notes": [],
+    "host_ids": [
+     1474565,
+     1474566,
+     1474567,
+     1474568,
+     1474569,
+     1474570,
+     1474571,
+     1474572,
+     1474573,
+     1474574,
+     1474575,
+     1474576,
+     1474577,
+     1474578,
+     1474579,
+     1474580,
+     1474581,
+     1474582
+    ]
+   }
+  ],
+  "host_elements": {
+   "count": 18,
+   "by_family": {
+    "SUB_ALL": [
+     {
+      "elem_id": 1474565,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1474566,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474542 (Width)"
+      ]
+     },
+     {
+      "elem_id": 1474567,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474543 (Height)"
+      ]
+     },
+     {
+      "elem_id": 1474568,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474544 (Depth)"
+      ]
+     },
+     {
+      "elem_id": 1474569,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474545 (PanelName)"
+      ]
+     },
+     {
+      "elem_id": 1474570,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474546 (Voltage)"
+      ]
+     },
+     {
+      "elem_id": 1474571,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474547 (Phases)"
+      ]
+     },
+     {
+      "elem_id": 1474572,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474548 (Wires)"
+      ]
+     },
+     {
+      "elem_id": 1474573,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474549 (BusRating)"
+      ]
+     },
+     {
+      "elem_id": 1474574,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474550 (MainsType)"
+      ]
+     },
+     {
+      "elem_id": 1474575,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474551 (MainsRating)"
+      ]
+     },
+     {
+      "elem_id": 1474576,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474552 (ShortCircuitRatingkA)"
+      ]
+     },
+     {
+      "elem_id": 1474577,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474553 (Mounting)"
+      ]
+     },
+     {
+      "elem_id": 1474578,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474554 (NumberOfCircuits)"
+      ]
+     },
+     {
+      "elem_id": 1474579,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1474565,
+      "notes": [
+       "twin of embedded param 1474555 (NeutralRating)"
+      ]
+     },
+     {
+      "elem_id": 1474580,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1474581,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1474582,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ]
+   }
+  },
+  "roundtrip_gate": {
+   "records": 54,
+   "roundtrip_ok": 54,
+   "failed": 0,
+   "encoded_bytes": 14667,
+   "failures": []
+  },
+  "embedded": {
+   "SUB_ALL": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 3017,
+     "elem_recs": 41,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "0ab0a4c4-2ed1-4fb1-9fe4-c9c6773acdf0",
+     "records": 41,
+     "bytes": 11607,
+     "segments": {
+      "101": 6983,
+      "102": 67922,
+      "103": 5380
+     }
+    }
+   }
+  },
+  "pass1_commit": {
+   "new_element_ids": [
+    1474565,
+    1474566,
+    1474567,
+    1474568,
+    1474569,
+    1474570,
+    1474571,
+    1474572,
+    1474573,
+    1474574,
+    1474575,
+    1474576,
+    1474577,
+    1474578,
+    1474579,
+    1474580,
+    1474581,
+    1474582
+   ],
+   "elemtable_count_before": 13936,
+   "elemtable_count_after": 13954,
+   "watermark_after": 1474582,
+   "per_seq_bytes_added": {
+    "101": 2880,
+    "102": 12507,
+    "103": 396
+   }
+  },
+  "pass2_partition_splices": {
+   "SUB_ALL": {
+    "units_before": 53,
+    "units_after": 54,
+    "walker_errors": [],
+    "our_unit_guid": "0ab0a4c4-2ed1-4fb1-9fe4-c9c6773acdf0",
+    "our_unit_records": {
+     "101": 42,
+     "102": 42,
+     "103": 42
+    },
+    "id_sets_identical": true
+   }
+  },
+  "pass2_content_documents": {
+   "entries_before": 52,
+   "entries_after": 53,
+   "ours_all_present": true,
+   "end_record_intact": true,
+   "delta_bytes": 3053
+  },
+  "pass2_adocument_registrations": {
+   "content_table_records": 53,
+   "family_mgr_entries": 51,
+   "element_tracking": {
+    "-2001330": 4
+   }
+  },
+  "pass2_adocument_reencode": {
+   "clean": true,
+   "bytes_before": 1586246,
+   "bytes_after": 1586358
+  },
+  "verify_written": {
+   "path": "experiments/subtractive/_build/SUB_ALL/SUB_ALL_load.rvt",
+   "container": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "host_records_missing": [],
+    "host_records_unclean": []
+   },
+   "registries": {
+    "save_units": 54,
+    "contentdocs_entries": 53,
+    "contenttable_records": 53,
+    "familymgr_entries": 51,
+    "coherent": true,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "units_missing_from_contentdocs": [],
+    "units_missing_from_contenttable": [],
+    "units_missing_from_familymgr": [],
+    "contenttable_dangling": [],
+    "familymgr_dangling": [],
+    "before": {
+     "save_units": 53,
+     "contentdocs_entries": 52,
+     "contenttable_records": 52,
+     "familymgr_entries": 50,
+     "coherent": true
+    },
+    "units_added": 1,
+    "units_added_ok": true,
+    "ours_in_all_four": true
+   },
+   "elemtable": {
+    "records": 13954,
+    "watermark": 1474582,
+    "our_host_ids_present": true,
+    "watermark_covers_documents": true
+   },
+   "host_linkage": {
+    "ok": true,
+    "families": [
+     {
+      "key": "SUB_ALL",
+      "family": 1474565,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1474582": true,
+       "symsurrogate_1474581": true,
+       "twin_1474566": true,
+       "twin_1474567": true,
+       "twin_1474568": true,
+       "twin_1474569": true,
+       "twin_1474570": true,
+       "twin_1474571": true,
+       "twin_1474572": true,
+       "twin_1474573": true,
+       "twin_1474574": true,
+       "twin_1474575": true,
+       "twin_1474576": true,
+       "twin_1474577": true,
+       "twin_1474578": true,
+       "twin_1474579": true
+      },
+      "ok": true
+     }
+    ]
+   },
+   "family_inventory": {
+    "total_host_families": 51,
+    "ours": [
+     {
+      "key": "SUB_ALL",
+      "found": 1,
+      "family_id": 1474565,
+      "family_name": "M Concrete-Square-Column U16",
+      "category": -2001330,
+      "unit": 53,
+      "n_records": 41,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1474582,
+        "name": "450 x 450mm"
+       }
+      ],
+      "big2small_count": 14,
+      "n_family_params": 14,
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": [],
+    "warnings": [
+     "[semantic] objects: 7/32070 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+    ]
+   },
+   "ok": true
+  }
+ },
+ "acceptance": [
+  "H1: an EMBEDDED family ADocument with an all-null 239-slot AppInfoManager (the specimen carries ~110 populated family-editor registries) -- the factory's L3 open question, unchanged",
+  "H2: an annotation FamilySymbol whose seq-103 rep is a SerializedDummy and whose geometry bookkeeping (m_geomSteps / m_pGeomTable / m_refFaces / m_tagNoteData) is EMPTY -- Revit must regenerate the symbol graphics from the family document",
+  "H3: our family documents carry the S0 skeleton (self-Family, Ref. Level, origin planes, units, one plan view, parameters, one type) and NO detail geometry / label -- the head SHAPE is absent",
+  "H4: host Family.m_coreIds bind only the host's category GStyle rows (none when the host lacks that category); big2small maps only the parameter twins (our documents reference no host catalog rows)",
+  "H5: the ContentTable record's author is 'rvt-writer'; the load reuses the host's current episode (no new History row / DIT record)",
+  "H6: the host FamilyTypeTable = one blank ' ' row and the type lives as the FamilySymbol (the annotation flavour); OUR embedded document carries its single named type too (the specimen embedded head document's type table is empty)"
+ ],
+ "stop_reason": "",
+ "seconds": 28.1
+}

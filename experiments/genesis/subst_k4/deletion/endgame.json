@@ -1,0 +1,816 @@
+{
+ "constellations": {
+  "curtain-systems": {
+   "name": "curtain-systems",
+   "ids": [
+    8482,
+    8483,
+    8484,
+    8485,
+    12609,
+    12610,
+    12613,
+    12614,
+    18428,
+    18429,
+    18432,
+    18433,
+    18436,
+    18437,
+    18440,
+    18441,
+    49579,
+    49580,
+    49581,
+    49582,
+    49583,
+    49584,
+    49585,
+    49586,
+    49587,
+    49588,
+    49589,
+    49590,
+    49591,
+    49592,
+    49593,
+    49594,
+    49595,
+    49596,
+    49597,
+    49598,
+    49599,
+    49600,
+    49601,
+    49602,
+    49603,
+    49604,
+    49605,
+    49606,
+    49607,
+    49608,
+    49609,
+    49610,
+    49611,
+    49612,
+    49613,
+    49614,
+    49615,
+    49616,
+    49617,
+    49618,
+    49619,
+    49620,
+    49621,
+    49622,
+    49623,
+    49624,
+    49625,
+    49626,
+    49627,
+    49628,
+    49629,
+    49630,
+    49631,
+    49632,
+    49633,
+    49634,
+    49635,
+    49636,
+    49637,
+    49638,
+    49639,
+    49640,
+    49641,
+    49642,
+    49643,
+    49644,
+    49645,
+    49646,
+    49647,
+    49648,
+    49649,
+    49650,
+    49651,
+    49652,
+    49653,
+    49654,
+    49655,
+    49656,
+    49657,
+    49658,
+    49659,
+    49660,
+    49661,
+    49662,
+    49663,
+    49664,
+    49665,
+    49666,
+    49667,
+    49668,
+    49669,
+    49670,
+    49671,
+    49672,
+    49673,
+    49674,
+    49675,
+    49676,
+    49677,
+    49678,
+    49679,
+    49680,
+    49681,
+    49682,
+    49683,
+    49684,
+    49685,
+    49686,
+    49687,
+    49688,
+    49689,
+    49690,
+    49691,
+    49692,
+    49693,
+    49694,
+    49695,
+    49696,
+    49697,
+    49698,
+    49699,
+    49700,
+    49701,
+    49702,
+    49703,
+    49704,
+    49705,
+    49706,
+    49707,
+    49708,
+    49709,
+    49710,
+    49711,
+    49712,
+    49713,
+    49714,
+    49715,
+    49716,
+    49717,
+    49718,
+    49719,
+    49720,
+    49721,
+    49722,
+    907054,
+    907055,
+    907056,
+    907057,
+    907058,
+    907059,
+    907060,
+    907061,
+    907062,
+    907063,
+    907064,
+    907065,
+    907066,
+    907067,
+    907068,
+    907069,
+    907070,
+    907071,
+    907072,
+    907073,
+    907074,
+    907075,
+    907076,
+    907077,
+    907078,
+    907079,
+    907080,
+    907081,
+    907082,
+    907083,
+    907084,
+    907085,
+    907086,
+    907087,
+    907088,
+    907089,
+    907090,
+    907091,
+    907092,
+    907093,
+    907094,
+    907095,
+    907096,
+    907097,
+    907098,
+    907099,
+    907100,
+    907101,
+    907102,
+    907103,
+    907104,
+    907105,
+    907106,
+    907107,
+    907108,
+    907109,
+    907110,
+    907111,
+    907112,
+    907113,
+    907114,
+    907115,
+    907116,
+    907117,
+    907423,
+    907424,
+    1218557,
+    1218558,
+    1218559,
+    1218560,
+    1218561,
+    1218562,
+    1218563,
+    1218564
+   ],
+   "by_class": {
+    "DBViewType": 72,
+    "CategoryElem": 40,
+    "GStyleElem": 40,
+    "FontElem": 24,
+    "Family": 8,
+    "FamilySurrogate": 8,
+    "SectionAttributes": 8,
+    "CalloutTag": 8,
+    "InteriorElevAttributes": 8,
+    "DimensionStyle": 8,
+    "PenWidthTableElem": 8,
+    "LegendComponent": 2
+   },
+   "rationale": "THE ATOMIC FAMILY LAYER (law clause 1): the 8 curtain-SYSTEM Family elements + their FamilySurrogates + EVERY m_famId-scoped child (72 family-editor DBViewTypes, 40 CategoryElem + 40 GStyleElem sub-category rows, 24 FontElem, 8 SectionAttributes / InteriorElevAttributes / CalloutTag / DimensionStyle / PenWidthTableElem each) leave TOGETHER, plus the two LegendComponents that PREVIEW curtain surrogates 12610 / 12614 (their only outside referrers).  Registry effect: 8 of the 9 FamilyMgr.m_arrLoadedFamilyInfo entries + 40 CategoryTracking category rows + 40 style rows in Global/Latest are LEFT DANGLING (never edited) -- the R9 shape; the same lineage ALREADY carries the dangling FamilyMgr surrogate 876494, which the reader accepts (K4 / Y9 / ZA_deep all viewer-PASSED).",
+   "outside_referrers": [],
+   "grew_from": {
+    "core_removal_set": 232,
+    "previews_added": [
+     {
+      "legend_component": 907423,
+      "previews_surrogate": 12610,
+      "why": "type-PREVIEW element: the surrogate's m_previewElemId / header names it and its own header deletion parent is the surrogate -- delete-with-content (clause 4: the referrer leaves WITH the content)"
+     },
+     {
+      "legend_component": 907424,
+      "previews_surrogate": 12614,
+      "why": "type-PREVIEW element: the surrogate's m_previewElemId / header names it and its own header deletion parent is the surrogate -- delete-with-content (clause 4: the referrer leaves WITH the content)"
+     }
+    ]
+   },
+   "notes": [
+    "curtain families: ['Rectangular Mullion', 'Circular Mullion', 'L Corner Mullion', 'V Corner Mullion', 'Trapezoid Corner Mullion', 'Quad Corner Mullion', 'System Panel', 'Empty System Panel']",
+    "system-family removal has NO prior viewer verdict (the endgame's flagged unproven mechanic, step 22) -- this constellation is EXACTLY that probe, isolated, with the certified control",
+    "SlaveSymbolTrackerElem 1454535 is NOT curtain machinery on this base: its master is FabricSheetType 1352719 (verified live) -- it leaves with the fabric-sheet type, not here"
+   ]
+  },
+  "linked-model-instance": {
+   "name": "linked-model-instance",
+   "ids": [
+    1250030,
+    1250031
+   ],
+   "by_class": {
+    "RvtLinkInstance": 1,
+    "CopyWatchProperties": 1
+   },
+   "rationale": "The placed link + its copy/monitor companion: CopyWatchProperties 1250031 (our Y5-landed object, born bound to the sample link -- seq-102 m_linkId = the instance) references the instance, and NOTHING references CopyWatchProperties, so the pair {instance, copy-monitor properties} is a closed delete-with-content unit.  The link SYMBOL is pinned (blocked analysis) and stays.",
+   "outside_referrers": [],
+   "grew_from": {},
+   "notes": [
+    "CopyWatchProperties 1250031 is one of OUR Y5 objects: it existed only because the sample carried a link; on a link-free genesis base the Y5 constructor should not build it (proposed hook for the settings stream)",
+    "RvtLinkInstanceAppearanceParentElem 132481 (ours) is KEPT: it references nothing and only the instance referenced it, so keeping it dangles nowhere and keeps UniqueElementsTracking slot 41 valid"
+   ]
+  },
+  "constraint-dimension": {
+   "name": "constraint-dimension",
+   "ids": [
+    699327,
+    699381,
+    763366,
+    763420
+   ],
+   "by_class": {
+    "RefPlane": 3,
+    "LinearDimString": 1
+   },
+   "rationale": "The locked EQ-constraint dimension (LinearDimString 763420, category OST_Constraints) + the three reference planes it locks: each plane's seq-102 m_constrInfo[0]->EqConstrInfo.m_constrId = the dimension and the dimension's witness refs name the planes (a mutual constellation); nothing else references any of the four (verified) => a CLOSED delete-with-content unit.  A constraint's 'value' is the geometry it constrains -- content, not a substitution slot.",
+   "outside_referrers": [],
+   "grew_from": {},
+   "notes": [
+    "the 3 reference planes are Group B classes (M..Z) on their branch; on THIS base they are Autodesk residue and members of the dimension's constellation (endgame section 2, 'the dimensioned refplane group') -- the constellation leaves whole"
+   ]
+  }
+ },
+ "blocked": {
+  "link_symbol": {
+   "element": 1250029,
+   "class": "RvtLinkSymbol",
+   "verdict": "NOT delete-reachable on ZA_deep by any sanctioned generator",
+   "pinned_by": [
+    {
+     "referrer": 230,
+     "class": "DBViewProject",
+     "ours": true,
+     "fields": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[8]",
+       "target": 1250029
+      }
+     ]
+    },
+    {
+     "referrer": 69851,
+     "class": "RbsDbViewSystemNavigator",
+     "ours": true,
+     "fields": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[7]",
+       "target": 1250029
+      }
+     ]
+    },
+    {
+     "referrer": 245443,
+     "class": "DBViewPlan",
+     "ours": true,
+     "fields": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[13]",
+       "target": 1250029
+      }
+     ]
+    },
+    {
+     "referrer": 1064656,
+     "class": "DBViewPlan",
+     "ours": true,
+     "fields": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[13]",
+       "target": 1250029
+      }
+     ]
+    },
+    {
+     "referrer": 1250030,
+     "class": "RvtLinkInstance",
+     "ours": false,
+     "fields": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+       "target": 1250029
+      },
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_appearanceParents[3]",
+       "target": 1250029
+      },
+      {
+       "seq": 102,
+       "field": "RvtLinkInstance.m_pInstanceInfo->InstanceInfo.m_symbolId",
+       "target": 1250029
+      }
+     ]
+    },
+    {
+     "referrer": 1250031,
+     "class": "CopyWatchProperties",
+     "ours": true,
+     "fields": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[5]",
+       "target": 1250029
+      }
+     ]
+    },
+    {
+     "referrer": 1454508,
+     "class": "DBView3d",
+     "ours": true,
+     "fields": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[5]",
+       "target": 1250029
+      }
+     ]
+    },
+    {
+     "referrer": 1457028,
+     "class": "DBViewDrafting",
+     "ours": false,
+     "fields": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[3]",
+       "target": 1250029
+      },
+      {
+       "seq": 102,
+       "field": "DBViewDrafting.m_pRvtLinkOverrides->RvtLinkOverrides.m_displaySettingsMap[0].first",
+       "target": 1250029
+      }
+     ]
+    }
+   ],
+   "symbol_references_outward": [
+    [
+     1,
+     "AllProjectPhases"
+    ],
+    [
+     12589,
+     "ProjectPhase"
+    ],
+    [
+     86961,
+     "ProjectPhase"
+    ]
+   ],
+   "why": "Six of the seven pinning records are OUR OWN landed view / navigator slots (Y9 / Y2): in-place substitution replaced only their seq-102 objects, so their seq-101 ElementHeader.m_parents webs are the sample's originals and list the link symbol as a deletion parent.  The seventh, DBViewDrafting 1457028 (residue), also names it in a validator-gated seq-102 field (m_pRvtLinkOverrides ... m_displaySettingsMap[0].first).  maxgc pins the symbol; the validator would ERROR; the law forbids editing the referrers.",
+   "fix": "(1) the substitution stream re-emits our view / navigator slots WITH OUR HEADERS (regadd full-record in-place rung, seqs=(101,102)) whose parent lists name only surviving elements; (2) the drafting-view constellation (1457028 + Viewer 1457029 + Viewports 1457030/43/44 + DBDrawing 1457031 + SketchPlane 1457032) is adopted-as-ours or seeded WITH the symbol -- it is itself pinned by our plans 245443 / 1064656 and their Viewers; then {symbol, drafting constellation} is one maxgc rung.  The symbol's external-file name / path (the sample-lineage string the endgame wants gone) leaves in that rung, or in the own-save identity step."
+  },
+  "room_constellation": {
+   "ids": [
+    1004910,
+    1004909,
+    245433,
+    1004904,
+    1004905,
+    1004906,
+    1004907,
+    1004908
+   ],
+   "by_class": {
+    "CurveElem": 5,
+    "RoomElem": 1,
+    "LevelRoomPlan": 1,
+    "SketchPlane": 1
+   },
+   "verdict": "NOT delete-reachable on ZA_deep (law clause 2 + maxgc)",
+   "anchor_chain": [
+    {
+     "element": 9744,
+     "class": "AreaSchemePlanTopologies",
+     "role": "the containing AreaSchemePlanTopologies of the room content",
+     "names_content_in": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[3]",
+       "target": 1004909
+      },
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_regenOnly[1]",
+       "target": 1004904
+      },
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_regenOnly[2]",
+       "target": 1004905
+      },
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_regenOnly[3]",
+       "target": 1004906
+      },
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_regenOnly[4]",
+       "target": 1004907
+      },
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_regenOnly[5]",
+       "target": 1004908
+      },
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_regenOnly[6]",
+       "target": 1004910
+      },
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_nonDetermRegenChildren[0]",
+       "target": 1004910
+      },
+      {
+       "seq": 102,
+       "field": "AreaSchemePlanTopologies.m_pSet->PlanTopologies.m_set[0].m_levelRoomPlanId",
+       "target": 1004909
+      }
+     ],
+     "law": "clause 2 -- a plan-topology's structured entries: the containing topology is DELETED WITH its content, or the content is kept"
+    },
+    {
+     "element": 9490,
+     "class": "AreaMeasureElem",
+     "ours": true,
+     "role": "OUR area-scheme object (Y5-landed) that pins the topology",
+     "names_topology_in": [
+      {
+       "seq": 101,
+       "field": "ElementHeader.m_parents->ElementParents.m_deletion[3]",
+       "target": 9744
+      },
+      {
+       "seq": 102,
+       "field": "AreaMeasureElem.m_areaSchemePlanTopologyElemId",
+       "target": 9744
+      }
+     ],
+     "law": "editing our surviving object is not a deletion; deleting it is out of scope"
+    }
+   ],
+   "fix": "the Y5 AreaMeasureElem constructor emits m_areaSchemePlanTopologyElemId = -1 (and no header parent to the sample topology) on a base whose plan topology is content-to-remove; then {9744 + room content} is one clean maxgc rung.  Until then the room loop stays BYTE-IDENTICAL (the law's own alternative)."
+  },
+  "type_preview_legend_components": {
+   "ids": [
+    907404,
+    1201130
+   ],
+   "verdict": "owned preview children of residue system-family types (types-stream territory)",
+   "owners": {
+    "907404": [
+     {
+      "seq": 101,
+      "field": "ElementHeader.m_parents->ElementParents.m_deletion[3]",
+      "target": 907404
+     },
+     {
+      "seq": 102,
+      "field": "BasicWallType.m_previewElemId",
+      "target": 907404
+     }
+    ],
+    "1201130": [
+     {
+      "seq": 101,
+      "field": "ElementHeader.m_parents->ElementParents.m_deletion[2]",
+      "target": 1201130
+     },
+     {
+      "seq": 102,
+      "field": "FloorAttributes.m_previewElemId",
+      "target": 1201130
+     }
+    ]
+   },
+   "why": "BasicWallType 600634 / FloorAttributes 1201129 name their preview LegendComponent in m_previewElemId (a validator-gated seq-102 field) + their header deletion parents; the preview leaves ONLY with its type.  The types are the residue system-family types the types stream substitutes in place (our wall / floor type constructors) -- the preview companion is that rung's decision, exactly as the curtain surrogates' previews left with the curtain constellation here."
+  }
+ },
+ "queue99": {
+  "by_class": {
+   "DBViewType": [
+    49584,
+    49585,
+    49586,
+    49587,
+    49588,
+    49593,
+    49594,
+    49595,
+    49596,
+    49602,
+    49603,
+    49604,
+    49605,
+    49606,
+    49611,
+    49612,
+    49613,
+    49614,
+    49620,
+    49621,
+    49622,
+    49623,
+    49624,
+    49629,
+    49630,
+    49631,
+    49632,
+    49638,
+    49639,
+    49640,
+    49641,
+    49642,
+    49647,
+    49648,
+    49649,
+    49650,
+    49656,
+    49657,
+    49658,
+    49659,
+    49660,
+    49665,
+    49666,
+    49667,
+    49668,
+    49674,
+    49675,
+    49676,
+    49677,
+    49678,
+    49683,
+    49684,
+    49685,
+    49686,
+    49692,
+    49693,
+    49694,
+    49695,
+    49696,
+    49701,
+    49702,
+    49703,
+    49704,
+    49710,
+    49711,
+    49712,
+    49713,
+    49714,
+    49719,
+    49720,
+    49721,
+    49722
+   ],
+   "Family": [
+    8482,
+    8483,
+    12609,
+    12613,
+    18428,
+    18432,
+    18436,
+    18440
+   ],
+   "FamilySurrogate": [
+    8484,
+    8485,
+    12610,
+    12614,
+    18429,
+    18433,
+    18437,
+    18441
+   ],
+   "CurveElem": [
+    1004904,
+    1004905,
+    1004906,
+    1004907,
+    1004908
+   ],
+   "LegendComponent": [
+    907404,
+    907423,
+    907424,
+    1201130
+   ],
+   "LinearDimString": [
+    763420
+   ],
+   "LevelRoomPlan": [
+    1004909
+   ]
+  },
+  "count": 99,
+  "note": "Yn's 'Group A NON-INPLACE removal queue' re-derived on ZA_deep: the residue classes residue-A named as removal (not substitution) candidates",
+  "ids_count": 99
+ },
+ "queue99_closure_accounting": {
+  "queue_count": 99,
+  "queue_by_class": {
+   "DBViewType": 72,
+   "Family": 8,
+   "FamilySurrogate": 8,
+   "CurveElem": 5,
+   "LegendComponent": 4,
+   "LinearDimString": 1,
+   "LevelRoomPlan": 1
+  },
+  "queue_members_in_curtain_constellation": 90,
+  "queue_members_in_dimension_group": 1,
+  "queue_members_blocked_room": [
+   1004904,
+   1004905,
+   1004906,
+   1004907,
+   1004908,
+   1004909
+  ],
+  "queue_members_blocked_type_previews": [
+   907404,
+   1201130
+  ],
+  "queue_members_unaccounted": [],
+  "closure_beyond_queue": {
+   "curtain_scoped_children": 144,
+   "dimension_refplanes": 3
+  },
+  "closure_count": 238,
+  "equals_curtain_union_content": true,
+  "reading": "the 99-queue is not an independent deletion set: its lawful closure is exactly D_curtain's set UNION D_content's set (its room / type-preview members are the BLOCKED constellations); D_queue emits that closure as the coarser bisection cut"
+ },
+ "deletion_sets": {
+  "D_curtain": {
+   "count": 234
+  },
+  "D_links": {
+   "count": 2
+  },
+  "D_content": {
+   "count": 4
+  },
+  "D_queue": {
+   "count": 238
+  },
+  "D_all": {
+   "count": 240
+  }
+ },
+ "set_relations": {
+  "D_all_equals_union_of_singles": true,
+  "D_queue_equals_curtain_union_content": true,
+  "D_all_minus_D_queue": [
+   1250030,
+   1250031
+  ],
+  "singles_pairwise_disjoint_except_queue": true
+ },
+ "next_queue": {
+  "surplus_browser_schemes": {
+   "seed": 5,
+   "maxgc_deletable": 5,
+   "pinned": 0,
+   "pinned_by_class": {},
+   "disposition": "residue-A 'surplus-removal' (endgame step 19)",
+   "decision": "clean leaves (deletable); their own single (D_surplus) in the next batch, or with the own-save step -- not in this batch to keep D_all exactly the union of the four singles"
+  },
+  "drafting_view_constellation": {
+   "seed": 7,
+   "maxgc_deletable": 0,
+   "pinned": 7,
+   "pinned_by_class": {
+    "Viewport": 3,
+    "DBViewDrafting": 1,
+    "Viewer": 1,
+    "DBDrawing": 1,
+    "SketchPlane": 1
+   },
+   "disposition": "endgame section 2 'adopt or delete'",
+   "decision": "ANSWERED by the graph: pinned by OUR plans 245443/1064656 + their Viewers => ADOPT (the delete branch is not reachable); this is also the second pin on the link symbol"
+  },
+  "hvac_energy_database": {
+   "seed": 212,
+   "maxgc_deletable": 207,
+   "pinned": 5,
+   "pinned_by_class": {
+    "HVACLoadScheduleElem": 2,
+    "BuildingOperatingYearSchedule": 2,
+    "HVACLoadBuildingTypeElem": 1
+   },
+   "disposition": "product data -- counsel-or-removal (endgame step 23)",
+   "decision": "207 of 212 delete-reachable; 5 pinned via OUR EnergyDataSettings + the (blocked) room; a later Phase-III single once counsel rules (not this batch)"
+  },
+  "misc_analysis_area_machinery": {
+   "seed": 43,
+   "maxgc_deletable": 32,
+   "pinned": 11,
+   "pinned_by_class": {
+    "AreaTypeElem": 8,
+    "AreaSchemePlanTopologies": 2,
+    "AreaReportSettingsElem": 1
+   },
+   "disposition": "misc analysis machinery -- 'analysis-settings rung OR removal' (endgame step 24)",
+   "decision": "32 of 43 delete-reachable; the AreaType / AreaScheme rows are pinned by OUR area schemes and the AreaReportSettings by our category / font rows -- ambiguous disposition, a later single (not this batch)"
+  },
+  "fabric_sheet_type_and_slave_tracker": {
+   "seed": 3,
+   "maxgc_deletable": 3,
+   "pinned": 0,
+   "pinned_by_class": {},
+   "disposition": "rebar fabric system types (no constructor) + the slave tracker whose master is FabricSheetType",
+   "decision": "residue-A misfiled the tracker as curtain machinery; it leaves with the fabric-sheet type (system-types disposition -- types stream / a later single)"
+  }
+ }
+}

@@ -1,0 +1,223 @@
+{
+ "purpose": "THE K1 AUTOPSY BISECTION LADDER.  K1.rvt (R5 minus the placed model, via a NEUTRALISE-then-maxgc build) FAILS the Autodesk reader with the CRASH signature (extractor exit -1073741831, no Revit-DocumentCorruption line) while its parent R5 PASSES.  The autopsy (docs/writer/k1-autopsy.md) closes the accounting: 2,115 of K1's 2,117 deletions are also made by the certified R9/R6, every global stream is byte-identical to R5's, and K1's ENTIRE novelty is 23 surviving elements EDITED by the neutraliser pre-pass (22 in states no viewer-PASSED file carries; 1 byte-vindicated) plus ONE deleted room every passing file keeps.  This ladder rebuilds K1 from certified R5 one edit-class at a time.",
+ "base_certification_law": "Every rung derives from R5.rvt (viewer-PASSED) in ONE step; CTRL_R5_recheck (a byte-identical R5 copy) rides in the same batch as the standing certified control.  No probe is built on an untested base.",
+ "death_signatures": {
+  "CRASH": "'Design is empty' + TranslationWorker-InternalFailure exit -1073741831, NO corruption line (K1, X0k, XR0)",
+  "AUDIT": "'Revit-DocumentCorruption / The file is corrupt' + exit -1073742517 (K1's heavier-modified children)"
+ },
+ "ordered_by": "information value; upload ALL in ONE batch (they are mutually independent siblings of R5)",
+ "batch_gate": "Stage the upload through tools/probe_batch.py (genesis-discipline stream): every probe below declares its base = experiments/genesis/R5.rvt, which IS in viewer-certified.json 'certified'; CTRL_R5_recheck is the batch's byte-identical certified control.",
+ "probes": [
+  {
+   "order": 1,
+   "file": "experiments/genesis/autopsy/CTRL_R5_recheck.rvt",
+   "rung": "CTRL_R5_recheck",
+   "base": "experiments/genesis/R5.rvt",
+   "base_certification": "R5.rvt is VIEWER-CERTIFIED (docs/coverage/viewer-certified.json: 'Latest-DANGLING variant accepted'); every rung of this ladder is derived from R5 in ONE step (no rung stacks on an untested rung).",
+   "kind": null,
+   "the_one_thing_tested": null,
+   "vs_passing_sibling": "R5.rvt (identical file)",
+   "if_PASS": null,
+   "if_FAIL": null,
+   "elements": null,
+   "deleted": null,
+   "referrers_edited": null,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "note": "byte-identical copy of validated R5"
+   },
+   "structural_ok": true
+  },
+  {
+   "order": 2,
+   "file": "experiments/genesis/autopsy/K1a_editfree.rvt",
+   "rung": "K1a_editfree",
+   "base": "experiments/genesis/R5.rvt",
+   "base_certification": "R5.rvt is VIEWER-CERTIFIED (docs/coverage/viewer-certified.json: 'Latest-DANGLING variant accepted'); every rung of this ladder is derived from R5 in ONE step (no rung stacks on an untested rung).",
+   "kind": "gc-delete",
+   "the_one_thing_tested": "K1 with its ENTIRE novelty (the 23 survivor edits) removed.  Is K1's DELETION SET, in the views-present context, fatal on its own?  This is the LADDER BASE.",
+   "vs_passing_sibling": "R5.rvt -- differs only by the maximal-GC deletion of the placed model, ZERO survivor edits (every deletion also in certified R9/R6)",
+   "if_PASS": "The deletion set is innocent (as the certified cross-reference predicts); K1's defect is in the survivor EDITS => the K1b..K1f single-group rungs name it.",
+   "if_FAIL": "The deletion set itself is fatal in the views-present context although R9 made the same deletions without views => an untouched surviving VIEW cannot render an empty model / a class-context interaction; next ladder bisects the deletion set by class group.",
+   "elements": 8058,
+   "deleted": 599,
+   "referrers_edited": 0,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true
+  },
+  {
+   "order": 3,
+   "file": "experiments/genesis/autopsy/K1_suspect.rvt",
+   "rung": "K1_suspect",
+   "base": "experiments/genesis/R5.rvt",
+   "base_certification": "R5.rvt is VIEWER-CERTIFIED (docs/coverage/viewer-certified.json: 'Latest-DANGLING variant accepted'); every rung of this ladder is derived from R5 in ONE step (no rung stacks on an untested rung).",
+   "kind": "modify+gc-delete",
+   "the_one_thing_tested": "Does orphaning a live, registry-indexed FamilySymbol (its family DELETED, family pointer -1) crash the extractor, with nothing else changed?",
+   "vs_passing_sibling": "K1a_editfree.rvt -- differs only by ONE neutralisation edit class (+ the deletions those edits unlock)",
+   "if_PASS": "G4 alone (at this minimal scope) is NOT sufficient to kill; read K1e_orphaning (G4 in the full-deletion context) and the other single-group rungs.",
+   "if_FAIL": "PROVEN: orphaning a type object (nulling m_familyId / m_hostId / a surrogate's m_elemId while KEEPING the referrer) is FATAL.  LAW: family objects are removed TOGETHER (Family + FamilySymbol + surrogates + m_famId children + instances) or not at all; never neutralise a Symbol->Family / Surrogate->Family / TriserSymbol->host link.",
+   "elements": 8579,
+   "deleted": 78,
+   "referrers_edited": 3,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true
+  },
+  {
+   "order": 4,
+   "file": "experiments/genesis/autopsy/K1e_orphaning.rvt",
+   "rung": "K1e_orphaning",
+   "base": "experiments/genesis/R5.rvt",
+   "base_certification": "R5.rvt is VIEWER-CERTIFIED (docs/coverage/viewer-certified.json: 'Latest-DANGLING variant accepted'); every rung of this ladder is derived from R5 in ONE step (no rung stacks on an untested rung).",
+   "kind": "modify+gc-delete",
+   "the_one_thing_tested": "Whether the G4_orphaning edit class (and only it) breaks a PASSING file.",
+   "vs_passing_sibling": "K1a_editfree.rvt -- differs only by ONE neutralisation edit class (+ the deletions those edits unlock)",
+   "if_PASS": "G4_orphaning is innocent -- the killer is another group.",
+   "if_FAIL": "G4_orphaning IS a fatal edit class: the LAW must forbid it (delete these referrers WITH their content, or keep the content, instead of neutralising).  If several single-group rungs fail, several independent laws.",
+   "elements": 7980,
+   "deleted": 677,
+   "referrers_edited": 4,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true
+  },
+  {
+   "order": 5,
+   "file": "experiments/genesis/autopsy/K1d_schedule.rvt",
+   "rung": "K1d_schedule",
+   "base": "experiments/genesis/R5.rvt",
+   "base_certification": "R5.rvt is VIEWER-CERTIFIED (docs/coverage/viewer-certified.json: 'Latest-DANGLING variant accepted'); every rung of this ladder is derived from R5 in ONE step (no rung stacks on an untested rung).",
+   "kind": "modify+gc-delete",
+   "the_one_thing_tested": "Whether the G3_schedule edit class (and only it) breaks a PASSING file.",
+   "vs_passing_sibling": "K1a_editfree.rvt -- differs only by ONE neutralisation edit class (+ the deletions those edits unlock)",
+   "if_PASS": "G3_schedule is innocent -- the killer is another group.",
+   "if_FAIL": "G3_schedule IS a fatal edit class: the LAW must forbid it (delete these referrers WITH their content, or keep the content, instead of neutralising).  If several single-group rungs fail, several independent laws.",
+   "elements": 7688,
+   "deleted": 969,
+   "referrers_edited": 1,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true
+  },
+  {
+   "order": 6,
+   "file": "experiments/genesis/autopsy/K1f_topology.rvt",
+   "rung": "K1f_topology",
+   "base": "experiments/genesis/R5.rvt",
+   "base_certification": "R5.rvt is VIEWER-CERTIFIED (docs/coverage/viewer-certified.json: 'Latest-DANGLING variant accepted'); every rung of this ladder is derived from R5 in ONE step (no rung stacks on an untested rung).",
+   "kind": "modify+gc-delete",
+   "the_one_thing_tested": "Whether the G5_topology edit class (and only it) breaks a PASSING file.",
+   "vs_passing_sibling": "K1a_editfree.rvt -- differs only by ONE neutralisation edit class (+ the deletions those edits unlock)",
+   "if_PASS": "G5_topology is innocent -- the killer is another group.",
+   "if_FAIL": "G5_topology IS a fatal edit class: the LAW must forbid it (delete these referrers WITH their content, or keep the content, instead of neutralising).  If several single-group rungs fail, several independent laws.",
+   "elements": 8057,
+   "deleted": 600,
+   "referrers_edited": 3,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true
+  },
+  {
+   "order": 7,
+   "file": "experiments/genesis/autopsy/K1c_viewmaps.rvt",
+   "rung": "K1c_viewmaps",
+   "base": "experiments/genesis/R5.rvt",
+   "base_certification": "R5.rvt is VIEWER-CERTIFIED (docs/coverage/viewer-certified.json: 'Latest-DANGLING variant accepted'); every rung of this ladder is derived from R5 in ONE step (no rung stacks on an untested rung).",
+   "kind": "modify+gc-delete",
+   "the_one_thing_tested": "Whether the G2_viewmaps edit class (and only it) breaks a PASSING file.",
+   "vs_passing_sibling": "K1a_editfree.rvt -- differs only by ONE neutralisation edit class (+ the deletions those edits unlock)",
+   "if_PASS": "G2_viewmaps is innocent -- the killer is another group.",
+   "if_FAIL": "G2_viewmaps IS a fatal edit class: the LAW must forbid it (delete these referrers WITH their content, or keep the content, instead of neutralising).  If several single-group rungs fail, several independent laws.",
+   "elements": 7798,
+   "deleted": 859,
+   "referrers_edited": 7,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true
+  },
+  {
+   "order": 8,
+   "file": "experiments/genesis/autopsy/K1b_sheets.rvt",
+   "rung": "K1b_sheets",
+   "base": "experiments/genesis/R5.rvt",
+   "base_certification": "R5.rvt is VIEWER-CERTIFIED (docs/coverage/viewer-certified.json: 'Latest-DANGLING variant accepted'); every rung of this ladder is derived from R5 in ONE step (no rung stacks on an untested rung).",
+   "kind": "modify+gc-delete",
+   "the_one_thing_tested": "Whether the G1_sheets edit class (and only it) breaks a PASSING file.",
+   "vs_passing_sibling": "K1a_editfree.rvt -- differs only by ONE neutralisation edit class (+ the deletions those edits unlock)",
+   "if_PASS": "G1_sheets is innocent -- the killer is another group.",
+   "if_FAIL": "G1_sheets IS a fatal edit class: the LAW must forbid it (delete these referrers WITH their content, or keep the content, instead of neutralising).  If several single-group rungs fail, several independent laws.",
+   "elements": 8050,
+   "deleted": 607,
+   "referrers_edited": 8,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true
+  },
+  {
+   "order": 9,
+   "file": "experiments/genesis/autopsy/K1v_delete_referrers.rvt",
+   "rung": "K1v_delete_referrers",
+   "base": "experiments/genesis/R5.rvt",
+   "base_certification": "R5.rvt is VIEWER-CERTIFIED (docs/coverage/viewer-certified.json: 'Latest-DANGLING variant accepted'); every rung of this ladder is derived from R5 in ONE step (no rung stacks on an untested rung).",
+   "kind": "gc-delete",
+   "the_one_thing_tested": "The best model reduction achievable with ZERO edits when referrers are deleted rather than neutralised; a zero-edit sibling of K1a with the referrer layer also gone.",
+   "vs_passing_sibling": "K1a_editfree.rvt -- ALSO deletes the 23 referrers (with the extra content they release); still ZERO edits",
+   "if_PASS": "Delete-only stays certified even with the referrer layer removed; the CORRECTED K1 recipe is then mechanical: for every edit group whose single rung FAILED, DELETE that group's referrers with their content instead of neutralising them; keep the groups whose rungs PASSED (their edits are proven reader-legal).",
+   "if_FAIL": "A zero-edit sibling of K1a fails => the extra referrer deletions (a 3D view / the schedule / the surrogates as a UNIT) are the culprit -- compare its deletion delta against K1a's (both are R5-derived, differing only in the referrer layer).",
+   "elements": 7961,
+   "deleted": 696,
+   "referrers_edited": 0,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true
+  }
+ ],
+ "round_2_contingency": {
+  "note": "Round-2 probes are built ON DEMAND from R5 by this tool (no untested base): '--pair Gx+Gy' for a group-pair rung. Removal-set 'halves' were built and DISCARDED: the placed model is ONE connected pin-component (a half seeds only 61-205 collectable deletions), so K1's removal set cannot be halved dangling-free -- the constructive K1v probe (delete referrers WITH content) replaces them.",
+  "if_K1a_PASS_and_all_singles_PASS": "The killer is an interaction of >= 2 edit groups (pairwise unlocks: G3+G2 = 28, G4+G2 = 18; the remaining ~755 need >= 3 groups -- see autopsy_evidence.json 'unlock_table'). Build --pair G3_schedule+G2_viewmaps,G4_orphaning+G2_viewmaps and the triple G2+G3+G4; K1v's verdict decides whether to bypass the whole question by deleting instead of neutralising."
+ },
+ "reading_the_results": {
+  "CTRL FAILS": "Oracle sick -- discard the batch, retry.",
+  "K1a_editfree PASS + exactly ONE K1x FAIL": "That group's edit class is THE law-breaking mechanism; its 'if_FAIL' text is the law.  (K1_suspect PASS/FAIL then says whether the minimal G4 scope alone suffices.)",
+  "K1a_editfree PASS + several K1x FAIL": "Several independent fatal edit classes; each names its own law.",
+  "K1a_editfree PASS + ALL K1x PASS": "The killer is an INTERACTION of two edit groups (an element released only when two groups both un-pin it); next round pairs the groups (10 combinations, pre-computable).",
+  "K1a_editfree FAIL": "The deletion set itself is fatal WITH VIEWS PRESENT although R9 made the same deletions WITHOUT views: an untouched surviving view / class cannot survive an emptied model.  Next round bisects the DELETION set by class group (halves of K1_PLACED) on the R5 base -- pre-computable by this tool.",
+  "K1_suspect FAIL": "Orphaning a live type (family -> -1) is fatal at ANY scope; the strongest single law."
+ },
+ "expected_by_prior": {
+  "CTRL_R5_recheck": "PASS",
+  "K1b_sheets": "PASS (byte-vindicated by K3/K4)",
+  "K1a_editfree": "PASS (2,115/2,117 deletions R9-vindicated)",
+  "top_suspects": [
+   "K1e_orphaning / K1_suspect (registry-indexed orphan symbol)",
+   "K1d_schedule (dropped grid-intersection structs)",
+   "K1f_topology (room every passing file keeps + arrow attached to nothing)"
+  ]
+ }
+}

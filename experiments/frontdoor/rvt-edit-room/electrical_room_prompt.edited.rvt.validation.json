@@ -1,0 +1,52 @@
+{
+ "path": "/Users/ck/dev/things/rev-revit/experiments/frontdoor/rvt-edit-room/electrical_room_prompt.edited.rvt",
+ "ok": true,
+ "layers": [
+  "structure",
+  "consistency",
+  "semantic"
+ ],
+ "counts": {
+  "error": 0,
+  "warning": 1,
+  "info": 2
+ },
+ "stats": {
+  "streams": 12,
+  "pages_checked": 16,
+  "gzip_members": 8,
+  "partition_blocks": 36,
+  "records": 10611,
+  "elements_decoded": 3529,
+  "decode_failures": 1,
+  "refs_checked": 53659,
+  "connector_edges": 0,
+  "circuits": 0
+ },
+ "timings": {
+  "structure": 0.042,
+  "consistency": 0.009,
+  "semantic": 0.168,
+  "total": 0.219
+ },
+ "findings": [
+  {
+   "severity": "info",
+   "layer": "structure",
+   "where": "RevitPreview4.0",
+   "message": "optional stream absent (allowed)"
+  },
+  {
+   "severity": "info",
+   "layer": "structure",
+   "where": "Formats/Latest",
+   "message": "canonical Revit 2026 archive schema (byte-identical)"
+  },
+  {
+   "severity": "warning",
+   "layer": "semantic",
+   "where": "objects",
+   "message": "1/3529 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+  }
+ ]
+}

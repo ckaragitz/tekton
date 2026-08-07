@@ -1,0 +1,95 @@
+{
+ "rung": "S4",
+ "base": "experiments/genesis/G1_candidate.rvt",
+ "file": "experiments/genesis/singletons/S4.rvt",
+ "content": {
+  "tier": "named",
+  "settings_records": 19,
+  "catalog_rows": 1320,
+  "catalog_excluded_base_categories": 66,
+  "records": 1339,
+  "id_range": [
+   1600000,
+   1601338
+  ],
+  "roundtrip_failures": 0
+ },
+ "by_class": {
+  "GStyleElem": 1320,
+  "BrowserOrganization": 6,
+  "PenWidthTableElem": 1,
+  "ReconcileBrowserSettingsElem": 1,
+  "ConstructionSetProject": 1,
+  "StructSettingsElem": 1,
+  "WallJoinDefaultSetting": 1,
+  "AutoJoinTracker": 1,
+  "KeynoteTable": 1,
+  "KeynotingSystem": 1,
+  "InitialViewSettings": 1,
+  "RbsDbViewSystemNavigator": 1,
+  "Viewer": 1,
+  "Viewport": 1,
+  "DBDrawing": 1
+ },
+ "stages": [
+  {
+   "op": "commit our elements + re-block",
+   "new_elements": 1339,
+   "elemtable_after": 1573,
+   "watermark_after": 1601338,
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "new_records_clean": 4017
+   },
+   "reblock": {
+    "blocks_before": 3,
+    "blocks_after": 6
+   },
+   "seconds": 0.3
+  },
+  {
+   "op": "repopulate ADocument registries over the new ids",
+   "registry_report": {
+    "applied": {
+     "appinfo": 1,
+     "uet": 6,
+     "set": 2,
+     "browser": 6,
+     "navigator": 1,
+     "sysfam": 7,
+     "category-tracking": 1320
+    },
+    "skipped": []
+   },
+   "latest_payload_before": 1360923,
+   "latest_payload_after": 1387167,
+   "adoc_element_refs": 1541,
+   "adoc_dangling_ids": [],
+   "adoc_dangling_count": 0,
+   "our_ids_referenced": 1336,
+   "seconds": 0.1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "error_messages": [],
+  "warning_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 6,
+   "records": 4722,
+   "elements_decoded": 1573,
+   "decode_failures": 0,
+   "refs_checked": 19004
+  },
+  "seconds": 0.1
+ },
+ "bytes": 380928,
+ "seconds": 0.6,
+ "verdict": "VALID"
+}

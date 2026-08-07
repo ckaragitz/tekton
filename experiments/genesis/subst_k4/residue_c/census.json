@@ -1,0 +1,3524 @@
+{
+ "subject": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "ancestor_baseline": "experiments/genesis/triage/K4.rvt",
+ "method": "seq-102 payload byte-compare per host element id vs the pre-substitution ancestor K4 (in-place ladder => same id space; identical bytes = Autodesk's serialization)",
+ "host_elements": 3102,
+ "deleted_vs_ancestor": 240,
+ "autodesk_serialization_identical": 422,
+ "by_disposition": {
+  "MACHINERY": 349,
+  "STRAGGLER": 9,
+  "COINCIDENT": 35,
+  "RC-PREVIEW": 2,
+  "RC-YEAR": 27
+ },
+ "by_class": {
+  "ParamBinding": 208,
+  "CategoryElem": 32,
+  "BuildingOperatingYearSchedule": 27,
+  "RbsWireInsulationType": 24,
+  "SketchPlane": 22,
+  "GStyleElem": 9,
+  "AreaTypeElem": 8,
+  "DBDrawing": 6,
+  "AreaSchemePlanTopologies": 6,
+  "CurveElem": 5,
+  "RbsPipeConnectionType": 4,
+  "RbsWireTemperatureRatingType": 3,
+  "SunAnnotationElem": 3,
+  "NumberingSchema": 3,
+  "Viewer": 2,
+  "Viewport": 2,
+  "ModelGraphicsStyle": 2,
+  "RbsPipeScheduleType": 2,
+  "LegendComponent": 2,
+  "BrowserOrganization": 2,
+  "RevisionNumberingSequence": 2,
+  "DaylightSourceIdSet": 1,
+  "ExternalParamLock": 1,
+  "AreaSettingsElem": 1,
+  "ReactionsUpToDateElem": 1,
+  "KeynotingSystem": 1,
+  "WallJoinDefaultSetting": 1,
+  "RbsWireMaterialType": 1,
+  "Dwg2dExportUserSettingsData": 1,
+  "ZoneScheme": 1,
+  "AutoJoinTracker": 1,
+  "AutoCamSettingsElem": 1,
+  "HalftoneUnderlaySettings": 1,
+  "ActiveGeoLocationTrackingElement": 1,
+  "WorksetVisibilitySettingsElem": 1,
+  "ProjectCopySettingsElem": 1,
+  "MEPSystemTracker": 1,
+  "AssemblyTracker": 1,
+  "RvtLinkInstanceAppearanceParentElem": 1,
+  "SketchGridAppearanceParentElem": 1,
+  "ExtentElem": 1,
+  "CurtaSystemFaceManager": 1,
+  "DefaultDivideSettings": 1,
+  "MEPComponentTracker": 1,
+  "KeynoteTagsOnSheetsTracker": 1,
+  "RevisionCloudsOnSheetsTracker": 1,
+  "LevelRoomPlan": 1,
+  "LayoutNodesTracker": 1,
+  "FabricationSettings": 1,
+  "RvtLinkSymbol": 1,
+  "DataStorage": 1,
+  "ModelClipBox": 1,
+  "LightSchemeElement": 1,
+  "SlaveSymbolTrackerElem": 1,
+  "FabricationSettingsElement": 1,
+  "StructuralConnectionSettings": 1,
+  "MEPNetworkTracker": 1,
+  "FontElem": 1,
+  "RouteAnalysisSettings": 1,
+  "CircuitNamingTypeSetting": 1,
+  "MEPHiddenLineSettingsElem": 1,
+  "MultipleValuesIndicationSettings": 1,
+  "GraphicsCache": 1,
+  "AnalyticalToPhysicalRelationManager": 1,
+  "MEPNetworkDataElem": 1,
+  "FabricationServiceSettings": 1,
+  "SSEPointVisibilitySettings": 1,
+  "STEPExportSettings": 1,
+  "SheetsInSheetCollectionTracker": 1
+ },
+ "never_landed": [
+  {
+   "id": 9744,
+   "class": "AreaSchemePlanTopologies",
+   "disposition": "STRAGGLER"
+  },
+  {
+   "id": 907404,
+   "class": "LegendComponent",
+   "disposition": "RC-PREVIEW"
+  },
+  {
+   "id": 1004904,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER"
+  },
+  {
+   "id": 1004905,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER"
+  },
+  {
+   "id": 1004906,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER"
+  },
+  {
+   "id": 1004907,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER"
+  },
+  {
+   "id": 1004908,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER"
+  },
+  {
+   "id": 1004909,
+   "class": "LevelRoomPlan",
+   "disposition": "STRAGGLER"
+  },
+  {
+   "id": 1201130,
+   "class": "LegendComponent",
+   "disposition": "RC-PREVIEW"
+  },
+  {
+   "id": 1250029,
+   "class": "RvtLinkSymbol",
+   "disposition": "STRAGGLER"
+  },
+  {
+   "id": 1382860,
+   "class": "DataStorage",
+   "disposition": "STRAGGLER"
+  }
+ ],
+ "already_retired_stragglers": {
+  "1250030": "ABSENT (deleted by D_links within D_all)",
+  "1250031": "ABSENT (deleted by D_links within D_all)"
+ },
+ "this_round_queue": {
+  "RC_year_slots": 27,
+  "RC_preview_slots": 2,
+  "straggler_elements": 9,
+  "clean_header_slots": [
+   230,
+   69851,
+   245443,
+   1064656,
+   1454508,
+   1457028
+  ],
+  "area_wiring_slot": 9490
+ },
+ "dispositions": {
+  "RC-YEAR": "value-carrying: m_scheduleName is Autodesk's (localized in dach => free value); RC_year lands OUR name",
+  "RC-PREVIEW": "stale cache: m_oPreviewImage is a Revit-rendered PNG of the formerly-Autodesk type; RC_preview nulls it (corpus-normal form)",
+  "STRAGGLER": "not in-place-able: retired by the RC_zero reduction-law deletion",
+  "MACHINERY": "no free value (wiring / enum / tracker / cache apparatus): retired by REPRODUCTION in a certified rung (nothing of ours to reject)",
+  "COINCIDENT": "landed with OUR library value that equals the published fact (NEC / ASME designations, 'Arial', built-in tokens): ours by authorship, identical by coincidence of facts"
+ },
+ "elements": [
+  {
+   "id": 231,
+   "class": "Viewer",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 232,
+   "class": "Viewport",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 233,
+   "class": "DBDrawing",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 278,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 281,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 286,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 289,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 292,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 297,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 306,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 307,
+   "class": "GStyleElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 309,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 310,
+   "class": "GStyleElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 342,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 343,
+   "class": "GStyleElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 358,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 359,
+   "class": "GStyleElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 9492,
+   "class": "AreaTypeElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 9493,
+   "class": "AreaTypeElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 9496,
+   "class": "AreaTypeElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 9497,
+   "class": "AreaTypeElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 9498,
+   "class": "AreaTypeElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 9499,
+   "class": "AreaTypeElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 9500,
+   "class": "AreaTypeElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 9501,
+   "class": "AreaTypeElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 9676,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 9677,
+   "class": "GStyleElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 9744,
+   "class": "AreaSchemePlanTopologies",
+   "disposition": "STRAGGLER",
+   "landed_by": []
+  },
+  {
+   "id": 9745,
+   "class": "AreaSchemePlanTopologies",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 12799,
+   "class": "DaylightSourceIdSet",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 18451,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 18453,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 23764,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 23767,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 23771,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 23774,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 26030,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 26031,
+   "class": "GStyleElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 29089,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 29090,
+   "class": "GStyleElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 46017,
+   "class": "ExternalParamLock",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 54523,
+   "class": "ModelGraphicsStyle",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 54525,
+   "class": "ModelGraphicsStyle",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 69710,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 69712,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 69714,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 69716,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 69718,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 69720,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 69852,
+   "class": "Viewer",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y2"
+   ]
+  },
+  {
+   "id": 69854,
+   "class": "DBDrawing",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y2"
+   ]
+  },
+  {
+   "id": 85092,
+   "class": "AreaSettingsElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 85104,
+   "class": "ReactionsUpToDateElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 86315,
+   "class": "KeynotingSystem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y3"
+   ]
+  },
+  {
+   "id": 102105,
+   "class": "WallJoinDefaultSetting",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y3"
+   ]
+  },
+  {
+   "id": 102357,
+   "class": "RbsPipeConnectionType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102358,
+   "class": "RbsPipeConnectionType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102360,
+   "class": "RbsPipeScheduleType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102361,
+   "class": "RbsPipeScheduleType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102366,
+   "class": "RbsPipeConnectionType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102367,
+   "class": "RbsPipeConnectionType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102411,
+   "class": "RbsWireMaterialType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102415,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102416,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102418,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102419,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102420,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102421,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102422,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102423,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102424,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102426,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102427,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102428,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102429,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102430,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102431,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102432,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102433,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102434,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102435,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102436,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102437,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102438,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102439,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102440,
+   "class": "RbsWireInsulationType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102441,
+   "class": "RbsWireTemperatureRatingType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102442,
+   "class": "RbsWireTemperatureRatingType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102443,
+   "class": "RbsWireTemperatureRatingType",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "Z_mepcat"
+   ]
+  },
+  {
+   "id": 102444,
+   "class": "Dwg2dExportUserSettingsData",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 102461,
+   "class": "ZoneScheme",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 102463,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 102464,
+   "class": "GStyleElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 102465,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 102466,
+   "class": "GStyleElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 102467,
+   "class": "AutoJoinTracker",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y3"
+   ]
+  },
+  {
+   "id": 102842,
+   "class": "AutoCamSettingsElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 105779,
+   "class": "HalftoneUnderlaySettings",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 113109,
+   "class": "ActiveGeoLocationTrackingElement",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 113134,
+   "class": "WorksetVisibilitySettingsElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 115987,
+   "class": "ProjectCopySettingsElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 130510,
+   "class": "MEPSystemTracker",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 132328,
+   "class": "AssemblyTracker",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 132481,
+   "class": "RvtLinkInstanceAppearanceParentElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 132484,
+   "class": "SketchGridAppearanceParentElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 196658,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 198378,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198386,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198387,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198388,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198389,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198390,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198391,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198392,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198393,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198394,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198395,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198396,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198397,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198398,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198399,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198400,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198401,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198402,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198403,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198404,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198405,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198406,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198407,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198408,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198409,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198410,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198411,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198412,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198413,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198414,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198415,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198416,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198417,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198418,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198419,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198420,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198421,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198422,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198423,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198424,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198425,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198426,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198427,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198428,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198429,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198430,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198431,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198432,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198433,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198434,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198435,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198436,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198437,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198438,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198439,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198440,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198441,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198442,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198443,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198444,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198445,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198446,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198447,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198448,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 198449,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 245444,
+   "class": "ExtentElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 245447,
+   "class": "SunAnnotationElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_machinery"
+   ]
+  },
+  {
+   "id": 245449,
+   "class": "DBDrawing",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 417304,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 423812,
+   "class": "CurtaSystemFaceManager",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 511132,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 511151,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 515299,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 581529,
+   "class": "AreaSchemePlanTopologies",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 581530,
+   "class": "AreaSchemePlanTopologies",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 711934,
+   "class": "AreaSchemePlanTopologies",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 711935,
+   "class": "AreaSchemePlanTopologies",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 713056,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 713057,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 713058,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 713059,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 713060,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 713061,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 713062,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 869723,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 878592,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 878594,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 878596,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 907053,
+   "class": "DefaultDivideSettings",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 907354,
+   "class": "MEPComponentTracker",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 907382,
+   "class": "KeynoteTagsOnSheetsTracker",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 907404,
+   "class": "LegendComponent",
+   "disposition": "RC-PREVIEW",
+   "landed_by": []
+  },
+  {
+   "id": 907486,
+   "class": "RevisionCloudsOnSheetsTracker",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 910457,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910458,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910459,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910460,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910461,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910462,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910463,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910464,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910465,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910466,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910467,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910468,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910469,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910470,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910471,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910472,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910473,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910474,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910475,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910476,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910477,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910478,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910479,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910480,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910481,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910482,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910483,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910484,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910485,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910486,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910487,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910488,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910489,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910490,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910491,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910492,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910493,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910494,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910495,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910496,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910497,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910498,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910499,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910500,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910501,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910502,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910503,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910504,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910505,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910506,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910507,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910508,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910509,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910510,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910511,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910512,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910513,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910514,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910515,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910516,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910517,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910518,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910519,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910520,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910521,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910522,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910523,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910524,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910525,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910526,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910527,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910528,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910529,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910530,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910531,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910532,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910533,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910534,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910535,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910536,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910537,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910538,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910539,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910540,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910541,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910542,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910543,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910544,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910545,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910546,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910547,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910548,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910549,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910550,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910551,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910552,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910553,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910554,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910555,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910556,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910557,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910558,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910559,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910560,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910561,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910562,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910563,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910564,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910565,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910566,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910567,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910568,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910569,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910570,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910571,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910572,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910573,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910574,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910575,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910576,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910577,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910578,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910579,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910580,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910581,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910582,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910583,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910584,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 910585,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 956705,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 956779,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 956780,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 956781,
+   "class": "ParamBinding",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_defs"
+   ]
+  },
+  {
+   "id": 1004904,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER",
+   "landed_by": []
+  },
+  {
+   "id": 1004905,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER",
+   "landed_by": []
+  },
+  {
+   "id": 1004906,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER",
+   "landed_by": []
+  },
+  {
+   "id": 1004907,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER",
+   "landed_by": []
+  },
+  {
+   "id": 1004908,
+   "class": "CurveElem",
+   "disposition": "STRAGGLER",
+   "landed_by": []
+  },
+  {
+   "id": 1004909,
+   "class": "LevelRoomPlan",
+   "disposition": "STRAGGLER",
+   "landed_by": []
+  },
+  {
+   "id": 1046280,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1046283,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1046286,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1046289,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1046292,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1046505,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1046514,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1064660,
+   "class": "SunAnnotationElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_machinery"
+   ]
+  },
+  {
+   "id": 1064662,
+   "class": "DBDrawing",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 1064664,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 1201130,
+   "class": "LegendComponent",
+   "disposition": "RC-PREVIEW",
+   "landed_by": []
+  },
+  {
+   "id": 1218550,
+   "class": "LayoutNodesTracker",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1218727,
+   "class": "FabricationSettings",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1218729,
+   "class": "NumberingSchema",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_machinery"
+   ]
+  },
+  {
+   "id": 1218730,
+   "class": "NumberingSchema",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_machinery"
+   ]
+  },
+  {
+   "id": 1250029,
+   "class": "RvtLinkSymbol",
+   "disposition": "STRAGGLER",
+   "landed_by": []
+  },
+  {
+   "id": 1250383,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1300892,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1351720,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1382860,
+   "class": "DataStorage",
+   "disposition": "STRAGGLER",
+   "landed_by": []
+  },
+  {
+   "id": 1383090,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1386350,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1454507,
+   "class": "ModelClipBox",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 1454510,
+   "class": "SunAnnotationElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_machinery"
+   ]
+  },
+  {
+   "id": 1454512,
+   "class": "DBDrawing",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 1454513,
+   "class": "LightSchemeElement",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y9"
+   ]
+  },
+  {
+   "id": 1454515,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1454535,
+   "class": "SlaveSymbolTrackerElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_machinery"
+   ]
+  },
+  {
+   "id": 1457030,
+   "class": "Viewport",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_machinery"
+   ]
+  },
+  {
+   "id": 1457031,
+   "class": "DBDrawing",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1457032,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1457177,
+   "class": "SketchPlane",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_content"
+   ]
+  },
+  {
+   "id": 1457285,
+   "class": "FabricationSettingsElement",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1457391,
+   "class": "NumberingSchema",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Z_machinery"
+   ]
+  },
+  {
+   "id": 1462521,
+   "class": "StructuralConnectionSettings",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1468014,
+   "class": "MEPNetworkTracker",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1468017,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 1468019,
+   "class": "FontElem",
+   "disposition": "COINCIDENT",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 1468020,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 1468022,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 1468025,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 1468599,
+   "class": "BrowserOrganization",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y2"
+   ]
+  },
+  {
+   "id": 1470390,
+   "class": "RouteAnalysisSettings",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471070,
+   "class": "CategoryElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "ZA_deep"
+   ]
+  },
+  {
+   "id": 1471217,
+   "class": "CircuitNamingTypeSetting",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471446,
+   "class": "MEPHiddenLineSettingsElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471489,
+   "class": "MultipleValuesIndicationSettings",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471493,
+   "class": "RevisionNumberingSequence",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471494,
+   "class": "RevisionNumberingSequence",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471712,
+   "class": "GraphicsCache",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471770,
+   "class": "AnalyticalToPhysicalRelationManager",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471901,
+   "class": "MEPNetworkDataElem",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471905,
+   "class": "FabricationServiceSettings",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471913,
+   "class": "SSEPointVisibilitySettings",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471926,
+   "class": "STEPExportSettings",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1471979,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471980,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471981,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471982,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471983,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471984,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471985,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471986,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471987,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471988,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471989,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471990,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471991,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471992,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471993,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471994,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471995,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471996,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471997,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471998,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1471999,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1472000,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1472001,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1472002,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1472003,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1472004,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1472005,
+   "class": "BuildingOperatingYearSchedule",
+   "disposition": "RC-YEAR",
+   "landed_by": [
+    "ZC_deep"
+   ]
+  },
+  {
+   "id": 1472007,
+   "class": "SheetsInSheetCollectionTracker",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y5"
+   ]
+  },
+  {
+   "id": 1472524,
+   "class": "BrowserOrganization",
+   "disposition": "MACHINERY",
+   "landed_by": [
+    "Y2"
+   ]
+  }
+ ]
+}

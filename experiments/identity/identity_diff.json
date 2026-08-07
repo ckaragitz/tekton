@@ -1,0 +1,1038 @@
+{
+ "tool": "tools/identity_probe.py forensics",
+ "matched_pair": {
+  "pass": "experiments/species/TB0g.rvt",
+  "fail": "experiments/species/T1uG.rvt"
+ },
+ "context_cells": {
+  "t2a_pass": "experiments/rftprobe/T2a.rvt",
+  "sc1_fail": "experiments/selfcontained/SC1.rvt",
+  "t1u_rst_pass": "experiments/unionrec/T1u.rvt"
+ },
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "host_side_writes": {
+  "question": "TB0g (PASS) and T1uG (FAIL) went through the same famload lane onto the same base -- if the host-side writes are identical, the coupling is inside the famdoc elements",
+  "streams_touched": [
+   "BasicFileInfo",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/Latest",
+   "Partitions/21"
+  ],
+  "document_increment_table": {
+   "t1ug_equals_tb0g_bytes": true,
+   "changed_vs_base": true,
+   "what_changed_vs_base": "the writer's save path scrubs every save-episode username to '' (both files identically); row count/ids/timestamps/counters ride verbatim"
+  },
+  "history": {
+   "touched_by_either": false,
+   "note": "famload reuses the host's current episode -- no new History row (measured: stream byte-identical to the base in both files)"
+  },
+  "basic_file_info": {
+   "differing_fields": {
+    "author": {
+     "base": "Autodesk Revit",
+     "t1ug": "rvt-writer",
+     "tb0g": "rvt-writer"
+    },
+    "client_app_name": {
+     "base": "RevitApplication",
+     "t1ug": "rvt-writer",
+     "tb0g": "rvt-writer"
+    },
+    "last_save_path": {
+     "base": "C:\\Users\\hansonje\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+     "t1ug": "T1uG.rvt",
+     "tb0g": "TB0g.rvt"
+    }
+   },
+   "verdict": "identical between the PASS and the FAIL modulo the output filename (author/client are the writer's own on both; the base's document GUID rides unchanged on both)"
+  },
+  "host_latest_adocument": {
+   "n_leaf_diffs": 6,
+   "leaf_diffs": [
+    ".m_oContentTable.value.m_ContentRecSet[0].m_ContentKey.m_guidKey",
+    ".m_oContentTable.value.m_ContentRecSet[0].m_EpisodeCounts[0].second",
+    ".m_pAppInfoManager.value.m_appInfoArr[0].value.m_arrLoadedFamilyInfo[9].m_familyDocGUIDs[0]",
+    ".m_pAppInfoManager.value.m_appInfoArr[0].value.m_arrLoadedFamilyInfo[9].m_surrogateId",
+    ".m_pAppInfoManager.value.m_appInfoArr[32].value.m_symbols[45].m_elemIdSet",
+    ".m_pAppInfoManager.value.m_appInfoArr[32].value.m_symbols[67].m_elemIdSet"
+   ],
+   "verdict": "every leaf diff is construction identity (unit GUID, episode record count, surrogate id, tracked symbol sets) -- the host ADocument write is SHAPE-IDENTICAL"
+  },
+  "host_elemtable": {
+   "t1ug": {
+    "added_rows": 25,
+    "changed_base_rows": 0,
+    "row_shapes(orig==id, ce, me, ue, part)": {
+     "(True, 1016, 1016, 1016, 0)": 25
+    },
+    "footer_last_id": 1474589
+   },
+   "tb0g": {
+    "added_rows": 8,
+    "changed_base_rows": 0,
+    "row_shapes(orig==id, ce, me, ue, part)": {
+     "(True, 1016, 1016, 1016, 0)": 8
+    },
+    "footer_last_id": 1472946
+   },
+   "verdict": "added rows are SHAPE-IDENTICAL (orig==id, all three episode columns = the host's current episode 1016, partition 0); zero base rows changed in either"
+  },
+  "reduced_base_identity_premise": {
+   "history_entry_guids_equal_rst": true,
+   "history_entries": 1017,
+   "dit_rows_equal_rst": true,
+   "surviving_elemtable_rows_changed_vs_rst": 0,
+   "verdict": "the 'reduction rewrote History/DIT' premise is FALSIFIED at these surfaces: G_ABPD carries rst's History entries, DIT rows (usernames included) and surviving ElemTable rows UNCHANGED.  What reduction changed: the roster (10,834 rows removed) and substituted element content.  The identity coupling must therefore be read against the famdoc elements themselves -- half 2."
+  },
+  "verdict": "HOST-SIDE WRITES ARE IDENTICAL between the PASS and the FAIL (DIT byte-identical, History untouched, Latest 6 construction leaves, ElemTable rows shape-identical, BFI modulo filename) ==> the coupling is inside the famdoc elements"
+ },
+ "element_identity": {
+  "inline_elemarr_history_rows": {
+   "t1ug": {
+    "rows": 2027,
+    "creation_ep": {
+     "0": 2027
+    },
+    "modified_ep": {
+     "0": 2027
+    },
+    "user_modified_ep": {
+     "-1": 2027
+    },
+    "original_id_equals_id": 2027
+   },
+   "tb0g": {
+    "rows": 414,
+    "creation_ep": {
+     "1016": 414
+    },
+    "modified_ep": {
+     "1016": 414
+    },
+    "user_modified_ep": {
+     "-1": 414
+    },
+    "original_id_equals_id": 414
+   },
+   "t2a": {
+    "rows": 1992,
+    "creation_ep": {
+     "1016": 1992
+    },
+    "modified_ep": {
+     "1016": 1992
+    },
+    "user_modified_ep": {
+     "-1": 1992
+    },
+    "original_id_equals_id": 1992
+   },
+   "sc1": {
+    "rows": 1724,
+    "creation_ep": {
+     "1016": 1724
+    },
+    "modified_ep": {
+     "1016": 1724
+    },
+    "user_modified_ep": {
+     "-1": 1724
+    },
+    "original_id_equals_id": 1724
+   },
+   "verdict": "uniform per famdoc, orig==id everywhere; episodes: famload-authored tables carry the host's current episode 1016 (T2a PASS, TB0g PASS, SC1 FAIL), the swapped born-ADocument table carries 0 (T1uG FAIL, T1u PASS on rst).  1016 appears on both PASS and FAIL ==> the episode column alone does NOT separate; EXONERATED as the primary axis (the 0-vs-1016 doc-level difference is recorded as an I1-FAIL ledger item)"
+  },
+  "param_identity_strings": {
+   "form": "revit.local.family:<32-hex session><8-hex id>-1.0.0 (ParamElemFamily m_pParamDef.m_typeId)",
+   "native_law": {
+    "rst_host": {
+     "SELF": 120,
+     "OTHER": 0
+    },
+    "rst_units": {
+     "SELF": 243,
+     "OTHER": 0
+    },
+    "reading": "the suffix records the id AT BIRTH and never re-derives; a native container is its own birth container, so natively everything reads SELF -- a REBASED transplant reads OTHER because the frozen birth id no longer equals the current id"
+   },
+   "cells_on_g_abpd": {
+    "T2a (PASS)": {
+     "all:OTHER": 6
+    },
+    "TB0g (PASS)": {
+     "all:OTHER": 3
+    },
+    "T1uG (FAIL)": {
+     "ours:SELF": 14,
+     "shell:OTHER": 6
+    },
+    "SC1 (FAIL)": {
+     "all:SELF": 14
+    }
+   },
+   "t1ug_ours_detail": [
+    {
+     "id": 1474542,
+     "caption": "Width",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474542,
+     "form": "SELF"
+    },
+    {
+     "id": 1474543,
+     "caption": "Height",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474543,
+     "form": "SELF"
+    },
+    {
+     "id": 1474544,
+     "caption": "Depth",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474544,
+     "form": "SELF"
+    },
+    {
+     "id": 1474545,
+     "caption": "PanelName",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474545,
+     "form": "SELF"
+    },
+    {
+     "id": 1474546,
+     "caption": "Voltage",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474546,
+     "form": "SELF"
+    },
+    {
+     "id": 1474547,
+     "caption": "Phases",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474547,
+     "form": "SELF"
+    },
+    {
+     "id": 1474548,
+     "caption": "Wires",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474548,
+     "form": "SELF"
+    },
+    {
+     "id": 1474549,
+     "caption": "BusRating",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474549,
+     "form": "SELF"
+    },
+    {
+     "id": 1474550,
+     "caption": "MainsType",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474550,
+     "form": "SELF"
+    },
+    {
+     "id": 1474551,
+     "caption": "MainsRating",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474551,
+     "form": "SELF"
+    },
+    {
+     "id": 1474552,
+     "caption": "ShortCircuitRatingkA",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474552,
+     "form": "SELF"
+    },
+    {
+     "id": 1474553,
+     "caption": "Mounting",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474553,
+     "form": "SELF"
+    },
+    {
+     "id": 1474554,
+     "caption": "NumberOfCircuits",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474554,
+     "form": "SELF"
+    },
+    {
+     "id": 1474555,
+     "caption": "NeutralRating",
+     "session": "8217b592879e4857b9d2c326faa567e4",
+     "embedded_id": 1474555,
+     "form": "SELF"
+    }
+   ],
+   "verdict": "THE RANK-1 SPLIT: on G_ABPD every PASS famdoc carries ONLY frozen-birth (OTHER) identity suffixes; every FAIL famdoc carries OUR params minted SELF -- identity coupled to the host-watermark current id.  The same SELF bytes pass on pristine rst (T1u), matching the verdict-#47 law: the coupling expresses on reduced substrates only."
+  },
+  "header_flags": {
+   "surface": "seq-101 ElementHeader m_abFlags4Bytes",
+   "born_standalone_authority": {
+    "DBDrawing": {
+     "8218": 9
+    },
+    "DBViewPlan": {
+     "26": 2
+    },
+    "DBViewType": {
+     "26": 19
+    },
+    "ExtentElem": {
+     "26": 6,
+     "10": 1
+    },
+    "Level": {
+     "2074": 1
+    },
+    "LevelAttributes": {
+     "30": 1
+    },
+    "RefPlane": {
+     "2074": 9
+    },
+    "SketchPlane": {
+     "26": 14
+    },
+    "SunAndShadowSettings": {
+     "8222": 1
+    },
+    "Viewer": {
+     "26": 8
+    },
+    "Viewport": {
+     "26": 9
+    }
+   },
+   "t1ug_by_population": {
+    "ours:ConnectorElem": {
+     "2058": 1
+    },
+    "ours:CurveElem": {
+     "17340539": 4
+    },
+    "ours:DBDrawing": {
+     "8202": 1
+    },
+    "ours:DBViewPlan": {
+     "10": 1
+    },
+    "ours:DBViewType": {
+     "2074": 1
+    },
+    "ours:ElectricalLoadClassification": {
+     "67108878": 1
+    },
+    "ours:ExtentElem": {
+     "10": 1
+    },
+    "ours:ExtrusionElem": {
+     "3896": 1
+    },
+    "ours:Level": {
+     "2058": 1
+    },
+    "ours:LevelAttributes": {
+     "14": 1
+    },
+    "ours:ParamElemFamily": {
+     "8218": 14
+    },
+    "ours:RefPlane": {
+     "2058": 2
+    },
+    "ours:SketchPlane": {
+     "10": 1,
+     "26": 1
+    },
+    "ours:SunAndShadowSettings": {
+     "10": 1
+    },
+    "ours:VarSketch": {
+     "16779322": 1
+    },
+    "ours:Viewer": {
+     "10": 1
+    },
+    "ours:Viewport": {
+     "10": 1
+    },
+    "shell:Alignment": {
+     "26": 7
+    },
+    "shell:AnalyticalLinkType": {
+     "14": 1
+    },
+    "shell:AppearanceAssetElem": {
+     "67117070": 27
+    },
+    "shell:ArcAlignment": {
+     "26": 1
+    },
+    "shell:AreaSettingsElem": {
+     "14": 1
+    },
+    "shell:AssemblyCodeTable": {
+     "67117070": 1
+    },
+    "shell:AutoCamSettingsElem": {
+     "8218": 1
+    },
+    "shell:AutoJoinTracker": {
+     "26": 1
+    },
+    "shell:BaseLevelTracker": {
+     "8218": 2
+    },
+    "shell:BrowserOrganization": {
+     "26": 2
+    },
+    "shell:CalloutTag": {
+     "30": 2
+    },
+    "shell:CategoryElem": {
+     "8218": 59,
+     "8202": 11
+    },
+    "shell:ComponentRepeaterSlotSpecialType": {
+     "10": 2
+    },
+    "shell:CoordinateSystemDisplayElem": {
+     "8218": 1
+    },
+    "shell:CorniceAttr": {
+     "30": 2
+    },
+    "shell:CoverType": {
+     "30": 1
+    },
+    "shell:CurveElem": {
+     "17340539": 14,
+     "17338491": 2,
+     "559995": 1,
+     "17339003": 2,
+     "17341051": 12
+    },
+    "shell:DBDrawing": {
+     "8218": 9
+    },
+    "shell:DBView3d": {
+     "65562": 1
+    },
+    "shell:DBViewDrafting": {
+     "26": 1
+    },
+    "shell:DBViewPlan": {
+     "26": 2
+    },
+    "shell:DBViewProject": {
+     "65562": 1
+    },
+    "shell:DBViewSection": {
+     "26": 4
+    },
+    "shell:DBViewType": {
+     "26": 19
+    },
+    "shell:DaylightSourceIdSet": {
+     "8218": 2
+    },
+    "shell:DefaultDivideSettings": {
+     "8206": 1
+    },
+    "shell:DimensionStyle": {
+     "30": 9,
+     "14": 3
+    },
+    "shell:DrawOrder3dElem": {
+     "8202": 1
+    },
+    "shell:Dwg2dExportUserSettingsData": {
+     "8218": 1
+    },
+    "shell:ElectricalDemandFactorDefinition": {
+     "67117070": 1
+    },
+    "shell:ElectricalLoadClassification": {
+     "67108878": 6
+    },
+    "shell:ExtentElem": {
+     "26": 6,
+     "10": 1
+    },
+    "shell:ExtrusionElem": {
+     "3896": 2
+    },
+    "shell:FamSymSurrogate": {
+     "26": 1
+    },
+    "shell:Family": {
+     "26": 2
+    },
+    "shell:FamilySurrogate": {
+     "26": 1
+    },
+    "shell:FamilySymbol": {
+     "2234": 1
+    },
+    "shell:FillPatternElem": {
+     "67117086": 7
+    },
+    "shell:FilledRegion": {
+     "35706": 2,
+     "35194": 1
+    },
+    "shell:FilledRegionAttributes": {
+     "30": 2
+    },
+    "shell:FontElem": {
+     "8218": 27,
+     "8202": 4
+    },
+    "shell:GStyleElem": {
+     "67117086": 727,
+     "8218": 59,
+     "67108894": 1,
+     "67117070": 652,
+     "67108878": 27,
+     "8202": 11
+    },
+    "shell:InteriorElevAttributes": {
+     "30": 2
+    },
+    "shell:KeynoteTable": {
+     "67117086": 1
+    },
+    "shell:LeaderStyle": {
+     "30": 9,
+     "14": 1
+    },
+    "shell:Level": {
+     "2074": 1
+    },
+    "shell:LevelAttributes": {
+     "30": 1
+    },
+    "shell:LinePatternElem": {
+     "67117086": 13,
+     "67117070": 1
+    },
+    "shell:LinearDimString": {
+     "26": 32
+    },
+    "shell:LoadCaseElem": {
+     "8222": 8
+    },
+    "shell:LoadNatureElem": {
+     "8222": 8
+    },
+    "shell:MaterialElem": {
+     "67108894": 8,
+     "67108878": 16
+    },
+    "shell:ModelClipBox": {
+     "26": 1
+    },
+    "shell:ParamElemElectricalLoadClassification": {
+     "67108874": 36
+    },
+    "shell:ParamElemFamily": {
+     "8218": 6
+    },
+    "shell:PenWidthTableElem": {
+     "8222": 1,
+     "8206": 1
+    },
+    "shell:PropertyAttr": {
+     "30": 2
+    },
+    "shell:RadialDim": {
+     "26": 7
+    },
+    "shell:RefPlane": {
+     "2074": 9
+    },
+    "shell:ReferenceViewerAttributes": {
+     "30": 1
+    },
+    "shell:RevealAttr": {
+     "30": 2
+    },
+    "shell:RevisionCloudAttr": {
+     "30": 1
+    },
+    "shell:RvtLinkInstanceAppearanceParentElem": {
+     "8202": 1
+    },
+    "shell:STEPExportSettings": {
+     "8202": 1
+    },
+    "shell:SectionAttributes": {
+     "30": 4
+    },
+    "shell:SketchGrid": {
+     "26": 8
+    },
+    "shell:SketchGridAppearanceParentElem": {
+     "8202": 1
+    },
+    "shell:SketchPlane": {
+     "26": 14
+    },
+    "shell:SpotElevationStyle": {
+     "30": 3
+    },
+    "shell:StructConnectionType": {
+     "14": 5
+    },
+    "shell:StructSettingsElem": {
+     "8222": 1
+    },
+    "shell:SunAndShadowSettings": {
+     "8222": 1
+    },
+    "shell:TagNote": {
+     "26": 2
+    },
+    "shell:TagNoteAttributes": {
+     "30": 2
+    },
+    "shell:Text3dAttrSymbol": {
+     "30": 2
+    },
+    "shell:TextNoteAttributes": {
+     "30": 2,
+     "14": 1
+    },
+    "shell:TrueNorth": {
+     "8222": 2
+    },
+    "shell:UnitsElem": {
+     "8218": 1
+    },
+    "shell:VarSketch": {
+     "16779322": 5,
+     "2106": 2
+    },
+    "shell:Viewer": {
+     "26": 8
+    },
+    "shell:Viewer3d": {
+     "18744": 1
+    },
+    "shell:Viewport": {
+     "26": 9
+    }
+   },
+   "tb0g_born": {
+    "all:Alignment": {
+     "10": 2
+    },
+    "all:AreaSettingsElem": {
+     "14": 1
+    },
+    "all:AutoCamSettingsElem": {
+     "8202": 1
+    },
+    "all:BaseLevelTracker": {
+     "8202": 2
+    },
+    "all:BrowserOrganization": {
+     "10": 2
+    },
+    "all:CalloutTag": {
+     "14": 2
+    },
+    "all:CategoryElem": {
+     "2058": 8,
+     "8202": 60
+    },
+    "all:CorniceAttr": {
+     "14": 2
+    },
+    "all:CoverType": {
+     "14": 1
+    },
+    "all:CurveElem": {
+     "559979": 1,
+     "17338987": 1,
+     "17341035": 5,
+     "17336427": 1
+    },
+    "all:DBDrawing": {
+     "8202": 9
+    },
+    "all:DBView3d": {
+     "10": 1
+    },
+    "all:DBViewDrafting": {
+     "10": 1
+    },
+    "all:DBViewPlan": {
+     "10": 2
+    },
+    "all:DBViewProject": {
+     "10": 1
+    },
+    "all:DBViewSection": {
+     "10": 4
+    },
+    "all:DBViewType": {
+     "10": 21
+    },
+    "all:DaylightSourceIdSet": {
+     "8202": 2
+    },
+    "all:DefaultDivideSettings": {
+     "8206": 1
+    },
+    "all:DimensionStyle": {
+     "2062": 2,
+     "14": 8
+    },
+    "all:DrawOrder3dElem": {
+     "8202": 1
+    },
+    "all:Dwg2dExportUserSettingsData": {
+     "8202": 1
+    },
+    "all:ExtentElem": {
+     "10": 7
+    },
+    "all:ExtrusionElem": {
+     "3880": 1
+    },
+    "all:FamSymSurrogate": {
+     "10": 1
+    },
+    "all:Family": {
+     "10": 2
+    },
+    "all:FamilySurrogate": {
+     "10": 1
+    },
+    "all:FamilySymbol": {
+     "2218": 1
+    },
+    "all:FilledRegion": {
+     "35690": 2
+    },
+    "all:FilledRegionAttributes": {
+     "14": 2
+    },
+    "all:FontElem": {
+     "2058": 2,
+     "8202": 28
+    },
+    "all:GStyleElem": {
+     "2058": 8,
+     "8202": 60
+    },
+    "all:InteriorElevAttributes": {
+     "14": 2
+    },
+    "all:LeaderStyle": {
+     "2062": 2,
+     "14": 9
+    },
+    "all:Level": {
+     "10": 1
+    },
+    "all:LevelAttributes": {
+     "14": 1
+    },
+    "all:LinearDimString": {
+     "10": 11
+    },
+    "all:LoadCaseElem": {
+     "8206": 8
+    },
+    "all:LoadNatureElem": {
+     "8206": 8
+    },
+    "all:ModelClipBox": {
+     "10": 1
+    },
+    "all:ParamElemFamily": {
+     "8202": 3
+    },
+    "all:PenWidthTableElem": {
+     "8206": 2
+    },
+    "all:PropertyAttr": {
+     "14": 2
+    },
+    "all:RadialDim": {
+     "10": 4
+    },
+    "all:RefPlane": {
+     "2058": 7
+    },
+    "all:RevealAttr": {
+     "14": 2
+    },
+    "all:RevisionCloudAttr": {
+     "14": 1
+    },
+    "all:RvtLinkInstanceAppearanceParentElem": {
+     "8202": 1
+    },
+    "all:STEPExportSettings": {
+     "8202": 1
+    },
+    "all:SectionAttributes": {
+     "14": 5
+    },
+    "all:SketchGrid": {
+     "10": 32
+    },
+    "all:SketchGridAppearanceParentElem": {
+     "8202": 1
+    },
+    "all:SketchPlane": {
+     "10": 13
+    },
+    "all:SpotElevationStyle": {
+     "14": 4
+    },
+    "all:SunAndShadowSettings": {
+     "8202": 1
+    },
+    "all:TagNote": {
+     "10": 2
+    },
+    "all:TagNoteAttributes": {
+     "14": 2
+    },
+    "all:Text3dAttrSymbol": {
+     "14": 2
+    },
+    "all:TextNoteAttributes": {
+     "14": 2
+    },
+    "all:TrueNorth": {
+     "8206": 2
+    },
+    "all:UnitsElem": {
+     "8202": 1
+    },
+    "all:VarSketch": {
+     "2090": 2,
+     "16779306": 3
+    },
+    "all:Viewer": {
+     "10": 8
+    },
+    "all:Viewer3d": {
+     "18728": 1
+    },
+    "all:Viewport": {
+     "10": 9
+    }
+   },
+   "ours_deviations_vs_born_table": [
+    {
+     "class": "DBDrawing",
+     "ours": {
+      "8202": 1
+     },
+     "born": 8218,
+     "rfa_authority": {
+      "8218": 9
+     }
+    },
+    {
+     "class": "DBViewPlan",
+     "ours": {
+      "10": 1
+     },
+     "born": 26,
+     "rfa_authority": {
+      "26": 2
+     }
+    },
+    {
+     "class": "DBViewType",
+     "ours": {
+      "2074": 1
+     },
+     "born": 26,
+     "rfa_authority": {
+      "26": 19
+     }
+    },
+    {
+     "class": "ExtentElem",
+     "ours": {
+      "10": 1
+     },
+     "born": 26,
+     "rfa_authority": {
+      "26": 6,
+      "10": 1
+     }
+    },
+    {
+     "class": "Level",
+     "ours": {
+      "2058": 1
+     },
+     "born": 2074,
+     "rfa_authority": {
+      "2074": 1
+     }
+    },
+    {
+     "class": "LevelAttributes",
+     "ours": {
+      "14": 1
+     },
+     "born": 30,
+     "rfa_authority": {
+      "30": 1
+     }
+    },
+    {
+     "class": "RefPlane",
+     "ours": {
+      "2058": 2
+     },
+     "born": 2074,
+     "rfa_authority": {
+      "2074": 9
+     }
+    },
+    {
+     "class": "SketchPlane",
+     "ours": {
+      "10": 1,
+      "26": 1
+     },
+     "born": 26,
+     "rfa_authority": {
+      "26": 14
+     }
+    },
+    {
+     "class": "SunAndShadowSettings",
+     "ours": {
+      "10": 1
+     },
+     "born": 8222,
+     "rfa_authority": {
+      "8222": 1
+     }
+    },
+    {
+     "class": "Viewer",
+     "ours": {
+      "10": 1
+     },
+     "born": 26,
+     "rfa_authority": {
+      "26": 8
+     }
+    },
+    {
+     "class": "Viewport",
+     "ours": {
+      "10": 1
+     },
+     "born": 26,
+     "rfa_authority": {
+      "26": 9
+     }
+    }
+   ],
+   "verdict": "THE RANK-2 SURFACE: the flags word is species-coherent per class in every born famdoc (standalone carries 0x10, embedded drops it); OUR elements mix conventions inside one famdoc and stray off BOTH born species (stray 0x800 on DBViewType, missing 0x2014 on SunAndShadowSettings, missing 0x10 on the datum/view classes).  All four G_ABPD cells separate on flags-coherence too (T2a/TB0g coherent = PASS, T1uG/SC1 mixed = FAIL)."
+  },
+  "exonerated": [
+   {
+    "surface": "m_createdPhaseId",
+    "measured": "-1 on every element of every population"
+   },
+   {
+    "surface": "m_regenHistory.m_historyMap (seq-101)",
+    "measured": "empty on all 2,027 + 414 headers"
+   },
+   {
+    "surface": "m_userId (SketchPlane/VarSketch)",
+    "measured": "self-consistent in-unit references on ours AND born (points at the element's own sketch chain)"
+   },
+   {
+    "surface": "m_seekItemId",
+    "measured": "Family-class only (loaded-family table row); no carrier among our 35"
+   },
+   {
+    "surface": "m_witnessRefs[].m_modified",
+    "measured": "Alignment/LinearDimString only (all False); no carrier among our 35"
+   },
+   {
+    "surface": "GUID-bearing leaves (m_famDocGUID, m_guid, worksetVisibilityPGUIDMap)",
+    "measured": "carriers are Family/doc-level classes absent from our 35; the PGUID maps are empty everywhere"
+   },
+   {
+    "surface": "VarSketch/geom m_version counters",
+    "measured": "ours within the born value range (0/1)"
+   },
+   {
+    "surface": "session hex form",
+    "measured": "fresh-uuid4-style hex on ours AND born; born sessions also appear nowhere host-side (T2a's 4 shell sessions absent from G_ABPD, passes)"
+   }
+  ],
+  "recorded_not_normalized": [
+   {
+    "surface": "seq-101 m_parents.m_deletion roots",
+    "measured": "our ExtentElem (and view-satellite SketchPlane) parents lack the leading self-Family root every shell twin carries ([DBViewPlan, ExtentElem] vs [Family, DBViewPlan, ..., ExtentElem])",
+    "why_excluded": "the deletion-parents graph is document STRUCTURE; I1 is identity-only by charter.  First candidate of the BX_v4-FAIL branch."
+   },
+   {
+    "surface": "inline elemArr episode columns (doc-level)",
+    "measured": "T1uG's swapped born-ADocument table carries episode 0 rows where every famload-authored table carries the host episode 1016",
+    "why_excluded": "uniform across ours AND shell rows (not an element-level ours-vs-born diff); 1016 appears on both PASS and FAIL.  I1-FAIL ledger item."
+   }
+  ]
+ },
+ "ranked_fix_list": [
+  {
+   "rank": 1,
+   "field": "ParamElemFamily m_pParamDef.m_typeId identity suffix",
+   "born": "frozen BIRTH id (!= current id after any rebase -- the shape of every reduced-base PASS)",
+   "ours": "the CURRENT id (minted at the host watermark -- identity coupled to the host id/episode state)",
+   "elements": 14,
+   "authorable": true,
+   "i1_normalization": "suffixes re-minted 7675..7688 (continuing the shell's standalone id space 0..7674)",
+   "v4_lane": "apply_born_identity: frozen-birth mint at BIRTH_SUFFIX_BASE+k"
+  },
+  {
+   "rank": 2,
+   "field": "seq-101 ElementHeader m_abFlags4Bytes",
+   "born": "species-coherent per-class table (BORN_HEADER_FLAGS; measured on the vendor .rfa == T2a's PASS bytes)",
+   "ours": "mixed convention inside one famdoc; strays off BOTH born species on DBViewType (stray 0x800) and SunAndShadowSettings (missing 0x2014)",
+   "elements": 12,
+   "authorable": true,
+   "i1_normalization": "our 35's covered headers set to the born table (12 words change)",
+   "v4_lane": "apply_born_identity: BORN_HEADER_FLAGS"
+  },
+  {
+   "rank": "recorded",
+   "field": "m_parents.m_deletion roots / inline elemArr episode columns",
+   "note": "structure / doc-level -- excluded from I1 by the identity-only charter; pre-committed BX_v4-FAIL and I1-FAIL ledger items"
+  },
+  {
+   "rank": "exonerated",
+   "field": "host-side famload writes; m_createdPhaseId; m_regenHistory; m_userId; m_seekItemId; witness stamps; GUID leaves; version counters; session hex form; elemArr orig==id",
+   "note": "measured equal / no-carrier / non-separating (see element_identity)"
+  }
+ ],
+ "seconds": 5.2
+}

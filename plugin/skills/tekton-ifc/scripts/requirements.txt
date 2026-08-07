@@ -1,0 +1,8 @@
+# tekton-ifc engine -- pinned for the Cowork / claude.ai Linux sandbox.
+# Keep this list minimal so `pip install -r requirements.txt` is fast.
+# ifcopenshell ships a manylinux wheel that already bundles the OpenCascade
+# kernel and pulls numpy (used by bridge_lib) as its own dependency.
+ifcopenshell==0.8.5
+numpy>=1.26,<3
+# pytest is NOT required by the CLIs (schema-only validation avoids the
+# express-rule runner that imports pytest). Only tests/test_engine.py needs it.

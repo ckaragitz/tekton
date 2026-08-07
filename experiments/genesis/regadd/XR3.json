@@ -1,0 +1,151 @@
+{
+ "op": "substitute_elements",
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR3.rvt",
+ "target_id": 30,
+ "class_name": "GStyleElem",
+ "seqs_replaced": [
+  101,
+  102,
+  103
+ ],
+ "null_mode": false,
+ "row_before": {
+  "original_id": 30,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 30,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "row_after": {
+  "original_id": 30,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 30,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "positions_before": {
+  "101": 2537,
+  "102": 2537,
+  "103": 2537
+ },
+ "positions_after": {
+  "101": 2537,
+  "102": 2537,
+  "103": 2537
+ },
+ "record_len_delta": {
+  "101": -8,
+  "102": 0,
+  "103": 0
+ },
+ "identity_at_original": null,
+ "emit": {
+  "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR3.rvt",
+  "partition": "Partitions/21",
+  "unit0_blocks_after": {
+   "101": 8,
+   "102": 47,
+   "103": 25
+  },
+  "elemtable_count": 6540,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "notes": [
+  "1407 element(s) substituted in place: ids [30, 31, 32, 33, 34, 35, 36, 37]..."
+ ],
+ "diff_summary": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "streams_identical_count": 11,
+  "partition_logical_identical": false,
+  "records_added": 0,
+  "records_removed": 0,
+  "records_changed": 2228,
+  "changed_ids": [
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   44,
+   45,
+   46,
+   47,
+   48,
+   49
+  ],
+  "id_order_identical": true,
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical": {
+   "101": false,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "latest_identical": true,
+  "embedded_units_identical": true
+ },
+ "probe": "XR3",
+ "role": "the WHOLE catalog OUR content, in place (X6a via substitution)",
+ "rows_substituted": 1407,
+ "one_change_vs_K1": "all 1407 built-in object-style rows' objects + headers replaced by ours at the SAME ids / rows / positions",
+ "catalog_lint": {
+  "ok": true,
+  "hard": 0,
+  "soft": 0
+ },
+ "ordering_rule_note": "the ladder's 'family removal must precede catalog substitution' rule (embedded documents pin OLD catalog ids) is MOOT for in-place: the ids do not change, so the embedded documents' catalog references stay valid -- XR3 derives from K1 directly (families intact = closer to the proven base)",
+ "sibling_experiment": "X_cat (subst_v2) = this content via manipulate; FAILED in the ~00:25 batch",
+ "if_PASS": "our profiled catalog (per-key structure + our pens/colours) is reader-clean in place: the catalog counsel item is now purely a legal decision",
+ "if_FAIL": "(with XR1 PASSING) a MULTI-row property is audited (our single ink colour / pen distribution across the whole table) -- bisect by row band; (with XR1 FAILING) the row-level cause dominates",
+ "seconds": 10.1
+}

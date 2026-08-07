@@ -1,0 +1,241 @@
+{
+ "claim": "compose(B2024_K4, [the 9 cumulative Y2024 rung deltas]) reproduces the ladder's deepest cumulative rung Y9_2024.rvt BYTE-IDENTICALLY under the 2024 emit context",
+ "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+ "base_md5": "b953513bf80a963021b7de8e96d1be9d",
+ "base_certification": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base",
+ "target": "experiments/genesis/subst_k4_2024/Y9_2024.rvt",
+ "rung_sets": [
+  {
+   "name": "Y2024:Y1_2024",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2024/Y1_2024.rvt",
+   "source_md5": "9c5cb1fa962253a94a68e68121ccdd43",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "report_file": "experiments/genesis/subst_k4_2024/Y1_2024.json",
+   "slots": 1,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "ParamDefProfFamUsage": 1
+   },
+   "landed_slots": 1,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2024:Y2_2024",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2024/Y2_2024.rvt",
+   "source_md5": "6a58a331d10d955cd7fbccb07a46b9f2",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2024/Y1_2024.rvt",
+   "report_file": "experiments/genesis/subst_k4_2024/Y2_2024.json",
+   "slots": 9,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "GeomTabEntry": 5,
+    "PointCloudType": 1,
+    "FixedThicknessLayerType": 1,
+    "RbsReferenceConnector": 1,
+    "ConduitSizesElem": 1
+   },
+   "landed_slots": 12,
+   "landed_but_byte_identical": 3,
+   "notes": []
+  },
+  {
+   "name": "Y2024:Y3_2024",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2024/Y3_2024.rvt",
+   "source_md5": "bdabf2142806a48c909709305ce9cb5d",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2024/Y2_2024.rvt",
+   "report_file": "experiments/genesis/subst_k4_2024/Y3_2024.json",
+   "slots": 2,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "Hub": 1,
+    "SlantedColumnEndGeometryCell": 1
+   },
+   "landed_slots": 5,
+   "landed_but_byte_identical": 3,
+   "notes": []
+  },
+  {
+   "name": "Y2024:Y4_2024",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2024/Y4_2024.rvt",
+   "source_md5": "bf8df375302222c15e5ba796a4533755",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2024/Y3_2024.rvt",
+   "report_file": "experiments/genesis/subst_k4_2024/Y4_2024.json",
+   "slots": 8,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "PointOnIntersectionBase": 1,
+    "PointOnCurveFlipControl": 1,
+    "PropertySetElement": 1,
+    "RampHelicalRunGeometryParams": 1,
+    "PropertySetLibraryTracking": 1,
+    "RampLandingRunGeometryParams": 1,
+    "CGCellCoords": 1,
+    "FamGeomRefHandles": 1
+   },
+   "landed_slots": 8,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2024:Y5_2024",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2024/Y5_2024.rvt",
+   "source_md5": "af706baf9dc70eb4f638cf4c43b675a3",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2024/Y4_2024.rvt",
+   "report_file": "experiments/genesis/subst_k4_2024/Y5_2024.json",
+   "slots": 11,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "CurtainAuxData": 2,
+    "DimensionEqualityLabelFormatting": 1,
+    "ContinuousLinearDimState": 1,
+    "PartMakerMethodForDirectShape": 1,
+    "PasteEditModeMgr": 1,
+    "ElementRegenHistory": 1,
+    "EStorageTracking": 1,
+    "TrussEndControl": 1,
+    "RbsWireSizesElem": 1,
+    "ProfileData": 1
+   },
+   "landed_slots": 48,
+   "landed_but_byte_identical": 37,
+   "notes": []
+  },
+  {
+   "name": "Y2024:Y6_2024",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2024/Y6_2024.rvt",
+   "source_md5": "583f3e9f20b71cda6698cb2a4d50c898",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2024/Y5_2024.rvt",
+   "report_file": "experiments/genesis/subst_k4_2024/Y6_2024.json",
+   "slots": 1156,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "FreeDomain": 1156
+   },
+   "landed_slots": 1156,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2024:Y7_2024",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+   "source_md5": "668a419d5e3b29fb2fa9c906e3d023fb",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2024/Y6_2024.rvt",
+   "report_file": "experiments/genesis/subst_k4_2024/Y7_2024.json",
+   "slots": 60,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "Path3dStickToEndRefCurveData": 28,
+    "MEPAnalyticalModelCell": 23,
+    "Int2ElementIdMapWrap": 5,
+    "IndexElementIdPairSet": 4
+   },
+   "landed_slots": 60,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2024:Y8_2024",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2024/Y8_2024.rvt",
+   "source_md5": "d97ac883e43d1c6672e2ed17fb32ee05",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+   "report_file": "experiments/genesis/subst_k4_2024/Y8_2024.json",
+   "slots": 16,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "LinkLoadContent": 2,
+    "BadDormerCutWarning": 2,
+    "PartitionVisibilityDrawFilter": 2,
+    "GBackgroundImageRenderSettings": 2,
+    "GBiFlipControl": 2,
+    "PartTypeFamily": 1,
+    "SpotElevationStyle": 1,
+    "ImageSymbol": 1,
+    "ParamDefRefTableEntry": 1,
+    "StructuralSectionGeneralI": 1,
+    "StructuralSectionSigmaProfile": 1
+   },
+   "landed_slots": 16,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2024:Y9_2024",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2024/Y9_2024.rvt",
+   "source_md5": "b4bc6df0cfcebbd2c5c69c9d76f03398",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2024/Y8_2024.rvt",
+   "report_file": "experiments/genesis/subst_k4_2024/Y9_2024.json",
+   "slots": 36,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "FamSubInstGStepAdder": 19,
+    "StairsParamDefSystemType": 4,
+    "FixedThicknessLayerType": 3,
+    "CustomElement": 2,
+    "CWireTickMarkStyle": 2,
+    "Polyloop": 2,
+    "DSTrackingItem": 1,
+    "RevisionNumberingSequence": 1,
+    "TaggedSubElem": 1,
+    "CurveProviderInterface_NPS": 1
+   },
+   "landed_slots": 46,
+   "landed_but_byte_identical": 10,
+   "notes": []
+  }
+ ],
+ "merged_slots": 1299,
+ "reproduction": "experiments/genesis/subst_k4_2024/compose/G_Y2024_anchor.rvt",
+ "md5_reproduction": "b4bc6df0cfcebbd2c5c69c9d76f03398",
+ "md5_target": "b4bc6df0cfcebbd2c5c69c9d76f03398",
+ "BYTE_IDENTICAL": true,
+ "meaning": "the composer's Phase I is EXACT on Revit 2024: the independently-emitted in-place rungs, merged into one substitute_elements call under context_compose_2024, land in precisely the file the Y2024 ladder emitted -- the 2026 anchor proof (and its 2025 transfer) transfers to 2024",
+ "compose_verdict": "COMPOSED-VALID",
+ "compose_problems": [],
+ "seconds": 3.6
+}

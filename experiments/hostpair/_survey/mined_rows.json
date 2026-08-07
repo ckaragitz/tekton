@@ -1,0 +1,10646 @@
+[
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 382615,
+"n_inst": 8,
+"cat": -2000280,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 9,
+"eh": 0,
+"ch": 33,
+"rev": 0
+}
+],
+"table_rows": 42,
+"gen_ids": {
+"1": 42
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 148,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GImage",
+"GFilter",
+"Geometry",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 509468,
+"n_inst": 17,
+"cat": -2001300,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 106301,
+"id": 1,
+"fh": 16,
+"eh": 6,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 23,
+"gen_ids": {
+"1": 23
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 135,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 512173,
+"n_inst": 8,
+"cat": -2001300,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 22,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 35,
+"gen_ids": {
+"1": 35
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 135,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 876569,
+"n_inst": 1,
+"cat": -2003400,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 22,
+"eh": 27,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 51,
+"gen_ids": {
+"1": 51
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 49506,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 975202,
+"n_inst": 2,
+"cat": -2000023,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 10,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 10,
+"gen_ids": {
+"1": 10
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 984452,
+"n_inst": 27,
+"cat": -2001320,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 325,
+"eh": 504,
+"ch": 129,
+"rev": 0
+}
+],
+"table_rows": 958,
+"gen_ids": {
+"1": 958
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 33,
+"n_strongRefs": 2,
+"n_g2m": 22,
+"hasParamDef": 0,
+"root_cat": 137,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1030516,
+"n_inst": 16,
+"cat": -2001320,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 6,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 28,
+"gen_ids": {
+"1": 28
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 137,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1040365,
+"n_inst": 17,
+"cat": -2001330,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 88,
+"eh": 168,
+"ch": 9,
+"rev": 0
+}
+],
+"table_rows": 265,
+"gen_ids": {
+"1": 265
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 2,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 7845,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1040899,
+"n_inst": 96,
+"cat": -2001320,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 52,
+"eh": 96,
+"ch": 13,
+"rev": 0
+}
+],
+"table_rows": 162,
+"gen_ids": {
+"1": 161,
+"-1": 1
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 137,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1042289,
+"n_inst": 35,
+"cat": -2001320,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 84,
+"eh": 168,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 259,
+"gen_ids": {
+"1": 259
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 137,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1042830,
+"n_inst": 18,
+"cat": -2001320,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 27,
+"eh": 24,
+"ch": 4,
+"rev": 0
+}
+],
+"table_rows": 55,
+"gen_ids": {
+"1": 55
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 137,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1160690,
+"n_inst": 65,
+"cat": -2001320,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 21,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 34,
+"gen_ids": {
+"1": 34
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 137,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1175081,
+"n_inst": 1,
+"cat": -2001300,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 26,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 39,
+"gen_ids": {
+"1": 39
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 20,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 135,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1177859,
+"n_inst": 6,
+"cat": -2001300,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 20,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 33,
+"gen_ids": {
+"1": 33
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 135,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1202450,
+"n_inst": 106,
+"cat": -2001320,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 21,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 34,
+"gen_ids": {
+"1": 34
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 137,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1203643,
+"n_inst": 7,
+"cat": -2001320,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 41,
+"eh": 54,
+"ch": 8,
+"rev": 0
+}
+],
+"table_rows": 104,
+"gen_ids": {
+"1": 103,
+"-1": 1
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 137,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1213376,
+"n_inst": 12,
+"cat": -2001330,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 53,
+"eh": 76,
+"ch": 6,
+"rev": 0
+}
+],
+"table_rows": 135,
+"gen_ids": {
+"1": 135
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 2,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 7845,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1389927,
+"n_inst": 20,
+"cat": -2005301,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 25,
+"eh": 24,
+"ch": 17,
+"rev": 0
+}
+],
+"table_rows": 66,
+"gen_ids": {
+"1": 66
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 99788,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1411287,
+"n_inst": 1,
+"cat": -2001330,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 21,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 34,
+"gen_ids": {
+"1": 34
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 7845,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1455334,
+"n_inst": 30,
+"cat": -2000150,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 16,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 35,
+"gen_ids": {
+"1": 35
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 155,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry",
+"GRichText"
+]
+},
+{
+"sample": "samples/rstbasicsampleproject.rvt",
+"symbol": 1158737,
+"n_inst": 4,
+"cat": -2008165,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 17,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 17,
+"gen_ids": {
+"1": 17
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 17,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 137335,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 2295,
+"n_inst": 8,
+"cat": -2000280,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 1,
+"id": 1,
+"fh": 9,
+"eh": 0,
+"ch": 62,
+"rev": 0
+}
+],
+"table_rows": 71,
+"gen_ids": {
+"1": 71
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 183,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GImage",
+"GFilter",
+"Geometry",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 68912,
+"n_inst": 6,
+"cat": -2001320,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 106301,
+"id": 1,
+"fh": 72,
+"eh": 133,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 212,
+"gen_ids": {
+"1": 212
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 157,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 69975,
+"n_inst": 306,
+"cat": -2001320,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 106301,
+"id": 1,
+"fh": 24,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 37,
+"gen_ids": {
+"1": 37
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 157,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 69977,
+"n_inst": 18,
+"cat": -2001320,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 106301,
+"id": 1,
+"fh": 24,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 37,
+"gen_ids": {
+"1": 37
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 157,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 71877,
+"n_inst": 8,
+"cat": -2001320,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 106301,
+"id": 1,
+"fh": 72,
+"eh": 133,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 212,
+"gen_ids": {
+"1": 212
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 157,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 87162,
+"n_inst": 7,
+"cat": -2005301,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 18,
+"eh": 14,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 33,
+"gen_ids": {
+"1": 33
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 82590,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 93574,
+"n_inst": 1,
+"cat": -2009010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 122,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 122,
+"gen_ids": {
+"1": 122
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 82827,
+"root_tag_is_self": true,
+"root_flags": 573444,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 97916,
+"n_inst": 2,
+"cat": -2001354,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 16,
+"eh": 12,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 30,
+"gen_ids": {
+"1": 30
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 89317,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 125534,
+"n_inst": 33,
+"cat": -2001320,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 22,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 35,
+"gen_ids": {
+"1": 35
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 157,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 169061,
+"n_inst": 1,
+"cat": -2000280,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 13,
+"id": 1,
+"fh": 9,
+"eh": 0,
+"ch": 57,
+"rev": 0
+}
+],
+"table_rows": 66,
+"gen_ids": {
+"1": 66
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 183,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GImage",
+"GFilter",
+"Geometry",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 169062,
+"n_inst": 4,
+"cat": -2000150,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 7997,
+"id": 1,
+"fh": 37,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 37,
+"gen_ids": {
+"1": 37
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 190,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 10727,
+"n_inst": 1,
+"cat": -2005100,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 61,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 9539,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 72808,
+"n_inst": 7,
+"cat": -2001330,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 106301,
+"id": 1,
+"fh": 66,
+"eh": 84,
+"ch": 9,
+"rev": 0
+}
+],
+"table_rows": 159,
+"gen_ids": {
+"1": 159
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 2,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 159,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 77491,
+"n_inst": 1,
+"cat": -2005110,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 30587,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 77792,
+"n_inst": 4,
+"cat": -2005110,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 30587,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 122395,
+"n_inst": 189,
+"cat": -2001330,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 6,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 26,
+"gen_ids": {
+"1": 26
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 159,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 122399,
+"n_inst": 7,
+"cat": -2001330,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 6,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 26,
+"gen_ids": {
+"1": 26
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 159,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 130163,
+"n_inst": 26,
+"cat": -2001320,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 26,
+"eh": 12,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 41,
+"gen_ids": {
+"1": 41
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 157,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 140300,
+"n_inst": 96,
+"cat": -2001300,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 106301,
+"id": 1,
+"fh": 16,
+"eh": 6,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 23,
+"gen_ids": {
+"1": 23
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 155,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 140767,
+"n_inst": 48,
+"cat": -2001300,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 24,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 37,
+"gen_ids": {
+"1": 37
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 155,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 142093,
+"n_inst": 120,
+"cat": -2001300,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 106301,
+"id": 1,
+"fh": 16,
+"eh": 6,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 23,
+"gen_ids": {
+"1": 23
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 155,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 142557,
+"n_inst": 30,
+"cat": -2001300,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 26,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 39,
+"gen_ids": {
+"1": 39
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 20,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 155,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 11575,
+"n_inst": 1,
+"cat": -2006040,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 61,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 10787,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 93806,
+"n_inst": 1,
+"cat": -2005130,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 1,
+"root_cat": 74959,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry",
+"GRichText"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 132854,
+"n_inst": 2,
+"cat": -2009600,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 9,
+"eh": 0,
+"ch": 27,
+"rev": 0
+}
+],
+"table_rows": 36,
+"gen_ids": {
+"1": 36
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 5,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 89271,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GGroup",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 1040,
+"n_inst": 1,
+"cat": -2000515,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 1,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 189,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rstadvancedsampleproject.rvt",
+"symbol": 94047,
+"n_inst": 1,
+"cat": -2009020,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 53589,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 198366,
+"n_inst": 15,
+"cat": -2000014,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 237373,
+"id": 1,
+"fh": 117,
+"eh": 132,
+"ch": 21,
+"rev": 0
+}
+],
+"table_rows": 273,
+"gen_ids": {
+"1": 270,
+"-1": 3
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 35,
+"n_strongRefs": 5,
+"n_g2m": 5,
+"hasParamDef": 0,
+"root_cat": 34,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GGroup",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 211807,
+"n_inst": 1,
+"cat": -2001160,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 185,
+"eh": 290,
+"ch": 18,
+"rev": 0
+}
+],
+"table_rows": 493,
+"gen_ids": {
+"1": 493
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 66,
+"n_strongRefs": 6,
+"n_g2m": 10,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GGroup",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 213558,
+"n_inst": 1,
+"cat": -2001160,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 186,
+"eh": 226,
+"ch": 49,
+"rev": 0
+}
+],
+"table_rows": 461,
+"gen_ids": {
+"1": 461
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 82,
+"n_strongRefs": 7,
+"n_g2m": 7,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 287141,
+"n_inst": 4,
+"cat": -2000151,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 281,
+"eh": 651,
+"ch": 14,
+"rev": 0
+}
+],
+"table_rows": 946,
+"gen_ids": {
+"1": 946
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 3,
+"n_g2m": 14,
+"hasParamDef": 0,
+"root_cat": 118,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 288367,
+"n_inst": 1,
+"cat": -2001160,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 73,
+"eh": 120,
+"ch": 6,
+"rev": 0
+}
+],
+"table_rows": 201,
+"gen_ids": {
+"1": 199,
+"-1": 2
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 17,
+"n_strongRefs": 7,
+"n_g2m": 6,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 397393,
+"n_inst": 3,
+"cat": -2001260,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 88,
+"eh": 165,
+"ch": 26,
+"rev": 0
+}
+],
+"table_rows": 279,
+"gen_ids": {
+"1": 279
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 22,
+"n_strongRefs": 6,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 134,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 420952,
+"n_inst": 1,
+"cat": -2001330,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 58,
+"eh": 24,
+"ch": 4,
+"rev": 0
+}
+],
+"table_rows": 86,
+"gen_ids": {
+"1": 86
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 30,
+"n_strongRefs": 2,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 7845,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 505854,
+"n_inst": 3,
+"cat": -2000023,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 137,
+"eh": 192,
+"ch": 15,
+"rev": 0
+}
+],
+"table_rows": 346,
+"gen_ids": {
+"1": 344,
+"-1": 2
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 21,
+"n_strongRefs": 4,
+"n_g2m": 4,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GGroup",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 674355,
+"n_inst": 1,
+"cat": -2000151,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 238,
+"eh": 519,
+"ch": 24,
+"rev": 0
+}
+],
+"table_rows": 781,
+"gen_ids": {
+"1": 781
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 20,
+"n_strongRefs": 2,
+"n_g2m": 17,
+"hasParamDef": 0,
+"root_cat": 118,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 677680,
+"n_inst": 1,
+"cat": -2001350,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 378,
+"eh": 828,
+"ch": 24,
+"rev": 0
+}
+],
+"table_rows": 1230,
+"gen_ids": {
+"1": 1230
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 54,
+"n_strongRefs": 2,
+"n_g2m": 24,
+"hasParamDef": 0,
+"root_cat": 141,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 678974,
+"n_inst": 1,
+"cat": -2001350,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 288,
+"eh": 636,
+"ch": 23,
+"rev": 0
+}
+],
+"table_rows": 947,
+"gen_ids": {
+"1": 947
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 30,
+"n_strongRefs": 2,
+"n_g2m": 23,
+"hasParamDef": 0,
+"root_cat": 141,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 680524,
+"n_inst": 1,
+"cat": -2000151,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 270,
+"eh": 587,
+"ch": 13,
+"rev": 0
+}
+],
+"table_rows": 870,
+"gen_ids": {
+"1": 870
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 45,
+"n_strongRefs": 2,
+"n_g2m": 13,
+"hasParamDef": 0,
+"root_cat": 118,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 684776,
+"n_inst": 1,
+"cat": -2001350,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 214,
+"eh": 426,
+"ch": 16,
+"rev": 0
+}
+],
+"table_rows": 656,
+"gen_ids": {
+"1": 656
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 40,
+"n_strongRefs": 2,
+"n_g2m": 16,
+"hasParamDef": 0,
+"root_cat": 141,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 686169,
+"n_inst": 1,
+"cat": -2001350,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 235,
+"eh": 503,
+"ch": 13,
+"rev": 0
+}
+],
+"table_rows": 751,
+"gen_ids": {
+"1": 751
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 40,
+"n_strongRefs": 2,
+"n_g2m": 13,
+"hasParamDef": 0,
+"root_cat": 141,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 690047,
+"n_inst": 1,
+"cat": -2001000,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 180,
+"eh": 264,
+"ch": 20,
+"rev": 0
+}
+],
+"table_rows": 464,
+"gen_ids": {
+"1": 464
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 6,
+"n_g2m": 20,
+"hasParamDef": 0,
+"root_cat": 122,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 692863,
+"n_inst": 1,
+"cat": -2001000,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 156,
+"eh": 228,
+"ch": 17,
+"rev": 0
+}
+],
+"table_rows": 401,
+"gen_ids": {
+"1": 401
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 6,
+"n_g2m": 17,
+"hasParamDef": 0,
+"root_cat": 122,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 694781,
+"n_inst": 1,
+"cat": -2000151,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 166,
+"eh": 366,
+"ch": 14,
+"rev": 0
+}
+],
+"table_rows": 546,
+"gen_ids": {
+"1": 546
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 23,
+"n_strongRefs": 2,
+"n_g2m": 10,
+"hasParamDef": 0,
+"root_cat": 118,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 696969,
+"n_inst": 1,
+"cat": -2001350,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 177,
+"eh": 360,
+"ch": 9,
+"rev": 0
+}
+],
+"table_rows": 546,
+"gen_ids": {
+"1": 546
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 38,
+"n_strongRefs": 2,
+"n_g2m": 9,
+"hasParamDef": 0,
+"root_cat": 141,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 697575,
+"n_inst": 1,
+"cat": -2001100,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 24,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 44,
+"gen_ids": {
+"1": 44
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 126,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 698708,
+"n_inst": 4,
+"cat": -2001160,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 73,
+"eh": 124,
+"ch": 22,
+"rev": 0
+}
+],
+"table_rows": 219,
+"gen_ids": {
+"1": 219
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 20,
+"n_strongRefs": 13,
+"n_g2m": 4,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 735724,
+"n_inst": 2,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 140,
+"eh": 348,
+"ch": 44,
+"rev": 0
+}
+],
+"table_rows": 532,
+"gen_ids": {
+"1": 532
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 2,
+"n_g2m": 7,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 754016,
+"n_inst": 8,
+"cat": -2001120,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 772,
+"eh": 1080,
+"ch": 74,
+"rev": 0
+}
+],
+"table_rows": 1926,
+"gen_ids": {
+"1": 1926
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 49,
+"hasParamDef": 0,
+"root_cat": 127,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 776839,
+"n_inst": 13,
+"cat": -2001040,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 703,
+"eh": 1596,
+"ch": 73,
+"rev": 0
+}
+],
+"table_rows": 2372,
+"gen_ids": {
+"1": 2372
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 2,
+"n_g2m": 71,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 778223,
+"n_inst": 2,
+"cat": -2001160,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 237,
+"eh": 416,
+"ch": 17,
+"rev": 0
+}
+],
+"table_rows": 670,
+"gen_ids": {
+"1": 670
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 23,
+"n_strongRefs": 2,
+"n_g2m": 7,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 785282,
+"n_inst": 1,
+"cat": -2000151,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 110,
+"eh": 199,
+"ch": 15,
+"rev": 0
+}
+],
+"table_rows": 324,
+"gen_ids": {
+"1": 324
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 15,
+"hasParamDef": 0,
+"root_cat": 118,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 802440,
+"n_inst": 2,
+"cat": -2001120,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 58,
+"eh": 84,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 149,
+"gen_ids": {
+"1": 149
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 2,
+"n_g2m": 7,
+"hasParamDef": 0,
+"root_cat": 127,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 866105,
+"n_inst": 2,
+"cat": -2000023,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 50,
+"eh": 84,
+"ch": 12,
+"rev": 0
+}
+],
+"table_rows": 147,
+"gen_ids": {
+"1": 146,
+"-1": 1
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 1,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 945990,
+"n_inst": 1,
+"cat": -2001360,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 13,
+"eh": 0,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 16,
+"gen_ids": {
+"1": 16
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8950,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 946004,
+"n_inst": 1,
+"cat": -2001360,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 13,
+"eh": 0,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 16,
+"gen_ids": {
+"1": 16
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8950,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 946006,
+"n_inst": 8,
+"cat": -2001360,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 13,
+"eh": 0,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 16,
+"gen_ids": {
+"1": 16
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8950,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 946014,
+"n_inst": 1,
+"cat": -2001360,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 13,
+"eh": 0,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 16,
+"gen_ids": {
+"1": 16
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8950,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 946016,
+"n_inst": 1,
+"cat": -2001360,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 13,
+"eh": 0,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 16,
+"gen_ids": {
+"1": 16
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8950,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 946018,
+"n_inst": 2,
+"cat": -2001360,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 13,
+"eh": 0,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 16,
+"gen_ids": {
+"1": 16
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8950,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 946020,
+"n_inst": 2,
+"cat": -2001360,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 13,
+"eh": 0,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 16,
+"gen_ids": {
+"1": 16
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8950,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 950216,
+"n_inst": 1,
+"cat": -2001370,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 10,
+"eh": 0,
+"ch": 665,
+"rev": 0
+}
+],
+"table_rows": 675,
+"gen_ids": {
+"1": 675
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8951,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 981609,
+"n_inst": 1,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 175,
+"eh": 382,
+"ch": 10,
+"rev": 0
+}
+],
+"table_rows": 567,
+"gen_ids": {
+"1": 567
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 2,
+"n_g2m": 10,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 984471,
+"n_inst": 1,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 154,
+"eh": 288,
+"ch": 17,
+"rev": 0
+}
+],
+"table_rows": 460,
+"gen_ids": {
+"1": 459,
+"-1": 1
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 32,
+"n_strongRefs": 2,
+"n_g2m": 13,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 985723,
+"n_inst": 1,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 58,
+"eh": 90,
+"ch": 8,
+"rev": 0
+}
+],
+"table_rows": 156,
+"gen_ids": {
+"1": 156
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 1,
+"n_g2m": 4,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 986973,
+"n_inst": 1,
+"cat": -2001350,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 52,
+"eh": 76,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 131,
+"gen_ids": {
+"1": 131
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 141,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 988018,
+"n_inst": 6,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 53,
+"eh": 62,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 122,
+"gen_ids": {
+"1": 122
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 17,
+"n_strongRefs": 2,
+"n_g2m": 7,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 990191,
+"n_inst": 8,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 63,
+"eh": 107,
+"ch": 6,
+"rev": 0
+}
+],
+"table_rows": 176,
+"gen_ids": {
+"1": 176
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 6,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 993873,
+"n_inst": 1,
+"cat": -2000151,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 47,
+"eh": 96,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 144,
+"gen_ids": {
+"1": 144
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 118,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 994767,
+"n_inst": 8,
+"cat": -2000151,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 24,
+"eh": 26,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 51,
+"gen_ids": {
+"1": 51
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 118,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 996866,
+"n_inst": 8,
+"cat": -2000151,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 32,
+"eh": 36,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 70,
+"gen_ids": {
+"1": 70
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 2,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 118,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 997883,
+"n_inst": 2,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 48,
+"eh": 60,
+"ch": 8,
+"rev": 0
+}
+],
+"table_rows": 117,
+"gen_ids": {
+"1": 116,
+"-1": 1
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 22,
+"n_strongRefs": 2,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 382615,
+"n_inst": 6,
+"cat": -2000280,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 9,
+"eh": 0,
+"ch": 33,
+"rev": 0
+}
+],
+"table_rows": 42,
+"gen_ids": {
+"1": 42
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 148,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GImage",
+"GFilter",
+"Geometry",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 12344,
+"n_inst": 25,
+"cat": -2000127,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 1,
+"id": 1,
+"fh": 36,
+"eh": 32,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 70,
+"gen_ids": {
+"1": 70
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 103,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 232780,
+"n_inst": 7,
+"cat": -2000023,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 317,
+"id": 1,
+"fh": 57,
+"eh": 60,
+"ch": 16,
+"rev": 0
+}
+],
+"table_rows": 135,
+"gen_ids": {
+"1": 133,
+"-1": 2
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 4,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GGroup",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 488864,
+"n_inst": 2,
+"cat": -2000014,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 101,
+"eh": 140,
+"ch": 11,
+"rev": 0
+}
+],
+"table_rows": 252,
+"gen_ids": {
+"1": 252
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 6,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 34,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GGroup",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 506166,
+"n_inst": 1,
+"cat": -2001100,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 15,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 28,
+"gen_ids": {
+"1": 28
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 126,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 509468,
+"n_inst": 11,
+"cat": -2001300,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 106301,
+"id": 1,
+"fh": 16,
+"eh": 6,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 23,
+"gen_ids": {
+"1": 23
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 135,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 512173,
+"n_inst": 11,
+"cat": -2001300,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 22,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 35,
+"gen_ids": {
+"1": 35
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 135,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 523529,
+"n_inst": 1,
+"cat": -2001100,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 15,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 28,
+"gen_ids": {
+"1": 28
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 126,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 628357,
+"n_inst": 1,
+"cat": -2003400,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 16,
+"eh": 15,
+"ch": 6,
+"rev": 0
+}
+],
+"table_rows": 37,
+"gen_ids": {
+"1": 37
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 49506,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 708904,
+"n_inst": 2,
+"cat": -2001330,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 37,
+"eh": 39,
+"ch": 6,
+"rev": 0
+}
+],
+"table_rows": 82,
+"gen_ids": {
+"1": 82
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 2,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 7845,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 907609,
+"n_inst": 1,
+"cat": -2000023,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 64,
+"eh": 72,
+"ch": 17,
+"rev": 0
+}
+],
+"table_rows": 155,
+"gen_ids": {
+"1": 153,
+"-1": 2
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 4,
+"n_g2m": 4,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GGroup",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 910850,
+"n_inst": 3,
+"cat": -2000023,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 54,
+"eh": 96,
+"ch": 11,
+"rev": 0
+}
+],
+"table_rows": 162,
+"gen_ids": {
+"1": 161,
+"-1": 1
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 1,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 929137,
+"n_inst": 3,
+"cat": -2002000,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 21,
+"eh": 8,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 29,
+"gen_ids": {
+"1": 29
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 20,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 120,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GGroup",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 936387,
+"n_inst": 2,
+"cat": -2001160,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 0,
+"ch": 14,
+"rev": 0
+}
+],
+"table_rows": 35,
+"gen_ids": {
+"1": 33,
+"-1": 2
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 937371,
+"n_inst": 1,
+"cat": -2001160,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 0,
+"ch": 14,
+"rev": 0
+}
+],
+"table_rows": 35,
+"gen_ids": {
+"1": 33,
+"-1": 2
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 961908,
+"n_inst": 41,
+"cat": -2000150,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 16,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 35,
+"gen_ids": {
+"1": 35
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 155,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry",
+"GRichText"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 982743,
+"n_inst": 5,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 30,
+"eh": 32,
+"ch": 9,
+"rev": 0
+}
+],
+"table_rows": 71,
+"gen_ids": {
+"1": 71
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 983518,
+"n_inst": 2,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 30,
+"eh": 32,
+"ch": 9,
+"rev": 0
+}
+],
+"table_rows": 71,
+"gen_ids": {
+"1": 71
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 989329,
+"n_inst": 2,
+"cat": -2000080,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 89,
+"eh": 156,
+"ch": 35,
+"rev": 0
+}
+],
+"table_rows": 280,
+"gen_ids": {
+"1": 280
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 2,
+"n_g2m": 11,
+"hasParamDef": 0,
+"root_cat": 78,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 993076,
+"n_inst": 1,
+"cat": -2001350,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 38,
+"eh": 50,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 91,
+"gen_ids": {
+"1": 91
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 141,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 941864,
+"n_inst": 1,
+"cat": -2000150,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 155,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 954137,
+"n_inst": 3,
+"cat": -2001370,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 10,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 10,
+"gen_ids": {
+"1": 10
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8951,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/racbasicsampleproject.rvt",
+"symbol": 954582,
+"n_inst": 1,
+"cat": -2001370,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 8951,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 106624,
+"n_inst": 18,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 56,
+"eh": 108,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 171,
+"gen_ids": {
+"1": 171
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 0,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 107552,
+"n_inst": 90,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 32,
+"eh": 36,
+"ch": 8,
+"rev": 0
+}
+],
+"table_rows": 76,
+"gen_ids": {
+"1": 76
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 0,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 108495,
+"n_inst": 16,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 43,
+"eh": 72,
+"ch": 6,
+"rev": 0
+}
+],
+"table_rows": 121,
+"gen_ids": {
+"1": 121
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 0,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 112441,
+"n_inst": 6,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 32,
+"eh": 36,
+"ch": 4,
+"rev": 0
+}
+],
+"table_rows": 72,
+"gen_ids": {
+"1": 72
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 0,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 130550,
+"n_inst": 46,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 41,
+"eh": 54,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 102,
+"gen_ids": {
+"1": 102
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 0,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 132244,
+"n_inst": 2,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 50,
+"eh": 80,
+"ch": 8,
+"rev": 0
+}
+],
+"table_rows": 138,
+"gen_ids": {
+"1": 138
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 0,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 133158,
+"n_inst": 123,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 32,
+"eh": 24,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 63,
+"gen_ids": {
+"1": 63
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 20,
+"n_strongRefs": 0,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 194831,
+"n_inst": 43,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 41,
+"eh": 24,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 67,
+"gen_ids": {
+"1": 67
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 29,
+"n_strongRefs": 0,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 295437,
+"n_inst": 6,
+"cat": -2008013,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 15,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 28,
+"gen_ids": {
+"1": 28
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 52154,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 296341,
+"n_inst": 59,
+"cat": -2008013,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 15,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 28,
+"gen_ids": {
+"1": 28
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 52154,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 301855,
+"n_inst": 198,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 37,
+"eh": 54,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 94,
+"gen_ids": {
+"1": 94
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 0,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 337731,
+"n_inst": 6,
+"cat": -2008099,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 10,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 30,
+"gen_ids": {
+"1": 30
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 270198,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 342652,
+"n_inst": 8,
+"cat": -2001060,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 31,
+"eh": 24,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 57,
+"gen_ids": {
+"1": 57
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 125,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 342654,
+"n_inst": 415,
+"cat": -2001060,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 31,
+"eh": 24,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 57,
+"gen_ids": {
+"1": 57
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 125,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 343624,
+"n_inst": 9,
+"cat": -2008087,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 31,
+"eh": 24,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 57,
+"gen_ids": {
+"1": 57
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 86328,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 355921,
+"n_inst": 105,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 77,
+"eh": 72,
+"ch": 5,
+"rev": 0
+}
+],
+"table_rows": 154,
+"gen_ids": {
+"1": 154
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 35,
+"n_strongRefs": 0,
+"n_g2m": 5,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 356862,
+"n_inst": 8,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 44,
+"eh": 60,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 107,
+"gen_ids": {
+"1": 107
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 0,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 357749,
+"n_inst": 2,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 51,
+"eh": 54,
+"ch": 5,
+"rev": 0
+}
+],
+"table_rows": 110,
+"gen_ids": {
+"1": 110
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 23,
+"n_strongRefs": 0,
+"n_g2m": 5,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 358685,
+"n_inst": 204,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 65,
+"eh": 48,
+"ch": 4,
+"rev": 0
+}
+],
+"table_rows": 117,
+"gen_ids": {
+"1": 117
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 41,
+"n_strongRefs": 0,
+"n_g2m": 4,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 359751,
+"n_inst": 288,
+"cat": -2008010,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 44,
+"eh": 36,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 83,
+"gen_ids": {
+"1": 83
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 26,
+"n_strongRefs": 0,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 52153,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 365612,
+"n_inst": 195,
+"cat": -2001120,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 26,
+"eh": 24,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 52,
+"gen_ids": {
+"1": 52
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 127,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 370023,
+"n_inst": 5,
+"cat": -2001160,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 126,
+"eh": 247,
+"ch": 9,
+"rev": 0
+}
+],
+"table_rows": 382,
+"gen_ids": {
+"1": 382
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 3,
+"n_g2m": 9,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 379449,
+"n_inst": 5,
+"cat": -2008013,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 23,
+"eh": 18,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 43,
+"gen_ids": {
+"1": 43
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 52154,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 379451,
+"n_inst": 108,
+"cat": -2008013,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 23,
+"eh": 18,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 43,
+"gen_ids": {
+"1": 43
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 52154,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 382200,
+"n_inst": 1,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 65,
+"eh": 66,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 132,
+"gen_ids": {
+"1": 132
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 34,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 382202,
+"n_inst": 6,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 65,
+"eh": 66,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 132,
+"gen_ids": {
+"1": 132
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 34,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 383537,
+"n_inst": 96,
+"cat": -2008013,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 40,
+"eh": 36,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 77,
+"gen_ids": {
+"1": 77
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 24,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 52154,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 386023,
+"n_inst": 6,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 66,
+"eh": 66,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 133,
+"gen_ids": {
+"1": 133
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 35,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 386025,
+"n_inst": 11,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 66,
+"eh": 66,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 133,
+"gen_ids": {
+"1": 133
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 35,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 386027,
+"n_inst": 9,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 66,
+"eh": 66,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 133,
+"gen_ids": {
+"1": 133
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 35,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 386029,
+"n_inst": 2,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 66,
+"eh": 66,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 133,
+"gen_ids": {
+"1": 133
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 35,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 406845,
+"n_inst": 33,
+"cat": -2008013,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 40,
+"eh": 36,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 77,
+"gen_ids": {
+"1": 77
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 24,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 52154,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 410111,
+"n_inst": 1,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 65,
+"eh": 66,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 132,
+"gen_ids": {
+"1": 132
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 34,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 410113,
+"n_inst": 2,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 65,
+"eh": 66,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 132,
+"gen_ids": {
+"1": 132
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 34,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 410115,
+"n_inst": 5,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 65,
+"eh": 66,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 132,
+"gen_ids": {
+"1": 132
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 34,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 433674,
+"n_inst": 65,
+"cat": -2001120,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 52,
+"eh": 50,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 105,
+"gen_ids": {
+"1": 105
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 24,
+"n_strongRefs": 3,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 127,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 435190,
+"n_inst": 66,
+"cat": -2001120,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 24,
+"eh": 24,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 51,
+"gen_ids": {
+"1": 51
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 3,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 127,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 437898,
+"n_inst": 54,
+"cat": -2008087,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 31,
+"eh": 24,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 57,
+"gen_ids": {
+"1": 57
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 86328,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 446386,
+"n_inst": 19,
+"cat": -2001120,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 80,
+"eh": 120,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 207,
+"gen_ids": {
+"1": 207
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 25,
+"n_strongRefs": 3,
+"n_g2m": 7,
+"hasParamDef": 0,
+"root_cat": 127,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 446390,
+"n_inst": 65,
+"cat": -2001120,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 80,
+"eh": 120,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 207,
+"gen_ids": {
+"1": 207
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 25,
+"n_strongRefs": 3,
+"n_g2m": 7,
+"hasParamDef": 0,
+"root_cat": 127,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 454655,
+"n_inst": 1,
+"cat": -2001040,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 22,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 35,
+"gen_ids": {
+"1": 35
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 454659,
+"n_inst": 3,
+"cat": -2001040,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 22,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 35,
+"gen_ids": {
+"1": 35
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 455409,
+"n_inst": 8,
+"cat": -2001040,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 20,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 33,
+"gen_ids": {
+"1": 33
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 469253,
+"n_inst": 1,
+"cat": -2001060,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 31,
+"eh": 24,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 57,
+"gen_ids": {
+"1": 57
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 19,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 125,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 477672,
+"n_inst": 1,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 94,
+"eh": 120,
+"ch": 9,
+"rev": 0
+}
+],
+"table_rows": 223,
+"gen_ids": {
+"1": 223
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 36,
+"n_strongRefs": 3,
+"n_g2m": 9,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 513605,
+"n_inst": 1,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 123,
+"eh": 146,
+"ch": 4,
+"rev": 0
+}
+],
+"table_rows": 273,
+"gen_ids": {
+"1": 273
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 59,
+"n_strongRefs": 3,
+"n_g2m": 4,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 516669,
+"n_inst": 1,
+"cat": -2001140,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 62,
+"eh": 62,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 125,
+"gen_ids": {
+"1": 125
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 30,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 520059,
+"n_inst": 2,
+"cat": -2008013,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 40,
+"eh": 36,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 77,
+"gen_ids": {
+"1": 77
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 24,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 52154,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 540055,
+"n_inst": 7,
+"cat": -2000280,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 9,
+"eh": 0,
+"ch": 33,
+"rev": 0
+}
+],
+"table_rows": 42,
+"gen_ids": {
+"1": 42
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 148,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GImage",
+"GFilter",
+"Geometry",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText",
+"GRichText"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 542320,
+"n_inst": 4,
+"cat": -2001160,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 79,
+"eh": 84,
+"ch": 6,
+"rev": 0
+}
+],
+"table_rows": 169,
+"gen_ids": {
+"1": 169
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 38,
+"n_strongRefs": 3,
+"n_g2m": 6,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 543268,
+"n_inst": 2,
+"cat": -2001160,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 91,
+"eh": 124,
+"ch": 5,
+"rev": 0
+}
+],
+"table_rows": 220,
+"gen_ids": {
+"1": 220
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 39,
+"n_strongRefs": 3,
+"n_g2m": 5,
+"hasParamDef": 0,
+"root_cat": 129,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 563427,
+"n_inst": 131,
+"cat": -2001330,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 16,
+"eh": 6,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 23,
+"gen_ids": {
+"1": 23
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 7845,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 563438,
+"n_inst": 95,
+"cat": -2000023,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 151,
+"eh": 228,
+"ch": 21,
+"rev": 0
+}
+],
+"table_rows": 403,
+"gen_ids": {
+"1": 400,
+"-1": 3
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 4,
+"n_g2m": 13,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GGroup",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 563447,
+"n_inst": 11,
+"cat": -2000023,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 45,
+"eh": 48,
+"ch": 8,
+"rev": 0
+}
+],
+"table_rows": 103,
+"gen_ids": {
+"1": 101,
+"-1": 2
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 22,
+"n_strongRefs": 2,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 563449,
+"n_inst": 6,
+"cat": -2000023,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 64,
+"eh": 96,
+"ch": 14,
+"rev": 0
+}
+],
+"table_rows": 175,
+"gen_ids": {
+"1": 174,
+"-1": 1
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 23,
+"n_strongRefs": 2,
+"n_g2m": 4,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 563457,
+"n_inst": 12,
+"cat": -2000023,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 151,
+"eh": 228,
+"ch": 21,
+"rev": 0
+}
+],
+"table_rows": 403,
+"gen_ids": {
+"1": 400,
+"-1": 3
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 4,
+"n_g2m": 13,
+"hasParamDef": 0,
+"root_cat": 44,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GGroup",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 563459,
+"n_inst": 3,
+"cat": -2001350,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 55,
+"eh": 24,
+"ch": 4,
+"rev": 0
+}
+],
+"table_rows": 85,
+"gen_ids": {
+"1": 83,
+"-1": 2
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 23,
+"n_strongRefs": 5,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 141,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GGroup",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 563462,
+"n_inst": 81,
+"cat": -2000151,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 106,
+"eh": 162,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 270,
+"gen_ids": {
+"1": 270
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 10,
+"n_strongRefs": 2,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 118,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 563470,
+"n_inst": 4,
+"cat": -2003400,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 20,
+"eh": 15,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 36,
+"gen_ids": {
+"1": 36
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 6,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 49506,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 591249,
+"n_inst": 1,
+"cat": -2001140,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 93,
+"eh": 120,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 216,
+"gen_ids": {
+"1": 216
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 40,
+"n_strongRefs": 3,
+"n_g2m": 3,
+"hasParamDef": 0,
+"root_cat": 128,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 596094,
+"n_inst": 119,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 77,
+"eh": 72,
+"ch": 5,
+"rev": 0
+}
+],
+"table_rows": 154,
+"gen_ids": {
+"1": 154
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 23,
+"n_strongRefs": 0,
+"n_g2m": 5,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 600216,
+"n_inst": 56,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 59,
+"eh": 84,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 150,
+"gen_ids": {
+"1": 150
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 0,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 600217,
+"n_inst": 1,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 76,
+"eh": 116,
+"ch": 12,
+"rev": 0
+}
+],
+"table_rows": 204,
+"gen_ids": {
+"1": 204
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 0,
+"n_g2m": 6,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 600218,
+"n_inst": 128,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 44,
+"eh": 36,
+"ch": 7,
+"rev": 0
+}
+],
+"table_rows": 87,
+"gen_ids": {
+"1": 87
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 16,
+"n_strongRefs": 0,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 600243,
+"n_inst": 7,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 54,
+"eh": 60,
+"ch": 8,
+"rev": 0
+}
+],
+"table_rows": 122,
+"gen_ids": {
+"1": 122
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 0,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 600246,
+"n_inst": 8,
+"cat": -2008049,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 237373,
+"id": 1,
+"fh": 88,
+"eh": 108,
+"ch": 9,
+"rev": 0
+}
+],
+"table_rows": 205,
+"gen_ids": {
+"1": 205
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 24,
+"n_strongRefs": 0,
+"n_g2m": 4,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 619611,
+"n_inst": 6,
+"cat": -2001040,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 32,
+"gen_ids": {
+"1": 32
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 619617,
+"n_inst": 3,
+"cat": -2001040,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 32,
+"gen_ids": {
+"1": 32
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 620368,
+"n_inst": 3,
+"cat": -2001040,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 21,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 34,
+"gen_ids": {
+"1": 34
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 621242,
+"n_inst": 1,
+"cat": -2001040,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 45,
+"eh": 54,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 101,
+"gen_ids": {
+"1": 101
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 22,
+"n_strongRefs": 3,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 621990,
+"n_inst": 3,
+"cat": -2001040,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 20,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 33,
+"gen_ids": {
+"1": 33
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 14,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 629946,
+"n_inst": 1,
+"cat": -2001040,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 400,
+"eh": 492,
+"ch": 17,
+"rev": 0
+}
+],
+"table_rows": 909,
+"gen_ids": {
+"1": 909
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 44,
+"n_strongRefs": 3,
+"n_g2m": 17,
+"hasParamDef": 0,
+"root_cat": 124,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 662459,
+"n_inst": 12,
+"cat": -2008128,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 23,
+"eh": 14,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 38,
+"gen_ids": {
+"1": 38
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 0,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 638779,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 685435,
+"n_inst": 2,
+"cat": -2008128,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 34,
+"eh": 24,
+"ch": 2,
+"rev": 0
+}
+],
+"table_rows": 60,
+"gen_ids": {
+"1": 60
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 20,
+"n_strongRefs": 0,
+"n_g2m": 2,
+"hasParamDef": 0,
+"root_cat": 638779,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 726124,
+"n_inst": 2,
+"cat": -2008049,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 7,
+"flags": 761725,
+"id": 1,
+"fh": 19,
+"eh": 6,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 26,
+"gen_ids": {
+"1": 26
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 15,
+"n_strongRefs": 0,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 69646,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 563431,
+"n_inst": 32,
+"cat": -2000127,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 40765,
+"id": 1,
+"fh": 24,
+"eh": 12,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 37,
+"gen_ids": {
+"1": 37
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 18,
+"n_strongRefs": 3,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 103,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 579450,
+"n_inst": 1,
+"cat": -2003400,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 29,
+"eh": 41,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 71,
+"gen_ids": {
+"1": 71
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 49506,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 579941,
+"n_inst": 1,
+"cat": -2003400,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 3,
+"flags": 237373,
+"id": 1,
+"fh": 37,
+"eh": 78,
+"ch": 1,
+"rev": 0
+}
+],
+"table_rows": 116,
+"gen_ids": {
+"1": 116
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 9,
+"n_strongRefs": 0,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 49506,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 583159,
+"n_inst": 1,
+"cat": -2002000,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 3,
+"rev": 0
+}
+],
+"table_rows": 14,
+"gen_ids": {
+"1": 14
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 3,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 120,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GGroup",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 583161,
+"n_inst": 1,
+"cat": -2002000,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 13,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 13,
+"gen_ids": {
+"1": 13
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 13,
+"n_strongRefs": 5,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 120,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GGroup",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 610443,
+"n_inst": 11,
+"cat": -2002000,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 20,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 20,
+"gen_ids": {
+"1": 20
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 20,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 120,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GGroup",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 617724,
+"n_inst": 1,
+"cat": -2005100,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 21448,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 618374,
+"n_inst": 12,
+"cat": -2002000,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 20,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 20,
+"gen_ids": {
+"1": 20
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 20,
+"n_strongRefs": 2,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 120,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GGroup",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 691024,
+"n_inst": 4,
+"cat": -2000100,
+"list_flags": 11,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 6,
+"flags": 761725,
+"id": 1,
+"fh": 27,
+"eh": 36,
+"ch": 5,
+"rev": 0
+}
+],
+"table_rows": 68,
+"gen_ids": {
+"1": 68
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 12,
+"n_strongRefs": 2,
+"n_g2m": 1,
+"hasParamDef": 0,
+"root_cat": 79,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 3,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"GFilter",
+"GFilter",
+"Geometry"
+]
+},
+{
+"sample": "samples/rmebasicsampleproject.rvt",
+"symbol": 583163,
+"n_inst": 1,
+"cat": -2000150,
+"list_flags": 9,
+"idCounter": 2,
+"latest": [
+2,
+2,
+2,
+2,
+2
+],
+"other_lists": [],
+"snapshots": [],
+"n_steps": 1,
+"steps": [
+{
+"cls": "BaseFamilySymbolGStep",
+"ver": 4,
+"flags": 761725,
+"id": 1,
+"fh": 11,
+"eh": 0,
+"ch": 0,
+"rev": 0
+}
+],
+"table_rows": 11,
+"gen_ids": {
+"1": 11
+},
+"bigTableOwner": false,
+"refPntMirrored": false,
+"n_refFaces": 11,
+"n_strongRefs": 0,
+"n_g2m": 0,
+"hasParamDef": 0,
+"root_cat": 155,
+"root_tag_is_self": true,
+"root_flags": 557060,
+"gElemType": 2,
+"rep_flags": 2,
+"subs": [
+"GFilter",
+"GFilter",
+"Geometry"
+]
+}
+]

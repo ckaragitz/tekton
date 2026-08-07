@@ -1,0 +1,336 @@
+{
+ "stream": "selfcontained: THE CLOSE.  Verdict #45 convicted G_ABPD x loaded-famdoc; HR1 (hr1_report.json) enumerated the famdoc->host surface and measured that T2a's walked binds stay in-unit while every failing ours-content famdoc either binds host rows (U16g) or binds NOTHING (-1 fallback).  SC1 = our content with in-unit walked binds (T2a-exact lane).  U16gK4/U16gABP split the base conviction within the compose stack (substrate / +substitutions / +deletions=b52 U16g).  DEMO v8 = the product prompt through the same self-contained authoring.",
+ "known_cells": {
+  "T2a": "born standalone unmodified + G_ABPD = PASS (b50); walked binds in-unit; authored-empty inline ADocument; dummy host reps",
+  "T0": "our famgen famdoc (unbound walk binds) + same lane + G_ABPD = FAIL (b49)",
+  "T1v/T1r": "born shell + our content: FAIL on G_ABPD, PASS on rst -- byte-identical famdoc (b51/b52)",
+  "U16g": "U16's famdoc (host-bound refs onto substituted rows) + G_ABPD = FAIL (b52); same bytes PASS on rst (U16, b45)",
+  "BX_birth/DEMO v7": "birth set WITHOUT binds = FAIL (b51)"
+ },
+ "bases": {
+  "SC1": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "U16gK4": "experiments/genesis/triage/K4.rvt",
+  "U16gABP": "experiments/genesis/subst_k4/compose/G_ABP.rvt",
+  "DEMO_250v_room_v8": "experiments/genesis/subst_k4/compose/G_ABPD.rvt"
+ },
+ "upload_order_max_information_first": [
+  "SC1",
+  "U16gK4",
+  "U16gABP",
+  "DEMO_250v_room_v8"
+ ],
+ "controls": {
+  "g_abpd": {
+   "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "voids": "SC1, DEMO_250v_room_v8 on CTRL FAIL"
+  },
+  "k4": {
+   "source": "experiments/genesis/triage/K4.rvt",
+   "voids": "U16gK4 on CTRL FAIL"
+  },
+  "g_abp": {
+   "source": "experiments/genesis/subst_k4/compose/G_ABP.rvt",
+   "voids": "U16gABP on CTRL FAIL"
+  }
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL (any)": "that base's probes are VOID -- interpret nothing built on it.",
+  "SC1 PASS": "THE LAW CONFIRMED: the composed base accepts OUR famdoc once its walked style resolution stays in-unit.  The fix is specified = birthright v2 self-contained authoring (birth set + render binds).  Read DEMO v8 immediately.",
+  "SC1 FAIL": "self-containment is NOT sufficient: with T2a as the PASSing control shape, the remaining delta vs T2a is the unit content AUTHORSHIP itself (our records) x this base.  Next instruments: the U16gK4/U16gABP split below + the desktop-Revit kit (experiments/terminal/REVIT-CHECK-KIT.md); a 2025-lane famload port would extend the split cross-lineage.",
+  "U16gK4 PASS + U16gABP FAIL": "SUBSTITUTION-LAYER conviction at the famdoc->host surface: born targets accepted, our substituted targets rejected.  The compose-side fix (hr1_report.json compose_side_alternative) is the specified repair; rank 1 = the stripped material appearance asset.",
+  "U16gK4 PASS + U16gABP PASS": "DELETION-LAYER conviction: the U16 recipe survives substituted targets; only the deletion set's holes kill it (b52 U16g FAIL had deletions).  Fix = close the referenced holes (3644, -2001265 rows) or re-compose without deleting referenced style rows.",
+  "U16gK4 FAIL": "LINEAGE conviction independent of substitution: the composed skeleton itself rejects the loaded-famdoc recipe that rst accepts byte-identically.  The compose stack (not our content) is the axis; replicate on 2025/2024 once a famload lane exists there.",
+  "SC1 PASS + DEMO v8 PASS": "THE CAMPAIGN CLOSES: promote birthright.enabled(spec, binds) to the famgen emission default; rebuild acceptance.",
+  "SC1 PASS + DEMO v8 FAIL": "the law holds but the product lane differs: enumerated deltas = famgen loader chain (vs famload), corpus symbol GElement binding host GStyle 124 on the host side, multi-family (6 units), walls.  Bisect: v8 through the T-lane, then corpus_symbol_form off."
+ },
+ "u16g25_blocker": "charter's U16g25 (U16 recipe on G_ABPD_2025) is BLOCKED by measured gaps, not skipped by choice: famload cannot walk 2025 framing (compose-2025.md gap B: 'unexpected Partitions header: v=9 cls=0x391'); 4/77 unit classes have different 2025 layouts (BrowserOrganization, DBViewDrafting, StructSettingsElem, Viewport); the inline ADocument needs port2025 adaptation.  The within-stack ladder above delivers the lineage-vs-instance split on the same format; the 2025 famload port is the recorded follow-up.",
+ "hr1": "experiments/selfcontained/hr1_report.json",
+ "companion_evidence": {
+  "accounting": "experiments/selfcontained/accounting.json",
+  "render_binds": "experiments/selfcontained/render_binds.json",
+  "per_probe_builds": "experiments/selfcontained/_build/<rung>/"
+ },
+ "note": "every famdoc unit GUID is FRESH per house law; SC1/DEMO v8 carry ZERO donor bytes (authored birth + binds; test-enforced); U16gK4/U16gABP embed the rst donor famdoc -- PROOF-ONLY, quarantined under experiments/, never shipped.",
+ "probes": [
+  {
+   "order": 1,
+   "rung": "SC1",
+   "file": "experiments/selfcontained/SC1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "OUR 35-element panelboard content in a famdoc whose walked style resolution never leaves the unit: the authored birth set (1,683 elements incl. the full style catalog) + the born render-bind law (solid/face/sketch styles + render material bound to authored IN-UNIT rows), loaded by the T2a-EXACT lane (famload, dummy host symbol, authored inline ADocument) + ONE uniform instance on G_ABPD.  The ONE thing vs T2a (PASS): the unit's content is OURS.  vs T0 (FAIL): the birth set + the binds.  vs BX_birth (FAIL): the binds + the lane.",
+   "the_ONE_thing_it_tests": "OUR 35-element panelboard content in a famdoc whose walked style resolution never leaves the unit: the authored birth set (1,683 elements incl. the full style catalog) + the born render-bind law (solid/face/sketch styles + render material bound to authored IN-UNIT rows), loaded by the T2a-EXACT lane (famload, dummy host symbol, authored inline ADocument) + ONE uniform instance on G_ABPD.  The ONE thing vs T2a (PASS): the unit's content is OURS.  vs T0 (FAIL): the birth set + the binds.  vs BX_birth (FAIL): the binds + the lane.",
+   "md5": "d3ad392346e022f9a2c93c2a1928f657",
+   "document_guid": "c716fa42-105e-4536-bb7d-a32001af40dd",
+   "symbol_id": 1474266,
+   "family_id": 1474249,
+   "instance_ids": [
+    1474269
+   ],
+   "n_instances": 1,
+   "n_walls": 0,
+   "immediate_parent": "experiments/selfcontained/_build/SC1/SC1_load.rvt",
+   "blob_proof": {
+    "file": "experiments/selfcontained/SC1.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "c716fa42-105e-4536-bb7d-a32001af40dd",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "instance_zero_dangling": true,
+    "self_contained": true,
+    "host_resident_total": 0,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "gates_ok": true
+   },
+   "self_containment": {
+    "host_resident_total": 0,
+    "walked_self_contained": true,
+    "self_contained": true
+   }
+  },
+  {
+   "order": 2,
+   "rung": "U16gK4",
+   "file": "experiments/selfcontained/U16gK4.rvt",
+   "base": "experiments/genesis/triage/K4.rvt",
+   "kind": "probe",
+   "axis": "U16's byte-identical famdoc + full recipe on K4 -- the compose stack's SUBSTRATE (pure Autodesk empty skeleton, certified PASS).  Every famdoc->host ref lands on a BORN row.  PASS = the U16 recipe survives this lineage's skeleton; FAIL = composed-lineage conviction independent of our substitutions.",
+   "the_ONE_thing_it_tests": "U16's byte-identical famdoc + full recipe on K4 -- the compose stack's SUBSTRATE (pure Autodesk empty skeleton, certified PASS).  Every famdoc->host ref lands on a BORN row.  PASS = the U16 recipe survives this lineage's skeleton; FAIL = composed-lineage conviction independent of our substitutions.",
+   "md5": "2812846c901bb49190d9e620b8a57902",
+   "document_guid": "bdd8b9f7-f521-4c77-9741-52024c6898e4",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "n_instances": 1,
+   "n_walls": 0,
+   "immediate_parent": "experiments/selfcontained/_build/U16gK4/U16gK4_load_adoc.rvt",
+   "blob_proof": {
+    "file": "experiments/selfcontained/_build/_ur/U16g.rvt",
+    "base": "experiments/genesis/triage/K4.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "bdd8b9f7-f521-4c77-9741-52024c6898e4",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 252246
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "instance_zero_dangling": true,
+    "byte_identity_verified": true,
+    "gates_ok": true
+   },
+   "self_containment": {
+    "host_resident_total": null,
+    "walked_self_contained": null,
+    "self_contained": null
+   }
+  },
+  {
+   "order": 3,
+   "rung": "U16gABP",
+   "file": "experiments/selfcontained/U16gABP.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABP.rvt",
+   "kind": "probe",
+   "axis": "U16's byte-identical famdoc + full recipe on G_ABP -- substitutions IN, deletions OUT (certified PASS).  Every famdoc->host ref lands on OUR SUBSTITUTED row; nothing referenced is deleted.  vs U16gK4: the substitution layer.  vs U16g (b52 FAIL): the deletion layer.",
+   "the_ONE_thing_it_tests": "U16's byte-identical famdoc + full recipe on G_ABP -- substitutions IN, deletions OUT (certified PASS).  Every famdoc->host ref lands on OUR SUBSTITUTED row; nothing referenced is deleted.  vs U16gK4: the substitution layer.  vs U16g (b52 FAIL): the deletion layer.",
+   "md5": "8128bf848e9b7af9d88483f2305ba12d",
+   "document_guid": "93bab5f0-ab94-47ed-8e4e-0a9f45882ff6",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "n_instances": 1,
+   "n_walls": 0,
+   "immediate_parent": "experiments/selfcontained/_build/U16gABP/U16gABP_load_adoc.rvt",
+   "blob_proof": {
+    "file": "experiments/selfcontained/_build/_ur/U16g.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABP.rvt",
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_units": [
+     {
+      "guid": "93bab5f0-ab94-47ed-8e4e-0a9f45882ff6",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 252246
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "instance_zero_dangling": true,
+    "byte_identity_verified": true,
+    "gates_ok": true
+   },
+   "self_containment": {
+    "host_resident_total": null,
+    "walked_self_contained": null,
+    "self_contained": null
+   }
+  },
+  {
+   "order": 4,
+   "rung": "DEMO_250v_room_v8",
+   "file": "experiments/selfcontained/DEMO_250v_room_v8.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "the user's exact prompt through birthright v2 self-contained authoring: every generated family carries the authored birth set + in-unit render binds (machine-verified self-contained famdocs), through the product front door on G_ABPD.  vs DEMO v7 (FAIL): the binds.  vs SC1: the product loader lane (famgen chain + corpus symbol form) and multi-family.",
+   "the_ONE_thing_it_tests": "the user's exact prompt through birthright v2 self-contained authoring: every generated family carries the authored birth set + in-unit render binds (machine-verified self-contained famdocs), through the product front door on G_ABPD.  vs DEMO v7 (FAIL): the binds.  vs SC1: the product loader lane (famgen chain + corpus symbol form) and multi-family.",
+   "md5": "1741344f7777902fef81b7694efcc071",
+   "document_guid": null,
+   "symbol_id": null,
+   "family_id": null,
+   "instance_ids": [
+    1482977,
+    1482978,
+    1482979,
+    1482980,
+    1482981,
+    1482982
+   ],
+   "n_instances": 6,
+   "n_walls": 0,
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "blob_proof": {
+    "file": "experiments/selfcontained/DEMO_250v_room_v8.rvt",
+    "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+    "units_total": 7,
+    "blob_len_histogram": {
+     "64": 7
+    },
+    "units_added_vs_base": 6,
+    "added_units": [
+     {
+      "guid": "a0ce6188-665a-4b94-baf4-339e455b30cb",
+      "stream": "Partitions/21",
+      "index": 1,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "0d7a6013-017b-4f10-8033-5ac94df00494",
+      "stream": "Partitions/21",
+      "index": 2,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "f71ca74d-5429-406b-a107-0e98730758be",
+      "stream": "Partitions/21",
+      "index": 3,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "597d071f-4d3e-4b8e-879d-27d5da5d1a87",
+      "stream": "Partitions/21",
+      "index": 4,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "af425901-98de-464f-8d75-bb6e380ad903",
+      "stream": "Partitions/21",
+      "index": 5,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     },
+     {
+      "guid": "c1af47ab-dca4-47d2-afdf-e11a16e1639c",
+      "stream": "Partitions/21",
+      "index": 6,
+      "nonce_match": true,
+      "seg102_bytes": 512689
+     }
+    ],
+    "all_units_64B": true,
+    "added_nonce_verified": true,
+    "law": "verdict #36: the audit needs the 64-byte 0x0f3f blob PRESENT on any instanced unit (content not verified -- E1b); ours is the deterministic sha512 nonce, zero donor bytes"
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "instance_zero_dangling": null,
+    "self_contained": true,
+    "host_resident_total": 0,
+    "gates_ok": true
+   },
+   "self_containment": {
+    "host_resident_total": 0,
+    "walked_self_contained": true,
+    "self_contained": true
+   }
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+ "stream": "render-archaeology (BAKED GEOMETRY): the first VISIBILITY probes -- our created walls now carrying authored seq-103 GElement B-rep solids (rvt.render.brep) instead of SerializedDummy. RENDER is the gate here, not LOAD: after translation, INSPECT THE MODEL TREE -- a PASS means wall nodes appear under 'L1 - Ground Floor [311]' (the base showed ONLY the level node).",
+ "base": {
+  "file": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+  "certification": {
+   "file": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+   "proves": "LOAD-certified (viewer-certified.json): our 4 unjoined walls on ZA_deep TRANSLATE, but the model tree contains ONLY the level node -- walls emit NO viewable geometry (the LOAD != RENDER finding). This is the exact file whose walls we now give solids: the tightest possible bisection base."
+  },
+  "note": "both candidates are byte-identical to this certified base EXCEPT the four walls' seq-103 records (SerializedDummy -> GElement solid): every seq-101 header, seq-102 object, ElemTable row, Global/Latest and every other record is unchanged (regadd.substitute_elements, verdict VALID, structural proof green, diff = only ids 1472525..1472528 seq-103). The change is +3,058 B (A) / +6,258 B (B) per wall."
+ },
+ "standing_control": {
+  "file": "experiments/render/CTRL_walls_only_unjoined_render.rvt",
+  "identical_to": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+  "md5": "691eed083894f11d0334962b51f23be0",
+  "purpose": "byte-identical copy of the LOAD-certified base under a new name -- read FIRST; a control FAIL voids the round (oracle/environment). Expected: translates, model tree = level node only (as certified)."
+ },
+ "read_order": "control FIRST (round validity); then RSOLID_A (does an authored 6-face wall solid RENDER? -- the primary question); then RSOLID_B (+ the four ref-plane sub-graphics = the FULL native wall rep shape) only if A translates but shows no wall nodes.",
+ "reading_the_results": {
+  "control FAIL": "oracle/environment problem -- every verdict VOID (re-upload later).",
+  "RSOLID_A translates AND wall nodes appear under the level in the model tree": "*** RENDER SOLVED *** -- an authored seq-103 GElement B-rep is what the viewer draws; wire rvt.render.brep into Document.add_wall (the emission stream) and every future created wall is visible. Screenshot the 3D view: four walls forming the 9.2 x 6.2 m ring, 3.66 m tall.",
+  "RSOLID_A translates BUT the tree still shows only the level": "the solid is present but not drawn: the leading suspect is the ROOT category -- the base carries NO Walls-category GStyle (native root category 30 = the Walls projection GStyleElem is absent from the genesis lineage), so the root GElement.m_GInfo.m_categoryId is -1; read RSOLID_B next (adds the native ref-plane sub-graphics). If both fail to show, the ADD-cat rung (restoring the Walls GStyle row) becomes a RENDER prerequisite, not only a fidelity one -- rerun on an rme/rst-based file (V22/V26 lineage) where GStyle 30 exists to separate 'needs Walls GStyle' from 'rep malformed'.",
+  "RSOLID_A FAILS to translate ('Processing failed')": "the authored rep is malformed for the extractor -- bisect: the box grammar is byte-compatible with the certified famgen family solids (same constants), so suspect the wall-specific parts: (a) root category -1 vs a real GStyle, (b) face material 600660 (try -1), (c) the face/edge TAGS reused from the wall's BaseWallGStep history (try WallTags.fresh()). The certified base + control isolate it to the four seq-103 records."
+ },
+ "probes": [
+  {
+   "file": "experiments/render/CTRL_walls_only_unjoined_render.rvt",
+   "probe": "CTRL_render",
+   "kind": "control",
+   "base": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+   "md5": "691eed083894f11d0334962b51f23be0",
+   "identical_to_base": true,
+   "expect": "translates; model tree = ONLY 'L1 - Ground Floor [311]' (walls invisible), exactly as certified"
+  },
+  {
+   "file": "experiments/render/RSOLID_walls_A_solid.rvt",
+   "probe": "RSOLID_A",
+   "kind": "probe",
+   "base": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+   "md5": "df658d2a4d9680b5cfc0b54b3280e8ee",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "structural_proof": "ok (0 CRC failures, 0 ECC mismatches, counts_match, seq_id_sets_equal, stamps ok, ISIZE identity ok)",
+   "diff_vs_base": "only ids 1472525..1472528, seq 103 only; Global/Latest + ElemTable byte-identical",
+   "change": "each of our 4 walls: seq-103 SerializedDummy (2 B) -> authored GElement (3,060 B) = ONE Geometry solid, 6 planar faces (2 sides + 2 end caps + top + bottom), 12 edges, face/edge tags = the wall's own BaseWallGStep history tags (6/5 sides, 18/10 caps, 7 bottom, 14 top), sides+top+bottom material 600660 ('Precast aerated concrete', present in base), end caps -1, root category -1 (NO Walls GStyle exists in this base), ref-plane sub-graphics OMITTED",
+   "tests": "the PRIMARY render question: does an authored six-face wall B-rep (the exact seq-103 grammar of every native wall, 413/413 in the corpus) RENDER when the walls previously drew nothing?",
+   "if_PASS": "wall nodes under the level in the model tree + four visible walls in {3D} = RENDER SOLVED; Document.add_wall should emit this rep (docs/writer/baked-geometry.md).",
+   "if_FAIL": "see reading_the_results: 'translates but only level shown' -> root category / Walls GStyle absence; 'Processing failed' -> rep malformed (category/material/tags bisection).",
+   "self_checks_ok": true
+  },
+  {
+   "file": "experiments/render/RSOLID_walls_B_solid_refplanes.rvt",
+   "probe": "RSOLID_B",
+   "kind": "probe",
+   "base": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+   "md5": "a9b51712034e9b8286033a161fb9e6e0",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "structural_proof": "ok",
+   "weakrefs": "consistent (rvt.render.brep._renumber_with_weakrefs: composing the ref-plane sub-graphics with the main solid renumbers pids AND rewrites the old->new weak targets; 67 pids / 198 weakrefs / 0 dangling, verified before encode and after an encode->decode round trip)",
+   "diff_vs_base": "only ids 1472525..1472528, seq 103 only",
+   "change": "as RSOLID_A PLUS the four reference-plane sub-graphics native walls carry: 4 x GGroup(cat 24925 = the wall ref-plane subcategory GStyle, present in base; tags = the wall's WallRefPlanesGStep tags 2/3/4/1) each -> a one-face Geometry on the wall's own m_pRefFaces plane. 6,260 B, 5 solids, 10 faces, 28 edges per wall = the FULL native wall rep shape.",
+   "tests": "does completing the native shape (main solid + 4 ref-plane single-face solids) change the render outcome vs the solid alone?",
+   "if_PASS_and_A_FAIL": "the ref-plane sub-graphics (or their GGroup category GStyle) are required for the extractor -- keep them in add_wall.",
+   "if_same_as_A": "ref planes are graphics-only, not the discriminator (as expected -- they are invisible reference geometry).",
+   "self_checks_ok": true
+  }
+ ],
+ "post_translation_inspection": "For A and B: open the viewer, expand the model browser under 'L1 - Ground Floor [311]' -- count wall nodes (expect 4, category Walls or uncategorised). Toggle each eye icon; take the {3D} screenshot. A wall NODE with no visible geometry is a different (weaker) failure than no node at all -- record which.",
+ "generated_by": "src/rvt/render/brep.py wall_rep_from_object() + regadd.substitute_elements(seqs=(103,)); build record experiments/render/build_record.json; the archaeology + calibration in docs/writer/baked-geometry.md"
+}

@@ -1,0 +1,836 @@
+{
+ "tool": "tools/species_probe.py forensics",
+ "pass_file": "experiments/rftprobe/T2a.rvt",
+ "fail_file": "experiments/selfcontained/SC1.rvt",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "question": "T2a (the ONLY reduced-base loaded-famdoc PASS) and SC1 (the closest FAIL) both appended ONE unit to G_ABPD's rebuilt-empty ContentDocuments stream via famload.  What differs, surface by surface?",
+ "cd_stream": {
+  "base": {
+   "stream_len": 14,
+   "entries": 0,
+   "entry_guids": [],
+   "adoc_bytes": [],
+   "tail_hex": "a30300000000ffffffff00000000",
+   "prologue": "each entry opens with the 12-byte 0x3a3 separator (u16 0x3a3, i32 -1, u16 0x3a2, i32 -1); stream ends with the 14-byte 0x3a3 end record"
+  },
+  "pass": {
+   "stream_len": 81107,
+   "entries": 1,
+   "entry_guids": [
+    "ed73d8aa-6dcb-4488-aed5-6e2568f2e053"
+   ],
+   "adoc_bytes": [
+    81057
+   ],
+   "tail_hex": "a30300000000ffffffff00000000",
+   "prologue": "each entry opens with the 12-byte 0x3a3 separator (u16 0x3a3, i32 -1, u16 0x3a2, i32 -1); stream ends with the 14-byte 0x3a3 end record"
+  },
+  "fail": {
+   "stream_len": 70387,
+   "entries": 1,
+   "entry_guids": [
+    "c716fa42-105e-4536-bb7d-a32001af40dd"
+   ],
+   "adoc_bytes": [
+    70337
+   ],
+   "tail_hex": "a30300000000ffffffff00000000",
+   "prologue": "each entry opens with the 12-byte 0x3a3 separator (u16 0x3a3, i32 -1, u16 0x3a2, i32 -1); stream ends with the 14-byte 0x3a3 end record"
+  },
+  "framing_identical": true,
+  "verdict": "one entry each, identical separator prologue and end record -- framing EXONERATED"
+ },
+ "inline_adoc": {
+  "pass": {
+   "guid": "ed73d8aa-6dcb-4488-aed5-6e2568f2e053",
+   "elem_rows": 1992,
+   "id_range": [
+    1472525,
+    1474516
+   ],
+   "identifier_source_last": 1474516,
+   "owners": {
+    "positive": 1977,
+    "-1": 15
+   },
+   "elem_table_populated": true,
+   "history_identity": {
+    "m_creationGUID": "ed73d8aa-6dcb-4488-aed5-6e2568f2e053",
+    "m_detachGUID": "ed73d8aa-6dcb-4488-aed5-6e2568f2e053",
+    "m_upgradeGUID": "ed73d8aa-6dcb-4488-aed5-6e2568f2e053",
+    "m_saveAsGUID": "ed73d8aa-6dcb-4488-aed5-6e2568f2e053"
+   },
+   "identity_equals_unit_guid": true,
+   "m_pHostDocument": {
+    "weakref": 1
+   },
+   "content_rec_set": 0,
+   "appinfo_slots": 239,
+   "appinfo_populated": 0,
+   "stored_by_revit_build": [],
+   "owner_family_id": 1472539,
+   "dev_branch": {
+    "m_devBranchId": 1,
+    "m_syncVersion": 2662
+   }
+  },
+  "fail": {
+   "guid": "c716fa42-105e-4536-bb7d-a32001af40dd",
+   "elem_rows": 1724,
+   "id_range": [
+    1472525,
+    1474248
+   ],
+   "identifier_source_last": 1474248,
+   "owners": {
+    "-1": 17,
+    "positive": 1707
+   },
+   "elem_table_populated": true,
+   "history_identity": {
+    "m_creationGUID": "c716fa42-105e-4536-bb7d-a32001af40dd",
+    "m_detachGUID": "c716fa42-105e-4536-bb7d-a32001af40dd",
+    "m_upgradeGUID": "c716fa42-105e-4536-bb7d-a32001af40dd",
+    "m_saveAsGUID": "c716fa42-105e-4536-bb7d-a32001af40dd"
+   },
+   "identity_equals_unit_guid": true,
+   "m_pHostDocument": {
+    "weakref": 1
+   },
+   "content_rec_set": 0,
+   "appinfo_slots": 239,
+   "appinfo_populated": 0,
+   "stored_by_revit_build": [],
+   "owner_family_id": 1472525,
+   "dev_branch": {
+    "m_devBranchId": 1,
+    "m_syncVersion": 2662
+   }
+  },
+  "n_diff_paths": 7,
+  "diff_paths_beyond_identity_and_elem_rows": [],
+  "form_identical_modulo_identity": true,
+  "verdict": "the registered inline ADocument is FORM-IDENTICAL between the PASS and the FAIL (identity GUIDs + ownerFamilyId + elem rows only); BOTH ship the authored embedded form -- m_elemTable POPULATED inline, four history GUIDs == own unit GUID, m_pHostDocument weakref 1, ContentRecSet 0, 0/239 AppInfo registries, storedByRevitBuild [].  The hypothesized standalone form (m_elemTable NULL, owners externalized, NO history GUIDs) is the standalone FILE's Global/Latest shape, not the registered shape.  Cross-evidence: U16g shipped the born wrapper (independent identity, 131/239 registries, donor build strings) and FAILED on G_ABPD -- the ADocument axis is dead on reduced bases."
+ },
+ "host_registries": {
+  "content_rec_counts": {
+   "base": 0,
+   "pass": 1,
+   "fail": 1
+  },
+  "family_mgr_added": {
+   "pass": [
+    {
+     "m_surrogateId": 1474524,
+     "m_familyDocGUIDs": [
+      "ed73d8aa-6dcb-4488-aed5-6e2568f2e053"
+     ]
+    }
+   ],
+   "fail": [
+    {
+     "m_surrogateId": 1474264,
+     "m_familyDocGUIDs": [
+      "c716fa42-105e-4536-bb7d-a32001af40dd"
+     ]
+    }
+   ]
+  },
+  "content_rec_rows": {
+   "pass": {
+    "m_pHostDocument": {
+     "weakref": 1
+    },
+    "m_ContentKey": {
+     "m_guidKey": "ed73d8aa-6dcb-4488-aed5-6e2568f2e053"
+    },
+    "m_author": "rvt-writer",
+    "m_history": {
+     "m_originalElementId": {
+      "m_id64": -1
+     },
+     "m_creationDate": {
+      "m_id": 1016
+     },
+     "m_lastModificationDate": {
+      "m_id": 1016
+     },
+     "m_lastUserModificationDate": {
+      "m_id": -1
+     }
+    },
+    "m_EpisodeCounts": [
+     {
+      "first": {
+       "m_id": 1016
+      },
+      "second": 1992
+     }
+    ]
+   },
+   "fail": {
+    "m_pHostDocument": {
+     "weakref": 1
+    },
+    "m_ContentKey": {
+     "m_guidKey": "c716fa42-105e-4536-bb7d-a32001af40dd"
+    },
+    "m_author": "rvt-writer",
+    "m_history": {
+     "m_originalElementId": {
+      "m_id64": -1
+     },
+     "m_creationDate": {
+      "m_id": 1016
+     },
+     "m_lastModificationDate": {
+      "m_id": 1016
+     },
+     "m_lastUserModificationDate": {
+      "m_id": -1
+     }
+    },
+    "m_EpisodeCounts": [
+     {
+      "first": {
+       "m_id": 1016
+      },
+      "second": 1724
+     }
+    ]
+   },
+   "shape_diff_keys": []
+  },
+  "verdict": "ContentTable record and FamilyMgr entry are SHAPE-IDENTICAL between the PASS and the FAIL (identity GUID, surrogate id and the episode element count are the only value differences)."
+ },
+ "host_elemtable": {
+  "pass": {
+   "total_rows": 3113,
+   "added": 11,
+   "row_shapes": {
+    "(False, True, 0, False)": 5,
+    "(True, True, 0, False)": 6
+   }
+  },
+  "fail": {
+   "total_rows": 3123,
+   "added": 21,
+   "row_shapes": {
+    "(False, True, 0, False)": 7,
+    "(True, True, 0, False)": 14
+   }
+  },
+  "verdict": "host Global/ElemTable rows are SHAPE-IDENTICAL (owner law identical: ParamElemFamily twins own to the host Family; surrogate/symbol/instance rows ownerless; original_id == id; partition 0)."
+ },
+ "host_registration": {
+  "pass": {
+   "n_by_class": {
+    "Family": 1,
+    "ParamElemFamily": 6,
+    "FamilySurrogate": 1,
+    "FamSymSurrogate": 1,
+    "FamilySymbol": 1,
+    "FamilyInstance": 1
+   },
+   "symbol_pairs": [
+    "0610 x 0160mm"
+   ],
+   "blank_named_surrogates": 0,
+   "instance_symbol_id": 1474526,
+   "instance_bound_pair_name": "0610 x 0160mm",
+   "host_family_type_table": {
+    "pairs": [
+     " "
+    ],
+    "m_idx": 0
+   }
+  },
+  "fail": {
+   "n_by_class": {
+    "Family": 1,
+    "ParamElemFamily": 14,
+    "FamilySurrogate": 1,
+    "FamSymSurrogate": 2,
+    "FamilySymbol": 2,
+    "FamilyInstance": 1
+   },
+   "symbol_pairs": [
+    " ",
+    "225A MLO 42ckt"
+   ],
+   "blank_named_surrogates": 1,
+   "instance_symbol_id": 1474266,
+   "instance_bound_pair_name": " ",
+   "host_family_type_table": {
+    "pairs": [
+     " "
+    ],
+    "m_idx": 0
+   }
+  },
+  "added_elements": {
+   "pass": [
+    {
+     "id": 1474517,
+     "class": "Family",
+     "name": "T2a rfa born",
+     "type_table": {
+      "pairs": [
+       " "
+      ],
+      "m_idx": 0
+     }
+    },
+    {
+     "id": 1474518,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474519,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474520,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474521,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474522,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474523,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474524,
+     "class": "FamilySurrogate",
+     "name": "T2a rfa born"
+    },
+    {
+     "id": 1474525,
+     "class": "FamSymSurrogate",
+     "name": "0610 x 0160mm"
+    },
+    {
+     "id": 1474526,
+     "class": "FamilySymbol",
+     "name": null,
+     "family_id": 1474517
+    },
+    {
+     "id": 1474527,
+     "class": "FamilyInstance",
+     "name": null,
+     "symbol_id": 1474526,
+     "level_id": 311
+    }
+   ],
+   "fail": [
+    {
+     "id": 1474249,
+     "class": "Family",
+     "name": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+     "type_table": {
+      "pairs": [
+       " "
+      ],
+      "m_idx": 0
+     }
+    },
+    {
+     "id": 1474250,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474251,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474252,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474253,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474254,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474255,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474256,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474257,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474258,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474259,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474260,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474261,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474262,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474263,
+     "class": "ParamElemFamily",
+     "name": null
+    },
+    {
+     "id": 1474264,
+     "class": "FamilySurrogate",
+     "name": "Panelboard PP-1 480Y/277 225A MLO 42sp"
+    },
+    {
+     "id": 1474265,
+     "class": "FamSymSurrogate",
+     "name": " "
+    },
+    {
+     "id": 1474266,
+     "class": "FamilySymbol",
+     "name": null,
+     "family_id": 1474249
+    },
+    {
+     "id": 1474267,
+     "class": "FamSymSurrogate",
+     "name": "225A MLO 42ckt"
+    },
+    {
+     "id": 1474268,
+     "class": "FamilySymbol",
+     "name": null,
+     "family_id": 1474249
+    },
+    {
+     "id": 1474269,
+     "class": "FamilyInstance",
+     "name": null,
+     "symbol_id": 1474266,
+     "level_id": 311
+    }
+   ]
+  },
+  "native_host_family_law": {
+   "sample": "samples/rstbasicsampleproject.rvt",
+   "host_family_rows": 36,
+   "rows_with_more_than_one_blank": 0,
+   "rows_with_midx_on_blank_despite_real_pairs": 0,
+   "law": "at most ONE leading blank current-values row; m_idx names a real pair whenever real pairs exist"
+  },
+  "verdict": "THE ONE separating registered surface: the HOST SYMBOL TABLE. The FAIL authored TWO FamSymSurrogate+FamilySymbol pairs, the first named ' ' (blank), and bound the placed instance to the blank pair's symbol; the PASS authored exactly ONE pair, non-blank, instance bound to it.  No native host exhibits a blank-named symbol row.  Root cause: birthright v2's types lane prepends the blank pair to doc.types; famload authors one host pair per doc.types entry and plan.symbol_id = the first."
+ },
+ "famgen_loader_leak_demo_v8": {
+  "host_family_type_tables": [
+   {
+    "pairs": [
+     " ",
+     " ",
+     "225A MLO 42ckt"
+    ],
+    "m_idx": 1
+   },
+   {
+    "pairs": [
+     " ",
+     " ",
+     "225A MLO 42ckt"
+    ],
+    "m_idx": 1
+   },
+   {
+    "pairs": [
+     " ",
+     " ",
+     "225A MLO 42ckt"
+    ],
+    "m_idx": 1
+   },
+   {
+    "pairs": [
+     " ",
+     " ",
+     "225A MLO 42ckt"
+    ],
+    "m_idx": 1
+   },
+   {
+    "pairs": [
+     " ",
+     " ",
+     "225A MLO 42ckt"
+    ],
+    "m_idx": 1
+   },
+   {
+    "pairs": [
+     " ",
+     " ",
+     "225A MLO 42ckt"
+    ],
+    "m_idx": 1
+   }
+  ],
+  "verdict": "the famgen loader copies the BAKED unit table ([' ', real]) and prepends its OWN blank row -> v8's host Family rows carry a DOUBLE-blank table with m_idx=1 POINTING AT A BLANK ROW -- a shape no native host exhibits (native law above)."
+ },
+ "unit_internal": {
+  "pass": {
+   "unit_separator": {
+    "guid": "ed73d8aa-6dcb-4488-aed5-6e2568f2e053",
+    "counter": 1992,
+    "first_block": 14,
+    "n_blocks": 11
+   },
+   "n_records": 1992,
+   "id_range": [
+    1472525,
+    1474516
+   ],
+   "id_policy": "contiguous watermark+1.. (current-id)",
+   "rep_small_int_values_raw_untyped": 145,
+   "rep_small_int_hits_raw_untyped": 1168,
+   "typed_alias_reference": "HR1 (schema-typed): pass 45 born-internal rep aliases, fail 0"
+  },
+  "fail": {
+   "unit_separator": {
+    "guid": "c716fa42-105e-4536-bb7d-a32001af40dd",
+    "counter": 1724,
+    "first_block": 14,
+    "n_blocks": 9
+   },
+   "n_records": 1724,
+   "id_range": [
+    1472525,
+    1474248
+   ],
+   "id_policy": "contiguous watermark+1.. (current-id)",
+   "rep_small_int_values_raw_untyped": 33,
+   "rep_small_int_hits_raw_untyped": 176,
+   "typed_alias_reference": "HR1 (schema-typed): pass 45 born-internal rep aliases, fail 0"
+  },
+  "class_histogram_delta": {
+   "Alignment": [
+    7,
+    0
+   ],
+   "ArcAlignment": [
+    1,
+    0
+   ],
+   "BaseLevelTracker": [
+    2,
+    1
+   ],
+   "CalloutTag": [
+    2,
+    1
+   ],
+   "CategoryElem": [
+    70,
+    52
+   ],
+   "ConnectorElem": [
+    0,
+    1
+   ],
+   "CorniceAttr": [
+    2,
+    1
+   ],
+   "CurveElem": [
+    31,
+    4
+   ],
+   "DBDrawing": [
+    9,
+    2
+   ],
+   "DBView3d": [
+    1,
+    0
+   ],
+   "DBViewDrafting": [
+    1,
+    0
+   ],
+   "DBViewPlan": [
+    2,
+    1
+   ],
+   "DBViewSection": [
+    4,
+    0
+   ],
+   "DBViewType": [
+    19,
+    1
+   ],
+   "DaylightSourceIdSet": [
+    2,
+    1
+   ],
+   "DimensionStyle": [
+    12,
+    9
+   ],
+   "ElectricalLoadClassification": [
+    6,
+    1
+   ],
+   "ExtentElem": [
+    7,
+    1
+   ],
+   "ExtrusionElem": [
+    2,
+    1
+   ],
+   "FamSymSurrogate": [
+    1,
+    0
+   ],
+   "Family": [
+    2,
+    1
+   ],
+   "FamilySurrogate": [
+    1,
+    0
+   ],
+   "FamilySymbol": [
+    1,
+    0
+   ],
+   "FilledRegion": [
+    3,
+    0
+   ],
+   "FilledRegionAttributes": [
+    2,
+    0
+   ],
+   "FontElem": [
+    31,
+    21
+   ],
+   "GStyleElem": [
+    1477,
+    1459
+   ],
+   "InteriorElevAttributes": [
+    2,
+    1
+   ],
+   "LeaderStyle": [
+    10,
+    7
+   ],
+   "LinearDimString": [
+    32,
+    0
+   ],
+   "ModelClipBox": [
+    1,
+    0
+   ],
+   "ParamElemElectricalLoadClassification": [
+    36,
+    0
+   ],
+   "ParamElemFamily": [
+    6,
+    14
+   ],
+   "PenWidthTableElem": [
+    2,
+    1
+   ],
+   "PropertyAttr": [
+    2,
+    1
+   ],
+   "RadialDim": [
+    7,
+    0
+   ],
+   "RefPlane": [
+    9,
+    2
+   ],
+   "RevealAttr": [
+    2,
+    1
+   ],
+   "SectionAttributes": [
+    4,
+    3
+   ],
+   "SketchGrid": [
+    8,
+    1
+   ],
+   "SketchPlane": [
+    14,
+    2
+   ],
+   "TagNote": [
+    2,
+    0
+   ],
+   "TagNoteAttributes": [
+    2,
+    1
+   ],
+   "Text3dAttrSymbol": [
+    2,
+    1
+   ],
+   "TextNoteAttributes": [
+    3,
+    2
+   ],
+   "TrueNorth": [
+    2,
+    1
+   ],
+   "VarSketch": [
+    7,
+    1
+   ],
+   "Viewer": [
+    8,
+    2
+   ],
+   "Viewer3d": [
+    1,
+    0
+   ],
+   "Viewport": [
+    9,
+    2
+   ]
+  },
+  "classes_diverging": 50,
+  "roster_gap_pass_minus_fail": 268,
+  "self_family": {
+   "pass_id": 1472539,
+   "fail_id": 1472525,
+   "obj_key_set_delta": [],
+   "obj_shape_diff_keys": [
+    "m_familyIds",
+    "m_familyParams",
+    "m_lockedParameterIdsForDirectManipulation",
+    "m_oFamDimConstrMgr",
+    "m_pFamilyTypes"
+   ],
+   "hdr_key_set_delta": [],
+   "hdr_shape_diff_keys": [
+    "m_parents"
+   ],
+   "m_bShared": {
+    "pass": true,
+    "fail": true
+   },
+   "unit_type_table": {
+    "pass": {
+     "pairs": [
+      " ",
+      "0610 x 0160mm",
+      "0762 x 0762mm",
+      "0610 x 0915mm"
+     ],
+     "m_idx": 2
+    },
+    "fail": {
+     "pairs": [
+      " ",
+      "225A MLO 42ckt"
+     ],
+     "m_idx": 1
+    }
+   }
+  }
+ },
+ "species_delta_list": [
+  {
+   "rank": 1,
+   "surface": "host symbol table + instance binding",
+   "delta": "FAIL: blank-named FamSymSurrogate + instance bound to the blank pair's symbol; PASS: one non-blank pair, instance bound to it",
+   "authorable": true,
+   "v3_lane": "hostsym (famload half: strip blank pairs from the famload-facing doc.types post-finalize; famgen-loader half: apply_host_family_table_law)"
+  },
+  {
+   "rank": 2,
+   "surface": "unit roster (class histogram)",
+   "delta": "PASS carries +268 elements across 50 classes (the overlapping-class shortfall + the reference-closure dropped set + the loaded-family registration block)",
+   "authorable": "deferred",
+   "why_deferred": "T1v (the FULL born roster + our 35 elements, clean symbol table, authored-empty ADocument) FAILED on G_ABPD -- roster parity is measured NOT SUFFICIENT with ours-content present; the true-up is the pre-committed BX_v3-FAIL branch lane"
+  },
+  {
+   "rank": 3,
+   "surface": "unit content authorship",
+   "delta": "PASS content is BORN; FAIL content is authored (ours + authored birth set, field-model-verified 0 mismatches)",
+   "authorable": false,
+   "note": "this is the residual axis T1uG and TB0g split"
+  },
+  {
+   "rank": "exonerated",
+   "surface": "inline ADocument form",
+   "delta": "form-identical modulo identity (see inline_adoc)",
+   "note": "the charter-hypothesized standalone form (m_elemTable NULL, external owners, NO history GUIDs) is the standalone FILE form, not the registered form; U16g shipped the born wrapper and still failed"
+  },
+  {
+   "rank": "exonerated",
+   "surface": "id policy",
+   "delta": "both register contiguous watermark+1.. (current-id); the PASS additionally carries unremapped born-internal small-id rep aliases (residue, tolerated per HR1, not a shape to author)"
+  },
+  {
+   "rank": "exonerated",
+   "surface": "CD framing / ContentTable row / FamilyMgr entry / host ElemTable rows / partition separator",
+   "delta": "shape-identical"
+  }
+ ],
+ "seconds": 0.7
+}

@@ -1,0 +1,368 @@
+{
+ "stage": "R1",
+ "safe_variant": false,
+ "out": "experiments/genesis/R1.rvt",
+ "file_size": 4513792,
+ "seed": 1561,
+ "deleted": 7627,
+ "surviving_elements": 6309,
+ "elemtable_before": 13936,
+ "records_removed": {
+  "101": 7627,
+  "102": 7627,
+  "103": 7627
+ },
+ "blocks_before": 213,
+ "blocks_after": 85,
+ "structural_ok": true,
+ "verify": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "units": 53,
+  "blocks_unit0": 85,
+  "isize_identity_ok": true,
+  "elemtable_ids_without_record": 0
+ },
+ "walker_errors": [],
+ "dangling": {
+  "survivors_with_dangling_refs": 21,
+  "dangling_by_survivor_class": [
+   [
+    "CategoryElem",
+    13
+   ],
+   [
+    "GStyleElem",
+    8
+   ]
+  ],
+  "external": {
+   "Global/Latest": {
+    "dangling": 1281,
+    "by_class": [
+     [
+      "FamilyInstance",
+      439
+     ],
+     [
+      "RebarInSystem",
+      224
+     ],
+     [
+      "Rebar",
+      122
+     ],
+     [
+      "CustomElement",
+      61
+     ],
+     [
+      "DPart",
+      45
+     ],
+     [
+      "RebarSystem",
+      44
+     ],
+     [
+      "DBDrawing",
+      42
+     ],
+     [
+      "LineLoad",
+      35
+     ],
+     [
+      "RoomElem",
+      31
+     ],
+     [
+      "SketchGrid",
+      24
+     ],
+     [
+      "PostedWarningElem",
+      22
+     ],
+     [
+      "LinearDimString",
+      20
+     ]
+    ]
+   },
+   "Global/ContentDocuments": {
+    "dangling": 0,
+    "by_class": []
+   }
+  },
+  "history_invariant_at_risk": false
+ },
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4344
+  ],
+  [
+   "LinearDimString",
+   709
+  ],
+  [
+   "FamilyInstance",
+   497
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "SketchPlane",
+   171
+  ],
+  [
+   "VarSketch",
+   140
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "Viewport",
+   62
+  ],
+  [
+   "CustomElement",
+   61
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "DBDrawing",
+   42
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "LineLoad",
+   35
+  ],
+  [
+   "RoomElem",
+   31
+  ],
+  [
+   "Viewer",
+   25
+  ],
+  [
+   "ExtentElem",
+   24
+  ],
+  [
+   "SketchGrid",
+   24
+  ],
+  [
+   "PostedWarningElem",
+   22
+  ],
+  [
+   "SunAnnotationElem",
+   21
+  ],
+  [
+   "FontElem",
+   21
+  ],
+  [
+   "BoundaryConditions",
+   20
+  ],
+  [
+   "SunAndShadowSettings",
+   18
+  ],
+  [
+   "JoistSystem",
+   16
+  ],
+  [
+   "AnalyticalPanel",
+   12
+  ],
+  [
+   "DBViewSection",
+   10
+  ],
+  [
+   "DBViewSchedule",
+   10
+  ],
+  [
+   "ScheduleInstance",
+   10
+  ],
+  [
+   "SWall",
+   9
+  ],
+  [
+   "Alignment",
+   8
+  ],
+  [
+   "Section",
+   8
+  ],
+  [
+   "PartMaker",
+   8
+  ],
+  [
+   "DBViewDrafting",
+   8
+  ],
+  [
+   "Viewer3d",
+   6
+  ]
+ ],
+ "top_survivor_classes": [
+  [
+   "GStyleElem",
+   2183
+  ],
+  [
+   "CategoryElem",
+   616
+  ],
+  [
+   "ParamElemExternal",
+   466
+  ],
+  [
+   "FontElem",
+   242
+  ],
+  [
+   "ParamBinding",
+   209
+  ],
+  [
+   "LinePatternElem",
+   150
+  ],
+  [
+   "AppearanceAssetElem",
+   131
+  ],
+  [
+   "HVACLoadSpaceTypeElem",
+   125
+  ],
+  [
+   "ParamElemFamily",
+   120
+  ],
+  [
+   "FillPatternElem",
+   116
+  ],
+  [
+   "ParamElemElectricalLoadClassification",
+   108
+  ],
+  [
+   "FamilySymbol",
+   105
+  ],
+  [
+   "LegendComponent",
+   96
+  ],
+  [
+   "MaterialElem",
+   93
+  ],
+  [
+   "DBViewType",
+   91
+  ],
+  [
+   "TextNoteAttributes",
+   90
+  ],
+  [
+   "SunAndShadowSettings",
+   72
+  ],
+  [
+   "LeaderStyle",
+   61
+  ],
+  [
+   "TagNoteAttributes",
+   60
+  ],
+  [
+   "PropertySetElement",
+   56
+  ],
+  [
+   "FamilySurrogate",
+   49
+  ],
+  [
+   "FamSymSurrogate",
+   49
+  ],
+  [
+   "Family",
+   49
+  ],
+  [
+   "SketchPlane",
+   38
+  ],
+  [
+   "ConceptualConstructionType",
+   36
+  ]
+ ],
+ "seconds": 6.9
+}

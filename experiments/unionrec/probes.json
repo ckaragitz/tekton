@@ -1,0 +1,227 @@
+{
+ "stream": "union-reconcile: U16 (PASS) vs T1v (FAIL) split into single variables.  U16 = our 35-element union in the born EMBEDDED donor shell, famdoc_final machinery, on rst.  T1v = the same union in the born STANDALONE vendor shell, template_union_doc machinery, on G_ABPD.  Three axes differ: machinery, species, base.  T1u isolates SPECIES (vs U16), T1r isolates BASE on the failing side (vs T1v), U16g isolates BASE on the proven side (vs U16).",
+ "known_cells": {
+  "U16": "embedded shell + famdoc_final + rst = PASS (b45)",
+  "U12345": "embedded shell + union + AUTHORED ADocument + rst = PASS (b45) -- the authored-ADocument flavour is exonerated on the embedded side",
+  "T2a": "standalone shell UNMODIFIED + G_ABPD = PASS (b50)",
+  "T1v": "standalone shell + template_union_doc + G_ABPD = FAIL (b51)"
+ },
+ "bases": {
+  "T1u+T1r": "samples/rstbasicsampleproject.rvt",
+  "U16g": "experiments/genesis/subst_k4/compose/G_ABPD.rvt"
+ },
+ "upload_order_max_information_first": [
+  "T1u",
+  "T1r",
+  "U16g"
+ ],
+ "controls": {
+  "rst": {
+   "source": "samples/rstbasicsampleproject.rvt",
+   "voids": "T1u,T1r on CTRL FAIL"
+  },
+  "g_abpd": {
+   "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "voids": "U16g on CTRL FAIL"
+  }
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL (either)": "round VOID for that base's probes (the rst control voids T1u/T1r; the G_ABPD control voids U16g).",
+  "T1u PASS, T1r PASS, U16g PASS": "every single axis is innocent alone => T1v's FAIL is a CONJUNCTION: standalone species x G_ABPD base under the union (T2a passed unmodified on that base, T1r passes that famdoc on rst, U16g passes the proven famdoc on G_ABPD).  Next: T1r's exact famdoc on a THIRD certified base, or the authored-vs-born ADocument flavour on G_ABPD.",
+  "T1u PASS, T1r PASS, U16g FAIL": "BASE convicted on the proven side too: G_ABPD rejects even U16's byte-identical famdoc while rst accepts everything => the base axis is the law (union x G_ABPD interaction; T2a PASS says no-union survives it).  The famdoc machinery and species are exonerated.",
+  "T1u PASS, T1r FAIL, U16g PASS": "MACHINERY convicted on the standalone shell: famdoc_final's port passes where template_union_doc fails on the SAME shell + base => the byte-audit deltas (ranked in byte_audit.json; the ADocument flavour is rank 1) are the finite suspect list.  Base exonerated both sides.",
+  "T1u PASS, T1r FAIL, U16g FAIL": "machinery delta AND base both guilty (overdetermined: T1v fails for two reasons).  Fix the machinery delta first (byte_audit rank 1), then re-run the base split.",
+  "T1u FAIL, T1r PASS, U16g PASS": "the famdoc_final-side PORT is the prime suspect (T1r passes the same shell+base with the authored flavour): the born-ADocument port or a species x born-wrapper interaction.  Species partially exonerated by T1r's PASS.  Bisect: T1u minus the ADocument swap (= U12345's form on the standalone shell).",
+  "T1u FAIL, T1r FAIL, U16g PASS": "SPECIES convicted: the standalone shell + our union fails on rst under BOTH machineries while the embedded shell passes everywhere (incl. G_ABPD) => the audit checks something a standalone-born body + registered foreign content trips (T2a PASS = no-union survives).  The species x union interaction is the law; the birthright mining must add whatever the embedded species carries.",
+  "T1u FAIL, T1r FAIL, U16g FAIL": "species AND base each convicted (everything but U16's original cell fails).  Improbable given T2a/U12345; re-verify controls before reading.",
+  "T1u FAIL, T1r PASS, U16g FAIL": "port suspect + base conviction (double).  T1r's PASS exonerates standalone+authored+rst; read U16g's FAIL as the base law and re-run T1u without the ADocument swap."
+ },
+ "byte_audit": "experiments/unionrec/byte_audit.json (the machinery delta measured record-by-record against the certified baselines T2a and B7; the inline-ADocument flavour -- authored all-null registries vs born 131-populated -- is the rank-1 separable delta)",
+ "note": "every famdoc unit GUID is FRESH per house law (a reused unit GUID risks viewer-side content dedupe faking a verdict); byte-identity claims are about the unit SEGMENTS, which carry no GUID (measured) and are machine-verified equal.  PROOF-ONLY sample/vendor-derived content, quarantined, never shipped.",
+ "companion_evidence": {
+  "accounting": "experiments/unionrec/accounting.json",
+  "byte_audit": "experiments/unionrec/byte_audit.json",
+  "per_probe_builds": "experiments/unionrec/_build/<rung>/",
+  "U16_round": "experiments/famdoc_final/probes.json (b45)",
+  "T1v_round": "experiments/birthright/probes.json (b51)",
+  "T2a_round": "experiments/rftprobe/probes.json (b50)"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "T1u",
+   "file": "experiments/unionrec/T1u.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "SPECIES probe: our 35-element content union in the STANDALONE vendor shell by the OLD PROVEN famdoc_final machinery (ported; born Global/Latest ADocument swapped in), famload + uniform instance on RST.  The ONE thing vs U16 (PASS): the shell species.",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the vendor-born STANDALONE famdoc + our 35-element union by the famdoc_final recipe (registration verbatim, born document object swapped inline, carried params byte-pinned to U16's session), famload + one uniform instance on rst.  The ONE thing vs U16 (PASS): the shell species.",
+   "expected": "PASS = species exonerated under famdoc_final machinery on rst (with U16); FAIL = species x union (or the born-ADocument port) -- T1r disambiguates",
+   "md5": "e671ea0f5bfd0e763a453b9032a8e2ae",
+   "document_guid": "7218d5e4-424d-4914-9904-e7bcc1794fd7",
+   "symbol_id": 1474588,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474589
+   ],
+   "immediate_parent": "experiments/unionrec/_build/T1u/T1u_load_adoc.rvt",
+   "byte_identity": null,
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "instance_zero_dangling": true,
+    "byte_identity_verified": null,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 2,
+   "rung": "T1r",
+   "file": "experiments/unionrec/T1r.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "BASE probe, failing side: T1v's EXACT famdoc (unit segments byte-identical, machine-verified), famload + uniform instance on RST.  The ONE thing vs T1v (FAIL): the base.",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "T1v's famdoc, unit segments BYTE-IDENTICAL (machine-verified against T1v_load.rvt; fresh unit GUID per house law), famload + one uniform instance on rst.  The ONE thing vs T1v (FAIL): the base.",
+   "expected": "PASS = BASE convicted (T1v's exact famdoc accepted on rst); FAIL = the standalone union famdoc is rejected on both bases => species/machinery, read with T1u",
+   "md5": "c749ada0fa6019c0a3ee68188c574561",
+   "document_guid": "7996ce00-0ba1-4c11-99f5-d33407e40f53",
+   "symbol_id": 1672588,
+   "family_id": 1672565,
+   "instance_ids": [
+    1672589
+   ],
+   "immediate_parent": "experiments/unionrec/_build/T1r/T1r_load.rvt",
+   "byte_identity": {
+    "target_file": "experiments/birthright/_build/T1v/T1v_load.rvt",
+    "target_unit": 1,
+    "target_guid": "3b21dfd9-a68c-4ece-a51e-368f55980d13",
+    "session_hex_pinned": {
+     "from": "8dabc157e9684ce1accd137c005b8695",
+     "to": "3c5faf44b7a9417693b8442eefbf2dd1",
+     "substitutions": 14
+    },
+    "segments_byte_identical": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "segment_bytes": {
+     "101": 322723,
+     "102": 779034,
+     "103": 88285
+    }
+   },
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "instance_zero_dangling": true,
+    "byte_identity_verified": true,
+    "gates_ok": true
+   }
+  },
+  {
+   "order": 3,
+   "rung": "U16g",
+   "file": "experiments/unionrec/U16g.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "BASE probe, proven side: U16's EXACT famdoc + full recipe (unit segments byte-identical, machine-verified; donor inline ADocument swapped by famdoc_final's own function), famload + uniform instance on G_ABPD.  The ONE thing vs U16 (PASS): the base.",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16's famdoc, unit segments BYTE-IDENTICAL (machine-verified against U16.rvt) + the donor inline-ADocument swap by famdoc_final's own function (value equality vs U16's entry machine-verified modulo the 4 fresh history GUIDs), famload + one uniform instance on G_ABPD.  The ONE thing vs U16 (PASS): the base.",
+   "expected": "PASS = base exonerated on the proven side (U16's famdoc accepted on G_ABPD); FAIL = BASE convicted from the proven side (G_ABPD x union interaction)",
+   "md5": "47c9af2e6fb443a59eac6c542ac1bf8d",
+   "document_guid": "1e113597-5b31-4426-9469-8d99ebec872f",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/unionrec/_build/U16g/U16g_load_adoc.rvt",
+   "byte_identity": {
+    "target_file": "experiments/famdoc_final/U16.rvt",
+    "target_unit": 53,
+    "target_guid": "ffee468e-5c5a-4cde-9030-56dbca68b3e7",
+    "session_hex_pinned": {
+     "from": "35c84d02be0e40cc944f5cfbeeeea7f5",
+     "to": "8217b592879e4857b9d2c326faa567e4",
+     "substitutions": 14
+    },
+    "segments_byte_identical": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "segment_bytes": {
+     "101": 77606,
+     "102": 252246,
+     "103": 33065
+    }
+   },
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "instance_zero_dangling": true,
+    "byte_identity_verified": true,
+    "gates_ok": true
+   }
+  }
+ ]
+}

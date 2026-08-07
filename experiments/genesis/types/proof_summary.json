@@ -1,0 +1,151 @@
+{
+ "walltype": {
+  "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/types/T_walltype.rvt",
+  "records": 12,
+  "classes": [
+   "BasicWallType",
+   "CompoundCeilingType",
+   "FillPatternElem",
+   "FloorAttributes",
+   "LinePatternElem",
+   "MaterialElem",
+   "RoofAttributes"
+  ],
+  "roundtrip_ok": "12/12",
+  "dangling_refs": 0,
+  "commit": {
+   "elemtable_before": 28132,
+   "elemtable_after": 28144,
+   "watermark_after": 888025,
+   "bytes_added": {
+    "101": 1708,
+    "102": 5626,
+    "103": 644
+   },
+   "seconds": 59.1
+  },
+  "readback": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "elemtable_count": 28144,
+   "header_count": 28144,
+   "sentinel_last": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "stamps_ok": true,
+   "new_ids_found_seq102": 12,
+   "new_ids_clean_seq102": 12
+  },
+  "validator": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 2,
+   "seconds": 12.6,
+   "error_list": []
+  }
+ },
+ "conduit_types": {
+  "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/types/T_conduit_types.rvt",
+  "records": 16,
+  "classes": [
+   "CableTraySizesElem",
+   "ConduitSizesElem",
+   "ConduitStandardType",
+   "CustomElement",
+   "RbsCableTrayType",
+   "RbsConduitType",
+   "RbsWireInsulationType",
+   "RbsWireMaterialType",
+   "RbsWireTemperatureRatingType",
+   "RbsWireType"
+  ],
+  "roundtrip_ok": "16/16",
+  "dangling_refs": 0,
+  "commit": {
+   "elemtable_before": 28132,
+   "elemtable_after": 28148,
+   "watermark_after": 888041,
+   "bytes_added": {
+    "101": 2224,
+    "102": 4241,
+    "103": 352
+   },
+   "seconds": 55.1
+  },
+  "readback": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "elemtable_count": 28148,
+   "header_count": 28148,
+   "sentinel_last": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "stamps_ok": true,
+   "new_ids_found_seq102": 16,
+   "new_ids_clean_seq102": 16
+  },
+  "validator": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 2,
+   "seconds": 12.4,
+   "error_list": []
+  }
+ },
+ "settings": {
+  "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/types/T_settings.rvt",
+  "records": 23,
+  "classes": [
+   "CategoryElem",
+   "ElectricalDemandFactorDefinition",
+   "ElectricalLoadClassification",
+   "FontElem",
+   "GStyleElem",
+   "LinePatternElem",
+   "RbsDistributionSysType",
+   "RbsVoltageType",
+   "TextNoteAttributes"
+  ],
+  "roundtrip_ok": "23/23",
+  "dangling_refs": 0,
+  "commit": {
+   "elemtable_before": 28132,
+   "elemtable_after": 28155,
+   "watermark_after": 888064,
+   "bytes_added": {
+    "101": 3297,
+    "102": 5663,
+    "103": 506
+   },
+   "seconds": 57.3
+  },
+  "readback": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "elemtable_count": 28155,
+   "header_count": 28155,
+   "sentinel_last": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "stamps_ok": true,
+   "new_ids_found_seq102": 23,
+   "new_ids_clean_seq102": 23
+  },
+  "validator": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 2,
+   "seconds": 12.1,
+   "error_list": []
+  }
+ }
+}

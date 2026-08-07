@@ -1,0 +1,1930 @@
+{
+ "sample": "rstbasicsampleproject",
+ "payload_bytes": 1586246,
+ "elemtable_ids": 13936,
+ "coverage": {
+  "total": 1586246,
+  "classified": 1556408,
+  "classified_pct": 98.12,
+  "by_kind": {
+   "json-corpus": 1333376,
+   "string-table": 44181,
+   "id-array": 33646,
+   "id-map": 104829,
+   "object-graph": 40376,
+   "unknown": 29838
+  },
+  "by_kind_pct": {
+   "json-corpus": 84.06,
+   "string-table": 2.79,
+   "id-array": 2.12,
+   "id-map": 6.61,
+   "object-graph": 2.55,
+   "unknown": 1.88
+  }
+ },
+ "json_tables": [
+  {
+   "header_start": 158734,
+   "start": 158774,
+   "end": 954980,
+   "declared": 893,
+   "count": 893,
+   "sha256_16": "093048af34059e5f",
+   "namespaces": {
+    "autodesk.unit.symbol": 433,
+    "autodesk.unit.unit": 350,
+    "autodesk.unit.quantity": 76,
+    "autodesk.unit.factor.prefix": 20,
+    "autodesk.unit.dimension": 7,
+    "autodesk.unit.factor": 7
+   },
+   "owner_element_id": 1463828
+  },
+  {
+   "header_start": 955442,
+   "start": 955446,
+   "end": 1492580,
+   "declared": 422,
+   "count": 422,
+   "sha256_16": "f7d62970ac9b1bfb",
+   "namespaces": {
+    "autodesk.spec.aec.structural": 92,
+    "autodesk.revit.group": 75,
+    "autodesk.spec.aec.hvac": 64,
+    "autodesk.parameter.group": 50,
+    "autodesk.spec.aec.electrical": 45,
+    "autodesk.spec.aec.piping": 33,
+    "autodesk.spec.aec": 28,
+    "autodesk.spec.aec.energy": 21,
+    "autodesk.spec.discipline": 7,
+    "autodesk.spec.aec.infrastructure": 3,
+    "autodesk.spec.measurable": 3,
+    "autodesk.range": 1
+   },
+   "owner_element_id": null
+  }
+ ],
+ "regions": [
+  {
+   "start": 0,
+   "end": 83,
+   "kind": "object-graph",
+   "notes": "ADocument prologue (constant across samples): class 0x1c, externalized member tokens, version 2662"
+  },
+  {
+   "start": 83,
+   "end": 859,
+   "kind": "string-table",
+   "notes": "m_storedByRevitBuild: 7 build strings (PRODUCT: Revit release history Revit 2018..; file-lineage, not project expression)"
+  },
+  {
+   "start": 859,
+   "end": 5729,
+   "kind": "object-graph",
+   "notes": "m_oExServicesUsed GUID-keyed map (class 0x644): 52 entries parsed 52; vendor 'Autodesk Revit' service/add-in registry (product identifiers)"
+  },
+  {
+   "start": 5729,
+   "end": 7065,
+   "kind": "object-graph",
+   "notes": "u32-keyed singleton-manager registry: 180 entries (key -> u16 class + mostly-default body); document machinery, no element ids"
+  },
+  {
+   "start": 7065,
+   "end": 7163,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 7163,
+   "end": 35893,
+   "kind": "object-graph",
+   "notes": "NOBLE secondary-data / analysis-cache entries: 596 strings (13 unique); product 477 / project 119 / ambiguous 0; e.g. NobleDocWarnings; ColorFillSecondaryData; Color Fills; Color Fill"
+  },
+  {
+   "start": 35893,
+   "end": 35903,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 35903,
+   "end": 36259,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 17 hits, 17 distinct ids, strides [(12, 9), (28, 4), (44, 2)]"
+  },
+  {
+   "start": 36259,
+   "end": 36327,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 36327,
+   "end": 38437,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 107 hits, 99 distinct ids, strides [(12, 64), (28, 29), (24, 5)]"
+  },
+  {
+   "start": 38437,
+   "end": 38501,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 38501,
+   "end": 38917,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 26 hits, 26 distinct ids, strides [(12, 20), (24, 3), (48, 2)]"
+  },
+  {
+   "start": 38917,
+   "end": 39005,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 39005,
+   "end": 39205,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 14 hits, 14 distinct ids, strides [(12, 11), (24, 1), (36, 1)]"
+  },
+  {
+   "start": 39205,
+   "end": 40019,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 40019,
+   "end": 40723,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 87 hits, 85 distinct ids, strides [(8, 84), (12, 2)]"
+  },
+  {
+   "start": 40723,
+   "end": 40851,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 40851,
+   "end": 41571,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 90 hits, 90 distinct ids, strides [(8, 89)]"
+  },
+  {
+   "start": 41571,
+   "end": 41703,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 41703,
+   "end": 41734,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(23, 1)]"
+  },
+  {
+   "start": 41734,
+   "end": 41852,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 41852,
+   "end": 41868,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(8, 1)]"
+  },
+  {
+   "start": 41868,
+   "end": 42009,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 42009,
+   "end": 42072,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 4 hits, 4 distinct ids, strides [(8, 1), (23, 1), (24, 1)]"
+  },
+  {
+   "start": 42072,
+   "end": 42166,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 42166,
+   "end": 42339,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 7 hits, 7 distinct ids, strides [(8, 2), (47, 1), (16, 1)]"
+  },
+  {
+   "start": 42339,
+   "end": 42480,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 42480,
+   "end": 44066,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 25 hits, 24 distinct ids, strides [(8, 11), (149, 9), (31, 1)]"
+  },
+  {
+   "start": 44066,
+   "end": 44207,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 44207,
+   "end": 48335,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 107 hits, 107 distinct ids, strides [(8, 81), (149, 23), (18, 1)]"
+  },
+  {
+   "start": 48335,
+   "end": 48398,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 48398,
+   "end": 48406,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 48406,
+   "end": 50612,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 50612,
+   "end": 50996,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 32 hits, 18 distinct ids, strides [(8, 19), (16, 8), (24, 4)]"
+  },
+  {
+   "start": 50996,
+   "end": 51408,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 51408,
+   "end": 51452,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(36, 1)]"
+  },
+  {
+   "start": 51452,
+   "end": 51666,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 51666,
+   "end": 52200,
+   "kind": "string-table",
+   "notes": "6 strings (6 unique); product 0 / project 2 / ambiguous 4; e.g. Elevation 1; S206; FOUNDATION-2700; Section 1"
+  },
+  {
+   "start": 52200,
+   "end": 52344,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 52344,
+   "end": 53412,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 132 hits, 132 distinct ids, strides [(8, 128), (7, 1), (1, 1)]"
+  },
+  {
+   "start": 53412,
+   "end": 53480,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 53480,
+   "end": 86708,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 1860 hits, 1785 distinct ids, strides [(20, 1169), (16, 540), (8, 150)]"
+  },
+  {
+   "start": 86708,
+   "end": 86840,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 86840,
+   "end": 87648,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 42 hits, 42 distinct ids, strides [(20, 39), (19, 1), (1, 1)]"
+  },
+  {
+   "start": 87648,
+   "end": 87740,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 87740,
+   "end": 89208,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 73 hits, 73 distinct ids, strides [(20, 71), (40, 1)]"
+  },
+  {
+   "start": 89208,
+   "end": 89360,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 89360,
+   "end": 90408,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 50 hits, 50 distinct ids, strides [(20, 42), (19, 2), (1, 2)]"
+  },
+  {
+   "start": 90408,
+   "end": 90520,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 90520,
+   "end": 90808,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 15 hits, 15 distinct ids, strides [(20, 11), (19, 1), (1, 1)]"
+  },
+  {
+   "start": 90808,
+   "end": 91119,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 91119,
+   "end": 91127,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 91127,
+   "end": 91460,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 91460,
+   "end": 106988,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 1553 hits, 1393 distinct ids, strides [(12, 776), (8, 776)]"
+  },
+  {
+   "start": 106988,
+   "end": 107060,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 107060,
+   "end": 109784,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 237 hits, 237 distinct ids, strides [(8, 186), (20, 38), (32, 8)]"
+  },
+  {
+   "start": 109784,
+   "end": 109992,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 109992,
+   "end": 113124,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 390 hits, 390 distinct ids, strides [(8, 388), (20, 1)]"
+  },
+  {
+   "start": 113124,
+   "end": 113328,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 113328,
+   "end": 113360,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 4 hits, 4 distinct ids, strides [(8, 3)]"
+  },
+  {
+   "start": 113360,
+   "end": 113480,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 113480,
+   "end": 114756,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 152 hits, 152 distinct ids, strides [(8, 146), (20, 5)]"
+  },
+  {
+   "start": 114756,
+   "end": 114876,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 114876,
+   "end": 116628,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 213 hits, 213 distinct ids, strides [(8, 209), (20, 2), (32, 1)]"
+  },
+  {
+   "start": 116628,
+   "end": 116988,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 116988,
+   "end": 116996,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 116996,
+   "end": 117068,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 117068,
+   "end": 117400,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 40 hits, 40 distinct ids, strides [(8, 38), (20, 1)]"
+  },
+  {
+   "start": 117400,
+   "end": 117472,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 117472,
+   "end": 118284,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 85 hits, 85 distinct ids, strides [(8, 77), (20, 4), (32, 2)]"
+  },
+  {
+   "start": 118284,
+   "end": 118680,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 118680,
+   "end": 118940,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 31 hits, 31 distinct ids, strides [(8, 29), (20, 1)]"
+  },
+  {
+   "start": 118940,
+   "end": 119036,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 119036,
+   "end": 119872,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 91 hits, 91 distinct ids, strides [(8, 85), (20, 2), (32, 2)]"
+  },
+  {
+   "start": 119872,
+   "end": 119932,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 119932,
+   "end": 119948,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(8, 1)]"
+  },
+  {
+   "start": 119948,
+   "end": 120012,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 120012,
+   "end": 120804,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 95 hits, 95 distinct ids, strides [(8, 93), (40, 1)]"
+  },
+  {
+   "start": 120804,
+   "end": 120944,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 120944,
+   "end": 122396,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 172 hits, 172 distinct ids, strides [(8, 166), (12, 2), (20, 1)]"
+  },
+  {
+   "start": 122396,
+   "end": 122490,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 122490,
+   "end": 123134,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 73 hits, 64 distinct ids, strides [(8, 61), (12, 9), (24, 1)]"
+  },
+  {
+   "start": 123134,
+   "end": 123194,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 123194,
+   "end": 138790,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 781 hits, 775 distinct ids, strides [(24, 470), (8, 156), (20, 129)]"
+  },
+  {
+   "start": 138790,
+   "end": 138794,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 138794,
+   "end": 139185,
+   "kind": "string-table",
+   "notes": "8 strings (8 unique); product 8 / project 0 / ambiguous 0; e.g. 3D Views; Detail Views (Detail); Drafting Views (Detail); Elevations (Building Elevation)"
+  },
+  {
+   "start": 139185,
+   "end": 139494,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 139494,
+   "end": 143156,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 164 hits, 84 distinct ids, strides [(20, 81), (24, 78), (48, 1)]"
+  },
+  {
+   "start": 143156,
+   "end": 143216,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 143216,
+   "end": 143452,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 9 hits, 9 distinct ids, strides [(28, 7), (32, 1)]"
+  },
+  {
+   "start": 143452,
+   "end": 143528,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 143528,
+   "end": 144140,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 22 hits, 8 distinct ids, strides [(28, 18), (32, 2), (36, 1)]"
+  },
+  {
+   "start": 144140,
+   "end": 144388,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 144388,
+   "end": 144512,
+   "kind": "string-table",
+   "notes": "3 strings (3 unique); product 3 / project 0 / ambiguous 0; e.g. Size; Space Name; Space Number"
+  },
+  {
+   "start": 144512,
+   "end": 144804,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 144804,
+   "end": 145225,
+   "kind": "string-table",
+   "notes": "6 strings (3 unique); product 6 / project 0 / ambiguous 0; e.g. Size; Space Name; Space Number"
+  },
+  {
+   "start": 145225,
+   "end": 145585,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 145585,
+   "end": 146882,
+   "kind": "string-table",
+   "notes": "14 strings (5 unique); product 14 / project 0 / ambiguous 0; e.g. Size; Space Name; Space Number; Apparent Power"
+  },
+  {
+   "start": 146882,
+   "end": 148729,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 148729,
+   "end": 148936,
+   "kind": "string-table",
+   "notes": "4 strings (4 unique); product 4 / project 0 / ambiguous 0; e.g. Connected Apparent Power; Demand Apparent Power; Connected Current; Demand Current"
+  },
+  {
+   "start": 148936,
+   "end": 149135,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 149135,
+   "end": 149143,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 149143,
+   "end": 149224,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 149224,
+   "end": 149232,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 149232,
+   "end": 149312,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 149312,
+   "end": 149332,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(12, 1)]"
+  },
+  {
+   "start": 149332,
+   "end": 149368,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 149368,
+   "end": 149430,
+   "kind": "string-table",
+   "notes": "2 strings (2 unique); product 2 / project 0 / ambiguous 0; e.g. Revit; AREXRevitStart"
+  },
+  {
+   "start": 149430,
+   "end": 149535,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 149535,
+   "end": 154123,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 552 hits, 512 distinct ids, strides [(8, 543), (16, 2), (24, 2)]"
+  },
+  {
+   "start": 154123,
+   "end": 154197,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 154197,
+   "end": 154719,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 34 hits, 32 distinct ids, strides [(8, 24), (60, 2), (24, 2)]"
+  },
+  {
+   "start": 154719,
+   "end": 155035,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 155035,
+   "end": 155095,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 6 hits, 6 distinct ids, strides [(8, 4), (20, 1)]"
+  },
+  {
+   "start": 155095,
+   "end": 155143,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 155143,
+   "end": 156581,
+   "kind": "string-table",
+   "notes": "27 strings (4 unique); product 27 / project 0 / ambiguous 0; e.g. Element-Watching-Internal-Updater; Revit; ObjectNumberingUpdater; TextNoteUpdater"
+  },
+  {
+   "start": 156581,
+   "end": 156662,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 156662,
+   "end": 158142,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 172 hits, 157 distinct ids, strides [(8, 166), (16, 3), (56, 1)]"
+  },
+  {
+   "start": 158142,
+   "end": 158234,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 158234,
+   "end": 158246,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 0 / project 1 / ambiguous 0; e.g. liqi"
+  },
+  {
+   "start": 158246,
+   "end": 158742,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 59 hits, 59 distinct ids, strides [(8, 56), (16, 1), (24, 1)]"
+  },
+  {
+   "start": 158742,
+   "end": 954980,
+   "kind": "json-corpus",
+   "notes": "Forge schema table #1: declared 893, parsed 893 (typeid, json) pairs; owner ElementId64 1463828; body sha256 093048af34059e5f; namespaces: autodesk.unit.symbol=433, autodesk.unit.unit=350, autodesk.unit.quantity=76, autodesk.unit.factor.prefix=20, autodesk.unit.dimension=7, autodesk.unit.factor=7"
+  },
+  {
+   "start": 954980,
+   "end": 954999,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 954999,
+   "end": 955007,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 955007,
+   "end": 955016,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 955016,
+   "end": 955401,
+   "kind": "string-table",
+   "notes": "9 strings (8 unique); product 9 / project 0 / ambiguous 0; e.g. Identity; TCHAR; AREXContentGenerator; AnalysisId"
+  },
+  {
+   "start": 955401,
+   "end": 955442,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 955442,
+   "end": 1492580,
+   "kind": "json-corpus",
+   "notes": "Forge schema table #2: declared 422, parsed 422 (typeid, json) pairs; owner ElementId64 None; body sha256 f7d62970ac9b1bfb; namespaces: autodesk.spec.aec.structural=92, autodesk.revit.group=75, autodesk.spec.aec.hvac=64, autodesk.parameter.group=50, autodesk.spec.aec.electrical=45, autodesk.spec.aec.piping=33"
+  },
+  {
+   "start": 1492580,
+   "end": 1492777,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1492777,
+   "end": 1492807,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Stairs System"
+  },
+  {
+   "start": 1492807,
+   "end": 1492821,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1492821,
+   "end": 1497265,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 386 hits, 380 distinct ids, strides [(8, 221), (16, 161), (12, 1)]"
+  },
+  {
+   "start": 1497265,
+   "end": 1497369,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1497369,
+   "end": 1500267,
+   "kind": "string-table",
+   "notes": "78 strings (18 unique); product 77 / project 1 / ambiguous 0; e.g. macalis; Rebar Numbering; Fabric Sheets Numbering; Rebar Couplers Numbering"
+  },
+  {
+   "start": 1500267,
+   "end": 1500493,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1500493,
+   "end": 1500509,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(8, 1)]"
+  },
+  {
+   "start": 1500509,
+   "end": 1500525,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1500525,
+   "end": 1534043,
+   "kind": "string-table",
+   "notes": "209 strings (209 unique); product 4 / project 205 / ambiguous 0; e.g. LB_Associations; 1046264.1.1471776; {\"Id\":6,\"LocalId\":\"1046264\",\"IsLocalGrou; 1046268.1.1471777"
+  },
+  {
+   "start": 1534043,
+   "end": 1534108,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1534108,
+   "end": 1534676,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 61 hits, 61 distinct ids, strides [(8, 56), (28, 4)]"
+  },
+  {
+   "start": 1534676,
+   "end": 1534808,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1534808,
+   "end": 1535500,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 20 hits, 20 distinct ids, strides [(36, 19)]"
+  },
+  {
+   "start": 1535500,
+   "end": 1535692,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1535692,
+   "end": 1536454,
+   "kind": "string-table",
+   "notes": "12 strings (12 unique); product 0 / project 8 / ambiguous 4; e.g. Bathroom; Bathroom 1; Bathroom 2; Bedroom 1"
+  },
+  {
+   "start": 1536454,
+   "end": 1536460,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 1 distinct ids, strides [(58, 1)]"
+  },
+  {
+   "start": 1536460,
+   "end": 1536536,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1536536,
+   "end": 1536616,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 3 hits, 3 distinct ids, strides [(36, 2)]"
+  },
+  {
+   "start": 1536616,
+   "end": 1536784,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1536784,
+   "end": 1536902,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 4 hits, 4 distinct ids, strides [(36, 2), (38, 1)]"
+  },
+  {
+   "start": 1536902,
+   "end": 1537022,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1537022,
+   "end": 1537714,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 20 hits, 20 distinct ids, strides [(36, 19)]"
+  },
+  {
+   "start": 1537714,
+   "end": 1537946,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1537946,
+   "end": 1538386,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 13 hits, 13 distinct ids, strides [(36, 12)]"
+  },
+  {
+   "start": 1538386,
+   "end": 1538542,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1538542,
+   "end": 1538556,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 0 / project 1 / ambiguous 0; e.g. Space"
+  },
+  {
+   "start": 1538556,
+   "end": 1538646,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 3 hits, 3 distinct ids, strides [(48, 1), (36, 1)]"
+  },
+  {
+   "start": 1538646,
+   "end": 1538730,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1538730,
+   "end": 1539422,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 20 hits, 20 distinct ids, strides [(36, 19)]"
+  },
+  {
+   "start": 1539422,
+   "end": 1539610,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1539610,
+   "end": 1540356,
+   "kind": "string-table",
+   "notes": "10 strings (10 unique); product 0 / project 10 / ambiguous 0; e.g. Less than 40 m\u00b2; 40 m\u00b2 - 80 m\u00b2; 80 m\u00b2 - 120 m\u00b2; 120 m\u00b2 - 160 m\u00b2"
+  },
+  {
+   "start": 1540356,
+   "end": 1541154,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1541154,
+   "end": 1541530,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 24 hits, 21 distinct ids, strides [(8, 15), (24, 3), (48, 2)]"
+  },
+  {
+   "start": 1541530,
+   "end": 1541602,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1541602,
+   "end": 1541610,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1541610,
+   "end": 1541722,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1541722,
+   "end": 1541786,
+   "kind": "id-array",
+   "notes": "ElementId64 references: 4 hits, 4 distinct ids, strides [(8, 2), (40, 1)]"
+  },
+  {
+   "start": 1541786,
+   "end": 1541894,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1541894,
+   "end": 1541902,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1541902,
+   "end": 1544674,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1544674,
+   "end": 1545297,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 41 hits, 40 distinct ids, strides [(8, 19), (20, 18), (28, 1)]"
+  },
+  {
+   "start": 1545297,
+   "end": 1545390,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1545390,
+   "end": 1545431,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(33, 1)]"
+  },
+  {
+   "start": 1545431,
+   "end": 1545659,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1545659,
+   "end": 1545731,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 5 hits, 3 distinct ids, strides [(16, 4)]"
+  },
+  {
+   "start": 1545731,
+   "end": 1545895,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1545895,
+   "end": 1545967,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 5 hits, 3 distinct ids, strides [(16, 4)]"
+  },
+  {
+   "start": 1545967,
+   "end": 1546207,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1546207,
+   "end": 1546263,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 4 hits, 2 distinct ids, strides [(16, 3)]"
+  },
+  {
+   "start": 1546263,
+   "end": 1546487,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1546487,
+   "end": 1546603,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 5 hits, 3 distinct ids, strides [(16, 3), (60, 1)]"
+  },
+  {
+   "start": 1546603,
+   "end": 1546783,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1546783,
+   "end": 1546823,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(32, 1)]"
+  },
+  {
+   "start": 1546823,
+   "end": 1547043,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1547043,
+   "end": 1547051,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1547051,
+   "end": 1547271,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1547271,
+   "end": 1547439,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 11 hits, 11 distinct ids, strides [(16, 10)]"
+  },
+  {
+   "start": 1547439,
+   "end": 1547767,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1547767,
+   "end": 1547775,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1547775,
+   "end": 1547791,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1547791,
+   "end": 1547815,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1547815,
+   "end": 1547839,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1547839,
+   "end": 1547847,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1547847,
+   "end": 1547919,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1547919,
+   "end": 1547927,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1547927,
+   "end": 1547999,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1547999,
+   "end": 1548007,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1548007,
+   "end": 1548231,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1548231,
+   "end": 1548255,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1548255,
+   "end": 1548279,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1548279,
+   "end": 1548415,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 6 hits, 4 distinct ids, strides [(16, 4), (64, 1)]"
+  },
+  {
+   "start": 1548415,
+   "end": 1548555,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1548555,
+   "end": 1548579,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(16, 1)]"
+  },
+  {
+   "start": 1548579,
+   "end": 1548675,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1548675,
+   "end": 1548699,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 1 distinct ids, strides [(16, 1)]"
+  },
+  {
+   "start": 1548699,
+   "end": 1548907,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1548907,
+   "end": 1548931,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1548931,
+   "end": 1548955,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1548955,
+   "end": 1549075,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 5 hits, 2 distinct ids, strides [(16, 3), (64, 1)]"
+  },
+  {
+   "start": 1549075,
+   "end": 1549419,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1549419,
+   "end": 1549427,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1549427,
+   "end": 1549539,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1549539,
+   "end": 1549563,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1549563,
+   "end": 1549587,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1549587,
+   "end": 1549643,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 4 hits, 2 distinct ids, strides [(16, 3)]"
+  },
+  {
+   "start": 1549643,
+   "end": 1549863,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1549863,
+   "end": 1549887,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(16, 1)]"
+  },
+  {
+   "start": 1549887,
+   "end": 1550151,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1550151,
+   "end": 1550169,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Generic"
+  },
+  {
+   "start": 1550169,
+   "end": 1550181,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1550181,
+   "end": 1550285,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 6 hits, 6 distinct ids, strides [(16, 4), (32, 1)]"
+  },
+  {
+   "start": 1550285,
+   "end": 1550413,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1550413,
+   "end": 1550437,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(16, 1)]"
+  },
+  {
+   "start": 1550437,
+   "end": 1550985,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1550985,
+   "end": 1551269,
+   "kind": "string-table",
+   "notes": "2 strings (2 unique); product 0 / project 2 / ambiguous 0; e.g. 250 MPa; Concrete 10 MPa"
+  },
+  {
+   "start": 1551269,
+   "end": 1551293,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1551293,
+   "end": 1551349,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 4 hits, 2 distinct ids, strides [(16, 3)]"
+  },
+  {
+   "start": 1551349,
+   "end": 1551489,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1551489,
+   "end": 1551497,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1551497,
+   "end": 1551717,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1551717,
+   "end": 1551885,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 11 hits, 11 distinct ids, strides [(16, 10)]"
+  },
+  {
+   "start": 1551885,
+   "end": 1552213,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1552213,
+   "end": 1552221,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1552221,
+   "end": 1552237,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1552237,
+   "end": 1552261,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1552261,
+   "end": 1552285,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1552285,
+   "end": 1552293,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1552293,
+   "end": 1552365,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1552365,
+   "end": 1552373,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1552373,
+   "end": 1552561,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1552561,
+   "end": 1552729,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 11 hits, 11 distinct ids, strides [(16, 10)]"
+  },
+  {
+   "start": 1552729,
+   "end": 1553057,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1553057,
+   "end": 1553065,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1553065,
+   "end": 1553081,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1553081,
+   "end": 1553105,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1553105,
+   "end": 1553129,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1553129,
+   "end": 1553137,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1553137,
+   "end": 1553209,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1553209,
+   "end": 1553217,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1553217,
+   "end": 1553405,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1553405,
+   "end": 1553573,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 11 hits, 11 distinct ids, strides [(16, 10)]"
+  },
+  {
+   "start": 1553573,
+   "end": 1553901,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1553901,
+   "end": 1553909,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1553909,
+   "end": 1553925,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1553925,
+   "end": 1553949,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1553949,
+   "end": 1553973,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1553973,
+   "end": 1553981,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1553981,
+   "end": 1554053,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1554053,
+   "end": 1554061,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1554061,
+   "end": 1554249,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1554249,
+   "end": 1554417,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 11 hits, 11 distinct ids, strides [(16, 10)]"
+  },
+  {
+   "start": 1554417,
+   "end": 1554745,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1554745,
+   "end": 1554753,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1554753,
+   "end": 1554769,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1554769,
+   "end": 1554793,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1554793,
+   "end": 1554817,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1554817,
+   "end": 1554825,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1554825,
+   "end": 1554897,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1554897,
+   "end": 1554905,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1554905,
+   "end": 1555093,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1555093,
+   "end": 1555261,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 11 hits, 11 distinct ids, strides [(16, 10)]"
+  },
+  {
+   "start": 1555261,
+   "end": 1555589,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1555589,
+   "end": 1555597,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1555597,
+   "end": 1555613,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1555613,
+   "end": 1555637,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1555637,
+   "end": 1555661,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1555661,
+   "end": 1555669,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1555669,
+   "end": 1555741,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1555741,
+   "end": 1555749,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 1 hits, 1 distinct ids, strides []"
+  },
+  {
+   "start": 1555749,
+   "end": 1555913,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1555913,
+   "end": 1556677,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 18 hits, 3 distinct ids, strides [(16, 14), (172, 2), (188, 1)]"
+  },
+  {
+   "start": 1556677,
+   "end": 1556901,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1556901,
+   "end": 1556925,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1556925,
+   "end": 1556949,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1556949,
+   "end": 1557085,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 6 hits, 4 distinct ids, strides [(16, 4), (64, 1)]"
+  },
+  {
+   "start": 1557085,
+   "end": 1557225,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1557225,
+   "end": 1557249,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(16, 1)]"
+  },
+  {
+   "start": 1557249,
+   "end": 1557345,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1557345,
+   "end": 1557369,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 1 distinct ids, strides [(16, 1)]"
+  },
+  {
+   "start": 1557369,
+   "end": 1557577,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1557577,
+   "end": 1557601,
+   "kind": "string-table",
+   "notes": "1 strings (1 unique); product 1 / project 0 / ambiguous 0; e.g. Unassigned"
+  },
+  {
+   "start": 1557601,
+   "end": 1557625,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1557625,
+   "end": 1557851,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 8 hits, 5 distinct ids, strides [(16, 3), (32, 2), (64, 1)]"
+  },
+  {
+   "start": 1557851,
+   "end": 1558899,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1558899,
+   "end": 1564427,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 346 hits, 346 distinct ids, strides [(16, 345)]"
+  },
+  {
+   "start": 1564427,
+   "end": 1565339,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1565339,
+   "end": 1578326,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 800 hits, 356 distinct ids, strides [(16, 710), (15, 73), (40, 4)]"
+  },
+  {
+   "start": 1578326,
+   "end": 1578412,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1578412,
+   "end": 1579568,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 24 hits, 5 distinct ids, strides [(16, 13), (94, 10)]"
+  },
+  {
+   "start": 1579568,
+   "end": 1579654,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1579654,
+   "end": 1579710,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 4 hits, 4 distinct ids, strides [(16, 3)]"
+  },
+  {
+   "start": 1579710,
+   "end": 1579796,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1579796,
+   "end": 1579820,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 2 hits, 2 distinct ids, strides [(16, 1)]"
+  },
+  {
+   "start": 1579820,
+   "end": 1579906,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1579906,
+   "end": 1579962,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 4 hits, 4 distinct ids, strides [(16, 3)]"
+  },
+  {
+   "start": 1579962,
+   "end": 1580048,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1580048,
+   "end": 1582322,
+   "kind": "object-graph",
+   "notes": "ElementId64 references: 82 hits, 11 distinct ids, strides [(16, 30), (40, 16), (8, 16)]"
+  },
+  {
+   "start": 1582322,
+   "end": 1582408,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1582408,
+   "end": 1586172,
+   "kind": "id-map",
+   "notes": "ElementId64 references: 70 hits, 2 distinct ids, strides [(16, 35), (94, 34)]"
+  },
+  {
+   "start": 1586172,
+   "end": 1586246,
+   "kind": "unknown",
+   "notes": ""
+  },
+  {
+   "start": 1586246,
+   "end": 1586246,
+   "kind": "unknown",
+   "notes": "id-summary {\"hits\": 10002, \"distinct\": 6405, \"clusters\": 235, \"cluster_kinds\": {\"object-graph\": 155, \"id-map\": 54, \"id-array\": 26}}"
+  }
+ ]
+}

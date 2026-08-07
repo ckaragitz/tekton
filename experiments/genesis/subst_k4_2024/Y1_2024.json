@@ -1,0 +1,453 @@
+{
+ "rung": "Y1_2024",
+ "label": "the project pen table (PenWidthTableElem, m_famId -1) -> OUR pen table, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+ "base": {
+  "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+   "when": "2026-08-05 ~02:25",
+   "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  },
+  "lineage": "B2024_K4 = the genesis-2024-reduce stream's family-free 2024 base (sha256 505ed303..., 831,488 B, 3,295 host elements): samples/2024/rstbasicsampleproject -> R5..R9_2024 (maxgc, every rung validator-0-errors + reduce_law EDIT-FREE + the per-rung RELEASE gate: detect_release==2024, on-disk block-header tag set exactly {0x0e7c}) -> K3_2024 (usage nulls, the certified K3 recipe) -> B2024_K4 (all embedded family documents removed, four-registry coherent 1/0/0/0).  VIEWER-CERTIFIED: ORCHESTRATOR VERDICTS #32 (docs/inbox/genesis-audit.md, 2026-08-05 ~02:25): b28 ALL PASS -- the untouched 2024 sample (control: the viewer reads 2024), R9_2024, K3_2024 and B2024_K4 (the 2024 family-free base) all CERTIFIED. Roster complete: certified bases for 2026/2025/2024/2023; B2024_K4 is listed in docs/coverage/viewer-certified.json 'certified'."
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4_2024/CTRL_B2024_K4_base.rvt",
+  "identical_to": "experiments/genesis2024/reduce/B2024_K4.rvt",
+  "md5": "b953513bf80a963021b7de8e96d1be9d",
+  "certification": {
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+   "when": "2026-08-05 ~02:25",
+   "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  }
+ },
+ "parent": "experiments/genesis2024/reduce/B2024_K4.rvt",
+ "parent_rung": "BASE",
+ "out": "experiments/genesis/subst_k4_2024/Y1_2024.rvt",
+ "description": "Mirrors the certified 2026 rung Y1 (docs/writer/substitution-ladder-v3.md) -- via the certified 2025 recipe (y2025_a, composed G_ABPD_2025 certified, verdicts #31) -- onto the certified 2024 base B2024_K4; constructors pass through rvt.genesis.port2024 (the confirmed 2026->2024 field maps).  The 2024 corpus scale-key set is VERIFIED against the base's own table before this rung is built (pen_scale_key_check; the six model breakpoints [10, 20, 50, 100, 200, 500] hold in 2024 -- mined by genesis-2024-port (pen_table_2024.json, rst elem 2 byte-exact through our constructor), re-proven here, never assumed).",
+ "tests": "Whether the 2024 reader accepts OUR pen-table CONTENT when nothing but the object bytes at Autodesk's own registration change.",
+ "if_PASS": "Our pen constructor's values load at a 2024 registration (the 2026/2025 Y1 result transfers).",
+ "if_FAIL": "Our pen VALUES are what the 2024 reader rejects (the only variable): diff our record vs the base's project pen table field by field.",
+ "stages": [],
+ "parent_context": {
+  "host_elements": 3295,
+  "watermark": 1472338
+ },
+ "candidates_old_by_class": {
+  "PenWidthTableElem": 1
+ },
+ "our_records_by_class": {
+  "PenWidthTableElem": 1
+ },
+ "build_notes": [
+  "old project pen table id(s) [2]; ours id 1500000; family-scoped copies kept (8, owned by the curtain SYSTEM families -> the family rung)",
+  "[port2024] 1 records adapted to the Revit-2024 schema (2024 class ordinals, confirmed field maps; rvt.genesis.port2024); 0 record(s) of classes 2024 lacks emit nothing on 2024"
+ ],
+ "build_info": {
+  "our_scales": [
+   10,
+   20,
+   50,
+   100,
+   200,
+   500
+  ],
+  "port2024": {
+   "adapted": 1,
+   "dropped_missing_2024": []
+  }
+ },
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 1,
+  "by_match": {
+   "role": 1
+  },
+  "landed_by_class": {
+   "PenWidthTableElem": 1
+  },
+  "dropped_ours": 0,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "protected_slots_from_earlier_rungs": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 0,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 1,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 1,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_element",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3295,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.9
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   2
+  ],
+  "records_changed_count": 1,
+  "records_changed_by_seq": {
+   "102": 1
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 1,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 2,
+    "len_ours": 1223,
+    "len_parent": 1223,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PenWidthTableElem",
+      "class_parent": "PenWidthTableElem"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.00032808398950131233"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0008202099737532807"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.001148293963254593"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.0016404199475065614"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.002296587926509186"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.003280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.004593175853018372"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.006561679790026246"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.009186351706036744"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.013123359580052492"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[13]",
+      "ours": "0.01968503937007874",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[14]",
+      "ours": "0.022965879265091863",
+      "parent": "0.026246719160104983"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[15]",
+      "ours": "0.026246719160104987",
+      "parent": "0.03280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.0005905511811023622"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0008202099737532807"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.001148293963254593"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.002296587926509186"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.003280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.004593175853018372"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026246"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.009186351706036744"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.013123359580052492"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.026246719160104983"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[13]",
+      "ours": "0.01968503937007874",
+      "parent": "0.029527559055118106"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[14]",
+      "ours": "0.022965879265091863",
+      "parent": "0.029527559055118106"
+     }
+    ]
+   }
+  ],
+  "exceptions": [],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 1,
+  "slots_with_registry_surface": 1,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 2,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PenWidthTableInfo.m_penWidthTableElemId"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 1,
+  "pairs_ok": 1,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 2,
+   "class": "PenWidthTableElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 23,
+   "records": 9888,
+   "elements_decoded": 3295,
+   "decode_failures": 1,
+   "refs_checked": 42134
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4_2024/Y1_2024.rvt",
+  "elements": 3295,
+  "file_size": 831488,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "classes_top": {
+   "GStyleElem": 1442,
+   "ParamElemExternal": 466,
+   "CategoryElem": 209,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "RbsWireInsulationType": 26,
+   "MaterialElem": 23,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 10,
+   "SectionAttributes": 10,
+   "PenWidthTableElem": 9,
+   "FillPatternElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "ColorFillSchema": 9,
+   "Viewport": 8
+  }
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.3,
+ "correspondence": [
+  {
+   "ours_tmp": 1500000,
+   "slot": 2,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  }
+ ],
+ "correspondence_note": "all pairs stored",
+ "landed_slots": [
+  {
+   "slot": 2,
+   "class": "PenWidthTableElem",
+   "match": "role",
+   "ours_tmp": 1500000
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": [],
+  "meaning": "our records that found NO in-place slot in the parent (the parent lacks an element of the class, or fewer than we build); landing them requires the ADD path -- deliberately NOT this ladder's variable"
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {},
+  "meaning": "the parent's candidate elements our set did not land on (surplus sample instances / companions): left EXACTLY as they were -- residue for the census"
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 831488,
+ "seconds": 2.7
+}

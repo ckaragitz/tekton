@@ -1,0 +1,370 @@
+{
+ "stage": "R9naive",
+ "ladder": "v2",
+ "safe_variant": false,
+ "out": "experiments/genesis/R9naive.rvt",
+ "file_size": 2949120,
+ "seed": 11050,
+ "seed_kept_pinned": 0,
+ "deleted": 11050,
+ "surviving_elements": 2886,
+ "elemtable_before": 13936,
+ "records_removed": {
+  "101": 11050,
+  "102": 11050,
+  "103": 11050
+ },
+ "blocks_before": 213,
+ "blocks_after": 18,
+ "structural_ok": true,
+ "validator": {
+  "ok": false,
+  "errors": 1,
+  "warnings": 1,
+  "error_messages": [
+   "[semantic] references: 877 dangling ElementId reference(s) to elements that do not exist (by field: m_setInsulationIds x125, m_fillPatternElemId x93, m_elemId x86, m_famId x80, first x70, m_calloutAttrId x54). e.g. element 1064656 DBViewPlan.m_dbDrawingId=1064662; element 1064656 DBViewPlan.m_extentElemId=1064657; element 1064656 DBViewPlan.m_sheetViewportElemId=1457043; element 1064656 DBViewPlan"
+  ],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 219,
+   "records": 63042,
+   "elements_decoded": 20961,
+   "decode_failures": 1,
+   "refs_checked": 320254
+  }
+ },
+ "latest_dangling": 3577,
+ "contentdocs_dangling": 0,
+ "pin_evidence": {
+  "naive": true
+ },
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4351
+  ],
+  [
+   "GStyleElem",
+   796
+  ],
+  [
+   "LinearDimString",
+   710
+  ],
+  [
+   "FamilyInstance",
+   497
+  ],
+  [
+   "CategoryElem",
+   475
+  ],
+  [
+   "FontElem",
+   263
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "SketchPlane",
+   179
+  ],
+  [
+   "LinePatternElem",
+   150
+  ],
+  [
+   "VarSketch",
+   140
+  ],
+  [
+   "AppearanceAssetElem",
+   131
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "ParamElemFamily",
+   120
+  ],
+  [
+   "FillPatternElem",
+   116
+  ],
+  [
+   "FamilySymbol",
+   106
+  ],
+  [
+   "LegendComponent",
+   96
+  ],
+  [
+   "MaterialElem",
+   93
+  ],
+  [
+   "SunAndShadowSettings",
+   90
+  ],
+  [
+   "TextNoteAttributes",
+   90
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "Viewport",
+   79
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "LeaderStyle",
+   61
+  ],
+  [
+   "CustomElement",
+   61
+  ],
+  [
+   "TagNoteAttributes",
+   60
+  ],
+  [
+   "DBDrawing",
+   59
+  ],
+  [
+   "PropertySetElement",
+   56
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "FamilySurrogate",
+   50
+  ],
+  [
+   "FamSymSurrogate",
+   50
+  ],
+  [
+   "Family",
+   50
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "SketchGrid",
+   40
+  ],
+  [
+   "ExtentElem",
+   38
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "ConceptualConstructionType",
+   36
+  ]
+ ],
+ "top_survivor_classes": [
+  [
+   "GStyleElem",
+   1387
+  ],
+  [
+   "ParamElemExternal",
+   466
+  ],
+  [
+   "ParamBinding",
+   209
+  ],
+  [
+   "CategoryElem",
+   141
+  ],
+  [
+   "HVACLoadSpaceTypeElem",
+   125
+  ],
+  [
+   "ParamElemElectricalLoadClassification",
+   108
+  ],
+  [
+   "DBViewType",
+   91
+  ],
+  [
+   "HVACLoadBuildingTypeElem",
+   33
+  ],
+  [
+   "SketchPlane",
+   30
+  ],
+  [
+   "HVACLoadScheduleElem",
+   27
+  ],
+  [
+   "BuildingOperatingYearSchedule",
+   27
+  ],
+  [
+   "RefPlane",
+   21
+  ],
+  [
+   "ElectricalDemandFactorDefinition",
+   21
+  ],
+  [
+   "ElectricalLoadClassification",
+   18
+  ],
+  [
+   "PipeSegment",
+   15
+  ],
+  [
+   "BrowserOrganization",
+   11
+  ],
+  [
+   "ColorFillSchema",
+   10
+  ],
+  [
+   "PenWidthTableElem",
+   9
+  ],
+  [
+   "Level",
+   9
+  ],
+  [
+   "LoadNatureElem",
+   8
+  ],
+  [
+   "LoadCaseElem",
+   8
+  ],
+  [
+   "ParamElemProject",
+   8
+  ],
+  [
+   "ParameterFilterElement",
+   7
+  ],
+  [
+   "AreaSchemePlanTopologies",
+   6
+  ],
+  [
+   "NumberingSchema",
+   3
+  ],
+  [
+   "PrintSettings",
+   3
+  ],
+  [
+   "WorksharingViewModeSettings",
+   2
+  ],
+  [
+   "AreaMeasureElem",
+   2
+  ],
+  [
+   "BasePoint",
+   2
+  ],
+  [
+   "GeoSite",
+   2
+  ],
+  [
+   "GeoLocation",
+   2
+  ],
+  [
+   "ModelGraphicsStyle",
+   2
+  ],
+  [
+   "RevisionNumberingSequence",
+   2
+  ],
+  [
+   "DBViewProject",
+   1
+  ],
+  [
+   "AssemblyTracker",
+   1
+  ],
+  [
+   "RvtLinkInstanceAppearanceParentElem",
+   1
+  ],
+  [
+   "SketchGridAppearanceParentElem",
+   1
+  ],
+  [
+   "ConstructionSetProject",
+   1
+  ],
+  [
+   "WallJoinDefaultSetting",
+   1
+  ],
+  [
+   "RbsDuctSizesElem",
+   1
+  ]
+ ],
+ "keep_views": {
+  "1064656": "Level 1",
+  "1454508": "{3D}"
+ },
+ "seconds": 5.8
+}

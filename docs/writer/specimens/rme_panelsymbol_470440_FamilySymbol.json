@@ -1,0 +1,4280 @@
+{
+ "element_id": 470440,
+ "note": "the panel's symbol",
+ "elemtable": {
+  "found_in_ElemTable": true,
+  "raw_40_bytes_hex": "a8 2d 07 00 00 00 00 00 46 02 00 00 18 03 00 00 ff ff ff ff a8 2d 07 00 00 00 00 00 ff ff ff ff ff ff ff ff 00 00 00 00",
+  "fields": {
+   "+0 u64 m_history.m_originalElementId": 470440,
+   "+8 u32 m_history.m_creationDate (EpisodeId)": 582,
+   "+12 u32 m_history.m_lastModificationDate (EpisodeId)": 792,
+   "+16 u32 m_history.m_lastUserModificationDate": 4294967295,
+   "+20 u64 m_id": 470440,
+   "+28 u64 m_OwningElementId": -1,
+   "+36 u32 m_partitionId": 0
+  }
+ },
+ "seq101": {
+  "seq": 101,
+  "segment_offset": 1308990,
+  "header_bytes": 12,
+  "framing": "i64 id + u32 psize + payload + u32 psize",
+  "elem_id": 470440,
+  "stamp": null,
+  "psize": 313,
+  "class_id_hex": "0x05e5",
+  "object_bytes": 311,
+  "total_record_bytes": 329,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 70 77 e1 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff",
+  "class": "ElementHeader",
+  "clean": true,
+  "consumed_of_object": "311/311",
+  "value": {
+   "m_regenHistory": {
+    "m_historyMap": []
+   },
+   "m_categroryId": -2001040,
+   "m_familyId": -1,
+   "m_ownerViewId": -1,
+   "m_designOptionId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_miscId": -1,
+   "m_viewRules": {
+    "m_nVisibleViewFlags": -32768
+   },
+   "m_abFlags4Bytes": 2099640,
+   "m_classDef": {
+    "m_ref": {
+     "classref": "FamilySymbol"
+    }
+   },
+   "m_pBBox": {
+    "ptr_class": "Outline",
+    "pid": -1,
+    "value": {
+     "m_minmax": [
+      [
+       -0.833333333,
+       -3.583333333,
+       -0.0
+      ],
+      [
+       0.833333333,
+       0.833333333,
+       0.479330709
+      ]
+     ]
+    }
+   },
+   "m_parents": {
+    "ptr_class": "ElementParents",
+    "pid": -1,
+    "value": {
+     "m_deletion": [
+      -1155100,
+      -1140142,
+      -1140140,
+      -1140083,
+      -1140082,
+      -1140081,
+      -1140079,
+      -1001320,
+      454674,
+      455334,
+      455335,
+      455336,
+      455337,
+      455338,
+      455339,
+      455340,
+      455409,
+      470440
+     ],
+     "m_regenOnly": [
+      124
+     ],
+     "m_regenWildcards": [],
+     "m_nonDetermRegenChildren": [],
+     "m_dependencyParents": [],
+     "m_appearanceParents": [],
+     "m_deferredParents": [],
+     "m_deferredPropagationParents": [],
+     "m_computedParametersParents": [],
+     "m_hasNonDetermRegenChildren": false
+    }
+   }
+  }
+ },
+ "category": {
+  "id": -2001040,
+  "builtin": "OST_ElectricalEquipment"
+ },
+ "classDef": "FamilySymbol",
+ "seq102": {
+  "seq": 102,
+  "segment_offset": 9793010,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 470440,
+  "stamp": 1022788597,
+  "psize": 5027,
+  "class_id_hex": "0x07e6",
+  "object_bytes": 5025,
+  "total_record_bytes": 5047,
+  "size_trailer_ok": true,
+  "payload_head_hex": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff f6 08 ff ff ff ff f7 08 00 00 00 00",
+  "class": "FamilySymbol",
+  "clean": true,
+  "consumed_of_object": "5025/5025",
+  "value": {
+   "m_pParamValueSetDouble": null,
+   "m_pParamValueSetInt": null,
+   "m_pParamValueSetAString": null,
+   "m_pParamValueSetElementId": null,
+   "m_geomSteps": {
+    "ptr_class": "GeomStepList",
+    "pid": -1,
+    "value": {
+     "m_nonBRepGList": [],
+     "m_bRepFormGList": [
+      {
+       "ptr_class": "BaseFamilySymbolGStep",
+       "pid": -1,
+       "value": {
+        "m_faceHistTable": [
+         {
+          "m_id": 27,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            0,
+            1115
+           ]
+          }
+         },
+         {
+          "m_id": 28,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            0,
+            1116
+           ]
+          }
+         },
+         {
+          "m_id": 29,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            0,
+            1117
+           ]
+          }
+         },
+         {
+          "m_id": 30,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            0,
+            1118
+           ]
+          }
+         },
+         {
+          "m_id": 14,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            0,
+            1168
+           ]
+          }
+         },
+         {
+          "m_id": 31,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            0,
+            1202
+           ]
+          }
+         },
+         {
+          "m_id": 9,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            1,
+            1168
+           ]
+          }
+         },
+         {
+          "m_id": 19,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            2,
+            1168
+           ]
+          }
+         },
+         {
+          "m_id": 22,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            5,
+            1168
+           ]
+          }
+         },
+         {
+          "m_id": 24,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            9,
+            1168
+           ]
+          }
+         },
+         {
+          "m_id": 26,
+          "m_faceHist": {
+           "m_keys": [
+            5,
+            13,
+            1168
+           ]
+          }
+         },
+         {
+          "m_id": 0,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            0,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 1,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            1,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 2,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            2,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 3,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            3,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 4,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            4,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 5,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            5,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 6,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            6,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 7,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            7,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 8,
+          "m_faceHist": {
+           "m_keys": [
+            6,
+            8,
+            -1
+           ]
+          }
+         }
+        ],
+        "m_curveHistTableSet": [
+         {
+          "m_id": 32,
+          "m_curveHist": {
+           "m_keys": [
+            65,
+            1168,
+            -1,
+            -1,
+            -1
+           ]
+          }
+         }
+        ],
+        "m_edgeHistTable": [
+         {
+          "m_id": 10,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            3,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 18,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            4,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 11,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            6,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 17,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            7,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 21,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            8,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 12,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            10,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 16,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            11,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 23,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            12,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 13,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            14,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 15,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            15,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 25,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            16,
+            1168,
+            -1
+           ]
+          }
+         },
+         {
+          "m_id": 20,
+          "m_edgeHist": {
+           "m_keys": [
+            3,
+            17,
+            1168,
+            -1
+           ]
+          }
+         }
+        ],
+        "m_edgeHistTableReverse": [],
+        "m_id": 1,
+        "m_version": 4,
+        "m_flags": 761725,
+        "m_pElem": {
+         "weakref": 2
+        },
+        "m_oExtraDatas": null
+       }
+      }
+     ],
+     "m_bRepAdjustGList": [],
+     "m_bRepCutOutGList": [],
+     "m_bRepPostCutOutGList": [],
+     "m_bRepTweakGList": [],
+     "m_bRepFormSnapshot": null,
+     "m_bRepAdjustSnapshot": null,
+     "m_bRepCutOutSnapshot": null,
+     "m_bRepPostCutOutSnapshot": null,
+     "m_pElem": {
+      "weakref": 2
+     },
+     "m_latestGStepTypeInPrevRegenCycle": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "m_idCounter": 2,
+     "m_flags": 9
+    }
+   },
+   "m_pGeomTable": {
+    "ptr_class": "GeomTable",
+    "pid": -1,
+    "value": {
+     "m_refPntMirrored": false,
+     "m_table": [
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      },
+      {
+       "m_geomGeneratorId": 1
+      }
+     ],
+     "m_bigTableOwner": null,
+     "m_materialMarkers": [],
+     "m_faceTypeMarkers": []
+    }
+   },
+   "m_constrInfo": [],
+   "m_cellList": {
+    "ptr_class": "CellList",
+    "pid": -1,
+    "value": {
+     "m_cells": [
+      {
+       "ptr_class": "FamilySymbolPatternHelper",
+       "pid": -1,
+       "value": {
+        "m_PatternPositionMap": [],
+        "m_substituteFaceMap": []
+       }
+      }
+     ]
+    }
+   },
+   "m_docAccess": {
+    "m_pDoc": {
+     "weakref": 1
+    }
+   },
+   "m_id": 470440,
+   "m_assocLevelId": -1,
+   "m_famId": -1,
+   "m_unplacedOwnerId": -1,
+   "m_ownerDBViewId": -1,
+   "m_createdPhaseId": -1,
+   "m_demolishedPhaseId": -1,
+   "m_designOptionId": -1,
+   "m_locked": false,
+   "m_moribund": false,
+   "m_dummy": false,
+   "m_symbolInfo": {
+    "ptr_class": "SymbolInfo",
+    "pid": -1,
+    "value": {
+     "m_name": ""
+    }
+   },
+   "m_renderStyleId": -1,
+   "m_previewElemId": -1,
+   "m_pCutLoops": [],
+   "m_cutDirs": [],
+   "m_cutIndices": [],
+   "m_pParams": {
+    "ptr_class": "FamilyParams",
+    "pid": -1,
+    "value": {
+     "m_params": [
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 1.666666667,
+       "m_elemId": -1,
+       "m_paramId": 455335,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1140142,
+       "m_int": -1,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "Surface",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1140081,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1140079,
+       "m_int": 42,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 100.0,
+       "m_elemId": -1,
+       "m_paramId": -1140082,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 1.0,
+       "m_elemId": -1,
+       "m_paramId": -1140140,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": {
+        "ptr_class": "FunctionExpression",
+        "pid": -1,
+        "value": {
+         "m_function": 10,
+         "m_subexpressions": [
+          {
+           "ptr_class": "BinaryOperatorExpression",
+           "pid": -1,
+           "value": {
+            "m_binaryOperator": 7,
+            "m_pLeftSubexpression": {
+             "ptr_class": "ParameterExpression",
+             "pid": -1,
+             "value": {
+              "m_paramId": -1140079
+             }
+            },
+            "m_pRightSubexpression": {
+             "ptr_class": "NumberConstantExpression",
+             "pid": -1,
+             "value": {
+              "m_value": 12.0,
+              "m_specTypeId": {
+               "m_typeId": "autodesk.spec.aec:number-1.0.0"
+              }
+             }
+            }
+           }
+          },
+          {
+           "ptr_class": "FunctionExpression",
+           "pid": -1,
+           "value": {
+            "m_function": 10,
+            "m_subexpressions": [
+             {
+              "ptr_class": "BinaryOperatorExpression",
+              "pid": -1,
+              "value": {
+               "m_binaryOperator": 7,
+               "m_pLeftSubexpression": {
+                "ptr_class": "ParameterExpression",
+                "pid": -1,
+                "value": {
+                 "m_paramId": -1140079
+                }
+               },
+               "m_pRightSubexpression": {
+                "ptr_class": "NumberConstantExpression",
+                "pid": -1,
+                "value": {
+                 "m_value": 24.0,
+                 "m_specTypeId": {
+                  "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                 }
+                }
+               }
+              }
+             },
+             {
+              "ptr_class": "FunctionExpression",
+              "pid": -1,
+              "value": {
+               "m_function": 10,
+               "m_subexpressions": [
+                {
+                 "ptr_class": "BinaryOperatorExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_binaryOperator": 7,
+                  "m_pLeftSubexpression": {
+                   "ptr_class": "ParameterExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_paramId": -1140079
+                   }
+                  },
+                  "m_pRightSubexpression": {
+                   "ptr_class": "NumberConstantExpression",
+                   "pid": -1,
+                   "value": {
+                    "m_value": 30.0,
+                    "m_specTypeId": {
+                     "m_typeId": "autodesk.spec.aec:number-1.0.0"
+                    }
+                   }
+                  }
+                 }
+                },
+                {
+                 "ptr_class": "ParameterExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_paramId": 455340
+                 }
+                },
+                {
+                 "ptr_class": "ParameterExpression",
+                 "pid": -1,
+                 "value": {
+                  "m_paramId": 455339
+                 }
+                }
+               ]
+              }
+             },
+             {
+              "ptr_class": "ParameterExpression",
+              "pid": -1,
+              "value": {
+               "m_paramId": 455338
+              }
+             }
+            ]
+           }
+          },
+          {
+           "ptr_class": "ParameterExpression",
+           "pid": -1,
+           "value": {
+            "m_paramId": 455337
+           }
+          }
+         ]
+        }
+       },
+       "m_value": 4.416666667,
+       "m_elemId": -1,
+       "m_paramId": 455334,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1155100,
+       "m_int": -1,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "Type 1",
+       "m_oExpression": null,
+       "m_value": 0.0,
+       "m_elemId": -1,
+       "m_paramId": -1140083,
+       "m_int": 0,
+       "m_instance": true,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 0.479330709,
+       "m_elemId": -1,
+       "m_paramId": 455336,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 3.937007874,
+       "m_elemId": -1,
+       "m_paramId": -1001320,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 4.416666667,
+       "m_elemId": -1,
+       "m_paramId": 455340,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 4.166666667,
+       "m_elemId": -1,
+       "m_paramId": 455339,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 4.166666667,
+       "m_elemId": -1,
+       "m_paramId": 455338,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      },
+      {
+       "m_str": "",
+       "m_oExpression": null,
+       "m_value": 4.166666667,
+       "m_elemId": -1,
+       "m_paramId": 455337,
+       "m_int": 0,
+       "m_instance": false,
+       "m_reporting": false
+      }
+     ],
+     "m_geomRefHandles": {
+      "m_offsetGeomMap": []
+     }
+    }
+   },
+   "m_controlIcons": [],
+   "m_controlIconTags": [],
+   "m_textNoteData": [],
+   "m_tagNoteData": [],
+   "m_refs": [],
+   "m_refFaces": [
+    {
+     "ptr_class": "Face",
+     "pid": 3,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 0,
+       "m_controlCommand": 0,
+       "m_flags": 2622180
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 17,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -3.583333333,
+           -0.0
+          ],
+          [
+           0.833333333,
+           0.479330709
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         -0.833333333,
+         0.0,
+         0.0
+        ],
+        "m_xVec": [
+         0.0,
+         1.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 4,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 1,
+       "m_controlCommand": 0,
+       "m_flags": 2622116
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 18,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -3.583333333,
+           -0.0
+          ],
+          [
+           0.833333333,
+           0.479330709
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         0.0,
+         0.0,
+         -0.0
+        ],
+        "m_xVec": [
+         0.0,
+         1.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 5,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 2,
+       "m_controlCommand": 0,
+       "m_flags": 2622180
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 19,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -3.583333333,
+           -0.0
+          ],
+          [
+           0.833333333,
+           0.479330709
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         0.833333333,
+         0.0,
+         0.0
+        ],
+        "m_xVec": [
+         0.0,
+         1.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 6,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 3,
+       "m_controlCommand": 0,
+       "m_flags": 2622180
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 20,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -0.0,
+           -0.833333333
+          ],
+          [
+           0.479330709,
+           0.833333333
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         0.0,
+         -3.583333333,
+         0.0
+        ],
+        "m_xVec": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "m_yVec": [
+         1.0,
+         0.0,
+         0.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 7,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 4,
+       "m_controlCommand": 0,
+       "m_flags": 2622116
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 21,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -0.833333333,
+           -0.0
+          ],
+          [
+           0.833333333,
+           0.479330709
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         0.0,
+         -1.375,
+         -0.0
+        ],
+        "m_xVec": [
+         1.0,
+         0.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         -0.0,
+         1.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 8,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 5,
+       "m_controlCommand": 0,
+       "m_flags": 2622180
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 22,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -0.0,
+           -0.833333333
+          ],
+          [
+           0.479330709,
+           0.833333333
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         0.0,
+         0.833333333,
+         0.0
+        ],
+        "m_xVec": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "m_yVec": [
+         1.0,
+         0.0,
+         0.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 9,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 6,
+       "m_controlCommand": 0,
+       "m_flags": 2622180
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 23,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -0.833333333,
+           -3.583333333
+          ],
+          [
+           0.833333333,
+           0.833333333
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         0.0,
+         0.0,
+         -0.0
+        ],
+        "m_xVec": [
+         1.0,
+         0.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 10,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 7,
+       "m_controlCommand": 0,
+       "m_flags": 2622116
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 24,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -0.833333333,
+           -3.583333333
+          ],
+          [
+           0.833333333,
+           0.833333333
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         0.0,
+         0.0,
+         -0.0
+        ],
+        "m_xVec": [
+         1.0,
+         0.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 11,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 8,
+       "m_controlCommand": 0,
+       "m_flags": 2622180
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 25,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -0.833333333,
+           -3.583333333
+          ],
+          [
+           0.833333333,
+           0.833333333
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         0.0,
+         0.0,
+         0.479330709
+        ],
+        "m_xVec": [
+         1.0,
+         0.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 12,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 27,
+       "m_controlCommand": 0,
+       "m_flags": 2621668
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 26,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -8.583333333,
+           -4.0
+          ],
+          [
+           -4.166666667,
+           -3.520669291
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         -0.833333333,
+         5.0,
+         4.0
+        ],
+        "m_xVec": [
+         0.0,
+         1.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 13,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 28,
+       "m_controlCommand": 0,
+       "m_flags": 2621668
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 27,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -8.583333333,
+           -4.0
+          ],
+          [
+           -4.166666667,
+           -3.520669291
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         0.833333333,
+         5.0,
+         4.0
+        ],
+        "m_xVec": [
+         0.0,
+         1.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 14,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 29,
+       "m_controlCommand": 0,
+       "m_flags": 2621668
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 28,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -5.833333333,
+           -4.0
+          ],
+          [
+           -4.166666667,
+           -3.520669291
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         5.0,
+         0.833333333,
+         4.0
+        ],
+        "m_xVec": [
+         1.0,
+         0.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 15,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 30,
+       "m_controlCommand": 0,
+       "m_flags": 2621668
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 29,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -5.833333333,
+           -4.0
+          ],
+          [
+           -4.166666667,
+           -3.520669291
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         5.0,
+         -3.583333333,
+         4.0
+        ],
+        "m_xVec": [
+         1.0,
+         0.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     }
+    },
+    {
+     "ptr_class": "Face",
+     "pid": 16,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": 31,
+       "m_controlCommand": 0,
+       "m_flags": 2621668
+      },
+      "m_pFirstLoop": null,
+      "m_faceRegions": [],
+      "m_pGFilling": null,
+      "m_oBackgroundFilling": null,
+      "m_renderStyleId": -1,
+      "m_cutType": 0,
+      "m_faceFlags_v9": 0,
+      "m_pSurf": {
+       "ptr_class": "Plane",
+       "pid": 30,
+       "value": {
+        "m_Envelope": {
+         "m_corners": [
+          [
+           -3.016885461,
+           -15.833333333
+          ],
+          [
+           -1.350218794,
+           -11.416666667
+          ]
+         ]
+        },
+        "m_orientFlag": true,
+        "m_origin": [
+         -2.183552128,
+         -15.0,
+         0.479330709
+        ],
+        "m_xVec": [
+         -1.0,
+         0.0,
+         0.0
+        ],
+        "m_yVec": [
+         0.0,
+         -1.0,
+         0.0
+        ]
+       }
+      }
+     }
+    }
+   ],
+   "m_handleMgr": {
+    "m_handleArr": [],
+    "m_handleDimArr": [],
+    "m_handleMap": []
+   },
+   "m_pMoveRestrictions": {
+    "ptr_class": "Matrix",
+    "pid": -1,
+    "value": {
+     "m_nRows": 1,
+     "m_ncols": 3,
+     "m_bUseSingleArray": true,
+     "m_arr": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "m_rows": []
+    }
+   },
+   "m_closurePlanes": [],
+   "m_gTagDirFlagsPairs": [],
+   "m_nonBRepGeomPtrs": [],
+   "m_oArrMembHistTable": null,
+   "m_outline": {
+    "m_minmax": [
+     [
+      -0.833333333,
+      -3.583333333,
+      -0.0
+     ],
+     [
+      0.833333333,
+      0.833333333,
+      0.479330709
+     ]
+    ]
+   },
+   "m_origin": [
+    0.0,
+    -1.375,
+    -0.0
+   ],
+   "m_rotCenter": [
+    0.0,
+    -1.375,
+    -0.0
+   ],
+   "m_cutPlaneHeights": [
+    0.0,
+    0.0
+   ],
+   "m_familyId": 454674,
+   "m_masterId": 455409,
+   "m_slaveTrackerId": -1,
+   "m_partitionSurrogateId": -1,
+   "m_ownerInstanceId": -1,
+   "m_stretchPrototypeId": -1,
+   "m_stretchCount": 0,
+   "m_geomTagOfDummyCurveRef": -1,
+   "m_idxOfFirstCoreLayerRefFace": -1,
+   "m_hasParamDefValue": 0,
+   "m_faceBasedHostNormal": 0,
+   "m_mirrored": false,
+   "m_bHostLayersFlippedY": false,
+   "m_active": true,
+   "m_preview": false,
+   "m_hasRotCenter": false,
+   "m_visibilityIsOld": false,
+   "m_bMayBeStretchable": false,
+   "m_bConfirmedStretchable": false,
+   "m_bHasNothingVisible": false,
+   "m_bCantBeStretched": false,
+   "m_labelParamTagInfo": [],
+   "m_complexCutRefIds": [],
+   "m_complexCutGeoms": [],
+   "m_dummyHostGeoms": [],
+   "m_dummyHostCutFaceTags": [],
+   "m_dummyHostInsertionFaceTags": [],
+   "m_strongRefs": [
+    {
+     "m_intermediateTags": [],
+     "m_oNextRef": null,
+     "m_elemId": 470440,
+     "m_ownerDBViewId": -1,
+     "m_foreignElemIdRef": {
+      "m_id64": -1
+     },
+     "m_geomTag": 1,
+     "m_subTag": -1,
+     "m_famMemberIdx": -1,
+     "m_flags": 0,
+     "m_isLazyRef": false
+    },
+    {
+     "m_intermediateTags": [],
+     "m_oNextRef": null,
+     "m_elemId": 470440,
+     "m_ownerDBViewId": -1,
+     "m_foreignElemIdRef": {
+      "m_id64": -1
+     },
+     "m_geomTag": 4,
+     "m_subTag": -1,
+     "m_famMemberIdx": -1,
+     "m_flags": 0,
+     "m_isLazyRef": false
+    },
+    {
+     "m_intermediateTags": [],
+     "m_oNextRef": null,
+     "m_elemId": 470440,
+     "m_ownerDBViewId": -1,
+     "m_foreignElemIdRef": {
+      "m_id64": -1
+     },
+     "m_geomTag": 7,
+     "m_subTag": -1,
+     "m_famMemberIdx": -1,
+     "m_flags": 0,
+     "m_isLazyRef": false
+    }
+   ],
+   "m_setOfInPlaceTotalParentIds": [],
+   "m_notRotatedNodes": [],
+   "m_lightSrcParamIds": [],
+   "m_lightSrcGReps": [],
+   "m_lightSrcValues": [],
+   "m_arrProfileLoops": [],
+   "m_pretaggingGNodes": [],
+   "m_pretaggingTranslations": [],
+   "m_arrConnectorData": [
+    {
+     "m_trf": {
+      "m_3x3": [
+       [
+        1.0,
+        0.0,
+        -0.0
+       ],
+       [
+        0.0,
+        0.0,
+        1.0
+       ],
+       [
+        0.0,
+        -1.0,
+        0.0
+       ]
+      ],
+      "m_or": [
+       0.0,
+       0.833333333,
+       0.239665354
+      ]
+     },
+     "m_index": 1
+    }
+   ],
+   "m_arrFamSymRegenData": [],
+   "m_flippedGeomRefHandlesSet": [],
+   "m_subInstData": [],
+   "m_subElemData": [],
+   "m_imposterLightTrfs": [],
+   "m_oFamMoveRestrictions": null,
+   "m_geomTag2MaterialId": [
+    {
+     "first": 32,
+     "second": -1
+    }
+   ]
+  }
+ },
+ "seq103": {
+  "seq": 103,
+  "segment_offset": 7768332,
+  "header_bytes": 16,
+  "framing": "i64 id + u32 stamp + u32 psize + payload + u32 psize",
+  "elem_id": 470440,
+  "stamp": 3368193696,
+  "psize": 5404,
+  "class_id_hex": "0x089e",
+  "object_bytes": 5402,
+  "total_record_bytes": 5424,
+  "size_trailer_ok": true,
+  "payload_head_hex": "7c 00 00 00 00 00 00 00 a8 2d 07 00 00 00 00 00 04 80 08 00 03 00 00 00 03 00 00 00 a6 08 04 00",
+  "class": "GElement",
+  "clean": true,
+  "consumed_of_object": "5402/5402",
+  "value": {
+   "m_GInfo": {
+    "m_categoryId": 124,
+    "m_tag": 470440,
+    "m_controlCommand": 0,
+    "m_flags": 557060
+   },
+   "m_subNodes": [
+    {
+     "ptr_class": "GFilter",
+     "pid": 3,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": -1,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "m_subNodes": [
+       {
+        "ptr_class": "GFilter",
+        "pid": 6,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": -1,
+          "m_controlCommand": 0,
+          "m_flags": 557060
+         },
+         "m_subNodes": [
+          {
+           "ptr_class": "GGroup",
+           "pid": 10,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 1,
+             "m_controlCommand": 0,
+             "m_flags": 168329892
+            },
+            "m_subNodes": [
+             {
+              "ptr_class": "GFilter",
+              "pid": 31,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 55,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   0.479330709
+                  ],
+                  "m_origin": [
+                   0.0,
+                   -3.583333333,
+                   0.479330709
+                  ],
+                  "m_dirVec": [
+                   -0.0,
+                   0.0,
+                   -1.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   0.0,
+                   -1.0,
+                   0.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             },
+             {
+              "ptr_class": "GFilter",
+              "pid": 32,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 56,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   4.416666667
+                  ],
+                  "m_origin": [
+                   0.0,
+                   0.833333333,
+                   0.479330709
+                  ],
+                  "m_dirVec": [
+                   0.0,
+                   -1.0,
+                   0.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   0.0,
+                   0.0,
+                   1.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             },
+             {
+              "ptr_class": "GFilter",
+              "pid": 33,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 57,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   0.479330709
+                  ],
+                  "m_origin": [
+                   0.0,
+                   0.833333333,
+                   -0.0
+                  ],
+                  "m_dirVec": [
+                   0.0,
+                   0.0,
+                   1.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   0.0,
+                   1.0,
+                   0.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             },
+             {
+              "ptr_class": "GFilter",
+              "pid": 34,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 58,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   4.416666667
+                  ],
+                  "m_origin": [
+                   0.0,
+                   -3.583333333,
+                   -0.0
+                  ],
+                  "m_dirVec": [
+                   0.0,
+                   1.0,
+                   0.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   -0.0,
+                   0.0,
+                   -1.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             }
+            ]
+           }
+          }
+         ],
+         "m_oConditions": [
+          {
+           "ptr_class": "GConditionDir",
+           "pid": -1,
+           "value": {
+            "m_comp": 0,
+            "m_dir": [
+             1.0,
+             0.0,
+             -0.0
+            ],
+            "m_negateDirCondition": false
+           }
+          }
+         ],
+         "m_bIsNestedDetailFamily": false
+        }
+       },
+       {
+        "ptr_class": "GFilter",
+        "pid": 7,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": -1,
+          "m_controlCommand": 0,
+          "m_flags": 557060
+         },
+         "m_subNodes": [
+          {
+           "ptr_class": "GGroup",
+           "pid": 11,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 7,
+             "m_controlCommand": 0,
+             "m_flags": 168329892
+            },
+            "m_subNodes": [
+             {
+              "ptr_class": "GFilter",
+              "pid": 35,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 59,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   4.416666667
+                  ],
+                  "m_origin": [
+                   -0.833333333,
+                   0.833333333,
+                   -0.0
+                  ],
+                  "m_dirVec": [
+                   0.0,
+                   -1.0,
+                   -0.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   -1.0,
+                   0.0,
+                   -0.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             },
+             {
+              "ptr_class": "GFilter",
+              "pid": 36,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 60,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   1.666666667
+                  ],
+                  "m_origin": [
+                   0.833333333,
+                   0.833333333,
+                   -0.0
+                  ],
+                  "m_dirVec": [
+                   -1.0,
+                   0.0,
+                   -0.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   0.0,
+                   1.0,
+                   0.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             },
+             {
+              "ptr_class": "GFilter",
+              "pid": 37,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 61,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   4.416666667
+                  ],
+                  "m_origin": [
+                   0.833333333,
+                   -3.583333333,
+                   -0.0
+                  ],
+                  "m_dirVec": [
+                   0.0,
+                   1.0,
+                   0.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   1.0,
+                   0.0,
+                   0.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             },
+             {
+              "ptr_class": "GFilter",
+              "pid": 38,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 62,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   1.666666667
+                  ],
+                  "m_origin": [
+                   -0.833333333,
+                   -3.583333333,
+                   -0.0
+                  ],
+                  "m_dirVec": [
+                   1.0,
+                   0.0,
+                   0.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   0.0,
+                   -1.0,
+                   -0.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             }
+            ]
+           }
+          }
+         ],
+         "m_oConditions": [
+          {
+           "ptr_class": "GConditionDir",
+           "pid": -1,
+           "value": {
+            "m_comp": 0,
+            "m_dir": [
+             -0.0,
+             -0.0,
+             1.0
+            ],
+            "m_negateDirCondition": false
+           }
+          }
+         ],
+         "m_bIsNestedDetailFamily": false
+        }
+       },
+       {
+        "ptr_class": "GFilter",
+        "pid": 8,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": -1,
+          "m_controlCommand": 0,
+          "m_flags": 557060
+         },
+         "m_subNodes": [
+          {
+           "ptr_class": "GGroup",
+           "pid": 12,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 4,
+             "m_controlCommand": 0,
+             "m_flags": 168329892
+            },
+            "m_subNodes": [
+             {
+              "ptr_class": "GFilter",
+              "pid": 39,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 63,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   0.479330709
+                  ],
+                  "m_origin": [
+                   -0.833333333,
+                   -1.375,
+                   0.479330709
+                  ],
+                  "m_dirVec": [
+                   0.0,
+                   0.0,
+                   -1.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   -1.0,
+                   0.0,
+                   0.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             },
+             {
+              "ptr_class": "GFilter",
+              "pid": 40,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 64,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   1.666666667
+                  ],
+                  "m_origin": [
+                   0.833333333,
+                   -1.375,
+                   0.479330709
+                  ],
+                  "m_dirVec": [
+                   -1.0,
+                   0.0,
+                   0.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   0.0,
+                   -0.0,
+                   1.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             },
+             {
+              "ptr_class": "GFilter",
+              "pid": 41,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 65,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   0.479330709
+                  ],
+                  "m_origin": [
+                   0.833333333,
+                   -1.375,
+                   -0.0
+                  ],
+                  "m_dirVec": [
+                   0.0,
+                   -0.0,
+                   1.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   1.0,
+                   0.0,
+                   0.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             },
+             {
+              "ptr_class": "GFilter",
+              "pid": 42,
+              "value": {
+               "m_GInfo": {
+                "m_categoryId": -1,
+                "m_tag": -1,
+                "m_controlCommand": 0,
+                "m_flags": 557572
+               },
+               "m_subNodes": [
+                {
+                 "ptr_class": "GLine",
+                 "pid": 66,
+                 "value": {
+                  "m_GInfo": {
+                   "m_categoryId": -1,
+                   "m_tag": -1,
+                   "m_controlCommand": 0,
+                   "m_flags": 17334276
+                  },
+                  "m_endParams": [
+                   0.0,
+                   1.666666667
+                  ],
+                  "m_origin": [
+                   -0.833333333,
+                   -1.375,
+                   -0.0
+                  ],
+                  "m_dirVec": [
+                   1.0,
+                   0.0,
+                   0.0
+                  ]
+                 }
+                }
+               ],
+               "m_oConditions": [
+                {
+                 "ptr_class": "GConditionDir",
+                 "pid": -1,
+                 "value": {
+                  "m_comp": 10,
+                  "m_dir": [
+                   0.0,
+                   0.0,
+                   -1.0
+                  ],
+                  "m_negateDirCondition": false
+                 }
+                }
+               ],
+               "m_bIsNestedDetailFamily": false
+              }
+             }
+            ]
+           }
+          }
+         ],
+         "m_oConditions": [
+          {
+           "ptr_class": "GConditionDir",
+           "pid": -1,
+           "value": {
+            "m_comp": 0,
+            "m_dir": [
+             0.0,
+             -1.0,
+             -0.0
+            ],
+            "m_negateDirCondition": false
+           }
+          }
+         ],
+         "m_bIsNestedDetailFamily": false
+        }
+       }
+      ],
+      "m_oConditions": [],
+      "m_bIsNestedDetailFamily": false
+     }
+    },
+    {
+     "ptr_class": "GFilter",
+     "pid": 4,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": -1,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "m_subNodes": [
+       {
+        "ptr_class": "Geometry",
+        "pid": 9,
+        "value": {
+         "m_GInfo": {
+          "m_categoryId": -1,
+          "m_tag": -1,
+          "m_controlCommand": 32768,
+          "m_flags": 573444
+         },
+         "m_pFaces": [
+          {
+           "ptr_class": "Face",
+           "pid": 13,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 9,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFirstLoop": {
+             "ptr_class": "EdgeLoop",
+             "pid": 43,
+             "value": {
+              "m_GInfo": {
+               "m_categoryId": -1,
+               "m_tag": -1,
+               "m_controlCommand": 0,
+               "m_flags": 524292
+              },
+              "m_nextLoop": null,
+              "m_pFace": {
+               "weakref": 13
+              },
+              "m_next": {
+               "weakref": 19
+              },
+              "m_prev": {
+               "weakref": 22
+              },
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 -1.666666667,
+                 -0.0
+                ],
+                [
+                 0.0,
+                 4.416666667
+                ]
+               ]
+              },
+              "m_open": false
+             }
+            },
+            "m_faceRegions": [],
+            "m_pGFilling": null,
+            "m_oBackgroundFilling": null,
+            "m_renderStyleId": -1,
+            "m_cutType": 0,
+            "m_faceFlags_v9": 4,
+            "m_pSurf": {
+             "ptr_class": "Plane",
+             "pid": 44,
+             "value": {
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 -1.666666667,
+                 -0.0
+                ],
+                [
+                 0.0,
+                 4.416666667
+                ]
+               ]
+              },
+              "m_orientFlag": true,
+              "m_origin": [
+               -0.833333333,
+               0.833333333,
+               0.479330709
+              ],
+              "m_xVec": [
+               -1.0,
+               0.0,
+               0.0
+              ],
+              "m_yVec": [
+               -0.0,
+               -1.0,
+               0.0
+              ]
+             }
+            }
+           }
+          },
+          {
+           "ptr_class": "Face",
+           "pid": 14,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 14,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFirstLoop": {
+             "ptr_class": "EdgeLoop",
+             "pid": 45,
+             "value": {
+              "m_GInfo": {
+               "m_categoryId": -1,
+               "m_tag": -1,
+               "m_controlCommand": 0,
+               "m_flags": 524292
+              },
+              "m_nextLoop": null,
+              "m_pFace": {
+               "weakref": 14
+              },
+              "m_next": {
+               "weakref": 23
+              },
+              "m_prev": {
+               "weakref": 26
+              },
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 -0.0
+                ],
+                [
+                 1.666666667,
+                 4.416666667
+                ]
+               ]
+              },
+              "m_open": false
+             }
+            },
+            "m_faceRegions": [],
+            "m_pGFilling": null,
+            "m_oBackgroundFilling": null,
+            "m_renderStyleId": -1,
+            "m_cutType": 0,
+            "m_faceFlags_v9": 4,
+            "m_pSurf": {
+             "ptr_class": "Plane",
+             "pid": 46,
+             "value": {
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 -0.0
+                ],
+                [
+                 1.666666667,
+                 4.416666667
+                ]
+               ]
+              },
+              "m_orientFlag": true,
+              "m_origin": [
+               -0.833333333,
+               0.833333333,
+               -0.0
+              ],
+              "m_xVec": [
+               1.0,
+               -0.0,
+               -0.0
+              ],
+              "m_yVec": [
+               -0.0,
+               -1.0,
+               0.0
+              ]
+             }
+            }
+           }
+          },
+          {
+           "ptr_class": "Face",
+           "pid": 15,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 19,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFirstLoop": {
+             "ptr_class": "EdgeLoop",
+             "pid": 47,
+             "value": {
+              "m_GInfo": {
+               "m_categoryId": -1,
+               "m_tag": -1,
+               "m_controlCommand": 0,
+               "m_flags": 524292
+              },
+              "m_nextLoop": null,
+              "m_pFace": {
+               "weakref": 15
+              },
+              "m_next": {
+               "weakref": 19
+              },
+              "m_prev": {
+               "weakref": 28
+              },
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 0.0
+                ],
+                [
+                 0.479330709,
+                 1.666666667
+                ]
+               ]
+              },
+              "m_open": false
+             }
+            },
+            "m_faceRegions": [],
+            "m_pGFilling": null,
+            "m_oBackgroundFilling": null,
+            "m_renderStyleId": -1,
+            "m_cutType": 0,
+            "m_faceFlags_v9": 4,
+            "m_pSurf": {
+             "ptr_class": "Plane",
+             "pid": 48,
+             "value": {
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 0.0
+                ],
+                [
+                 0.479330709,
+                 1.666666667
+                ]
+               ]
+              },
+              "m_orientFlag": true,
+              "m_origin": [
+               0.833333333,
+               0.833333333,
+               0.479330709
+              ],
+              "m_xVec": [
+               0.0,
+               0.0,
+               -1.0
+              ],
+              "m_yVec": [
+               -1.0,
+               0.0,
+               0.0
+              ]
+             }
+            }
+           }
+          },
+          {
+           "ptr_class": "Face",
+           "pid": 16,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 22,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFirstLoop": {
+             "ptr_class": "EdgeLoop",
+             "pid": 49,
+             "value": {
+              "m_GInfo": {
+               "m_categoryId": -1,
+               "m_tag": -1,
+               "m_controlCommand": 0,
+               "m_flags": 524292
+              },
+              "m_nextLoop": null,
+              "m_pFace": {
+               "weakref": 16
+              },
+              "m_next": {
+               "weakref": 20
+              },
+              "m_prev": {
+               "weakref": 29
+              },
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 0.0
+                ],
+                [
+                 0.479330709,
+                 4.416666667
+                ]
+               ]
+              },
+              "m_open": false
+             }
+            },
+            "m_faceRegions": [],
+            "m_pGFilling": null,
+            "m_oBackgroundFilling": null,
+            "m_renderStyleId": -1,
+            "m_cutType": 0,
+            "m_faceFlags_v9": 4,
+            "m_pSurf": {
+             "ptr_class": "Plane",
+             "pid": 50,
+             "value": {
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 0.0
+                ],
+                [
+                 0.479330709,
+                 4.416666667
+                ]
+               ]
+              },
+              "m_orientFlag": true,
+              "m_origin": [
+               -0.833333333,
+               0.833333333,
+               0.479330709
+              ],
+              "m_xVec": [
+               0.0,
+               0.0,
+               -1.0
+              ],
+              "m_yVec": [
+               0.0,
+               -1.0,
+               0.0
+              ]
+             }
+            }
+           }
+          },
+          {
+           "ptr_class": "Face",
+           "pid": 17,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 24,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFirstLoop": {
+             "ptr_class": "EdgeLoop",
+             "pid": 51,
+             "value": {
+              "m_GInfo": {
+               "m_categoryId": -1,
+               "m_tag": -1,
+               "m_controlCommand": 0,
+               "m_flags": 524292
+              },
+              "m_nextLoop": null,
+              "m_pFace": {
+               "weakref": 17
+              },
+              "m_next": {
+               "weakref": 21
+              },
+              "m_prev": {
+               "weakref": 30
+              },
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 0.0
+                ],
+                [
+                 0.479330709,
+                 1.666666667
+                ]
+               ]
+              },
+              "m_open": false
+             }
+            },
+            "m_faceRegions": [],
+            "m_pGFilling": null,
+            "m_oBackgroundFilling": null,
+            "m_renderStyleId": -1,
+            "m_cutType": 0,
+            "m_faceFlags_v9": 4,
+            "m_pSurf": {
+             "ptr_class": "Plane",
+             "pid": 52,
+             "value": {
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 0.0
+                ],
+                [
+                 0.479330709,
+                 1.666666667
+                ]
+               ]
+              },
+              "m_orientFlag": true,
+              "m_origin": [
+               -0.833333333,
+               -3.583333333,
+               0.479330709
+              ],
+              "m_xVec": [
+               0.0,
+               0.0,
+               -1.0
+              ],
+              "m_yVec": [
+               1.0,
+               0.0,
+               0.0
+              ]
+             }
+            }
+           }
+          },
+          {
+           "ptr_class": "Face",
+           "pid": 18,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 26,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFirstLoop": {
+             "ptr_class": "EdgeLoop",
+             "pid": 53,
+             "value": {
+              "m_GInfo": {
+               "m_categoryId": -1,
+               "m_tag": -1,
+               "m_controlCommand": 0,
+               "m_flags": 524292
+              },
+              "m_nextLoop": null,
+              "m_pFace": {
+               "weakref": 18
+              },
+              "m_next": {
+               "weakref": 22
+              },
+              "m_prev": {
+               "weakref": 27
+              },
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 0.0
+                ],
+                [
+                 0.479330709,
+                 4.416666667
+                ]
+               ]
+              },
+              "m_open": false
+             }
+            },
+            "m_faceRegions": [],
+            "m_pGFilling": null,
+            "m_oBackgroundFilling": null,
+            "m_renderStyleId": -1,
+            "m_cutType": 0,
+            "m_faceFlags_v9": 4,
+            "m_pSurf": {
+             "ptr_class": "Plane",
+             "pid": 54,
+             "value": {
+              "m_Envelope": {
+               "m_corners": [
+                [
+                 0.0,
+                 0.0
+                ],
+                [
+                 0.479330709,
+                 4.416666667
+                ]
+               ]
+              },
+              "m_orientFlag": true,
+              "m_origin": [
+               0.833333333,
+               -3.583333333,
+               0.479330709
+              ],
+              "m_xVec": [
+               0.0,
+               0.0,
+               -1.0
+              ],
+              "m_yVec": [
+               -0.0,
+               1.0,
+               0.0
+              ]
+             }
+            }
+           }
+          }
+         ],
+         "m_flags": 7,
+         "m_geometryTag": 32,
+         "m_tessEpsCntrl": {
+          "m_type": 0,
+          "m_TessEpsCntrlVersion": 1
+         },
+         "m_pEdges": [
+          {
+           "ptr_class": "Edge",
+           "pid": 19,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 10,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 13
+             },
+             {
+              "weakref": 15
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 20
+             },
+             {
+              "weakref": 27
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 43
+             },
+             {
+              "weakref": 47
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                -1.666666667,
+                0.0
+               ],
+               [
+                0.0,
+                0.0
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.666666667
+               ]
+              ]
+             }
+            ],
+            "m_flags": 6
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 20,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 11,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 13
+             },
+             {
+              "weakref": 16
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 21
+             },
+             {
+              "weakref": 28
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 19
+             },
+             {
+              "weakref": 49
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                0.0
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                -0.0,
+                4.416666667
+               ],
+               [
+                0.0,
+                4.416666667
+               ]
+              ]
+             }
+            ],
+            "m_flags": 6
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 21,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 12,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 13
+             },
+             {
+              "weakref": 17
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 22
+             },
+             {
+              "weakref": 29
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 20
+             },
+             {
+              "weakref": 51
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                -0.0,
+                4.416666667
+               ],
+               [
+                0.0,
+                0.0
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                -1.666666667,
+                4.416666667
+               ],
+               [
+                0.0,
+                1.666666667
+               ]
+              ]
+             }
+            ],
+            "m_flags": 6
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 22,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 13,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 13
+             },
+             {
+              "weakref": 18
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 43
+             },
+             {
+              "weakref": 30
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 21
+             },
+             {
+              "weakref": 53
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                -1.666666667,
+                4.416666667
+               ],
+               [
+                0.0,
+                0.0
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                -1.666666667,
+                -0.0
+               ],
+               [
+                0.0,
+                4.416666667
+               ]
+              ]
+             }
+            ],
+            "m_flags": 6
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 23,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 15,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 14
+             },
+             {
+              "weakref": 18
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 24
+             },
+             {
+              "weakref": 27
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 45
+             },
+             {
+              "weakref": 30
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                1.666666667,
+                -0.0
+               ],
+               [
+                0.479330709,
+                4.416666667
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                1.666666667,
+                4.416666667
+               ],
+               [
+                0.479330709,
+                0.0
+               ]
+              ]
+             }
+            ],
+            "m_flags": 6
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 24,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 16,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 14
+             },
+             {
+              "weakref": 17
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 25
+             },
+             {
+              "weakref": 30
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 23
+             },
+             {
+              "weakref": 29
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                1.666666667,
+                4.416666667
+               ],
+               [
+                0.479330709,
+                1.666666667
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                0.0,
+                4.416666667
+               ],
+               [
+                0.479330709,
+                0.0
+               ]
+              ]
+             }
+            ],
+            "m_flags": 6
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 25,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 17,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 14
+             },
+             {
+              "weakref": 16
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 26
+             },
+             {
+              "weakref": 29
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 24
+             },
+             {
+              "weakref": 28
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                0.0,
+                4.416666667
+               ],
+               [
+                0.479330709,
+                4.416666667
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                0.0,
+                0.0
+               ],
+               [
+                0.479330709,
+                0.0
+               ]
+              ]
+             }
+            ],
+            "m_flags": 6
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 26,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 18,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 14
+             },
+             {
+              "weakref": 15
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 45
+             },
+             {
+              "weakref": 28
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 25
+             },
+             {
+              "weakref": 27
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                0.0,
+                0.0
+               ],
+               [
+                0.479330709,
+                1.666666667
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                1.666666667,
+                0.0
+               ],
+               [
+                0.479330709,
+                0.0
+               ]
+              ]
+             }
+            ],
+            "m_flags": 6
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 27,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 20,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 15
+             },
+             {
+              "weakref": 18
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 26
+             },
+             {
+              "weakref": 53
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 19
+             },
+             {
+              "weakref": 23
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                4.416666667
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                0.479330709,
+                0.0
+               ],
+               [
+                0.479330709,
+                4.416666667
+               ]
+              ]
+             }
+            ],
+            "m_flags": 6
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 28,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 21,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 16
+             },
+             {
+              "weakref": 15
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 25
+             },
+             {
+              "weakref": 47
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 20
+             },
+             {
+              "weakref": 26
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                0.479330709,
+                0.0
+               ],
+               [
+                0.479330709,
+                1.666666667
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.666666667
+               ]
+              ]
+             }
+            ],
+            "m_flags": 7
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 29,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 23,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 17
+             },
+             {
+              "weakref": 16
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 24
+             },
+             {
+              "weakref": 49
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 21
+             },
+             {
+              "weakref": 25
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                0.479330709,
+                0.0
+               ],
+               [
+                0.479330709,
+                4.416666667
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                4.416666667
+               ]
+              ]
+             }
+            ],
+            "m_flags": 7
+           }
+          },
+          {
+           "ptr_class": "Edge",
+           "pid": 30,
+           "value": {
+            "m_GInfo": {
+             "m_categoryId": -1,
+             "m_tag": 25,
+             "m_controlCommand": 0,
+             "m_flags": 557572
+            },
+            "m_pFace": [
+             {
+              "weakref": 18
+             },
+             {
+              "weakref": 17
+             }
+            ],
+            "m_next": [
+             {
+              "weakref": 23
+             },
+             {
+              "weakref": 51
+             }
+            ],
+            "m_prev": [
+             {
+              "weakref": 22
+             },
+             {
+              "weakref": 24
+             }
+            ],
+            "m_interiorEdgePnts": [],
+            "m_firstAndLastEdgePnts": [
+             {
+              "uv": [
+               [
+                0.479330709,
+                0.0
+               ],
+               [
+                0.479330709,
+                1.666666667
+               ]
+              ]
+             },
+             {
+              "uv": [
+               [
+                0.0,
+                0.0
+               ],
+               [
+                0.0,
+                1.666666667
+               ]
+              ]
+             }
+            ],
+            "m_flags": 7
+           }
+          }
+         ],
+         "m_sharedSurfInfo": []
+        }
+       }
+      ],
+      "m_oConditions": [],
+      "m_bIsNestedDetailFamily": false
+     }
+    },
+    {
+     "ptr_class": "Geometry",
+     "pid": 5,
+     "value": {
+      "m_GInfo": {
+       "m_categoryId": -1,
+       "m_tag": -1,
+       "m_controlCommand": 0,
+       "m_flags": 557060
+      },
+      "m_pFaces": [],
+      "m_flags": 7,
+      "m_geometryTag": -1,
+      "m_tessEpsCntrl": {
+       "m_type": 0,
+       "m_TessEpsCntrlVersion": 1
+      },
+      "m_pEdges": [],
+      "m_sharedSurfInfo": []
+     }
+    }
+   ],
+   "m_bBox": [
+    [
+     -0.833333333,
+     -3.583333333,
+     -0.0
+    ],
+    [
+     0.833333333,
+     0.833333333,
+     0.479330709
+    ]
+   ],
+   "m_tightbBox": [
+    [
+     -0.833333333,
+     -3.583333333,
+     -0.0
+    ],
+    [
+     0.833333333,
+     0.833333333,
+     0.479330709
+    ]
+   ],
+   "m_elementId": 470440,
+   "m_gElemType": 3,
+   "m_flags": 2
+  }
+ },
+ "references": [
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[8]",
+   "id": 454674,
+   "target_class": "Family",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[9]",
+   "id": 455334,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[10]",
+   "id": 455335,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[11]",
+   "id": 455336,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[12]",
+   "id": 455337,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[13]",
+   "id": 455338,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[14]",
+   "id": 455339,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[15]",
+   "id": 455340,
+   "target_class": "ParamElemFamily",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[16]",
+   "id": 455409,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_deletion[17]",
+   "id": 470440,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 101,
+   "path": "m_parents.value.m_regenOnly[0]",
+   "id": 124,
+   "target_class": "GStyleElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_bRepFormGList[0].value.m_id",
+   "id": 1,
+   "target_class": "AllProjectPhases",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_geomSteps.value.m_idCounter",
+   "id": 2,
+   "target_class": "PenWidthTableElem",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_id",
+   "id": 470440,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_familyId",
+   "id": 454674,
+   "target_class": "Family",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_masterId",
+   "id": 455409,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_strongRefs[0].m_elemId",
+   "id": 470440,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_strongRefs[1].m_elemId",
+   "id": 470440,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 102,
+   "path": "m_strongRefs[2].m_elemId",
+   "id": 470440,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  },
+  {
+   "from_seq": 103,
+   "path": "m_elementId",
+   "id": 470440,
+   "target_class": "FamilySymbol",
+   "in_ElemTable": true,
+   "in_partitions": true
+  }
+ ]
+}

@@ -1,0 +1,829 @@
+{
+ "stream": "subtractive: THE SUBTRACTIVE LADDER on U16.  Verdicts #39: donor body + our axes = PASS (U16); our lean famdoc in any variant = FAIL.  These probes delete the donor's extra elements from U16 by class-group under the famdoc deletion law; the PASS->FAIL flip names the infrastructure the audit requires.  SUB_O1 tests the element-order hypothesis from the other direction.",
+ "bases": {
+  "deletion_probes": "samples/rstbasicsampleproject.rvt",
+  "SUB_O1": "experiments/genesis/subst_k4/compose/G_ABPD.rvt"
+ },
+ "classification": "experiments/subtractive/classification.json (the full class->group map + roster equivalence + per-probe closures)",
+ "note": "deletion probes = untouched rst sample + ONE loaded reduced-hybrid famdoc + ONE placed instance (the exact certified U16 recipe with the lawful deletion between union assembly and the load).  SUB_O1 = G_ABPD + ONE famgen family + ONE instance (the B0 recipe verbatim) with only the id assignment permuted.  EVERY probe's added unit carries the 64-byte 0x0f3f blob (machine-verified nonce).  PROOF-ONLY sample-derived content, quarantined, never shipped.  Fresh GUIDs per rebuild -- re-hash after any rerun.",
+ "upload_order_max_information_first": [
+  "SUB_ALL",
+  "SUB_S5",
+  "SUB_S6",
+  "SUB_S4",
+  "SUB_S7",
+  "SUB_S2",
+  "SUB_S1",
+  "SUB_S3",
+  "SUB_S5A",
+  "SUB_S5B",
+  "SUB_O1"
+ ],
+ "controls": {
+  "rst": {
+   "source": "samples/rstbasicsampleproject.rvt",
+   "voids": "every SUB_ deletion probe on CTRL FAIL"
+  },
+  "g_abpd": {
+   "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "voids": "SUB_O1 on CTRL FAIL"
+  }
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL (either)": "round VOID for that base's probes (the rst control voids the SUB_ deletion probes; the G_ABPD control voids SUB_O1).",
+  "the bracket": "U16 (batch 45, certified PASS) is the top of this ladder -- every SUB_ probe is U16 minus one lawful deletion; SUB_ALL (the donor reduced to our lean 41 shape) is the bottom, expected FAIL (B0/H8B/F1 all fail with lean rosters).",
+  "SUB_Sx FAIL (single)": "THE FLIP: that group's infrastructure is REQUIRED by the audit.  The document retains OUR copy of every roster class (35 carried elements) plus the donor frame, so the conviction names donor-only furniture -- read 'classes_zeroed_documentwide' in the probe's accounting entry for the exact candidate classes.  NEXT round bisects INSIDE the convicted group (for S5 the halves SUB_S5A / SUB_S5B are already in this batch).",
+  "SUB_Sx PASS (single)": "that group alone is NOT required: U16 stays lawful without it.",
+  "ALL singles PASS + SUB_ALL FAIL": "no single group is required alone => the requirement is a UNION of groups (or a whole-document property the deletions share).  Next round: cumulative deletions in reading order (S5+S6, +S4, ...) -- mechanical.",
+  "ALL singles FAIL": "suspect the SHARED DELETION MECHANICS first (every probe leaves the donor inline-ADocument's deep registries dangling over the deleted ids -- the genesis-deletion precedent tolerated this at PROJECT level, unproven at famdoc level).  Rebuild ONE single with a fully scrubbed ADocument before reading convictions.",
+  "SUB_ALL PASS": "INVERSION AGAIN: the lean shape is lawful when reached by deletion from the donor -- the defect would then be in HOW our famdoc AUTHORS the same shape (field-level grammar, not element roster).  Diff SUB_ALL's famdoc against B0's element-by-element; the delta is the fix spec.",
+  "SUB_S5A/S5B (read on SUB_S5 FAIL)": "the pre-built bisection of the top-prior group: A = dim-flavored style constellations (DimensionStyle/LeaderStyle/SpotElevation + subtrees), B = text/region-flavored (TextNote/TagNote/FilledRegion attrs, Text3d, RevisionCloud, ReferenceViewer).  The failing half carries the requirement; both-FAIL => both constellations required (or the shared cat/gstyle/font substrate).",
+  "SUB_O1 PASS": "ELEMENT ORDER was a missing whole-document property: our famdoc renumbered to the donor's class-ordering convention heals B0's exact recipe.  Fix = famgen allocation order (mechanical, no new elements).",
+  "SUB_O1 FAIL": "order alone does not heal B0 -- consistent with the missing-infrastructure reading; the deletion probes carry the round.",
+  "honest residue": "the deletion probes share one non-deletion delta vs U16: the inline ADocument's deep registries dangle over deleted ids (censused per probe) and SUB_S6 carries the one detach normalization (LevelAttributes.m_familyTagId -> -1, our famgen's own certified form).  SUB_O1 varies ONLY the id assignment; unit shape (record framing, blob layout) is not varied by any probe here."
+ },
+ "companion_evidence": {
+  "accounting": "experiments/subtractive/accounting.json",
+  "classification": "experiments/subtractive/classification.json",
+  "author_spec": "experiments/subtractive/author_spec.json",
+  "per_probe_reports": "experiments/subtractive/_build/<rung>/",
+  "prior_round": "experiments/famdoc_final/probes.json (batch 45)",
+  "substrate": "experiments/famdoc_final/U16.rvt (certified PASS, batch 45)"
+ },
+ "probes": [
+  {
+   "order": 1,
+   "rung": "SUB_ALL",
+   "file": "experiments/subtractive/SUB_ALL.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus ALL seven class-groups: the donor reduced to OUR lean shape (frame 6 + our carried 35 = 41 elements)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus ALL seven class-groups: the donor reduced to OUR lean shape (frame 6 + our carried 35 = 41 elements)",
+   "expected": "FAIL (anchors the ladder at our lean shape)",
+   "md5": "7bf5ad5af143eac824ab9e1e153b2478",
+   "symbol_id": 1474582,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474583
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_ALL/SUB_ALL_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 411,
+    "n_closure": 411,
+    "pull_census": {},
+    "detached": []
+   },
+   "classes_zeroed_documentwide": [
+    "Alignment",
+    "AnalyticalLinkType",
+    "AreaSettingsElem",
+    "AutoCamSettingsElem",
+    "AutoJoinTracker",
+    "BaseLevelTracker",
+    "BrowserOrganization",
+    "CalloutTag",
+    "CategoryElem",
+    "ComponentRepeaterSlotSpecialType",
+    "CoordinateSystemDisplayElem",
+    "CorniceAttr",
+    "CoverType",
+    "DBView3d",
+    "DBViewDrafting",
+    "DBViewSection",
+    "DaylightSourceIdSet",
+    "DefaultDivideSettings",
+    "DimensionStyle",
+    "DrawOrder3dElem",
+    "Dwg2dExportUserSettingsData",
+    "FamSymSurrogate",
+    "FamilySurrogate",
+    "FamilySymbol",
+    "FilledRegion",
+    "FilledRegionAttributes",
+    "FontElem",
+    "GStyleElem",
+    "InteriorElevAttributes",
+    "LeaderStyle",
+    "LinearDimString",
+    "LoadCaseElem",
+    "LoadNatureElem",
+    "ModelClipBox",
+    "PenWidthTableElem",
+    "PropertyAttr",
+    "RadialDim",
+    "ReferenceViewerAttributes",
+    "RevealAttr",
+    "RevisionCloudAttr",
+    "RvtLinkInstanceAppearanceParentElem",
+    "STEPExportSettings",
+    "SectionAttributes",
+    "SketchGrid",
+    "SketchGridAppearanceParentElem",
+    "SpotElevationStyle",
+    "StructConnectionType",
+    "StructSettingsElem",
+    "TagNote",
+    "TagNoteAttributes",
+    "Text3dAttrSymbol",
+    "TextNoteAttributes",
+    "TrueNorth",
+    "Viewer3d"
+   ]
+  },
+  {
+   "order": 2,
+   "rung": "SUB_S5",
+   "file": "experiments/subtractive/SUB_S5.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus S5 styles/categories/fonts (the annotation-style constellations + their category/gstyle/font subtrees)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus S5 styles/categories/fonts (the annotation-style constellations + their category/gstyle/font subtrees)",
+   "expected": "the top-prior flip candidate: FAIL convicts the style/category/font infrastructure",
+   "md5": "ca7c317a538799e45818acbb69714eb3",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_S5/SUB_S5_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 125,
+    "n_closure": 137,
+    "pull_census": {
+     "S2:Alignment": 7,
+     "S2:LinearDimString": 4,
+     "S6:LinearDimString": 1
+    },
+    "detached": []
+   },
+   "classes_zeroed_documentwide": [
+    "Alignment",
+    "ReferenceViewerAttributes",
+    "RevisionCloudAttr",
+    "SpotElevationStyle"
+   ]
+  },
+  {
+   "order": 3,
+   "rung": "SUB_S6",
+   "file": "experiments/subtractive/SUB_S6.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus S6 the nested 'Level Head - Upgrade' family cluster (family + 112 registered members + symbol + surrogates)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus S6 the nested 'Level Head - Upgrade' family cluster (family + 112 registered members + symbol + surrogates)",
+   "expected": "FAIL convicts the nested level-head family cluster",
+   "md5": "32c3df5b8d48d554874eb3e1c8afacd8",
+   "symbol_id": 1474583,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474584
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_S6/SUB_S6_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 116,
+    "n_closure": 116,
+    "pull_census": {},
+    "detached": [
+     1410873
+    ]
+   },
+   "classes_zeroed_documentwide": [
+    "DBViewDrafting",
+    "FamSymSurrogate",
+    "FamilySurrogate",
+    "FamilySymbol",
+    "FilledRegion",
+    "FilledRegionAttributes",
+    "RadialDim",
+    "TagNote"
+   ]
+  },
+  {
+   "order": 4,
+   "rung": "SUB_S4",
+   "file": "experiments/subtractive/SUB_S4.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus S4 view/annotation locals (extra view types + section/3d/drafting/2nd-plan chains + view-type attrs)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus S4 view/annotation locals (extra view types + section/3d/drafting/2nd-plan chains + view-type attrs)",
+   "expected": "FAIL convicts the view/annotation locals",
+   "md5": "ce33b78ac877720785a49ea0a4966618",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_S4/SUB_S4_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 85,
+    "n_closure": 106,
+    "pull_census": {
+     "S1:SketchPlane": 2,
+     "S1:VarSketch": 2,
+     "S2:Alignment": 6,
+     "S2:LinearDimString": 4,
+     "S3:RefPlane": 7
+    },
+    "detached": []
+   },
+   "classes_zeroed_documentwide": [
+    "BrowserOrganization",
+    "DBView3d",
+    "DBViewSection",
+    "ModelClipBox",
+    "SketchGrid",
+    "Viewer3d"
+   ]
+  },
+  {
+   "order": 5,
+   "rung": "SUB_S7",
+   "file": "experiments/subtractive/SUB_S7.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus S7 struct/settings residue (load cases/natures, struct connection types, settings singletons, the SF param)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus S7 struct/settings residue (load cases/natures, struct connection types, settings singletons, the SF param)",
+   "expected": "FAIL convicts struct/settings residue",
+   "md5": "c875686c4ab9a96eb9f27c2b0cadb84d",
+   "symbol_id": 1474583,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474584
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_S7/SUB_S7_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 42,
+    "n_closure": 44,
+    "pull_census": {
+     "S2:LinearDimString": 2
+    },
+    "detached": []
+   },
+   "classes_zeroed_documentwide": [
+    "AnalyticalLinkType",
+    "AreaSettingsElem",
+    "AutoCamSettingsElem",
+    "AutoJoinTracker",
+    "ComponentRepeaterSlotSpecialType",
+    "CoordinateSystemDisplayElem",
+    "DefaultDivideSettings",
+    "DrawOrder3dElem",
+    "Dwg2dExportUserSettingsData",
+    "LoadCaseElem",
+    "LoadNatureElem",
+    "RvtLinkInstanceAppearanceParentElem",
+    "STEPExportSettings",
+    "SketchGridAppearanceParentElem",
+    "StructConnectionType",
+    "StructSettingsElem"
+   ]
+  },
+  {
+   "order": 6,
+   "rung": "SUB_S2",
+   "file": "experiments/subtractive/SUB_S2.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus S2 dims/constraints (LinearDimString / RadialDim / Alignment outside the nested family)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus S2 dims/constraints (LinearDimString / RadialDim / Alignment outside the nested family)",
+   "expected": "FAIL convicts dims/constraints",
+   "md5": "5a0d73db662f2dea817102e53f9974a2",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_S2/SUB_S2_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 11,
+    "n_closure": 11,
+    "pull_census": {},
+    "detached": []
+   },
+   "classes_zeroed_documentwide": [
+    "Alignment"
+   ]
+  },
+  {
+   "order": 7,
+   "rung": "SUB_S1",
+   "file": "experiments/subtractive/SUB_S1.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus S1 sketch/geometry infra (donor extrusion + sketch machinery; OUR carried geometry remains)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus S1 sketch/geometry infra (donor extrusion + sketch machinery; OUR carried geometry remains)",
+   "expected": "FAIL convicts donor sketch/geometry infra (ours remains)",
+   "md5": "2d4af5c0f2cd1e45405e6c8401548174",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_S1/SUB_S1_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 13,
+    "n_closure": 19,
+    "pull_census": {
+     "S2:Alignment": 6
+    },
+    "detached": []
+   },
+   "classes_zeroed_documentwide": []
+  },
+  {
+   "order": 8,
+   "rung": "SUB_S3",
+   "file": "experiments/subtractive/SUB_S3.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus S3 datum/reference infra (levels, level attrs, ref planes, trackers; the view furniture cropping to them cascades)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus S3 datum/reference infra (levels, level attrs, ref planes, trackers; the view furniture cropping to them cascades)",
+   "expected": "FAIL convicts datum/reference infra (+its view cascade)",
+   "md5": "62240e1388fda2ac704aebd2fece54a7",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_S3/SUB_S3_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 19,
+    "n_closure": 76,
+    "pull_census": {
+     "S1:SketchPlane": 2,
+     "S1:VarSketch": 2,
+     "S2:Alignment": 7,
+     "S2:LinearDimString": 4,
+     "S4:DBDrawing": 6,
+     "S4:DBViewPlan": 2,
+     "S4:DBViewSection": 4,
+     "S4:ExtentElem": 6,
+     "S4:SketchGrid": 6,
+     "S4:SketchPlane": 6,
+     "S4:Viewer": 6,
+     "S4:Viewport": 6
+    },
+    "detached": []
+   },
+   "classes_zeroed_documentwide": [
+    "Alignment",
+    "DBViewSection"
+   ]
+  },
+  {
+   "order": 9,
+   "rung": "SUB_S5A",
+   "file": "experiments/subtractive/SUB_S5A.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus the dim-flavored HALF of S5 (DimensionStyle + LeaderStyle + SpotElevationStyle constellations)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus the dim-flavored HALF of S5 (DimensionStyle + LeaderStyle + SpotElevationStyle constellations)",
+   "expected": "read on SUB_S5 FAIL: is the dim-flavored half required?",
+   "md5": "3071576add13e877bca96d290b72454a",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_S5A/SUB_S5A_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 109,
+    "n_closure": 129,
+    "pull_census": {
+     "S2:Alignment": 7,
+     "S2:LinearDimString": 4,
+     "S5:CategoryElem": 2,
+     "S5:FontElem": 2,
+     "S5:GStyleElem": 2,
+     "S5:TextNoteAttributes": 2,
+     "S6:LinearDimString": 1
+    },
+    "detached": []
+   },
+   "classes_zeroed_documentwide": [
+    "Alignment",
+    "SpotElevationStyle"
+   ]
+  },
+  {
+   "order": 10,
+   "rung": "SUB_S5B",
+   "file": "experiments/subtractive/SUB_S5B.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "U16 minus the text/region-flavored HALF of S5 (TextNote / TagNote / FilledRegion attrs, Text3d, RevisionCloud, ReferenceViewer)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "U16 minus the text/region-flavored HALF of S5 (TextNote / TagNote / FilledRegion attrs, Text3d, RevisionCloud, ReferenceViewer)",
+   "expected": "read on SUB_S5 FAIL: is the text/region half required?",
+   "md5": "711a55bcb900d93d35f92de633c3b9c3",
+   "symbol_id": 1474584,
+   "family_id": 1474565,
+   "instance_ids": [
+    1474585
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_S5B/SUB_S5B_load_adoc.rvt",
+   "blob_proof": {
+    "units_total": 54,
+    "blob_len_histogram": {
+     "64": 54
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "deletion_survivor_residual_refs": 0,
+    "gates_ok": true
+   },
+   "deletion": {
+    "n_seed": 16,
+    "n_closure": 16,
+    "pull_census": {},
+    "detached": []
+   },
+   "classes_zeroed_documentwide": [
+    "ReferenceViewerAttributes",
+    "RevisionCloudAttr"
+   ]
+  },
+  {
+   "order": 11,
+   "rung": "SUB_O1",
+   "file": "experiments/subtractive/SUB_O1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "the ORDER probe: our famdoc renumbered to the donor's class-ordering convention through the EXACT B0 recipe",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the ORDER probe: our famdoc renumbered to the donor's class-ordering convention through the EXACT B0 recipe",
+   "expected": "PASS => element order was the whole-document property",
+   "md5": "957e287f33ce316b44448d7efa77eaaa",
+   "symbol_id": 1472582,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "immediate_parent": "experiments/subtractive/_build/SUB_O1_chain/stage_L1_pp1.rvt",
+   "blob_proof": {
+    "units_total": 2,
+    "blob_len_histogram": {
+     "64": 2
+    },
+    "units_added_vs_base": 1,
+    "added_nonce_verified": true
+   },
+   "gates": {
+    "validator_errors": 0,
+    "validator_unexpected": 0,
+    "four_registry_coherent": true,
+    "load_hop_units_added": 1,
+    "instance_hop_units_added": 0,
+    "survivor_law_ok": true,
+    "identity": "PASS",
+    "blob_all_units_64B": true,
+    "blob_added_nonce_verified": true,
+    "blob_units_added": 1,
+    "famdoc_refs_unresolved_anywhere": 0,
+    "symbol_form_ok": true,
+    "gates_ok": true
+   },
+   "permutation": {
+    "n_elements": 41,
+    "n_moved": 38,
+    "class_order_before": [
+     "Family",
+     "UnitsElem",
+     "LevelAttributes",
+     "Level",
+     "DBViewProject",
+     "Viewer",
+     "Viewport",
+     "DBDrawing",
+     "DBViewType",
+     "DBViewPlan",
+     "Viewer",
+     "SketchPlane",
+     "SunAndShadowSettings",
+     "Viewport",
+     "DBDrawing",
+     "ExtentElem",
+     "RefPlane",
+     "RefPlane",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "SketchPlane",
+     "VarSketch",
+     "CurveElem",
+     "CurveElem",
+     "CurveElem",
+     "CurveElem",
+     "ExtrusionElem",
+     "ElectricalLoadClassification",
+     "ConnectorElem"
+    ],
+    "class_order_after": [
+     "Family",
+     "LevelAttributes",
+     "Level",
+     "Viewer",
+     "DBViewPlan",
+     "DBDrawing",
+     "Viewport",
+     "RefPlane",
+     "RefPlane",
+     "Viewer",
+     "DBViewProject",
+     "DBDrawing",
+     "Viewport",
+     "VarSketch",
+     "ExtrusionElem",
+     "CurveElem",
+     "CurveElem",
+     "CurveElem",
+     "CurveElem",
+     "SketchPlane",
+     "ExtentElem",
+     "UnitsElem",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "ParamElemFamily",
+     "DBViewType",
+     "SunAndShadowSettings",
+     "SketchPlane",
+     "ElectricalLoadClassification",
+     "ConnectorElem"
+    ]
+   }
+  }
+ ]
+}

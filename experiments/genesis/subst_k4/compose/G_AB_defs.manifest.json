@@ -1,0 +1,544 @@
+{
+ "op": "compose",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "sha256": "5d79ff59e718735f232b75cba8fbd3aca4aa101323abea00e79f14cf07816afc",
+  "bytes": 626688,
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  },
+  "host_elements": 3342,
+  "watermark": 1472524,
+  "partition": "Partitions/21"
+ },
+ "out": {
+  "file": "experiments/genesis/subst_k4/compose/G_AB_defs.rvt",
+  "md5": "6cdf956d051d5d13b8330abfaee26a0d",
+  "sha256": "aa2c4c4b0cdd1f55cfc212d4a4d74aa7baaa1e8f2fc53a70ffec7a3321fe6332",
+  "bytes": 630784
+ },
+ "phase_1_inplace": {
+  "merge": {
+   "laws": {
+    "disjoint": true,
+    "collisions": [],
+    "all_slots_exist": true,
+    "missing_slots": [],
+    "same_class": true,
+    "class_mismatch": [],
+    "parent_coherent": true,
+    "incoherent_slots": [],
+    "deletion_overlap": [],
+    "on_overlap": "refuse"
+   },
+   "rungs": [
+    {
+     "name": "B:Z_defs",
+     "group": "B",
+     "kind": "file-delta",
+     "source_file": "experiments/genesis/subst_k4/residue_b/Z_defs.rvt",
+     "source_md5": "1703a2c006b344e4e2317698a964f643",
+     "source_viewer": "PASS",
+     "parent_file": "experiments/genesis/subst_k4/Y9.rvt",
+     "report_file": "experiments/genesis/subst_k4/residue_b/Z_defs.json",
+     "slots": 583,
+     "seqs": [
+      102
+     ],
+     "classes": {
+      "ParamElemExternal": 466,
+      "ParamElemElectricalLoadClassification": 108,
+      "ParamElemProject": 8,
+      "ParamBinding": 1
+     },
+     "landed_slots": 791,
+     "landed_but_byte_identical": 208,
+     "notes": [],
+     "merged_slots": 583
+    }
+   ],
+   "resolutions": [],
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "merged_slots": 583,
+   "merged_seqs": [
+    102
+   ],
+   "merged_by_class": {
+    "ParamElemExternal": 466,
+    "ParamElemElectricalLoadClassification": 108,
+    "ParamElemProject": 8,
+    "ParamBinding": 1
+   }
+  },
+  "emit": {
+   "op": "substitute_elements",
+   "verdict": "VALID",
+   "problems": [],
+   "seqs_replaced": [
+    102
+   ],
+   "elemtable_rewritten": false,
+   "latest_rewritten": false,
+   "streams_replaced": [
+    "Partitions/21"
+   ],
+   "seconds": 1.3
+  },
+  "validator": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 1,
+   "error_messages": [],
+   "stats": {
+    "streams": 12,
+    "partition_blocks": 16,
+    "records": 10029,
+    "elements_decoded": 3342,
+    "decode_failures": 1,
+    "refs_checked": 51478
+   }
+  },
+  "structural": {
+   "ok": true,
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": [],
+   "counts_match": true,
+   "seq_id_sets_equal": true,
+   "stamps_bad": 0,
+   "isize_identity_ok": true
+  },
+  "byte_delta": {
+   "layer": "in-place",
+   "streams_differing": [
+    "Partitions/21"
+   ],
+   "only_partition_differs": true,
+   "records_changed_count": 583,
+   "records_changed_by_seq": {
+    "102": 12
+   },
+   "expected_slots": 583,
+   "unexpected_changed_ids": [],
+   "records_added_ids": [],
+   "records_removed_ids": [],
+   "landed_but_unchanged_slots": 0,
+   "id_order_identical_per_seq": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "block_partition_identical_per_seq": {
+    "101": true,
+    "102": false,
+    "103": true
+   },
+   "elemtable_identical": true,
+   "adocument_identical": true,
+   "embedded_units_identical": true,
+   "field_diff_examples": [
+    {
+     "seq": 102,
+     "id": 21308,
+     "len_ours": 563,
+     "len_parent": 407,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ParamElemExternal",
+       "class_parent": "ParamElemExternal"
+      },
+      {
+       "path": ".m_cellList",
+       "ours": "None",
+       "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+      },
+      {
+       "path": ".m_description",
+       "ours": "'GEN house shared parameter (Value)'",
+       "parent": "''"
+      },
+      {
+       "path": ".m_pParamDef.value.m_caption",
+       "ours": "'GEN Mounting Height AFF'",
+       "parent": "'Door Level'"
+      },
+      {
+       "path": ".m_pParamDef.value.m_groupTypeId.m_typeId",
+       "ours": "'autodesk.parameter.group:dimensions-1.0.0'",
+       "parent": "''"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 21309,
+     "len_ours": 559,
+     "len_parent": 407,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ParamElemExternal",
+       "class_parent": "ParamElemExternal"
+      },
+      {
+       "path": ".m_cellList",
+       "ours": "None",
+       "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+      },
+      {
+       "path": ".m_description",
+       "ours": "'GEN house shared parameter (Value)'",
+       "parent": "''"
+      },
+      {
+       "path": ".m_pParamDef.value.m_caption",
+       "ours": "'GEN Clearance - Front'",
+       "parent": "'Door Level'"
+      },
+      {
+       "path": ".m_pParamDef.value.m_groupTypeId.m_typeId",
+       "ours": "'autodesk.parameter.group:dimensions-1.0.0'",
+       "parent": "''"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 26010,
+     "len_ours": 510,
+     "len_parent": 436,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ParamElemProject",
+       "class_parent": "ParamElemProject"
+      },
+      {
+       "path": ".m_description",
+       "ours": "'GEN house project parameter'",
+       "parent": "''"
+      },
+      {
+       "path": ".m_pParamDef.value.m_caption",
+       "ours": "'GEN Design Package'",
+       "parent": "'Occupant'"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 26011,
+     "len_ours": 145,
+     "len_parent": 165,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ParamBinding",
+       "class_parent": "ParamBinding"
+      },
+      {
+       "path": ".m_cellList",
+       "ours": "None",
+       "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+      }
+     ]
+    }
+   ],
+   "exceptions": [
+    {
+     "what": "seq-102 block partition re-flowed",
+     "reason": "our objects differ in byte length from the parent's, so the certified re-blocker (rvt.reduce.reblock) re-chunked the unit-0 seq-102 run; record ORDER unchanged",
+     "blocks_parent": 11,
+     "blocks_out": 11
+    }
+   ],
+   "problems": [],
+   "assertion_holds": true
+  },
+  "in_place_law": {
+   "ok": true,
+   "landed": 583,
+   "changed": 583,
+   "unchanged_landed": 0,
+   "stray_changed": [],
+   "seq_violations": {},
+   "added": [],
+   "removed": [],
+   "problems": [],
+   "law": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed."
+  },
+  "rung_fidelity": {
+   "all_ok": true,
+   "per_rung": [
+    {
+     "rung": "B:Z_defs",
+     "slots": 583,
+     "fidelity_ok": true,
+     "mismatches": []
+    }
+   ]
+  },
+  "four_registry": {
+   "save_units": 1,
+   "contentdocs_entries": 0,
+   "contenttable_records": 0,
+   "familymgr_entries": 9,
+   "coherent": true,
+   "coherent_counts": true,
+   "coherent_guids": true,
+   "adocument_clean": true
+  },
+  "registry_parity": {
+   "global_latest_identical": true,
+   "global_elemtable_identical": true,
+   "statement": "100% by construction: Global/Latest and Global/ElemTable are byte-identical to the base, so every registry leaf that indexed a slot still indexes the same id (now carrying OUR object) -- ASSERTED via the stream byte-diff, not assumed"
+  },
+  "registration_diff_sample": [
+   {
+    "slot": 21308,
+    "class": "ParamElemExternal",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 21309,
+    "class": "ParamElemExternal",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 26010,
+    "class": "ParamElemProject",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 26011,
+    "class": "ParamBinding",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 114978,
+    "class": "ParamElemExternal",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   },
+   {
+    "slot": 114979,
+    "class": "ParamElemExternal",
+    "registration_identical": true,
+    "non_object_differences": [],
+    "surface_paths": 1
+   }
+  ]
+ },
+ "phase_2_deletions": null,
+ "invariants": {
+  "in_place_first_then_deletions": true,
+  "registry_parity": {
+   "global_latest_identical": true,
+   "global_elemtable_identical": true,
+   "statement": "100% by construction: Global/Latest and Global/ElemTable are byte-identical to the base, so every registry leaf that indexed a slot still indexes the same id (now carrying OUR object) -- ASSERTED via the stream byte-diff, not assumed"
+  },
+  "byte_delta_in_place": {
+   "layer": "in-place",
+   "streams_differing": [
+    "Partitions/21"
+   ],
+   "only_partition_differs": true,
+   "records_changed_count": 583,
+   "records_changed_by_seq": {
+    "102": 12
+   },
+   "expected_slots": 583,
+   "unexpected_changed_ids": [],
+   "records_added_ids": [],
+   "records_removed_ids": [],
+   "landed_but_unchanged_slots": 0,
+   "id_order_identical_per_seq": {
+    "101": true,
+    "102": true,
+    "103": true
+   },
+   "block_partition_identical_per_seq": {
+    "101": true,
+    "102": false,
+    "103": true
+   },
+   "elemtable_identical": true,
+   "adocument_identical": true,
+   "embedded_units_identical": true,
+   "field_diff_examples": [
+    {
+     "seq": 102,
+     "id": 21308,
+     "len_ours": 563,
+     "len_parent": 407,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ParamElemExternal",
+       "class_parent": "ParamElemExternal"
+      },
+      {
+       "path": ".m_cellList",
+       "ours": "None",
+       "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+      },
+      {
+       "path": ".m_description",
+       "ours": "'GEN house shared parameter (Value)'",
+       "parent": "''"
+      },
+      {
+       "path": ".m_pParamDef.value.m_caption",
+       "ours": "'GEN Mounting Height AFF'",
+       "parent": "'Door Level'"
+      },
+      {
+       "path": ".m_pParamDef.value.m_groupTypeId.m_typeId",
+       "ours": "'autodesk.parameter.group:dimensions-1.0.0'",
+       "parent": "''"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 21309,
+     "len_ours": 559,
+     "len_parent": 407,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ParamElemExternal",
+       "class_parent": "ParamElemExternal"
+      },
+      {
+       "path": ".m_cellList",
+       "ours": "None",
+       "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+      },
+      {
+       "path": ".m_description",
+       "ours": "'GEN house shared parameter (Value)'",
+       "parent": "''"
+      },
+      {
+       "path": ".m_pParamDef.value.m_caption",
+       "ours": "'GEN Clearance - Front'",
+       "parent": "'Door Level'"
+      },
+      {
+       "path": ".m_pParamDef.value.m_groupTypeId.m_typeId",
+       "ours": "'autodesk.parameter.group:dimensions-1.0.0'",
+       "parent": "''"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 26010,
+     "len_ours": 510,
+     "len_parent": 436,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ParamElemProject",
+       "class_parent": "ParamElemProject"
+      },
+      {
+       "path": ".m_description",
+       "ours": "'GEN house project parameter'",
+       "parent": "''"
+      },
+      {
+       "path": ".m_pParamDef.value.m_caption",
+       "ours": "'GEN Design Package'",
+       "parent": "'Occupant'"
+      }
+     ]
+    },
+    {
+     "seq": 102,
+     "id": 26011,
+     "len_ours": 145,
+     "len_parent": 165,
+     "first_diff_byte": 8,
+     "field_diff": [
+      {
+       "class_ours": "ParamBinding",
+       "class_parent": "ParamBinding"
+      },
+      {
+       "path": ".m_cellList",
+       "ours": "None",
+       "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+      }
+     ]
+    }
+   ],
+   "exceptions": [
+    {
+     "what": "seq-102 block partition re-flowed",
+     "reason": "our objects differ in byte length from the parent's, so the certified re-blocker (rvt.reduce.reblock) re-chunked the unit-0 seq-102 run; record ORDER unchanged",
+     "blocks_parent": 11,
+     "blocks_out": 11
+    }
+   ],
+   "problems": [],
+   "assertion_holds": true
+  },
+  "in_place_law": {
+   "ok": true,
+   "landed": 583,
+   "changed": 583,
+   "unchanged_landed": 0,
+   "stray_changed": [],
+   "seq_violations": {},
+   "added": [],
+   "removed": [],
+   "problems": [],
+   "law": "A referrer of removed content is either DELETED WITH the content or LEFT BYTE-IDENTICAL; it is never 'neutralised' (null id / dropped struct / pruned map) into a byte-state no viewer-PASSED file exhibits.  The only sanctioned generator of a reduced base is maximal garbage collection over the validator's own reference graph (+ the four-registry reconciliation when embedded documents leave); a rung that 'needs to edit a survivor' must instead put that survivor in the seed."
+  },
+  "reduce_law_deletions": null,
+  "four_registry_final": {
+   "save_units": 1,
+   "contentdocs_entries": 0,
+   "contenttable_records": 0,
+   "familymgr_entries": 9,
+   "coherent": true,
+   "coherent_counts": true,
+   "coherent_guids": true,
+   "adocument_clean": true
+  },
+  "validator_final": {
+   "ok": true,
+   "errors": 0,
+   "warnings": 1,
+   "error_messages": [],
+   "stats": {
+    "streams": 12,
+    "partition_blocks": 16,
+    "records": 10029,
+    "elements_decoded": 3342,
+    "decode_failures": 1,
+    "refs_checked": 51478
+   }
+  }
+ },
+ "problems": [],
+ "warnings": [],
+ "verdict": "COMPOSED-VALID",
+ "manifest_file": "experiments/genesis/subst_k4/compose/G_AB_defs.manifest.json",
+ "seconds": 1.9,
+ "anchor": null
+}

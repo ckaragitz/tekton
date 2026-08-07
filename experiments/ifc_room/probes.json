@@ -1,0 +1,102 @@
+{
+ "stream": "ifc-room (IFC INTENT -> OUR PROJECT FILE on the certified genesis base): our loaded families + the room's walls + the equipment instances, staged so a viewer FAIL bisects by layer",
+ "base": {
+  "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "ZA_deep = certified deep genesis rung (ORCHESTRATOR VERDICTS #18: ZA_deep PASS) -- the family-free base the room is built on"
+  },
+  "note": "every candidate below declares this SAME certified base; the internal build order (loaded -> +walls -> +instances) is recorded per probe so the first FAIL in the chain names the layer"
+ },
+ "standing_control": {
+  "file": "experiments/ifc_room/CTRL_ZA_deep_ifcroom.rvt",
+  "identical_to": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+  "md5": "56308637529a0d0a95976f5701e2615e",
+  "purpose": "byte-identical copy of the certified base under a new name -- read FIRST; a control FAIL voids the round (oracle/environment)"
+ },
+ "read_order": "control FIRST (round validity), then loaded-only (does OUR family layer load on the family-free base?), then +walls (the certified wall add path on this base), then the full room (+ instances -- the least certain layer: cross-category placement scaffolding)",
+ "reading_the_results": {
+  "control FAIL": "oracle/environment problem -- every verdict VOID",
+  "loaded PASS": "our COMPONENT-family layer (8 families, four registries) loads on a family-free base -- the endgame's family-load question answered YES",
+  "loaded FAIL": "the component-family loader on a family-free host is the defect (four-registry census / ContentDocuments empty-form / AppInfo FamilyMgr) -- bisect with a single-family load",
+  "walls PASS (loaded PASS)": "the certified wall add path holds on this base",
+  "full FAIL (walls PASS)": "the equipment INSTANCE layer -- cross-category specimen scaffolding / upright free-standing frames / our connector managers -- read the card message"
+ },
+ "probes": [
+  {
+   "file": "experiments/ifc_room/stage_L8_lp4.rvt",
+   "probe": "IFCR_loaded",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "3d44a17e1df900e8adb118972480a3d2",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "identity_gate": "PASS",
+   "tests": "does OUR component-family layer (the mapped families, four registries each) LOAD on the family-free certified base?",
+   "if_PASS": "our generated families load into the genesis base (no placement variable)",
+   "if_FAIL": "the component-family loader on a family-free host is the defect -- census + single-family bisection",
+   "self_checks_ok": true
+  },
+  {
+   "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+   "probe": "IFCR_walls_only",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "144b0ec172eb880c3f9600e1e636cd4d",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "identity_gate": "PASS",
+   "tests": "the room's four walls (certified wall add path, the base's wall type, R5 specimen scaffolding, MINIMAL clone clean-up: reference repair only, join history kept) on the certified base alone",
+   "if_PASS": "the wall add path holds on ZA_deep (with the Walls-category GStyle row absent)",
+   "if_FAIL": "wall clone / commit path on this base, or the missing Walls-category GStyle row (30) -- compare the '_unjoined' twin and V22/V26 (certified on rme)",
+   "self_checks_ok": true
+  },
+  {
+   "file": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+   "probe": "IFCR_walls_only_unjoined",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "691eed083894f11d0334962b51f23be0",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "identity_gate": "PASS",
+   "tests": "identical to IFCR_walls_only but with the textbook UNJOINED history (join / split-face steps trimmed, cached snapshots nulled -> pure regeneration)",
+   "if_PASS": "the trimmed unjoined-history variant loads (compare with the kept-history twin)",
+   "if_FAIL": "the history TRIM is the fault if the kept-history twin passes; else the wall layer itself",
+   "self_checks_ok": true
+  },
+  {
+   "file": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+   "probe": "IFCR_walls",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "dc9647df3926eb9d424f75555429e8a9",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "identity_gate": "PASS",
+   "tests": "loaded families + the room's walls",
+   "if_PASS": "family layer + wall layer coexist",
+   "if_FAIL": "read the card message; bisect vs loaded-only and walls-only",
+   "self_checks_ok": true
+  },
+  {
+   "file": "experiments/ifc_room/electrical_room_2500a.rvt",
+   "probe": "IFCR_room",
+   "kind": "probe",
+   "base": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "md5": "2e06193facb20ddb6f8e57489553662f",
+   "validator": "VALID",
+   "validator_errors": 0,
+   "four_registry": true,
+   "identity_gate": "PASS",
+   "tests": "the FULL room: loaded families + walls + the seven boards + T1 as OUR instances (free-standing, intent frames, our connector slots)",
+   "if_PASS": "IFC intent -> our project file end to end LOADS: our families, walls and placed equipment render",
+   "if_FAIL": "the equipment INSTANCE layer (cross-category scaffolding / upright frames / connector managers) -- the least-certain layer; read the card message",
+   "self_checks_ok": true
+  }
+ ]
+}

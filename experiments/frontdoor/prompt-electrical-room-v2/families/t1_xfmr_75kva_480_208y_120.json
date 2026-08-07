@@ -1,0 +1,316 @@
+{
+ "path": "/Users/ck/dev/things/tekton/experiments/frontdoor/prompt-electrical-room-v2/families/t1_xfmr_75kva_480_208y_120.rfa",
+ "family": {
+  "kind": "transformer",
+  "family_name": "Dry Type Transformer T1 75kVA 480-208Y/120",
+  "category": "Electrical Equipment",
+  "part_type": 15,
+  "elements": 39,
+  "types": [
+   "75 kVA 480-208Y/120"
+  ],
+  "parameters": [
+   "Depth",
+   "Enclosure",
+   "Frame",
+   "Height",
+   "Phases",
+   "Primary Voltage",
+   "Secondary Voltage",
+   "Temperature Rise",
+   "Weight",
+   "Width",
+   "kVA Rating"
+  ],
+  "forms": [
+   {
+    "kind": "box",
+    "width_ft": 2.5416666666666665,
+    "depth_ft": 2.0,
+    "height_ft": 3.5833333333333335,
+    "base_z_ft": 0.0,
+    "rep": "solid"
+   }
+  ],
+  "connectors": 2,
+  "assumed_fields": [],
+  "unverified_fields": [
+   "enclosure",
+   "primary_v",
+   "secondary_v"
+  ],
+  "notes": [
+   "two connectors (primary / secondary) on the top face; the secondary is bound to the kVA rating (the load it can serve)"
+  ]
+ },
+ "facts": {
+  "subject": "eaton/dry-type-transformers V48M28T7516 75 kVA",
+  "catalog": "eaton/dry-type-transformers",
+  "variant": "V48M28T7516",
+  "values": {
+   "width_in": {
+    "value": 30.5,
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "height_in": {
+    "value": 43.0,
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "depth_in": {
+    "value": 24.0,
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "kva": {
+    "value": 75.0,
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "phases": {
+    "value": 3,
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "primary_v": {
+    "value": 480,
+    "provenance": "given",
+    "source": "",
+    "note": "catalog primary 480 delta"
+   },
+   "secondary_v": {
+    "value": "208Y/120",
+    "provenance": "given",
+    "source": "",
+    "note": "catalog secondary 208Y/120"
+   },
+   "temp_rise_c": {
+    "value": 150,
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "frequency_hz": {
+    "value": 60,
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "windings": {
+    "value": "aluminum",
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "weight_lb": {
+    "value": 570,
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "weight_kg": {
+    "value": 259,
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "frame": {
+    "value": "FR942",
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "weathershield_kit": {
+    "value": "WS59",
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "wall_mount_bracket": {
+    "value": "WMB04",
+    "provenance": "fact",
+    "source": "V48M28T7516",
+    "note": ""
+   },
+   "enclosure": {
+    "value": "NEMA 2 (indoor)",
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "manufacturer": {
+    "value": "Eaton",
+    "provenance": "fact",
+    "source": "dry-type-transformers",
+    "note": ""
+   },
+   "model": {
+    "value": "V48M28T7516",
+    "provenance": "fact",
+    "source": "dry-type-transformers",
+    "note": "catalog number as the Model parameter VALUE, not the family name"
+   },
+   "clearance_side_rear_in": {
+    "value": 2.0,
+    "provenance": "fact",
+    "source": "dry-type-transformers",
+    "note": ""
+   }
+  },
+  "assumed_fields": [],
+  "notes": [
+   "kVA / voltages / frame / dims / weight are catalog facts; enclosure choice + connector layout are ours."
+  ]
+ },
+ "container_source": "/Users/ck/dev/things/tekton/experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "container_mode": "bundled-base",
+ "emit": {
+  "path": "/Users/ck/dev/things/tekton/experiments/frontdoor/prompt-electrical-room-v2/families/t1_xfmr_75kva_480_208y_120.rfa",
+  "size": 299008,
+  "mode": "candidate",
+  "footer_mode": "nonce",
+  "elements": 39,
+  "elem_table_count": 39,
+  "partition_stream": "Partitions/0",
+  "logical_partition_bytes": 7316,
+  "footer_blob_hex": "a90d784eb5d0cdba4e74b1fc4616faeb0da9a66437b3e478d172c690690e42320f0af4b39631ab8fd6ae5c14fb8de93b0a6c25f191a1dc7b73044df6784d6879",
+  "footer_blob_len": 64,
+  "end_record_hex": "a30300000000ffffffff",
+  "document_guid": "6588e55c-d9a1-4f5d-9ac5-2069a0bba08d",
+  "episode_guid": "2e87c7c8-9e7a-4caa-a3fb-312e61b01e05",
+  "streams": {
+   "Partitions/0": 7410,
+   "Global/ElemTable": 317,
+   "Global/History": 130,
+   "Global/DocumentIncrementTable": 122,
+   "Global/PartitionTable": 126,
+   "Global/ContentDocuments": 82,
+   "Global/Latest": 78493,
+   "Contents": 204,
+   "BasicFileInfo": 2005,
+   "TransmissionData": 214,
+   "PartAtom": 854,
+   "Formats/Latest": 182953
+  },
+  "ours": [
+   "Global/Latest (OUR authored family ADocument)",
+   "Partitions/0 save unit (every element) + OUR unit footer blob + the universal signature string + the decoded 10-byte end record",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/DocumentIncrementTable",
+   "Global/PartitionTable",
+   "Global/ContentDocuments",
+   "Contents (prologue + payload)",
+   "BasicFileInfo (rvt.identity)",
+   "TransmissionData",
+   "PartAtom",
+   "CFB container / gzip / CRCIO framing"
+  ],
+  "carried": [
+   {
+    "stream": "Formats/Latest",
+    "inflated_bytes": 496597,
+    "sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+    "is_corpus_schema_constant": true,
+    "why": "the per-release archive class map, byte-identical in every Revit-2026 file (.rvt and .rfa) -- FORMAT, not content"
+   }
+  ],
+  "identity": {
+   "author": "rvt-writer",
+   "username": "rvt-writer",
+   "client_app_name": "rvt-writer",
+   "last_save_path": "t1_xfmr_75kva_480_208y_120.rfa",
+   "unique_document_guid": "2e87c7c8-9e7a-4caa-a3fb-312e61b01e05",
+   "central_episode_guid": "2e87c7c8-9e7a-4caa-a3fb-312e61b01e05",
+   "via": "rvt.identity.own_identity_model + own_increment_table_payload"
+  },
+  "seconds": 0.4,
+  "notes": [
+   "transformer: free-standing (floor); part type 15 = the rme dry-type transformer's own part type [V value]"
+  ]
+ },
+ "adocument": "family ADocument CONSTRUCTED (candidate): 1,356,986 B; decodes clean, round-trips; 0 dangling ids (schema census); byte-scan donor ids = 0; our ids present in the payload = 14 (byte scan); slots populated = 180",
+ "verify": {
+  "path": "/Users/ck/dev/things/tekton/experiments/frontdoor/prompt-electrical-room-v2/families/t1_xfmr_75kva_480_208y_120.rfa",
+  "gzip_members": 11,
+  "gzip_crc_failures": 0,
+  "ecc_full_pages": 3,
+  "ecc_mismatch": 0,
+  "streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "PartAtom",
+   "Partitions/0",
+   "TransmissionData"
+  ],
+  "walker_errors": [],
+  "n_units": 1,
+  "record_counts": {
+   "101": 40,
+   "102": 40,
+   "103": 40
+  },
+  "decode_seq102": {
+   "records": 39,
+   "clean": 39,
+   "error_classes": {}
+  },
+  "id_sets_identical_across_seqs": true,
+  "ok": true
+ },
+ "validate": {
+  "ok": true,
+  "family_mode": {
+   "verdict": "VALID",
+   "n_errors": 0,
+   "errors": [],
+   "n_warnings": 0,
+   "warnings": [],
+   "adjustments": [
+    "PartAtom treated as UNFRAMED (plain Atom XML)",
+    "ProjectInformation not required (a family stream set has PartAtom instead)"
+   ]
+  },
+  "arbiter_raw": {
+   "verdict": "INVALID",
+   "n_errors": 3,
+   "errors": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block: ECC uncorrectable (65 damaged lane(s) with no valid error position) \u2014 data corrupt beyond CRCIO auto-repair",
+    "structure PartAtom: no gzip member found in framed stream"
+   ]
+  }
+ },
+ "provenance": {
+  "ok": true,
+  "suspects": [],
+  "verdict": "PROVENANCE-CLEAN: zero donor ADocument content bytes, zero donor element-id references, zero employee paths/usernames; carried = the schema constant only; footer = ours + the universal format tokens",
+  "checks": {
+   "adocument_decodes_clean": true,
+   "zero_dangling_element_refs": true,
+   "zero_donor_id_byte_hits": true,
+   "zero_donor_name_strings": true,
+   "owner_family_is_ours": true,
+   "identity_is_ours": true,
+   "footer_blob_not_donor": true,
+   "no_donor_end_parity": true,
+   "end_record_is_constant": true,
+   "signature_string_present": true,
+   "formats_latest_is_format_constant": true
+  }
+ },
+ "ok": true
+}

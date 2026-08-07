@@ -1,0 +1,1158 @@
+{
+ "rung": "Yn",
+ "label": "the RESIDUE CENSUS of the deepest rung (Y9): what is still Autodesk's, and what of ours found no slot",
+ "kind": "report",
+ "subject": "experiments/genesis/subst_k4/Y9.rvt",
+ "parent_rung": "Y9",
+ "base": {
+  "file": "experiments/genesis/triage/K4.rvt",
+  "certification": {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  }
+ },
+ "description": "A census of Y9: every host element is LANDED (its object bytes are OUR constructor's, at Autodesk's registration -- listed per rung / class) or K4-INHERITED RESIDUE (never substituted), the residue bucketed by class with the reason (no our-constructor, product data, definitions, datum content, the sample's SURPLUS instances of substituted classes, material companions, the curtain systems) + the aggregated OURS-NOT-LANDED queue (our records that found no in-place slot: 235 catalog rows, 4 phase filters, the text-type constellation, InitialViewSettings -- each needs the ADD path or a base that carries the class) + the provenance ledger for the container layer.  Report only: the file to viewer-test is Y9.rvt.",
+ "tests": "(report -- nothing to viewer-test beyond Y9)",
+ "elements_total": 3342,
+ "landed_ours": {
+  "elements": 1333,
+  "by_rung": {
+   "Y8": 16,
+   "Y1": 1,
+   "Y7": 22,
+   "Y6": 1172,
+   "Y9": 46,
+   "Y5": 51,
+   "Y2": 12,
+   "Y3": 5,
+   "Y4": 8
+  },
+  "by_class": {
+   "GStyleElem": 1172,
+   "DBViewType": 19,
+   "MaterialElem": 13,
+   "BrowserOrganization": 6,
+   "FillPatternElem": 5,
+   "Viewport": 5,
+   "DBDrawing": 5,
+   "LinePatternElem": 4,
+   "Viewer": 4,
+   "SunAndShadowSettings": 4,
+   "ExtentElem": 3,
+   "Level": 2,
+   "AreaMeasureElem": 2,
+   "ProjectPhase": 2,
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "ModelGraphicsStyle": 2,
+   "BasePoint": 2,
+   "DBViewPlan": 2,
+   "SketchPlane": 2,
+   "RevisionNumberingSequence": 2,
+   "AllProjectPhases": 1,
+   "PenWidthTableElem": 1,
+   "DBViewProject": 1,
+   "LevelAttributes": 1,
+   "PhaseFilterElem": 1,
+   "TrueNorth": 1,
+   "DaylightSourceIdSet": 1,
+   "UnitsElem": 1,
+   "PrintSettings": 1,
+   "ExternalParamLock": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "ProjectInfo": 1,
+   "StructSettingsElem": 1,
+   "RbsDbViewSystemNavigator": 1,
+   "AreaSettingsElem": 1,
+   "ReactionsUpToDateElem": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "KeynoteTable": 1,
+   "KeynotingSystem": 1,
+   "ConstructionSetProject": 1,
+   "WallJoinDefaultSetting": 1,
+   "RbsDuctSizesElem": 1,
+   "RbsDuctSettingsElem": 1,
+   "RbsPipeSettingsElem": 1,
+   "RbsWireSettingsElem": 1,
+   "RbsPipeSizesElem": 1,
+   "RbsWireSizesElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "ZoneScheme": 1,
+   "AutoJoinTracker": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "CableTraySettingsElem": 1,
+   "ConduitSettingsElem": 1,
+   "ProjectCopySettingsElem": 1,
+   "EnergyDataSettings": 1,
+   "ReconcileBrowserSettingsElem": 1,
+   "ElectricalSetting": 1,
+   "MEPSystemTracker": 1,
+   "WorksharingViewModeSettings": 1,
+   "AssemblyTracker": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "ReinforcementSettings": 1,
+   "CurtaSystemFaceManager": 1,
+   "DefaultDivideSettings": 1,
+   "MEPComponentTracker": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "LayoutNodesTracker": 1,
+   "FabricationSettings": 1,
+   "CopyWatchProperties": 1,
+   "Viewer3d": 1,
+   "ModelClipBox": 1,
+   "DBView3d": 1,
+   "LightSchemeElement": 1,
+   "FabricationSettingsElement": 1,
+   "StructuralConnectionSettings": 1,
+   "MEPNetworkTracker": 1,
+   "RouteAnalysisSettings": 1,
+   "CircuitNamingTypeSetting": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "GraphicsCache": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "MEPNetworkDataElem": 1,
+   "FabricationServiceSettings": 1,
+   "SSEPointVisibilitySettings": 1,
+   "STEPExportSettings": 1,
+   "SheetsInSheetCollectionTracker": 1
+  },
+  "meaning": "elements whose seq-102 OBJECT is now OUR constructor's, at Autodesk's own id / row / registration (in-place)"
+ },
+ "residue_still_autodesk": {
+  "elements": 2009,
+  "classes": 73,
+  "by_bucket": {
+   "definitions-removal-candidate": {
+    "elements": 791,
+    "classes": {
+     "ParamElemExternal": 466,
+     "ParamBinding": 209,
+     "ParamElemElectricalLoadClassification": 108,
+     "ParamElemProject": 8
+    },
+    "reason_examples": [
+     "the sample's PARAMETER DEFINITIONS + category bindings (shared / project parameters; the R10 param-defs class group) -- a GC-removal rung or a parameter-definition constructor"
+    ]
+   },
+   "gap-X6b+family-scoped": {
+    "elements": 286,
+    "classes": {
+     "GStyleElem": 286
+    },
+    "reason_examples": [
+     "the project SUBCATEGORY style rows (X6b gap) + the curtain systems' family-scoped rows -- the 1,407 built-in rows themselves ARE ours (X6a)"
+    ]
+   },
+   "gap-X6b": {
+    "elements": 209,
+    "classes": {
+     "CategoryElem": 209
+    },
+    "reason_examples": [
+     "project + curtain-scoped SUBCATEGORY records (Revit's auto-created angle-bracket line styles + template subcategories) -- the X6b GAP: no our-constructor for the built-in subcategory layer"
+    ]
+   },
+   "product-data": {
+    "elements": 212,
+    "classes": {
+     "HVACLoadSpaceTypeElem": 125,
+     "HVACLoadBuildingTypeElem": 33,
+     "HVACLoadScheduleElem": 27,
+     "BuildingOperatingYearSchedule": 27
+    },
+    "reason_examples": [
+     "Autodesk's HVAC / energy space-type + schedule DATABASE (product data; the singletons stream's rank-1 next constructor queue) -- counsel or removal"
+    ]
+   },
+   "curtain-systems(no-constructor)": {
+    "elements": 97,
+    "classes": {
+     "DBViewType": 72,
+     "Family": 8,
+     "FamilySurrogate": 8,
+     "PenWidthTableElem": 8,
+     "SlaveSymbolTrackerElem": 1
+    },
+    "reason_examples": [
+     "the 8 curtain-wall SYSTEM families + everything m_famId-scoped to them (their family-editor DBViewTypes, family pen tables, symbols/surrogates) -- NO our-constructor for curtain-system families (residue DBViewTypes / PenWidthTables here are the family-scoped ones; the project ones are OURS)"
+    ]
+   },
+   "no-constructor": {
+    "elements": 164,
+    "classes": {
+     "FontElem": 35,
+     "PropertySetElement": 28,
+     "DimensionStyle": 12,
+     "SectionAttributes": 10,
+     "ColorFillSchema": 10,
+     "InteriorElevAttributes": 9,
+     "CalloutTag": 9,
+     "AreaTypeElem": 8,
+     "LoadNatureElem": 8,
+     "LoadCaseElem": 8,
+     "ParameterFilterElement": 7,
+     "AreaSchemePlanTopologies": 6,
+     "LeaderStyle": 5,
+     "NumberingSchema": 3,
+     "ViewportAttributes": 1,
+     "GridAttributes": 1,
+     "AreaReportSettingsElem": 1,
+     "LinearDimString": 1,
+     "AssemblyCodeTable": 1,
+     "DataStorage": 1
+    },
+    "reason_examples": [
+     "fonts of the residue annotation types (our text types brought their own)",
+     "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)",
+     "annotation ATTRIBUTE types (dimension / arrowhead / view-tag types; the family-scoped ones belong to the curtain systems) -- no our-constructor"
+    ]
+   },
+   "content-removal-candidate": {
+    "elements": 65,
+    "classes": {
+     "SketchPlane": 30,
+     "RefPlane": 21,
+     "CurveElem": 5,
+     "LegendComponent": 4,
+     "Grid": 3,
+     "LevelRoomPlan": 1,
+     "RoomElem": 1
+    },
+    "reason_examples": [
+     "sample datum / model-line / legend content (grids, reference planes, area boundary lines, model sketch planes, legend graphics) -- placeable CONTENT: a removal rung, or our datum constructors (skeleton has grids/refplanes) as a content rung",
+     "sample room / plan-topology content (a placed room + its LevelRoomPlan companion) -- placeable CONTENT: a removal rung"
+    ]
+   },
+   "constructor-exists": {
+    "elements": 72,
+    "classes": {
+     "RbsWireInsulationType": 26,
+     "ElectricalDemandFactorDefinition": 21,
+     "ElectricalLoadClassification": 18,
+     "RbsWireMaterialType": 4,
+     "RbsWireTemperatureRatingType": 3
+    },
+    "reason_examples": [
+     "the electrical wire / load catalog -- our types-stream constructors EXIST (voltage / distribution / load-class / wire / conductor cells): a catalog rung"
+    ]
+   },
+   "material-companions": {
+    "elements": 18,
+    "classes": {
+     "AppearanceAssetElem": 18
+    },
+    "reason_examples": [
+     "the sample materials' render-asset / thermal-physical property-set companions -- our palette carries none; left in place (a removal rung's business)"
+    ]
+   },
+   "constructor-partial": {
+    "elements": 52,
+    "classes": {
+     "PipeSegment": 15,
+     "RbsPipeScheduleType": 13,
+     "RbsPipeConnectionType": 8,
+     "RbsPipeMaterialType": 5,
+     "ConduitStandardType": 5,
+     "ConduitSizesElem": 1,
+     "CableTraySizesElem": 1,
+     "BasicWallType": 1,
+     "FloorAttributes": 1,
+     "FabricWireType": 1,
+     "FabricSheetType": 1
+    },
+    "reason_examples": [
+     "the piping / duct / conduit / cable-tray / fluid catalogs -- partly constructible (conduit + tray constructors exist; pipe schedules / fluids do not): a catalog rung",
+     "the sample's SYSTEM FAMILY TYPES (wall/floor/roof/ceiling/stair/rebar...) -- our house catalog HAS wall/floor/roof/ceiling type constructors: a system-types rung; the structural / stair types have none"
+    ]
+   },
+   "surplus-sample-instances": {
+    "elements": 41,
+    "classes": {
+     "MaterialElem": 10,
+     "Level": 7,
+     "BrowserOrganization": 5,
+     "FillPatternElem": 4,
+     "LinePatternElem": 3,
+     "SunAnnotationElem": 3,
+     "Viewport": 3,
+     "PrintSettings": 2,
+     "WorksharingViewModeSettings": 1,
+     "DBViewDrafting": 1,
+     "Viewer": 1,
+     "DBDrawing": 1
+    },
+    "reason_examples": [
+     "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were",
+     "the sample's non-default browser schemes our two house schemes did not land on"
+    ]
+   },
+   "external-link-removal-candidate": {
+    "elements": 2,
+    "classes": {
+     "RvtLinkSymbol": 1,
+     "RvtLinkInstance": 1
+    },
+    "reason_examples": [
+     "a LINKED REVIT MODEL reference (the sample's site link -- names an external Autodesk file) -- REMOVE (a link removal rung; the keynote table / copy-watch wiring we own no longer depends on it)"
+    ]
+   }
+  },
+  "table": [
+   {
+    "class": "ParamElemExternal",
+    "count": 466,
+    "bucket": "definitions-removal-candidate",
+    "reason": "the sample's PARAMETER DEFINITIONS + category bindings (shared / project parameters; the R10 param-defs class group) -- a GC-removal rung or a parameter-definition constructor"
+   },
+   {
+    "class": "GStyleElem",
+    "count": 286,
+    "bucket": "gap-X6b+family-scoped",
+    "reason": "the project SUBCATEGORY style rows (X6b gap) + the curtain systems' family-scoped rows -- the 1,407 built-in rows themselves ARE ours (X6a)"
+   },
+   {
+    "class": "CategoryElem",
+    "count": 209,
+    "bucket": "gap-X6b",
+    "reason": "project + curtain-scoped SUBCATEGORY records (Revit's auto-created angle-bracket line styles + template subcategories) -- the X6b GAP: no our-constructor for the built-in subcategory layer"
+   },
+   {
+    "class": "ParamBinding",
+    "count": 209,
+    "bucket": "definitions-removal-candidate",
+    "reason": "the sample's PARAMETER DEFINITIONS + category bindings (shared / project parameters; the R10 param-defs class group) -- a GC-removal rung or a parameter-definition constructor"
+   },
+   {
+    "class": "HVACLoadSpaceTypeElem",
+    "count": 125,
+    "bucket": "product-data",
+    "reason": "Autodesk's HVAC / energy space-type + schedule DATABASE (product data; the singletons stream's rank-1 next constructor queue) -- counsel or removal"
+   },
+   {
+    "class": "ParamElemElectricalLoadClassification",
+    "count": 108,
+    "bucket": "definitions-removal-candidate",
+    "reason": "the sample's PARAMETER DEFINITIONS + category bindings (shared / project parameters; the R10 param-defs class group) -- a GC-removal rung or a parameter-definition constructor"
+   },
+   {
+    "class": "DBViewType",
+    "count": 72,
+    "bucket": "curtain-systems(no-constructor)",
+    "reason": "the 8 curtain-wall SYSTEM families + everything m_famId-scoped to them (their family-editor DBViewTypes, family pen tables, symbols/surrogates) -- NO our-constructor for curtain-system families (residue DBViewTypes / PenWidthTables here are the family-scoped ones; the project ones are OURS)"
+   },
+   {
+    "class": "FontElem",
+    "count": 35,
+    "bucket": "no-constructor",
+    "reason": "fonts of the residue annotation types (our text types brought their own)"
+   },
+   {
+    "class": "HVACLoadBuildingTypeElem",
+    "count": 33,
+    "bucket": "product-data",
+    "reason": "Autodesk's HVAC / energy space-type + schedule DATABASE (product data; the singletons stream's rank-1 next constructor queue) -- counsel or removal"
+   },
+   {
+    "class": "SketchPlane",
+    "count": 30,
+    "bucket": "content-removal-candidate",
+    "reason": "sample datum / model-line / legend content (grids, reference planes, area boundary lines, model sketch planes, legend graphics) -- placeable CONTENT: a removal rung, or our datum constructors (skeleton has grids/refplanes) as a content rung"
+   },
+   {
+    "class": "PropertySetElement",
+    "count": 28,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "HVACLoadScheduleElem",
+    "count": 27,
+    "bucket": "product-data",
+    "reason": "Autodesk's HVAC / energy space-type + schedule DATABASE (product data; the singletons stream's rank-1 next constructor queue) -- counsel or removal"
+   },
+   {
+    "class": "BuildingOperatingYearSchedule",
+    "count": 27,
+    "bucket": "product-data",
+    "reason": "Autodesk's HVAC / energy space-type + schedule DATABASE (product data; the singletons stream's rank-1 next constructor queue) -- counsel or removal"
+   },
+   {
+    "class": "RbsWireInsulationType",
+    "count": 26,
+    "bucket": "constructor-exists",
+    "reason": "the electrical wire / load catalog -- our types-stream constructors EXIST (voltage / distribution / load-class / wire / conductor cells): a catalog rung"
+   },
+   {
+    "class": "ElectricalDemandFactorDefinition",
+    "count": 21,
+    "bucket": "constructor-exists",
+    "reason": "the electrical wire / load catalog -- our types-stream constructors EXIST (voltage / distribution / load-class / wire / conductor cells): a catalog rung"
+   },
+   {
+    "class": "RefPlane",
+    "count": 21,
+    "bucket": "content-removal-candidate",
+    "reason": "sample datum / model-line / legend content (grids, reference planes, area boundary lines, model sketch planes, legend graphics) -- placeable CONTENT: a removal rung, or our datum constructors (skeleton has grids/refplanes) as a content rung"
+   },
+   {
+    "class": "ElectricalLoadClassification",
+    "count": 18,
+    "bucket": "constructor-exists",
+    "reason": "the electrical wire / load catalog -- our types-stream constructors EXIST (voltage / distribution / load-class / wire / conductor cells): a catalog rung"
+   },
+   {
+    "class": "AppearanceAssetElem",
+    "count": 18,
+    "bucket": "material-companions",
+    "reason": "the sample materials' render-asset / thermal-physical property-set companions -- our palette carries none; left in place (a removal rung's business)"
+   },
+   {
+    "class": "PipeSegment",
+    "count": 15,
+    "bucket": "constructor-partial",
+    "reason": "the piping / duct / conduit / cable-tray / fluid catalogs -- partly constructible (conduit + tray constructors exist; pipe schedules / fluids do not): a catalog rung"
+   },
+   {
+    "class": "RbsPipeScheduleType",
+    "count": 13,
+    "bucket": "constructor-partial",
+    "reason": "the piping / duct / conduit / cable-tray / fluid catalogs -- partly constructible (conduit + tray constructors exist; pipe schedules / fluids do not): a catalog rung"
+   },
+   {
+    "class": "DimensionStyle",
+    "count": 12,
+    "bucket": "no-constructor",
+    "reason": "annotation ATTRIBUTE types (dimension / arrowhead / view-tag types; the family-scoped ones belong to the curtain systems) -- no our-constructor"
+   },
+   {
+    "class": "SectionAttributes",
+    "count": 10,
+    "bucket": "no-constructor",
+    "reason": "annotation ATTRIBUTE types (dimension / arrowhead / view-tag types; the family-scoped ones belong to the curtain systems) -- no our-constructor"
+   },
+   {
+    "class": "ColorFillSchema",
+    "count": 10,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "MaterialElem",
+    "count": 10,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "InteriorElevAttributes",
+    "count": 9,
+    "bucket": "no-constructor",
+    "reason": "annotation ATTRIBUTE types (dimension / arrowhead / view-tag types; the family-scoped ones belong to the curtain systems) -- no our-constructor"
+   },
+   {
+    "class": "CalloutTag",
+    "count": 9,
+    "bucket": "no-constructor",
+    "reason": "annotation ATTRIBUTE types (dimension / arrowhead / view-tag types; the family-scoped ones belong to the curtain systems) -- no our-constructor"
+   },
+   {
+    "class": "Family",
+    "count": 8,
+    "bucket": "curtain-systems(no-constructor)",
+    "reason": "the 8 curtain-wall SYSTEM families + everything m_famId-scoped to them (their family-editor DBViewTypes, family pen tables, symbols/surrogates) -- NO our-constructor for curtain-system families (residue DBViewTypes / PenWidthTables here are the family-scoped ones; the project ones are OURS)"
+   },
+   {
+    "class": "FamilySurrogate",
+    "count": 8,
+    "bucket": "curtain-systems(no-constructor)",
+    "reason": "the 8 curtain-wall SYSTEM families + everything m_famId-scoped to them (their family-editor DBViewTypes, family pen tables, symbols/surrogates) -- NO our-constructor for curtain-system families (residue DBViewTypes / PenWidthTables here are the family-scoped ones; the project ones are OURS)"
+   },
+   {
+    "class": "AreaTypeElem",
+    "count": 8,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "ParamElemProject",
+    "count": 8,
+    "bucket": "definitions-removal-candidate",
+    "reason": "the sample's PARAMETER DEFINITIONS + category bindings (shared / project parameters; the R10 param-defs class group) -- a GC-removal rung or a parameter-definition constructor"
+   },
+   {
+    "class": "LoadNatureElem",
+    "count": 8,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "LoadCaseElem",
+    "count": 8,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "RbsPipeConnectionType",
+    "count": 8,
+    "bucket": "constructor-partial",
+    "reason": "the piping / duct / conduit / cable-tray / fluid catalogs -- partly constructible (conduit + tray constructors exist; pipe schedules / fluids do not): a catalog rung"
+   },
+   {
+    "class": "PenWidthTableElem",
+    "count": 8,
+    "bucket": "curtain-systems(no-constructor)",
+    "reason": "the 8 curtain-wall SYSTEM families + everything m_famId-scoped to them (their family-editor DBViewTypes, family pen tables, symbols/surrogates) -- NO our-constructor for curtain-system families (residue DBViewTypes / PenWidthTables here are the family-scoped ones; the project ones are OURS)"
+   },
+   {
+    "class": "Level",
+    "count": 7,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "ParameterFilterElement",
+    "count": 7,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "AreaSchemePlanTopologies",
+    "count": 6,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "LeaderStyle",
+    "count": 5,
+    "bucket": "no-constructor",
+    "reason": "annotation ATTRIBUTE types (dimension / arrowhead / view-tag types; the family-scoped ones belong to the curtain systems) -- no our-constructor"
+   },
+   {
+    "class": "BrowserOrganization",
+    "count": 5,
+    "bucket": "surplus-sample-instances",
+    "reason": "the sample's non-default browser schemes our two house schemes did not land on"
+   },
+   {
+    "class": "RbsPipeMaterialType",
+    "count": 5,
+    "bucket": "constructor-partial",
+    "reason": "the piping / duct / conduit / cable-tray / fluid catalogs -- partly constructible (conduit + tray constructors exist; pipe schedules / fluids do not): a catalog rung"
+   },
+   {
+    "class": "ConduitStandardType",
+    "count": 5,
+    "bucket": "constructor-partial",
+    "reason": "the piping / duct / conduit / cable-tray / fluid catalogs -- partly constructible (conduit + tray constructors exist; pipe schedules / fluids do not): a catalog rung"
+   },
+   {
+    "class": "CurveElem",
+    "count": 5,
+    "bucket": "content-removal-candidate",
+    "reason": "sample datum / model-line / legend content (grids, reference planes, area boundary lines, model sketch planes, legend graphics) -- placeable CONTENT: a removal rung, or our datum constructors (skeleton has grids/refplanes) as a content rung"
+   },
+   {
+    "class": "FillPatternElem",
+    "count": 4,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "RbsWireMaterialType",
+    "count": 4,
+    "bucket": "constructor-exists",
+    "reason": "the electrical wire / load catalog -- our types-stream constructors EXIST (voltage / distribution / load-class / wire / conductor cells): a catalog rung"
+   },
+   {
+    "class": "LegendComponent",
+    "count": 4,
+    "bucket": "content-removal-candidate",
+    "reason": "sample datum / model-line / legend content (grids, reference planes, area boundary lines, model sketch planes, legend graphics) -- placeable CONTENT: a removal rung, or our datum constructors (skeleton has grids/refplanes) as a content rung"
+   },
+   {
+    "class": "LinePatternElem",
+    "count": 3,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "RbsWireTemperatureRatingType",
+    "count": 3,
+    "bucket": "constructor-exists",
+    "reason": "the electrical wire / load catalog -- our types-stream constructors EXIST (voltage / distribution / load-class / wire / conductor cells): a catalog rung"
+   },
+   {
+    "class": "Grid",
+    "count": 3,
+    "bucket": "content-removal-candidate",
+    "reason": "sample datum / model-line / legend content (grids, reference planes, area boundary lines, model sketch planes, legend graphics) -- placeable CONTENT: a removal rung, or our datum constructors (skeleton has grids/refplanes) as a content rung"
+   },
+   {
+    "class": "SunAnnotationElem",
+    "count": 3,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "NumberingSchema",
+    "count": 3,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "Viewport",
+    "count": 3,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "PrintSettings",
+    "count": 2,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "ViewportAttributes",
+    "count": 1,
+    "bucket": "no-constructor",
+    "reason": "annotation ATTRIBUTE types (dimension / arrowhead / view-tag types; the family-scoped ones belong to the curtain systems) -- no our-constructor"
+   },
+   {
+    "class": "GridAttributes",
+    "count": 1,
+    "bucket": "no-constructor",
+    "reason": "annotation ATTRIBUTE types (dimension / arrowhead / view-tag types; the family-scoped ones belong to the curtain systems) -- no our-constructor"
+   },
+   {
+    "class": "AreaReportSettingsElem",
+    "count": 1,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "ConduitSizesElem",
+    "count": 1,
+    "bucket": "constructor-partial",
+    "reason": "the piping / duct / conduit / cable-tray / fluid catalogs -- partly constructible (conduit + tray constructors exist; pipe schedules / fluids do not): a catalog rung"
+   },
+   {
+    "class": "CableTraySizesElem",
+    "count": 1,
+    "bucket": "constructor-partial",
+    "reason": "the piping / duct / conduit / cable-tray / fluid catalogs -- partly constructible (conduit + tray constructors exist; pipe schedules / fluids do not): a catalog rung"
+   },
+   {
+    "class": "WorksharingViewModeSettings",
+    "count": 1,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "BasicWallType",
+    "count": 1,
+    "bucket": "constructor-partial",
+    "reason": "the sample's SYSTEM FAMILY TYPES (wall/floor/roof/ceiling/stair/rebar...) -- our house catalog HAS wall/floor/roof/ceiling type constructors: a system-types rung; the structural / stair types have none"
+   },
+   {
+    "class": "LinearDimString",
+    "count": 1,
+    "bucket": "no-constructor",
+    "reason": "annotation ATTRIBUTE types (dimension / arrowhead / view-tag types; the family-scoped ones belong to the curtain systems) -- no our-constructor"
+   },
+   {
+    "class": "LevelRoomPlan",
+    "count": 1,
+    "bucket": "content-removal-candidate",
+    "reason": "sample room / plan-topology content (a placed room + its LevelRoomPlan companion) -- placeable CONTENT: a removal rung"
+   },
+   {
+    "class": "RoomElem",
+    "count": 1,
+    "bucket": "content-removal-candidate",
+    "reason": "sample room / plan-topology content (a placed room + its LevelRoomPlan companion) -- placeable CONTENT: a removal rung"
+   },
+   {
+    "class": "FloorAttributes",
+    "count": 1,
+    "bucket": "constructor-partial",
+    "reason": "the sample's SYSTEM FAMILY TYPES (wall/floor/roof/ceiling/stair/rebar...) -- our house catalog HAS wall/floor/roof/ceiling type constructors: a system-types rung; the structural / stair types have none"
+   },
+   {
+    "class": "AssemblyCodeTable",
+    "count": 1,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "RvtLinkSymbol",
+    "count": 1,
+    "bucket": "external-link-removal-candidate",
+    "reason": "a LINKED REVIT MODEL reference (the sample's site link -- names an external Autodesk file) -- REMOVE (a link removal rung; the keynote table / copy-watch wiring we own no longer depends on it)"
+   },
+   {
+    "class": "RvtLinkInstance",
+    "count": 1,
+    "bucket": "external-link-removal-candidate",
+    "reason": "a LINKED REVIT MODEL reference (the sample's site link -- names an external Autodesk file) -- REMOVE (a link removal rung; the keynote table / copy-watch wiring we own no longer depends on it)"
+   },
+   {
+    "class": "FabricWireType",
+    "count": 1,
+    "bucket": "constructor-partial",
+    "reason": "the sample's SYSTEM FAMILY TYPES (wall/floor/roof/ceiling/stair/rebar...) -- our house catalog HAS wall/floor/roof/ceiling type constructors: a system-types rung; the structural / stair types have none"
+   },
+   {
+    "class": "FabricSheetType",
+    "count": 1,
+    "bucket": "constructor-partial",
+    "reason": "the sample's SYSTEM FAMILY TYPES (wall/floor/roof/ceiling/stair/rebar...) -- our house catalog HAS wall/floor/roof/ceiling type constructors: a system-types rung; the structural / stair types have none"
+   },
+   {
+    "class": "DataStorage",
+    "count": 1,
+    "bucket": "no-constructor",
+    "reason": "misc analysis / massing / area-scheme / rebar-attribute / design-option / import machinery -- no our-constructor (colour-fill schemas, load cases, conceptual constructions, area types, numbering schemas, the UniFormat table...)"
+   },
+   {
+    "class": "SlaveSymbolTrackerElem",
+    "count": 1,
+    "bucket": "curtain-systems(no-constructor)",
+    "reason": "the 8 curtain-wall SYSTEM families + everything m_famId-scoped to them (their family-editor DBViewTypes, family pen tables, symbols/surrogates) -- NO our-constructor for curtain-system families (residue DBViewTypes / PenWidthTables here are the family-scoped ones; the project ones are OURS)"
+   },
+   {
+    "class": "DBViewDrafting",
+    "count": 1,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "Viewer",
+    "count": 1,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   },
+   {
+    "class": "DBDrawing",
+    "count": 1,
+    "bucket": "surplus-sample-instances",
+    "reason": "sample instances of classes our rungs DID substitute, beyond our set's size (extra materials / patterns / plan-less levels / view companions) -- left as they were"
+   }
+  ]
+ },
+ "ours_not_landed_across_ladder": {
+  "Y3": {
+   "count": 1,
+   "by_class": {
+    "InitialViewSettings": 1
+   }
+  },
+  "Y6": {
+   "count": 235,
+   "by_class": {
+    "GStyleElem": 235
+   }
+  },
+  "Y8": {
+   "count": 4,
+   "by_class": {
+    "PhaseFilterElem": 4
+   }
+  },
+  "Y9": {
+   "count": 12,
+   "by_class": {
+    "TextNoteAttributes": 3,
+    "FontElem": 3,
+    "CategoryElem": 3,
+    "GStyleElem": 3
+   }
+  }
+ },
+ "genesis_candidate": null,
+ "stages": [
+  {
+   "stage": "provenance ledger v2 (--baseline all --streams)",
+   "seconds": 9.5
+  }
+ ],
+ "provenance_ledger": {
+  "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/subst_k4/Y9.rvt",
+  "gate_verdict": "FAIL \u2014 3,279 Autodesk-derived element(s) in expression-bearing categories; 1,579,264 byte(s) byte-identical to baseline in expression-bearing streams; 8,605 Autodesk resource identifier(s); 7 identity violation(s)",
+  "gate_passes": false,
+  "certifies_G1": false,
+  "layers": [
+   "elements",
+   "streams",
+   "strings",
+   "identity"
+  ],
+  "blocking": [
+   {
+    "category": "loadable-families",
+    "provenance": "autodesk-sample",
+    "count": 16,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "family-types-symbols",
+    "provenance": "autodesk-sample",
+    "count": 2,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "system-family-types",
+    "provenance": "autodesk-sample",
+    "count": 4,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "views-and-templates",
+    "provenance": "autodesk-sample",
+    "count": 118,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "views-and-templates",
+    "provenance": "ours-modified",
+    "count": 41,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "object-styles",
+    "provenance": "autodesk-sample",
+    "count": 499,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "object-styles",
+    "provenance": "ours-modified",
+    "count": 1172,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "patterns-materials",
+    "provenance": "autodesk-sample",
+    "count": 80,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "patterns-materials",
+    "provenance": "ours-modified",
+    "count": 23,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "text-dimension-types",
+    "provenance": "autodesk-sample",
+    "count": 41,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "text-dimension-types",
+    "provenance": "ours-modified",
+    "count": 8,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "parameter-definitions",
+    "provenance": "autodesk-sample",
+    "count": 821,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "parameter-definitions",
+    "provenance": "ours-modified",
+    "count": 1,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "phases-design-options",
+    "provenance": "autodesk-sample",
+    "count": 5,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "phases-design-options",
+    "provenance": "ours-modified",
+    "count": 6,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "project-info-settings",
+    "provenance": "autodesk-sample",
+    "count": 17,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "project-info-settings",
+    "provenance": "ours-modified",
+    "count": 21,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "mep-electrical-definitions",
+    "provenance": "autodesk-sample",
+    "count": 351,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "mep-electrical-definitions",
+    "provenance": "ours-modified",
+    "count": 3,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "placed-model-content",
+    "provenance": "autodesk-sample",
+    "count": 2,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "placed-model-content",
+    "provenance": "ours-modified",
+    "count": 2,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "view-annotation-2d-content",
+    "provenance": "autodesk-sample",
+    "count": 45,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "category": "view-annotation-2d-content",
+    "provenance": "ours-modified",
+    "count": 1,
+    "why": "Autodesk-derived expression in an expression-bearing category"
+   },
+   {
+    "layer": "streams",
+    "category": "Global/Latest",
+    "provenance": "stream-modified-lineage",
+    "count": 1579264,
+    "why": "1,579,264 of 1,580,074 bytes byte-identical to baseline rstbasicsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+   },
+   {
+    "layer": "strings",
+    "category": "autodesk-resource-refs",
+    "provenance": "autodesk-resource-refs",
+    "count": 8605,
+    "why": "8,605 Autodesk resource identifier(s) in document content (forge-typeid=8378, revit-resource-string=108, asset-library-fbx=81, autodesk-name=28, sunandsky-asset=4) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+   },
+   {
+    "layer": "identity",
+    "category": "identity:author",
+    "provenance": "identity-not-ours",
+    "count": 1,
+    "value": "Autodesk Revit",
+    "why": "asserts Autodesk authorship \u2014 a template identity, never claim an origin we don't have"
+   },
+   {
+    "layer": "identity",
+    "category": "identity:client_app_name",
+    "provenance": "identity-not-ours",
+    "count": 1,
+    "value": "RevitApplication",
+    "why": "template client identity inherited"
+   },
+   {
+    "layer": "identity",
+    "category": "identity:last_save_path",
+    "provenance": "identity-not-ours",
+    "count": 1,
+    "value": "C:\\Users\\hansonje\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+    "why": "template file path leaked (must be a bare filename or empty)"
+   },
+   {
+    "layer": "identity",
+    "category": "identity:unique_document_guid",
+    "provenance": "identity-not-ours",
+    "count": 1,
+    "value": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+    "why": "document GUID inherited from a sample (identity is theirs)"
+   },
+   {
+    "layer": "identity",
+    "category": "identity:central_episode_guid",
+    "provenance": "identity-not-ours",
+    "count": 1,
+    "value": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+    "why": "document GUID inherited from a sample (identity is theirs)"
+   },
+   {
+    "layer": "identity",
+    "category": "identity:last_save_path",
+    "provenance": "identity-not-ours",
+    "count": 1,
+    "value": "C:\\Users\\hansonje\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+    "why": "sample save path inherited"
+   },
+   {
+    "layer": "identity",
+    "category": "identity:DocumentIncrementTable.username",
+    "provenance": "identity-not-ours",
+    "count": 22,
+    "value": {
+     "loboarch": 9,
+     "okapaw": 4,
+     "xuew": 3,
+     "youyi": 2,
+     "zhangg": 1,
+     "gbs_subsuser6": 1,
+     "campbes": 1,
+     "hansonje": 1
+    },
+    "why": "22 of 22 save episodes are signed by Autodesk employee usernames \u2014 the sample's chain of custody, in our bytes"
+   }
+  ],
+  "counsel": [
+   {
+    "item": "C4 schema-stream",
+    "stream": "Formats/Latest",
+    "identical_pct": 100.0,
+    "identical_to": [
+     "dach-sample-project:Formats/Latest",
+     "racadvancedsampleproject:Formats/Latest",
+     "racbasicsampleproject:Formats/Latest",
+     "rmebasicsampleproject:Formats/Latest",
+     "rstadvancedsampleproject:Formats/Latest",
+     "rstbasicsampleproject:Formats/Latest"
+    ],
+    "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+   }
+  ],
+  "advisory_count": 8,
+  "elements": {
+   "host": 3342,
+   "totals": {
+    "autodesk-sample": 2059,
+    "ours-modified": 1283
+   },
+   "multi_baseline": {
+    "dach-sample-project": {
+     "ours-modified": 150,
+     "unmatched": 3192
+    },
+    "racadvancedsampleproject": {
+     "autodesk-sample": 13,
+     "ours-modified": 1076,
+     "ours-created": 645,
+     "transitive-cloned": 712,
+     "unmatched": 896
+    },
+    "racbasicsampleproject": {
+     "autodesk-sample": 955,
+     "ours-modified": 1183,
+     "ours-created": 98,
+     "transitive-cloned": 511,
+     "unmatched": 595
+    },
+    "rmebasicsampleproject": {
+     "autodesk-sample": 7,
+     "ours-modified": 905,
+     "ours-created": 405,
+     "transitive-cloned": 680,
+     "unmatched": 1345
+    },
+    "rstadvancedsampleproject": {
+     "ours-modified": 160,
+     "ours-created": 717,
+     "transitive-cloned": 830,
+     "unmatched": 1635
+    },
+    "rstbasicsampleproject": {
+     "autodesk-sample": 2059,
+     "ours-modified": 1283
+    }
+   }
+  },
+  "bytes": {
+   "total_inflated": 4385733,
+   "identical_pct": 75.24,
+   "ours_pct": 0.0,
+   "excluding_schema_identical_pct": 72.08,
+   "excluding_schema_ours_pct": 0.0
+  },
+  "global_latest": {
+   "inflated": 1580074,
+   "class": "modified-lineage",
+   "identical_bytes": 1579264,
+   "identical_pct": 99.95,
+   "ours_bytes": 0,
+   "best_baseline": "rstbasicsampleproject"
+  },
+  "resource_refs": {
+   "total": 8605,
+   "by_pattern": {
+    "autodesk-name": 28,
+    "forge-typeid": 8378,
+    "forge-schema-corpus": 1,
+    "autodesk-url": 1,
+    "adsk-token": 2,
+    "revit-server-string": 2,
+    "asset-library-fbx": 81,
+    "sunandsky-asset": 4,
+    "revit-resource-string": 108
+   }
+  },
+  "identity_ok": false,
+  "identity_violations": [
+   {
+    "field": "author",
+    "value": "Autodesk Revit",
+    "why": "asserts Autodesk authorship \u2014 a template identity, never claim an origin we don't have"
+   },
+   {
+    "field": "client_app_name",
+    "value": "RevitApplication",
+    "why": "template client identity inherited"
+   },
+   {
+    "field": "last_save_path",
+    "value": "C:\\Users\\hansonje\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+    "why": "template file path leaked (must be a bare filename or empty)"
+   },
+   {
+    "field": "unique_document_guid",
+    "value": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+    "baseline": "rstbasicsampleproject",
+    "why": "document GUID inherited from a sample (identity is theirs)"
+   },
+   {
+    "field": "central_episode_guid",
+    "value": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+    "baseline": "rstbasicsampleproject",
+    "why": "document GUID inherited from a sample (identity is theirs)"
+   },
+   {
+    "field": "last_save_path",
+    "value": "C:\\Users\\hansonje\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+    "baseline": "rstbasicsampleproject",
+    "why": "sample save path inherited"
+   },
+   {
+    "field": "DocumentIncrementTable.username",
+    "value": {
+     "loboarch": 9,
+     "okapaw": 4,
+     "xuew": 3,
+     "youyi": 2,
+     "zhangg": 1,
+     "gbs_subsuser6": 1,
+     "campbes": 1,
+     "hansonje": 1
+    },
+    "why": "22 of 22 save episodes are signed by Autodesk employee usernames \u2014 the sample's chain of custody, in our bytes"
+   }
+  ],
+  "elapsed_s": 9.3
+ },
+ "seconds": 9.6,
+ "verdict": "RESIDUE-LISTED"
+}

@@ -1,0 +1,9 @@
+{
+ "rung": "RB_2025",
+ "alias_of": "RB2_mepcat_2025",
+ "md5": "3ade6173330bfa7eedde8c74351e0e47",
+ "md5_identical_to": "experiments/genesis/subst_k4_2025/RB2_mepcat_2025.rvt",
+ "parent": "experiments/genesis/subst_k4_2025/RA_2025.rvt",
+ "verdict": "VALID",
+ "meaning": "RB_2025 = the residue-B round's deepest chain file (charter scope: parameter definitions at the 2025 shared-parameter GUID registry keys + the MEP wire/pipe catalog; the 2026-only conductor catalog does not exist in 2025 and is skipped by the port layer, per class)"
+}

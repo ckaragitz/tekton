@@ -1,0 +1,3361 @@
+{
+  "specVersion": "2.0",
+  "intentVersion": "2.0",
+  "generator": "rvt.ifc.intent",
+  "source": {
+    "path": "/Users/ck/dev/things/tekton/experiments/routes/demo3-prompt-via-ifc-rvt/prompt_intent.ifc",
+    "schema": "IFC4",
+    "length_scale_m_per_unit": 1.0
+  },
+  "project": {
+    "name": "Electrical Room - 2500 A service",
+    "description": "Resolved intent (spec v2.0) from prompt_intent.ifc by rvt.ifc.intent"
+  },
+  "units": {
+    "length": "m",
+    "angle": "deg"
+  },
+  "levels": [
+    {
+      "id": "L1",
+      "name": "Level 1",
+      "elevation": 0.0,
+      "elevation_from_placement": 0.0,
+      "step_id": 26,
+      "guid": "0sUOU0JDFH0eQ90Y3HFT2k"
+    }
+  ],
+  "walls": [
+    {
+      "id": "W-S",
+      "start": [
+        -4.572,
+        -3.048
+      ],
+      "end": [
+        4.572,
+        -3.048
+      ],
+      "thickness": 0.2032,
+      "height": 3.6576,
+      "type": "Room shell (from the shell proxy's wall solids)",
+      "derivedFrom": [
+        "wall_1"
+      ],
+      "synthesized": false,
+      "openings": []
+    },
+    {
+      "id": "W-E",
+      "start": [
+        4.572,
+        -3.048
+      ],
+      "end": [
+        4.572,
+        3.048
+      ],
+      "thickness": 0.2032,
+      "height": 3.6576,
+      "type": "Room shell (from the shell proxy's wall solids)",
+      "derivedFrom": [
+        "wall_2"
+      ],
+      "synthesized": false,
+      "openings": []
+    },
+    {
+      "id": "W-N",
+      "start": [
+        4.572,
+        3.048
+      ],
+      "end": [
+        -4.572,
+        3.048
+      ],
+      "thickness": 0.2032,
+      "height": 3.6576,
+      "type": "Room shell (from the shell proxy's wall solids)",
+      "derivedFrom": [
+        "wall_3"
+      ],
+      "synthesized": false,
+      "openings": []
+    },
+    {
+      "id": "W-W",
+      "start": [
+        -4.572,
+        3.048
+      ],
+      "end": [
+        -4.572,
+        -3.048
+      ],
+      "thickness": 0.2032,
+      "height": 3.6576,
+      "type": "Room shell (from the shell proxy's wall solids)",
+      "derivedFrom": [
+        "wall_4"
+      ],
+      "synthesized": false,
+      "openings": []
+    }
+  ],
+  "equipment": [
+    {
+      "tag": "MSB",
+      "name": "MSB - 2500 A 480Y/277 V main breaker switchboard, 4-section",
+      "kind": "switchboard",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "predefinedType": "SWITCHBOARD",
+      "guid": "0qhC9M1tHWHx4Ov__RqvVI",
+      "step_id": 67,
+      "typeName": null,
+      "objectType": null,
+      "description": null,
+      "disposition": "generated-family",
+      "position_m": [
+        0.0,
+        2.3892
+      ],
+      "elevation_m": 0.1,
+      "insertion_m": [
+        0.0,
+        2.3892,
+        0.1
+      ],
+      "positionSource": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+      "orientation": {
+        "front_normal": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "yaw_deg": 0.0,
+        "frame_kind": "yaw",
+        "frame3x3_rows_are_family_axes_in_world": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "convention": "family +X = width axis; front = family -Y (yaw frame) for floor equipment, or family +Z = front normal / family +Y = up (upright work-plane frame) for wall equipment"
+      },
+      "dims_m": {
+        "w": 3.9,
+        "d": 0.9144,
+        "h": 2.286,
+        "footprint_area": 3.5662
+      },
+      "mounting": "floor",
+      "mounting_height_m": null,
+      "fedFrom": "UTILITY",
+      "contract": {
+        "PanelName": "MSB",
+        "Voltage": "480Y/277 V",
+        "Phases": 3,
+        "Wires": 4,
+        "BusRating": 2500.0,
+        "MainsRating": 2500.0,
+        "MainDevice": "2500 A main breaker",
+        "ShortCircuitRatingkA": 65.0,
+        "Sections": 4,
+        "Mounting": "Floor, on housekeeping pad",
+        "FeederEntry": "Top",
+        "MainsType": "Main breaker",
+        "FedFrom": "UTILITY",
+        "_voltage": {
+          "ll": 480.0,
+          "ln": 277.0,
+          "phases": 3,
+          "wires": 4,
+          "system": "480Y/277",
+          "raw": "480Y/277 V"
+        },
+        "_provenance": {
+          "PanelName": "pset:SwitchboardSchedule.PanelName",
+          "Voltage": "pset:SwitchboardSchedule.Voltage",
+          "Phases": "pset:SwitchboardSchedule.Phases",
+          "Wires": "pset:SwitchboardSchedule.Wires",
+          "BusRating": "pset:SwitchboardSchedule.BusRating",
+          "MainsRating": "pset:SwitchboardSchedule.MainsRating",
+          "MainDevice": "pset:SwitchboardSchedule.MainDevice",
+          "ShortCircuitRatingkA": "pset:SwitchboardSchedule.ShortCircuitRatingkA",
+          "Sections": "pset:SwitchboardSchedule.Sections",
+          "Mounting": "pset:SwitchboardSchedule.Mounting",
+          "FeederEntry": "pset:SwitchboardSchedule.FeederEntry",
+          "MainsType": "pset:SwitchboardSchedule.MainsType",
+          "FedFrom": "pset:SwitchboardSchedule.FedFrom"
+        }
+      },
+      "psets": {
+        "SwitchboardSchedule": {
+          "PanelName": "MSB",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 2500.0,
+          "MainsRating": 2500.0,
+          "MainDevice": "2500 A main breaker",
+          "ShortCircuitRatingkA": 65.0,
+          "Sections": 4,
+          "Mounting": "Floor, on housekeeping pad",
+          "FeederEntry": "Top",
+          "MainsType": "Main breaker",
+          "FedFrom": "UTILITY"
+        }
+      },
+      "placementChain": {
+        "absolute_origin_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "absolute_xdir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "absolute_zdir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "is_identity": true,
+        "chain_depth": 4,
+        "chain": [
+          {
+            "id": 66,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 25,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 23,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 21,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          }
+        ],
+        "warnings": []
+      },
+      "geometry": {
+        "has_body": true,
+        "lo_m": [
+          -1.95,
+          1.926,
+          0.1
+        ],
+        "hi_m": [
+          1.95,
+          2.8464,
+          2.386
+        ],
+        "extent_m": [
+          3.9,
+          0.9204,
+          2.286
+        ],
+        "center_m": [
+          0.0,
+          2.3862,
+          1.243
+        ],
+        "footprint": {
+          "center": [
+            0.0,
+            2.3862
+          ],
+          "xdir": [
+            1.0,
+            0.0
+          ],
+          "xdim": 3.9,
+          "ydim": 0.9204,
+          "area": 3.5896,
+          "yaw_deg": 0.0
+        },
+        "all_boxes": true,
+        "triangles": 24,
+        "items": [
+          {
+            "item_id": 59,
+            "name": "MSB_body",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              -1.95,
+              1.932,
+              0.1
+            ],
+            "hi_m": [
+              1.95,
+              2.8464,
+              2.386
+            ],
+            "extent_m": [
+              3.9,
+              0.9144,
+              2.286
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  0.0,
+                  2.3892,
+                  0.1
+                ],
+                "center": [
+                  0.0,
+                  2.3892,
+                  1.243
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 3.9,
+                "ydim": 0.9144,
+                "height": 2.286,
+                "lo": [
+                  -1.95,
+                  1.932,
+                  0.1
+                ],
+                "hi": [
+                  1.95,
+                  2.8464,
+                  2.386
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          },
+          {
+            "item_id": 62,
+            "name": "MSB_nameplate",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              -0.12,
+              1.926,
+              1.602
+            ],
+            "hi_m": [
+              0.12,
+              1.932,
+              1.646
+            ],
+            "extent_m": [
+              0.24,
+              0.006,
+              0.044
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  0.0,
+                  1.929,
+                  1.602
+                ],
+                "center": [
+                  0.0,
+                  1.929,
+                  1.624
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.24,
+                "ydim": 0.006,
+                "height": 0.044,
+                "lo": [
+                  -0.12,
+                  1.926,
+                  1.602
+                ],
+                "hi": [
+                  0.12,
+                  1.932,
+                  1.646
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          }
+        ]
+      },
+      "notes": [
+        "insertion = footprint centre at the base of the body (z = base of enclosure; sits on a housekeeping pad when one exists)"
+      ]
+    },
+    {
+      "tag": "DP-1",
+      "name": "DP-1 - 400 A 480Y/277 V MB distribution panelboard, 42 spaces",
+      "kind": "distribution_panelboard",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "predefinedType": "DISTRIBUTIONBOARD",
+      "guid": "0MZDwl11FY3WxPhkdWSitx",
+      "step_id": 92,
+      "typeName": null,
+      "objectType": null,
+      "description": null,
+      "disposition": "generated-family",
+      "position_m": [
+        -4.4704,
+        2.0924
+      ],
+      "elevation_m": 0.658,
+      "insertion_m": [
+        -4.4704,
+        2.0924,
+        1.42
+      ],
+      "positionSource": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+      "orientation": {
+        "front_normal": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "yaw_deg": 90.0,
+        "frame_kind": "upright",
+        "frame3x3_rows_are_family_axes_in_world": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "convention": "family +X = width axis; front = family -Y (yaw frame) for floor equipment, or family +Z = front normal / family +Y = up (upright work-plane frame) for wall equipment"
+      },
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.524,
+        "footprint_area": 0.0742,
+        "enclosure_w": 0.508,
+        "enclosure_h": 1.524,
+        "top_of_panel": 2.182,
+        "bottom_of_panel": 0.658
+      },
+      "mounting": "wall",
+      "mounting_height_m": 1.42,
+      "fedFrom": "MSB",
+      "contract": {
+        "PanelName": "DP-1",
+        "Voltage": "480Y/277 V",
+        "Phases": 3,
+        "Wires": 4,
+        "BusRating": 400.0,
+        "MainsRating": 400.0,
+        "MainsType": "Main breaker",
+        "NumberOfCircuits": 42,
+        "Mounting": "Surface, wall",
+        "FeederEntry": "Top",
+        "FedFrom": "MSB",
+        "_voltage": {
+          "ll": 480.0,
+          "ln": 277.0,
+          "phases": 3,
+          "wires": 4,
+          "system": "480Y/277",
+          "raw": "480Y/277 V"
+        },
+        "_provenance": {
+          "PanelName": "pset:PanelSchedule.PanelName",
+          "Voltage": "pset:PanelSchedule.Voltage",
+          "Phases": "pset:PanelSchedule.Phases",
+          "Wires": "pset:PanelSchedule.Wires",
+          "BusRating": "pset:PanelSchedule.BusRating",
+          "MainsRating": "pset:PanelSchedule.MainsRating",
+          "MainsType": "pset:PanelSchedule.MainsType",
+          "NumberOfCircuits": "pset:PanelSchedule.NumberOfCircuits",
+          "Mounting": "pset:PanelSchedule.Mounting",
+          "FeederEntry": "pset:PanelSchedule.FeederEntry",
+          "FedFrom": "pset:PanelSchedule.FedFrom"
+        }
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "DP-1",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 400.0,
+          "MainsRating": 400.0,
+          "MainsType": "Main breaker",
+          "NumberOfCircuits": 42,
+          "Mounting": "Surface, wall",
+          "FeederEntry": "Top",
+          "FedFrom": "MSB"
+        }
+      },
+      "placementChain": {
+        "absolute_origin_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "absolute_xdir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "absolute_zdir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "is_identity": true,
+        "chain_depth": 4,
+        "chain": [
+          {
+            "id": 91,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 25,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 23,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 21,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          }
+        ],
+        "warnings": []
+      },
+      "geometry": {
+        "has_body": true,
+        "lo_m": [
+          -4.4704,
+          1.8384,
+          0.658
+        ],
+        "hi_m": [
+          -4.3183,
+          2.3464,
+          2.182
+        ],
+        "extent_m": [
+          0.1521,
+          0.508,
+          1.524
+        ],
+        "center_m": [
+          -4.3944,
+          2.0924,
+          1.42
+        ],
+        "footprint": {
+          "center": [
+            -4.3944,
+            2.0924
+          ],
+          "xdir": [
+            0.0,
+            1.0
+          ],
+          "xdim": 0.508,
+          "ydim": 0.1521,
+          "area": 0.0772,
+          "yaw_deg": 90.0
+        },
+        "all_boxes": true,
+        "triangles": 24,
+        "items": [
+          {
+            "item_id": 84,
+            "name": "DP-1_enclosure",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              -4.4704,
+              1.8384,
+              0.658
+            ],
+            "hi_m": [
+              -4.3243,
+              2.3464,
+              2.182
+            ],
+            "extent_m": [
+              0.146,
+              0.508,
+              1.524
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  -4.3974,
+                  2.0924,
+                  0.658
+                ],
+                "center": [
+                  -4.3974,
+                  2.0924,
+                  1.42
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.146,
+                "ydim": 0.508,
+                "height": 1.524,
+                "lo": [
+                  -4.4704,
+                  1.8384,
+                  0.658
+                ],
+                "hi": [
+                  -4.3243,
+                  2.3464,
+                  2.182
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          },
+          {
+            "item_id": 87,
+            "name": "DP-1_nameplate",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              -4.3243,
+              1.9724,
+              1.652
+            ],
+            "hi_m": [
+              -4.3183,
+              2.2124,
+              1.696
+            ],
+            "extent_m": [
+              0.006,
+              0.24,
+              0.044
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  -4.3213,
+                  2.0924,
+                  1.652
+                ],
+                "center": [
+                  -4.3213,
+                  2.0924,
+                  1.674
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.006,
+                "ydim": 0.24,
+                "height": 0.044,
+                "lo": [
+                  -4.3243,
+                  1.9724,
+                  1.652
+                ],
+                "hi": [
+                  -4.3183,
+                  2.2124,
+                  1.696
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          }
+        ]
+      },
+      "notes": [
+        "insertion = centre of the enclosure's back face (the mounting plane); dims w/d/h include strut backing"
+      ]
+    },
+    {
+      "tag": "DP-2",
+      "name": "DP-2 - 400 A 480Y/277 V MB distribution panelboard, 42 spaces",
+      "kind": "distribution_panelboard",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "predefinedType": "DISTRIBUTIONBOARD",
+      "guid": "3vdsMbpbdImuCFhYdZFldp",
+      "step_id": 115,
+      "typeName": null,
+      "objectType": null,
+      "description": null,
+      "disposition": "generated-family",
+      "position_m": [
+        4.4704,
+        2.0924
+      ],
+      "elevation_m": 0.658,
+      "insertion_m": [
+        4.4704,
+        2.0924,
+        1.42
+      ],
+      "positionSource": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+      "orientation": {
+        "front_normal": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "yaw_deg": -90.0,
+        "frame_kind": "upright",
+        "frame3x3_rows_are_family_axes_in_world": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "convention": "family +X = width axis; front = family -Y (yaw frame) for floor equipment, or family +Z = front normal / family +Y = up (upright work-plane frame) for wall equipment"
+      },
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.524,
+        "footprint_area": 0.0742,
+        "enclosure_w": 0.508,
+        "enclosure_h": 1.524,
+        "top_of_panel": 2.182,
+        "bottom_of_panel": 0.658
+      },
+      "mounting": "wall",
+      "mounting_height_m": 1.42,
+      "fedFrom": "MSB",
+      "contract": {
+        "PanelName": "DP-2",
+        "Voltage": "480Y/277 V",
+        "Phases": 3,
+        "Wires": 4,
+        "BusRating": 400.0,
+        "MainsRating": 400.0,
+        "MainsType": "Main breaker",
+        "NumberOfCircuits": 42,
+        "Mounting": "Surface, wall",
+        "FeederEntry": "Top",
+        "FedFrom": "MSB",
+        "_voltage": {
+          "ll": 480.0,
+          "ln": 277.0,
+          "phases": 3,
+          "wires": 4,
+          "system": "480Y/277",
+          "raw": "480Y/277 V"
+        },
+        "_provenance": {
+          "PanelName": "pset:PanelSchedule.PanelName",
+          "Voltage": "pset:PanelSchedule.Voltage",
+          "Phases": "pset:PanelSchedule.Phases",
+          "Wires": "pset:PanelSchedule.Wires",
+          "BusRating": "pset:PanelSchedule.BusRating",
+          "MainsRating": "pset:PanelSchedule.MainsRating",
+          "MainsType": "pset:PanelSchedule.MainsType",
+          "NumberOfCircuits": "pset:PanelSchedule.NumberOfCircuits",
+          "Mounting": "pset:PanelSchedule.Mounting",
+          "FeederEntry": "pset:PanelSchedule.FeederEntry",
+          "FedFrom": "pset:PanelSchedule.FedFrom"
+        }
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "DP-2",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 400.0,
+          "MainsRating": 400.0,
+          "MainsType": "Main breaker",
+          "NumberOfCircuits": 42,
+          "Mounting": "Surface, wall",
+          "FeederEntry": "Top",
+          "FedFrom": "MSB"
+        }
+      },
+      "placementChain": {
+        "absolute_origin_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "absolute_xdir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "absolute_zdir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "is_identity": true,
+        "chain_depth": 4,
+        "chain": [
+          {
+            "id": 114,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 25,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 23,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 21,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          }
+        ],
+        "warnings": []
+      },
+      "geometry": {
+        "has_body": true,
+        "lo_m": [
+          4.3183,
+          1.8384,
+          0.658
+        ],
+        "hi_m": [
+          4.4704,
+          2.3464,
+          2.182
+        ],
+        "extent_m": [
+          0.1521,
+          0.508,
+          1.524
+        ],
+        "center_m": [
+          4.3944,
+          2.0924,
+          1.42
+        ],
+        "footprint": {
+          "center": [
+            4.3944,
+            2.0924
+          ],
+          "xdir": [
+            0.0,
+            1.0
+          ],
+          "xdim": 0.508,
+          "ydim": 0.1521,
+          "area": 0.0772,
+          "yaw_deg": 90.0
+        },
+        "all_boxes": true,
+        "triangles": 24,
+        "items": [
+          {
+            "item_id": 107,
+            "name": "DP-2_enclosure",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              4.3243,
+              1.8384,
+              0.658
+            ],
+            "hi_m": [
+              4.4704,
+              2.3464,
+              2.182
+            ],
+            "extent_m": [
+              0.146,
+              0.508,
+              1.524
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  4.3974,
+                  2.0924,
+                  0.658
+                ],
+                "center": [
+                  4.3974,
+                  2.0924,
+                  1.42
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.146,
+                "ydim": 0.508,
+                "height": 1.524,
+                "lo": [
+                  4.3243,
+                  1.8384,
+                  0.658
+                ],
+                "hi": [
+                  4.4704,
+                  2.3464,
+                  2.182
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          },
+          {
+            "item_id": 110,
+            "name": "DP-2_nameplate",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              4.3183,
+              1.9724,
+              1.652
+            ],
+            "hi_m": [
+              4.3243,
+              2.2124,
+              1.696
+            ],
+            "extent_m": [
+              0.006,
+              0.24,
+              0.044
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  4.3213,
+                  2.0924,
+                  1.652
+                ],
+                "center": [
+                  4.3213,
+                  2.0924,
+                  1.674
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.006,
+                "ydim": 0.24,
+                "height": 0.044,
+                "lo": [
+                  4.3183,
+                  1.9724,
+                  1.652
+                ],
+                "hi": [
+                  4.3243,
+                  2.2124,
+                  1.696
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          }
+        ]
+      },
+      "notes": [
+        "insertion = centre of the enclosure's back face (the mounting plane); dims w/d/h include strut backing"
+      ]
+    },
+    {
+      "tag": "LP-1",
+      "name": "LP-1 - 100 A 480Y/277 V MLO lighting panelboard, 42 spaces",
+      "kind": "lighting_panelboard",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "predefinedType": "DISTRIBUTIONBOARD",
+      "guid": "05d798$LOTFFS1_ePtWmQV",
+      "step_id": 138,
+      "typeName": null,
+      "objectType": null,
+      "description": null,
+      "disposition": "generated-family",
+      "position_m": [
+        -4.4704,
+        1.2844
+      ],
+      "elevation_m": 0.8104,
+      "insertion_m": [
+        -4.4704,
+        1.2844,
+        1.42
+      ],
+      "positionSource": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+      "orientation": {
+        "front_normal": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "yaw_deg": 90.0,
+        "frame_kind": "upright",
+        "frame3x3_rows_are_family_axes_in_world": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "convention": "family +X = width axis; front = family -Y (yaw frame) for floor equipment, or family +Z = front normal / family +Y = up (upright work-plane frame) for wall equipment"
+      },
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192,
+        "footprint_area": 0.0742,
+        "enclosure_w": 0.508,
+        "enclosure_h": 1.2192,
+        "top_of_panel": 2.0296,
+        "bottom_of_panel": 0.8104
+      },
+      "mounting": "wall",
+      "mounting_height_m": 1.42,
+      "fedFrom": "DP-1",
+      "contract": {
+        "PanelName": "LP-1",
+        "Voltage": "480Y/277 V",
+        "Phases": 3,
+        "Wires": 4,
+        "BusRating": 100.0,
+        "MainsRating": 100.0,
+        "MainsType": "Main lugs only",
+        "NumberOfCircuits": 42,
+        "Mounting": "Surface, wall",
+        "FeederEntry": "Top",
+        "FedFrom": "DP-1",
+        "_voltage": {
+          "ll": 480.0,
+          "ln": 277.0,
+          "phases": 3,
+          "wires": 4,
+          "system": "480Y/277",
+          "raw": "480Y/277 V"
+        },
+        "_provenance": {
+          "PanelName": "pset:PanelSchedule.PanelName",
+          "Voltage": "pset:PanelSchedule.Voltage",
+          "Phases": "pset:PanelSchedule.Phases",
+          "Wires": "pset:PanelSchedule.Wires",
+          "BusRating": "pset:PanelSchedule.BusRating",
+          "MainsRating": "pset:PanelSchedule.MainsRating",
+          "MainsType": "pset:PanelSchedule.MainsType",
+          "NumberOfCircuits": "pset:PanelSchedule.NumberOfCircuits",
+          "Mounting": "pset:PanelSchedule.Mounting",
+          "FeederEntry": "pset:PanelSchedule.FeederEntry",
+          "FedFrom": "pset:PanelSchedule.FedFrom"
+        }
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "LP-1",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 100.0,
+          "MainsRating": 100.0,
+          "MainsType": "Main lugs only",
+          "NumberOfCircuits": 42,
+          "Mounting": "Surface, wall",
+          "FeederEntry": "Top",
+          "FedFrom": "DP-1"
+        }
+      },
+      "placementChain": {
+        "absolute_origin_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "absolute_xdir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "absolute_zdir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "is_identity": true,
+        "chain_depth": 4,
+        "chain": [
+          {
+            "id": 137,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 25,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 23,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 21,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          }
+        ],
+        "warnings": []
+      },
+      "geometry": {
+        "has_body": true,
+        "lo_m": [
+          -4.4704,
+          1.0304,
+          0.8104
+        ],
+        "hi_m": [
+          -4.3183,
+          1.5384,
+          2.0296
+        ],
+        "extent_m": [
+          0.1521,
+          0.508,
+          1.2192
+        ],
+        "center_m": [
+          -4.3944,
+          1.2844,
+          1.42
+        ],
+        "footprint": {
+          "center": [
+            -4.3944,
+            1.2844
+          ],
+          "xdir": [
+            0.0,
+            1.0
+          ],
+          "xdim": 0.508,
+          "ydim": 0.1521,
+          "area": 0.0772,
+          "yaw_deg": 90.0
+        },
+        "all_boxes": true,
+        "triangles": 24,
+        "items": [
+          {
+            "item_id": 130,
+            "name": "LP-1_enclosure",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              -4.4704,
+              1.0304,
+              0.8104
+            ],
+            "hi_m": [
+              -4.3243,
+              1.5384,
+              2.0296
+            ],
+            "extent_m": [
+              0.146,
+              0.508,
+              1.2192
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  -4.3974,
+                  1.2844,
+                  0.8104
+                ],
+                "center": [
+                  -4.3974,
+                  1.2844,
+                  1.42
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.146,
+                "ydim": 0.508,
+                "height": 1.2192,
+                "lo": [
+                  -4.4704,
+                  1.0304,
+                  0.8104
+                ],
+                "hi": [
+                  -4.3243,
+                  1.5384,
+                  2.0296
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          },
+          {
+            "item_id": 133,
+            "name": "LP-1_nameplate",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              -4.3243,
+              1.1644,
+              1.6012
+            ],
+            "hi_m": [
+              -4.3183,
+              1.4044,
+              1.6452
+            ],
+            "extent_m": [
+              0.006,
+              0.24,
+              0.044
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  -4.3213,
+                  1.2844,
+                  1.6012
+                ],
+                "center": [
+                  -4.3213,
+                  1.2844,
+                  1.6232
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.006,
+                "ydim": 0.24,
+                "height": 0.044,
+                "lo": [
+                  -4.3243,
+                  1.1644,
+                  1.6012
+                ],
+                "hi": [
+                  -4.3183,
+                  1.4044,
+                  1.6452
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          }
+        ]
+      },
+      "notes": [
+        "insertion = centre of the enclosure's back face (the mounting plane); dims w/d/h include strut backing"
+      ]
+    },
+    {
+      "tag": "LP-2",
+      "name": "LP-2 - 100 A 480Y/277 V MLO lighting panelboard, 42 spaces",
+      "kind": "lighting_panelboard",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "predefinedType": "DISTRIBUTIONBOARD",
+      "guid": "3XK4xao4eH$Cw6ty8Tmq4T",
+      "step_id": 161,
+      "typeName": null,
+      "objectType": null,
+      "description": null,
+      "disposition": "generated-family",
+      "position_m": [
+        4.4704,
+        1.2844
+      ],
+      "elevation_m": 0.8104,
+      "insertion_m": [
+        4.4704,
+        1.2844,
+        1.42
+      ],
+      "positionSource": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+      "orientation": {
+        "front_normal": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "yaw_deg": -90.0,
+        "frame_kind": "upright",
+        "frame3x3_rows_are_family_axes_in_world": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "convention": "family +X = width axis; front = family -Y (yaw frame) for floor equipment, or family +Z = front normal / family +Y = up (upright work-plane frame) for wall equipment"
+      },
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192,
+        "footprint_area": 0.0742,
+        "enclosure_w": 0.508,
+        "enclosure_h": 1.2192,
+        "top_of_panel": 2.0296,
+        "bottom_of_panel": 0.8104
+      },
+      "mounting": "wall",
+      "mounting_height_m": 1.42,
+      "fedFrom": "DP-2",
+      "contract": {
+        "PanelName": "LP-2",
+        "Voltage": "480Y/277 V",
+        "Phases": 3,
+        "Wires": 4,
+        "BusRating": 100.0,
+        "MainsRating": 100.0,
+        "MainsType": "Main lugs only",
+        "NumberOfCircuits": 42,
+        "Mounting": "Surface, wall",
+        "FeederEntry": "Top",
+        "FedFrom": "DP-2",
+        "_voltage": {
+          "ll": 480.0,
+          "ln": 277.0,
+          "phases": 3,
+          "wires": 4,
+          "system": "480Y/277",
+          "raw": "480Y/277 V"
+        },
+        "_provenance": {
+          "PanelName": "pset:PanelSchedule.PanelName",
+          "Voltage": "pset:PanelSchedule.Voltage",
+          "Phases": "pset:PanelSchedule.Phases",
+          "Wires": "pset:PanelSchedule.Wires",
+          "BusRating": "pset:PanelSchedule.BusRating",
+          "MainsRating": "pset:PanelSchedule.MainsRating",
+          "MainsType": "pset:PanelSchedule.MainsType",
+          "NumberOfCircuits": "pset:PanelSchedule.NumberOfCircuits",
+          "Mounting": "pset:PanelSchedule.Mounting",
+          "FeederEntry": "pset:PanelSchedule.FeederEntry",
+          "FedFrom": "pset:PanelSchedule.FedFrom"
+        }
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "LP-2",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 100.0,
+          "MainsRating": 100.0,
+          "MainsType": "Main lugs only",
+          "NumberOfCircuits": 42,
+          "Mounting": "Surface, wall",
+          "FeederEntry": "Top",
+          "FedFrom": "DP-2"
+        }
+      },
+      "placementChain": {
+        "absolute_origin_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "absolute_xdir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "absolute_zdir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "is_identity": true,
+        "chain_depth": 4,
+        "chain": [
+          {
+            "id": 160,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 25,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 23,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 21,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          }
+        ],
+        "warnings": []
+      },
+      "geometry": {
+        "has_body": true,
+        "lo_m": [
+          4.3183,
+          1.0304,
+          0.8104
+        ],
+        "hi_m": [
+          4.4704,
+          1.5384,
+          2.0296
+        ],
+        "extent_m": [
+          0.1521,
+          0.508,
+          1.2192
+        ],
+        "center_m": [
+          4.3944,
+          1.2844,
+          1.42
+        ],
+        "footprint": {
+          "center": [
+            4.3944,
+            1.2844
+          ],
+          "xdir": [
+            0.0,
+            1.0
+          ],
+          "xdim": 0.508,
+          "ydim": 0.1521,
+          "area": 0.0772,
+          "yaw_deg": 90.0
+        },
+        "all_boxes": true,
+        "triangles": 24,
+        "items": [
+          {
+            "item_id": 153,
+            "name": "LP-2_enclosure",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              4.3243,
+              1.0304,
+              0.8104
+            ],
+            "hi_m": [
+              4.4704,
+              1.5384,
+              2.0296
+            ],
+            "extent_m": [
+              0.146,
+              0.508,
+              1.2192
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  4.3974,
+                  1.2844,
+                  0.8104
+                ],
+                "center": [
+                  4.3974,
+                  1.2844,
+                  1.42
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.146,
+                "ydim": 0.508,
+                "height": 1.2192,
+                "lo": [
+                  4.3243,
+                  1.0304,
+                  0.8104
+                ],
+                "hi": [
+                  4.4704,
+                  1.5384,
+                  2.0296
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          },
+          {
+            "item_id": 156,
+            "name": "LP-2_nameplate",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              4.3183,
+              1.1644,
+              1.6012
+            ],
+            "hi_m": [
+              4.3243,
+              1.4044,
+              1.6452
+            ],
+            "extent_m": [
+              0.006,
+              0.24,
+              0.044
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  4.3213,
+                  1.2844,
+                  1.6012
+                ],
+                "center": [
+                  4.3213,
+                  1.2844,
+                  1.6232
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.006,
+                "ydim": 0.24,
+                "height": 0.044,
+                "lo": [
+                  4.3183,
+                  1.1644,
+                  1.6012
+                ],
+                "hi": [
+                  4.3243,
+                  1.4044,
+                  1.6452
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          }
+        ]
+      },
+      "notes": [
+        "insertion = centre of the enclosure's back face (the mounting plane); dims w/d/h include strut backing"
+      ]
+    },
+    {
+      "tag": "LP-3",
+      "name": "LP-3 - 100 A 480Y/277 V MLO lighting panelboard, 42 spaces",
+      "kind": "lighting_panelboard",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "predefinedType": "DISTRIBUTIONBOARD",
+      "guid": "3LimQRsw7eqx$KnxbG$ZJ1",
+      "step_id": 184,
+      "typeName": null,
+      "objectType": null,
+      "description": null,
+      "disposition": "generated-family",
+      "position_m": [
+        -4.4704,
+        0.4764
+      ],
+      "elevation_m": 0.8104,
+      "insertion_m": [
+        -4.4704,
+        0.4764,
+        1.42
+      ],
+      "positionSource": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+      "orientation": {
+        "front_normal": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "yaw_deg": 90.0,
+        "frame_kind": "upright",
+        "frame3x3_rows_are_family_axes_in_world": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "convention": "family +X = width axis; front = family -Y (yaw frame) for floor equipment, or family +Z = front normal / family +Y = up (upright work-plane frame) for wall equipment"
+      },
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192,
+        "footprint_area": 0.0742,
+        "enclosure_w": 0.508,
+        "enclosure_h": 1.2192,
+        "top_of_panel": 2.0296,
+        "bottom_of_panel": 0.8104
+      },
+      "mounting": "wall",
+      "mounting_height_m": 1.42,
+      "fedFrom": "DP-1",
+      "contract": {
+        "PanelName": "LP-3",
+        "Voltage": "480Y/277 V",
+        "Phases": 3,
+        "Wires": 4,
+        "BusRating": 100.0,
+        "MainsRating": 100.0,
+        "MainsType": "Main lugs only",
+        "NumberOfCircuits": 42,
+        "Mounting": "Surface, wall",
+        "FeederEntry": "Top",
+        "FedFrom": "DP-1",
+        "_voltage": {
+          "ll": 480.0,
+          "ln": 277.0,
+          "phases": 3,
+          "wires": 4,
+          "system": "480Y/277",
+          "raw": "480Y/277 V"
+        },
+        "_provenance": {
+          "PanelName": "pset:PanelSchedule.PanelName",
+          "Voltage": "pset:PanelSchedule.Voltage",
+          "Phases": "pset:PanelSchedule.Phases",
+          "Wires": "pset:PanelSchedule.Wires",
+          "BusRating": "pset:PanelSchedule.BusRating",
+          "MainsRating": "pset:PanelSchedule.MainsRating",
+          "MainsType": "pset:PanelSchedule.MainsType",
+          "NumberOfCircuits": "pset:PanelSchedule.NumberOfCircuits",
+          "Mounting": "pset:PanelSchedule.Mounting",
+          "FeederEntry": "pset:PanelSchedule.FeederEntry",
+          "FedFrom": "pset:PanelSchedule.FedFrom"
+        }
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "LP-3",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 100.0,
+          "MainsRating": 100.0,
+          "MainsType": "Main lugs only",
+          "NumberOfCircuits": 42,
+          "Mounting": "Surface, wall",
+          "FeederEntry": "Top",
+          "FedFrom": "DP-1"
+        }
+      },
+      "placementChain": {
+        "absolute_origin_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "absolute_xdir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "absolute_zdir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "is_identity": true,
+        "chain_depth": 4,
+        "chain": [
+          {
+            "id": 183,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 25,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 23,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 21,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          }
+        ],
+        "warnings": []
+      },
+      "geometry": {
+        "has_body": true,
+        "lo_m": [
+          -4.4704,
+          0.2224,
+          0.8104
+        ],
+        "hi_m": [
+          -4.3183,
+          0.7304,
+          2.0296
+        ],
+        "extent_m": [
+          0.1521,
+          0.508,
+          1.2192
+        ],
+        "center_m": [
+          -4.3944,
+          0.4764,
+          1.42
+        ],
+        "footprint": {
+          "center": [
+            -4.3944,
+            0.4764
+          ],
+          "xdir": [
+            0.0,
+            1.0
+          ],
+          "xdim": 0.508,
+          "ydim": 0.1521,
+          "area": 0.0772,
+          "yaw_deg": 90.0
+        },
+        "all_boxes": true,
+        "triangles": 24,
+        "items": [
+          {
+            "item_id": 176,
+            "name": "LP-3_enclosure",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              -4.4704,
+              0.2224,
+              0.8104
+            ],
+            "hi_m": [
+              -4.3243,
+              0.7304,
+              2.0296
+            ],
+            "extent_m": [
+              0.146,
+              0.508,
+              1.2192
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  -4.3974,
+                  0.4764,
+                  0.8104
+                ],
+                "center": [
+                  -4.3974,
+                  0.4764,
+                  1.42
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.146,
+                "ydim": 0.508,
+                "height": 1.2192,
+                "lo": [
+                  -4.4704,
+                  0.2224,
+                  0.8104
+                ],
+                "hi": [
+                  -4.3243,
+                  0.7304,
+                  2.0296
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          },
+          {
+            "item_id": 179,
+            "name": "LP-3_nameplate",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              -4.3243,
+              0.3564,
+              1.6012
+            ],
+            "hi_m": [
+              -4.3183,
+              0.5964,
+              1.6452
+            ],
+            "extent_m": [
+              0.006,
+              0.24,
+              0.044
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  -4.3213,
+                  0.4764,
+                  1.6012
+                ],
+                "center": [
+                  -4.3213,
+                  0.4764,
+                  1.6232
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.006,
+                "ydim": 0.24,
+                "height": 0.044,
+                "lo": [
+                  -4.3243,
+                  0.3564,
+                  1.6012
+                ],
+                "hi": [
+                  -4.3183,
+                  0.5964,
+                  1.6452
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          }
+        ]
+      },
+      "notes": [
+        "insertion = centre of the enclosure's back face (the mounting plane); dims w/d/h include strut backing"
+      ]
+    },
+    {
+      "tag": "LP-4",
+      "name": "LP-4 - 100 A 480Y/277 V MLO lighting panelboard, 42 spaces",
+      "kind": "lighting_panelboard",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "predefinedType": "DISTRIBUTIONBOARD",
+      "guid": "1lZQlGPYV4F5VuiV7CqdqW",
+      "step_id": 207,
+      "typeName": null,
+      "objectType": null,
+      "description": null,
+      "disposition": "generated-family",
+      "position_m": [
+        4.4704,
+        0.4764
+      ],
+      "elevation_m": 0.8104,
+      "insertion_m": [
+        4.4704,
+        0.4764,
+        1.42
+      ],
+      "positionSource": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+      "orientation": {
+        "front_normal": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "yaw_deg": -90.0,
+        "frame_kind": "upright",
+        "frame3x3_rows_are_family_axes_in_world": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "convention": "family +X = width axis; front = family -Y (yaw frame) for floor equipment, or family +Z = front normal / family +Y = up (upright work-plane frame) for wall equipment"
+      },
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192,
+        "footprint_area": 0.0742,
+        "enclosure_w": 0.508,
+        "enclosure_h": 1.2192,
+        "top_of_panel": 2.0296,
+        "bottom_of_panel": 0.8104
+      },
+      "mounting": "wall",
+      "mounting_height_m": 1.42,
+      "fedFrom": "DP-2",
+      "contract": {
+        "PanelName": "LP-4",
+        "Voltage": "480Y/277 V",
+        "Phases": 3,
+        "Wires": 4,
+        "BusRating": 100.0,
+        "MainsRating": 100.0,
+        "MainsType": "Main lugs only",
+        "NumberOfCircuits": 42,
+        "Mounting": "Surface, wall",
+        "FeederEntry": "Top",
+        "FedFrom": "DP-2",
+        "_voltage": {
+          "ll": 480.0,
+          "ln": 277.0,
+          "phases": 3,
+          "wires": 4,
+          "system": "480Y/277",
+          "raw": "480Y/277 V"
+        },
+        "_provenance": {
+          "PanelName": "pset:PanelSchedule.PanelName",
+          "Voltage": "pset:PanelSchedule.Voltage",
+          "Phases": "pset:PanelSchedule.Phases",
+          "Wires": "pset:PanelSchedule.Wires",
+          "BusRating": "pset:PanelSchedule.BusRating",
+          "MainsRating": "pset:PanelSchedule.MainsRating",
+          "MainsType": "pset:PanelSchedule.MainsType",
+          "NumberOfCircuits": "pset:PanelSchedule.NumberOfCircuits",
+          "Mounting": "pset:PanelSchedule.Mounting",
+          "FeederEntry": "pset:PanelSchedule.FeederEntry",
+          "FedFrom": "pset:PanelSchedule.FedFrom"
+        }
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "LP-4",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 100.0,
+          "MainsRating": 100.0,
+          "MainsType": "Main lugs only",
+          "NumberOfCircuits": 42,
+          "Mounting": "Surface, wall",
+          "FeederEntry": "Top",
+          "FedFrom": "DP-2"
+        }
+      },
+      "placementChain": {
+        "absolute_origin_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "absolute_xdir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "absolute_zdir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "is_identity": true,
+        "chain_depth": 4,
+        "chain": [
+          {
+            "id": 206,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 25,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 23,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 21,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          }
+        ],
+        "warnings": []
+      },
+      "geometry": {
+        "has_body": true,
+        "lo_m": [
+          4.3183,
+          0.2224,
+          0.8104
+        ],
+        "hi_m": [
+          4.4704,
+          0.7304,
+          2.0296
+        ],
+        "extent_m": [
+          0.1521,
+          0.508,
+          1.2192
+        ],
+        "center_m": [
+          4.3944,
+          0.4764,
+          1.42
+        ],
+        "footprint": {
+          "center": [
+            4.3944,
+            0.4764
+          ],
+          "xdir": [
+            0.0,
+            1.0
+          ],
+          "xdim": 0.508,
+          "ydim": 0.1521,
+          "area": 0.0772,
+          "yaw_deg": 90.0
+        },
+        "all_boxes": true,
+        "triangles": 24,
+        "items": [
+          {
+            "item_id": 199,
+            "name": "LP-4_enclosure",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              4.3243,
+              0.2224,
+              0.8104
+            ],
+            "hi_m": [
+              4.4704,
+              0.7304,
+              2.0296
+            ],
+            "extent_m": [
+              0.146,
+              0.508,
+              1.2192
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  4.3974,
+                  0.4764,
+                  0.8104
+                ],
+                "center": [
+                  4.3974,
+                  0.4764,
+                  1.42
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.146,
+                "ydim": 0.508,
+                "height": 1.2192,
+                "lo": [
+                  4.3243,
+                  0.2224,
+                  0.8104
+                ],
+                "hi": [
+                  4.4704,
+                  0.7304,
+                  2.0296
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          },
+          {
+            "item_id": 202,
+            "name": "LP-4_nameplate",
+            "rep": "Body",
+            "triangles": 12,
+            "transparency": 0.0,
+            "lo_m": [
+              4.3183,
+              0.3564,
+              1.6012
+            ],
+            "hi_m": [
+              4.3243,
+              0.5964,
+              1.6452
+            ],
+            "extent_m": [
+              0.006,
+              0.24,
+              0.044
+            ],
+            "components": 1,
+            "boxes": [
+              {
+                "origin": [
+                  4.3213,
+                  0.4764,
+                  1.6012
+                ],
+                "center": [
+                  4.3213,
+                  0.4764,
+                  1.6232
+                ],
+                "xdir": [
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "xdim": 0.006,
+                "ydim": 0.24,
+                "height": 0.044,
+                "lo": [
+                  4.3183,
+                  0.3564,
+                  1.6012
+                ],
+                "hi": [
+                  4.3243,
+                  0.5964,
+                  1.6452
+                ],
+                "triangles": 12.0
+              }
+            ],
+            "is_box": true
+          }
+        ]
+      },
+      "notes": [
+        "insertion = centre of the enclosure's back face (the mounting plane); dims w/d/h include strut backing"
+      ]
+    }
+  ],
+  "room": {
+    "name": "Electrical Room room shell",
+    "step_id": 49,
+    "walls": [
+      {
+        "id": "W-S",
+        "start": [
+          -4.572,
+          -3.048
+        ],
+        "end": [
+          4.572,
+          -3.048
+        ],
+        "length_m": 9.144,
+        "thickness": 0.2032,
+        "height": 3.6576,
+        "base_m": 0.0,
+        "synthesized": false,
+        "reason": "",
+        "derivedFrom": [
+          "wall_1"
+        ],
+        "openings": [],
+        "type": "Room shell wall (from the shell proxy's wall solids)"
+      },
+      {
+        "id": "W-E",
+        "start": [
+          4.572,
+          -3.048
+        ],
+        "end": [
+          4.572,
+          3.048
+        ],
+        "length_m": 6.096,
+        "thickness": 0.2032,
+        "height": 3.6576,
+        "base_m": 0.0,
+        "synthesized": false,
+        "reason": "",
+        "derivedFrom": [
+          "wall_2"
+        ],
+        "openings": [],
+        "type": "Room shell wall (from the shell proxy's wall solids)"
+      },
+      {
+        "id": "W-N",
+        "start": [
+          4.572,
+          3.048
+        ],
+        "end": [
+          -4.572,
+          3.048
+        ],
+        "length_m": 9.144,
+        "thickness": 0.2032,
+        "height": 3.6576,
+        "base_m": 0.0,
+        "synthesized": false,
+        "reason": "",
+        "derivedFrom": [
+          "wall_3"
+        ],
+        "openings": [],
+        "type": "Room shell wall (from the shell proxy's wall solids)"
+      },
+      {
+        "id": "W-W",
+        "start": [
+          -4.572,
+          3.048
+        ],
+        "end": [
+          -4.572,
+          -3.048
+        ],
+        "length_m": 6.096,
+        "thickness": 0.2032,
+        "height": 3.6576,
+        "base_m": 0.0,
+        "synthesized": false,
+        "reason": "",
+        "derivedFrom": [
+          "wall_4"
+        ],
+        "openings": [],
+        "type": "Room shell wall (from the shell proxy's wall solids)"
+      }
+    ],
+    "doors": [],
+    "floor": null,
+    "housekeepingPads": [],
+    "clear": {
+      "clearWidth_m": 9.144,
+      "clearDepth_m": 6.096,
+      "clearHeight_m": 3.6576,
+      "wall_height_m": 3.6576,
+      "base_m": 0.0,
+      "ring_ccw": true,
+      "centerline_extents_m": {
+        "x": [
+          -4.572,
+          4.572
+        ],
+        "y": [
+          -3.048,
+          3.048
+        ]
+      }
+    },
+    "roomInformation": {
+      "RoomName": "Electrical Room",
+      "ClearWidth": 9.144,
+      "ClearDepth": 6.096,
+      "ClearHeight": 3.6576,
+      "ServiceRatingA": 2500.0,
+      "ServiceVoltage": "480Y/277"
+    },
+    "notes": [
+      "wall centerlines closed into a counter-clockwise ring (S: west->east, E: south->north, N: east->west, W: north->south); interior on the left of every wall's drawing direction"
+    ]
+  },
+  "clearances": [],
+  "feederTree": {
+    "edges": [
+      {
+        "from": "UTILITY",
+        "to": "MSB",
+        "kind": "feeder",
+        "sources": [
+          "pset:FedFrom"
+        ],
+        "corroborated": false,
+        "conduitGeometry": null,
+        "circuitPlan": {
+          "panel": "UTILITY",
+          "load": "MSB",
+          "rating_a": 2500.0,
+          "voltage": "480Y/277 V",
+          "poles": 3,
+          "description": "MSB feeder from UTILITY"
+        },
+        "notes": []
+      },
+      {
+        "from": "MSB",
+        "to": "DP-1",
+        "kind": "feeder",
+        "sources": [
+          "pset:FedFrom"
+        ],
+        "corroborated": false,
+        "conduitGeometry": null,
+        "circuitPlan": {
+          "panel": "MSB",
+          "load": "DP-1",
+          "rating_a": 400.0,
+          "voltage": "480Y/277 V",
+          "poles": 3,
+          "description": "DP-1 feeder from MSB"
+        },
+        "notes": []
+      },
+      {
+        "from": "MSB",
+        "to": "DP-2",
+        "kind": "feeder",
+        "sources": [
+          "pset:FedFrom"
+        ],
+        "corroborated": false,
+        "conduitGeometry": null,
+        "circuitPlan": {
+          "panel": "MSB",
+          "load": "DP-2",
+          "rating_a": 400.0,
+          "voltage": "480Y/277 V",
+          "poles": 3,
+          "description": "DP-2 feeder from MSB"
+        },
+        "notes": []
+      },
+      {
+        "from": "DP-1",
+        "to": "LP-1",
+        "kind": "feeder",
+        "sources": [
+          "pset:FedFrom"
+        ],
+        "corroborated": false,
+        "conduitGeometry": null,
+        "circuitPlan": {
+          "panel": "DP-1",
+          "load": "LP-1",
+          "rating_a": 100.0,
+          "voltage": "480Y/277 V",
+          "poles": 3,
+          "description": "LP-1 feeder from DP-1"
+        },
+        "notes": []
+      },
+      {
+        "from": "DP-2",
+        "to": "LP-2",
+        "kind": "feeder",
+        "sources": [
+          "pset:FedFrom"
+        ],
+        "corroborated": false,
+        "conduitGeometry": null,
+        "circuitPlan": {
+          "panel": "DP-2",
+          "load": "LP-2",
+          "rating_a": 100.0,
+          "voltage": "480Y/277 V",
+          "poles": 3,
+          "description": "LP-2 feeder from DP-2"
+        },
+        "notes": []
+      },
+      {
+        "from": "DP-1",
+        "to": "LP-3",
+        "kind": "feeder",
+        "sources": [
+          "pset:FedFrom"
+        ],
+        "corroborated": false,
+        "conduitGeometry": null,
+        "circuitPlan": {
+          "panel": "DP-1",
+          "load": "LP-3",
+          "rating_a": 100.0,
+          "voltage": "480Y/277 V",
+          "poles": 3,
+          "description": "LP-3 feeder from DP-1"
+        },
+        "notes": []
+      },
+      {
+        "from": "DP-2",
+        "to": "LP-4",
+        "kind": "feeder",
+        "sources": [
+          "pset:FedFrom"
+        ],
+        "corroborated": false,
+        "conduitGeometry": null,
+        "circuitPlan": {
+          "panel": "DP-2",
+          "load": "LP-4",
+          "rating_a": 100.0,
+          "voltage": "480Y/277 V",
+          "poles": 3,
+          "description": "LP-4 feeder from DP-2"
+        },
+        "notes": []
+      }
+    ],
+    "conduitRuns": [],
+    "circuitPlan": [
+      {
+        "panel": "UTILITY",
+        "load": "MSB",
+        "rating_a": 2500.0,
+        "voltage": "480Y/277 V",
+        "poles": 3,
+        "description": "MSB feeder from UTILITY"
+      },
+      {
+        "panel": "MSB",
+        "load": "DP-1",
+        "rating_a": 400.0,
+        "voltage": "480Y/277 V",
+        "poles": 3,
+        "description": "DP-1 feeder from MSB"
+      },
+      {
+        "panel": "MSB",
+        "load": "DP-2",
+        "rating_a": 400.0,
+        "voltage": "480Y/277 V",
+        "poles": 3,
+        "description": "DP-2 feeder from MSB"
+      },
+      {
+        "panel": "DP-1",
+        "load": "LP-1",
+        "rating_a": 100.0,
+        "voltage": "480Y/277 V",
+        "poles": 3,
+        "description": "LP-1 feeder from DP-1"
+      },
+      {
+        "panel": "DP-2",
+        "load": "LP-2",
+        "rating_a": 100.0,
+        "voltage": "480Y/277 V",
+        "poles": 3,
+        "description": "LP-2 feeder from DP-2"
+      },
+      {
+        "panel": "DP-1",
+        "load": "LP-3",
+        "rating_a": 100.0,
+        "voltage": "480Y/277 V",
+        "poles": 3,
+        "description": "LP-3 feeder from DP-1"
+      },
+      {
+        "panel": "DP-2",
+        "load": "LP-4",
+        "rating_a": 100.0,
+        "voltage": "480Y/277 V",
+        "poles": 3,
+        "description": "LP-4 feeder from DP-2"
+      }
+    ],
+    "notes": [
+      "each FedFrom edge = one feeder circuit (panel -> load) for rvt.mep add_circuit; the UTILITY service edge has no in-model circuit (the switchboard's own supply connector stays unconnected)"
+    ]
+  },
+  "familyMapping": [
+    {
+      "tag": "MSB",
+      "kind": "switchboard",
+      "constructor": "rvt.ifc.intent.make_house_switchboard",
+      "kwargs": {
+        "tag": "MSB",
+        "name": "Switchboard MSB",
+        "mains_a": 2500.0,
+        "voltage": "480Y/277",
+        "phases": 3,
+        "wires": 4,
+        "sccr_ka": 65.0,
+        "sections": 4,
+        "mains_device": "2500 A main breaker",
+        "mounting": "Floor, on housekeeping pad",
+        "feeder_entry": "Top",
+        "manufacturer": "",
+        "model_label": "",
+        "width_m": 3.9,
+        "depth_m": 0.9144000000000001,
+        "height_m": 2.286
+      },
+      "status": "house",
+      "catalog": null,
+      "variant": null,
+      "facts": {},
+      "dims": {
+        "modeled_m": {
+          "w": 3.9,
+          "d": 0.9144,
+          "h": 2.286
+        },
+        "catalog_m": {
+          "w": 3.9,
+          "d": 0.9144,
+          "h": 2.286
+        },
+        "delta_m": {
+          "w": 0.0,
+          "d": 0.0,
+          "h": 0.0
+        }
+      },
+      "notes": [
+        "NO catalog record covers a 2500 A switchboard (the Pow-R-Line panelboard members top out at 600 / 800 / 1200 A) and no switchboard product exists in the factory -> the panelboard resolver REFUSES it (FactoryError: no sizing rows for 2500.0 A mains; tabulated: [100.0, 225.0, 400.0, 600.0]); the HOUSE switchboard family is composed from OUR OWN IFC-modeled dimensions (this IFC is our provenance) with the SwitchboardSchedule Pset ratings riding as parameter VALUES (manufacturer / model strings from Pset_ManufacturerTypeInformation are carried as declared IDENTITY values, flagged 'ifc-declared', not catalog facts)"
+      ],
+      "refusal": "FactoryError: no sizing rows for 2500.0 A mains; tabulated: [100.0, 225.0, 400.0, 600.0]"
+    },
+    {
+      "tag": "DP-1",
+      "kind": "distribution_panelboard",
+      "constructor": "rvt.famgen.factory.make_panelboard",
+      "kwargs": {
+        "vendor": "eaton",
+        "line": "pow-r-line",
+        "mains_a": 400.0,
+        "spaces": 42,
+        "voltage": "480Y/277",
+        "mcb": true,
+        "mounting": "surface",
+        "panel_name": "DP-1",
+        "sccr_ka": null
+      },
+      "status": "resolved",
+      "catalog": "eaton/pow-r-line-panelboards",
+      "variant": "PRL2X",
+      "facts": {
+        "subject": "eaton/pow-r-line-panelboards PRL2X 400 A 42 sp 480Y/277",
+        "model": "PRL2X",
+        "manufacturer": "Eaton",
+        "dims_in": {
+          "w": 20.0,
+          "h": 60.0,
+          "d": 5.75
+        },
+        "assumed_fields": [
+          "height_in",
+          "sccr_ka"
+        ],
+        "unverified_fields": [
+          "height_in",
+          "mains_rating_a",
+          "mains_type",
+          "mounting",
+          "neutral_rating",
+          "panel_name",
+          "phases",
+          "sccr_ka",
+          "spaces",
+          "voltage_ll_v",
+          "voltage_system",
+          "wires"
+        ],
+        "sccr_ka": 14.0,
+        "notes": [
+          "Panelboard weights are NOT published in the catalog sections read -> no Weight parameter is emitted.",
+          "Family / type NAMES avoid catalog numbers; manufacturer and model ride as identity-parameter VALUES (content-strategy 5.4 unsettled)."
+        ]
+      },
+      "dims": {
+        "modeled_m": {
+          "w": 0.508,
+          "d": 0.146,
+          "h": 1.524
+        },
+        "catalog_m": {
+          "w": 0.508,
+          "h": 1.524,
+          "d": 0.146
+        },
+        "delta_m": {
+          "w": 0.0,
+          "h": 0.0,
+          "d": 0.0
+        }
+      },
+      "notes": []
+    },
+    {
+      "tag": "DP-2",
+      "kind": "distribution_panelboard",
+      "constructor": "rvt.famgen.factory.make_panelboard",
+      "kwargs": {
+        "vendor": "eaton",
+        "line": "pow-r-line",
+        "mains_a": 400.0,
+        "spaces": 42,
+        "voltage": "480Y/277",
+        "mcb": true,
+        "mounting": "surface",
+        "panel_name": "DP-2",
+        "sccr_ka": null
+      },
+      "status": "resolved",
+      "catalog": "eaton/pow-r-line-panelboards",
+      "variant": "PRL2X",
+      "facts": {
+        "subject": "eaton/pow-r-line-panelboards PRL2X 400 A 42 sp 480Y/277",
+        "model": "PRL2X",
+        "manufacturer": "Eaton",
+        "dims_in": {
+          "w": 20.0,
+          "h": 60.0,
+          "d": 5.75
+        },
+        "assumed_fields": [
+          "height_in",
+          "sccr_ka"
+        ],
+        "unverified_fields": [
+          "height_in",
+          "mains_rating_a",
+          "mains_type",
+          "mounting",
+          "neutral_rating",
+          "panel_name",
+          "phases",
+          "sccr_ka",
+          "spaces",
+          "voltage_ll_v",
+          "voltage_system",
+          "wires"
+        ],
+        "sccr_ka": 14.0,
+        "notes": [
+          "Panelboard weights are NOT published in the catalog sections read -> no Weight parameter is emitted.",
+          "Family / type NAMES avoid catalog numbers; manufacturer and model ride as identity-parameter VALUES (content-strategy 5.4 unsettled)."
+        ]
+      },
+      "dims": {
+        "modeled_m": {
+          "w": 0.508,
+          "d": 0.146,
+          "h": 1.524
+        },
+        "catalog_m": {
+          "w": 0.508,
+          "h": 1.524,
+          "d": 0.146
+        },
+        "delta_m": {
+          "w": 0.0,
+          "h": 0.0,
+          "d": 0.0
+        }
+      },
+      "notes": []
+    },
+    {
+      "tag": "LP-1",
+      "kind": "lighting_panelboard",
+      "constructor": "rvt.famgen.factory.make_panelboard",
+      "kwargs": {
+        "vendor": "eaton",
+        "line": "pow-r-line",
+        "mains_a": 100.0,
+        "spaces": 42,
+        "voltage": "480Y/277",
+        "mcb": false,
+        "mounting": "surface",
+        "panel_name": "LP-1",
+        "sccr_ka": null
+      },
+      "status": "resolved",
+      "catalog": "eaton/pow-r-line-panelboards",
+      "variant": "PRL2X",
+      "facts": {
+        "subject": "eaton/pow-r-line-panelboards PRL2X 100 A 42 sp 480Y/277",
+        "model": "PRL2X",
+        "manufacturer": "Eaton",
+        "dims_in": {
+          "w": 20.0,
+          "h": 48.0,
+          "d": 5.75
+        },
+        "assumed_fields": [
+          "height_in",
+          "sccr_ka"
+        ],
+        "unverified_fields": [
+          "height_in",
+          "mains_rating_a",
+          "mains_type",
+          "mounting",
+          "neutral_rating",
+          "panel_name",
+          "phases",
+          "sccr_ka",
+          "spaces",
+          "voltage_ll_v",
+          "voltage_system",
+          "wires"
+        ],
+        "sccr_ka": 14.0,
+        "notes": [
+          "Panelboard weights are NOT published in the catalog sections read -> no Weight parameter is emitted.",
+          "Family / type NAMES avoid catalog numbers; manufacturer and model ride as identity-parameter VALUES (content-strategy 5.4 unsettled)."
+        ]
+      },
+      "dims": {
+        "modeled_m": {
+          "w": 0.508,
+          "d": 0.146,
+          "h": 1.2192
+        },
+        "catalog_m": {
+          "w": 0.508,
+          "h": 1.2192,
+          "d": 0.146
+        },
+        "delta_m": {
+          "w": 0.0,
+          "h": 0.0,
+          "d": 0.0
+        }
+      },
+      "notes": []
+    },
+    {
+      "tag": "LP-2",
+      "kind": "lighting_panelboard",
+      "constructor": "rvt.famgen.factory.make_panelboard",
+      "kwargs": {
+        "vendor": "eaton",
+        "line": "pow-r-line",
+        "mains_a": 100.0,
+        "spaces": 42,
+        "voltage": "480Y/277",
+        "mcb": false,
+        "mounting": "surface",
+        "panel_name": "LP-2",
+        "sccr_ka": null
+      },
+      "status": "resolved",
+      "catalog": "eaton/pow-r-line-panelboards",
+      "variant": "PRL2X",
+      "facts": {
+        "subject": "eaton/pow-r-line-panelboards PRL2X 100 A 42 sp 480Y/277",
+        "model": "PRL2X",
+        "manufacturer": "Eaton",
+        "dims_in": {
+          "w": 20.0,
+          "h": 48.0,
+          "d": 5.75
+        },
+        "assumed_fields": [
+          "height_in",
+          "sccr_ka"
+        ],
+        "unverified_fields": [
+          "height_in",
+          "mains_rating_a",
+          "mains_type",
+          "mounting",
+          "neutral_rating",
+          "panel_name",
+          "phases",
+          "sccr_ka",
+          "spaces",
+          "voltage_ll_v",
+          "voltage_system",
+          "wires"
+        ],
+        "sccr_ka": 14.0,
+        "notes": [
+          "Panelboard weights are NOT published in the catalog sections read -> no Weight parameter is emitted.",
+          "Family / type NAMES avoid catalog numbers; manufacturer and model ride as identity-parameter VALUES (content-strategy 5.4 unsettled)."
+        ]
+      },
+      "dims": {
+        "modeled_m": {
+          "w": 0.508,
+          "d": 0.146,
+          "h": 1.2192
+        },
+        "catalog_m": {
+          "w": 0.508,
+          "h": 1.2192,
+          "d": 0.146
+        },
+        "delta_m": {
+          "w": 0.0,
+          "h": 0.0,
+          "d": 0.0
+        }
+      },
+      "notes": []
+    },
+    {
+      "tag": "LP-3",
+      "kind": "lighting_panelboard",
+      "constructor": "rvt.famgen.factory.make_panelboard",
+      "kwargs": {
+        "vendor": "eaton",
+        "line": "pow-r-line",
+        "mains_a": 100.0,
+        "spaces": 42,
+        "voltage": "480Y/277",
+        "mcb": false,
+        "mounting": "surface",
+        "panel_name": "LP-3",
+        "sccr_ka": null
+      },
+      "status": "resolved",
+      "catalog": "eaton/pow-r-line-panelboards",
+      "variant": "PRL2X",
+      "facts": {
+        "subject": "eaton/pow-r-line-panelboards PRL2X 100 A 42 sp 480Y/277",
+        "model": "PRL2X",
+        "manufacturer": "Eaton",
+        "dims_in": {
+          "w": 20.0,
+          "h": 48.0,
+          "d": 5.75
+        },
+        "assumed_fields": [
+          "height_in",
+          "sccr_ka"
+        ],
+        "unverified_fields": [
+          "height_in",
+          "mains_rating_a",
+          "mains_type",
+          "mounting",
+          "neutral_rating",
+          "panel_name",
+          "phases",
+          "sccr_ka",
+          "spaces",
+          "voltage_ll_v",
+          "voltage_system",
+          "wires"
+        ],
+        "sccr_ka": 14.0,
+        "notes": [
+          "Panelboard weights are NOT published in the catalog sections read -> no Weight parameter is emitted.",
+          "Family / type NAMES avoid catalog numbers; manufacturer and model ride as identity-parameter VALUES (content-strategy 5.4 unsettled)."
+        ]
+      },
+      "dims": {
+        "modeled_m": {
+          "w": 0.508,
+          "d": 0.146,
+          "h": 1.2192
+        },
+        "catalog_m": {
+          "w": 0.508,
+          "h": 1.2192,
+          "d": 0.146
+        },
+        "delta_m": {
+          "w": 0.0,
+          "h": 0.0,
+          "d": 0.0
+        }
+      },
+      "notes": []
+    },
+    {
+      "tag": "LP-4",
+      "kind": "lighting_panelboard",
+      "constructor": "rvt.famgen.factory.make_panelboard",
+      "kwargs": {
+        "vendor": "eaton",
+        "line": "pow-r-line",
+        "mains_a": 100.0,
+        "spaces": 42,
+        "voltage": "480Y/277",
+        "mcb": false,
+        "mounting": "surface",
+        "panel_name": "LP-4",
+        "sccr_ka": null
+      },
+      "status": "resolved",
+      "catalog": "eaton/pow-r-line-panelboards",
+      "variant": "PRL2X",
+      "facts": {
+        "subject": "eaton/pow-r-line-panelboards PRL2X 100 A 42 sp 480Y/277",
+        "model": "PRL2X",
+        "manufacturer": "Eaton",
+        "dims_in": {
+          "w": 20.0,
+          "h": 48.0,
+          "d": 5.75
+        },
+        "assumed_fields": [
+          "height_in",
+          "sccr_ka"
+        ],
+        "unverified_fields": [
+          "height_in",
+          "mains_rating_a",
+          "mains_type",
+          "mounting",
+          "neutral_rating",
+          "panel_name",
+          "phases",
+          "sccr_ka",
+          "spaces",
+          "voltage_ll_v",
+          "voltage_system",
+          "wires"
+        ],
+        "sccr_ka": 14.0,
+        "notes": [
+          "Panelboard weights are NOT published in the catalog sections read -> no Weight parameter is emitted.",
+          "Family / type NAMES avoid catalog numbers; manufacturer and model ride as identity-parameter VALUES (content-strategy 5.4 unsettled)."
+        ]
+      },
+      "dims": {
+        "modeled_m": {
+          "w": 0.508,
+          "d": 0.146,
+          "h": 1.2192
+        },
+        "catalog_m": {
+          "w": 0.508,
+          "h": 1.2192,
+          "d": 0.146
+        },
+        "delta_m": {
+          "w": 0.0,
+          "h": 0.0,
+          "d": 0.0
+        }
+      },
+      "notes": []
+    }
+  ],
+  "otherProducts": [
+    {
+      "step_id": 49,
+      "guid": "3IbGpJDS3F$fcDQ2mI6q2y",
+      "ifcClass": "IfcBuildingElementProxy",
+      "name": "Electrical Room room shell",
+      "tag": null,
+      "kind": "room_shell",
+      "description": null,
+      "typeName": null,
+      "placementChain": {
+        "absolute_origin_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "absolute_xdir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "absolute_zdir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "is_identity": true,
+        "chain_depth": 4,
+        "chain": [
+          {
+            "id": 48,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 25,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 23,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          },
+          {
+            "id": 21,
+            "class": "IfcLocalPlacement",
+            "relative_placement": "IfcAxis2Placement3D #9",
+            "relative_origin": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "relative_identity": true
+          }
+        ],
+        "warnings": []
+      },
+      "disposition": "room shell -> walls / doors / pads (see 'room')"
+    }
+  ],
+  "audit": {
+    "equipment_with_geometry": 7,
+    "positions_all_zero": false,
+    "equipment_inside_room_ring": "7/7",
+    "feeder_edges": 7,
+    "feeder_edges_corroborated": 0,
+    "feeder_roots_external": [
+      "UTILITY"
+    ],
+    "load_equipment_unfed": [],
+    "non_load_products": []
+  },
+  "notes": [
+    "positions are RECOVERED FROM THE TESSELLATED GEOMETRY: every product's IfcLocalPlacement chain (product -> storey -> building -> site) composes to the IDENTITY (the three-d-stage writer bakes world coordinates into the IfcCartesianPointList3D vertices and gives every product the same identity IfcAxis2Placement3D); world = composed_chain @ local vertices, so a file WITH real relative placements resolves through the same formula",
+    "orientation = the front normal inferred from named front features (door / nameplate / meter / breaker faces) or the thin footprint axis toward the room interior; wall gear gets an upright work-plane frame, floor gear a yaw",
+    "the tagging-contract Pset IS the join key: MSB / DP / LP / T1 map to OUR generated families with the Pset values as parameter VALUES; the 2500 A switchboard has NO catalog line -> house family from OUR IFC-modeled extents"
+  ]
+}

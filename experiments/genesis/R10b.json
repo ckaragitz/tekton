@@ -1,0 +1,345 @@
+{
+ "stage": "R10b",
+ "ladder": "v2",
+ "rule": "R9 + delete every embedded family DOCUMENT (partition save unit + Global/ContentDocuments entry) whose host Family died in R9 and whose ids no survivor references",
+ "out": "experiments/genesis/R10b.rvt",
+ "file_size": 1437696,
+ "family_docs_total": 52,
+ "family_docs_removed": 38,
+ "family_docs_kept": [
+  {
+   "unit": 3,
+   "host_families": [
+    "A1 metric"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 5,
+   "host_families": [
+    "M_Section Tail - Filled Horizontal"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 6,
+   "host_families": [
+    "M_Callout Head1"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 17,
+   "host_families": [
+    "M_Section Head - No Arrow"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 20,
+   "host_families": [
+    "M_Elevation Mark Body_Circle-12mm1"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 23,
+   "host_families": [
+    "M_Grid Head - Circle1"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 25,
+   "host_families": [
+    "M_Boundary Condition-Fixed"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 26,
+   "host_families": [
+    "M_View Title"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 29,
+   "host_families": [
+    "<nested/no host>"
+   ],
+   "alive_host": false,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 34,
+   "host_families": [
+    "M_Level Head - Circle1"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 35,
+   "host_families": [
+    "M_Section Head - Filled"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 39,
+   "host_families": [
+    "M_HSS Square-Column"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 44,
+   "host_families": [
+    "M_Section Tail - Filled"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  },
+  {
+   "unit": 52,
+   "host_families": [
+    "M_Elevation Mark Pointer_Circle-12mm1"
+   ],
+   "alive_host": true,
+   "pinned_by_ids": []
+  }
+ ],
+ "removed_units": [
+  {
+   "unit": 1,
+   "guid": "78061000-56a3-428c-a5a8-5b1397dbb12d",
+   "bytes": 21703
+  },
+  {
+   "unit": 2,
+   "guid": "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+   "bytes": 20554
+  },
+  {
+   "unit": 4,
+   "guid": "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+   "bytes": 22564
+  },
+  {
+   "unit": 7,
+   "guid": "68344216-9c79-4c4e-a832-3ed1233c2489",
+   "bytes": 23748
+  },
+  {
+   "unit": 8,
+   "guid": "fb5c6124-6046-4375-9cef-63f740620a8e",
+   "bytes": 106073
+  },
+  {
+   "unit": 9,
+   "guid": "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+   "bytes": 33393
+  },
+  {
+   "unit": 10,
+   "guid": "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+   "bytes": 79680
+  },
+  {
+   "unit": 11,
+   "guid": "c7734839-cb9e-4274-bcad-003788721261",
+   "bytes": 23229
+  },
+  {
+   "unit": 12,
+   "guid": "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+   "bytes": 65898
+  },
+  {
+   "unit": 13,
+   "guid": "30640a46-4395-44f8-99ee-94759c623a88",
+   "bytes": 28208
+  },
+  {
+   "unit": 14,
+   "guid": "652d2246-3c01-4148-8c16-17146f106321",
+   "bytes": 20402
+  },
+  {
+   "unit": 15,
+   "guid": "f932d848-0871-4902-ac37-bb38aec05088",
+   "bytes": 30001
+  },
+  {
+   "unit": 16,
+   "guid": "2774af49-2b12-4c51-9095-c3af78ae06a8",
+   "bytes": 58066
+  },
+  {
+   "unit": 18,
+   "guid": "ef6a7555-0579-4d66-a628-a069d646838b",
+   "bytes": 22682
+  },
+  {
+   "unit": 19,
+   "guid": "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+   "bytes": 55077
+  },
+  {
+   "unit": 21,
+   "guid": "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+   "bytes": 55785
+  },
+  {
+   "unit": 22,
+   "guid": "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+   "bytes": 47197
+  },
+  {
+   "unit": 24,
+   "guid": "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+   "bytes": 36728
+  },
+  {
+   "unit": 27,
+   "guid": "bd60da88-04cb-4223-a54c-555ba16b76a3",
+   "bytes": 86441
+  },
+  {
+   "unit": 28,
+   "guid": "4231c989-43a9-4cf4-8e57-62173b030da6",
+   "bytes": 22443
+  },
+  {
+   "unit": 30,
+   "guid": "d3ecb68c-670d-42af-82df-f684c77b9693",
+   "bytes": 28244
+  },
+  {
+   "unit": 31,
+   "guid": "147abf91-ec71-4533-944c-4f2282b39389",
+   "bytes": 32456
+  },
+  {
+   "unit": 32,
+   "guid": "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+   "bytes": 21714
+  },
+  {
+   "unit": 33,
+   "guid": "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+   "bytes": 65207
+  },
+  {
+   "unit": 36,
+   "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+   "bytes": 47121
+  },
+  {
+   "unit": 37,
+   "guid": "5478aabb-dc66-4a14-8715-9c0f5812259d",
+   "bytes": 71143
+  },
+  {
+   "unit": 38,
+   "guid": "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+   "bytes": 80979
+  },
+  {
+   "unit": 40,
+   "guid": "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+   "bytes": 23583
+  },
+  {
+   "unit": 41,
+   "guid": "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+   "bytes": 43938
+  },
+  {
+   "unit": 42,
+   "guid": "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+   "bytes": 37914
+  },
+  {
+   "unit": 43,
+   "guid": "238471d5-1cda-4554-8458-83bcf331f149",
+   "bytes": 57747
+  },
+  {
+   "unit": 45,
+   "guid": "9d3038e2-a69e-40a4-9217-134a4015896a",
+   "bytes": 20581
+  },
+  {
+   "unit": 46,
+   "guid": "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+   "bytes": 21672
+  },
+  {
+   "unit": 47,
+   "guid": "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+   "bytes": 50494
+  },
+  {
+   "unit": 48,
+   "guid": "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+   "bytes": 30043
+  },
+  {
+   "unit": 49,
+   "guid": "830890eb-dfe2-4882-81ca-4f8bced826b1",
+   "bytes": 67780
+  },
+  {
+   "unit": 50,
+   "guid": "fe0923ee-a917-439a-a945-fae55292b3d1",
+   "bytes": 53038
+  },
+  {
+   "unit": 51,
+   "guid": "5e037af6-e747-4731-99e0-ed651d369c9b",
+   "bytes": 21686
+  }
+ ],
+ "unit_splice": {
+  "units_before": 53,
+  "units_after": 15,
+  "partition_logical_before": 2626290,
+  "partition_logical_after": 991078,
+  "cd_entries_before": 52,
+  "cd_entries_after": 14,
+  "cd_payload_before": 1365825,
+  "cd_payload_after": 320897
+ },
+ "structural_ok": true,
+ "structural_notes": {
+  "units": 15,
+  "walker_errors": []
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 72,
+   "records": 21180,
+   "elements_decoded": 7045,
+   "decode_failures": 1,
+   "refs_checked": 112323
+  }
+ },
+ "seconds": 2.9
+}

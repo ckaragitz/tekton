@@ -1,0 +1,28 @@
+{
+ "version": 1,
+ "tool": "tools/selfcontained.py mine-binds",
+ "source": {
+  "rfa": "vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+  "sha256": "00425e9d0766c3d520df344189375970c5219bd5f48e58b399484132fdb41e8d",
+  "note": "DEV/PROOF-ONLY mining material; only born IDS ride below (coordinates, not content)"
+ },
+ "law": "the born instanced form binds IN-UNIT rows: solid Geometry GInfo -> the solid style; every face m_pGFilling GInfo -> the face-fill style; the form's sketch CurveElems -> the sketch style; every face m_renderStyleId (+ the ExtrusionElem's m_materialId) -> an in-unit MaterialElem [V this specimen + its T2a embedding, viewer-PASS]",
+ "binds": {
+  "solid_style": {
+   "__eid__": 4087
+  },
+  "face_fill_style": {
+   "__eid__": 5564
+  },
+  "sketch_style": {
+   "__eid__": 4123
+  },
+  "render_material": {
+   "__eid__": 5265
+  }
+ },
+ "specimen_materials_seen": [
+  5264,
+  5265
+ ]
+}

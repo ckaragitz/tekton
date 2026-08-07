@@ -1,0 +1,1284 @@
+{
+ "stream": "genesis-substitute (THE SUBSTITUTION LADDER -- constructive twin of the reduction ladder; the path that cannot dead-end)",
+ "situation": "Every reduction of Autodesk's sample skeleton LOADS (R5, R9, K1, K3, K4, KD1 PASS) and every constructed base FAILS (G0/G1 set, and S1..S5 = G1_candidate + our singletons + our full catalog) with 'Revit-DocumentCorruption: The file is corrupt'.  The S-set tested our content ON THE SUSPECT BASE and could not separate 'our constructors are mis-shaped / mis-registered' from 'the G1 base carries an independent defect'.  This ladder ISOLATES by building on the PASSING side: starting from K1 (Autodesk's empty-project skeleton, viewer PASS) it REPLACES the sample's content with OUR constructors' output class by class, cumulatively.  Every rung derives from a PASSING file, re-points every referrer, re-points every ADocument registry to our ids EXACTLY as the sample's indexed the originals (parity ASSERTED, not assumed), and is validator-clean (0 errors).  The first rung the viewer REJECTS names the exact one of OUR constructors the reader disagrees with; a clean run to Xn IS the genesis base.",
+ "the_operation": "substitute(class): OLD = the parent's elements of the class (+ ownership constellation); NEW = our constructor's records wired to what the OLD referenced; every survivor referrer of an OLD id is re-pointed to the corresponding NEW id (schema-typed reference decoder, byte-exact record re-encode); OLD deleted + NEW appended through the proven writer path; every ElementId leaf of the ADocument holding an OLD id is remapped IN PLACE (same registry, same slot); parity + coherence + validator asserted per rung.",
+ "start_base": {
+  "K1": "experiments/genesis/triage/K1.rvt (Autodesk's empty-project skeleton, viewer PASS -- the reference the ladder replaces)"
+ },
+ "known_failing_reference": {
+  "G1_candidate": "experiments/genesis/G1_candidate.rvt (constructed base, viewer FAIL)",
+  "S1..S5": "experiments/genesis/singletons/S*.rvt (our content on the FAILING base -- all FAIL; this ladder tests the same content on the PASSING base)"
+ },
+ "reading_the_results": {
+  "how": "Upload the rungs IN ORDER (each is cumulative). The first rung that FAILS while its parent PASSED convicts exactly the class group that rung substituted -- ONE of our constructors, named in the rung's 'class_substituted'. Every rung's report carries the field-level correspondence + registry-parity table for the diff.",
+  "X1 FAIL": "our PenWidthTableElem (S1's own class) is the reader's objection: diff our pen table vs Autodesk's id 2 field by field.",
+  "X1 PASS, X2 FAIL": "our browser scheme / system-navigator constellation: bisect the organizations from the navigator (X2a / X2b).",
+  "X2 PASS, X3 FAIL": "one of the five named singletons (struct / wall-join / auto-join / keynote pair / initial view): bisect X3a..c.",
+  "X3 PASS, X4 FAIL": "our MEP settings or size-table DATA: bisect settings vs sizes.",
+  "X4 PASS, X5 FAIL": "a constructor of the wider settings constellation: bisect X5 by tier (mep / trackers / revisions / view types).",
+  "ALL of X1..X5 PASS": "EVERY settings-singleton constructor we own is reader-accepted on the passing skeleton => the S5-set's FAIL on G1 was the G1 BASE, not our singletons (the singleton layer is retired). The genesis defect is in a layer this ladder reaches later: the catalog (X6), patterns/materials (X7), datums/phases (X8), views (X9), or the residue Xn lists."
+ },
+ "derivation_order": [
+  "X1 <- K1",
+  "X2 <- X1",
+  "X3 <- X2",
+  "X4 <- X3",
+  "X5 <- X4",
+  "X10 <- X5",
+  "X6a <- X10",
+  "X7 <- X6a",
+  "X8 <- X7",
+  "X9 <- X8",
+  "Xn <- X9"
+ ],
+ "why_X10_before_X6": "the family-layer removal (the brief's X10) is DERIVED right after X5 because a measurement on the X5 base found 1,421 of the built-in catalog rows' referrers INSIDE the embedded family documents (uneditable by the host path) + 238 Family / 228 FamilySymbol referrers: the catalog cannot be substituted while the documents pin it. K3+K4 (the removal) are both viewer-PASSED, so the reorder costs nothing and unblocks X6.",
+ "upload_order": [
+  "X1",
+  "X2",
+  "X3",
+  "X4",
+  "X5",
+  "X10",
+  "X6a",
+  "X7",
+  "X8",
+  "X9"
+ ],
+ "residue_check": {
+  "subject": "experiments/genesis/subst/X9.rvt",
+  "verdict": "RESIDUE-LISTED",
+  "elements_total": 4346,
+  "ours": 1584,
+  "residue_elements": 2762,
+  "residue_by_bucket": {
+   "gap-X6b+family-scoped": {
+    "elements": 546,
+    "classes": {
+     "GStyleElem": 546
+    }
+   },
+   "definitions-removal-candidate": {
+    "elements": 791,
+    "classes": {
+     "ParamElemExternal": 466,
+     "ParamBinding": 209,
+     "ParamElemElectricalLoadClassification": 108,
+     "ParamElemProject": 8
+    }
+   },
+   "gap-X6b": {
+    "elements": 386,
+    "classes": {
+     "CategoryElem": 386
+    }
+   },
+   "product-data": {
+    "elements": 212,
+    "classes": {
+     "HVACLoadSpaceTypeElem": 125,
+     "HVACLoadBuildingTypeElem": 33,
+     "HVACLoadScheduleElem": 27,
+     "BuildingOperatingYearSchedule": 27
+    }
+   },
+   "no-constructor": {
+    "elements": 312,
+    "classes": {
+     "FontElem": 74,
+     "ConceptualConstructionType": 36,
+     "TilePatternType": 17,
+     "DivisionRule": 17,
+     "DimensionStyle": 16,
+     "LeaderStyle": 12,
+     "AllPlanTopologies": 12,
+     "SectionAttributes": 10,
+     "ColorFillSchema": 10,
+     "ConceptualSurfaceType": 10,
+     "InteriorElevAttributes": 9,
+     "CalloutTag": 9,
+     "AreaTypeElem": 8,
+     "LoadNatureElem": 8,
+     "LoadCaseElem": 8,
+     "ParameterFilterElement": 7,
+     "AreaSchemePlanTopologies": 6,
+     "SpotElevationStyle": 4,
+     "DesignOption": 3,
+     "NumberingSchema": 3,
+     "MasterImportSymbol": 3,
+     "ViewportAttributes": 2,
+     "ColorFillSymbol": 1,
+     "CurtainRoofAttributes": 1,
+     "GridAttributes": 1,
+     "RampAttributes": 1,
+     "TagNoteAttributes": 1,
+     "RevealAttr": 1,
+     "CorniceAttr": 1,
+     "Text3dAttrSymbol": 1,
+     "FasciaAttr": 1,
+     "GutterAttr": 1,
+     "EdgeSlabAttr": 1,
+     "ContourLabelingAttributes": 1,
+     "PropertyAttr": 1,
+     "StairsRailingAttr": 1,
+     "StairsAttributes": 1,
+     "RepeatingDetailAttributes": 1,
+     "JoistSystemAttr": 1,
+     "RevisionCloudAttr": 1,
+     "CurtaSystemAttr": 1,
+     "AreaReportSettingsElem": 1,
+     "ReferenceViewerAttributes": 1,
+     "ListConceptualSurfaceTypes": 1,
+     "LinearDimString": 1,
+     "DesignOptionSet": 1,
+     "AssemblyCodeTable": 1,
+     "DataStorage": 1,
+     "FilledRegionAttributes": 1,
+     "ImageHolder": 1
+    }
+   },
+   "curtain-systems(no-constructor)": {
+    "elements": 106,
+    "classes": {
+     "DBViewType": 72,
+     "FamilySurrogate": 9,
+     "Family": 8,
+     "PenWidthTableElem": 8,
+     "FamSymSurrogate": 3,
+     "SysPanelFamSym": 2,
+     "SysMullionFamSym": 1,
+     "StairsTriserSymbol": 1,
+     "FamilySymbol": 1,
+     "SlaveSymbolTrackerElem": 1
+    }
+   },
+   "constructor-exists": {
+    "elements": 136,
+    "classes": {
+     "CustomElement": 61,
+     "RbsWireInsulationType": 26,
+     "ElectricalDemandFactorDefinition": 21,
+     "ElectricalLoadClassification": 18,
+     "RbsWireMaterialType": 4,
+     "RbsWireTemperatureRatingType": 3,
+     "RbsWireType": 1,
+     "RbsVoltageType": 1,
+     "RbsDistributionSysType": 1
+    }
+   },
+   "content-removal-candidate": {
+    "elements": 93,
+    "classes": {
+     "SketchPlane": 29,
+     "RefPlane": 21,
+     "LegendComponent": 21,
+     "Grid": 16,
+     "CurveElem": 6
+    }
+   },
+   "constructor-partial": {
+    "elements": 178,
+    "classes": {
+     "RbsFluidType": 28,
+     "PipeSegment": 15,
+     "RbsPipeScheduleType": 13,
+     "RbsPipingSystemType": 11,
+     "RbsPipeConnectionType": 8,
+     "RebarShape": 8,
+     "ConduitStandardType": 6,
+     "FloorAttributes": 5,
+     "RbsPipeMaterialType": 5,
+     "StructConnectionType": 5,
+     "RebarHookType": 5,
+     "CustomElementType": 4,
+     "BasicWallType": 3,
+     "RbsHvacSystemType": 3,
+     "StairsLandingType": 3,
+     "StairsType": 3,
+     "StairsRunType": 3,
+     "AbsDuctType": 3,
+     "CompoundCeilingType": 2,
+     "CoverType": 2,
+     "ComponentRepeaterSlotSpecialType": 2,
+     "StairsPathType": 2,
+     "StairsSupportType": 2,
+     "AbsFlexDuctType": 2,
+     "RbsCableTrayType": 2,
+     "RbsConduitType": 2,
+     "RebarBarType": 2,
+     "RebarBendingDetailType": 2,
+     "MEPSystemZoneElementType": 2,
+     "RoofSoffitType": 1,
+     "StackedWallType": 1,
+     "ContFootingType": 1,
+     "ConduitSizesElem": 1,
+     "CableTraySizesElem": 1,
+     "AnalyticalLinkType": 1,
+     "HandRailType": 1,
+     "TopRailType": 1,
+     "CutMarkType": 1,
+     "BuildingPadType": 1,
+     "NewCurtainWallType": 1,
+     "RoofAttributes": 1,
+     "RbsPipeType": 1,
+     "RbsFlexPipeType": 1,
+     "AreaReinforcementType": 1,
+     "FabricAreaType": 1,
+     "FabricWireType": 1,
+     "FabricSheetType": 1,
+     "LineLoadType": 1,
+     "AreaLoadType": 1,
+     "MEPAnalyticalConnectionElementType": 1,
+     "MechanicalEquipmentSetType": 1,
+     "MEPSystemZoneType": 1,
+     "ToposolidType": 1,
+     "RbsCableType": 1
+    }
+   },
+   "external-link-removal-candidate": {
+    "elements": 2,
+    "classes": {
+     "RvtLinkSymbol": 1,
+     "RvtLinkInstance": 1
+    }
+   }
+  },
+  "container_layer_ledger": {
+   "file": "/Users/ck/dev/things/rev-revit/experiments/genesis/subst/X9.rvt",
+   "gate_verdict": "FAIL \u2014 4,198 Autodesk-derived element(s) in expression-bearing categories; 1,510,060 byte(s) byte-identical to baseline in expression-bearing streams; 8,407 Autodesk resource identifier(s); 2 identity violation(s)",
+   "gate_passes": false,
+   "certifies_G1": false,
+   "layers": [
+    "elements",
+    "streams",
+    "strings",
+    "identity"
+   ],
+   "blocking": [
+    {
+     "category": "loadable-families",
+     "provenance": "autodesk-sample",
+     "count": 18,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "loadable-families",
+     "provenance": "ours-modified",
+     "count": 2,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "family-types-symbols",
+     "provenance": "autodesk-sample",
+     "count": 7,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "family-types-symbols",
+     "provenance": "ours-modified",
+     "count": 6,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "system-family-types",
+     "provenance": "autodesk-sample",
+     "count": 83,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "system-family-types",
+     "provenance": "ours-modified",
+     "count": 22,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "views-and-templates",
+     "provenance": "autodesk-sample",
+     "count": 82,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "views-and-templates",
+     "provenance": "ours-modified",
+     "count": 27,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "views-and-templates",
+     "provenance": "transitive-cloned",
+     "count": 21,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "object-styles",
+     "provenance": "autodesk-sample",
+     "count": 709,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "object-styles",
+     "provenance": "ours-modified",
+     "count": 223,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "object-styles",
+     "provenance": "transitive-cloned",
+     "count": 1417,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "patterns-materials",
+     "provenance": "autodesk-sample",
+     "count": 115,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "patterns-materials",
+     "provenance": "ours-modified",
+     "count": 49,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "patterns-materials",
+     "provenance": "transitive-cloned",
+     "count": 4,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "text-dimension-types",
+     "provenance": "autodesk-sample",
+     "count": 59,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "text-dimension-types",
+     "provenance": "ours-modified",
+     "count": 12,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "text-dimension-types",
+     "provenance": "transitive-cloned",
+     "count": 3,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "parameter-definitions",
+     "provenance": "autodesk-sample",
+     "count": 791,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "parameter-definitions",
+     "provenance": "transitive-cloned",
+     "count": 2,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "phases-design-options",
+     "provenance": "autodesk-sample",
+     "count": 7,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "phases-design-options",
+     "provenance": "transitive-cloned",
+     "count": 3,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "project-info-settings",
+     "provenance": "autodesk-sample",
+     "count": 2,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "project-info-settings",
+     "provenance": "transitive-cloned",
+     "count": 21,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "mep-electrical-definitions",
+     "provenance": "autodesk-sample",
+     "count": 369,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "mep-electrical-definitions",
+     "provenance": "ours-modified",
+     "count": 15,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "mep-electrical-definitions",
+     "provenance": "transitive-cloned",
+     "count": 5,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "placed-model-content",
+     "provenance": "autodesk-sample",
+     "count": 61,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "placed-model-content",
+     "provenance": "ours-modified",
+     "count": 1,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "placed-model-content",
+     "provenance": "transitive-cloned",
+     "count": 2,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "view-annotation-2d-content",
+     "provenance": "autodesk-sample",
+     "count": 27,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "view-annotation-2d-content",
+     "provenance": "ours-modified",
+     "count": 30,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "category": "view-annotation-2d-content",
+     "provenance": "transitive-cloned",
+     "count": 3,
+     "why": "Autodesk-derived expression in an expression-bearing category"
+    },
+    {
+     "layer": "streams",
+     "category": "Global/Latest",
+     "provenance": "stream-modified-lineage",
+     "count": 1510060,
+     "why": "1,510,060 of 1,564,694 bytes byte-identical to baseline racbasicsampleproject \u2014 sample-authored expression shipping verbatim in an expression-bearing stream"
+    },
+    {
+     "layer": "strings",
+     "category": "autodesk-resource-refs",
+     "provenance": "autodesk-resource-refs",
+     "count": 8407,
+     "why": "8,407 Autodesk resource identifier(s) in document content (forge-typeid=8282, revit-resource-string=108, asset-library-fbx=6, autodesk-name=3, adsk-token=2) \u2014 references-to / identifiers-of Autodesk artefacts (G1c)"
+    },
+    {
+     "layer": "identity",
+     "category": "identity:unique_document_guid",
+     "provenance": "identity-not-ours",
+     "count": 1,
+     "value": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "why": "document GUID inherited from a sample (identity is theirs)"
+    },
+    {
+     "layer": "identity",
+     "category": "identity:central_episode_guid",
+     "provenance": "identity-not-ours",
+     "count": 1,
+     "value": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "why": "document GUID inherited from a sample (identity is theirs)"
+    }
+   ],
+   "counsel": [
+    {
+     "item": "C4 schema-stream",
+     "stream": "Formats/Latest",
+     "identical_pct": 100.0,
+     "identical_to": [
+      "dach-sample-project:Formats/Latest",
+      "racadvancedsampleproject:Formats/Latest",
+      "racbasicsampleproject:Formats/Latest",
+      "rmebasicsampleproject:Formats/Latest",
+      "rstadvancedsampleproject:Formats/Latest",
+      "rstbasicsampleproject:Formats/Latest"
+     ],
+     "why": "Formats/Latest is Autodesk's serialized class model shipped byte-identical \u2014 counsel decides ship-verbatim vs clean-room re-serialization (interoperability defence to raise, not a settled fact)"
+    }
+   ],
+   "advisory_count": 7,
+   "elements": {
+    "host": 4346,
+    "totals": {
+     "autodesk-sample": 2367,
+     "ours-modified": 395,
+     "ours-created": 83,
+     "transitive-cloned": 1501
+    },
+    "multi_baseline": {
+     "dach-sample-project": {
+      "ours-modified": 15,
+      "unmatched": 4331
+     },
+     "racadvancedsampleproject": {
+      "autodesk-sample": 12,
+      "ours-modified": 505,
+      "ours-created": 874,
+      "transitive-cloned": 2196,
+      "unmatched": 759
+     },
+     "racbasicsampleproject": {
+      "autodesk-sample": 1043,
+      "ours-modified": 417,
+      "ours-created": 339,
+      "transitive-cloned": 1910,
+      "unmatched": 637
+     },
+     "rmebasicsampleproject": {
+      "autodesk-sample": 7,
+      "ours-modified": 390,
+      "ours-created": 631,
+      "transitive-cloned": 2129,
+      "unmatched": 1189
+     },
+     "rstadvancedsampleproject": {
+      "ours-modified": 11,
+      "ours-created": 923,
+      "transitive-cloned": 2344,
+      "unmatched": 1068
+     },
+     "rstbasicsampleproject": {
+      "autodesk-sample": 2367,
+      "ours-modified": 395,
+      "ours-created": 94,
+      "transitive-cloned": 1490
+     }
+    }
+   },
+   "bytes": {
+    "total_inflated": 4643594,
+    "identical_pct": 65.84,
+    "ours_pct": 0.12,
+    "excluding_schema_identical_pct": 61.75,
+    "excluding_schema_ours_pct": 0.13
+   },
+   "global_latest": {
+    "inflated": 1564694,
+    "class": "modified-lineage",
+    "identical_bytes": 1510060,
+    "identical_pct": 96.51,
+    "ours_bytes": 0,
+    "best_baseline": "racbasicsampleproject"
+   },
+   "resource_refs": {
+    "total": 8407,
+    "by_pattern": {
+     "forge-typeid": 8282,
+     "forge-schema-corpus": 1,
+     "autodesk-url": 1,
+     "adsk-token": 2,
+     "revit-server-string": 2,
+     "asset-library-fbx": 6,
+     "sunandsky-asset": 2,
+     "revit-resource-string": 108,
+     "autodesk-name": 3
+    }
+   },
+   "identity_ok": false,
+   "identity_violations": [
+    {
+     "field": "unique_document_guid",
+     "value": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "baseline": "rstbasicsampleproject",
+     "why": "document GUID inherited from a sample (identity is theirs)"
+    },
+    {
+     "field": "central_episode_guid",
+     "value": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+     "baseline": "rstbasicsampleproject",
+     "why": "document GUID inherited from a sample (identity is theirs)"
+    }
+   ],
+   "elapsed_s": 16.2
+  },
+  "report": "experiments/genesis/subst/Xn.json"
+ },
+ "probes": [
+  {
+   "file": "experiments/genesis/subst/X1.rvt",
+   "rung": "X1",
+   "order": 1,
+   "kind": "substitute",
+   "class_substituted": "PenWidthTableElem (the project pen table, id 2) -> ours",
+   "derived_from": "experiments/genesis/triage/K1.rvt",
+   "parent_rung": "K1",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR pen table in the exact registry slot the sample's occupied, on the otherwise-Autodesk skeleton (S1 tested our pen table on the FAILING G1 base and could not attribute the FAIL).",
+   "if_PASS": "Our PenWidthTableElem constructor + its registry wiring are reader-accepted; the pen table is retired from the constructed-base suspect list; X2 reads cleanly.",
+   "if_FAIL": "Our pen table (or its registration) is what the reader rejects -- the first named defect in OUR constructors: diff our record vs Autodesk's id 2 field by field.",
+   "elements_removed": {
+    "PenWidthTableElem": 1
+   },
+   "elements_added": {
+    "PenWidthTableElem": 1
+   },
+   "registry_parity": {
+    "pairs": 1,
+    "pairs_ok": 1,
+    "uet_slots_ok": 0,
+    "old_ids_left_in_adocument": 0,
+    "new_dangling_created": 0
+   },
+   "referrers_repointed": 0,
+   "residue_left_in_place": {},
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 4489216,
+   "report": "experiments/genesis/subst/X1.json"
+  },
+  {
+   "file": "experiments/genesis/subst/X2.rvt",
+   "rung": "X2",
+   "order": 2,
+   "kind": "substitute",
+   "class_substituted": "BrowserOrganization set + system-navigator constellation -> ours",
+   "derived_from": "experiments/genesis/subst/X1.rvt",
+   "parent_rung": "X1",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR browser-organization scheme + OUR MEP system-navigator view constellation (K5b's classes) in place of the sample's, with every registry that indexed the originals re-pointed.",
+   "if_PASS": "Our browser / navigator constructors and their four registries (BrowserOrganizationTracking, DBViewInfo, DBDrawingInfo, AppInfoSystemFamiliesNames) are reader-accepted.",
+   "if_FAIL": "One of our browser / navigator constructions is rejected -- bisect: an X2a with only the browser organizations replaced (navigator kept) vs an X2b with only the navigator replaced.",
+   "elements_removed": {
+    "BrowserOrganization": 11,
+    "RbsDbViewSystemNavigator": 1,
+    "Viewer": 1,
+    "Viewport": 1,
+    "DBDrawing": 1,
+    "ConstructionSetProject": 1,
+    "ReconcileBrowserSettingsElem": 1
+   },
+   "elements_added": {
+    "BrowserOrganization": 6,
+    "ReconcileBrowserSettingsElem": 1,
+    "ConstructionSetProject": 1,
+    "RbsDbViewSystemNavigator": 1,
+    "Viewer": 1,
+    "Viewport": 1,
+    "DBDrawing": 1
+   },
+   "registry_parity": {
+    "pairs": 10,
+    "pairs_ok": 10,
+    "uet_slots_ok": 1,
+    "old_ids_left_in_adocument": 0,
+    "new_dangling_created": 0
+   },
+   "referrers_repointed": 1,
+   "residue_left_in_place": {},
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 4481024,
+   "report": "experiments/genesis/subst/X2.json"
+  },
+  {
+   "file": "experiments/genesis/subst/X3.rvt",
+   "rung": "X3",
+   "order": 3,
+   "kind": "substitute",
+   "class_substituted": "StructSettings / wall-join / auto-join / keynote / initial-view -> ours",
+   "derived_from": "experiments/genesis/subst/X2.rvt",
+   "parent_rung": "X2",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our structural / join / keynote / start-view singletons (incl. an EMPTY keynote table) in their exact registry slots.",
+   "if_PASS": "The named singleton constructors are reader-accepted (and an empty keynote table is legal).",
+   "if_FAIL": "One of these five constructors is rejected -- bisect X3a (keynote pair only) / X3b (StructSettings only) / X3c (the rest).",
+   "elements_removed": {
+    "StructSettingsElem": 1,
+    "KeynoteTable": 1,
+    "KeynotingSystem": 1,
+    "WallJoinDefaultSetting": 1,
+    "AutoJoinTracker": 1,
+    "InitialViewSettings": 1
+   },
+   "elements_added": {
+    "StructSettingsElem": 1,
+    "WallJoinDefaultSetting": 1,
+    "AutoJoinTracker": 1,
+    "KeynoteTable": 1,
+    "KeynotingSystem": 1,
+    "InitialViewSettings": 1
+   },
+   "registry_parity": {
+    "pairs": 6,
+    "pairs_ok": 6,
+    "uet_slots_ok": 5,
+    "old_ids_left_in_adocument": 0,
+    "new_dangling_created": 0
+   },
+   "referrers_repointed": 1,
+   "residue_left_in_place": {},
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 4407296,
+   "report": "experiments/genesis/subst/X3.json"
+  },
+  {
+   "file": "experiments/genesis/subst/X4.rvt",
+   "rung": "X4",
+   "order": 4,
+   "kind": "substitute",
+   "class_substituted": "Rbs* settings + sizes tables (wire/duct/pipe/conduit/cable-tray) -> ours",
+   "derived_from": "experiments/genesis/subst/X3.rvt",
+   "parent_rung": "X3",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our MEP settings singletons and OUR size-table DATA in the settings singletons' registry slots.",
+   "if_PASS": "Our MEP settings / sizes constructors are reader-accepted.",
+   "if_FAIL": "One of the eight is rejected -- bisect settings vs sizes vs the conduit/cable-tray pair.",
+   "elements_removed": {
+    "RbsDuctSizesElem": 1,
+    "RbsDuctSettingsElem": 1,
+    "RbsPipeSettingsElem": 1,
+    "RbsWireSettingsElem": 1,
+    "RbsPipeSizesElem": 1,
+    "RbsWireSizesElem": 1,
+    "CableTraySettingsElem": 1,
+    "ConduitSettingsElem": 1
+   },
+   "elements_added": {
+    "RbsWireSettingsElem": 1,
+    "RbsWireSizesElem": 1,
+    "RbsPipeSettingsElem": 1,
+    "RbsPipeSizesElem": 1,
+    "RbsDuctSettingsElem": 1,
+    "RbsDuctSizesElem": 1,
+    "ConduitSettingsElem": 1,
+    "CableTraySettingsElem": 1
+   },
+   "registry_parity": {
+    "pairs": 8,
+    "pairs_ok": 8,
+    "uet_slots_ok": 8,
+    "old_ids_left_in_adocument": 0,
+    "new_dangling_created": 0
+   },
+   "referrers_repointed": 2,
+   "residue_left_in_place": {
+    "RbsWireMaterialType": "4 kept -- MEP catalog / catalog-keyed size table (later rung)",
+    "RbsWireTemperatureRatingType": "3 kept -- MEP catalog / catalog-keyed size table (later rung)",
+    "RbsWireInsulationType": "26 kept -- MEP catalog / catalog-keyed size table (later rung)",
+    "RbsPipeMaterialType": "5 kept -- MEP catalog / catalog-keyed size table (later rung)",
+    "RbsPipeConnectionType": "8 kept -- MEP catalog / catalog-keyed size table (later rung)",
+    "RbsPipeScheduleType": "13 kept -- MEP catalog / catalog-keyed size table (later rung)",
+    "PipeSegment": "15 kept -- MEP catalog / catalog-keyed size table (later rung)",
+    "ConduitSizesElem": "1 kept -- MEP catalog / catalog-keyed size table (later rung)",
+    "CableTraySizesElem": "1 kept -- MEP catalog / catalog-keyed size table (later rung)"
+   },
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 4407296,
+   "report": "experiments/genesis/subst/X4.json"
+  },
+  {
+   "file": "experiments/genesis/subst/X5.rvt",
+   "rung": "X5",
+   "order": 5,
+   "kind": "substitute",
+   "class_substituted": "every remaining settings singleton / tracker with a constructor -> ours",
+   "derived_from": "experiments/genesis/subst/X4.rvt",
+   "parent_rung": "X4",
+   "the_ONE_thing_it_tests": "Whether the reader accepts the WHOLE our-settings constellation on the otherwise-Autodesk skeleton -- the S5-set question, now attributable because everything else in the file already loads.",
+   "if_PASS": "Every settings constructor we own is reader-accepted; what remains is the residue list (constructors we do not have yet).",
+   "if_FAIL": "A constructor added at X5 is rejected -- bisect X5 by the constellation's tiers (mep / trackers / revisions / view types).",
+   "elements_removed": {
+    "PrintSettings": 3,
+    "AreaMeasureElem": 2,
+    "ModelGraphicsStyle": 2,
+    "WorksharingViewModeSettings": 2,
+    "ViewSheetSet": 2,
+    "RevisionNumberingSequence": 2,
+    "DaylightSourceIdSet": 1,
+    "ExternalParamLock": 1,
+    "ProjectRevision": 1,
+    "AllProjectRevisions": 1,
+    "AreaSettingsElem": 1,
+    "ReactionsUpToDateElem": 1,
+    "CoordinateSystemDisplayElem": 1,
+    "Dwg2dExportUserSettingsData": 1,
+    "ZoneScheme": 1,
+    "AutoCamSettingsElem": 1,
+    "HalftoneUnderlaySettings": 1,
+    "ActiveGeoLocationTrackingElement": 1,
+    "WorksetVisibilitySettingsElem": 1,
+    "ProjectCopySettingsElem": 1,
+    "EnergyDataSettings": 1,
+    "ElectricalSetting": 1,
+    "MEPSystemTracker": 1,
+    "AssemblyTracker": 1,
+    "RvtLinkInstanceAppearanceParentElem": 1,
+    "SketchGridAppearanceParentElem": 1,
+    "ReinforcementSettings": 1,
+    "CurtaSystemFaceManager": 1,
+    "DefaultDivideSettings": 1,
+    "MEPComponentTracker": 1,
+    "KeynoteTagsOnSheetsTracker": 1,
+    "RevisionCloudsOnSheetsTracker": 1,
+    "LayoutNodesTracker": 1,
+    "FabricationSettings": 1,
+    "CopyWatchProperties": 1,
+    "FabricationSettingsElement": 1,
+    "StructuralConnectionSettings": 1,
+    "MEPNetworkTracker": 1,
+    "RouteAnalysisSettings": 1,
+    "CircuitNamingTypeSetting": 1,
+    "MEPHiddenLineSettingsElem": 1,
+    "MultipleValuesIndicationSettings": 1,
+    "GraphicsCache": 1,
+    "AnalyticalToPhysicalRelationManager": 1,
+    "MEPNetworkDataElem": 1,
+    "FabricationServiceSettings": 1,
+    "SSEPointVisibilitySettings": 1,
+    "STEPExportSettings": 1,
+    "SheetsInSheetCollectionTracker": 1
+   },
+   "elements_added": {
+    "ModelGraphicsStyle": 2,
+    "RevisionNumberingSequence": 2,
+    "ViewSheetSet": 2,
+    "AreaMeasureElem": 2,
+    "MEPComponentTracker": 1,
+    "LayoutNodesTracker": 1,
+    "MEPSystemTracker": 1,
+    "MEPNetworkDataElem": 1,
+    "MEPNetworkTracker": 1,
+    "MEPHiddenLineSettingsElem": 1,
+    "CircuitNamingTypeSetting": 1,
+    "AssemblyTracker": 1,
+    "KeynoteTagsOnSheetsTracker": 1,
+    "RevisionCloudsOnSheetsTracker": 1,
+    "SheetsInSheetCollectionTracker": 1,
+    "AnalyticalToPhysicalRelationManager": 1,
+    "ReactionsUpToDateElem": 1,
+    "GraphicsCache": 1,
+    "ExternalParamLock": 1,
+    "DaylightSourceIdSet": 1,
+    "WorksetVisibilitySettingsElem": 1,
+    "Dwg2dExportUserSettingsData": 1,
+    "STEPExportSettings": 1,
+    "ZoneScheme": 1,
+    "RvtLinkInstanceAppearanceParentElem": 1,
+    "SketchGridAppearanceParentElem": 1,
+    "FabricationServiceSettings": 1,
+    "CurtaSystemFaceManager": 1,
+    "StructuralConnectionSettings": 1,
+    "AutoCamSettingsElem": 1,
+    "HalftoneUnderlaySettings": 1,
+    "MultipleValuesIndicationSettings": 1,
+    "DefaultDivideSettings": 1,
+    "ProjectCopySettingsElem": 1,
+    "AreaSettingsElem": 1,
+    "RouteAnalysisSettings": 1,
+    "FabricationSettings": 1,
+    "FabricationSettingsElement": 1,
+    "SSEPointVisibilitySettings": 1,
+    "ReinforcementSettings": 1,
+    "CoordinateSystemDisplayElem": 1,
+    "ElectricalSetting": 1,
+    "CopyWatchProperties": 1,
+    "ActiveGeoLocationTrackingElement": 1,
+    "EnergyDataSettings": 1,
+    "WorksharingViewModeSettings": 1,
+    "ProjectRevision": 1,
+    "AllProjectRevisions": 1,
+    "PrintSettings": 1
+   },
+   "registry_parity": {
+    "pairs": 53,
+    "pairs_ok": 53,
+    "uet_slots_ok": 36,
+    "old_ids_left_in_adocument": 0,
+    "new_dangling_created": 0
+   },
+   "referrers_repointed": 117,
+   "residue_left_in_place": {
+    "AllPlanTopologies": "12 kept -- plan-topology regeneration cache (no constructor; regenerable)",
+    "AreaReportSettingsElem": "1 kept -- settings-like class with NO our-constructor",
+    "AreaSchemePlanTopologies": "6 kept -- area-scheme plan-topology cache (no constructor)",
+    "AssemblyCodeTable": "1 kept -- Autodesk's UniFormat assembly-code table (product data; no constructor)",
+    "ColorFillSchema": "10 kept -- settings-like class with NO our-constructor",
+    "DesignOptionSet": "1 kept -- settings-like class with NO our-constructor",
+    "GraphSchedColumnTable": "1 kept -- settings-like class with NO our-constructor",
+    "NumberingSchema": "3 kept -- element-numbering schema (no constructor)"
+   },
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 4407296,
+   "report": "experiments/genesis/subst/X5.json"
+  },
+  {
+   "file": "experiments/genesis/subst/X10.rvt",
+   "rung": "X10",
+   "order": 6,
+   "kind": "removal",
+   "class_substituted": "loadable-family layer + ALL embedded documents removed coherently",
+   "derived_from": "experiments/genesis/subst/X5.rvt",
+   "parent_rung": "X5",
+   "the_ONE_thing_it_tests": "K4's zero-family / zero-document operation, re-applied to OUR partially-substituted base: does the coherent removal still open when the settings layer is already ours?",
+   "if_PASS": "The family/document removal composes with our settings layer; the catalog rungs (X6..) are now buildable (nothing embedded pins the catalog).",
+   "if_FAIL": "(K4 itself PASSED on the pure sample) => an interaction between the removal and one of our X1..X5 substitutions -- re-check the usage referrers we own (our StructSettings' bc symbols, our navigator's style refs).",
+   "elements_removed": null,
+   "elements_added": null,
+   "registry_parity": null,
+   "referrers_repointed": null,
+   "residue_left_in_place": null,
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 9,
+    "familymgr_doc_guids": 0,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 1441792,
+   "report": "experiments/genesis/subst/X10.json"
+  },
+  {
+   "file": "experiments/genesis/subst/X6a.rvt",
+   "rung": "X6a",
+   "order": 7,
+   "kind": "substitute",
+   "class_substituted": "built-in-category GStyle catalog (1,407 rows) -> OUR complete catalog",
+   "derived_from": "experiments/genesis/subst/X10.rvt",
+   "parent_rung": "X10",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR object-styles table -- the S4/K6 question -- when everything else that must reference it is re-pointed correctly (S4 tested our catalog on the FAILING base and could not attribute the FAIL).",
+   "if_PASS": "Our complete built-in style catalog + its CategoryTracking registration are reader-accepted: the catalog counsel item (a full table over their enum, our values) is the only remaining decision, no longer an engineering unknown.",
+   "if_FAIL": "Our catalog is what the reader rejects -- the FIRST viewer verdict that attributes a FAIL to our catalog specifically. Candidates in order: a (category, type) row we emit that a real project never carries (see 'ours_only_keys'), a value the reader validates (pen index range, colour), or the CategoryTracking row shape.",
+   "elements_removed": {
+    "GStyleElem": 1407
+   },
+   "elements_added": {
+    "GStyleElem": 1407
+   },
+   "registry_parity": {
+    "pairs": 1407,
+    "pairs_ok": 1407,
+    "uet_slots_ok": 0,
+    "old_ids_left_in_adocument": 0,
+    "new_dangling_created": 0
+   },
+   "referrers_repointed": 99,
+   "residue_left_in_place": {
+    "GStyleElem(project-subcategory)": "509 rows kept -- the subcategory / line-style layer (X6b gap)",
+    "CategoryElem": "389 kept -- project + curtain-system subcategory records (X6b gap)"
+   },
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_doc_guids": 0,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 1433600,
+   "report": "experiments/genesis/subst/X6a.json"
+  },
+  {
+   "file": "experiments/genesis/subst/X7.rvt",
+   "rung": "X7",
+   "order": 8,
+   "kind": "substitute",
+   "class_substituted": "line/fill patterns + materials (+ asset companions) -> our palette",
+   "derived_from": "experiments/genesis/subst/X6a.rvt",
+   "parent_rung": "X6a",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR pattern + material palette in place of Autodesk's, incl. two token questions: our solid fill under our own name (not '<Solid fill>') and no 'Default'-named material.",
+   "if_PASS": "Our patterns / materials and the by-role re-pointing are reader-accepted; no name token is required for the solid fill or the default material.",
+   "if_FAIL": "Bisect: X7a (patterns only) vs X7b (materials only); if a token is the cause, rename our solid fill to '<Solid fill>' / add a 'Default' material and re-test -- that names a REQUIRED TOKEN for the counsel list.",
+   "elements_removed": {
+    "LinePatternElem": 150,
+    "AppearanceAssetElem": 131,
+    "FillPatternElem": 116,
+    "MaterialElem": 93,
+    "PropertySetElement": 56,
+    "PropertySetLibrary": 1
+   },
+   "elements_added": {
+    "MaterialElem": 13,
+    "FillPatternElem": 5,
+    "LinePatternElem": 4
+   },
+   "registry_parity": {
+    "pairs": 81,
+    "pairs_ok": 81,
+    "uet_slots_ok": 0,
+    "old_ids_left_in_adocument": 0,
+    "new_dangling_created": 0
+   },
+   "referrers_repointed": 305,
+   "residue_left_in_place": {
+    "GStyleElem(project-subcategory)": "the subcategory line styles now point at our patterns or -1 (X6b gap layer)",
+    "BasicWallType/FloorAttributes/RoofAttributes/CompoundCeilingType": "the sample's SYSTEM types stay (their layer materials re-pointed to ours by role) -- a system-types rung",
+    "ConceptualConstructionType": "massing energy constructions (their materials neutralised) -- residue"
+   },
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_doc_guids": 0,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 819200,
+   "report": "experiments/genesis/subst/X7.json"
+  },
+  {
+   "file": "experiments/genesis/subst/X8.rvt",
+   "rung": "X8",
+   "order": 9,
+   "kind": "substitute",
+   "class_substituted": "units + true north + sites / geo-locations + base points + project info -> ours",
+   "derived_from": "experiments/genesis/subst/X7.rvt",
+   "parent_rung": "X7",
+   "the_ONE_thing_it_tests": "Whether the reader accepts our units registry, site/geo-location pair, base points and project-info in place of the sample's, with every regen edge into the units re-pointed.",
+   "if_PASS": "Our identity + site constructors are reader-accepted.",
+   "if_FAIL": "Bisect X8a (units only -- the highest fan-in element in the document) vs X8b (site / geo-locations / base points) vs X8c (project info).",
+   "elements_removed": {
+    "GeoSite": 2,
+    "GeoLocation": 2,
+    "BasePoint": 2,
+    "TrueNorth": 1,
+    "UnitsElem": 1,
+    "ProjectInfo": 1
+   },
+   "elements_added": {
+    "GeoSite": 2,
+    "GeoLocation": 2,
+    "BasePoint": 2,
+    "UnitsElem": 1,
+    "TrueNorth": 1,
+    "ProjectInfo": 1
+   },
+   "registry_parity": {
+    "pairs": 8,
+    "pairs_ok": 8,
+    "uet_slots_ok": 1,
+    "old_ids_left_in_adocument": 0,
+    "new_dangling_created": 0
+   },
+   "referrers_repointed": 144,
+   "residue_left_in_place": {},
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_doc_guids": 0,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 815104,
+   "report": "experiments/genesis/subst/X8.json"
+  },
+  {
+   "file": "experiments/genesis/subst/X9.rvt",
+   "rung": "X9",
+   "order": 10,
+   "kind": "substitute",
+   "class_substituted": "the document skeleton: levels + phases + filters + view types + all views -> ours",
+   "derived_from": "experiments/genesis/subst/X8.rvt",
+   "parent_rung": "X8",
+   "the_ONE_thing_it_tests": "Whether the reader accepts OUR complete document skeleton -- the layer G0/G1 were BUILT from (K2 proved the sample's own view minimality legal; this tests OUR views + levels + phases on the passing base).",
+   "if_PASS": "Our skeleton is reader-accepted: the constructed-base defect is NOT in our level / phase / view constructors -- what remains is the Xn residue (curtain systems, annotation types, datum content, the subcategory layer).",
+   "if_FAIL": "Our skeleton layer is where the reader objects -- the G0/G1 FAIL's most likely home. Bisect: X9a (view types only), X9b (views only, levels kept), X9c (levels + phases only), reading the card message each time.",
+   "elements_removed": {
+    "SunAndShadowSettings": 90,
+    "Viewport": 69,
+    "DBDrawing": 49,
+    "ExtentElem": 39,
+    "SketchPlane": 35,
+    "SunAnnotationElem": 28,
+    "Viewer": 24,
+    "DBView3d": 21,
+    "DBViewSection": 20,
+    "DBViewType": 19,
+    "DBViewPlan": 16,
+    "LightSchemeElement": 15,
+    "TextNoteAttributes": 12,
+    "Viewer3d": 12,
+    "ModelClipBox": 12,
+    "Level": 9,
+    "Section": 8,
+    "DBViewDrafting": 8,
+    "PhaseFilterElem": 7,
+    "InteriorElev": 6,
+    "DBViewAnonDrafting": 6,
+    "InteriorElevArrow": 4,
+    "CategoryElem": 3,
+    "GStyleElem": 3,
+    "FontElem": 3,
+    "ImportInstance": 3,
+    "ProjectPhase": 2,
+    "GCSViewport": 2,
+    "AllProjectPhases": 1,
+    "DBViewProject": 1,
+    "LevelAttributes": 1,
+    "DBViewTypeAreaPlan": 1,
+    "LevelRoomPlan": 1,
+    "GraphSchedColumnTable": 1,
+    "DBViewGraphSchedColumn": 1,
+    "DBViewRendering": 1,
+    "ImageSymbol": 1
+   },
+   "elements_added": {
+    "DBViewType": 19,
+    "PhaseFilterElem": 5,
+    "SunAndShadowSettings": 4,
+    "Viewport": 4,
+    "DBDrawing": 4,
+    "TextNoteAttributes": 3,
+    "FontElem": 3,
+    "CategoryElem": 3,
+    "GStyleElem": 3,
+    "Viewer": 3,
+    "ExtentElem": 3,
+    "Level": 2,
+    "ProjectPhase": 2,
+    "DBViewPlan": 2,
+    "SketchPlane": 2,
+    "LevelAttributes": 1,
+    "AllProjectPhases": 1,
+    "DBViewProject": 1,
+    "DBView3d": 1,
+    "Viewer3d": 1,
+    "ModelClipBox": 1,
+    "LightSchemeElement": 1
+   },
+   "registry_parity": {
+    "pairs": 67,
+    "pairs_ok": 67,
+    "uet_slots_ok": 1,
+    "old_ids_left_in_adocument": 0,
+    "new_dangling_created": 0
+   },
+   "referrers_repointed": 80,
+   "residue_left_in_place": {
+    "DBViewType(curtain-family-scoped)": "72 kept -- the 8 curtain SYSTEM families' editor types",
+    "DimensionStyle/LeaderStyle/SectionAttributes/CalloutTag/InteriorElevAttributes/ViewportAttributes/GridAttributes/SpotElevationStyle/FilledRegionAttributes": "annotation attribute types kept -- NO our-constructor (dimension / arrowhead / view-tag types)",
+    "FontElem": "77 kept -- the residue annotation types' fonts",
+    "Grid/RefPlane/MultiSegGrid": "sample datum content kept -- a datum-content rung (our grid/refplane constructors exist in the skeleton) or a removal rung"
+   },
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 1
+   },
+   "structural_ok": true,
+   "document_coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_doc_guids": 0,
+    "coherent": true
+   },
+   "verdict": "VALID",
+   "self_check": null,
+   "bytes": 741376,
+   "report": "experiments/genesis/subst/X9.json"
+  },
+  {
+   "file": null,
+   "rung": "Xn",
+   "order": 11,
+   "class_substituted": "the RESIDUE CHECK -- what Autodesk-authored elements remain after X9",
+   "kind": "report",
+   "derived_from": "experiments/genesis/subst/X9.rvt",
+   "parent_rung": "X9",
+   "verdict": "RESIDUE-LISTED",
+   "report": "experiments/genesis/subst/Xn.json",
+   "note": "report rung -- viewer-test its subject file (X9.rvt), not this"
+  }
+ ],
+ "not_uploaded_intermediates": [
+  ".<rung>.a_appended.rvt / .<rung>.b_repointed.rvt (pipeline stages, deleted unless --keep-intermediates)"
+ ]
+}

@@ -1,0 +1,11 @@
+{
+ "name": "RC_del_datastorage",
+ "ids": [
+  1382860
+ ],
+ "policy": "maxgc",
+ "purpose": "genesis-base",
+ "notes": [
+  "retire the vendor DataStorage blob: an Extensible-Storage entity this project's decoder does not read; zero referrers (leaf)."
+ ]
+}

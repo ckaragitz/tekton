@@ -1,0 +1,1750 @@
+{
+ "rung": "Y5",
+ "label": "every remaining settings singleton / tracker with a constructor -> ours, IN PLACE",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+ "base": {
+  "file": "experiments/genesis2025/B2025_K4.rvt",
+  "certification": null,
+  "lineage": ""
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis2025/subst/CTRL_B2025_K4_base.rvt",
+  "identical_to": "experiments/genesis2025/B2025_K4.rvt",
+  "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+  "certification": null
+ },
+ "parent": "experiments/genesis2025/subst/Y4.rvt",
+ "parent_rung": "Y4",
+ "out": "experiments/genesis2025/subst/Y5.rvt",
+ "description": "Y4 with EVERY other settings singleton / tracker our standard constellation constructs REPLACED in place (the MEP tracker constellation, GCS / assembly / keynote-tags / revision-clouds / sheet-collection trackers, revisions + numbering sequences, print settings, worksharing / export / area / energy / reinforcement / route-analysis / fabrication settings, model graphics styles, area schemes, ...).  The base's extra multi-instances (2 extra print setups, the per-user worksharing display) STAY as residue.  Classes WITHOUT a constructor are LISTED, never touched.",
+ "tests": "Whether the reader accepts the WHOLE our-settings constellation OBJECTS at Autodesk's slots.",
+ "if_PASS": "Every settings constructor we own is reader-accepted; the settings layer is retired.",
+ "if_FAIL": "A constructor of the wider settings constellation is rejected -- bisect Y5 by tier (mep / trackers / revisions).",
+ "stages": [],
+ "parent_context": {
+  "host_elements": 3333,
+  "watermark": 1472011
+ },
+ "candidates_old_by_class": {
+  "PrintSettings": 3,
+  "AreaMeasureElem": 2,
+  "ModelGraphicsStyle": 2,
+  "WorksharingViewModeSettings": 2,
+  "RevisionNumberingSequence": 2,
+  "DaylightSourceIdSet": 1,
+  "ExternalParamLock": 1,
+  "ProjectRevision": 1,
+  "AllProjectRevisions": 1,
+  "AreaSettingsElem": 1,
+  "ReactionsUpToDateElem": 1,
+  "CoordinateSystemDisplayElem": 1,
+  "Dwg2dExportUserSettingsData": 1,
+  "ZoneScheme": 1,
+  "AutoCamSettingsElem": 1,
+  "HalftoneUnderlaySettings": 1,
+  "ActiveGeoLocationTrackingElement": 1,
+  "WorksetVisibilitySettingsElem": 1,
+  "ProjectCopySettingsElem": 1,
+  "EnergyDataSettings": 1,
+  "ElectricalSetting": 1,
+  "MEPSystemTracker": 1,
+  "AssemblyTracker": 1,
+  "RvtLinkInstanceAppearanceParentElem": 1,
+  "SketchGridAppearanceParentElem": 1,
+  "ReinforcementSettings": 1,
+  "CurtaSystemFaceManager": 1,
+  "DefaultDivideSettings": 1,
+  "MEPComponentTracker": 1,
+  "KeynoteTagsOnSheetsTracker": 1,
+  "RevisionCloudsOnSheetsTracker": 1,
+  "LayoutNodesTracker": 1,
+  "FabricationSettings": 1,
+  "CopyWatchProperties": 1,
+  "FabricationSettingsElement": 1,
+  "StructuralConnectionSettings": 1,
+  "MEPNetworkTracker": 1,
+  "RouteAnalysisSettings": 1,
+  "CircuitNamingTypeSetting": 1,
+  "MEPHiddenLineSettingsElem": 1,
+  "MultipleValuesIndicationSettings": 1,
+  "GraphicsCache": 1,
+  "AnalyticalToPhysicalRelationManager": 1,
+  "MEPNetworkDataElem": 1,
+  "FabricationServiceSettings": 1,
+  "SSEPointVisibilitySettings": 1,
+  "STEPExportSettings": 1,
+  "SheetsInSheetCollectionTracker": 1
+ },
+ "our_records_by_class": {
+  "ModelGraphicsStyle": 2,
+  "RevisionNumberingSequence": 2,
+  "AreaMeasureElem": 2,
+  "MEPComponentTracker": 1,
+  "LayoutNodesTracker": 1,
+  "MEPSystemTracker": 1,
+  "MEPNetworkTracker": 1,
+  "MEPNetworkDataElem": 1,
+  "MEPHiddenLineSettingsElem": 1,
+  "CircuitNamingTypeSetting": 1,
+  "AssemblyTracker": 1,
+  "KeynoteTagsOnSheetsTracker": 1,
+  "RevisionCloudsOnSheetsTracker": 1,
+  "SheetsInSheetCollectionTracker": 1,
+  "AnalyticalToPhysicalRelationManager": 1,
+  "ReactionsUpToDateElem": 1,
+  "GraphicsCache": 1,
+  "ExternalParamLock": 1,
+  "DaylightSourceIdSet": 1,
+  "WorksetVisibilitySettingsElem": 1,
+  "Dwg2dExportUserSettingsData": 1,
+  "STEPExportSettings": 1,
+  "ZoneScheme": 1,
+  "RvtLinkInstanceAppearanceParentElem": 1,
+  "SketchGridAppearanceParentElem": 1,
+  "FabricationServiceSettings": 1,
+  "CurtaSystemFaceManager": 1,
+  "StructuralConnectionSettings": 1,
+  "AutoCamSettingsElem": 1,
+  "HalftoneUnderlaySettings": 1,
+  "MultipleValuesIndicationSettings": 1,
+  "DefaultDivideSettings": 1,
+  "ProjectCopySettingsElem": 1,
+  "AreaSettingsElem": 1,
+  "RouteAnalysisSettings": 1,
+  "FabricationSettings": 1,
+  "FabricationSettingsElement": 1,
+  "SSEPointVisibilitySettings": 1,
+  "ReinforcementSettings": 1,
+  "CoordinateSystemDisplayElem": 1,
+  "ElectricalSetting": 1,
+  "CopyWatchProperties": 1,
+  "ActiveGeoLocationTrackingElement": 1,
+  "EnergyDataSettings": 1,
+  "WorksharingViewModeSettings": 1,
+  "ProjectRevision": 1,
+  "AllProjectRevisions": 1,
+  "PrintSettings": 1
+ },
+ "build_notes": [
+  "wiring: units 19236, document sun 54520, geo 21748, duct settings 102127, pipe settings 102128",
+  "WorksharingViewModeSettings: 2 in parent (project + per-user); ours = the project element only",
+  "PrintSettings: 3 in parent (named setups), ours 1 'Default' -> 2 sample setup(s) deleted",
+  "X5 substituted 48 classes: ['ActiveGeoLocationTrackingElement', 'AllProjectRevisions', 'AnalyticalToPhysicalRelationManager', 'AreaMeasureElem', 'AreaSettingsElem', 'AssemblyTracker', 'AutoCamSettingsElem', 'CircuitNamingTypeSetting', 'CoordinateSystemDisplayElem', 'CopyWatchProperties', 'CurtaSystemFaceManager', 'DaylightSourceIdSet', 'DefaultDivideSettings', 'Dwg2dExportUserSettingsData', 'ElectricalSetting', 'EnergyDataSettings', 'ExternalParamLock', 'FabricationServiceSettings', 'FabricationSettings', 'FabricationSettingsElement', 'GraphicsCache', 'HalftoneUnderlaySettings', 'KeynoteTagsOnSheetsTracker', 'LayoutNodesTracker', 'MEPComponentTracker', 'MEPHiddenLineSettingsElem', 'MEPNetworkDataElem', 'MEPNetworkTracker', 'MEPSystemTracker', 'ModelGraphicsStyle', 'MultipleValuesIndicationSettings', 'PrintSettings', 'ProjectCopySettingsElem', 'ProjectRevision', 'ReactionsUpToDateElem', 'ReinforcementSettings', 'RevisionCloudsOnSheetsTracker', 'RevisionNumberingSequence', 'RouteAnalysisSettings', 'RvtLinkInstanceAppearanceParentElem', 'SSEPointVisibilitySettings', 'STEPExportSettings', 'SheetsInSheetCollectionTracker', 'SketchGridAppearanceParentElem', 'StructuralConnectionSettings', 'WorksetVisibilitySettingsElem', 'WorksharingViewModeSettings', 'ZoneScheme']",
+  "[port2025] 51 records adapted to the Revit-2025 schema (2025 class ordinals, confirmed field maps; rvt.genesis.port2025); 0 record(s) of 2026-only classes emit nothing on 2025"
+ ],
+ "build_info": {
+  "substituted_classes": [
+   "ActiveGeoLocationTrackingElement",
+   "AllProjectRevisions",
+   "AnalyticalToPhysicalRelationManager",
+   "AreaMeasureElem",
+   "AreaSettingsElem",
+   "AssemblyTracker",
+   "AutoCamSettingsElem",
+   "CircuitNamingTypeSetting",
+   "CoordinateSystemDisplayElem",
+   "CopyWatchProperties",
+   "CurtaSystemFaceManager",
+   "DaylightSourceIdSet",
+   "DefaultDivideSettings",
+   "Dwg2dExportUserSettingsData",
+   "ElectricalSetting",
+   "EnergyDataSettings",
+   "ExternalParamLock",
+   "FabricationServiceSettings",
+   "FabricationSettings",
+   "FabricationSettingsElement",
+   "GraphicsCache",
+   "HalftoneUnderlaySettings",
+   "KeynoteTagsOnSheetsTracker",
+   "LayoutNodesTracker",
+   "MEPComponentTracker",
+   "MEPHiddenLineSettingsElem",
+   "MEPNetworkDataElem",
+   "MEPNetworkTracker",
+   "MEPSystemTracker",
+   "ModelGraphicsStyle",
+   "MultipleValuesIndicationSettings",
+   "PrintSettings",
+   "ProjectCopySettingsElem",
+   "ProjectRevision",
+   "ReactionsUpToDateElem",
+   "ReinforcementSettings",
+   "RevisionCloudsOnSheetsTracker",
+   "RevisionNumberingSequence",
+   "RouteAnalysisSettings",
+   "RvtLinkInstanceAppearanceParentElem",
+   "SSEPointVisibilitySettings",
+   "STEPExportSettings",
+   "SheetsInSheetCollectionTracker",
+   "SketchGridAppearanceParentElem",
+   "StructuralConnectionSettings",
+   "WorksetVisibilitySettingsElem",
+   "WorksharingViewModeSettings",
+   "ZoneScheme"
+  ],
+  "deferred_to_later_rungs": {
+   "AllProjectPhases": "1 kept -> X8",
+   "BasePoint": "2 kept -> X8",
+   "CableTraySizesElem": "1 kept -> catalog rung",
+   "ConduitSizesElem": "1 kept -> catalog rung (keyed on the conduit standards)",
+   "DBViewType": "91 kept -> X9 (view-type layer; 72 of the 91 are curtain-SYSTEM-family editor types)",
+   "ElectricalDemandFactorDefinition": "21 kept -> catalog rung (types stream constructor exists)",
+   "ElectricalLoadClassification": "18 kept -> catalog rung (types stream constructor exists)",
+   "GeoLocation": "2 kept -> X8",
+   "GeoSite": "2 kept -> X8",
+   "Level": "9 kept -> X8",
+   "LightSchemeElement": "1 kept -> X9",
+   "PhaseFilterElem": "1 kept -> X8",
+   "PipeSegment": "15 kept -> catalog rung",
+   "ProjectInfo": "1 kept -> X8",
+   "ProjectPhase": "2 kept -> X8",
+   "RbsPipeConnectionType": "8 kept -> catalog rung",
+   "RbsPipeMaterialType": "5 kept -> catalog rung",
+   "RbsPipeScheduleType": "13 kept -> catalog rung",
+   "RbsWireInsulationType": "26 kept -> catalog rung",
+   "RbsWireMaterialType": "4 kept -> catalog rung (MEP catalog symbol, keyed by our X4 sizes table)",
+   "RbsWireTemperatureRatingType": "3 kept -> catalog rung",
+   "SunAndShadowSettings": "4 kept -> X9 (view companions)",
+   "TrueNorth": "1 kept -> X8",
+   "UnitsElem": "1 kept -> X8 (document units)"
+  },
+  "wiring": {
+   "units": 19236,
+   "document_sun": 54520,
+   "geo": 21748,
+   "duct_settings": 102127,
+   "pipe_settings": 102128
+  },
+  "port2025": {
+   "adapted": 51,
+   "dropped_2026_only": []
+  }
+ },
+ "residue_named_by_builder": {
+  "AreaReportSettingsElem": "1 kept -- settings-like class with NO our-constructor",
+  "AreaSchemePlanTopologies": "6 kept -- area-scheme plan-topology cache (no constructor)",
+  "AssemblyCodeTable": "1 kept -- Autodesk's UniFormat assembly-code table (product data; no constructor)",
+  "ColorFillSchema": "9 kept -- settings-like class with NO our-constructor",
+  "NumberingSchema": "3 kept -- element-numbering schema (no constructor)"
+ },
+ "plan": {
+  "landed": 51,
+  "by_match": {
+   "role": 51
+  },
+  "landed_by_class": {
+   "ModelGraphicsStyle": 2,
+   "RevisionNumberingSequence": 2,
+   "AreaMeasureElem": 2,
+   "MEPComponentTracker": 1,
+   "LayoutNodesTracker": 1,
+   "MEPSystemTracker": 1,
+   "MEPNetworkDataElem": 1,
+   "MEPNetworkTracker": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "CircuitNamingTypeSetting": 1,
+   "AssemblyTracker": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "SheetsInSheetCollectionTracker": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "ReactionsUpToDateElem": 1,
+   "GraphicsCache": 1,
+   "ExternalParamLock": 1,
+   "DaylightSourceIdSet": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "STEPExportSettings": 1,
+   "ZoneScheme": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "FabricationServiceSettings": 1,
+   "CurtaSystemFaceManager": 1,
+   "StructuralConnectionSettings": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "DefaultDivideSettings": 1,
+   "ProjectCopySettingsElem": 1,
+   "AreaSettingsElem": 1,
+   "RouteAnalysisSettings": 1,
+   "FabricationSettings": 1,
+   "FabricationSettingsElement": 1,
+   "SSEPointVisibilitySettings": 1,
+   "ReinforcementSettings": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "ElectricalSetting": 1,
+   "CopyWatchProperties": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "EnergyDataSettings": 1,
+   "WorksharingViewModeSettings": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "PrintSettings": 1
+  },
+  "dropped_ours": 0,
+  "residue_olds": 3,
+  "class_mismatch": [],
+  "protected_slots_from_earlier_rungs": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 4,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 51,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 51,
+  "would_differ_103": 1,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3333,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/20"
+  ],
+  "seconds": 1.6
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/20"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   9490,
+   9494,
+   19895,
+   49030,
+   49031,
+   86204,
+   115988,
+   121706,
+   130813,
+   137426,
+   1250031
+  ],
+  "records_changed_count": 11,
+  "records_changed_by_seq": {
+   "102": 11
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 51,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 40,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 9490,
+    "len_ours": 387,
+    "len_parent": 293,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "AreaMeasureElem",
+      "class_parent": "AreaMeasureElem"
+     },
+     {
+      "path": ".m_areaElemDescription",
+      "ours": "'Constructed floor area to the outside face of the exterior enclosure (IPMS 1)'",
+      "parent": "'Total Constructed Area of a Building'"
+     },
+     {
+      "path": ".m_areaElemName",
+      "ours": "'GEN Gross Floor Area'",
+      "parent": "'Gross Building'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 9494,
+    "len_ours": 411,
+    "len_parent": 423,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "AreaMeasureElem",
+      "class_parent": "AreaMeasureElem"
+     },
+     {
+      "path": ".m_areaElemDescription",
+      "ours": "'Rentable floor area per the office measurement standard (BOMA 2017 / IPMS 3)'",
+      "parent": "'Area Measurements Based on the Standard Method for Measuring Floor Area in Offi"
+     },
+     {
+      "path": ".m_areaElemName",
+      "ours": "'GEN Rentable Area'",
+      "parent": "'Rentable'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 19895,
+    "len_ours": 272,
+    "len_parent": 292,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PrintSettings",
+      "class_parent": "PrintSettings"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     },
+     {
+      "path": ".m_timeStampInSeconds.m_lsb",
+      "ours": "0",
+      "parent": "1163521104"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 49030,
+    "len_ours": 184,
+    "len_parent": 216,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "ProjectRevision",
+      "class_parent": "ProjectRevision"
+     },
+     {
+      "path": ".m_date",
+      "ours": "''",
+      "parent": "'Date 1'"
+     },
+     {
+      "path": ".m_description",
+      "ours": "''",
+      "parent": "'Revision 1'"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 14,
+    "blocks_out": 14
+   },
+   {
+    "what": "40 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     12799,
+     46017,
+     54523,
+     54525,
+     85092,
+     85104,
+     102444,
+     102461,
+     102842,
+     105779,
+     113109,
+     113134,
+     115987,
+     130510,
+     132328,
+     132481,
+     132484,
+     423812,
+     907053,
+     907354,
+     907382,
+     907486,
+     1218550,
+     1218727,
+     1457285,
+     1462521,
+     1468014,
+     1470390,
+     1471217,
+     1471446,
+     1471489,
+     1471493,
+     1471494,
+     1471712,
+     1471770,
+     1471901,
+     1471905,
+     1471913,
+     1471926,
+     1472007
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 51,
+  "slots_with_registry_surface": 47,
+  "positional_uet_slots": [
+   {
+    "slot": 49031,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[62]"
+    ]
+   },
+   {
+    "slot": 85092,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[3]"
+    ]
+   },
+   {
+    "slot": 85104,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[4]"
+    ]
+   },
+   {
+    "slot": 86204,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[5]"
+    ]
+   },
+   {
+    "slot": 102444,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[9]"
+    ]
+   },
+   {
+    "slot": 102842,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[10]"
+    ]
+   },
+   {
+    "slot": 113109,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[16]"
+    ]
+   },
+   {
+    "slot": 113134,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[17]"
+    ]
+   },
+   {
+    "slot": 115987,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[18]"
+    ]
+   },
+   {
+    "slot": 115988,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[19]"
+    ]
+   },
+   {
+    "slot": 121706,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[59]"
+    ]
+   },
+   {
+    "slot": 130510,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[36]"
+    ]
+   },
+   {
+    "slot": 132328,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[38]"
+    ]
+   },
+   {
+    "slot": 132481,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[41]"
+    ]
+   },
+   {
+    "slot": 132484,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[40]"
+    ]
+   },
+   {
+    "slot": 137426,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[51]"
+    ]
+   },
+   {
+    "slot": 907053,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[60]"
+    ]
+   },
+   {
+    "slot": 907354,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[58]"
+    ]
+   },
+   {
+    "slot": 907382,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[57]"
+    ]
+   },
+   {
+    "slot": 907486,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[54]"
+    ]
+   },
+   {
+    "slot": 1218550,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[63]"
+    ]
+   },
+   {
+    "slot": 1218727,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[61]"
+    ]
+   },
+   {
+    "slot": 1457285,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[69]"
+    ]
+   },
+   {
+    "slot": 1462521,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[70]"
+    ]
+   },
+   {
+    "slot": 1468014,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[73]"
+    ]
+   },
+   {
+    "slot": 1470390,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[77]"
+    ]
+   },
+   {
+    "slot": 1471217,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[79]"
+    ]
+   },
+   {
+    "slot": 1471446,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[81]"
+    ]
+   },
+   {
+    "slot": 1471489,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[82]"
+    ]
+   },
+   {
+    "slot": 1471712,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[84]"
+    ]
+   },
+   {
+    "slot": 1471770,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[83]"
+    ]
+   },
+   {
+    "slot": 1471901,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[89]"
+    ]
+   },
+   {
+    "slot": 1471905,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[86]"
+    ]
+   },
+   {
+    "slot": 1471913,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[87]"
+    ]
+   },
+   {
+    "slot": 1471926,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[92]"
+    ]
+   },
+   {
+    "slot": 1472007,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[91]"
+    ]
+   }
+  ],
+  "surface_examples": [
+   {
+    "slot": 9490,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AreaMeasureTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NewItemNumber.m_items[*].m_equivalence"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 9494,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AreaMeasureTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 19895,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PrintSettingsTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 46017,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ExternalParamTracking.m_externalParamLockId"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 49030,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 49031,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[62]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 85092,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[3]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 85104,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[4]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 51,
+  "pairs_ok": 51,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 9490,
+   "class": "AreaMeasureElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 9494,
+   "class": "AreaMeasureElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 12799,
+   "class": "DaylightSourceIdSet",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 19895,
+   "class": "PrintSettings",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 151,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 46017,
+   "class": "ExternalParamLock",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 269,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 49030,
+   "class": "ProjectRevision",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 277,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 1
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 19,
+   "records": 10002,
+   "elements_decoded": 3333,
+   "decode_failures": 1,
+   "refs_checked": 52018
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis2025/subst/Y5.rvt",
+  "elements": 3333,
+  "file_size": 774144,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "classes_top": {
+   "GStyleElem": 1451,
+   "ParamElemExternal": 466,
+   "CategoryElem": 209,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "MaterialElem": 23,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 10,
+   "SectionAttributes": 10,
+   "PenWidthTableElem": 9,
+   "FillPatternElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "ColorFillSchema": 9
+  }
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500049,
+   "slot": 9490,
+   "class": "AreaMeasureElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 12,
+   "our_name": "GEN Gross Floor Area"
+  },
+  {
+   "ours_tmp": 1500050,
+   "slot": 9494,
+   "class": "AreaMeasureElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 10,
+   "our_name": "GEN Rentable Area"
+  },
+  {
+   "ours_tmp": 1500015,
+   "slot": 12799,
+   "class": "DaylightSourceIdSet",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500048,
+   "slot": 19895,
+   "class": "PrintSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "Default"
+  },
+  {
+   "ours_tmp": 1500014,
+   "slot": 46017,
+   "class": "ExternalParamLock",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500046,
+   "slot": 49030,
+   "class": "ProjectRevision",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500047,
+   "slot": 49031,
+   "class": "AllProjectRevisions",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500042,
+   "slot": 54523,
+   "class": "ModelGraphicsStyle",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "<Shading>"
+  },
+  {
+   "ours_tmp": 1500043,
+   "slot": 54525,
+   "class": "ModelGraphicsStyle",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "<Raytracing>"
+  },
+  {
+   "ours_tmp": 1500030,
+   "slot": 85092,
+   "class": "AreaSettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 3,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500012,
+   "slot": 85104,
+   "class": "ReactionsUpToDateElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500036,
+   "slot": 86204,
+   "class": "CoordinateSystemDisplayElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500017,
+   "slot": 102444,
+   "class": "Dwg2dExportUserSettingsData",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500019,
+   "slot": 102461,
+   "class": "ZoneScheme",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500025,
+   "slot": 102842,
+   "class": "AutoCamSettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500026,
+   "slot": 105779,
+   "class": "HalftoneUnderlaySettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500039,
+   "slot": 113109,
+   "class": "ActiveGeoLocationTrackingElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 3,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500016,
+   "slot": 113134,
+   "class": "WorksetVisibilitySettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 6,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500029,
+   "slot": 115987,
+   "class": "ProjectCopySettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500040,
+   "slot": 115988,
+   "class": "EnergyDataSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500037,
+   "slot": 121706,
+   "class": "ElectricalSetting",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 130510,
+   "class": "MEPSystemTracker",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500041,
+   "slot": 130813,
+   "class": "WorksharingViewModeSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500007,
+   "slot": 132328,
+   "class": "AssemblyTracker",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500020,
+   "slot": 132481,
+   "class": "RvtLinkInstanceAppearanceParentElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500021,
+   "slot": 132484,
+   "class": "SketchGridAppearanceParentElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500035,
+   "slot": 137426,
+   "class": "ReinforcementSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500023,
+   "slot": 423812,
+   "class": "CurtaSystemFaceManager",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500028,
+   "slot": 907053,
+   "class": "DefaultDivideSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500000,
+   "slot": 907354,
+   "class": "MEPComponentTracker",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500008,
+   "slot": 907382,
+   "class": "KeynoteTagsOnSheetsTracker",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500009,
+   "slot": 907486,
+   "class": "RevisionCloudsOnSheetsTracker",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 1218550,
+   "class": "LayoutNodesTracker",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500032,
+   "slot": 1218727,
+   "class": "FabricationSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500038,
+   "slot": 1250031,
+   "class": "CopyWatchProperties",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500033,
+   "slot": 1457285,
+   "class": "FabricationSettingsElement",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500024,
+   "slot": 1462521,
+   "class": "StructuralConnectionSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 1468014,
+   "class": "MEPNetworkTracker",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500031,
+   "slot": 1470390,
+   "class": "RouteAnalysisSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 1471217,
+   "class": "CircuitNamingTypeSetting",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500005,
+   "slot": 1471446,
+   "class": "MEPHiddenLineSettingsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500027,
+   "slot": 1471489,
+   "class": "MultipleValuesIndicationSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500044,
+   "slot": 1471493,
+   "class": "RevisionNumberingSequence",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "Numeric"
+  },
+  {
+   "ours_tmp": 1500045,
+   "slot": 1471494,
+   "class": "RevisionNumberingSequence",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "Alphanumeric"
+  },
+  {
+   "ours_tmp": 1500013,
+   "slot": 1471712,
+   "class": "GraphicsCache",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500011,
+   "slot": 1471770,
+   "class": "AnalyticalToPhysicalRelationManager",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 1471901,
+   "class": "MEPNetworkDataElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500022,
+   "slot": 1471905,
+   "class": "FabricationServiceSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500034,
+   "slot": 1471913,
+   "class": "SSEPointVisibilitySettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500018,
+   "slot": 1471926,
+   "class": "STEPExportSettings",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500010,
+   "slot": 1472007,
+   "class": "SheetsInSheetCollectionTracker",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  }
+ ],
+ "correspondence_note": "all pairs stored",
+ "landed_slots": [
+  {
+   "slot": 907354,
+   "class": "MEPComponentTracker",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 1218550,
+   "class": "LayoutNodesTracker",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 130510,
+   "class": "MEPSystemTracker",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 1471901,
+   "class": "MEPNetworkDataElem",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 1468014,
+   "class": "MEPNetworkTracker",
+   "match": "role",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 1471446,
+   "class": "MEPHiddenLineSettingsElem",
+   "match": "role",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 1471217,
+   "class": "CircuitNamingTypeSetting",
+   "match": "role",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 132328,
+   "class": "AssemblyTracker",
+   "match": "role",
+   "ours_tmp": 1500007
+  },
+  {
+   "slot": 907382,
+   "class": "KeynoteTagsOnSheetsTracker",
+   "match": "role",
+   "ours_tmp": 1500008
+  },
+  {
+   "slot": 907486,
+   "class": "RevisionCloudsOnSheetsTracker",
+   "match": "role",
+   "ours_tmp": 1500009
+  },
+  {
+   "slot": 1472007,
+   "class": "SheetsInSheetCollectionTracker",
+   "match": "role",
+   "ours_tmp": 1500010
+  },
+  {
+   "slot": 1471770,
+   "class": "AnalyticalToPhysicalRelationManager",
+   "match": "role",
+   "ours_tmp": 1500011
+  },
+  {
+   "slot": 85104,
+   "class": "ReactionsUpToDateElem",
+   "match": "role",
+   "ours_tmp": 1500012
+  },
+  {
+   "slot": 1471712,
+   "class": "GraphicsCache",
+   "match": "role",
+   "ours_tmp": 1500013
+  },
+  {
+   "slot": 46017,
+   "class": "ExternalParamLock",
+   "match": "role",
+   "ours_tmp": 1500014
+  },
+  {
+   "slot": 12799,
+   "class": "DaylightSourceIdSet",
+   "match": "role",
+   "ours_tmp": 1500015
+  },
+  {
+   "slot": 113134,
+   "class": "WorksetVisibilitySettingsElem",
+   "match": "role",
+   "ours_tmp": 1500016
+  },
+  {
+   "slot": 102444,
+   "class": "Dwg2dExportUserSettingsData",
+   "match": "role",
+   "ours_tmp": 1500017
+  },
+  {
+   "slot": 1471926,
+   "class": "STEPExportSettings",
+   "match": "role",
+   "ours_tmp": 1500018
+  },
+  {
+   "slot": 102461,
+   "class": "ZoneScheme",
+   "match": "role",
+   "ours_tmp": 1500019
+  },
+  {
+   "slot": 132481,
+   "class": "RvtLinkInstanceAppearanceParentElem",
+   "match": "role",
+   "ours_tmp": 1500020
+  },
+  {
+   "slot": 132484,
+   "class": "SketchGridAppearanceParentElem",
+   "match": "role",
+   "ours_tmp": 1500021
+  },
+  {
+   "slot": 1471905,
+   "class": "FabricationServiceSettings",
+   "match": "role",
+   "ours_tmp": 1500022
+  },
+  {
+   "slot": 423812,
+   "class": "CurtaSystemFaceManager",
+   "match": "role",
+   "ours_tmp": 1500023
+  },
+  {
+   "slot": 1462521,
+   "class": "StructuralConnectionSettings",
+   "match": "role",
+   "ours_tmp": 1500024
+  },
+  {
+   "slot": 102842,
+   "class": "AutoCamSettingsElem",
+   "match": "role",
+   "ours_tmp": 1500025
+  },
+  {
+   "slot": 105779,
+   "class": "HalftoneUnderlaySettings",
+   "match": "role",
+   "ours_tmp": 1500026
+  },
+  {
+   "slot": 1471489,
+   "class": "MultipleValuesIndicationSettings",
+   "match": "role",
+   "ours_tmp": 1500027
+  },
+  {
+   "slot": 907053,
+   "class": "DefaultDivideSettings",
+   "match": "role",
+   "ours_tmp": 1500028
+  },
+  {
+   "slot": 115987,
+   "class": "ProjectCopySettingsElem",
+   "match": "role",
+   "ours_tmp": 1500029
+  },
+  {
+   "slot": 85092,
+   "class": "AreaSettingsElem",
+   "match": "role",
+   "ours_tmp": 1500030
+  },
+  {
+   "slot": 1470390,
+   "class": "RouteAnalysisSettings",
+   "match": "role",
+   "ours_tmp": 1500031
+  },
+  {
+   "slot": 1218727,
+   "class": "FabricationSettings",
+   "match": "role",
+   "ours_tmp": 1500032
+  },
+  {
+   "slot": 1457285,
+   "class": "FabricationSettingsElement",
+   "match": "role",
+   "ours_tmp": 1500033
+  },
+  {
+   "slot": 1471913,
+   "class": "SSEPointVisibilitySettings",
+   "match": "role",
+   "ours_tmp": 1500034
+  },
+  {
+   "slot": 137426,
+   "class": "ReinforcementSettings",
+   "match": "role",
+   "ours_tmp": 1500035
+  },
+  {
+   "slot": 86204,
+   "class": "CoordinateSystemDisplayElem",
+   "match": "role",
+   "ours_tmp": 1500036
+  },
+  {
+   "slot": 121706,
+   "class": "ElectricalSetting",
+   "match": "role",
+   "ours_tmp": 1500037
+  },
+  {
+   "slot": 1250031,
+   "class": "CopyWatchProperties",
+   "match": "role",
+   "ours_tmp": 1500038
+  },
+  {
+   "slot": 113109,
+   "class": "ActiveGeoLocationTrackingElement",
+   "match": "role",
+   "ours_tmp": 1500039
+  },
+  {
+   "slot": 115988,
+   "class": "EnergyDataSettings",
+   "match": "role",
+   "ours_tmp": 1500040
+  },
+  {
+   "slot": 130813,
+   "class": "WorksharingViewModeSettings",
+   "match": "role",
+   "ours_tmp": 1500041
+  },
+  {
+   "slot": 54523,
+   "class": "ModelGraphicsStyle",
+   "match": "role",
+   "ours_tmp": 1500042
+  },
+  {
+   "slot": 54525,
+   "class": "ModelGraphicsStyle",
+   "match": "role",
+   "ours_tmp": 1500043
+  },
+  {
+   "slot": 1471493,
+   "class": "RevisionNumberingSequence",
+   "match": "role",
+   "ours_tmp": 1500044
+  },
+  {
+   "slot": 1471494,
+   "class": "RevisionNumberingSequence",
+   "match": "role",
+   "ours_tmp": 1500045
+  },
+  {
+   "slot": 49030,
+   "class": "ProjectRevision",
+   "match": "role",
+   "ours_tmp": 1500046
+  },
+  {
+   "slot": 49031,
+   "class": "AllProjectRevisions",
+   "match": "role",
+   "ours_tmp": 1500047
+  },
+  {
+   "slot": 19895,
+   "class": "PrintSettings",
+   "match": "role",
+   "ours_tmp": 1500048
+  },
+  {
+   "slot": 9490,
+   "class": "AreaMeasureElem",
+   "match": "role",
+   "ours_tmp": 1500049
+  },
+  {
+   "slot": 9494,
+   "class": "AreaMeasureElem",
+   "match": "role",
+   "ours_tmp": 1500050
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": [],
+  "meaning": "our records that found NO in-place slot in the parent (the parent lacks an element of the class, or fewer than we build); landing them requires the ADD path -- deliberately NOT this ladder's variable"
+ },
+ "residue_olds_left_in_place": {
+  "count": 3,
+  "by_class": {
+   "PrintSettings": 2,
+   "WorksharingViewModeSettings": 1
+  },
+  "meaning": "the parent's candidate elements our set did not land on (surplus sample instances / companions): left EXACTLY as they were -- residue for the census"
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 774144,
+ "seconds": 2.6
+}

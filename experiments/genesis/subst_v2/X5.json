@@ -1,0 +1,2918 @@
+{
+ "rung": "X5",
+ "label": "every remaining settings singleton / tracker with a constructor -> ours",
+ "kind": "substitute",
+ "parent": "experiments/genesis/subst_v2/X4.rvt",
+ "parent_rung": "X4",
+ "out": "experiments/genesis/subst_v2/X5.rvt",
+ "description": "X4 with EVERY other settings singleton / tracker OUR standard constellation constructs REPLACED by ours (the MEP tracker constellation, GCS / assembly / keynote-tags / revision-clouds / sheet-collection trackers, revisions + numbering sequences, print settings, worksharing / export / area / energy / reinforcement / route-analysis / fabrication settings, model graphics styles, area schemes, the remaining SYSTEM view types...), each in its exact registry slot; the parent's settings classes WITHOUT a constructor are LISTED in the report's residue (Autodesk-authored, left in place -- the honest finding, never a silent keep).",
+ "tests": "Whether the reader accepts the WHOLE our-settings constellation on the otherwise-Autodesk skeleton -- the S5-set question, now attributable because everything else in the file already loads.",
+ "if_PASS": "Every settings constructor we own is reader-accepted; what remains is the residue list (constructors we do not have yet).",
+ "if_FAIL": "A constructor added at X5 is rejected -- bisect X5 by the constellation's tiers (mep / trackers / revisions / view types).",
+ "old": {
+  "count": 56,
+  "ids": [
+   9490,
+   9494,
+   12799,
+   19895,
+   46017,
+   49030,
+   49031,
+   54523,
+   54525,
+   85092,
+   85104,
+   86204,
+   102444,
+   102461,
+   102842,
+   105779,
+   113109,
+   113134,
+   115987,
+   115988,
+   121706,
+   130510,
+   130813,
+   132328,
+   132481,
+   132484,
+   137426,
+   171476,
+   408188,
+   423812,
+   503760,
+   701421,
+   907053,
+   907354,
+   907382,
+   907486,
+   1013474,
+   1218550,
+   1218727,
+   1250031,
+   1457285,
+   1462521,
+   1468014,
+   1470390,
+   1471217,
+   1471446,
+   1471489,
+   1471493,
+   1471494,
+   1471712,
+   1471770,
+   1471901,
+   1471905,
+   1471913,
+   1471926,
+   1472007
+  ],
+  "by_class": {
+   "PrintSettings": 3,
+   "AreaMeasureElem": 2,
+   "ModelGraphicsStyle": 2,
+   "WorksharingViewModeSettings": 2,
+   "ViewSheetSet": 2,
+   "RevisionNumberingSequence": 2,
+   "DaylightSourceIdSet": 1,
+   "ExternalParamLock": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "AreaSettingsElem": 1,
+   "ReactionsUpToDateElem": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "ZoneScheme": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "ProjectCopySettingsElem": 1,
+   "EnergyDataSettings": 1,
+   "ElectricalSetting": 1,
+   "MEPSystemTracker": 1,
+   "AssemblyTracker": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "ReinforcementSettings": 1,
+   "CurtaSystemFaceManager": 1,
+   "DefaultDivideSettings": 1,
+   "MEPComponentTracker": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "LayoutNodesTracker": 1,
+   "FabricationSettings": 1,
+   "CopyWatchProperties": 1,
+   "FabricationSettingsElement": 1,
+   "StructuralConnectionSettings": 1,
+   "MEPNetworkTracker": 1,
+   "RouteAnalysisSettings": 1,
+   "CircuitNamingTypeSetting": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "GraphicsCache": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "MEPNetworkDataElem": 1,
+   "FabricationServiceSettings": 1,
+   "SSEPointVisibilitySettings": 1,
+   "STEPExportSettings": 1,
+   "SheetsInSheetCollectionTracker": 1
+  }
+ },
+ "new": {
+  "count": 53,
+  "id_range": [
+   1900000,
+   1900052
+  ],
+  "by_class": {
+   "ModelGraphicsStyle": 2,
+   "RevisionNumberingSequence": 2,
+   "ViewSheetSet": 2,
+   "AreaMeasureElem": 2,
+   "MEPComponentTracker": 1,
+   "LayoutNodesTracker": 1,
+   "MEPSystemTracker": 1,
+   "MEPNetworkDataElem": 1,
+   "MEPNetworkTracker": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "CircuitNamingTypeSetting": 1,
+   "AssemblyTracker": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "SheetsInSheetCollectionTracker": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "ReactionsUpToDateElem": 1,
+   "GraphicsCache": 1,
+   "ExternalParamLock": 1,
+   "DaylightSourceIdSet": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "STEPExportSettings": 1,
+   "ZoneScheme": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "FabricationServiceSettings": 1,
+   "CurtaSystemFaceManager": 1,
+   "StructuralConnectionSettings": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "DefaultDivideSettings": 1,
+   "ProjectCopySettingsElem": 1,
+   "AreaSettingsElem": 1,
+   "RouteAnalysisSettings": 1,
+   "FabricationSettings": 1,
+   "FabricationSettingsElement": 1,
+   "SSEPointVisibilitySettings": 1,
+   "ReinforcementSettings": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "ElectricalSetting": 1,
+   "CopyWatchProperties": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "EnergyDataSettings": 1,
+   "WorksharingViewModeSettings": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "PrintSettings": 1
+  }
+ },
+ "correspondence": [
+  {
+   "old": 9490,
+   "new": 1900051,
+   "old_class": "AreaMeasureElem",
+   "new_class": "AreaMeasureElem"
+  },
+  {
+   "old": 9494,
+   "new": 1900052,
+   "old_class": "AreaMeasureElem",
+   "new_class": "AreaMeasureElem"
+  },
+  {
+   "old": 12799,
+   "new": 1900015,
+   "old_class": "DaylightSourceIdSet",
+   "new_class": "DaylightSourceIdSet"
+  },
+  {
+   "old": 19895,
+   "new": 1900048,
+   "old_class": "PrintSettings",
+   "new_class": "PrintSettings"
+  },
+  {
+   "old": 46017,
+   "new": 1900014,
+   "old_class": "ExternalParamLock",
+   "new_class": "ExternalParamLock"
+  },
+  {
+   "old": 49030,
+   "new": 1900046,
+   "old_class": "ProjectRevision",
+   "new_class": "ProjectRevision"
+  },
+  {
+   "old": 49031,
+   "new": 1900047,
+   "old_class": "AllProjectRevisions",
+   "new_class": "AllProjectRevisions"
+  },
+  {
+   "old": 54523,
+   "new": 1900042,
+   "old_class": "ModelGraphicsStyle",
+   "new_class": "ModelGraphicsStyle"
+  },
+  {
+   "old": 54525,
+   "new": 1900043,
+   "old_class": "ModelGraphicsStyle",
+   "new_class": "ModelGraphicsStyle"
+  },
+  {
+   "old": 85092,
+   "new": 1900030,
+   "old_class": "AreaSettingsElem",
+   "new_class": "AreaSettingsElem"
+  },
+  {
+   "old": 85104,
+   "new": 1900012,
+   "old_class": "ReactionsUpToDateElem",
+   "new_class": "ReactionsUpToDateElem"
+  },
+  {
+   "old": 86204,
+   "new": 1900036,
+   "old_class": "CoordinateSystemDisplayElem",
+   "new_class": "CoordinateSystemDisplayElem"
+  },
+  {
+   "old": 102444,
+   "new": 1900017,
+   "old_class": "Dwg2dExportUserSettingsData",
+   "new_class": "Dwg2dExportUserSettingsData"
+  },
+  {
+   "old": 102461,
+   "new": 1900019,
+   "old_class": "ZoneScheme",
+   "new_class": "ZoneScheme"
+  },
+  {
+   "old": 102842,
+   "new": 1900025,
+   "old_class": "AutoCamSettingsElem",
+   "new_class": "AutoCamSettingsElem"
+  },
+  {
+   "old": 105779,
+   "new": 1900026,
+   "old_class": "HalftoneUnderlaySettings",
+   "new_class": "HalftoneUnderlaySettings"
+  },
+  {
+   "old": 113109,
+   "new": 1900039,
+   "old_class": "ActiveGeoLocationTrackingElement",
+   "new_class": "ActiveGeoLocationTrackingElement"
+  },
+  {
+   "old": 113134,
+   "new": 1900016,
+   "old_class": "WorksetVisibilitySettingsElem",
+   "new_class": "WorksetVisibilitySettingsElem"
+  },
+  {
+   "old": 115987,
+   "new": 1900029,
+   "old_class": "ProjectCopySettingsElem",
+   "new_class": "ProjectCopySettingsElem"
+  },
+  {
+   "old": 115988,
+   "new": 1900040,
+   "old_class": "EnergyDataSettings",
+   "new_class": "EnergyDataSettings"
+  },
+  {
+   "old": 121706,
+   "new": 1900037,
+   "old_class": "ElectricalSetting",
+   "new_class": "ElectricalSetting"
+  },
+  {
+   "old": 130510,
+   "new": 1900002,
+   "old_class": "MEPSystemTracker",
+   "new_class": "MEPSystemTracker"
+  },
+  {
+   "old": 130813,
+   "new": 1900041,
+   "old_class": "WorksharingViewModeSettings",
+   "new_class": "WorksharingViewModeSettings"
+  },
+  {
+   "old": 132328,
+   "new": 1900007,
+   "old_class": "AssemblyTracker",
+   "new_class": "AssemblyTracker"
+  },
+  {
+   "old": 132481,
+   "new": 1900020,
+   "old_class": "RvtLinkInstanceAppearanceParentElem",
+   "new_class": "RvtLinkInstanceAppearanceParentElem"
+  },
+  {
+   "old": 132484,
+   "new": 1900021,
+   "old_class": "SketchGridAppearanceParentElem",
+   "new_class": "SketchGridAppearanceParentElem"
+  },
+  {
+   "old": 137426,
+   "new": 1900035,
+   "old_class": "ReinforcementSettings",
+   "new_class": "ReinforcementSettings"
+  },
+  {
+   "old": 423812,
+   "new": 1900023,
+   "old_class": "CurtaSystemFaceManager",
+   "new_class": "CurtaSystemFaceManager"
+  },
+  {
+   "old": 503760,
+   "new": 1900049,
+   "old_class": "ViewSheetSet",
+   "new_class": "ViewSheetSet"
+  },
+  {
+   "old": 701421,
+   "new": 1900050,
+   "old_class": "ViewSheetSet",
+   "new_class": "ViewSheetSet"
+  },
+  {
+   "old": 907053,
+   "new": 1900028,
+   "old_class": "DefaultDivideSettings",
+   "new_class": "DefaultDivideSettings"
+  },
+  {
+   "old": 907354,
+   "new": 1900000,
+   "old_class": "MEPComponentTracker",
+   "new_class": "MEPComponentTracker"
+  },
+  {
+   "old": 907382,
+   "new": 1900008,
+   "old_class": "KeynoteTagsOnSheetsTracker",
+   "new_class": "KeynoteTagsOnSheetsTracker"
+  },
+  {
+   "old": 907486,
+   "new": 1900009,
+   "old_class": "RevisionCloudsOnSheetsTracker",
+   "new_class": "RevisionCloudsOnSheetsTracker"
+  },
+  {
+   "old": 1218550,
+   "new": 1900001,
+   "old_class": "LayoutNodesTracker",
+   "new_class": "LayoutNodesTracker"
+  },
+  {
+   "old": 1218727,
+   "new": 1900032,
+   "old_class": "FabricationSettings",
+   "new_class": "FabricationSettings"
+  },
+  {
+   "old": 1250031,
+   "new": 1900038,
+   "old_class": "CopyWatchProperties",
+   "new_class": "CopyWatchProperties"
+  },
+  {
+   "old": 1457285,
+   "new": 1900033,
+   "old_class": "FabricationSettingsElement",
+   "new_class": "FabricationSettingsElement"
+  },
+  {
+   "old": 1462521,
+   "new": 1900024,
+   "old_class": "StructuralConnectionSettings",
+   "new_class": "StructuralConnectionSettings"
+  },
+  {
+   "old": 1468014,
+   "new": 1900004,
+   "old_class": "MEPNetworkTracker",
+   "new_class": "MEPNetworkTracker"
+  },
+  {
+   "old": 1470390,
+   "new": 1900031,
+   "old_class": "RouteAnalysisSettings",
+   "new_class": "RouteAnalysisSettings"
+  },
+  {
+   "old": 1471217,
+   "new": 1900006,
+   "old_class": "CircuitNamingTypeSetting",
+   "new_class": "CircuitNamingTypeSetting"
+  },
+  {
+   "old": 1471446,
+   "new": 1900005,
+   "old_class": "MEPHiddenLineSettingsElem",
+   "new_class": "MEPHiddenLineSettingsElem"
+  },
+  {
+   "old": 1471489,
+   "new": 1900027,
+   "old_class": "MultipleValuesIndicationSettings",
+   "new_class": "MultipleValuesIndicationSettings"
+  },
+  {
+   "old": 1471493,
+   "new": 1900044,
+   "old_class": "RevisionNumberingSequence",
+   "new_class": "RevisionNumberingSequence"
+  },
+  {
+   "old": 1471494,
+   "new": 1900045,
+   "old_class": "RevisionNumberingSequence",
+   "new_class": "RevisionNumberingSequence"
+  },
+  {
+   "old": 1471712,
+   "new": 1900013,
+   "old_class": "GraphicsCache",
+   "new_class": "GraphicsCache"
+  },
+  {
+   "old": 1471770,
+   "new": 1900011,
+   "old_class": "AnalyticalToPhysicalRelationManager",
+   "new_class": "AnalyticalToPhysicalRelationManager"
+  },
+  {
+   "old": 1471901,
+   "new": 1900003,
+   "old_class": "MEPNetworkDataElem",
+   "new_class": "MEPNetworkDataElem"
+  },
+  {
+   "old": 1471905,
+   "new": 1900022,
+   "old_class": "FabricationServiceSettings",
+   "new_class": "FabricationServiceSettings"
+  },
+  {
+   "old": 1471913,
+   "new": 1900034,
+   "old_class": "SSEPointVisibilitySettings",
+   "new_class": "SSEPointVisibilitySettings"
+  },
+  {
+   "old": 1471926,
+   "new": 1900018,
+   "old_class": "STEPExportSettings",
+   "new_class": "STEPExportSettings"
+  },
+  {
+   "old": 1472007,
+   "new": 1900010,
+   "old_class": "SheetsInSheetCollectionTracker",
+   "new_class": "SheetsInSheetCollectionTracker"
+  }
+ ],
+ "unmapped_old_deleted": [
+  {
+   "id": 171476,
+   "class": "WorksharingViewModeSettings"
+  },
+  {
+   "id": 408188,
+   "class": "PrintSettings"
+  },
+  {
+   "id": 1013474,
+   "class": "PrintSettings"
+  }
+ ],
+ "new_only_registered": [],
+ "residue_left_in_place": {
+  "AllPlanTopologies": "12 kept -- plan-topology regeneration cache (no constructor; regenerable)",
+  "AreaReportSettingsElem": "1 kept -- settings-like class with NO our-constructor",
+  "AreaSchemePlanTopologies": "6 kept -- area-scheme plan-topology cache (no constructor)",
+  "AssemblyCodeTable": "1 kept -- Autodesk's UniFormat assembly-code table (product data; no constructor)",
+  "ColorFillSchema": "10 kept -- settings-like class with NO our-constructor",
+  "DesignOptionSet": "1 kept -- settings-like class with NO our-constructor",
+  "GraphSchedColumnTable": "1 kept -- settings-like class with NO our-constructor",
+  "NumberingSchema": "3 kept -- element-numbering schema (no constructor)"
+ },
+ "build_notes": [
+  "wiring: units 19236, document sun 54520, geo 21748, duct settings 1800004, pipe settings 1800002",
+  "WorksharingViewModeSettings: 2 in parent (project + per-user); ours = the project element only",
+  "PrintSettings: 3 in parent (named setups), ours 1 'Default' -> 2 sample setup(s) deleted",
+  "ViewSheetSet: 2 sets renamed to our set names, each over the drawings the sample set held (wiring kept, names ours)",
+  "X5 substituted 49 classes: ['ActiveGeoLocationTrackingElement', 'AllProjectRevisions', 'AnalyticalToPhysicalRelationManager', 'AreaMeasureElem', 'AreaSettingsElem', 'AssemblyTracker', 'AutoCamSettingsElem', 'CircuitNamingTypeSetting', 'CoordinateSystemDisplayElem', 'CopyWatchProperties', 'CurtaSystemFaceManager', 'DaylightSourceIdSet', 'DefaultDivideSettings', 'Dwg2dExportUserSettingsData', 'ElectricalSetting', 'EnergyDataSettings', 'ExternalParamLock', 'FabricationServiceSettings', 'FabricationSettings', 'FabricationSettingsElement', 'GraphicsCache', 'HalftoneUnderlaySettings', 'KeynoteTagsOnSheetsTracker', 'LayoutNodesTracker', 'MEPComponentTracker', 'MEPHiddenLineSettingsElem', 'MEPNetworkDataElem', 'MEPNetworkTracker', 'MEPSystemTracker', 'ModelGraphicsStyle', 'MultipleValuesIndicationSettings', 'PrintSettings', 'ProjectCopySettingsElem', 'ProjectRevision', 'ReactionsUpToDateElem', 'ReinforcementSettings', 'RevisionCloudsOnSheetsTracker', 'RevisionNumberingSequence', 'RouteAnalysisSettings', 'RvtLinkInstanceAppearanceParentElem', 'SSEPointVisibilitySettings', 'STEPExportSettings', 'SheetsInSheetCollectionTracker', 'SketchGridAppearanceParentElem', 'StructuralConnectionSettings', 'ViewSheetSet', 'WorksetVisibilitySettingsElem', 'WorksharingViewModeSettings', 'ZoneScheme']"
+ ],
+ "build_info": {
+  "substituted_classes": [
+   "ActiveGeoLocationTrackingElement",
+   "AllProjectRevisions",
+   "AnalyticalToPhysicalRelationManager",
+   "AreaMeasureElem",
+   "AreaSettingsElem",
+   "AssemblyTracker",
+   "AutoCamSettingsElem",
+   "CircuitNamingTypeSetting",
+   "CoordinateSystemDisplayElem",
+   "CopyWatchProperties",
+   "CurtaSystemFaceManager",
+   "DaylightSourceIdSet",
+   "DefaultDivideSettings",
+   "Dwg2dExportUserSettingsData",
+   "ElectricalSetting",
+   "EnergyDataSettings",
+   "ExternalParamLock",
+   "FabricationServiceSettings",
+   "FabricationSettings",
+   "FabricationSettingsElement",
+   "GraphicsCache",
+   "HalftoneUnderlaySettings",
+   "KeynoteTagsOnSheetsTracker",
+   "LayoutNodesTracker",
+   "MEPComponentTracker",
+   "MEPHiddenLineSettingsElem",
+   "MEPNetworkDataElem",
+   "MEPNetworkTracker",
+   "MEPSystemTracker",
+   "ModelGraphicsStyle",
+   "MultipleValuesIndicationSettings",
+   "PrintSettings",
+   "ProjectCopySettingsElem",
+   "ProjectRevision",
+   "ReactionsUpToDateElem",
+   "ReinforcementSettings",
+   "RevisionCloudsOnSheetsTracker",
+   "RevisionNumberingSequence",
+   "RouteAnalysisSettings",
+   "RvtLinkInstanceAppearanceParentElem",
+   "SSEPointVisibilitySettings",
+   "STEPExportSettings",
+   "SheetsInSheetCollectionTracker",
+   "SketchGridAppearanceParentElem",
+   "StructuralConnectionSettings",
+   "ViewSheetSet",
+   "WorksetVisibilitySettingsElem",
+   "WorksharingViewModeSettings",
+   "ZoneScheme"
+  ],
+  "deferred_to_later_rungs": {
+   "AllProjectPhases": "1 kept -> X8",
+   "BasePoint": "2 kept -> X8",
+   "CableTraySizesElem": "1 kept -> catalog rung",
+   "ConduitSizesElem": "1 kept -> catalog rung (keyed on the conduit standards)",
+   "DBViewType": "91 kept -> X9 (view-type layer; 72 of the 91 are curtain-SYSTEM-family editor types)",
+   "ElectricalDemandFactorDefinition": "21 kept -> catalog rung (types stream constructor exists)",
+   "ElectricalLoadClassification": "18 kept -> catalog rung (types stream constructor exists)",
+   "GeoLocation": "2 kept -> X8",
+   "GeoSite": "2 kept -> X8",
+   "Level": "9 kept -> X8",
+   "LightSchemeElement": "15 kept -> X9",
+   "PhaseFilterElem": "7 kept -> X8",
+   "PipeSegment": "15 kept -> catalog rung",
+   "ProjectInfo": "1 kept -> X8",
+   "ProjectPhase": "2 kept -> X8",
+   "RbsPipeConnectionType": "8 kept -> catalog rung",
+   "RbsPipeMaterialType": "5 kept -> catalog rung",
+   "RbsPipeScheduleType": "13 kept -> catalog rung",
+   "RbsWireInsulationType": "26 kept -> catalog rung",
+   "RbsWireMaterialType": "4 kept -> catalog rung (MEP catalog symbol, keyed by our X4 sizes table)",
+   "RbsWireTemperatureRatingType": "3 kept -> catalog rung",
+   "SunAndShadowSettings": "90 kept -> X9 (view companions)",
+   "TrueNorth": "1 kept -> X8",
+   "UnitsElem": "1 kept -> X8 (document units)"
+  },
+  "wiring": {
+   "units": 19236,
+   "document_sun": 54520,
+   "geo": 21748,
+   "duct_settings": 1800004,
+   "pipe_settings": 1800002
+  }
+ },
+ "stages": [
+  {
+   "stage": "A: append our records (rvt.commit.commit_new_elements)",
+   "new_elements": 53,
+   "elemtable_after": 6588,
+   "watermark_after": 1900052,
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true
+   },
+   "new_records_clean": 159,
+   "seconds": 7.1
+  },
+  {
+   "stage": "B: re-point survivor referrers + delete OLD (rvt.manipulate.commit_plans)",
+   "referrers_repointed": 117,
+   "referrer_records_edited": 143,
+   "repointed_by_class": [
+    [
+     "DBView3d",
+     21
+    ],
+    [
+     "DBViewSection",
+     20
+    ],
+    [
+     "AreaTypeElem",
+     16
+    ],
+    [
+     "DBViewPlan",
+     16
+    ],
+    [
+     "AllPlanTopologies",
+     14
+    ],
+    [
+     "AreaSchemePlanTopologies",
+     12
+    ],
+    [
+     "CurveElem",
+     10
+    ],
+    [
+     "ColorFillSchema",
+     8
+    ],
+    [
+     "DBViewDrafting",
+     8
+    ],
+    [
+     "DBViewAnonDrafting",
+     6
+    ],
+    [
+     "BasePoint",
+     2
+    ],
+    [
+     "DBViewTypeAreaPlan",
+     2
+    ],
+    [
+     "DBViewProject",
+     1
+    ],
+    [
+     "LevelAttributes",
+     1
+    ],
+    [
+     "ContourLabelingAttributes",
+     1
+    ],
+    [
+     "RvtLinkInstance",
+     1
+    ],
+    [
+     "GraphSchedColumnTable",
+     1
+    ],
+    [
+     "DBViewGraphSchedColumn",
+     1
+    ],
+    [
+     "DBViewRendering",
+     1
+    ],
+    [
+     "RbsDbViewSystemNavigator",
+     1
+    ]
+   ],
+   "embedded_document_referrers_uneditable": 0,
+   "old_records_removed": 56,
+   "elemtable_before": 6588,
+   "elemtable_after": 6532,
+   "verify_manipulated": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "isize_identity_mismatches": 0
+   },
+   "seconds": 7.4
+  },
+  {
+   "stage": "C: ADocument remap old->new / purge unmapped / register ours-only / re-encode",
+   "leaves_remapped": 55,
+   "remap_examples": [
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_zoneSchemeId",
+     "old": 102461,
+     "new": 1900019
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_zoneSchemeId",
+     "old": 102461,
+     "new": 1900019
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NewItemNumber.m_items[*].m_equivalence",
+     "old": 9490,
+     "new": 1900051
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "old": 49030,
+     "new": 1900046
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AreaMeasureTracking.m_elemIdSet[*]",
+     "old": 9490,
+     "new": 1900051
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AreaMeasureTracking.m_elemIdSet[*]",
+     "old": 9494,
+     "new": 1900052
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ExternalParamTracking.m_externalParamLockId",
+     "old": 46017,
+     "new": 1900014
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewSheetSetTracking.m_elemIdSet[*]",
+     "old": 503760,
+     "new": 1900049
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewSheetSetTracking.m_elemIdSet[*]",
+     "old": 701421,
+     "new": 1900050
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewSheetSetTracking.m_idMRU",
+     "old": 701421,
+     "new": 1900050
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PrintSettingsTracking.m_elemIdSet[*]",
+     "old": 19895,
+     "new": 1900048
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[3]",
+     "old": 85092,
+     "new": 1900030
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[4]",
+     "old": 85104,
+     "new": 1900012
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[5]",
+     "old": 86204,
+     "new": 1900036
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[9]",
+     "old": 102444,
+     "new": 1900017
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[10]",
+     "old": 102842,
+     "new": 1900025
+    }
+   ],
+   "purge_totals": {
+    "dangling": 4,
+    "nulled": 0,
+    "elements_dropped": 3,
+    "scalars_nulled": 1
+   },
+   "purge_bodies": [
+    {
+     "body": "PrintSettingsTracking",
+     "dangling": 3,
+     "nulled": 0,
+     "elements_dropped": 2,
+     "scalars_nulled": 1
+    },
+    {
+     "body": "WorksharingDisplaySettingsTracking",
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   ],
+   "new_only_registration": {
+    "applied": {},
+    "skipped": []
+   },
+   "latest_payload_before": 1586182,
+   "latest_payload_after": 1586146,
+   "seconds": 3.9
+  }
+ ],
+ "new_records_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "referrer_repoint": {
+  "referrer_elements": 117,
+  "record_edits": [
+   {
+    "referrer": 230,
+    "class": "DBViewProject",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[3]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[4]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 305,
+    "class": "LevelAttributes",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 8157,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 8176,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 8237,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9492,
+    "class": "AreaTypeElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9492,
+    "class": "AreaTypeElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaTypeElem.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9493,
+    "class": "AreaTypeElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9493,
+    "class": "AreaTypeElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaTypeElem.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9496,
+    "class": "AreaTypeElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9496,
+    "class": "AreaTypeElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaTypeElem.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9497,
+    "class": "AreaTypeElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9497,
+    "class": "AreaTypeElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaTypeElem.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9498,
+    "class": "AreaTypeElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9498,
+    "class": "AreaTypeElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaTypeElem.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9499,
+    "class": "AreaTypeElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9499,
+    "class": "AreaTypeElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaTypeElem.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9500,
+    "class": "AreaTypeElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9500,
+    "class": "AreaTypeElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaTypeElem.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9501,
+    "class": "AreaTypeElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9501,
+    "class": "AreaTypeElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaTypeElem.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9589,
+    "class": "DBViewPlan",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9594,
+    "class": "DBViewPlan",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9599,
+    "class": "DBViewPlan",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9605,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9610,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9615,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9619,
+    "class": "DBViewPlan",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9625,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9630,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9744,
+    "class": "AreaSchemePlanTopologies",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9744,
+    "class": "AreaSchemePlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaSchemePlanTopologies.m_areaSchemeElemId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9745,
+    "class": "AreaSchemePlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9745,
+    "class": "AreaSchemePlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AreaSchemePlanTopologies.m_areaSchemeElemId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 19902,
+    "class": "ContourLabelingAttributes",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 26009,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 46018,
+    "class": "DBViewPlan",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 56766,
+    "class": "DBView3d",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 56767,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 86962,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 98984,
+    "class": "DBViewSection",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[2]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99860,
+    "class": "ColorFillSchema",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99860,
+    "class": "ColorFillSchema",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "ColorFillSchema.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99861,
+    "class": "ColorFillSchema",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 99861,
+    "class": "ColorFillSchema",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "ColorFillSchema.m_areaSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102524,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102524,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_zoneSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102525,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[2]",
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102525,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_zoneSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 103627,
+    "class": "ColorFillSchema",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 103627,
+    "class": "ColorFillSchema",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "ColorFillSchema.m_zoneSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 103635,
+    "class": "ColorFillSchema",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 103635,
+    "class": "ColorFillSchema",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "ColorFillSchema.m_zoneSchemeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 105778,
+    "class": "DBView3d",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 111426,
+    "class": "BasePoint",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 111429,
+    "class": "BasePoint",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 196649,
+    "class": "DBViewPlan",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 245443,
+    "class": "DBViewPlan",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 417295,
+    "class": "DBViewPlan",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 511142,
+    "class": "DBViewPlan",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_regenOnly[1]"
+    ],
+    "purged": null
+   }
+  ],
+  "embedded_document_referrers_uneditable": 0,
+  "errors": []
+ },
+ "parity": {
+  "pairs": 53,
+  "pairs_ok": 53,
+  "pairs_failed": 0,
+  "table_note": "all pairs stored",
+  "table": [
+   {
+    "old": 9490,
+    "new": 1900051,
+    "class": "AreaMeasureElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AreaMeasureTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NewItemNumber.m_items[*].m_equivalence"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AreaMeasureTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NewItemNumber.m_items[*].m_equivalence"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 9494,
+    "new": 1900052,
+    "class": "AreaMeasureElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AreaMeasureTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AreaMeasureTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 12799,
+    "new": 1900015,
+    "class": "DaylightSourceIdSet",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 19895,
+    "new": 1900048,
+    "class": "PrintSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PrintSettingsTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PrintSettingsTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 46017,
+    "new": 1900014,
+    "class": "ExternalParamLock",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ExternalParamTracking.m_externalParamLockId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ExternalParamTracking.m_externalParamLockId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49030,
+    "new": 1900046,
+    "class": "ProjectRevision",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49031,
+    "new": 1900047,
+    "class": "AllProjectRevisions",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[62]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[62]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 54523,
+    "new": 1900042,
+    "class": "ModelGraphicsStyle",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 54525,
+    "new": 1900043,
+    "class": "ModelGraphicsStyle",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 85092,
+    "new": 1900030,
+    "class": "AreaSettingsElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[3]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[3]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 85104,
+    "new": 1900012,
+    "class": "ReactionsUpToDateElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[4]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[4]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 86204,
+    "new": 1900036,
+    "class": "CoordinateSystemDisplayElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[5]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[5]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 102444,
+    "new": 1900017,
+    "class": "Dwg2dExportUserSettingsData",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[9]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[9]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 102461,
+    "new": 1900019,
+    "class": "ZoneScheme",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_zoneSchemeId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_zoneSchemeId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ZoneSchemeTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_zoneSchemeId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_zoneSchemeId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ZoneSchemeTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 102842,
+    "new": 1900025,
+    "class": "AutoCamSettingsElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[10]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[10]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 105779,
+    "new": 1900026,
+    "class": "HalftoneUnderlaySettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->HalftoneUnderlaySettingsAppInfo.m_halftoneUnderlaySettingsElementId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->HalftoneUnderlaySettingsAppInfo.m_halftoneUnderlaySettingsElementId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 113109,
+    "new": 1900039,
+    "class": "ActiveGeoLocationTrackingElement",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[16]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[16]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 113134,
+    "new": 1900016,
+    "class": "WorksetVisibilitySettingsElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[17]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[17]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 115987,
+    "new": 1900029,
+    "class": "ProjectCopySettingsElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[18]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[18]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 115988,
+    "new": 1900040,
+    "class": "EnergyDataSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElemsSetWithCellsTracking.m_elemIdSetMap[*].second.m_idSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElemsSetWithCellsTracking.m_elemIdSetMap[*].second.m_idSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[19]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElemsSetWithCellsTracking.m_elemIdSetMap[*].second.m_idSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElemsSetWithCellsTracking.m_elemIdSetMap[*].second.m_idSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[19]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 121706,
+    "new": 1900037,
+    "class": "ElectricalSetting",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[59]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[59]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 130510,
+    "new": 1900002,
+    "class": "MEPSystemTracker",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[36]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[36]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 130813,
+    "new": 1900041,
+    "class": "WorksharingViewModeSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->WorksharingDisplaySettingsTracking.m_sharedDisplaySettingsId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->WorksharingDisplaySettingsTracking.m_sharedDisplaySettingsId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 132328,
+    "new": 1900007,
+    "class": "AssemblyTracker",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[38]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[38]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 132481,
+    "new": 1900020,
+    "class": "RvtLinkInstanceAppearanceParentElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[41]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[41]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 132484,
+    "new": 1900021,
+    "class": "SketchGridAppearanceParentElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[40]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[40]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 137426,
+    "new": 1900035,
+    "class": "ReinforcementSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[51]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[51]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 423812,
+    "new": 1900023,
+    "class": "CurtaSystemFaceManager",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 503760,
+    "new": 1900049,
+    "class": "ViewSheetSet",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewSheetSetTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewSheetSetTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 701421,
+    "new": 1900050,
+    "class": "ViewSheetSet",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewSheetSetTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewSheetSetTracking.m_idMRU"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewSheetSetTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ViewSheetSetTracking.m_idMRU"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 907053,
+    "new": 1900028,
+    "class": "DefaultDivideSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[60]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[60]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 907354,
+    "new": 1900000,
+    "class": "MEPComponentTracker",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[58]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[58]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 907382,
+    "new": 1900008,
+    "class": "KeynoteTagsOnSheetsTracker",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[57]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[57]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 907486,
+    "new": 1900009,
+    "class": "RevisionCloudsOnSheetsTracker",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[54]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[54]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1218550,
+    "new": 1900001,
+    "class": "LayoutNodesTracker",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[63]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[63]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1218727,
+    "new": 1900032,
+    "class": "FabricationSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[61]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[61]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1250031,
+    "new": 1900038,
+    "class": "CopyWatchProperties",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CopyWatchModeMgr.m_linkCopyWatchProps[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->CopyWatchModeMgr.m_linkCopyWatchProps[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1457285,
+    "new": 1900033,
+    "class": "FabricationSettingsElement",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[69]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[69]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1462521,
+    "new": 1900024,
+    "class": "StructuralConnectionSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[70]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[70]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1468014,
+    "new": 1900004,
+    "class": "MEPNetworkTracker",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[73]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[73]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1470390,
+    "new": 1900031,
+    "class": "RouteAnalysisSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[77]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[77]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471217,
+    "new": 1900006,
+    "class": "CircuitNamingTypeSetting",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[79]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[79]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471446,
+    "new": 1900005,
+    "class": "MEPHiddenLineSettingsElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[81]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[81]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471489,
+    "new": 1900027,
+    "class": "MultipleValuesIndicationSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[82]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[82]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471493,
+    "new": 1900044,
+    "class": "RevisionNumberingSequence",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->RevisionNumberingSequenceTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->RevisionNumberingSequenceTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471494,
+    "new": 1900045,
+    "class": "RevisionNumberingSequence",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->RevisionNumberingSequenceTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->RevisionNumberingSequenceTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471712,
+    "new": 1900013,
+    "class": "GraphicsCache",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[84]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[84]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471770,
+    "new": 1900011,
+    "class": "AnalyticalToPhysicalRelationManager",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[83]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[83]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471901,
+    "new": 1900003,
+    "class": "MEPNetworkDataElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[89]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[89]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471905,
+    "new": 1900022,
+    "class": "FabricationServiceSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[86]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[86]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471913,
+    "new": 1900034,
+    "class": "SSEPointVisibilitySettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[87]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[87]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1471926,
+    "new": 1900018,
+    "class": "STEPExportSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[92]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[92]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1472007,
+    "new": 1900010,
+    "class": "SheetsInSheetCollectionTracker",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[91]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[91]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   }
+  ],
+  "positional_uet_slots": [
+   {
+    "old": 49031,
+    "new": 1900047,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[62]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[62]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 85092,
+    "new": 1900030,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[3]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[3]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 85104,
+    "new": 1900012,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[4]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[4]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 86204,
+    "new": 1900036,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[5]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[5]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 102444,
+    "new": 1900017,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[9]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[9]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 102842,
+    "new": 1900025,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[10]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[10]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 113109,
+    "new": 1900039,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[16]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[16]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 113134,
+    "new": 1900016,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[17]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[17]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 115987,
+    "new": 1900029,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[18]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[18]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 115988,
+    "new": 1900040,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[19]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[19]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 121706,
+    "new": 1900037,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[59]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[59]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 130510,
+    "new": 1900002,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[36]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[36]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 132328,
+    "new": 1900007,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[38]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[38]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 132481,
+    "new": 1900020,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[41]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[41]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 132484,
+    "new": 1900021,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[40]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[40]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 137426,
+    "new": 1900035,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[51]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[51]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 907053,
+    "new": 1900028,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[60]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[60]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 907354,
+    "new": 1900000,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[58]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[58]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 907382,
+    "new": 1900008,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[57]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[57]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 907486,
+    "new": 1900009,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[54]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[54]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1218550,
+    "new": 1900001,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[63]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[63]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1218727,
+    "new": 1900032,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[61]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[61]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1457285,
+    "new": 1900033,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[69]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[69]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1462521,
+    "new": 1900024,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[70]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[70]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1468014,
+    "new": 1900004,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[73]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[73]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1470390,
+    "new": 1900031,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[77]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[77]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1471217,
+    "new": 1900006,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[79]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[79]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1471446,
+    "new": 1900005,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[81]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[81]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1471489,
+    "new": 1900027,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[82]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[82]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1471712,
+    "new": 1900013,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[84]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[84]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1471770,
+    "new": 1900011,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[83]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[83]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1471901,
+    "new": 1900003,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[89]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[89]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1471905,
+    "new": 1900022,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[86]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[86]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1471913,
+    "new": 1900034,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[87]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[87]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1471926,
+    "new": 1900018,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[92]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[92]"
+    ],
+    "ok": true
+   },
+   {
+    "old": 1472007,
+    "new": 1900010,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[91]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[91]"
+    ],
+    "ok": true
+   }
+  ],
+  "uet_failed": 0,
+  "old_ids_still_in_adocument": {},
+  "adocument_dangling_before": 1245,
+  "adocument_dangling_after": 1245,
+  "adocument_dangling_created": [],
+  "seconds": 2.6
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "deleted_still_present": [],
+  "isize_identity_ok": true,
+  "unit0_element_records": 6532,
+  "walker_errors": 0
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 276,
+   "records": 73980,
+   "elements_decoded": 24607,
+   "decode_failures": 7,
+   "refs_checked": 388924
+  }
+ },
+ "census": {
+  "path": "experiments/genesis/subst_v2/X5.rvt",
+  "elements": 6532,
+  "classes": {
+   "GStyleElem": 2173,
+   "CategoryElem": 606,
+   "ParamElemExternal": 466,
+   "FontElem": 245,
+   "ParamBinding": 209,
+   "LinePatternElem": 150,
+   "AppearanceAssetElem": 131,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemFamily": 120,
+   "FillPatternElem": 116,
+   "ParamElemElectricalLoadClassification": 108,
+   "FamilySymbol": 106,
+   "MaterialElem": 93,
+   "DBViewType": 91,
+   "SunAndShadowSettings": 90,
+   "TextNoteAttributes": 90,
+   "Viewport": 69,
+   "SketchPlane": 64,
+   "LeaderStyle": 61,
+   "CustomElement": 61,
+   "TagNoteAttributes": 60,
+   "PropertySetElement": 56,
+   "FamilySurrogate": 50,
+   "FamSymSurrogate": 50,
+   "DBDrawing": 49,
+   "Family": 49,
+   "ExtentElem": 39,
+   "ConceptualConstructionType": 36,
+   "LegendComponent": 36,
+   "HVACLoadBuildingTypeElem": 33,
+   "FilledRegionAttributes": 32,
+   "RbsFluidType": 28,
+   "SunAnnotationElem": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "Viewer": 24,
+   "DBView3d": 21,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "DBViewSection": 20,
+   "ElectricalLoadClassification": 18,
+   "TilePatternType": 17,
+   "DivisionRule": 17,
+   "DimensionStyle": 16,
+   "DBViewPlan": 16,
+   "Grid": 16,
+   "LightSchemeElement": 15,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "AllPlanTopologies": 12,
+   "Viewer3d": 12,
+   "ModelClipBox": 12,
+   "RbsPipingSystemType": 11,
+   "SectionAttributes": 10,
+   "ColorFillSchema": 10,
+   "ConceptualSurfaceType": 10,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "PenWidthTableElem": 9,
+   "AreaTypeElem": 8,
+   "ParamElemProject": 8,
+   "LoadNatureElem": 8,
+   "LoadCaseElem": 8,
+   "RbsPipeConnectionType": 8,
+   "Section": 8,
+   "RebarShape": 8,
+   "DBViewDrafting": 8,
+   "PhaseFilterElem": 7,
+   "ParameterFilterElement": 7,
+   "InteriorElev": 6,
+   "AreaSchemePlanTopologies": 6,
+   "ConduitStandardType": 6,
+   "CurveElem": 6,
+   "DBViewAnonDrafting": 6,
+   "BrowserOrganization": 6,
+   "FloorAttributes": 5,
+   "RbsPipeMaterialType": 5,
+   "StructConnectionType": 5,
+   "RebarHookType": 5,
+   "ImageHolder": 5,
+   "ImageSymbol": 5,
+   "InteriorElevArrow": 4,
+   "SpotElevationStyle": 4,
+   "RbsWireMaterialType": 4,
+   "CustomElementType": 4,
+   "BasicWallType": 3,
+   "RbsWireTemperatureRatingType": 3,
+   "RbsHvacSystemType": 3,
+   "StairsLandingType": 3,
+   "StairsType": 3,
+   "StairsRunType": 3,
+   "DesignOption": 3,
+   "AbsDuctType": 3,
+   "NumberingSchema": 3,
+   "MasterImportSymbol": 3,
+   "ImportInstance": 3,
+   "ViewportAttributes": 2,
+   "CompoundCeilingType": 2,
+   "ProjectPhase": 2,
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "SysPanelFamSym": 2,
+   "CoverType": 2,
+   "BasePoint": 2,
+   "ComponentRepeaterSlotSpecialType": 2,
+   "StairsPathType": 2,
+   "StairsSupportType": 2,
+   "AbsFlexDuctType": 2,
+   "RbsCableTrayType": 2,
+   "RbsConduitType": 2,
+   "GCSViewport": 2,
+   "RebarBarType": 2,
+   "RebarBendingDetailType": 2,
+   "MEPSystemZoneElementType": 2,
+   "ModelGraphicsStyle": 2,
+   "RevisionNumberingSequence": 2,
+   "ViewSheetSet": 2,
+   "AreaMeasureElem": 2,
+   "AllProjectPhases": 1,
+   "DBViewProject": 1,
+   "ColorFillSymbol": 1,
+   "LevelAttributes": 1,
+   "CurtainRoofAttributes": 1,
+   "GridAttributes": 1,
+   "RampAttributes": 1,
+   "RevealAttr": 1,
+   "CorniceAttr": 1,
+   "Text3dAttrSymbol": 1,
+   "TrueNorth": 1,
+   "UnitsElem": 1,
+   "RoofSoffitType": 1,
+   "FasciaAttr": 1,
+   "GutterAttr": 1,
+   "EdgeSlabAttr": 1,
+   "ContourLabelingAttributes": 1,
+   "PropertyAttr": 1,
+   "StairsRailingAttr": 1,
+   "StairsAttributes": 1,
+   "RepeatingDetailAttributes": 1,
+   "JoistSystemAttr": 1,
+   "RevisionCloudAttr": 1,
+   "CurtaSystemAttr": 1,
+   "ProjectInfo": 1,
+   "StackedWallType": 1,
+   "RbsWireType": 1,
+   "RbsVoltageType": 1,
+   "RbsDistributionSysType": 1,
+   "AreaReportSettingsElem": 1,
+   "ContFootingType": 1,
+   "ReferenceViewerAttributes": 1,
+   "ConduitSizesElem": 1,
+   "CableTraySizesElem": 1,
+   "ListConceptualSurfaceTypes": 1,
+   "PropertySetLibrary": 1,
+   "AnalyticalLinkType": 1,
+   "HandRailType": 1,
+   "TopRailType": 1,
+   "CutMarkType": 1,
+   "SysMullionFamSym": 1,
+   "BuildingPadType": 1,
+   "NewCurtainWallType": 1,
+   "RoofAttributes": 1,
+   "StairsTriserSymbol": 1,
+   "LinearDimString": 1,
+   "DBViewTypeAreaPlan": 1,
+   "DesignOptionSet": 1,
+   "RbsPipeType": 1,
+   "RbsFlexPipeType": 1,
+   "LevelRoomPlan": 1,
+   "AssemblyCodeTable": 1,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "GraphSchedColumnTable": 1,
+   "DBViewGraphSchedColumn": 1,
+   "AreaReinforcementType": 1,
+   "FabricAreaType": 1,
+   "FabricWireType": 1,
+   "FabricSheetType": 1,
+   "DataStorage": 1,
+   "LineLoadType": 1,
+   "AreaLoadType": 1,
+   "SlaveSymbolTrackerElem": 1,
+   "DBViewRendering": 1,
+   "MEPAnalyticalConnectionElementType": 1,
+   "MechanicalEquipmentSetType": 1,
+   "MEPSystemZoneType": 1,
+   "ToposolidType": 1,
+   "RbsCableType": 1,
+   "ReconcileBrowserSettingsElem": 1,
+   "ConstructionSetProject": 1,
+   "RbsDbViewSystemNavigator": 1,
+   "StructSettingsElem": 1,
+   "WallJoinDefaultSetting": 1,
+   "AutoJoinTracker": 1,
+   "KeynoteTable": 1,
+   "KeynotingSystem": 1,
+   "InitialViewSettings": 1,
+   "RbsWireSettingsElem": 1,
+   "RbsWireSizesElem": 1,
+   "RbsPipeSettingsElem": 1,
+   "RbsPipeSizesElem": 1,
+   "RbsDuctSettingsElem": 1,
+   "RbsDuctSizesElem": 1,
+   "ConduitSettingsElem": 1,
+   "CableTraySettingsElem": 1,
+   "MEPComponentTracker": 1,
+   "LayoutNodesTracker": 1,
+   "MEPSystemTracker": 1,
+   "MEPNetworkDataElem": 1,
+   "MEPNetworkTracker": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "CircuitNamingTypeSetting": 1,
+   "AssemblyTracker": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "SheetsInSheetCollectionTracker": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "ReactionsUpToDateElem": 1,
+   "GraphicsCache": 1,
+   "ExternalParamLock": 1,
+   "DaylightSourceIdSet": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "STEPExportSettings": 1,
+   "ZoneScheme": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "FabricationServiceSettings": 1,
+   "CurtaSystemFaceManager": 1,
+   "StructuralConnectionSettings": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "DefaultDivideSettings": 1,
+   "ProjectCopySettingsElem": 1,
+   "AreaSettingsElem": 1,
+   "RouteAnalysisSettings": 1,
+   "FabricationSettings": 1,
+   "FabricationSettingsElement": 1,
+   "SSEPointVisibilitySettings": 1,
+   "ReinforcementSettings": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "ElectricalSetting": 1,
+   "CopyWatchProperties": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "EnergyDataSettings": 1,
+   "WorksharingViewModeSettings": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "PrintSettings": 1
+  },
+  "file_size": 4407296,
+  "save_units": 53,
+  "contentdocs_entries": 52,
+  "contentdocs_clean_tail": true,
+  "contenttable_records": 52,
+  "adocument_clean": true,
+  "familymgr_entries": 50,
+  "familymgr_doc_guids": 52
+ },
+ "coherence": {
+  "save_units": 53,
+  "contentdocs_entries": 52,
+  "contenttable_records": 52,
+  "familymgr_doc_guids": 52,
+  "coherent": true
+ },
+ "bytes": 4407296,
+ "seconds": 28.9,
+ "problems": [],
+ "verdict": "VALID"
+}

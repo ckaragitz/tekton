@@ -1,0 +1,261 @@
+{
+ "stream": "instbug: the minimal bisection ladder for the product-path walls/families/instances bug (DEMO_250v_room's failure)",
+ "prompt": "an electrical room rated for 250V with 6 panels",
+ "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "note": "every rung is the demo's OWN code path (prompt_to_intent -> stage_load famgen.loader place=False -> stage_equipment ConstructedSpecimens + add_family_instance + commit); the BX_w wall is the certified W1 mechanism. Fresh GUIDs are minted per rebuild -- re-hash after any rerun.",
+ "upload_order_max_information_first": [
+  "BX_f2",
+  "BX_f1i1",
+  "SX_f6i6",
+  "BX_f6i6",
+  "BX_f2i2",
+  "BX_f6",
+  "BX_f1",
+  "BX_w_f1i1"
+ ],
+ "control": {
+  "source": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+  "note": "control = byte-identical G_ABPD copy (probe_batch stage --control-from)"
+ },
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID (oracle/environment) -- interpret nothing",
+  "BX_f2 FAIL": "MULTIPLE family-document loads alone trip the audit (instances exonerated); the famgen/famload append path at N>=2 on a registry-emptied base is the bug",
+  "BX_f2 PASS": "weak if the card reads 'Design is empty' (symbol-only short-circuit, the stage_L8_lp4 lesson); read with BX_f1i1",
+  "BX_f1i1 FAIL": "ONE family + ONE placed instance fails on G_ABPD (R_inst_box's reading confirmed with the demo's own product+specimen path); the instance/creation registration on the genesis lineage is the bug even at N=1",
+  "BX_f1i1 PASS + BX_f2i2 or BX_f6i6 FAIL": "N=1 clean, N>1 fails: the SECOND+ family document (or its instance) is the axis -- diff BX_f1i1 vs BX_f2i2 registration accounting",
+  "SX_f6i6 PASS + BX_f6i6 FAIL": "same operation, different base => BASE-LINEAGE bug: what the genesis lineage's emptied content registries still lack for the Nth append / instance registration",
+  "SX_f6i6 FAIL": "the OPERATION fails even on the Autodesk sample base => the demo placement path itself (ConstructedSpecimens template / loader chain) is defective; base exonerated. NOTE the certified V20..V29 placements cloned REAL host specimens and L_v2 used rvt.famload -- the constructed-template delta is the prime suspect in this cell",
+  "BX_f6i6 FAIL": "the demo reproduction control (expected: DEMO_250v_room's verdict reproduces on a fresh build)",
+  "BX_w_f1i1 FAIL with BX_f1i1 PASS": "the wall x loaded-family interaction in the product's L->W->E order (the stage_W/F_ signature) -- walls certified alone (W1), family+instance judged by BX_f1i1",
+  "all BX FAIL + SX PASS": "every genesis-lineage rung fails while the sample base passes: the bug is the base's content-registry state interacting with ANY append; start from the four-registry + StorageIndex deltas in accounting.json"
+ },
+ "empty_design_caveat": "BX_f1/BX_f2/BX_f6 carry loaded families and NO model elements; per the stage_L8_lp4 lesson (docs/inbox/render-instances.md sec.1) a 'Design is empty' translation is an extractor short-circuit, NOT an audited pass -- a PASS card on those three is weak evidence, their FAIL is strong; the instance rungs are the audited discriminators.",
+ "validator_drift_note": "two rvt.validate loaded-content rules (instbug-fix stream, 2026-08-05 00:02) landed AFTER this ladder was emitted+staged: D1 (instance connector-manager class) and D2 (ContentTable GUID order). The UNFIXED rungs carry those findings BY DESIGN (they reproduce the demo's product path exactly -- the demo file itself reads the same two findings); each entry's validator_now field classifies them; unexpected errors are ZERO on every rung. The fix stream's experiments/instbug/fix/BXfix_* files are the corrected A/B counterparts -- upload pairs in the SAME round for the mechanism proof.",
+ "probes": [
+  {
+   "order": 1,
+   "rung": "BX_f2",
+   "file": "experiments/instbug/BX_f2.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "n_families": 2,
+   "n_instances": 0,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "TWO famgen panel families loaded (chained, place=False) on G_ABPD -- 0 instances, 0 walls. The narrowest open axis: does the SECOND family-document append alone trip the audit?",
+   "expected": "unknown (the open axis)",
+   "md5": "1de0817f748369c8674aa56bcbd585f0",
+   "immediate_parent": "experiments/instbug/_build/gabpd/stage_L1_pp1.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   },
+   "validator_now": {
+    "n_errors": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 1
+    },
+    "unexpected_errors": 0
+   }
+  },
+  {
+   "order": 2,
+   "rung": "BX_f1i1",
+   "file": "experiments/instbug/BX_f1i1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "ONE family + ONE placed instance on G_ABPD by the demo's own placement path (ConstructedSpecimens template + add_family_instance + commit) -- the instance forces the audit",
+   "expected": "unknown (R_inst_box failed on ZA_deep; this is the G_ABPD + demo-path version)",
+   "md5": "00fce836dd98f7239111603f80d2630a",
+   "immediate_parent": "experiments/instbug/_build/gabpd/stage_L1_pp1.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   },
+   "validator_now": {
+    "n_errors": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 1,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": 0
+   }
+  },
+  {
+   "order": 3,
+   "rung": "SX_f6i6",
+   "file": "experiments/instbug/SX_f6i6.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "n_families": 6,
+   "n_instances": 6,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "THE CROSS-CHECK: the identical 6-family + 6-instance code path on the Autodesk rst sample base -- isolates base-lineage vs operation (expected PASS)",
+   "expected": "PASS",
+   "md5": "b6598090c3b3c8687e0a392e34f7eed1",
+   "immediate_parent": "experiments/instbug/_build/rst/stage_L6_pp6.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   },
+   "validator_now": {
+    "n_errors": 2,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 1,
+     "D2_contenttable_guid_order": 1
+    },
+    "unexpected_errors": 0
+   }
+  },
+  {
+   "order": 4,
+   "rung": "BX_f6i6",
+   "file": "experiments/instbug/BX_f6i6.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "n_families": 6,
+   "n_instances": 6,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the demo shape rebuilt (G_ABPD + 6 families + 6 instances) -- the DEMO_250v_room reproduction control (expected FAIL)",
+   "expected": "FAIL (reproduction)",
+   "md5": "cba9be7bba9bf0a859f92736a86f3845",
+   "immediate_parent": "experiments/instbug/_build/gabpd/stage_L6_pp6.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   },
+   "validator_now": {
+    "n_errors": 2,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 1,
+     "D2_contenttable_guid_order": 1
+    },
+    "unexpected_errors": 0
+   }
+  },
+  {
+   "order": 5,
+   "rung": "BX_f2i2",
+   "file": "experiments/instbug/BX_f2i2.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "n_families": 2,
+   "n_instances": 2,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "TWO families + TWO instances -- the scale point between BX_f1i1 and BX_f6i6",
+   "expected": "unknown",
+   "md5": "e1274d67c5d51a3d8b4f8654342ada08",
+   "immediate_parent": "experiments/instbug/_build/gabpd/stage_L2_pp2.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   },
+   "validator_now": {
+    "n_errors": 2,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 1,
+     "D2_contenttable_guid_order": 1
+    },
+    "unexpected_errors": 0
+   }
+  },
+  {
+   "order": 6,
+   "rung": "BX_f6",
+   "file": "experiments/instbug/BX_f6.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "n_families": 6,
+   "n_instances": 0,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "SIX families, 0 instances, 0 walls -- the demo's full load chain alone (symbol-only: an empty-design read is NOT an audited pass)",
+   "expected": "empty-design or FAIL",
+   "md5": "b2a5f7980aa894ba36b04f1beb2c4b53",
+   "immediate_parent": "experiments/instbug/_build/gabpd/stage_L5_pp5.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   },
+   "validator_now": {
+    "n_errors": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 1
+    },
+    "unexpected_errors": 0
+   }
+  },
+  {
+   "order": 7,
+   "rung": "BX_f1",
+   "file": "experiments/instbug/BX_f1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "n_families": 1,
+   "n_instances": 0,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "ONE family, 0 instances, 0 walls -- the single-append control (symbol-only caveat as BX_f6)",
+   "expected": "empty-design or FAIL (WF pair passed walls+1 family)",
+   "md5": "36a9bc09531946c01c9ba8a115434443",
+   "immediate_parent": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   },
+   "validator_now": {
+    "n_errors": 0,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 0,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": 0
+   }
+  },
+  {
+   "order": 8,
+   "rung": "BX_w_f1i1",
+   "file": "experiments/instbug/BX_w_f1i1.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 1,
+   "the_ONE_thing_it_tests": "the FULL PRODUCT SHAPE: loaded family -> certified W1-recipe wall (baked B-rep solid) -> placed instance, the product's own L->W->E order -- the wall x family interaction with every ingredient individually certified",
+   "expected": "unknown (stage_W/F_ failed; WF passed -- order and family content differ)",
+   "md5": "ae452bfa9c59df0436c4bd4e63b2dbdf",
+   "immediate_parent": "experiments/instbug/_build/BX_w_f1i1_wall/stage_W_wall.rvt",
+   "gates": {
+    "validator_errors_at_build": 0,
+    "four_registry_coherent": true,
+    "survivor_law_ok": true,
+    "identity": "PASS"
+   },
+   "validator_now": {
+    "n_errors": 1,
+    "known_instbug_findings": {
+     "D1_connector_manager_class": 1,
+     "D2_contenttable_guid_order": 0
+    },
+    "unexpected_errors": 0
+   }
+  }
+ ],
+ "accounting": "experiments/instbug/accounting.json"
+}

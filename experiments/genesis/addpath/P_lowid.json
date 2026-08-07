@@ -1,0 +1,413 @@
+{
+ "probe": "P_lowid",
+ "family": "from-K1",
+ "label": "K1 with the pen table re-registered at the LOW free id 27 (inside the birth band, watermark NOT raised) IN PLACE -- the ID-BAND control for P_allnew",
+ "order": 4,
+ "upload": "PRIMARY",
+ "file": "experiments/genesis/addpath/P_lowid.rvt",
+ "template": "K1",
+ "sibling": "K1.rvt (PASS); direct comparator: P_allnew (same motion, high band)",
+ "one_change": "the element id 2 -> 27 (a free, unreferenced id below the birth-band materials; the ADocument leaf re-pointed; watermark unchanged) -- vs P_allnew the ONLY difference is the id VALUE (band)",
+ "factors": {
+  "id": "low",
+  "episodes": "orig",
+  "position": "orig",
+  "identity": "template"
+ },
+ "target_id": 27,
+ "tests": "Does the id BAND decide?  Id 27 is free and unreferenced in K1 (host graph AND ADocument), sits among the birth-band materials/patterns, and does NOT raise the watermark.  Reads only against P_allnew.",
+ "if_PASS": "(with P_allnew FAILING) THE HIGH ID BAND is the audited rule for settings singletons -- genesis must allocate them low ids from birth (an id allocator per class band); (with P_allnew PASSING) id motion in general is fine and the band is irrelevant.",
+ "if_FAIL": "(with P_allnew FAILING) not the band: ANY re-registration of this element (leaf re-point / new id) is fatal even at a low id -- the reader ties the pen table's identity to id 2 (a positional/well-known-id singleton); genesis must mint the pen table AT ID 2.  (with P_allnew PASSING) a low-band-specific constraint -- unexpected; read the card message.",
+ "build_info": {
+  "template": "K1",
+  "template_path": "experiments/genesis/triage/K1.rvt",
+  "template_partition_roundtrip_ok": true,
+  "target_id": 27,
+  "episodes": {
+   "creation": 0,
+   "modified": 976,
+   "user_modified": 976,
+   "source": "orig"
+  },
+  "position": "orig",
+  "identity": {
+   "copied_verbatim_from_template": true
+  },
+  "partition": {
+   "records_source": "Autodesk's own element-2 bytes, identity rebased 2->27 (byte-exact codec, proof recorded)",
+   "rebase_proof": {
+    "element": 2,
+    "class": "PenWidthTableElem",
+    "verbatim_identity_at_original_id": {
+     "101": {
+      "identical": true,
+      "len_ours": 135,
+      "len_specimen": 135,
+      "differing_bytes": 0,
+      "first_divergence": -1,
+      "differing_offsets": []
+     },
+     "102": {
+      "identical": true,
+      "len_ours": 1223,
+      "len_specimen": 1223,
+      "differing_bytes": 0,
+      "first_divergence": -1,
+      "differing_offsets": []
+     },
+     "103": {
+      "identical": true,
+      "len_ours": 22,
+      "len_specimen": 22,
+      "differing_bytes": 0,
+      "first_divergence": -1,
+      "differing_offsets": []
+     }
+    },
+    "all_three_seqs_identical": true,
+    "identity_rebased_leaves": {
+     "object": [
+      "PenWidthTableElem.m_id"
+     ],
+     "header": [
+      "ElementHeader.m_parents->ElementParents.m_deletion[*]"
+     ]
+    },
+    "new_id": 27
+   },
+   "removed_from_index": {
+    "101": 2516,
+    "102": 2516,
+    "103": 2516
+   },
+   "placed_at_index": {
+    "101": 2516,
+    "102": 2516,
+    "103": 2516
+   },
+   "records_per_seq": {
+    "101": 6541,
+    "102": 6541,
+    "103": 6541
+   },
+   "logical_len": 3829607,
+   "template_logical_len": 3829608
+  },
+  "elemtable": {
+   "changes": [
+    {
+     "removed_row": {
+      "original_id": 2,
+      "creation_ep": 0,
+      "modified_ep": 976,
+      "user_modified_ep": 976,
+      "elem_id": 2,
+      "owner": -1,
+      "partition": 0
+     },
+     "inserted_row": {
+      "original_id": 27,
+      "creation_ep": 0,
+      "modified_ep": 976,
+      "user_modified_ep": 976,
+      "elem_id": 27,
+      "owner": -1,
+      "partition": 0
+     }
+    }
+   ],
+   "row_after": {
+    "elem_id": 27,
+    "original_id": 27,
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "user_modified_ep": 976,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "count": 6540,
+   "watermark_before": 1472524,
+   "watermark_after": 1472524
+  },
+  "latest": {
+   "leaf_remapped": [
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PenWidthTableInfo.m_penWidthTableElemId",
+     "old": 2,
+     "new": 27
+    }
+   ]
+  },
+  "streams_written_new": [
+   "Global/ElemTable",
+   "Global/Latest",
+   "Partitions/21"
+  ],
+  "seconds_build": 3.9
+ },
+ "streams_vs": {
+  "K1": {
+   "BasicFileInfo": "identical",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "identical",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "DIFFERS",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "X0k": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "DIFFERS",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  }
+ },
+ "changed_vs_template": [
+  "Global/ElemTable",
+  "Global/Latest",
+  "Partitions/21"
+ ],
+ "expected_changed_vs_template": [
+  "Partitions/*",
+  "Global/ElemTable",
+  "Global/Latest"
+ ],
+ "changed_set_as_expected": true,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "verify_written": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": 0,
+  "stamps_ok": true,
+  "elemtable_count": 6540,
+  "header_count": 6540
+ },
+ "target_records": {
+  "id": 27,
+  "found_clean": true,
+  "per_seq": {
+   "101": {
+    "class": 1509,
+    "clean": true
+   },
+   "102": {
+    "class": 3231,
+    "clean": true
+   },
+   "103": {
+    "class": 3884,
+    "clean": true
+   }
+  }
+ },
+ "intended_state": {
+  "elemtable_row": {
+   "elem_id": 27,
+   "original_id": 27,
+   "creation_ep": 0,
+   "modified_ep": 976,
+   "user_modified_ep": 976,
+   "owner_id": -1,
+   "partition_id": 0
+  },
+  "row_ok": true,
+  "record_position": "orig",
+  "position_ok": true,
+  "adocument_surface": {
+   "27": [
+    "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PenWidthTableInfo.m_penWidthTableElemId"
+   ]
+  },
+  "latest_ok": true,
+  "watermark": 1472524,
+  "watermark_ok": true,
+  "counts_6540_coherent": true,
+  "three_seq_orders_equal": true,
+  "elemtable_ids_equal_record_ids": true
+ },
+ "semantic_diff": {
+  "elemtable_vs_K1": {
+   "removed_rows": [
+    {
+     "original_id": 2,
+     "creation_ep": 0,
+     "modified_ep": 976,
+     "user_modified_ep": 976,
+     "elem_id": 2,
+     "owner": -1,
+     "partition": 0
+    }
+   ],
+   "added_rows": [
+    {
+     "original_id": 27,
+     "creation_ep": 0,
+     "modified_ep": 976,
+     "user_modified_ep": 976,
+     "elem_id": 27,
+     "owner": -1,
+     "partition": 0
+    }
+   ],
+   "changed_rows": [],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1472524
+   ]
+  },
+  "elemtable_vs_template": {
+   "removed_rows": [
+    {
+     "original_id": 2,
+     "creation_ep": 0,
+     "modified_ep": 976,
+     "user_modified_ep": 976,
+     "elem_id": 2,
+     "owner": -1,
+     "partition": 0
+    }
+   ],
+   "added_rows": [
+    {
+     "original_id": 27,
+     "creation_ep": 0,
+     "modified_ep": 976,
+     "user_modified_ep": 976,
+     "elem_id": 27,
+     "owner": -1,
+     "partition": 0
+    }
+   ],
+   "changed_rows": [],
+   "count": [
+    6540,
+    6540
+   ],
+   "watermark": [
+    1472524,
+    1472524
+   ]
+  },
+  "record_order_vs_K1": {
+   "K1_len": 6541,
+   "probe_len": 6541,
+   "backbone_order_identical_excluding_target": true,
+   "K1_index_of_2": 2516,
+   "probe_index_of_target": 2516,
+   "probe_target_neighbours": [
+    1455333,
+    1455335,
+    1,
+    27,
+    3,
+    4,
+    5
+   ],
+   "record_bytes_at_target_equal_K1_element_2": {
+    "101": {
+     "identical": false,
+     "differing_bytes": 2,
+     "len": [
+      135,
+      135
+     ]
+    },
+    "102": {
+     "identical": false,
+     "differing_bytes": 5,
+     "len": [
+      1223,
+      1223
+     ]
+    },
+    "103": {
+     "identical": false,
+     "differing_bytes": 1,
+     "len": [
+      22,
+      22
+     ]
+    }
+   }
+  },
+  "adocument_leaf_diff_vs_K1": [
+   {
+    "path": "ADocument.m_pAppInfoManager.value.m_appInfoArr[38].value.m_penWidthTableElemId",
+    "K1": 2,
+    "probe": 27
+   }
+  ],
+  "identity_vs_K1": {
+   "BasicFileInfo": {},
+   "DIT_usernames": [
+    "campbes",
+    "gbs_subsuser6",
+    "hansonje",
+    "loboarch",
+    "okapaw",
+    "xuew",
+    "youyi",
+    "zhangg"
+   ],
+   "note": "last_save_path/username/author/client_app are the identity scrub; identical == K1's originals"
+  }
+ },
+ "anchor_proof": null,
+ "problems": [],
+ "verdict": "CERTIFIED",
+ "bytes": 4489216,
+ "seconds": 12.6
+}

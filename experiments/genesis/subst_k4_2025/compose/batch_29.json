@@ -1,0 +1,38 @@
+{
+ "batch": 29,
+ "created": "2026-08-04T23:26:39-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "2025 compose round: control = byte-identical copy of the CERTIFIED 2025 family-free base B2025_K4; candidate-base = G_ABPD_2025 (the full composed 2025 candidate).  Batch number = 1 + the highest batch_N.json anywhere under experiments/ (parallel campaign streams stage into their own dirs).  Read with probe_batch.read_batch_verdicts; control FAIL voids the round.",
+ "reading_order": [
+  "CTRL_B2025_K4_b29.rvt",
+  "G_ABPD_2025.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/genesis/subst_k4_2025/compose/CTRL_B2025_K4_b29.rvt",
+   "staged_as": "experiments/genesis/subst_k4_2025/compose/CTRL_B2025_K4_b29.rvt",
+   "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+   "kind": "control",
+   "control": true,
+   "control_source": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "base_certification": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  },
+  {
+   "order": 1,
+   "file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "staged_as": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "md5": "470087732a98168af313f8a253f65edd",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4_2025/compose/probes.json entry 'G_ABPD_2025' field 'base'",
+   "base_status": "certified (lineage informational only for a candidate-base)",
+   "base_certification": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  }
+ ]
+}

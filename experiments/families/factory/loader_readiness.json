@@ -1,0 +1,87 @@
+{
+ "host": "/Users/ck/dev/things/rev-revit/samples/rmebasicsampleproject.rvt",
+ "proofs": {
+  "P1_content_documents_roundtrip": {
+   "entries": 305,
+   "end_record": "a30300000000ffffffff00000000",
+   "byte_exact": true,
+   "payload_bytes": 8180808,
+   "prefix": "0100000000000000"
+  },
+  "P5_id_allocation": {
+   "host_watermark": 888013,
+   "our_id_range": [
+    888014,
+    888054
+   ],
+   "above_watermark": true,
+   "collisions": 0
+  },
+  "P3_embedded_adocument": {
+   "decodes_clean": true,
+   "roundtrip_equal": true,
+   "bytes": 3017,
+   "elem_recs": 41,
+   "appinfo_slots_null": 239,
+   "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN",
+   "guid": "34f2fa6f-32b9-4e57-90e5-6e513debe7f0"
+  },
+  "P2_entry_insert": {
+   "entries_before": 305,
+   "entries_after": 306,
+   "ours_present": true,
+   "end_record_intact": true,
+   "delta_bytes": 3053,
+   "entry_bytes": 3053
+  },
+  "P4_partition_splice": {
+   "partition_stream": "Partitions/14",
+   "unit_guid": "34f2fa6f-32b9-4e57-90e5-6e513debe7f0",
+   "unit_records": 41,
+   "unit_bytes": 7411,
+   "units_before": 306,
+   "units_after": 307,
+   "walker_errors": [],
+   "our_unit_guid_read_back": "34f2fa6f-32b9-4e57-90e5-6e513debe7f0",
+   "our_unit_counter_read_back": 41,
+   "our_unit_records_per_seq": {
+    "101": 42,
+    "102": 42,
+    "103": 42
+   },
+   "id_sets_identical": true,
+   "logical_bytes_before": 30416107,
+   "logical_bytes_after": 30423518
+  }
+ },
+ "spec": {
+  "L1_content_documents_entry": {
+   "status": "BUILT (parse/assemble/insert; byte-exact corpus round-trip)",
+   "grammar": "separator(u16 0x3a3, i32 -1, u16 0x3a2, i32 -1) + GUID(16) + u32 adoc_len + ADocument + u32 adoc_len (mirror); entries GUID-sorted; end record u16 0x3a3, i32 0, i32 -1, u32 0"
+  },
+  "L2_partition_save_unit": {
+   "status": "BUILT (unit assembly + splice before the end record; walker-clean)",
+   "note": "our unit = separator{content GUID, record count} + our blocks + terminator + footer + magic; host units byte-preserved"
+  },
+  "L3_embedded_adocument": {
+   "status": "BUILT (our minimal document object: inline ElemTable of our elements + inline empty History + stub tables; codec round-trip clean)",
+   "open": "AppInfoManager registries all-null vs the specimen's 110 populated family-editor registries -- ACCEPTANCE UNKNOWN (the viewer question of this rung)"
+  },
+  "L4_host_elements": {
+   "status": "BUILT (rvt.famgen.loader)",
+   "what": "14 host `ParamElemFamily` twins (owner = host Family), a `FamilySurrogate`, the host `Family` (our self-Family transformed to the host flavour: m_oFamDoc{contentDocGUID, big2SmallMap2, coreIds}, m_famDocGUID, host m_familyIds / type table / ConnectorDataCell / preview views / reference index manager), a host `FamilySymbol` (type row + the SYMBOL GEOMETRY: geomSteps history + GeomTable + the seq-103 solid) + its `FamSymSurrogate`, and a placed `FamilyInstance` -- all landed by rvt.commit.commit_new_elements (save unit 0 + ElemTable)",
+   "how": "field-by-field from the specimen grammar (host Family 454674 / symbol 455409 diffed against their embedded document); every record encode->decode byte-exact; docs/writer/asset-factory.md \u00a75"
+  },
+  "L5_host_content_table": {
+   "status": "BUILT (rvt.famgen.loader.register_in_host_adocument)",
+   "what": "host Global/Latest ADocument: ContentTable.m_ContentRecSet += our record; AppInfoManager[FamilyMgr].m_arrLoadedFamilyInfo += {surrogateId, [our GUID]}; AppInfoManager[ElementTrackingData] symbol / instance id sets += ours",
+   "how": "rvt.adocument.decode_latest -> edit -> encode_latest (re-decodes clean) -> the loader's two-pass write"
+  }
+ },
+ "built_mechanisms_ok": true,
+ "project_file_emitted": false,
+ "stop_reason": "",
+ "next_steps": [
+  "viewer-gate the loaded projects (rvt.famgen.loader ladder): our symbol geometry (F4a) vs Revit's regeneration (F4b), the empty embedded AppInfoManager, and the surrogate / FamilyMgr constants"
+ ]
+}

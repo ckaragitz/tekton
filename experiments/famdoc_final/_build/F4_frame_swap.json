@@ -1,0 +1,84 @@
+{
+ "groups": [
+  "G3"
+ ],
+ "equivalence_map": {
+  "1410872": 1472525,
+  "1411008": 1472526,
+  "1410913": 1472529,
+  "1410912": 1472530,
+  "1410914": 1472532,
+  "1410915": 1472531,
+  "1410875": 1472528,
+  "1410877": 1472534,
+  "1411145": 1472566,
+  "1411146": 1472567
+ },
+ "swapped": [
+  {
+   "role": "proj_view",
+   "our_id": 1472529,
+   "donor_id": 1410913,
+   "class": "DBViewProject",
+   "owner_adopted": 1472525,
+   "owner_was": -1,
+   "owner_changed": true
+  },
+  {
+   "role": "proj_viewer",
+   "our_id": 1472530,
+   "donor_id": 1410912,
+   "class": "Viewer",
+   "owner_adopted": 1472529,
+   "owner_was": 1472529,
+   "owner_changed": false
+  },
+  {
+   "role": "proj_drawing",
+   "our_id": 1472532,
+   "donor_id": 1410914,
+   "class": "DBDrawing",
+   "owner_adopted": 1472529,
+   "owner_was": 1472529,
+   "owner_changed": false
+  },
+  {
+   "role": "proj_viewport",
+   "our_id": 1472531,
+   "donor_id": 1410915,
+   "class": "Viewport",
+   "owner_adopted": 1472532,
+   "owner_was": 1472532,
+   "owner_changed": false
+  }
+ ],
+ "imports": [
+  {
+   "new_id": 1472566,
+   "donor_id": 1411145,
+   "class": "BrowserOrganization",
+   "owner": 1472525
+  },
+  {
+   "new_id": 1472567,
+   "donor_id": 1411146,
+   "class": "BrowserOrganization",
+   "owner": 1472525
+  }
+ ],
+ "self_family_disposition": null,
+ "import_registration": {
+  "deletion_len": 43,
+  "family_ids_len": 42,
+  "absorbed_indices": {
+   "1472566": 40,
+   "1472567": 41
+  },
+  "next_absorbed_index": 42
+ },
+ "donor_block_residual": 0,
+ "donor_block": [
+  1410865,
+  1471962
+ ]
+}

@@ -1,0 +1,249 @@
+{
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XR0.rvt",
+ "streams": {
+  "identical": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "ProjectInformation",
+   "TransmissionData"
+  ],
+  "differing": [
+   "Partitions/21"
+  ]
+ },
+ "partition_logical_identical": false,
+ "records": {
+  "parent_count": 19623,
+  "out_count": 19623,
+  "added": [],
+  "removed": [],
+  "changed": [
+   {
+    "seq": 102,
+    "id": 2,
+    "len_ours": 1223,
+    "len_parent": 1223,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PenWidthTableElem",
+      "class_parent": "PenWidthTableElem"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.00032808398950131233"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.0008202099737532807"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.001148293963254593"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.0016404199475065614"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.002296587926509186"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.003280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.004593175853018372"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.006561679790026246"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.009186351706036744"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.013123359580052492"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[13]",
+      "ours": "0.01968503937007874",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[14]",
+      "ours": "0.022965879265091863",
+      "parent": "0.026246719160104983"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_draftPenInfo.m_pens[15]",
+      "ours": "0.026246719160104987",
+      "parent": "0.03280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[0]",
+      "ours": "0.00042650918635170603",
+      "parent": "0.0005905511811023622"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[1]",
+      "ours": "0.0005905511811023622",
+      "parent": "0.0008202099737532807"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[2]",
+      "ours": "0.0008202099737532808",
+      "parent": "0.001148293963254593"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[3]",
+      "ours": "0.0011482939632545932",
+      "parent": "0.002296587926509186"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[4]",
+      "ours": "0.0016404199475065617",
+      "parent": "0.003280839895013123"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[5]",
+      "ours": "0.0022965879265091863",
+      "parent": "0.004593175853018372"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[6]",
+      "ours": "0.0032808398950131233",
+      "parent": "0.006561679790026246"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[7]",
+      "ours": "0.004593175853018373",
+      "parent": "0.009186351706036744"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[8]",
+      "ours": "0.006561679790026247",
+      "parent": "0.013123359580052492"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[9]",
+      "ours": "0.008202099737532808",
+      "parent": "0.016404199475065617"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[10]",
+      "ours": "0.00984251968503937",
+      "parent": "0.01968503937007874"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[11]",
+      "ours": "0.013123359580052493",
+      "parent": "0.022965879265091863"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[12]",
+      "ours": "0.016404199475065617",
+      "parent": "0.026246719160104983"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[13]",
+      "ours": "0.01968503937007874",
+      "parent": "0.029527559055118106"
+     },
+     {
+      "path": ".m_pPenWidthTable.value.m_modelPenInfo[0].m_pens[14]",
+      "ours": "0.022965879265091863",
+      "parent": "0.029527559055118106"
+     }
+    ]
+   }
+  ],
+  "changed_count": 1,
+  "added_ids": [],
+  "removed_ids": [],
+  "changed_ids": [
+   2
+  ],
+  "id_order_identical": true,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "added_positions": {},
+  "removed_positions": {}
+ },
+ "blocks": {
+  "101": {
+   "parent": 8,
+   "out": 8,
+   "identical": true,
+   "differing": []
+  },
+  "102": {
+   "parent": 47,
+   "out": 47,
+   "identical": true,
+   "differing": []
+  },
+  "103": {
+   "parent": 25,
+   "out": 25,
+   "identical": true,
+   "differing": []
+  }
+ },
+ "elemtable": {
+  "rows_parent": 6540,
+  "rows_out": 6540,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "watermark_parent": 1472524,
+  "watermark_out": 1472524,
+  "identical": true
+ },
+ "latest": {
+  "identical": true,
+  "len_parent": 1586246,
+  "len_out": 1586246
+ },
+ "embedded_units_identical": true
+}

@@ -1,0 +1,83 @@
+{
+ "generated": "2026-08-04 19:25:24",
+ "samples": [
+  "rstbasicsampleproject",
+  "rstadvancedsampleproject",
+  "racbasicsampleproject",
+  "racadvancedsampleproject",
+  "rmebasicsampleproject",
+  "dach-sample-project"
+ ],
+ "classes": {
+  "FamSymSurrogate": {
+   "class": "FamSymSurrogate",
+   "cohort": "",
+   "n_specimens": 1285,
+   "rules": 70,
+   "per_file": {
+    "rstbasicsampleproject": 50,
+    "rstadvancedsampleproject": 219,
+    "racbasicsampleproject": 99,
+    "racadvancedsampleproject": 314,
+    "rmebasicsampleproject": 192,
+    "dach-sample-project": 411
+   }
+  },
+  "Family": {
+   "class": "Family",
+   "cohort": "",
+   "n_specimens": 831,
+   "rules": 1711,
+   "per_file": {
+    "rstbasicsampleproject": 50,
+    "rstadvancedsampleproject": 145,
+    "racbasicsampleproject": 94,
+    "racadvancedsampleproject": 116,
+    "rmebasicsampleproject": 159,
+    "dach-sample-project": 267
+   }
+  },
+  "FamilySurrogate": {
+   "class": "FamilySurrogate",
+   "cohort": "",
+   "n_specimens": 848,
+   "rules": 72,
+   "per_file": {
+    "rstbasicsampleproject": 50,
+    "rstadvancedsampleproject": 145,
+    "racbasicsampleproject": 94,
+    "racadvancedsampleproject": 116,
+    "rmebasicsampleproject": 159,
+    "dach-sample-project": 284
+   }
+  },
+  "FamilySymbol": {
+   "class": "FamilySymbol",
+   "cohort": "",
+   "n_specimens": 2710,
+   "rules": 3161,
+   "per_file": {
+    "rstbasicsampleproject": 106,
+    "rstadvancedsampleproject": 280,
+    "racbasicsampleproject": 142,
+    "racadvancedsampleproject": 398,
+    "rmebasicsampleproject": 632,
+    "dach-sample-project": 1152
+   }
+  },
+  "ParamElemFamily": {
+   "class": "ParamElemFamily",
+   "cohort": "",
+   "n_specimens": 4770,
+   "rules": 111,
+   "per_file": {
+    "rstbasicsampleproject": 120,
+    "rstadvancedsampleproject": 221,
+    "racbasicsampleproject": 411,
+    "racadvancedsampleproject": 334,
+    "rmebasicsampleproject": 1331,
+    "dach-sample-project": 2353
+   }
+  }
+ }
+}

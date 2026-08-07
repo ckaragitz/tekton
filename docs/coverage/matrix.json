@@ -1,0 +1,5147 @@
+{
+ "schema": 1,
+ "title": "rev-revit writer coverage matrix (CRUD x element category)",
+ "description": "Battle-hardening as a measured number. Each cell of {category} x {verb} carries its implementing function, its proof generator (a make_*.py driver the runner reruns), its proof file(s), and \u2014 for READ \u2014 a probe against a real corpus file. tools/coverage.py fills each cell's `result` (validates / error_count / viewer_certified / last_run) and the top-level `summary`; everything else is the hand-authored definition. Certification comes from docs/coverage/viewer-certified.json (orchestrator-maintained ledger of files Autodesk's own reader accepted).",
+ "verbs": [
+  "create",
+  "read",
+  "modify",
+  "move",
+  "retype",
+  "delete"
+ ],
+ "categories": [
+  {
+   "key": "family_instances",
+   "label": "family instances (generic point-placed)"
+  },
+  {
+   "key": "walls",
+   "label": "walls"
+  },
+  {
+   "key": "floors_roofs_ceilings",
+   "label": "floors / roofs / ceilings"
+  },
+  {
+   "key": "doors_windows",
+   "label": "doors / windows"
+  },
+  {
+   "key": "columns_beams",
+   "label": "columns / beams (structural framing)"
+  },
+  {
+   "key": "curtain_walls",
+   "label": "curtain walls"
+  },
+  {
+   "key": "stairs_railings",
+   "label": "stairs / railings"
+  },
+  {
+   "key": "rooms_spaces",
+   "label": "rooms / spaces (+ zones)"
+  },
+  {
+   "key": "conduit",
+   "label": "conduit (runs + centre-lines)"
+  },
+  {
+   "key": "cable_tray",
+   "label": "cable tray"
+  },
+  {
+   "key": "duct",
+   "label": "duct (incl. flex)"
+  },
+  {
+   "key": "pipe",
+   "label": "pipe"
+  },
+  {
+   "key": "fittings",
+   "label": "fittings (elbows / MEP fittings)"
+  },
+  {
+   "key": "wires",
+   "label": "wires"
+  },
+  {
+   "key": "electrical_equipment",
+   "label": "electrical equipment (panels / transformers)"
+  },
+  {
+   "key": "electrical_devices",
+   "label": "electrical fixtures / devices"
+  },
+  {
+   "key": "lighting_fixtures",
+   "label": "lighting fixtures"
+  },
+  {
+   "key": "circuits_systems",
+   "label": "circuits / electrical systems"
+  },
+  {
+   "key": "panel_schedules",
+   "label": "panel schedules / schedule views"
+  },
+  {
+   "key": "views_sheets",
+   "label": "views / sheets"
+  },
+  {
+   "key": "tags_annotation",
+   "label": "tags / annotation"
+  },
+  {
+   "key": "levels",
+   "label": "levels"
+  },
+  {
+   "key": "phases",
+   "label": "phases"
+  },
+  {
+   "key": "types",
+   "label": "types (system types + family symbols)"
+  },
+  {
+   "key": "families",
+   "label": "families (.rfa)"
+  },
+  {
+   "key": "materials",
+   "label": "materials"
+  },
+  {
+   "key": "parameters",
+   "label": "parameters"
+  },
+  {
+   "key": "worksets_links",
+   "label": "worksets / links"
+  }
+ ],
+ "templates": {
+  "rme": "samples/rmebasicsampleproject.rvt",
+  "rac": "samples/racadvancedsampleproject.rvt",
+  "rst": "samples/rstbasicsampleproject.rvt"
+ },
+ "generators": {
+  "gen-mep-conduit": {
+   "cmd": [
+    "experiments/mep/conduit/make_conduit.py"
+   ],
+   "outputs": [
+    "experiments/mep/conduit/conduit_create.rvt",
+    "experiments/mep/conduit/conduit_create_straight.rvt",
+    "experiments/mep/conduit/conduit_modify.rvt",
+    "experiments/mep/conduit/conduit_delete.rvt",
+    "experiments/mep/conduit/cable_tray_create.rvt"
+   ],
+   "est_seconds": 350,
+   "stream": "mep-conduit"
+  },
+  "gen-mep-devices": {
+   "cmd": [
+    "experiments/mep/devices/make_devices.py"
+   ],
+   "outputs": [
+    "experiments/mep/devices/receptacle_wall_hosted.rvt",
+    "experiments/mep/devices/light_ceiling_hosted.rvt",
+    "experiments/mep/devices/floor_device.rvt",
+    "experiments/mep/devices/multi_load_circuit.rvt",
+    "experiments/mep/devices/device_modify_move.rvt",
+    "experiments/mep/devices/device_delete.rvt"
+   ],
+   "est_seconds": 500,
+   "stream": "mep-devices"
+  },
+  "gen-mep-electrical": {
+   "cmd": [
+    "experiments/mep/electrical/make_electrical.py"
+   ],
+   "outputs": [
+    "experiments/mep/electrical/wire_create.rvt",
+    "experiments/mep/electrical/wire_delete.rvt",
+    "experiments/mep/electrical/settings_modify.rvt",
+    "experiments/mep/electrical/load_class_create.rvt",
+    "experiments/mep/electrical/panel_renumber.rvt"
+   ],
+   "est_seconds": 450,
+   "stream": "mep-electrical"
+  },
+  "gen-mep-schedules": {
+   "cmd": [
+    "experiments/mep/schedules/make_views_spaces.py"
+   ],
+   "outputs": [
+    "experiments/mep/schedules/panel_schedule_view.rvt",
+    "experiments/mep/schedules/panel_schedule_view_current.rvt",
+    "experiments/mep/schedules/panel_schedule_view_rename.rvt",
+    "experiments/mep/schedules/panel_schedule_view_delete.rvt",
+    "experiments/mep/spaces/space_create.rvt",
+    "experiments/mep/spaces/space_rename.rvt",
+    "experiments/mep/spaces/space_delete.rvt"
+   ],
+   "est_seconds": 520,
+   "stream": "mep-schedules"
+  },
+  "gen-manipulate": {
+   "cmd": [
+    "experiments/manipulate/make_proofs.py"
+   ],
+   "outputs": [
+    "experiments/manipulate/M1_delete.rvt",
+    "experiments/manipulate/M1_delete_rac.rvt",
+    "experiments/manipulate/M2_delete_cascade.rvt",
+    "experiments/manipulate/M2_delete_cascade_rac.rvt",
+    "experiments/manipulate/M3_modify.rvt",
+    "experiments/manipulate/M3_modify_rac.rvt",
+    "experiments/manipulate/M4_move_retype.rvt",
+    "experiments/manipulate/M4_move_retype_rac.rvt"
+   ],
+   "est_seconds": 420,
+   "stream": "manipulate",
+   "note": "co-produces viewer-CERTIFIED M2/M3/M4 -> frozen by default"
+  },
+  "gen-hosting": {
+   "cmd": [
+    "experiments/hosting/make_hosting.py"
+   ],
+   "outputs": [
+    "experiments/hosting/H1_panel_on_existing_wall.rvt",
+    "experiments/hosting/H2_panel_on_created_wall.rvt",
+    "experiments/hosting/H3_panel_on_created_wall_dummyplane.rvt"
+   ],
+   "est_seconds": 240,
+   "stream": "hosting",
+   "note": "co-produces viewer-CERTIFIED H1/H2 -> frozen by default"
+  },
+  "gen-genesis-types": {
+   "cmd": [
+    "experiments/genesis/types/make_type_proofs.py"
+   ],
+   "outputs": [
+    "experiments/genesis/types/T_walltype.rvt",
+    "experiments/genesis/types/T_conduit_types.rvt",
+    "experiments/genesis/types/T_settings.rvt"
+   ],
+   "est_seconds": 300,
+   "stream": "genesis-types"
+  },
+  "gen-families": {
+   "cmd": [
+    "-m",
+    "rvt.families"
+   ],
+   "outputs": [
+    "experiments/families/F1_rfa_full_reencode.rfa",
+    "experiments/families/F2_rfa_type_param_edit.rfa"
+   ],
+   "est_seconds": 200,
+   "stream": "families",
+   "note": "runs `python -m rvt.families` (inventories + F1/F2 emit)"
+  },
+  "gen-v20": {
+   "cmd": [
+    "tools/make_v20.py"
+   ],
+   "outputs": [
+    "experiments/acceptance/V20_first_created_element.rvt"
+   ],
+   "est_seconds": 60,
+   "stream": "acceptance",
+   "note": "viewer-CERTIFIED output -> frozen by default"
+  },
+  "gen-v19": {
+   "cmd": [
+    "tools/make_v19.py"
+   ],
+   "outputs": [
+    "experiments/acceptance/V19_authored_change_stamped.rvt"
+   ],
+   "est_seconds": 60,
+   "stream": "acceptance",
+   "note": "viewer-CERTIFIED output -> frozen by default"
+  },
+  "gen-v23-spec-to-rvt": {
+   "cmd": [
+    "tools/spec_to_rvt.py",
+    "--spec",
+    "usecases/chicago-plenum-electrical-room/room-spec.json",
+    "--out",
+    "experiments/acceptance/V23_electrical_room.rvt"
+   ],
+   "outputs": [
+    "experiments/acceptance/V23_electrical_room.rvt"
+   ],
+   "est_seconds": 120,
+   "stream": "acceptance",
+   "note": "viewer-CERTIFIED output -> frozen by default"
+  }
+ },
+ "cells": [
+  {
+   "category": "family_instances",
+   "verb": "create",
+   "function": "rvt.mutate.Document.add_family_instance",
+   "proof_file": "experiments/acceptance/V20_first_created_element.rvt",
+   "extra_proofs": [
+    "experiments/acceptance/V21_batch_four_columns.rvt"
+   ],
+   "generator": "gen-v20",
+   "note": "Point-placed family instance from a loaded symbol (V20 = concrete column, V21 = batch of four). Both PASS in Autodesk's viewer.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-v20",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/acceptance/V20_first_created_element.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/acceptance/V21_batch_four_columns.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "family_instances",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value / rvt.inventory.symbols",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "FamilyInstance"
+    ],
+    "decode": 5
+   },
+   "note": "5,629 FamilyInstance records in the rme sample decode field-by-field.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "FamilyInstance": 5629
+      },
+      "decoded": 5,
+      "dirty": 0,
+      "detail": "5629 elements (FamilyInstance=5629); 5 decoded, 0 unreadable",
+      "seconds": 0.6
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "family_instances",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_mark / set_param",
+   "proof_file": "experiments/manipulate/M3_modify.rvt",
+   "extra_proofs": [
+    "experiments/manipulate/M3_modify_rac.rvt"
+   ],
+   "generator": "gen-manipulate",
+   "note": "Instance parameter edit: panelboard 581483 Mark '15' -> '15-EDITED' + Panel Name (M3, viewer PASS); door 147834 Mark on the arch file (M3_rac).",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M3_modify.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/manipulate/M3_modify_rac.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "family_instances",
+   "verb": "move",
+   "function": "rvt.manipulate.move_instance",
+   "proof_file": "experiments/manipulate/M4_move_retype.rvt",
+   "extra_proofs": [
+    "experiments/manipulate/M4_move_retype_rac.rvt"
+   ],
+   "generator": "gen-manipulate",
+   "note": "Transformer 624416 translated +5 ft X with all cached transforms rewritten (viewer PASS); dining table + 4 owned chairs on the arch file (M4_rac).",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M4_move_retype.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/manipulate/M4_move_retype_rac.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "family_instances",
+   "verb": "retype",
+   "function": "rvt.manipulate.retype_instance",
+   "proof_file": "experiments/manipulate/M4_move_retype.rvt",
+   "extra_proofs": [
+    "experiments/manipulate/M4_move_retype_rac.rvt"
+   ],
+   "generator": "gen-manipulate",
+   "note": "Symbol swap to a sibling type (500 kVA -> 75 kVA transformer; 915 mm -> 1525 mm table), appearance/deletion parents remapped. Viewer PASS.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M4_move_retype.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/manipulate/M4_move_retype_rac.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "family_instances",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "proof_file": "experiments/manipulate/M2_delete_cascade.rvt",
+   "extra_proofs": [
+    "experiments/manipulate/M1_delete.rvt",
+    "experiments/manipulate/M1_delete_rac.rvt"
+   ],
+   "generator": "gen-manipulate",
+   "note": "M2 (viewer PASS): cascade removed 10 hosted plumbing-fixture INSTANCES with their host wall; M1: isolated air-terminal instance; M1_rac: framing member.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M2_delete_cascade.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/manipulate/M1_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/manipulate/M1_delete_rac.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "walls",
+   "verb": "create",
+   "function": "rvt.mutate.Document.add_wall",
+   "proof_file": "experiments/hosting/H2_panel_on_created_wall.rvt",
+   "extra_proofs": [
+    "experiments/acceptance/V22_first_created_wall.rvt",
+    "experiments/mep/spaces/space_create.rvt",
+    "experiments/hosting/H3_panel_on_created_wall_dummyplane.rvt"
+   ],
+   "generator": "gen-hosting",
+   "extra_generators": [
+    "gen-mep-schedules"
+   ],
+   "note": "Straight SWall with compound structure + regenerable solid (SerializedDummy). V22 and H2 viewer PASS; space_create.rvt builds 4 walls enclosing a room.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-hosting",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/hosting/H2_panel_on_created_wall.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/acceptance/V22_first_created_wall.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/mep/spaces/space_create.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/hosting/H3_panel_on_created_wall_dummyplane.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "walls",
+   "verb": "read",
+   "function": "rvt.mutate.Document.straight_walls / rvt.inventory.wall_types",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "SWall"
+    ],
+    "decode": 5
+   },
+   "note": "166 SWall records decode (location curve, type, level, compound structure).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "SWall": 166
+      },
+      "decoded": 5,
+      "dirty": 0,
+      "detail": "166 elements (SWall=166); 5 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "walls",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param / modify_element",
+   "note": "Generic parameter edit path; no wall-parameter proof yet (base/top offset, unconnected height not exercised).",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "walls",
+   "verb": "move",
+   "note": "SWall location-line translation not implemented (move_instance is family-instance-only); joined walls need join re-solve.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "walls",
+   "verb": "retype",
+   "note": "Wall type swap (compound-structure width change + rejoin) not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "walls",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element (cascade=True)",
+   "proof_file": "experiments/manipulate/M2_delete_cascade.rvt",
+   "extra_proofs": [
+    "experiments/manipulate/M2_delete_cascade_rac.rvt"
+   ],
+   "generator": "gen-manipulate",
+   "note": "Wall 573703 with 17 dependents (face SketchPlanes -> 10 hosted fixtures, dims, room tag) + 37 referrers neutralised (M2, viewer PASS); wall + hosted door on the arch file (M2_rac, viewer PASS).",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M2_delete_cascade.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/manipulate/M2_delete_cascade_rac.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "floors_roofs_ceilings",
+   "verb": "create",
+   "function": "rvt.genesis.types.new_floor_type / new_roof_type / new_ceiling_type (TYPES only)",
+   "note": "System TYPES for floor/roof/ceiling are creatable (see types row, T_walltype.rvt); INSTANCE creation (sketch loop + slab shape) not implemented.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "floors_roofs_ceilings",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (Floor / Ceiling / RoofAttributes)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "Floor",
+     "Ceiling",
+     "RoofAttributes"
+    ],
+    "decode": 3
+   },
+   "note": "21 floors, 43 ceilings, roof types in rme; rac adds ProfileRoof / FaceRoof.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "Floor": 21,
+       "Ceiling": 43,
+       "RoofAttributes": 1
+      },
+      "decoded": 7,
+      "dirty": 0,
+      "detail": "65 elements (Floor=21, Ceiling=43, RoofAttributes=1); 7 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "floors_roofs_ceilings",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param / modify_element",
+   "note": "Generic param edit unproven on sketch-based hosts.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "floors_roofs_ceilings",
+   "verb": "move",
+   "note": "Sketch-loop translation (VarSketch + CurveElems) not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "floors_roofs_ceilings",
+   "verb": "retype",
+   "note": "Slab type swap not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "floors_roofs_ceilings",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Cascade machinery handles ceiling sketches as REFERRERS (M2_rac keeps a ceiling's sketch minus a deleted wall constraint); no direct floor/roof/ceiling delete proof.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "doors_windows",
+   "verb": "create",
+   "note": "Wall-hosted door/window insertion (opening cut + host wall regen) not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "doors_windows",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (FamilyInstance, OST_Doors / OST_Windows)",
+   "probe": {
+    "kind": "category_decode",
+    "template": "rac",
+    "categories": [
+     -2000023,
+     -2000014
+    ]
+   },
+   "note": "101 doors + 24 windows in the arch sample; instance placement + host readable.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "category_decode",
+      "template": "rac",
+      "passed": true,
+      "counts": {
+       "-2000023": 166,
+       "-2000014": 34
+      },
+      "detail": "200 elements by category (-2000023=166, -2000014=34)",
+      "seconds": 0.8
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "doors_windows",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_mark",
+   "proof_file": "experiments/manipulate/M3_modify_rac.rvt",
+   "generator": "gen-manipulate",
+   "note": "Door 147834 'Mark' 130A -> 130A-EDITED (validates; not yet viewer-uploaded).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M3_modify_rac.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "doors_windows",
+   "verb": "move",
+   "function": "rvt.manipulate.move_instance",
+   "note": "A hosted door's move must stay on its wall's location line; unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "doors_windows",
+   "verb": "retype",
+   "function": "rvt.manipulate.retype_instance",
+   "note": "Door/window type swap (opening size change) unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "doors_windows",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element (cascade=True)",
+   "proof_file": "experiments/manipulate/M2_delete_cascade_rac.rvt",
+   "generator": "gen-manipulate",
+   "note": "Door 145999 removed by cascade with its host wall + its tag; neighbouring windows' m_deletion references updated. Viewer PASS.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M2_delete_cascade_rac.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "columns_beams",
+   "verb": "create",
+   "function": "rvt.mutate.Document.add_family_instance",
+   "proof_file": "experiments/acceptance/V20_first_created_element.rvt",
+   "extra_proofs": [
+    "experiments/acceptance/V21_batch_four_columns.rvt"
+   ],
+   "generator": "gen-v20",
+   "note": "450 mm concrete column (V20) and a batch of four (V21) created from nothing; both viewer PASS. Beam (curve-driven framing) creation not attempted.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-v20",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/acceptance/V20_first_created_element.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/acceptance/V21_batch_four_columns.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "columns_beams",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (OST_StructuralColumns / OST_StructuralFraming)",
+   "probe": {
+    "kind": "category_decode",
+    "template": "rme",
+    "categories": [
+     -2001330,
+     -2001320
+    ]
+   },
+   "note": "131 structural columns in rme (176 columns + 38 framing in the arch file).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "category_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "-2001320": 0,
+       "-2001330": 138
+      },
+      "detail": "138 elements by category (-2001320=0, -2001330=138)",
+      "seconds": 0.9
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "columns_beams",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param / modify_element",
+   "note": "Generic param edit unproven on columns/framing.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "columns_beams",
+   "verb": "move",
+   "function": "rvt.manipulate.move_instance",
+   "note": "move_instance handles point-placed instances (proven on equipment/furniture); no column-specific proof; slanted/curve-driven framing unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "columns_beams",
+   "verb": "retype",
+   "function": "rvt.manipulate.retype_instance",
+   "note": "Column type swap unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "columns_beams",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "proof_file": "experiments/manipulate/M1_delete_rac.rvt",
+   "generator": "gen-manipulate",
+   "note": "Structural framing instance 201309 (M_W-Wide Flange) deleted on the arch file; validates (not viewer-uploaded).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M1_delete_rac.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "curtain_walls",
+   "verb": "create",
+   "note": "Curtain wall (grid lines + panels + mullions) authoring not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "curtain_walls",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (CurtainGridLine / SysPanelFamSym / SysMullionFamSym)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "CurtainGridLine",
+     "SysPanelFamSym",
+     "SysMullionFamSym"
+    ],
+    "decode": 3
+   },
+   "note": "278 grid lines + 208 panel symbols + 257 mullion symbols decode.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "CurtainGridLine": 278,
+       "SysPanelFamSym": 208,
+       "SysMullionFamSym": 257
+      },
+      "decoded": 9,
+      "dirty": 0,
+      "detail": "743 elements (CurtainGridLine=278, SysPanelFamSym=208, SysMullionFamSym=257); 9 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "curtain_walls",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param / modify_element",
+   "note": "Grid/panel parameter edit unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "curtain_walls",
+   "verb": "move",
+   "note": "Curtain wall translation not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "curtain_walls",
+   "verb": "retype",
+   "note": "Curtain wall type swap not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "curtain_walls",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Delete of a curtain wall + its owned grid/panels/mullions unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "stairs_railings",
+   "verb": "create",
+   "note": "Stairs (runs/landings/supports) and railing authoring not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "stairs_railings",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (StairsElement / StairsRun / BaseRailing)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rac",
+    "classes": [
+     "StairsElement",
+     "StairsRun",
+     "StairsLanding",
+     "BaseRailing"
+    ],
+    "decode": 3
+   },
+   "note": "Component stairs (5 stairs, 10 runs, 5 landings) + railings decode on the arch file.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rac",
+      "passed": true,
+      "counts": {
+       "StairsElement": 5,
+       "StairsRun": 10,
+       "StairsLanding": 5,
+       "BaseRailing": 22
+      },
+      "decoded": 12,
+      "dirty": 0,
+      "detail": "42 elements (StairsElement=5, StairsRun=10, StairsLanding=5, BaseRailing=22); 12 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "stairs_railings",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param / modify_element",
+   "note": "Stair/railing parameter edit unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "stairs_railings",
+   "verb": "move",
+   "note": "Stair translation not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "stairs_railings",
+   "verb": "retype",
+   "note": "Stair/railing type swap not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "stairs_railings",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Delete of a stair with its runs/landings/supports/railings unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "rooms_spaces",
+   "verb": "create",
+   "function": "rvt.mep.views_spaces.add_space / add_room / add_zone",
+   "proof_file": "experiments/mep/spaces/space_create.rvt",
+   "extra_proofs": [
+    "experiments/acceptance/V25_room_from_ifc.rvt",
+    "experiments/acceptance/V26_room_from_ifc_with_walls.rvt",
+    "experiments/acceptance/V23_electrical_room.rvt"
+   ],
+   "generator": "gen-mep-schedules",
+   "note": "MEP Space (RoomElem, OST_MEPSpaces) point-placed inside 4 same-commit walls + a ZoneElement + its space tag; the electrical-room use-cases (V23/V25, viewer PASS) build the enclosing room too.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/spaces/space_create.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/acceptance/V25_room_from_ifc.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/acceptance/V26_room_from_ifc_with_walls.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/acceptance/V23_electrical_room.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "rooms_spaces",
+   "verb": "read",
+   "function": "rvt.mep.views_spaces.describe_space",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "RoomElem",
+     "ZoneElement",
+     "RoomTag"
+    ],
+    "decode": 5
+   },
+   "note": "165 rooms/spaces (same class, told apart by category) + 53 zones + tags decode.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "RoomElem": 165,
+       "ZoneElement": 53,
+       "RoomTag": 87
+      },
+      "decoded": 15,
+      "dirty": 0,
+      "detail": "305 elements (RoomElem=165, ZoneElement=53, RoomTag=87); 15 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "rooms_spaces",
+   "verb": "modify",
+   "function": "rvt.mep.views_spaces.rename_space",
+   "proof_file": "experiments/mep/spaces/space_rename.rvt",
+   "generator": "gen-mep-schedules",
+   "note": "Space 379575 renamed + renumbered (ROOM_NAME / ROOM_NUMBER params).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/spaces/space_rename.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "rooms_spaces",
+   "verb": "move",
+   "note": "Space relocation (m_point + bounding-wall cache recompute) not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "rooms_spaces",
+   "verb": "retype",
+   "na": "rooms/spaces have no type",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "rooms/spaces have no type"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "rooms_spaces",
+   "verb": "delete",
+   "function": "rvt.mep.views_spaces.delete_space",
+   "proof_file": "experiments/mep/spaces/space_delete.rvt",
+   "generator": "gen-mep-schedules",
+   "note": "Space 379575 deleted; its tag cascades, zone member list neutralised.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/spaces/space_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "conduit",
+   "verb": "create",
+   "function": "rvt.mep.conduit.add_conduit_path / add_conduit_run",
+   "proof_file": "experiments/mep/conduit/conduit_create.rvt",
+   "extra_proofs": [
+    "experiments/mep/conduit/conduit_create_straight.rvt"
+   ],
+   "generator": "gen-mep-conduit",
+   "note": "3-segment 2\" run with TWO real 90-degree elbows (shared flexible-symbol clone), companion centre-lines, ConduitRun; plus fitting-free straight runs.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/conduit/conduit_create.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/mep/conduit/conduit_create_straight.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "conduit",
+   "verb": "read",
+   "function": "rvt.mep.conduit.inventory_runs / run_report",
+   "probe": {
+    "kind": "callable",
+    "template": "rme",
+    "target": "rvt.mep.conduit:inventory_runs"
+   },
+   "note": "20 conduits / 8 runs / 13 elbows fully modelled; per-run schedule with lengths.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "callable",
+      "template": "rme",
+      "passed": true,
+      "count": 5,
+      "detail": "rvt.mep.conduit:inventory_runs -> 5 item(s)",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "conduit",
+   "verb": "modify",
+   "function": "rvt.mep.conduit.resize_run / extend_run / set_run_elevation",
+   "proof_file": "experiments/mep/conduit/conduit_modify.rvt",
+   "generator": "gen-mep-conduit",
+   "note": "Resize 2\"->1\", extend open end +3 ft.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/conduit/conduit_modify.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "conduit",
+   "verb": "move",
+   "function": "rvt.mep.conduit.move_run",
+   "proof_file": "experiments/mep/conduit/conduit_modify.rvt",
+   "generator": "gen-mep-conduit",
+   "note": "Rigid run move incl. elbows + centre-lines (run 679175).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/conduit/conduit_modify.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "conduit",
+   "verb": "retype",
+   "function": "rvt.mep.conduit.retype_run",
+   "proof_file": "experiments/mep/conduit/conduit_modify.rvt",
+   "generator": "gen-mep-conduit",
+   "note": "Run 688539 retyped to conduit type 662475.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/conduit/conduit_modify.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "conduit",
+   "verb": "delete",
+   "function": "rvt.mep.conduit.delete_run / delete_conduit",
+   "proof_file": "experiments/mep/conduit/conduit_delete.rvt",
+   "generator": "gen-mep-conduit",
+   "note": "11-element run deleted (3 conduits + 2 elbows + 5 centre-lines + run); equipment tap neutralised.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/conduit/conduit_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "cable_tray",
+   "verb": "create",
+   "function": "rvt.mep.conduit.add_cable_tray_run",
+   "proof_file": "experiments/mep/conduit/cable_tray_create.rvt",
+   "generator": "gen-mep-conduit",
+   "note": "EXPERIMENTAL: no cable-tray element in ANY 2026 sample; synthesised by class-morphing a conduit specimen (structurally valid, acceptance unproven; OST_CableTrayRun/-CenterLine ids INFERRED).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/conduit/cable_tray_create.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "cable_tray",
+   "verb": "read",
+   "function": "rvt.mep.conduit.cable_tray_types / inventory_runs",
+   "probe": {
+    "kind": "callable",
+    "template": "rme",
+    "target": "rvt.mep.conduit:cable_tray_types"
+   },
+   "note": "Tray TYPES read from the corpus (no tray instance exists in any sample to read).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "callable",
+      "template": "rme",
+      "passed": true,
+      "count": 7,
+      "detail": "rvt.mep.conduit:cable_tray_types -> 7 item(s)",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "cable_tray",
+   "verb": "modify",
+   "function": "rvt.mep.conduit.resize_run (shared code path)",
+   "note": "Shared with conduit; nothing to exercise on (no corpus specimen).",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "cable_tray",
+   "verb": "move",
+   "function": "rvt.mep.conduit.move_run (shared code path)",
+   "note": "Shared with conduit; nothing to exercise on.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "cable_tray",
+   "verb": "retype",
+   "function": "rvt.mep.conduit.retype_run (shared code path)",
+   "note": "Shared with conduit; nothing to exercise on.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "cable_tray",
+   "verb": "delete",
+   "function": "rvt.mep.conduit.delete_run (shared code path)",
+   "note": "Shared with conduit; nothing to exercise on.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "duct",
+   "verb": "create",
+   "note": "No duct module (RbsDuctCurve / duct fittings / systems) implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "duct",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (RbsDuctCurve / RbsFlexDuctCurve)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "RbsDuctCurve",
+     "RbsFlexDuctCurve",
+     "RbsHvacSystem"
+    ],
+    "decode": 5
+   },
+   "note": "724 ducts + 113 flex ducts + 45 HVAC systems decode field-by-field.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "RbsDuctCurve": 724,
+       "RbsFlexDuctCurve": 113,
+       "RbsHvacSystem": 45
+      },
+      "decoded": 15,
+      "dirty": 0,
+      "detail": "882 elements (RbsDuctCurve=724, RbsFlexDuctCurve=113, RbsHvacSystem=45); 15 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "duct",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param / modify_element",
+   "note": "Duct resize (size params + centre-line + fitting re-solve) unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "duct",
+   "verb": "move",
+   "note": "Duct curve translation not implemented (conduit's move_run pattern would port).",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "duct",
+   "verb": "retype",
+   "note": "Duct type swap not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "duct",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Generic delete + connector neutraliser (proven on pipe refs in M2) unexercised on ducts.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "pipe",
+   "verb": "create",
+   "note": "No pipe module implemented (the conduit run model is the template to port).",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "pipe",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (RbsPipeCurve / RbsPipingSystem)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "RbsPipeCurve",
+     "PipeFittingCenterLine",
+     "PipeSegment"
+    ],
+    "decode": 5
+   },
+   "note": "491 pipes + 535 fitting centre-lines + pipe segments/systems decode.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "RbsPipeCurve": 491,
+       "PipeFittingCenterLine": 535,
+       "PipeSegment": 13
+      },
+      "decoded": 15,
+      "dirty": 0,
+      "detail": "1039 elements (RbsPipeCurve=491, PipeFittingCenterLine=535, PipeSegment=13); 15 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "pipe",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param / modify_element",
+   "note": "Pipe diameter/system edit unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "pipe",
+   "verb": "move",
+   "note": "Pipe curve translation not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "pipe",
+   "verb": "retype",
+   "note": "Pipe type swap not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "pipe",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "M2_delete_cascade (viewer PASS) removed 10 plumbing fixtures and neutralised 24 RbsPipeCurve connector refs + 3 piping systems as REFERRERS; deleting a pipe itself unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "fittings",
+   "verb": "create",
+   "function": "rvt.mep.conduit.add_conduit_path (elbow FamilyInstance)",
+   "proof_file": "experiments/mep/conduit/conduit_create.rvt",
+   "generator": "gen-mep-conduit",
+   "note": "Real 90-degree conduit elbows reusing the shared flexible-family symbol clone with the exact closed-form corner frame. Cable-tray fittings BLOCKED (no geometry clone); duct/pipe fittings not implemented.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/conduit/conduit_create.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "fittings",
+   "verb": "read",
+   "function": "rvt.mep.conduit.elbow_specimens / fitting_geometry",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "ConduitFittingCenterLine",
+     "PipeFittingCenterLine"
+    ],
+    "decode": 5
+   },
+   "note": "Conduit + pipe fitting centre-lines and their owning instances decode.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "ConduitFittingCenterLine": 14,
+       "PipeFittingCenterLine": 535
+      },
+      "decoded": 10,
+      "dirty": 0,
+      "detail": "549 elements (ConduitFittingCenterLine=14, PipeFittingCenterLine=535); 10 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "fittings",
+   "verb": "modify",
+   "function": "rvt.mep.conduit.resize_run",
+   "note": "A fitting's own parameters follow its run's resize; whether Revit re-solves the flexible clone is an open question -> unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "fittings",
+   "verb": "move",
+   "function": "rvt.mep.conduit.move_run",
+   "proof_file": "experiments/mep/conduit/conduit_modify.rvt",
+   "generator": "gen-mep-conduit",
+   "note": "Elbows move rigidly with their run (run 679175: 3 conduits + 2 elbows).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/conduit/conduit_modify.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "fittings",
+   "verb": "retype",
+   "function": "rvt.mep.conduit.retype_run",
+   "note": "Fitting symbol clone unchanged by run retype; no fitting-retype proof.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "fittings",
+   "verb": "delete",
+   "function": "rvt.mep.conduit.delete_fitting",
+   "proof_file": "experiments/mep/conduit/conduit_delete.rvt",
+   "generator": "gen-mep-conduit",
+   "note": "Elbow 688548 deleted (elbow + its centre-line; conduits' connector refs and the run member list neutralised).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/conduit/conduit_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "wires",
+   "verb": "create",
+   "function": "rvt.mep.electrical_data.add_wire / add_home_run",
+   "proof_file": "experiments/mep/electrical/wire_create.rvt",
+   "generator": "gen-mep-electrical",
+   "note": "Home run + chamfer branch wire on circuit 469513, with the connected devices EDITED in the same combined commit (connector graph symmetric).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-electrical",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/electrical/wire_create.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "wires",
+   "verb": "read",
+   "function": "rvt.mep.electrical_data.wires / wire_info / wires_of_circuit",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "RbsWireCurve"
+    ],
+    "decode": 5
+   },
+   "note": "All 1,045 rme wires modelled (view-owned, one-way circuit link, 2-connector manager).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "RbsWireCurve": 1045
+      },
+      "decoded": 5,
+      "dirty": 0,
+      "detail": "1045 elements (RbsWireCurve=1045); 5 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "wires",
+   "verb": "modify",
+   "note": "Wire re-route / gauge / type edit not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "wires",
+   "verb": "move",
+   "note": "Wire curve translation not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "wires",
+   "verb": "retype",
+   "note": "Wire type swap not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "wires",
+   "verb": "delete",
+   "function": "rvt.mep.electrical_data.delete_wire",
+   "proof_file": "experiments/mep/electrical/wire_delete.rvt",
+   "generator": "gen-mep-electrical",
+   "note": "Wire 469466 deleted; devices' back-links + neighbour wire neutralised, tag cascades.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-electrical",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/electrical/wire_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_equipment",
+   "verb": "create",
+   "function": "rvt.mutate.Document.add_family_instance / rvt.hosting.host_instance_on_wall",
+   "proof_file": "experiments/acceptance/V29_room_with_circuits.rvt",
+   "extra_proofs": [
+    "experiments/hosting/H1_panel_on_existing_wall.rvt",
+    "experiments/hosting/H2_panel_on_created_wall.rvt",
+    "experiments/acceptance/V27_room_from_file_template.rvt",
+    "experiments/acceptance/V28_room_clean_connectors.rvt",
+    "experiments/mep/devices/multi_load_circuit.rvt",
+    "experiments/mep/devices/floor_device.rvt"
+   ],
+   "generator": "gen-mep-devices",
+   "extra_generators": [
+    "gen-hosting"
+   ],
+   "note": "Panelboards / switchboards / transformers created free-standing (V23-V29, viewer PASS) and FACE-HOSTED on existing + newly created walls (H1/H2, viewer PASS); the devices stream creates a new 208 V panel and a 15 kVA dry transformer.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/acceptance/V29_room_with_circuits.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/hosting/H1_panel_on_existing_wall.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/hosting/H2_panel_on_created_wall.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/acceptance/V27_room_from_file_template.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/acceptance/V28_room_clean_connectors.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/mep/devices/multi_load_circuit.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/mep/devices/floor_device.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_equipment",
+   "verb": "read",
+   "function": "rvt.mep.electrical_data.panels / panel_info / panel_circuits",
+   "probe": {
+    "kind": "callable",
+    "template": "rme",
+    "target": "rvt.mep.electrical_data:panels"
+   },
+   "note": "Panel name, distribution system -> voltages, mains, poles, 50000-series slot connectors, per-circuit schedule cells.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "callable",
+      "template": "rme",
+      "passed": true,
+      "count": 20,
+      "detail": "rvt.mep.electrical_data:panels -> 20 item(s)",
+      "seconds": 0.2
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_equipment",
+   "verb": "modify",
+   "function": "rvt.manipulate.rename_panel / set_mark",
+   "proof_file": "experiments/manipulate/M3_modify.rvt",
+   "extra_proofs": [
+    "experiments/mep/electrical/panel_renumber.rvt"
+   ],
+   "generator": "gen-manipulate",
+   "extra_generators": [
+    "gen-mep-electrical"
+   ],
+   "note": "Panelboard 581483 renamed PP-1B -> PP-1B-RENAMED and Mark edited (viewer PASS); panel circuit renumbering (panel_renumber.rvt).",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M3_modify.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/mep/electrical/panel_renumber.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_equipment",
+   "verb": "move",
+   "function": "rvt.manipulate.move_instance",
+   "proof_file": "experiments/manipulate/M4_move_retype.rvt",
+   "generator": "gen-manipulate",
+   "note": "Transformer 624416 moved +5 ft (viewer PASS).",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M4_move_retype.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_equipment",
+   "verb": "retype",
+   "function": "rvt.manipulate.retype_instance",
+   "proof_file": "experiments/manipulate/M4_move_retype.rvt",
+   "generator": "gen-manipulate",
+   "note": "Transformer retyped 500 kVA -> 75 kVA sibling (viewer PASS).",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M4_move_retype.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_equipment",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Generic delete proven on other instances; no equipment (panel with circuits) delete proof \u2014 its circuits/wires would need cascade/neutralisation.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_devices",
+   "verb": "create",
+   "function": "rvt.mep.devices.add_wall_device / add_floor_device / add_multi_load_circuit",
+   "proof_file": "experiments/mep/devices/receptacle_wall_hosted.rvt",
+   "extra_proofs": [
+    "experiments/mep/devices/floor_device.rvt",
+    "experiments/mep/devices/multi_load_circuit.rvt"
+   ],
+   "generator": "gen-mep-devices",
+   "note": "Receptacles / switches WALL-hosted (DummyPlaneRef + GeomOnPlaneRef), a floor receptacle on a level-datum plane, 4 receptacles circuited to a new panel; every device nativeised (space/room, native header parents).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/devices/receptacle_wall_hosted.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/mep/devices/floor_device.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/mep/devices/multi_load_circuit.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_devices",
+   "verb": "read",
+   "function": "rvt.mep.devices.device_census / device_symbols / space_room_at",
+   "probe": {
+    "kind": "callable",
+    "template": "rme",
+    "target": "rvt.mep.devices:device_census"
+   },
+   "note": "Hosting census over 424 receptacles / 63 switches / data-comm devices.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "callable",
+      "template": "rme",
+      "passed": true,
+      "count": 4,
+      "detail": "rvt.mep.devices:device_census -> 4 item(s)",
+      "seconds": 0.1
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_devices",
+   "verb": "modify",
+   "function": "rvt.mep.devices.set_device_mark / set_mounting_height",
+   "proof_file": "experiments/mep/devices/device_modify_move.rvt",
+   "generator": "gen-mep-devices",
+   "note": "Mark set, mounting height raised.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/devices/device_modify_move.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_devices",
+   "verb": "move",
+   "function": "rvt.mep.devices.move_device_along_host / rehost_device",
+   "proof_file": "experiments/mep/devices/device_modify_move.rvt",
+   "generator": "gen-mep-devices",
+   "note": "Receptacle slid +2 ft along its wall + 0.5 ft up (host kept); another re-hosted onto a different wall's plane.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/devices/device_modify_move.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_devices",
+   "verb": "retype",
+   "function": "rvt.mep.devices.retype_device",
+   "proof_file": "experiments/mep/devices/device_modify_move.rvt",
+   "generator": "gen-mep-devices",
+   "note": "Standard receptacle -> GFCI (symbol + master).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/devices/device_modify_move.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "electrical_devices",
+   "verb": "delete",
+   "function": "rvt.mep.devices.delete_device",
+   "proof_file": "experiments/mep/devices/device_delete.rvt",
+   "generator": "gen-mep-devices",
+   "note": "Circuited receptacle deleted (circuit member connector + wire refs neutralised).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/devices/device_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "lighting_fixtures",
+   "verb": "create",
+   "function": "rvt.mep.devices.add_light_fixture / add_ceiling_plane",
+   "proof_file": "experiments/mep/devices/light_ceiling_hosted.rvt",
+   "extra_proofs": [
+    "experiments/acceptance/V25_room_from_ifc.rvt"
+   ],
+   "generator": "gen-mep-devices",
+   "note": "Two recessed troffers on a NEW down-facing ceiling plane + a pendant on an existing plane; the IFC electrical-room chain (V25, viewer PASS) places lighting too.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/devices/light_ceiling_hosted.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/acceptance/V25_room_from_ifc.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "lighting_fixtures",
+   "verb": "read",
+   "function": "rvt.mep.devices.device_census (OST_LightingFixtures)",
+   "probe": {
+    "kind": "category_decode",
+    "template": "rme",
+    "categories": [
+     -2001120
+    ]
+   },
+   "note": "410 ceiling-plane-hosted lighting fixtures + their hosting planes read.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "category_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "-2001120": 415
+      },
+      "detail": "415 elements by category (-2001120=415)",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "lighting_fixtures",
+   "verb": "modify",
+   "function": "rvt.mep.devices.set_device_mark (shared code path)",
+   "note": "Shared with the electrical-device path; no light-specific proof file.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "lighting_fixtures",
+   "verb": "move",
+   "function": "rvt.mep.devices.move_device_along_host (shared code path)",
+   "note": "Shared code path (stream marks lighting MOVE 'VALIDATES' without a proof file) -> unproven until a light-move proof lands.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "lighting_fixtures",
+   "verb": "retype",
+   "function": "rvt.mep.devices.retype_device (shared code path)",
+   "note": "Shared code path, no light-retype proof file.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "lighting_fixtures",
+   "verb": "delete",
+   "function": "rvt.mep.devices.delete_device",
+   "proof_file": "experiments/mep/devices/device_delete.rvt",
+   "generator": "gen-mep-devices",
+   "note": "Tagged pendant light 444176 deleted; its 2 IndependentTags cascade.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/devices/device_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "circuits_systems",
+   "verb": "create",
+   "function": "rvt.mutate.Document.add_circuit / rvt.mep.devices.add_multi_load_circuit",
+   "proof_file": "experiments/acceptance/V29_room_with_circuits.rvt",
+   "extra_proofs": [
+    "experiments/mep/devices/multi_load_circuit.rvt",
+    "experiments/mep/schedules/panel_schedule_view.rvt"
+   ],
+   "generator": "gen-mep-devices",
+   "extra_generators": [
+    "gen-mep-schedules"
+   ],
+   "note": "RbsElectricalSystem with the real-model connector closure (loads' connType-1 connectors -> panel 50000-series slot, back-links connType 4, base connector). V29 (3 circuits) viewer PASS; multi-load 4-receptacle circuit regenerable.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/acceptance/V29_room_with_circuits.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/mep/devices/multi_load_circuit.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/mep/schedules/panel_schedule_view.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "circuits_systems",
+   "verb": "read",
+   "function": "rvt.mep.electrical_data.circuits_of_panel / circuit_loads / panel_circuits",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "RbsElectricalSystem",
+     "RbsHvacSystem",
+     "RbsPipingSystemType"
+    ],
+    "decode": 5
+   },
+   "note": "187 electrical circuits (+ HVAC and piping systems) decode with loads and panel.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "RbsElectricalSystem": 187,
+       "RbsHvacSystem": 45,
+       "RbsPipingSystemType": 23
+      },
+      "decoded": 15,
+      "dirty": 0,
+      "detail": "255 elements (RbsElectricalSystem=187, RbsHvacSystem=45, RbsPipingSystemType=23); 15 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "circuits_systems",
+   "verb": "modify",
+   "function": "rvt.mep.electrical_data.renumber_circuits",
+   "proof_file": "experiments/mep/electrical/panel_renumber.rvt",
+   "generator": "gen-mep-electrical",
+   "note": "Circuit slot renumbering on PP-1A / LP-2 with Revit's two-column same-parity rule (reproduces Autodesk's own numbering on untouched panels).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-electrical",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/electrical/panel_renumber.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "circuits_systems",
+   "verb": "move",
+   "na": "a circuit is a connectivity object, not spatial (path nodes follow its devices)",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "a circuit is a connectivity object, not spatial (path nodes follow its devices)"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "circuits_systems",
+   "verb": "retype",
+   "na": "circuits have no type; the load classification / distribution edits live in the types + parameters rows",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "circuits have no type; the load classification / distribution edits live in the types + parameters rows"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "circuits_systems",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Deleting a circuit (RbsElectricalSystem + neutralising every load's / the panel's connector back-links) has no proof; the 'delete when emptied' policy is open (devices O4).",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "panel_schedules",
+   "verb": "create",
+   "function": "rvt.mep.views_spaces.add_panel_schedule_view",
+   "proof_file": "experiments/mep/schedules/panel_schedule_view.rvt",
+   "extra_proofs": [
+    "experiments/mep/schedules/panel_schedule_view_current.rvt"
+   ],
+   "generator": "gen-mep-schedules",
+   "note": "PanelScheduleView + its 8-element ElemTable-owned cluster cloned whole, rewired to a NEW panel with created circuits (m_targetId); primary m_outOfDate=true (Revit regenerates the table), control keeps the cloned cache.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/schedules/panel_schedule_view.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/mep/schedules/panel_schedule_view_current.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "panel_schedules",
+   "verb": "read",
+   "function": "rvt.mep.views_spaces.describe_panel_schedule_view / panel_schedule_templates",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "PanelScheduleView",
+     "PanelScheduleTemplate",
+     "DBViewSchedule"
+    ],
+    "decode": 3
+   },
+   "note": "24 panel schedule views + templates decode; the stored ~150 KB table is layout + bindings only (cell values computed by Revit on open).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "PanelScheduleView": 24,
+       "PanelScheduleTemplate": 6,
+       "DBViewSchedule": 14
+      },
+      "decoded": 9,
+      "dirty": 0,
+      "detail": "44 elements (PanelScheduleView=24, PanelScheduleTemplate=6, DBViewSchedule=14); 9 decoded, 0 unreadable",
+      "seconds": 0.1
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "panel_schedules",
+   "verb": "modify",
+   "function": "rvt.mep.views_spaces.rename_panel_schedule_view",
+   "proof_file": "experiments/mep/schedules/panel_schedule_view_rename.rvt",
+   "generator": "gen-mep-schedules",
+   "note": "Schedule view 709455 'LP-1' renamed (DBView.m_viewName).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/schedules/panel_schedule_view_rename.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "panel_schedules",
+   "verb": "move",
+   "na": "schedule views are not placed elements (a sheet Viewport would be \u2014 see views row)",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "schedule views are not placed elements (a sheet Viewport would be \u2014 see views row)"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "panel_schedules",
+   "verb": "retype",
+   "note": "Template swap (rewire m_idTemplate to another PanelScheduleTemplate) not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "panel_schedules",
+   "verb": "delete",
+   "function": "rvt.mep.views_spaces.delete_panel_schedule_view",
+   "proof_file": "experiments/mep/schedules/panel_schedule_view_delete.rvt",
+   "generator": "gen-mep-schedules",
+   "note": "Schedule view 709461 'EP-3' + its owned cluster deleted (cascade).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/schedules/panel_schedule_view_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "views_sheets",
+   "verb": "create",
+   "function": "rvt.genesis.skeleton.new_viewer3d / dbview_base (genesis)",
+   "note": "View constructors exist for the family-free GENESIS skeleton (encode/decode round-trip proven) but no host-project plan/3D/sheet creation proof file; a PanelScheduleView (a real DBView) IS created \u2014 see the panel-schedules row.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "views_sheets",
+   "verb": "read",
+   "function": "rvt.inventory.view_templates / rvt.mutate.Document.value (DBView* / DBDrawing)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "DBViewPlan",
+     "DBView3d",
+     "DBViewSection",
+     "DBDrawing",
+     "Viewport"
+    ],
+    "decode": 4
+   },
+   "note": "Plans / 3D / sections / SHEETS (DBDrawing) / viewports decode; view templates listed.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "DBViewPlan": 75,
+       "DBView3d": 18,
+       "DBViewSection": 37,
+       "DBDrawing": 142,
+       "Viewport": 157
+      },
+      "decoded": 20,
+      "dirty": 0,
+      "detail": "429 elements (DBViewPlan=75, DBView3d=18, DBViewSection=37, DBDrawing=142, Viewport=157); 20 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "views_sheets",
+   "verb": "modify",
+   "function": "rvt.mep.views_spaces.rename_panel_schedule_view (DBView.m_viewName)",
+   "proof_file": "experiments/mep/schedules/panel_schedule_view_rename.rvt",
+   "generator": "gen-mep-schedules",
+   "note": "View rename proven on a PanelScheduleView (a DBView subclass); plan/3D/sheet property edits (crop, scale) unproven.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/schedules/panel_schedule_view_rename.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "views_sheets",
+   "verb": "move",
+   "na": "views are not spatial elements (viewport placement on a sheet is annotation; not implemented)",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "views are not spatial elements (viewport placement on a sheet is annotation; not implemented)"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "views_sheets",
+   "verb": "retype",
+   "note": "View type change (DBViewType swap) not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "views_sheets",
+   "verb": "delete",
+   "function": "rvt.mep.views_spaces.delete_panel_schedule_view (view cluster cascade)",
+   "proof_file": "experiments/mep/schedules/panel_schedule_view_delete.rvt",
+   "generator": "gen-mep-schedules",
+   "note": "A view + its owned cluster (Viewer, DBDrawing/Viewport, fonts, category graphics) deleted; plain plan/3D/sheet delete unproven separately.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/schedules/panel_schedule_view_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "tags_annotation",
+   "verb": "create",
+   "function": "rvt.mep.views_spaces.add_space_tag (RoomTag in a plan view)",
+   "proof_file": "experiments/mep/spaces/space_create.rvt",
+   "generator": "gen-mep-schedules",
+   "note": "Space tag created in the level's HVAC plan (owner view, tagged element, tag symbol). IndependentTag / TextNote / dimension creation not implemented.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/spaces/space_create.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "tags_annotation",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (IndependentTag / RoomTag / TextNote / dims)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "IndependentTag",
+     "RoomTag",
+     "TextNote",
+     "LinearDimString"
+    ],
+    "decode": 5
+   },
+   "note": "1,407 tags + 87 room tags + 368 text notes + 1,067 dimensions decode.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "IndependentTag": 1407,
+       "RoomTag": 87,
+       "TextNote": 368,
+       "LinearDimString": 1067
+      },
+      "decoded": 20,
+      "dirty": 0,
+      "detail": "2929 elements (IndependentTag=1407, RoomTag=87, TextNote=368, LinearDimString=1067); 20 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "tags_annotation",
+   "verb": "modify",
+   "function": "tools/make_v19.py (RTF label edit + adler32 record stamp)",
+   "proof_file": "experiments/acceptance/V19_authored_change_stamped.rvt",
+   "extra_proofs": [
+    "experiments/acceptance/V18_first_authored_change.rvt"
+   ],
+   "generator": "gen-v19",
+   "note": "Cover-sheet title-block RTF label rewritten (size-preserving) with a recomputed record stamp; V18/V19 both viewer PASS and the text RENDERS.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-v19",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/acceptance/V19_authored_change_stamped.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/acceptance/V18_first_authored_change.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "tags_annotation",
+   "verb": "move",
+   "note": "Tag / text-note relocation (leader + placement edit) not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "tags_annotation",
+   "verb": "retype",
+   "note": "Tag family / text type swap not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "tags_annotation",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element (tag cascade)",
+   "proof_file": "experiments/mep/devices/device_delete.rvt",
+   "extra_proofs": [
+    "experiments/mep/spaces/space_delete.rvt",
+    "experiments/mep/electrical/wire_delete.rvt"
+   ],
+   "generator": "gen-mep-devices",
+   "extra_generators": [
+    "gen-mep-schedules",
+    "gen-mep-electrical"
+   ],
+   "note": "Tags are removed by cascade with their host: a pendant light's 2 IndependentTags (device_delete), a space's tag (space_delete), a wire's tag (wire_delete).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/devices/device_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/mep/spaces/space_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/mep/electrical/wire_delete.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "levels",
+   "verb": "create",
+   "function": "rvt.genesis.skeleton.new_level / new_level_type (genesis)",
+   "note": "Level constructors exist for the family-free genesis skeleton (round-trip proven); adding a level to a host project (its plan views, LevelRoomPlan) not proven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "levels",
+   "verb": "read",
+   "function": "rvt.mutate.Document.levels / rvt.inventory.levels",
+   "probe": {
+    "kind": "callable",
+    "template": "rme",
+    "target": "doc:levels"
+   },
+   "note": "Every level with elevation, name and its datum planes.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "callable",
+      "template": "rme",
+      "passed": true,
+      "count": 4,
+      "detail": "doc:levels -> 4 item(s)",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "levels",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_level_elevation",
+   "proof_file": "experiments/manipulate/M3_modify.rvt",
+   "extra_proofs": [
+    "experiments/manipulate/M3_modify_rac.rvt"
+   ],
+   "generator": "gen-manipulate",
+   "note": "Level 2 elevation 12.467 -> 14.467 ft (both datum plane origins rewritten); viewer PASS. Arch-file level moved +1 ft (M3_rac).",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M3_modify.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/manipulate/M3_modify_rac.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "levels",
+   "verb": "move",
+   "na": "a level 'moves' by elevation edit \u2014 that is the modify cell",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "a level 'moves' by elevation edit \u2014 that is the modify cell"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "levels",
+   "verb": "retype",
+   "note": "Level type (head/tag style) swap not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "levels",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Deleting a level orphans everything scheduled on it; dependency_report enumerates the dependents but no level-delete proof exists.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "phases",
+   "verb": "create",
+   "function": "rvt.genesis.skeleton.new_phase / new_all_project_phases (genesis)",
+   "note": "Phase constructors exist for the genesis skeleton (round-trip proven); adding a phase to a host project (AllProjectPhases order + phase filters) unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "phases",
+   "verb": "read",
+   "function": "rvt.inventory.phases",
+   "probe": {
+    "kind": "callable",
+    "template": "rme",
+    "target": "rvt.inventory:phases"
+   },
+   "note": "Phase list in AllProjectPhases order with names/descriptions.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "callable",
+      "template": "rme",
+      "passed": true,
+      "count": 2,
+      "detail": "rvt.inventory:phases -> 2 item(s)",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "phases",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param / modify_element",
+   "note": "Phase rename/description edit unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "phases",
+   "verb": "move",
+   "na": "phases are not spatial",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "phases are not spatial"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "phases",
+   "verb": "retype",
+   "na": "phases have no type",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "phases have no type"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "phases",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Every element header references a phase; a phase delete would need mass re-phasing; unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "types",
+   "verb": "create",
+   "function": "rvt.genesis.types.new_wall_type / new_conduit_type / new_voltage_type / rvt.mep.electrical_data.add_distribution_system",
+   "proof_file": "experiments/genesis/types/T_walltype.rvt",
+   "extra_proofs": [
+    "experiments/genesis/types/T_conduit_types.rvt",
+    "experiments/genesis/types/T_settings.rvt",
+    "experiments/mep/electrical/load_class_create.rvt"
+   ],
+   "generator": "gen-genesis-types",
+   "extra_generators": [
+    "gen-mep-electrical"
+   ],
+   "note": "Our OWN system-family types (wall/floor/roof/ceiling, conduit standard + types, cable-tray, wire, voltage, distribution) injected into the MEP sample: 0 validator errors; new distribution system + voltages created in load_class_create.rvt.",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-genesis-types",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/genesis/types/T_walltype.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/genesis/types/T_conduit_types.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/genesis/types/T_settings.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/mep/electrical/load_class_create.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "types",
+   "verb": "read",
+   "function": "rvt.inventory.symbols / wall_types / type_name",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "FamilySymbol",
+     "BasicWallType"
+    ],
+    "decode": 5
+   },
+   "note": "632 family symbols + system types resolved to names, categories, usage.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "FamilySymbol": 632,
+       "BasicWallType": 10
+      },
+      "decoded": 10,
+      "dirty": 0,
+      "detail": "642 elements (FamilySymbol=632, BasicWallType=10); 10 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "types",
+   "verb": "modify",
+   "function": "rvt.mep.electrical_data.modify_setting / set_voltage_type / rename_setting",
+   "proof_file": "experiments/mep/electrical/settings_modify.rvt",
+   "generator": "gen-mep-electrical",
+   "note": "Type-ish settings edited: 120 V max -> 132, distribution system rename, XHHW wire type flag, load-classification abbreviation, demand factor, circuit rating.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-electrical",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/electrical/settings_modify.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "types",
+   "verb": "move",
+   "na": "types are not spatial",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "types are not spatial"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "types",
+   "verb": "retype",
+   "na": "a type has no type (instances are retyped \u2014 see instance rows)",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "a type has no type (instances are retyped \u2014 see instance rows)"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "types",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Deleting a type must first handle every instance/dependent (dependency_report); unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "families",
+   "verb": "create",
+   "note": "From-scratch family (.rfa) authoring \u2014 new geometry/parameters \u2014 not attempted; F1 proves a whole-file re-emit of an EXISTING family through our writer (read row).",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "families",
+   "verb": "read",
+   "function": "rvt.families.family_documents / dump_family / emit_rfa (round-trip)",
+   "proof_file": "experiments/families/F1_rfa_full_reencode.rfa",
+   "extra_proofs": [
+    "experiments/families/F0_rfa_container_roundtrip.rfa"
+   ],
+   "generator": "gen-families",
+   "gate": "verify_rfa",
+   "note": "Standalone .rfa decoded (embedded family documents, per-seq records) and re-emitted byte-different but semantically identical (F1); gate = rvt.families.verify_rfa (the .rvt validator does not apply to .rfa).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-families",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/families/F1_rfa_full_reencode.rfa",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      },
+      {
+       "path": "experiments/families/F0_rfa_container_roundtrip.rfa",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "families",
+   "verb": "modify",
+   "function": "rvt.families.set_family_type_param",
+   "proof_file": "experiments/families/F2_rfa_type_param_edit.rfa",
+   "generator": "gen-families",
+   "gate": "verify_rfa",
+   "note": "A family type parameter default edited (record stamp recomputed), family re-emitted.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-families",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/families/F2_rfa_type_param_edit.rfa",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "families",
+   "verb": "move",
+   "na": "a family definition is not spatial (its instances move)",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "a family definition is not spatial (its instances move)"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "families",
+   "verb": "retype",
+   "na": "not applicable to a family definition (types are added/edited via modify)",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "not applicable to a family definition (types are added/edited via modify)"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "families",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Unloading a family from a project = deleting Family + its symbols + all instances (dependency cascade); unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "materials",
+   "verb": "create",
+   "function": "rvt.genesis.types.new_material / new_fill_pattern / new_line_pattern",
+   "proof_file": "experiments/genesis/types/T_walltype.rvt",
+   "generator": "gen-genesis-types",
+   "note": "MaterialElem + fill / line patterns created as part of the wall-type batch (0 validator errors).",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-genesis-types",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/genesis/types/T_walltype.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "materials",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (MaterialElem / AppearanceAssetElem)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "MaterialElem",
+     "AppearanceAssetElem",
+     "FillPatternElem"
+    ],
+    "decode": 5
+   },
+   "note": "192 materials + 241 appearance assets + fill patterns decode.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "MaterialElem": 192,
+       "AppearanceAssetElem": 241,
+       "FillPatternElem": 66
+      },
+      "decoded": 15,
+      "dirty": 0,
+      "detail": "499 elements (MaterialElem=192, AppearanceAssetElem=241, FillPatternElem=66); 15 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "materials",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param / modify_element",
+   "note": "Material property / asset edit unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "materials",
+   "verb": "move",
+   "na": "materials are not spatial",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "materials are not spatial"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "materials",
+   "verb": "retype",
+   "na": "materials have no type",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "materials have no type"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "materials",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Material delete (every type/instance referencing it) unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "parameters",
+   "verb": "create",
+   "function": "rvt.mep.electrical_data.add_load_classification (ParamElem closure)",
+   "proof_file": "experiments/mep/electrical/load_class_create.rvt",
+   "generator": "gen-mep-electrical",
+   "note": "Six ParamElemElectricalLoadClassification parameter ELEMENTS created as one closure (0 validator errors); shared / project parameter (ParamElemProject / External + ParamBinding) authoring not implemented.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": false,
+    "regeneration": {
+     "generator": "gen-mep-electrical",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/mep/electrical/load_class_create.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "parameters",
+   "verb": "read",
+   "function": "rvt.manipulate.find_param / rvt.mep.electrical_data (BuiltInParameter decode)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rme",
+    "classes": [
+     "ParamElemFamily",
+     "ParamElemProject",
+     "ParamBinding"
+    ],
+    "decode": 5
+   },
+   "note": "1,331 family + project parameter elements and their category bindings decode; BuiltInParameter values read from every parameter holder.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rme",
+      "passed": true,
+      "counts": {
+       "ParamElemFamily": 1331,
+       "ParamElemProject": 4,
+       "ParamBinding": 12
+      },
+      "decoded": 14,
+      "dirty": 0,
+      "detail": "1347 elements (ParamElemFamily=1331, ParamElemProject=4, ParamBinding=12); 14 decoded, 0 unreadable",
+      "seconds": 0.0
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "parameters",
+   "verb": "modify",
+   "function": "rvt.manipulate.set_param",
+   "proof_file": "experiments/manipulate/M3_modify.rvt",
+   "extra_proofs": [
+    "experiments/mep/electrical/settings_modify.rvt"
+   ],
+   "generator": "gen-manipulate",
+   "extra_generators": [
+    "gen-mep-electrical"
+   ],
+   "note": "Parameter VALUE edits: Mark / Panel Name / elevation (M3, viewer PASS) and the electrical setting parameters (settings_modify.rvt).",
+   "result": {
+    "status": "CERTIFIED",
+    "validates": true,
+    "error_count": 0,
+    "viewer_certified": true,
+    "regeneration": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "reason": "--validate-only"
+    },
+    "detail": {
+     "proofs": [
+      {
+       "path": "experiments/manipulate/M3_modify.rvt",
+       "status": "CERTIFIED",
+       "error_count": 0,
+       "viewer_certified": true
+      },
+      {
+       "path": "experiments/mep/electrical/settings_modify.rvt",
+       "status": "VALIDATES",
+       "error_count": 0,
+       "viewer_certified": false
+      }
+     ]
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "parameters",
+   "verb": "move",
+   "na": "parameters are not spatial",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "parameters are not spatial"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "parameters",
+   "verb": "retype",
+   "na": "a parameter definition has no type",
+   "result": {
+    "status": "NA",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "reason": "a parameter definition has no type"
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "parameters",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Removing a parameter definition (and its bindings/values) unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "worksets_links",
+   "verb": "create",
+   "note": "Worksharing (WorksetTable) not modelled; Revit-link (RvtLinkSymbol/-Instance) insertion not implemented. All corpus samples are non-workshared.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "worksets_links",
+   "verb": "read",
+   "function": "rvt.mutate.Document.value (RvtLinkInstance / RvtLinkSymbol / WorksetVisibilitySettingsElem)",
+   "probe": {
+    "kind": "class_decode",
+    "template": "rst",
+    "classes": [
+     "RvtLinkInstance",
+     "RvtLinkSymbol",
+     "WorksetVisibilitySettingsElem"
+    ],
+    "decode": 3
+   },
+   "note": "One Revit link (instance + symbol) and the workset-visibility settings decode on the structural sample; the WorksetTable stream itself is not modelled.",
+   "result": {
+    "status": "VALIDATES",
+    "validates": true,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {
+     "probe": {
+      "kind": "class_decode",
+      "template": "rst",
+      "passed": true,
+      "counts": {
+       "RvtLinkInstance": 1,
+       "RvtLinkSymbol": 1,
+       "WorksetVisibilitySettingsElem": 1
+      },
+      "decoded": 3,
+      "dirty": 0,
+      "detail": "3 elements (RvtLinkInstance=1, RvtLinkSymbol=1, WorksetVisibilitySettingsElem=1); 3 decoded, 0 unreadable",
+      "seconds": 0.3
+     }
+    },
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "worksets_links",
+   "verb": "modify",
+   "note": "Link path / workset attribute edit not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "worksets_links",
+   "verb": "move",
+   "note": "Link instance transform edit not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "worksets_links",
+   "verb": "retype",
+   "note": "Link type reload/swap not implemented.",
+   "result": {
+    "status": "MISSING",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  },
+  {
+   "category": "worksets_links",
+   "verb": "delete",
+   "function": "rvt.manipulate.delete_element",
+   "note": "Removing a link instance/symbol unproven.",
+   "result": {
+    "status": "UNPROVEN",
+    "validates": null,
+    "error_count": null,
+    "viewer_certified": false,
+    "regeneration": null,
+    "detail": {},
+    "last_run": "2026-08-04T12:09:40"
+   }
+  }
+ ],
+ "summary": {
+  "overall_pct": 53.3,
+  "certified_pct": 13.2,
+  "proven": 81,
+  "applicable": 152,
+  "counts": {
+   "CERTIFIED": 20,
+   "VALIDATES": 61,
+   "REGRESSED": 0,
+   "FAILS": 0,
+   "UNPROVEN": 40,
+   "MISSING": 31,
+   "BLOCKED": 0,
+   "NA": 16
+  },
+  "regenerable_pct": 66.7,
+  "rows": {
+   "family_instances": {
+    "pct": 100.0,
+    "proven": 6,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 5,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 0,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "walls": {
+    "pct": 50.0,
+    "proven": 3,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 2,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 1,
+     "MISSING": 2,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "floors_roofs_ceilings": {
+    "pct": 16.7,
+    "proven": 1,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 3,
+     "MISSING": 2,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "doors_windows": {
+    "pct": 50.0,
+    "proven": 3,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 1,
+     "VALIDATES": 2,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 2,
+     "MISSING": 1,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "columns_beams": {
+    "pct": 50.0,
+    "proven": 3,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 1,
+     "VALIDATES": 2,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 3,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "curtain_walls": {
+    "pct": 16.7,
+    "proven": 1,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 2,
+     "MISSING": 3,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "stairs_railings": {
+    "pct": 16.7,
+    "proven": 1,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 2,
+     "MISSING": 3,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "rooms_spaces": {
+    "pct": 80.0,
+    "proven": 4,
+    "applicable": 5,
+    "counts": {
+     "CERTIFIED": 1,
+     "VALIDATES": 3,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 0,
+     "MISSING": 1,
+     "BLOCKED": 0,
+     "NA": 1
+    }
+   },
+   "conduit": {
+    "pct": 100.0,
+    "proven": 6,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 6,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 0,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "cable_tray": {
+    "pct": 33.3,
+    "proven": 2,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 2,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 4,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "duct": {
+    "pct": 16.7,
+    "proven": 1,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 2,
+     "MISSING": 3,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "pipe": {
+    "pct": 16.7,
+    "proven": 1,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 2,
+     "MISSING": 3,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "fittings": {
+    "pct": 66.7,
+    "proven": 4,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 4,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 2,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "wires": {
+    "pct": 50.0,
+    "proven": 3,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 3,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 0,
+     "MISSING": 3,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "electrical_equipment": {
+    "pct": 83.3,
+    "proven": 5,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 4,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 1,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "electrical_devices": {
+    "pct": 100.0,
+    "proven": 6,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 6,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 0,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "lighting_fixtures": {
+    "pct": 50.0,
+    "proven": 3,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 1,
+     "VALIDATES": 2,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 3,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "circuits_systems": {
+    "pct": 75.0,
+    "proven": 3,
+    "applicable": 4,
+    "counts": {
+     "CERTIFIED": 1,
+     "VALIDATES": 2,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 1,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 2
+    }
+   },
+   "panel_schedules": {
+    "pct": 80.0,
+    "proven": 4,
+    "applicable": 5,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 4,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 0,
+     "MISSING": 1,
+     "BLOCKED": 0,
+     "NA": 1
+    }
+   },
+   "views_sheets": {
+    "pct": 60.0,
+    "proven": 3,
+    "applicable": 5,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 3,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 1,
+     "MISSING": 1,
+     "BLOCKED": 0,
+     "NA": 1
+    }
+   },
+   "tags_annotation": {
+    "pct": 66.7,
+    "proven": 4,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 1,
+     "VALIDATES": 3,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 0,
+     "MISSING": 2,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   },
+   "levels": {
+    "pct": 40.0,
+    "proven": 2,
+    "applicable": 5,
+    "counts": {
+     "CERTIFIED": 1,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 2,
+     "MISSING": 1,
+     "BLOCKED": 0,
+     "NA": 1
+    }
+   },
+   "phases": {
+    "pct": 25.0,
+    "proven": 1,
+    "applicable": 4,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 3,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 2
+    }
+   },
+   "types": {
+    "pct": 75.0,
+    "proven": 3,
+    "applicable": 4,
+    "counts": {
+     "CERTIFIED": 1,
+     "VALIDATES": 2,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 1,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 2
+    }
+   },
+   "families": {
+    "pct": 50.0,
+    "proven": 2,
+    "applicable": 4,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 2,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 1,
+     "MISSING": 1,
+     "BLOCKED": 0,
+     "NA": 2
+    }
+   },
+   "materials": {
+    "pct": 50.0,
+    "proven": 2,
+    "applicable": 4,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 2,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 2,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 2
+    }
+   },
+   "parameters": {
+    "pct": 75.0,
+    "proven": 3,
+    "applicable": 4,
+    "counts": {
+     "CERTIFIED": 1,
+     "VALIDATES": 2,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 1,
+     "MISSING": 0,
+     "BLOCKED": 0,
+     "NA": 2
+    }
+   },
+   "worksets_links": {
+    "pct": 16.7,
+    "proven": 1,
+    "applicable": 6,
+    "counts": {
+     "CERTIFIED": 0,
+     "VALIDATES": 1,
+     "REGRESSED": 0,
+     "FAILS": 0,
+     "UNPROVEN": 1,
+     "MISSING": 4,
+     "BLOCKED": 0,
+     "NA": 0
+    }
+   }
+  },
+  "run": {
+   "at": "2026-08-04T12:09:40",
+   "mode": "validate-only",
+   "cells_selected": 168,
+   "generators": {
+    "gen-v20": {
+     "generator": "gen-v20",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    },
+    "gen-manipulate": {
+     "generator": "gen-manipulate",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    },
+    "gen-hosting": {
+     "generator": "gen-hosting",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    },
+    "gen-mep-schedules": {
+     "generator": "gen-mep-schedules",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    },
+    "gen-mep-conduit": {
+     "generator": "gen-mep-conduit",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    },
+    "gen-mep-electrical": {
+     "generator": "gen-mep-electrical",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    },
+    "gen-mep-devices": {
+     "generator": "gen-mep-devices",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    },
+    "gen-v19": {
+     "generator": "gen-v19",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    },
+    "gen-genesis-types": {
+     "generator": "gen-genesis-types",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    },
+    "gen-families": {
+     "generator": "gen-families",
+     "status": "skipped",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "--validate-only",
+     "output_tail": ""
+    }
+   },
+   "proof_files_validated": 51,
+   "probes_run": 27
+  },
+  "last_regen": {
+   "at": "2026-08-03T15:01:13",
+   "generators": {
+    "gen-v20": {
+     "generator": "gen-v20",
+     "status": "frozen",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "co-produces ledger-certified file(s): experiments/acceptance/V20_first_created_element.rvt",
+     "output_tail": ""
+    },
+    "gen-manipulate": {
+     "generator": "gen-manipulate",
+     "status": "frozen",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "co-produces ledger-certified file(s): experiments/manipulate/M2_delete_cascade.rvt, experiments/manipulate/M2_delete_cascade_rac.rvt, experiments/manipulate/M3_modify.rvt, experiments/manipulate/M4_move_retype.rvt",
+     "output_tail": ""
+    },
+    "gen-hosting": {
+     "generator": "gen-hosting",
+     "status": "frozen",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "co-produces ledger-certified file(s): experiments/hosting/H1_panel_on_existing_wall.rvt, experiments/hosting/H2_panel_on_created_wall.rvt",
+     "output_tail": ""
+    },
+    "gen-mep-schedules": {
+     "generator": "gen-mep-schedules",
+     "status": "ran-ok",
+     "seconds": 489.6,
+     "returncode": 0,
+     "restored_backup": false,
+     "reason": "",
+     "output_tail": " 0,\n  \"validator_warnings\": 2\n },\n {\n  \"file\": \"panel_schedule_view_current.rvt\",\n  \"verb\": \"create\",\n  \"category\": \"PanelScheduleView\",\n  \"status\": \"VALIDATES\",\n  \"structural_ok\": true,\n  \"semantic_ok\": true,\n  \"validator_errors\": 0,\n  \"validator_warnings\": 2\n },\n {\n  \"file\": \"panel_schedule_view_rename.rvt\",\n  \"verb\": \"modify\",\n  \"category\": \"PanelScheduleView\",\n  \"status\": \"VALIDATES\",\n  \"structural_ok\": true,\n  \"semantic_ok\": true,\n  \"validator_errors\": 0,\n  \"validator_warnings\": 1\n },\n {\n  \"file\": \"panel_schedule_view_delete.rvt\",\n  \"verb\": \"delete\",\n  \"category\": \"PanelScheduleView\",\n  \"status\": \"VALIDATES\",\n  \"structural_ok\": true,\n  \"semantic_ok\": true,\n  \"validator_errors\": 0,\n  \"validator_warnings\": 1\n },\n {\n  \"file\": \"space_create.rvt\",\n  \"verb\": \"create\",\n  \"category\": \"Space (RoomElem OST_MEPSpaces) + SpaceTag + Zone\",\n  \"status\": \"VALIDATES\",\n  \"structural_ok\": true,\n  \"semantic_ok\": true,\n  \"validator_errors\": 0,\n  \"validator_warnings\": 2\n },\n {\n  \"file\": \"space_rename.rvt\",\n  \"verb\": \"modify\",\n  \"category\": \"Space (RoomElem)\",\n  \"status\": \"VALIDATES\",\n  \"structural_ok\": true,\n  \"semantic_ok\": true,\n  \"validator_errors\": 0,\n  \"validator_warnings\": 1\n },\n {\n  \"file\": \"space_delete.rvt\",\n  \"verb\": \"delete\",\n  \"category\": \"Space (RoomElem)\",\n  \"status\": \"VALIDATES\",\n  \"structural_ok\": true,\n  \"semantic_ok\": true,\n  \"validator_errors\": 0,\n  \"validator_warnings\": 1\n }\n]\n\nmanifest -> /Users/ck/dev/things/rev-revit/experiments/mep/schedules/manifest.json\ntotal 489.4s\n"
+    },
+    "gen-mep-conduit": {
+     "generator": "gen-mep-conduit",
+     "status": "ran-ok",
+     "seconds": 341.7,
+     "returncode": 0,
+     "restored_backup": false,
+     "reason": "",
+     "output_tail": "ctor graph mutual; each curve owns a SegmentCenterLine, each elbow a ConduitFittingCenterLine)\n       structural=True validator_errors=0 warnings=1 semantic_ok=True\n\n[PASS] conduit_create_straight.rvt: three disjoint straight conduit runs (horizontal 2\" RNC, vertical 1\" riser, sloped 3\" RMC) \u2014 the fitting-free fallback; each = curve + SegmentCenterLine + run\n       structural=True validator_errors=0 warnings=1 semantic_ok=True\n\n[PASS] conduit_modify.rvt: RESIZE 686270 2\"->1\" (diameter + inner/outer + size label), MOVE run 679175 by (4,3,0) ft rigidly (curves, both elbows, all centre-lines), EXTEND 686514's open end +3 ft, RETYPE run 688539 -> type 662475\n       structural=True validator_errors=0 warnings=1 semantic_ok=True\n\n[PASS] conduit_delete.rvt: DELETE run 679090 (3 conduits + 2 elbows + 5 centre-lines + run; the transformer's surface-connector reference neutralised) and DELETE elbow 688548 (fitting + its centre-line; conduits' connector refs and run member list neutralised)\n       structural=True validator_errors=0 warnings=1 semantic_ok=True\n\n[PASS] cable_tray_create.rvt: EXPERIMENTAL: two straight cable-tray runs (Ladder 12\"x4\", Channel 6\"x3.5\") class-morphed from a conduit specimen (CableTray/CableTrayRun have NO specimen in any 2026 sample); category ids of the run/centre-line are INFERRED\n       structural=True validator_errors=0 warnings=1 semantic_ok=True\n\nwrote experiments/mep/conduit/manifest.json in 341.5 s\nALL FILES STRUCTURALLY VALID + VALIDATOR CLEAN: True\n"
+    },
+    "gen-mep-electrical": {
+     "generator": "gen-mep-electrical",
+     "status": "ran-ok",
+     "seconds": 355.2,
+     "returncode": 0,
+     "restored_backup": false,
+     "reason": "",
+     "output_tail": "\n=== wire_create.rvt  (wires / CREATE)\n  structural: CRC 0 ECC 0 walker 0 ISIZE 0 stamps True count 28134==28134 unit0==ET True  -> VALID\n  semantic readback: OK\n  rvt_validate: 0 ERRORS (1 warning(s))\n  ==> PASS  (59.9s)\n\n=== wire_delete.rvt  (wires / DELETE)\n  structural: CRC 0 ECC 0 walker 0 ISIZE 0 stamps True count 28131==28131 unit0==ET True  -> VALID\n  semantic readback: OK\n  rvt_validate: 0 ERRORS (1 warning(s))\n  ==> PASS  (57.4s)\n\n=== settings_modify.rvt  (electrical settings / MODIFY)\n  structural: CRC 0 ECC 0 walker 0 ISIZE 0 stamps True count 28132==28132 unit0==ET True  -> VALID\n  semantic readback: OK\n  rvt_validate: 0 ERRORS (1 warning(s))\n  ==> PASS  (59.8s)\n\n=== load_class_create.rvt  (electrical settings / CREATE)\n  structural: CRC 0 ECC 0 walker 0 ISIZE 0 stamps True count 28143==28143 unit0==ET True  -> VALID\n  semantic readback: OK\n  rvt_validate: 0 ERRORS (1 warning(s))\n  ==> PASS  (57.0s)\n\n=== panel_renumber.rvt  (panel data / MODIFY (renumber))\n  structural: CRC 0 ECC 0 walker 0 ISIZE 0 stamps True count 28132==28132 unit0==ET True  -> VALID\n  semantic readback: OK\n  rvt_validate: 0 ERRORS (1 warning(s))\n  ==> PASS  (58.7s)\n\nwrote /Users/ck/dev/things/rev-revit/experiments/mep/electrical/manifest.json\nALL CELLS PASS\n"
+    },
+    "gen-mep-devices": {
+     "generator": "gen-mep-devices",
+     "status": "ran-ok",
+     "seconds": 506.5,
+     "returncode": 0,
+     "restored_backup": false,
+     "reason": "",
+     "output_tail": "ack-linked connType 4), base = panel 888014 slot 50000, baseConnectorIdArray = {self,5}, pathNode0 = panel; circuit 20 A / 1 P / #1 / 'Receptacles', 120 V and 4x180 VA in internal units; panel on plane 581481 marked LP-DEV1\n  >>> ALL OK  (84.6s)\n\n=== device_modify_move.rvt\n  cell receptacle           MODIFY\n  cell receptacle           MOVE\n  cell receptacle           RETYPE\n  ElemTable 28132 -> 28132\n  structural: CRC 0 ECC 0 walker 0 stamps True -> OK\n  rvt_validate: 0 ERRORS (strict circuit-ready: True); warnings=1\n  semantic readback: OK \u2014 edits verified: mark 'R-EDITED' present; move = +2.000 ft along wall X, +0.500 ft up, 0 off-plane, host kept; retype -> GFCI 342652 (symbol+master); re-host -> plane 453884 (host id, frame = plane frame, mounting point ON the plane, header deletion swapped)\n  >>> ALL OK  (84.4s)\n\n=== device_delete.rvt\n  cell receptacle           DELETE\n  cell lighting_fixture     DELETE\n  ElemTable 28132 -> 28128\n  structural: CRC 0 ECC 0 walker 0 stamps True -> OK\n  rvt_validate: 0 ERRORS (strict circuit-ready: True); warnings=1\n  semantic readback: OK \u2014 deletes verified: [444176, 467291, 535118, 535457] absent from all seqs + ElemTable; circuit 469428 and host plane 467294 survive; the circuit's member connector no longer references the receptacle; wires/panel/light-circuit referrers neutralised; the light's 2 IndependentTags removed by cascade; no\n  >>> ALL OK  (88.0s)\n\nwrote /Users/ck/dev/things/rev-revit/experiments/mep/devices/manifest.json\nALL OK\n"
+    },
+    "gen-v19": {
+     "generator": "gen-v19",
+     "status": "frozen",
+     "seconds": 0.0,
+     "returncode": null,
+     "restored_backup": false,
+     "reason": "co-produces ledger-certified file(s): experiments/acceptance/V19_authored_change_stamped.rvt",
+     "output_tail": ""
+    },
+    "gen-genesis-types": {
+     "generator": "gen-genesis-types",
+     "status": "ran-ok",
+     "seconds": 209.5,
+     "returncode": 0,
+     "restored_backup": false,
+     "reason": "",
+     "output_tail": "== T_walltype: 12 records (7 classes), roundtrip 12/12, dangling 0\n   commit: ElemTable 28132 -> 28144, bytes added {101: 1708, 102: 5626, 103: 644} (59.1s)\n   readback: crc 0 ecc 0 walker 0 stamps_ok True count 28144==28144 new102 clean 12/12\n   VALIDATOR: OK errors=0 warnings=2 (12.6s)\n== T_conduit_types: 16 records (10 classes), roundtrip 16/16, dangling 0\n   commit: ElemTable 28132 -> 28148, bytes added {101: 2224, 102: 4241, 103: 352} (55.1s)\n   readback: crc 0 ecc 0 walker 0 stamps_ok True count 28148==28148 new102 clean 16/16\n   VALIDATOR: OK errors=0 warnings=2 (12.4s)\n== T_settings: 23 records (9 classes), roundtrip 23/23, dangling 0\n   commit: ElemTable 28132 -> 28155, bytes added {101: 3297, 102: 5663, 103: 506} (57.3s)\n   readback: crc 0 ecc 0 walker 0 stamps_ok True count 28155==28155 new102 clean 23/23\n   VALIDATOR: OK errors=0 warnings=2 (12.1s)\n\nALL PROOFS PASS\n"
+    },
+    "gen-families": {
+     "generator": "gen-families",
+     "status": "ran-ok",
+     "seconds": 8.3,
+     "returncode": 0,
+     "restored_backup": false,
+     "reason": "",
+     "output_tail": "ibutes\": 1, \"Level\": 1, \"DBViewProject\": 1, \"UnitsElem\": 1, \"RevisionCloudAttr\": 1, \"SunAndShadowSettings\": 1, \"ConnectorElem\": 1, \"ReferenceViewerAttributes\": 1, \"AutoCamSettingsElem\": 1, \"Dwg2dExportUserSettingsData\": 1, \"LegendComponent\": 1, \"DefaultDivideSettings\": 1, \"RvtLinkInstanceAppearanceParentElem\": 1, \"SketchGridAppearanceParentElem\": 1, \"AreaSettingsElem\": 1}\n  decode stats: {'records': 551, 'clean': 551, 'error_classes': {}}\nencoder round-trip: {'rfa:racbasicsamplefamily-2026.rfa': (1993, 0, True), 'rme:unit271:M_Plain Recessed Lighting Fixture': (606, 0, True), 'rme:unit243:M_Lighting and Appliance Panelboard - 208V MLO - Surface': (552, 0, True)} -> /Users/ck/dev/things/rev-revit/experiments/families/encoder_roundtrip.json\nCD entries by GUID: 305/305 embedded units located -> /Users/ck/dev/things/rev-revit/experiments/families/cd_family_documents_rme.json\nF1 -> /Users/ck/dev/things/rev-revit/experiments/families/F1_rfa_full_reencode.rfa (462,848 B); verify ok=True -> /Users/ck/dev/things/rev-revit/experiments/families/F1_report.json\nF2 -> /Users/ck/dev/things/rev-revit/experiments/families/F2_rfa_type_param_edit.rfa (462,848 B); verify ok=True edit=[{'self_family_id': 17, 'class_id': 1967, 'record_offset': 129279, 'record_len': 26535, 'old_stamp': 3935391679, 'new_stamp': 3522383392, 'bytes_changed': 10, 'changed': [{'where': \"type['0610 x 0160mm']\", 'old': 2.001312335958005, 'new': 3.0}]}] -> /Users/ck/dev/things/rev-revit/experiments/families/F2_report.json\n"
+    }
+   }
+  }
+ }
+}

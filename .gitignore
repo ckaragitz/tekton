@@ -1,0 +1,36 @@
+# --- environments / caches ---
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.DS_Store
+scratch/
+node_modules/
+
+# --- third-party / Autodesk-derived material: NEVER committed ---
+samples/
+vendor/
+extracted/
+
+# --- experiment probe BINARIES (dev-only, many embed sample-derived content;
+#     5+ GB). The JSON/MD evidence records alongside them ARE committed. ---
+experiments/**/*.rvt
+experiments/**/*.rfa
+experiments/**/*.bin
+experiments/**/*.gz
+experiments/roundtrip/
+experiments/out/
+
+# --- presenter cheat sheets: never pushed ---
+ANSWER_KEY.md
+DEMO_RUNBOOK.md
+demo-talk-track.md
+
+# --- sample-derived example binaries + parse caches ---
+usecases/**/*.rvt
+plugin/examples/**/*.rvt
+**/.cache/
+tests/out/
+
+# --- build artifacts (regenerate: .venv/bin/python tools/sync_plugin.py) ---
+/*.zip

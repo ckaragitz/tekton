@@ -1,0 +1,6399 @@
+{
+  "candidate": "/Users/ck/dev/things/rev-revit/experiments/genesis/R4s.rvt",
+  "baseline": "/Users/ck/dev/things/rev-revit/samples/rstbasicsampleproject.rvt",
+  "baseline_watermark": 1472524,
+  "candidate_watermark": 1472524,
+  "host_elements": 13138,
+  "baseline_host_elements": 13936,
+  "baseline_id_overlap": 1.0,
+  "provenance_totals": {
+    "autodesk-sample": 13138
+  },
+  "embedded_family_documents": {
+    "count": 52,
+    "by_provenance": {
+      "autodesk-sample": 52
+    }
+  },
+  "categories": {
+    "embedded-family-documents": {
+      "label": "Embedded family documents (save units)",
+      "expression_bearing": true,
+      "description": "each embedded save unit 1..k is a complete family DOCUMENT (an .rfa) stored inside the project",
+      "counts": {
+        "autodesk-sample": 52
+      },
+      "classes": {
+        "<family document (save unit)>": {
+          "counts": {
+            "autodesk-sample": 52
+          }
+        }
+      },
+      "units": [
+        {
+          "partition": "Partitions/21",
+          "index": 1,
+          "guid": "78061000-56a3-428c-a5a8-5b1397dbb12d",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 2,
+          "guid": "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": 1252810,
+          "family_name": "Structural Column Tag",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 3,
+          "guid": "3563d602-3ba7-4789-a3ee-254c15adc0ce",
+          "blocks": 4,
+          "counter": 346,
+          "family_id": 1456494,
+          "family_name": "A1 metric",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 4,
+          "guid": "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+          "blocks": 3,
+          "counter": 225,
+          "family_id": 1390250,
+          "family_name": "M_Spot Elevation - Target Filled",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 5,
+          "guid": "4d39b104-087e-47c8-885b-300dde8e24e3",
+          "blocks": 3,
+          "counter": 233,
+          "family_id": 1390267,
+          "family_name": "M_Section Tail - Filled Horizontal",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 6,
+          "guid": "a0717c14-e2fc-4b34-9c27-2ff3604705e6",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": 1389004,
+          "family_name": "M_Callout Head1",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 7,
+          "guid": "68344216-9c79-4c4e-a832-3ed1233c2489",
+          "blocks": 3,
+          "counter": 247,
+          "family_id": 1390128,
+          "family_name": "M_Slab Edge-Thickened1",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 8,
+          "guid": "fb5c6124-6046-4375-9cef-63f740620a8e",
+          "blocks": 7,
+          "counter": 633,
+          "family_id": 983011,
+          "family_name": "M_TJL Wood Open Web Joist",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 9,
+          "guid": "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+          "blocks": 4,
+          "counter": 325,
+          "family_id": 147271,
+          "family_name": "Brick - UK Standard",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 10,
+          "guid": "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+          "blocks": 5,
+          "counter": 710,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 11,
+          "guid": "c7734839-cb9e-4274-bcad-003788721261",
+          "blocks": 3,
+          "counter": 245,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 12,
+          "guid": "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+          "blocks": 5,
+          "counter": 488,
+          "family_id": 1453582,
+          "family_name": "Pile Cap-9 Pile",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 13,
+          "guid": "30640a46-4395-44f8-99ee-94759c623a88",
+          "blocks": 4,
+          "counter": 270,
+          "family_id": 160569,
+          "family_name": "M_Elevation Mark Pointer_Circle-12mm",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 14,
+          "guid": "652d2246-3c01-4148-8c16-17146f106321",
+          "blocks": 3,
+          "counter": 231,
+          "family_id": 1389264,
+          "family_name": "M_View Reference1",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 15,
+          "guid": "f932d848-0871-4902-ac37-bb38aec05088",
+          "blocks": 4,
+          "counter": 279,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 16,
+          "guid": "2774af49-2b12-4c51-9095-c3af78ae06a8",
+          "blocks": 5,
+          "counter": 511,
+          "family_id": 1197048,
+          "family_name": "Rectangular(Timber)-Beam",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 17,
+          "guid": "4f85134f-7e56-4935-9a1d-5c31503c3716",
+          "blocks": 3,
+          "counter": 222,
+          "family_id": 1388811,
+          "family_name": "M_Section Head - No Arrow",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 18,
+          "guid": "ef6a7555-0579-4d66-a628-a069d646838b",
+          "blocks": 3,
+          "counter": 242,
+          "family_id": 152185,
+          "family_name": "M_Circular Handrail",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 19,
+          "guid": "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+          "blocks": 4,
+          "counter": 574,
+          "family_id": 974585,
+          "family_name": "timber_door_int",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 20,
+          "guid": "d58b645f-9df5-42f4-b770-a00aea8bb4ba",
+          "blocks": 4,
+          "counter": 258,
+          "family_id": 1389378,
+          "family_name": "M_Elevation Mark Body_Circle-12mm1",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 21,
+          "guid": "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+          "blocks": 5,
+          "counter": 449,
+          "family_id": 157312,
+          "family_name": "M_Baluster - Square",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 22,
+          "guid": "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+          "blocks": 4,
+          "counter": 429,
+          "family_id": 1177411,
+          "family_name": "Pile Cap-Rectangular",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 23,
+          "guid": "f8b30e73-e9cf-4d44-b7c8-d85fb9e63cb6",
+          "blocks": 3,
+          "counter": 221,
+          "family_id": 1388866,
+          "family_name": "M_Grid Head - Circle1",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 24,
+          "guid": "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+          "blocks": 4,
+          "counter": 318,
+          "family_id": 1158461,
+          "family_name": "Notch",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 25,
+          "guid": "af75f67d-1060-4650-b13a-d467c0872fda",
+          "blocks": 5,
+          "counter": 619,
+          "family_id": 1389347,
+          "family_name": "M_Boundary Condition-Fixed",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 26,
+          "guid": "03f26a7f-f129-459a-9416-39e40d1f0b80",
+          "blocks": 3,
+          "counter": 216,
+          "family_id": 1390229,
+          "family_name": "M_View Title",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 27,
+          "guid": "bd60da88-04cb-4223-a54c-555ba16b76a3",
+          "blocks": 6,
+          "counter": 563,
+          "family_id": 1040387,
+          "family_name": "Light Gauge-Joists",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 28,
+          "guid": "4231c989-43a9-4cf4-8e57-62173b030da6",
+          "blocks": 3,
+          "counter": 239,
+          "family_id": 1389613,
+          "family_name": "M_Rectangular Handrail1",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 29,
+          "guid": "d4bdb58b-e63b-44a4-a882-c793b48ce304",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 30,
+          "guid": "d3ecb68c-670d-42af-82df-f684c77b9693",
+          "blocks": 4,
+          "counter": 271,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 31,
+          "guid": "147abf91-ec71-4533-944c-4f2282b39389",
+          "blocks": 4,
+          "counter": 288,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 32,
+          "guid": "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 33,
+          "guid": "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+          "blocks": 5,
+          "counter": 484,
+          "family_id": 1464265,
+          "family_name": "PFC-Parallel Flange Channels (AS 3679_1)",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 34,
+          "guid": "9c8df7a4-fbfa-4a9f-97fa-8b8aa5ff3e27",
+          "blocks": 3,
+          "counter": 239,
+          "family_id": 1388845,
+          "family_name": "M_Level Head - Circle1",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 35,
+          "guid": "36b75aa9-8fc8-4691-b3a3-bcff9df6471a",
+          "blocks": 3,
+          "counter": 246,
+          "family_id": 1388828,
+          "family_name": "M_Section Head - Filled",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 36,
+          "guid": "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+          "blocks": 4,
+          "counter": 417,
+          "family_id": 1410863,
+          "family_name": "M_Concrete-Square-Column",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 37,
+          "guid": "5478aabb-dc66-4a14-8715-9c0f5812259d",
+          "blocks": 5,
+          "counter": 492,
+          "family_id": 1463265,
+          "family_name": "UB-Universal Beams-Column (AS 3679_1)",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 38,
+          "guid": "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+          "blocks": 5,
+          "counter": 660,
+          "family_id": 169424,
+          "family_name": "M_Support - Metal - Circular",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 39,
+          "guid": "d12022c4-1496-4d94-973a-599c45ef14a8",
+          "blocks": 5,
+          "counter": 476,
+          "family_id": 1466391,
+          "family_name": "M_HSS Square-Column",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 40,
+          "guid": "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+          "blocks": 3,
+          "counter": 271,
+          "family_id": 1455295,
+          "family_name": "Help Button",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 41,
+          "guid": "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+          "blocks": 4,
+          "counter": 414,
+          "family_id": 1174712,
+          "family_name": "M_Pile-Steel Pipe",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 42,
+          "guid": "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+          "blocks": 4,
+          "counter": 339,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 43,
+          "guid": "238471d5-1cda-4554-8458-83bcf331f149",
+          "blocks": 4,
+          "counter": 459,
+          "family_id": 1452705,
+          "family_name": "M_Pile Cap-600 Pile",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 44,
+          "guid": "706e2be2-3779-421f-bfa7-57ff3562cd8f",
+          "blocks": 3,
+          "counter": 233,
+          "family_id": 1388769,
+          "family_name": "M_Section Tail - Filled",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 45,
+          "guid": "9d3038e2-a69e-40a4-9217-134a4015896a",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": 1253344,
+          "family_name": "Structural Foundation Tag",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 46,
+          "guid": "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+          "blocks": 3,
+          "counter": 228,
+          "family_id": 1292404,
+          "family_name": "Structural Framing Tag",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 47,
+          "guid": "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+          "blocks": 4,
+          "counter": 443,
+          "family_id": 1030135,
+          "family_name": "Round Bar",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 48,
+          "guid": "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+          "blocks": 4,
+          "counter": 278,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 49,
+          "guid": "830890eb-dfe2-4882-81ca-4f8bced826b1",
+          "blocks": 5,
+          "counter": 490,
+          "family_id": 1465289,
+          "family_name": "UB-Universal Beams (AS 3679_1)",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 50,
+          "guid": "fe0923ee-a917-439a-a945-fae55292b3d1",
+          "blocks": 5,
+          "counter": 420,
+          "family_id": 1463827,
+          "family_name": "CHS-Circular Hollow Sections (AS 1163_C250L0)",
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 51,
+          "guid": "5e037af6-e747-4731-99e0-ed651d369c9b",
+          "blocks": 3,
+          "counter": 224,
+          "family_id": null,
+          "family_name": null,
+          "provenance": "autodesk-sample"
+        },
+        {
+          "partition": "Partitions/21",
+          "index": 52,
+          "guid": "b8e18dfa-91c5-4551-a51d-17012a753412",
+          "blocks": 3,
+          "counter": 266,
+          "family_id": 1389785,
+          "family_name": "M_Elevation Mark Pointer_Circle-12mm1",
+          "provenance": "autodesk-sample"
+        }
+      ]
+    },
+    "loadable-families": {
+      "label": "Loadable families (host side)",
+      "expression_bearing": true,
+      "description": "Family / FamilySurrogate / FamSymSurrogate \u2014 the host records for loaded .rfa content",
+      "counts": {
+        "autodesk-sample": 150
+      },
+      "classes": {
+        "Family": {
+          "counts": {
+            "autodesk-sample": 50
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 8482,
+                "class": "Family",
+                "name": "Rectangular Mullion"
+              },
+              {
+                "id": 8483,
+                "class": "Family",
+                "name": "Circular Mullion"
+              },
+              {
+                "id": 12609,
+                "class": "Family",
+                "name": "System Panel"
+              }
+            ]
+          }
+        },
+        "FamilySurrogate": {
+          "counts": {
+            "autodesk-sample": 50
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 8484,
+                "class": "FamilySurrogate",
+                "name": "Rectangular Mullion"
+              },
+              {
+                "id": 8485,
+                "class": "FamilySurrogate",
+                "name": "Circular Mullion"
+              },
+              {
+                "id": 12610,
+                "class": "FamilySurrogate",
+                "name": "System Panel"
+              }
+            ]
+          }
+        },
+        "FamSymSurrogate": {
+          "counts": {
+            "autodesk-sample": 50
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 147514,
+                "class": "FamSymSurrogate",
+                "name": "Running Section"
+              },
+              {
+                "id": 152407,
+                "class": "FamSymSurrogate",
+                "name": "30mm"
+              },
+              {
+                "id": 157780,
+                "class": "FamSymSurrogate",
+                "name": "25mm"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "family-types-symbols": {
+      "label": "Family types (symbols)",
+      "expression_bearing": true,
+      "description": "FamilySymbol and Symbol descendants of model categories \u2014 the placeable types",
+      "counts": {
+        "autodesk-sample": 96
+      },
+      "classes": {
+        "FamilySymbol": {
+          "counts": {
+            "autodesk-sample": 79
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 12344,
+                "class": "FamilySymbol",
+                "name": "25mm"
+              },
+              {
+                "id": 147064,
+                "class": "FamilySymbol",
+                "name": "M_Support - Metal - Circular"
+              },
+              {
+                "id": 509468,
+                "class": "FamilySymbol",
+                "name": "600mm Diameter"
+              }
+            ]
+          }
+        },
+        "ImageSymbol": {
+          "counts": {
+            "autodesk-sample": 5
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1455332,
+                "class": "ImageSymbol",
+                "name": "Help_Icon.png"
+              },
+              {
+                "id": 1456462,
+                "class": "ImageSymbol",
+                "name": "Structure Complete"
+              },
+              {
+                "id": 1456495,
+                "class": "ImageSymbol",
+                "name": "revitlogo.bmp"
+              }
+            ]
+          }
+        },
+        "MasterImportSymbol": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1382279,
+                "class": "MasterImportSymbol",
+                "name": "SH01_2015_structure1"
+              },
+              {
+                "id": 1382677,
+                "class": "MasterImportSymbol",
+                "name": "SH01_2015_structure3"
+              },
+              {
+                "id": 1382767,
+                "class": "MasterImportSymbol",
+                "name": "SH01_2015_structure4"
+              }
+            ]
+          }
+        },
+        "SysPanelFamSym": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 54539,
+                "class": "SysPanelFamSym",
+                "name": "Wall"
+              },
+              {
+                "id": 232758,
+                "class": "SysPanelFamSym",
+                "name": "Glazed"
+              }
+            ]
+          }
+        },
+        "ComponentRepeaterSlotSpecialType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 137223,
+                "class": "ComponentRepeaterSlotSpecialType",
+                "name": null
+              },
+              {
+                "id": 137224,
+                "class": "ComponentRepeaterSlotSpecialType",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ColorFillSymbol": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 299,
+                "class": "ColorFillSymbol",
+                "name": "1"
+              }
+            ]
+          }
+        },
+        "SysMullionFamSym": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 232770,
+                "class": "SysMullionFamSym",
+                "name": "64 x 128 rectangular"
+              }
+            ]
+          }
+        },
+        "StairsTriserSymbol": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 513310,
+                "class": "StairsTriserSymbol",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RvtLinkSymbol": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1250029,
+                "class": "RvtLinkSymbol",
+                "name": "rac_basic_sample_project.rvt"
+              }
+            ]
+          }
+        },
+        "SlaveSymbolTrackerElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1454535,
+                "class": "SlaveSymbolTrackerElem",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "system-family-types": {
+      "label": "System-family types",
+      "expression_bearing": true,
+      "description": "wall / floor / roof / ceiling / duct / pipe / conduit / cable-tray types, curtain systems, stairs / railing types (HostObjAttr + *Type)",
+      "counts": {
+        "autodesk-sample": 104
+      },
+      "classes": {
+        "RbsPipingSystemType": {
+          "counts": {
+            "autodesk-sample": 11
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 132471,
+                "class": "RbsPipingSystemType",
+                "name": "Hydronic Supply"
+              },
+              {
+                "id": 132472,
+                "class": "RbsPipingSystemType",
+                "name": "Hydronic Return"
+              },
+              {
+                "id": 132473,
+                "class": "RbsPipingSystemType",
+                "name": "Sanitary"
+              }
+            ]
+          }
+        },
+        "RebarShape": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1372292,
+                "class": "RebarShape",
+                "name": "Stirrup - T1"
+              },
+              {
+                "id": 1372482,
+                "class": "RebarShape",
+                "name": "Standard - 1"
+              },
+              {
+                "id": 1374296,
+                "class": "RebarShape",
+                "name": "Rebar Shape 2"
+              }
+            ]
+          }
+        },
+        "FloorAttributes": {
+          "counts": {
+            "autodesk-sample": 5
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 86313,
+                "class": "FloorAttributes",
+                "name": "150mm Foundation Slab"
+              },
+              {
+                "id": 581371,
+                "class": "FloorAttributes",
+                "name": "Insitu Concrete"
+              },
+              {
+                "id": 1201129,
+                "class": "FloorAttributes",
+                "name": "Plywood double brace"
+              }
+            ]
+          }
+        },
+        "RebarHookType": {
+          "counts": {
+            "autodesk-sample": 5
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1316393,
+                "class": "RebarHookType",
+                "name": "Rebar Hook 90"
+              },
+              {
+                "id": 1352845,
+                "class": "RebarHookType",
+                "name": "Standard - 90 deg."
+              },
+              {
+                "id": 1352857,
+                "class": "RebarHookType",
+                "name": "Standard - 180 deg."
+              }
+            ]
+          }
+        },
+        "CustomElementType": {
+          "counts": {
+            "autodesk-sample": 4
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471916,
+                "class": "CustomElementType",
+                "name": "60D Lap Splice"
+              },
+              {
+                "id": 1471917,
+                "class": "CustomElementType",
+                "name": "60D Staggered Lap Splice"
+              },
+              {
+                "id": 1471918,
+                "class": "CustomElementType",
+                "name": "End to End Splice"
+              }
+            ]
+          }
+        },
+        "BasicWallType": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 397,
+                "class": "BasicWallType",
+                "name": "Exterior - Brick on Mtl. Stud"
+              },
+              {
+                "id": 54538,
+                "class": "BasicWallType",
+                "name": "Exterior - Block on Mtl. Stud"
+              },
+              {
+                "id": 600634,
+                "class": "BasicWallType",
+                "name": "CL_W1"
+              }
+            ]
+          }
+        },
+        "RbsHvacSystemType": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 132467,
+                "class": "RbsHvacSystemType",
+                "name": "Supply Air"
+              },
+              {
+                "id": 132468,
+                "class": "RbsHvacSystemType",
+                "name": "Return Air"
+              },
+              {
+                "id": 132469,
+                "class": "RbsHvacSystemType",
+                "name": "Exhaust Air"
+              }
+            ]
+          }
+        },
+        "StairsLandingType": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 141731,
+                "class": "StairsLandingType",
+                "name": "Non-Monolithic Landing"
+              },
+              {
+                "id": 171671,
+                "class": "StairsLandingType",
+                "name": "220mm Thickness"
+              },
+              {
+                "id": 1389854,
+                "class": "StairsLandingType",
+                "name": "300 mm Thickness"
+              }
+            ]
+          }
+        },
+        "StairsType": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 141734,
+                "class": "StairsType",
+                "name": "190mm max riser 250mm going"
+              },
+              {
+                "id": 141748,
+                "class": "StairsType",
+                "name": "Monolithic Stair"
+              },
+              {
+                "id": 935938,
+                "class": "StairsType",
+                "name": "Precast Stair white resin"
+              }
+            ]
+          }
+        },
+        "StairsRunType": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 171672,
+                "class": "StairsRunType",
+                "name": "190mm Depth"
+              },
+              {
+                "id": 1389801,
+                "class": "StairsRunType",
+                "name": "50 mm Tread 13 mm Riser"
+              },
+              {
+                "id": 1389853,
+                "class": "StairsRunType",
+                "name": "25 mm Nosing"
+              }
+            ]
+          }
+        },
+        "AbsDuctType": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907357,
+                "class": "AbsDuctType",
+                "name": "Default"
+              },
+              {
+                "id": 907358,
+                "class": "AbsDuctType",
+                "name": "Default"
+              },
+              {
+                "id": 907359,
+                "class": "AbsDuctType",
+                "name": "Default"
+              }
+            ]
+          }
+        },
+        "CompoundCeilingType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 757,
+                "class": "CompoundCeilingType",
+                "name": "Generic"
+              },
+              {
+                "id": 1093707,
+                "class": "CompoundCeilingType",
+                "name": "Ceiling Invisible"
+              }
+            ]
+          }
+        },
+        "CoverType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 99880,
+                "class": "CoverType",
+                "name": "Rebar Cover 1"
+              },
+              {
+                "id": 1353430,
+                "class": "CoverType",
+                "name": "Exterior - #6 to #18"
+              }
+            ]
+          }
+        },
+        "StairsPathType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 141728,
+                "class": "StairsPathType",
+                "name": "Standard"
+              },
+              {
+                "id": 141729,
+                "class": "StairsPathType",
+                "name": "Standard"
+              }
+            ]
+          }
+        },
+        "StairsSupportType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 141733,
+                "class": "StairsSupportType",
+                "name": "Carriage - 50mm Width"
+              },
+              {
+                "id": 1389803,
+                "class": "StairsSupportType",
+                "name": "Stringer - 50 mm Width"
+              }
+            ]
+          }
+        },
+        "AbsFlexDuctType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907360,
+                "class": "AbsFlexDuctType",
+                "name": "Flex - Rectangular"
+              },
+              {
+                "id": 907361,
+                "class": "AbsFlexDuctType",
+                "name": "Flex - Round"
+              }
+            ]
+          }
+        },
+        "RbsCableTrayType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907364,
+                "class": "RbsCableTrayType",
+                "name": "Channel Cable Tray"
+              },
+              {
+                "id": 907366,
+                "class": "RbsCableTrayType",
+                "name": "Channel Cable Tray"
+              }
+            ]
+          }
+        },
+        "RbsConduitType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907368,
+                "class": "RbsConduitType",
+                "name": "Conduit"
+              },
+              {
+                "id": 907369,
+                "class": "RbsConduitType",
+                "name": "Conduit"
+              }
+            ]
+          }
+        },
+        "RebarBarType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1316392,
+                "class": "RebarBarType",
+                "name": "Structural Rebar 1"
+              },
+              {
+                "id": 1380923,
+                "class": "RebarBarType",
+                "name": "Structural Rebar 12mm"
+              }
+            ]
+          }
+        },
+        "RebarBendingDetailType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471912,
+                "class": "RebarBendingDetailType",
+                "name": "Bending Detail"
+              },
+              {
+                "id": 1472006,
+                "class": "RebarBendingDetailType",
+                "name": "Bending Detail"
+              }
+            ]
+          }
+        },
+        "MEPSystemZoneElementType": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1472522,
+                "class": "MEPSystemZoneElementType",
+                "name": "System-Zone"
+              },
+              {
+                "id": 1472523,
+                "class": "MEPSystemZoneElementType",
+                "name": "System-Zone"
+              }
+            ]
+          }
+        },
+        "RampAttributes": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 350,
+                "class": "RampAttributes",
+                "name": "Ramp 1"
+              }
+            ]
+          }
+        },
+        "RevealAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 7843,
+                "class": "RevealAttr",
+                "name": "Reveal"
+              }
+            ]
+          }
+        },
+        "CorniceAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 7844,
+                "class": "CorniceAttr",
+                "name": "Cornice"
+              }
+            ]
+          }
+        },
+        "RoofSoffitType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 19878,
+                "class": "RoofSoffitType",
+                "name": "Generic - 300mm"
+              }
+            ]
+          }
+        },
+        "FasciaAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 19885,
+                "class": "FasciaAttr",
+                "name": "Fascia"
+              }
+            ]
+          }
+        },
+        "GutterAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 19886,
+                "class": "GutterAttr",
+                "name": "Gutter"
+              }
+            ]
+          }
+        },
+        "EdgeSlabAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 19887,
+                "class": "EdgeSlabAttr",
+                "name": "Slab Edge"
+              }
+            ]
+          }
+        },
+        "StairsRailingAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 25223,
+                "class": "StairsRailingAttr",
+                "name": "1100mm"
+              }
+            ]
+          }
+        },
+        "StairsAttributes": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 28598,
+                "class": "StairsAttributes",
+                "name": "190mm max riser 250mm going"
+              }
+            ]
+          }
+        },
+        "JoistSystemAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49026,
+                "class": "JoistSystemAttr",
+                "name": "Structural Framing System"
+              }
+            ]
+          }
+        },
+        "CurtaSystemAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49034,
+                "class": "CurtaSystemAttr",
+                "name": "1500 x 3000mm"
+              }
+            ]
+          }
+        },
+        "StackedWallType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 54537,
+                "class": "StackedWallType",
+                "name": "Exterior - Brick Over Block w Metal Stud"
+              }
+            ]
+          }
+        },
+        "RbsWireType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 55171,
+                "class": "RbsWireType",
+                "name": "Default"
+              }
+            ]
+          }
+        },
+        "ContFootingType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 85113,
+                "class": "ContFootingType",
+                "name": "Bearing Footing - 900 x 300"
+              }
+            ]
+          }
+        },
+        "AnalyticalLinkType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 137322,
+                "class": "AnalyticalLinkType",
+                "name": "Analytical Link Type 1"
+              }
+            ]
+          }
+        },
+        "HandRailType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 139202,
+                "class": "HandRailType",
+                "name": "Pipe \u2013 Wall Mount"
+              }
+            ]
+          }
+        },
+        "TopRailType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 141548,
+                "class": "TopRailType",
+                "name": "Rectangular - 50x50mm"
+              }
+            ]
+          }
+        },
+        "BuildingPadType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 414737,
+                "class": "BuildingPadType",
+                "name": "Pad 2"
+              }
+            ]
+          }
+        },
+        "NewCurtainWallType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 458927,
+                "class": "NewCurtainWallType",
+                "name": "SH_Curtain wall"
+              }
+            ]
+          }
+        },
+        "RoofAttributes": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 507024,
+                "class": "RoofAttributes",
+                "name": "SG Metal Panels roof"
+              }
+            ]
+          }
+        },
+        "RbsPipeType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907362,
+                "class": "RbsPipeType",
+                "name": "Default"
+              }
+            ]
+          }
+        },
+        "RbsFlexPipeType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907363,
+                "class": "RbsFlexPipeType",
+                "name": "Flex - Round"
+              }
+            ]
+          }
+        },
+        "AreaReinforcementType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1316394,
+                "class": "AreaReinforcementType",
+                "name": "Structural Area Reinforcement 1"
+              }
+            ]
+          }
+        },
+        "FabricAreaType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1352659,
+                "class": "FabricAreaType",
+                "name": "Structural Fabric Area 1"
+              }
+            ]
+          }
+        },
+        "FabricWireType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1352718,
+                "class": "FabricWireType",
+                "name": "W2.0"
+              }
+            ]
+          }
+        },
+        "FabricSheetType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1352719,
+                "class": "FabricSheetType",
+                "name": "4x4-W2.0xW2.0"
+              }
+            ]
+          }
+        },
+        "LineLoadType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1433619,
+                "class": "LineLoadType",
+                "name": "Line Load 1"
+              }
+            ]
+          }
+        },
+        "AreaLoadType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1433626,
+                "class": "AreaLoadType",
+                "name": "Area Load 1"
+              }
+            ]
+          }
+        },
+        "MEPAnalyticalConnectionElementType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1468013,
+                "class": "MEPAnalyticalConnectionElementType",
+                "name": "Default"
+              }
+            ]
+          }
+        },
+        "MechanicalEquipmentSetType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1470251,
+                "class": "MechanicalEquipmentSetType",
+                "name": "Default"
+              }
+            ]
+          }
+        },
+        "MEPSystemZoneType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1470385,
+                "class": "MEPSystemZoneType",
+                "name": "System-Zones"
+              }
+            ]
+          }
+        },
+        "ToposolidType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471908,
+                "class": "ToposolidType",
+                "name": "Toposolid 1"
+              }
+            ]
+          }
+        },
+        "RbsCableType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1472521,
+                "class": "RbsCableType",
+                "name": "Default"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "views-and-templates": {
+      "label": "Views & view templates",
+      "expression_bearing": true,
+      "description": "views, view templates, sheets, viewports, schedules, browser organization",
+      "counts": {
+        "autodesk-sample": 541
+      },
+      "classes": {
+        "DBViewType": {
+          "counts": {
+            "autodesk-sample": 91
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49552,
+                "class": "DBViewType",
+                "name": "Floor Plan"
+              },
+              {
+                "id": 49553,
+                "class": "DBViewType",
+                "name": "Ceiling Plan"
+              },
+              {
+                "id": 49554,
+                "class": "DBViewType",
+                "name": "Building Section"
+              }
+            ]
+          }
+        },
+        "SunAndShadowSettings": {
+          "counts": {
+            "autodesk-sample": 90
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 54520,
+                "class": "SunAndShadowSettings",
+                "name": "Sunlight from Top Right"
+              },
+              {
+                "id": 55153,
+                "class": "SunAndShadowSettings",
+                "name": "Sunlight from Top Left"
+              },
+              {
+                "id": 55154,
+                "class": "SunAndShadowSettings",
+                "name": "Summer Solstice"
+              }
+            ]
+          }
+        },
+        "Viewport": {
+          "counts": {
+            "autodesk-sample": 79
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 232,
+                "class": "Viewport",
+                "name": null
+              },
+              {
+                "id": 8158,
+                "class": "Viewport",
+                "name": null
+              },
+              {
+                "id": 8177,
+                "class": "Viewport",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DBDrawing": {
+          "counts": {
+            "autodesk-sample": 59
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 233,
+                "class": "DBDrawing",
+                "name": null
+              },
+              {
+                "id": 8159,
+                "class": "DBDrawing",
+                "name": null
+              },
+              {
+                "id": 8178,
+                "class": "DBDrawing",
+                "name": null
+              }
+            ]
+          }
+        },
+        "Viewer": {
+          "counts": {
+            "autodesk-sample": 34
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 231,
+                "class": "Viewer",
+                "name": null
+              },
+              {
+                "id": 69852,
+                "class": "Viewer",
+                "name": null
+              },
+              {
+                "id": 196651,
+                "class": "Viewer",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DBView3d": {
+          "counts": {
+            "autodesk-sample": 21
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 56766,
+                "class": "DBView3d",
+                "name": "Architectural Presentation 3D"
+              },
+              {
+                "id": 105778,
+                "class": "DBView3d",
+                "name": "Export to Civil Engineering"
+              },
+              {
+                "id": 569515,
+                "class": "DBView3d",
+                "name": "3d export fbx to 3ds max design"
+              }
+            ]
+          }
+        },
+        "DBViewSection": {
+          "counts": {
+            "autodesk-sample": 20
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 8157,
+                "class": "DBViewSection",
+                "name": "North"
+              },
+              {
+                "id": 8176,
+                "class": "DBViewSection",
+                "name": "East"
+              },
+              {
+                "id": 8237,
+                "class": "DBViewSection",
+                "name": "West"
+              }
+            ]
+          }
+        },
+        "DBViewPlan": {
+          "counts": {
+            "autodesk-sample": 16
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 9589,
+                "class": "DBViewPlan",
+                "name": "Architectural Plan"
+              },
+              {
+                "id": 9594,
+                "class": "DBViewPlan",
+                "name": "Site Plan"
+              },
+              {
+                "id": 9599,
+                "class": "DBViewPlan",
+                "name": "Architectural Reflected Ceiling Plan"
+              }
+            ]
+          }
+        },
+        "AllPlanTopologies": {
+          "counts": {
+            "autodesk-sample": 12
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 26009,
+                "class": "AllPlanTopologies",
+                "name": null
+              },
+              {
+                "id": 86962,
+                "class": "AllPlanTopologies",
+                "name": null
+              },
+              {
+                "id": 102524,
+                "class": "AllPlanTopologies",
+                "name": null
+              }
+            ]
+          }
+        },
+        "Viewer3d": {
+          "counts": {
+            "autodesk-sample": 12
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1138900,
+                "class": "Viewer3d",
+                "name": null
+              },
+              {
+                "id": 1138907,
+                "class": "Viewer3d",
+                "name": null
+              },
+              {
+                "id": 1138914,
+                "class": "Viewer3d",
+                "name": null
+              }
+            ]
+          }
+        },
+        "BrowserOrganization": {
+          "counts": {
+            "autodesk-sample": 11
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 24945,
+                "class": "BrowserOrganization",
+                "name": "all"
+              },
+              {
+                "id": 24946,
+                "class": "BrowserOrganization",
+                "name": "all"
+              },
+              {
+                "id": 24947,
+                "class": "BrowserOrganization",
+                "name": "not on sheets"
+              }
+            ]
+          }
+        },
+        "ColorFillSchema": {
+          "counts": {
+            "autodesk-sample": 10
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 99859,
+                "class": "ColorFillSchema",
+                "name": null
+              },
+              {
+                "id": 99860,
+                "class": "ColorFillSchema",
+                "name": null
+              },
+              {
+                "id": 99861,
+                "class": "ColorFillSchema",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DBViewSchedule": {
+          "counts": {
+            "autodesk-sample": 10
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1250055,
+                "class": "DBViewSchedule",
+                "name": "Structural Column Schedule"
+              },
+              {
+                "id": 1456464,
+                "class": "DBViewSchedule",
+                "name": "How Do I"
+              },
+              {
+                "id": 1472114,
+                "class": "DBViewSchedule",
+                "name": "<Revision Schedule> 8"
+              }
+            ]
+          }
+        },
+        "ScheduleInstance": {
+          "counts": {
+            "autodesk-sample": 10
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1457001,
+                "class": "ScheduleInstance",
+                "name": null
+              },
+              {
+                "id": 1457227,
+                "class": "ScheduleInstance",
+                "name": null
+              },
+              {
+                "id": 1472118,
+                "class": "ScheduleInstance",
+                "name": null
+              }
+            ]
+          }
+        },
+        "Section": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1182564,
+                "class": "Section",
+                "name": null
+              },
+              {
+                "id": 1199133,
+                "class": "Section",
+                "name": null
+              },
+              {
+                "id": 1214431,
+                "class": "Section",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DBViewDrafting": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1456977,
+                "class": "DBViewDrafting",
+                "name": "Title Sheet"
+              },
+              {
+                "id": 1457028,
+                "class": "DBViewDrafting",
+                "name": "Framing Plans"
+              },
+              {
+                "id": 1457045,
+                "class": "DBViewDrafting",
+                "name": "Upper House Framing"
+              }
+            ]
+          }
+        },
+        "ParameterFilterElement": {
+          "counts": {
+            "autodesk-sample": 7
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 116099,
+                "class": "ParameterFilterElement",
+                "name": "Interior"
+              },
+              {
+                "id": 928364,
+                "class": "ParameterFilterElement",
+                "name": "Learning Content"
+              },
+              {
+                "id": 1296133,
+                "class": "ParameterFilterElement",
+                "name": "Coonected Node"
+              }
+            ]
+          }
+        },
+        "DBViewAnonDrafting": {
+          "counts": {
+            "autodesk-sample": 6
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1352964,
+                "class": "DBViewAnonDrafting",
+                "name": "Structural Drafting View"
+              },
+              {
+                "id": 1382180,
+                "class": "DBViewAnonDrafting",
+                "name": "Pile cap Detail"
+              },
+              {
+                "id": 1382272,
+                "class": "DBViewAnonDrafting",
+                "name": "Pile cap (512522)"
+              }
+            ]
+          }
+        },
+        "PanelScheduleTemplate": {
+          "counts": {
+            "autodesk-sample": 5
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 116082,
+                "class": "PanelScheduleTemplate",
+                "name": "Branch Panel"
+              },
+              {
+                "id": 116083,
+                "class": "PanelScheduleTemplate",
+                "name": "Data Panel"
+              },
+              {
+                "id": 116084,
+                "class": "PanelScheduleTemplate",
+                "name": "Switchboard"
+              }
+            ]
+          }
+        },
+        "ImageHolder": {
+          "counts": {
+            "autodesk-sample": 5
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1455331,
+                "class": "ImageHolder",
+                "name": "Help_Icon.png"
+              },
+              {
+                "id": 1456454,
+                "class": "ImageHolder",
+                "name": null
+              },
+              {
+                "id": 1456497,
+                "class": "ImageHolder",
+                "name": null
+              }
+            ]
+          }
+        },
+        "InteriorElev": {
+          "counts": {
+            "autodesk-sample": 4
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 8142,
+                "class": "InteriorElev",
+                "name": "Elevation 2"
+              },
+              {
+                "id": 8174,
+                "class": "InteriorElev",
+                "name": "Elevation 3"
+              },
+              {
+                "id": 8208,
+                "class": "InteriorElev",
+                "name": "Elevation 5"
+              }
+            ]
+          }
+        },
+        "InteriorElevArrow": {
+          "counts": {
+            "autodesk-sample": 4
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 8152,
+                "class": "InteriorElevArrow",
+                "name": null
+              },
+              {
+                "id": 8175,
+                "class": "InteriorElevArrow",
+                "name": null
+              },
+              {
+                "id": 8231,
+                "class": "InteriorElevArrow",
+                "name": null
+              }
+            ]
+          }
+        },
+        "PrintSettings": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 19895,
+                "class": "PrintSettings",
+                "name": "Default"
+              },
+              {
+                "id": 408188,
+                "class": "PrintSettings",
+                "name": "SYDPRN008_Default 2"
+              },
+              {
+                "id": 1013474,
+                "class": "PrintSettings",
+                "name": "SYDPRN008_A3"
+              }
+            ]
+          }
+        },
+        "AreaSchemePlanTopologies": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 9744,
+                "class": "AreaSchemePlanTopologies",
+                "name": null
+              },
+              {
+                "id": 9745,
+                "class": "AreaSchemePlanTopologies",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ViewSheetSet": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 503760,
+                "class": "ViewSheetSet",
+                "name": "Set 1"
+              },
+              {
+                "id": 701421,
+                "class": "ViewSheetSet",
+                "name": "adsk 360"
+              }
+            ]
+          }
+        },
+        "GCSViewport": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1250042,
+                "class": "GCSViewport",
+                "name": null
+              },
+              {
+                "id": 1457226,
+                "class": "GCSViewport",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DBViewProject": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 230,
+                "class": "DBViewProject",
+                "name": "???"
+              }
+            ]
+          }
+        },
+        "ViewReferencing": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 23741,
+                "class": "ViewReferencing",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RbsDbViewSystemNavigator": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 69851,
+                "class": "RbsDbViewSystemNavigator",
+                "name": "???"
+              }
+            ]
+          }
+        },
+        "ReferenceViewerAttributes": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 99910,
+                "class": "ReferenceViewerAttributes",
+                "name": "3mm Detail Number/Sheet Number"
+              }
+            ]
+          }
+        },
+        "InitialViewSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 133303,
+                "class": "InitialViewSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DBViewTypeAreaPlan": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 857222,
+                "class": "DBViewTypeAreaPlan",
+                "name": "Rentable"
+              }
+            ]
+          }
+        },
+        "LevelRoomPlan": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1004909,
+                "class": "LevelRoomPlan",
+                "name": null
+              }
+            ]
+          }
+        },
+        "GraphSchedColumnTable": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1250039,
+                "class": "GraphSchedColumnTable",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DBViewGraphSchedColumn": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1250040,
+                "class": "DBViewGraphSchedColumn",
+                "name": "Graphical Column Schedule"
+              }
+            ]
+          }
+        },
+        "DBViewRendering": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1456455,
+                "class": "DBViewRendering",
+                "name": "Structure Complete"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "object-styles": {
+      "label": "Object styles (categories / graphics styles)",
+      "expression_bearing": true,
+      "description": "CategoryElem, GStyleElem, ModelGraphicsStyle \u2014 subcategories and their graphics",
+      "counts": {
+        "autodesk-sample": 2803
+      },
+      "classes": {
+        "GStyleElem": {
+          "counts": {
+            "autodesk-sample": 2183
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 30,
+                "class": "GStyleElem",
+                "name": "style:Walls"
+              },
+              {
+                "id": 31,
+                "class": "GStyleElem",
+                "name": "style:Walls"
+              },
+              {
+                "id": 32,
+                "class": "GStyleElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "CategoryElem": {
+          "counts": {
+            "autodesk-sample": 616
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 235,
+                "class": "CategoryElem",
+                "name": null
+              },
+              {
+                "id": 241,
+                "class": "CategoryElem",
+                "name": null
+              },
+              {
+                "id": 278,
+                "class": "CategoryElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ModelGraphicsStyle": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 54523,
+                "class": "ModelGraphicsStyle",
+                "name": "<Shading>"
+              },
+              {
+                "id": 54525,
+                "class": "ModelGraphicsStyle",
+                "name": "<Raytracing>"
+              }
+            ]
+          }
+        },
+        "RvtLinkInstanceAppearanceParentElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 132481,
+                "class": "RvtLinkInstanceAppearanceParentElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "SketchGridAppearanceParentElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 132484,
+                "class": "SketchGridAppearanceParentElem",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "patterns-materials": {
+      "label": "Fill / line patterns, materials, appearance assets",
+      "expression_bearing": true,
+      "description": "FillPatternElem, LinePatternElem, MaterialElem, AppearanceAssetElem, tile / conceptual types, fonts, pen tables",
+      "counts": {
+        "autodesk-sample": 843
+      },
+      "classes": {
+        "FontElem": {
+          "counts": {
+            "autodesk-sample": 263
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 280,
+                "class": "FontElem",
+                "name": "Arial"
+              },
+              {
+                "id": 291,
+                "class": "FontElem",
+                "name": "Arial"
+              },
+              {
+                "id": 308,
+                "class": "FontElem",
+                "name": "Arial"
+              }
+            ]
+          }
+        },
+        "LinePatternElem": {
+          "counts": {
+            "autodesk-sample": 150
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 10,
+                "class": "LinePatternElem",
+                "name": "Long Dash"
+              },
+              {
+                "id": 11,
+                "class": "LinePatternElem",
+                "name": "Dash"
+              },
+              {
+                "id": 12,
+                "class": "LinePatternElem",
+                "name": "Loose dash"
+              }
+            ]
+          }
+        },
+        "AppearanceAssetElem": {
+          "counts": {
+            "autodesk-sample": 131
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 144211,
+                "class": "AppearanceAssetElem",
+                "name": "Generic(1)"
+              },
+              {
+                "id": 144255,
+                "class": "AppearanceAssetElem",
+                "name": "Yellow Pine - Solid Stained Dark Medium Gloss"
+              },
+              {
+                "id": 144256,
+                "class": "AppearanceAssetElem",
+                "name": "Black"
+              }
+            ]
+          }
+        },
+        "FillPatternElem": {
+          "counts": {
+            "autodesk-sample": 100
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 3,
+                "class": "FillPatternElem",
+                "name": "Solid fill"
+              },
+              {
+                "id": 4,
+                "class": "FillPatternElem",
+                "name": "Diagonal up"
+              },
+              {
+                "id": 5,
+                "class": "FillPatternElem",
+                "name": "Diagonal down"
+              }
+            ]
+          }
+        },
+        "MaterialElem": {
+          "counts": {
+            "autodesk-sample": 93
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 23,
+                "class": "MaterialElem",
+                "name": "Default"
+              },
+              {
+                "id": 24,
+                "class": "MaterialElem",
+                "name": "Default Wall"
+              },
+              {
+                "id": 25,
+                "class": "MaterialElem",
+                "name": "Default Roof"
+              }
+            ]
+          }
+        },
+        "ConceptualConstructionType": {
+          "counts": {
+            "autodesk-sample": 36
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 121716,
+                "class": "ConceptualConstructionType",
+                "name": null
+              },
+              {
+                "id": 121717,
+                "class": "ConceptualConstructionType",
+                "name": null
+              },
+              {
+                "id": 121718,
+                "class": "ConceptualConstructionType",
+                "name": null
+              }
+            ]
+          }
+        },
+        "TilePatternType": {
+          "counts": {
+            "autodesk-sample": 17
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 112390,
+                "class": "TilePatternType",
+                "name": null
+              },
+              {
+                "id": 112391,
+                "class": "TilePatternType",
+                "name": null
+              },
+              {
+                "id": 112392,
+                "class": "TilePatternType",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DivisionRule": {
+          "counts": {
+            "autodesk-sample": 17
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907337,
+                "class": "DivisionRule",
+                "name": "Zig Zag"
+              },
+              {
+                "id": 907338,
+                "class": "DivisionRule",
+                "name": "Triangle Step (bent)"
+              },
+              {
+                "id": 907339,
+                "class": "DivisionRule",
+                "name": "Triangle Checkerboard (flat)"
+              }
+            ]
+          }
+        },
+        "LightSchemeElement": {
+          "counts": {
+            "autodesk-sample": 15
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 137264,
+                "class": "LightSchemeElement",
+                "name": null
+              },
+              {
+                "id": 137266,
+                "class": "LightSchemeElement",
+                "name": null
+              },
+              {
+                "id": 1138906,
+                "class": "LightSchemeElement",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ConceptualSurfaceType": {
+          "counts": {
+            "autodesk-sample": 10
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 121752,
+                "class": "ConceptualSurfaceType",
+                "name": null
+              },
+              {
+                "id": 121753,
+                "class": "ConceptualSurfaceType",
+                "name": null
+              },
+              {
+                "id": 121754,
+                "class": "ConceptualSurfaceType",
+                "name": null
+              }
+            ]
+          }
+        },
+        "PenWidthTableElem": {
+          "counts": {
+            "autodesk-sample": 9
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 2,
+                "class": "PenWidthTableElem",
+                "name": null
+              },
+              {
+                "id": 1218557,
+                "class": "PenWidthTableElem",
+                "name": null
+              },
+              {
+                "id": 1218558,
+                "class": "PenWidthTableElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ListConceptualSurfaceTypes": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 121762,
+                "class": "ListConceptualSurfaceTypes",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AssemblyCodeTable": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1218726,
+                "class": "AssemblyCodeTable",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "text-dimension-types": {
+      "label": "Text / dimension / arrowhead / annotation types",
+      "expression_bearing": true,
+      "description": "TextNoteAttributes, DimensionStyle, LeaderStyle (arrowheads), FilledRegionAttributes, spot / section / callout styles",
+      "counts": {
+        "autodesk-sample": 302
+      },
+      "classes": {
+        "TextNoteAttributes": {
+          "counts": {
+            "autodesk-sample": 90
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 147289,
+                "class": "TextNoteAttributes",
+                "name": "Text Note 1"
+              },
+              {
+                "id": 152251,
+                "class": "TextNoteAttributes",
+                "name": "Text Note 1"
+              },
+              {
+                "id": 157318,
+                "class": "TextNoteAttributes",
+                "name": "Text Note 1"
+              }
+            ]
+          }
+        },
+        "LeaderStyle": {
+          "counts": {
+            "autodesk-sample": 61
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 234,
+                "class": "LeaderStyle",
+                "name": "Arrow 30 Degree"
+              },
+              {
+                "id": 240,
+                "class": "LeaderStyle",
+                "name": "Arrow Filled 15 Degree"
+              },
+              {
+                "id": 285,
+                "class": "LeaderStyle",
+                "name": "SecretInternalLinAngArrowhead547r36186"
+              }
+            ]
+          }
+        },
+        "TagNoteAttributes": {
+          "counts": {
+            "autodesk-sample": 60
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 365,
+                "class": "TagNoteAttributes",
+                "name": "Label 1"
+              },
+              {
+                "id": 147291,
+                "class": "TagNoteAttributes",
+                "name": "Tag 1"
+              },
+              {
+                "id": 152255,
+                "class": "TagNoteAttributes",
+                "name": "Label 1"
+              }
+            ]
+          }
+        },
+        "FilledRegionAttributes": {
+          "counts": {
+            "autodesk-sample": 32
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 147324,
+                "class": "FilledRegionAttributes",
+                "name": "Filled region 1"
+              },
+              {
+                "id": 147352,
+                "class": "FilledRegionAttributes",
+                "name": "Brick"
+              },
+              {
+                "id": 160605,
+                "class": "FilledRegionAttributes",
+                "name": "Filled region 1"
+              }
+            ]
+          }
+        },
+        "DimensionStyle": {
+          "counts": {
+            "autodesk-sample": 16
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 277,
+                "class": "DimensionStyle",
+                "name": "SecretInternalLinAngDimStyle5p4736185"
+              },
+              {
+                "id": 288,
+                "class": "DimensionStyle",
+                "name": "SecretInternalRadDimStyle54q736186"
+              },
+              {
+                "id": 23763,
+                "class": "DimensionStyle",
+                "name": "SecretInternalTypePreviewDimStyle548975981"
+              }
+            ]
+          }
+        },
+        "SectionAttributes": {
+          "counts": {
+            "autodesk-sample": 10
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 26029,
+                "class": "SectionAttributes",
+                "name": "Section Head - Filled, Section Tail - Filled"
+              },
+              {
+                "id": 29088,
+                "class": "SectionAttributes",
+                "name": "Section Head - No Arrow, Section Tail - Filled Horizontal"
+              },
+              {
+                "id": 49579,
+                "class": "SectionAttributes",
+                "name": "Section 1"
+              }
+            ]
+          }
+        },
+        "InteriorElevAttributes": {
+          "counts": {
+            "autodesk-sample": 9
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 357,
+                "class": "InteriorElevAttributes",
+                "name": "12mm Circle"
+              },
+              {
+                "id": 49589,
+                "class": "InteriorElevAttributes",
+                "name": "Elevation 1"
+              },
+              {
+                "id": 49607,
+                "class": "InteriorElevAttributes",
+                "name": "Elevation 1"
+              }
+            ]
+          }
+        },
+        "CalloutTag": {
+          "counts": {
+            "autodesk-sample": 9
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49508,
+                "class": "CalloutTag",
+                "name": "Callout Head w 3mm Corner Radius"
+              },
+              {
+                "id": 49583,
+                "class": "CalloutTag",
+                "name": "Callout Tag 1"
+              },
+              {
+                "id": 49601,
+                "class": "CalloutTag",
+                "name": "Callout Tag 1"
+              }
+            ]
+          }
+        },
+        "SpotElevationStyle": {
+          "counts": {
+            "autodesk-sample": 4
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 21437,
+                "class": "SpotElevationStyle",
+                "name": "Target (Project)"
+              },
+              {
+                "id": 56768,
+                "class": "SpotElevationStyle",
+                "name": "Horizontal"
+              },
+              {
+                "id": 105723,
+                "class": "SpotElevationStyle",
+                "name": "Slope"
+              }
+            ]
+          }
+        },
+        "ViewportAttributes": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 324,
+                "class": "ViewportAttributes",
+                "name": "Title w Line"
+              },
+              {
+                "id": 1441530,
+                "class": "ViewportAttributes",
+                "name": "No Title"
+              }
+            ]
+          }
+        },
+        "LevelAttributes": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 305,
+                "class": "LevelAttributes",
+                "name": "8mm Head"
+              }
+            ]
+          }
+        },
+        "GridAttributes": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 341,
+                "class": "GridAttributes",
+                "name": "6.5mm Bubble"
+              }
+            ]
+          }
+        },
+        "Text3dAttrSymbol": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 7848,
+                "class": "Text3dAttrSymbol",
+                "name": "600mm Arial"
+              }
+            ]
+          }
+        },
+        "ContourLabelingAttributes": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 19902,
+                "class": "ContourLabelingAttributes",
+                "name": "1.5mm Arial"
+              }
+            ]
+          }
+        },
+        "PropertyAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 23742,
+                "class": "PropertyAttr",
+                "name": "Property Line - Meters/Square Meters"
+              }
+            ]
+          }
+        },
+        "RepeatingDetailAttributes": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 29109,
+                "class": "RepeatingDetailAttributes",
+                "name": "Brick"
+              }
+            ]
+          }
+        },
+        "RevisionCloudAttr": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49029,
+                "class": "RevisionCloudAttr",
+                "name": "Revision Cloud 1"
+              }
+            ]
+          }
+        },
+        "ConstructionSetProject": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 99928,
+                "class": "ConstructionSetProject",
+                "name": "<Building>"
+              }
+            ]
+          }
+        },
+        "CutMarkType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 141723,
+                "class": "CutMarkType",
+                "name": "Single Zigzag"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "annotation-symbols-titleblocks": {
+      "label": "Annotation symbols & title blocks",
+      "expression_bearing": true,
+      "description": "family symbols / families in annotation categories: tags, title blocks, generic annotation, heads, view titles",
+      "counts": {
+        "autodesk-sample": 27
+      },
+      "classes": {
+        "FamilySymbol": {
+          "counts": {
+            "autodesk-sample": 27
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 16332,
+                "class": "FamilySymbol",
+                "name": "30mm"
+              },
+              {
+                "id": 29292,
+                "class": "FamilySymbol",
+                "name": "Running Section"
+              },
+              {
+                "id": 125028,
+                "class": "FamilySymbol",
+                "name": "Filled Arrow and View Name"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "parameter-definitions": {
+      "label": "Shared / project parameter definitions",
+      "expression_bearing": true,
+      "description": "ParamElemExternal (shared), ParamElemProject, ParamElemFamily, ParamBinding, PropertySetElement",
+      "counts": {
+        "autodesk-sample": 971
+      },
+      "classes": {
+        "ParamElemExternal": {
+          "counts": {
+            "autodesk-sample": 466
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 21308,
+                "class": "ParamElemExternal",
+                "name": "Door Level"
+              },
+              {
+                "id": 21309,
+                "class": "ParamElemExternal",
+                "name": "Door Level"
+              },
+              {
+                "id": 114978,
+                "class": "ParamElemExternal",
+                "name": "A"
+              }
+            ]
+          }
+        },
+        "ParamBinding": {
+          "counts": {
+            "autodesk-sample": 209
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 26011,
+                "class": "ParamBinding",
+                "name": "Occupant -> Rooms"
+              },
+              {
+                "id": 198378,
+                "class": "ParamBinding",
+                "name": "Recycled Content -> Materials"
+              },
+              {
+                "id": 198386,
+                "class": "ParamBinding",
+                "name": "Embodied Energy -> -2009030"
+              }
+            ]
+          }
+        },
+        "ParamElemFamily": {
+          "counts": {
+            "autodesk-sample": 120
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 16321,
+                "class": "ParamElemFamily",
+                "name": "Diameter"
+              },
+              {
+                "id": 18134,
+                "class": "ParamElemFamily",
+                "name": "Width"
+              },
+              {
+                "id": 25978,
+                "class": "ParamElemFamily",
+                "name": "Baluster Material"
+              }
+            ]
+          }
+        },
+        "ParamElemElectricalLoadClassification": {
+          "counts": {
+            "autodesk-sample": 108
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 127547,
+                "class": "ParamElemElectricalLoadClassification",
+                "name": "Other Demand Apparent Power"
+              },
+              {
+                "id": 127548,
+                "class": "ParamElemElectricalLoadClassification",
+                "name": "Other Connected Apparent Power"
+              },
+              {
+                "id": 127549,
+                "class": "ParamElemElectricalLoadClassification",
+                "name": "Other Estimated Demand Current"
+              }
+            ]
+          }
+        },
+        "PropertySetElement": {
+          "counts": {
+            "autodesk-sample": 56
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 174475,
+                "class": "PropertySetElement",
+                "name": null
+              },
+              {
+                "id": 174476,
+                "class": "PropertySetElement",
+                "name": null
+              },
+              {
+                "id": 174478,
+                "class": "PropertySetElement",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ParamElemProject": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 26010,
+                "class": "ParamElemProject",
+                "name": "Occupant"
+              },
+              {
+                "id": 713618,
+                "class": "ParamElemProject",
+                "name": "Hinge Set"
+              },
+              {
+                "id": 713619,
+                "class": "ParamElemProject",
+                "name": "Lock Function"
+              }
+            ]
+          }
+        },
+        "ExternalParamLock": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 46017,
+                "class": "ExternalParamLock",
+                "name": null
+              }
+            ]
+          }
+        },
+        "KeynoteTable": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 86291,
+                "class": "KeynoteTable",
+                "name": "Standard"
+              }
+            ]
+          }
+        },
+        "KeynotingSystem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 86315,
+                "class": "KeynotingSystem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "PropertySetLibrary": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 133589,
+                "class": "PropertySetLibrary",
+                "name": "Autodesk"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "phases-design-options": {
+      "label": "Phases / design options / revisions",
+      "expression_bearing": true,
+      "description": "ProjectPhase, PhaseFilterElem, DesignOption(Set), revision sequences",
+      "counts": {
+        "autodesk-sample": 21
+      },
+      "classes": {
+        "PhaseFilterElem": {
+          "counts": {
+            "autodesk-sample": 7
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 371,
+                "class": "PhaseFilterElem",
+                "name": "Show Previous Phase"
+              },
+              {
+                "id": 372,
+                "class": "PhaseFilterElem",
+                "name": "Show Previous + New"
+              },
+              {
+                "id": 373,
+                "class": "PhaseFilterElem",
+                "name": "Show Previous + Demo"
+              }
+            ]
+          }
+        },
+        "DesignOption": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 875635,
+                "class": "DesignOption",
+                "name": null
+              },
+              {
+                "id": 875638,
+                "class": "DesignOption",
+                "name": null
+              },
+              {
+                "id": 875641,
+                "class": "DesignOption",
+                "name": null
+              }
+            ]
+          }
+        },
+        "NumberingSchema": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1218729,
+                "class": "NumberingSchema",
+                "name": null
+              },
+              {
+                "id": 1218730,
+                "class": "NumberingSchema",
+                "name": null
+              },
+              {
+                "id": 1457391,
+                "class": "NumberingSchema",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ProjectPhase": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 12589,
+                "class": "ProjectPhase",
+                "name": "Existing"
+              },
+              {
+                "id": 86961,
+                "class": "ProjectPhase",
+                "name": "New Construction"
+              }
+            ]
+          }
+        },
+        "RevisionNumberingSequence": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471493,
+                "class": "RevisionNumberingSequence",
+                "name": null
+              },
+              {
+                "id": 1471494,
+                "class": "RevisionNumberingSequence",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AllProjectPhases": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1,
+                "class": "AllProjectPhases",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ProjectRevision": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49030,
+                "class": "ProjectRevision",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AllProjectRevisions": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49031,
+                "class": "AllProjectRevisions",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DesignOptionSet": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 875634,
+                "class": "DesignOptionSet",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "project-info-settings": {
+      "label": "Project info & settings elements",
+      "expression_bearing": true,
+      "description": "ProjectInfo, UnitsElem, keynote table, ElectricalSetting, all *Settings singletons",
+      "counts": {
+        "autodesk-sample": 38
+      },
+      "classes": {
+        "GeoSite": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 21747,
+                "class": "GeoSite",
+                "name": null
+              },
+              {
+                "id": 111427,
+                "class": "GeoSite",
+                "name": null
+              }
+            ]
+          }
+        },
+        "GeoLocation": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 21748,
+                "class": "GeoLocation",
+                "name": "Internal"
+              },
+              {
+                "id": 111428,
+                "class": "GeoLocation",
+                "name": "Project"
+              }
+            ]
+          }
+        },
+        "BasePoint": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 111426,
+                "class": "BasePoint",
+                "name": null
+              },
+              {
+                "id": 111429,
+                "class": "BasePoint",
+                "name": null
+              }
+            ]
+          }
+        },
+        "WorksharingViewModeSettings": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 130813,
+                "class": "WorksharingViewModeSettings",
+                "name": null
+              },
+              {
+                "id": 171476,
+                "class": "WorksharingViewModeSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "TrueNorth": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 7850,
+                "class": "TrueNorth",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DaylightSourceIdSet": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 12799,
+                "class": "DaylightSourceIdSet",
+                "name": null
+              }
+            ]
+          }
+        },
+        "UnitsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 19236,
+                "class": "UnitsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ProjectInfo": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 49504,
+                "class": "ProjectInfo",
+                "name": null
+              }
+            ]
+          }
+        },
+        "StructSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 54663,
+                "class": "StructSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AreaReportSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 69707,
+                "class": "AreaReportSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AreaSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 85092,
+                "class": "AreaSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "CoordinateSystemDisplayElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 86204,
+                "class": "CoordinateSystemDisplayElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "WallJoinDefaultSetting": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102105,
+                "class": "WallJoinDefaultSetting",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RbsDuctSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102127,
+                "class": "RbsDuctSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RbsPipeSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102128,
+                "class": "RbsPipeSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RbsWireSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102129,
+                "class": "RbsWireSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ZoneScheme": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102461,
+                "class": "ZoneScheme",
+                "name": null
+              }
+            ]
+          }
+        },
+        "HalftoneUnderlaySettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 105779,
+                "class": "HalftoneUnderlaySettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ActiveGeoLocationTrackingElement": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113109,
+                "class": "ActiveGeoLocationTrackingElement",
+                "name": null
+              }
+            ]
+          }
+        },
+        "CableTraySettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113173,
+                "class": "CableTraySettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ConduitSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113174,
+                "class": "ConduitSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "EnergyDataSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 115988,
+                "class": "EnergyDataSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ElectricalSetting": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 121706,
+                "class": "ElectricalSetting",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ReinforcementSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 137426,
+                "class": "ReinforcementSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DefaultDivideSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907053,
+                "class": "DefaultDivideSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "CopyWatchProperties": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1250031,
+                "class": "CopyWatchProperties",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DataStorage": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1382860,
+                "class": "DataStorage",
+                "name": null
+              }
+            ]
+          }
+        },
+        "StructuralConnectionSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1462521,
+                "class": "StructuralConnectionSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RouteAnalysisSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1470390,
+                "class": "RouteAnalysisSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "CircuitNamingTypeSetting": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471217,
+                "class": "CircuitNamingTypeSetting",
+                "name": null
+              }
+            ]
+          }
+        },
+        "MEPHiddenLineSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471446,
+                "class": "MEPHiddenLineSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "MultipleValuesIndicationSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471489,
+                "class": "MultipleValuesIndicationSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "SSEPointVisibilitySettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471913,
+                "class": "SSEPointVisibilitySettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "STEPExportSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471926,
+                "class": "STEPExportSettings",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "mep-electrical-definitions": {
+      "label": "MEP / electrical definition tables",
+      "expression_bearing": true,
+      "description": "voltage & distribution-system types, demand factors, load classifications, wire / pipe / duct material tables, panel schedule templates",
+      "counts": {
+        "autodesk-sample": 376
+      },
+      "classes": {
+        "HVACLoadSpaceTypeElem": {
+          "counts": {
+            "autodesk-sample": 125
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 105590,
+                "class": "HVACLoadSpaceTypeElem",
+                "name": "Active Storage"
+              },
+              {
+                "id": 105591,
+                "class": "HVACLoadSpaceTypeElem",
+                "name": "Active Storage - Hospital/Healthcare"
+              },
+              {
+                "id": 105592,
+                "class": "HVACLoadSpaceTypeElem",
+                "name": "Air/Train/Bus - Baggage Area"
+              }
+            ]
+          }
+        },
+        "HVACLoadBuildingTypeElem": {
+          "counts": {
+            "autodesk-sample": 33
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 105557,
+                "class": "HVACLoadBuildingTypeElem",
+                "name": "Automotive Facility"
+              },
+              {
+                "id": 105558,
+                "class": "HVACLoadBuildingTypeElem",
+                "name": "Convention Center"
+              },
+              {
+                "id": 105559,
+                "class": "HVACLoadBuildingTypeElem",
+                "name": "Courthouse"
+              }
+            ]
+          }
+        },
+        "RbsFluidType": {
+          "counts": {
+            "autodesk-sample": 28
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102380,
+                "class": "RbsFluidType",
+                "name": "Water"
+              },
+              {
+                "id": 102381,
+                "class": "RbsFluidType",
+                "name": "Ethlene Glycol - 10"
+              },
+              {
+                "id": 102382,
+                "class": "RbsFluidType",
+                "name": "Ethlene Glycol - 20"
+              }
+            ]
+          }
+        },
+        "HVACLoadScheduleElem": {
+          "counts": {
+            "autodesk-sample": 27
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 105532,
+                "class": "HVACLoadScheduleElem",
+                "name": null
+              },
+              {
+                "id": 105533,
+                "class": "HVACLoadScheduleElem",
+                "name": null
+              },
+              {
+                "id": 105534,
+                "class": "HVACLoadScheduleElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "BuildingOperatingYearSchedule": {
+          "counts": {
+            "autodesk-sample": 27
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471979,
+                "class": "BuildingOperatingYearSchedule",
+                "name": null
+              },
+              {
+                "id": 1471980,
+                "class": "BuildingOperatingYearSchedule",
+                "name": null
+              },
+              {
+                "id": 1471981,
+                "class": "BuildingOperatingYearSchedule",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RbsWireInsulationType": {
+          "counts": {
+            "autodesk-sample": 26
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102415,
+                "class": "RbsWireInsulationType",
+                "name": "FEP"
+              },
+              {
+                "id": 102416,
+                "class": "RbsWireInsulationType",
+                "name": "FEPB"
+              },
+              {
+                "id": 102417,
+                "class": "RbsWireInsulationType",
+                "name": "FEPW"
+              }
+            ]
+          }
+        },
+        "ElectricalDemandFactorDefinition": {
+          "counts": {
+            "autodesk-sample": 21
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113159,
+                "class": "ElectricalDemandFactorDefinition",
+                "name": "Other"
+              },
+              {
+                "id": 113161,
+                "class": "ElectricalDemandFactorDefinition",
+                "name": "Motor"
+              },
+              {
+                "id": 113943,
+                "class": "ElectricalDemandFactorDefinition",
+                "name": "Demand Factor"
+              }
+            ]
+          }
+        },
+        "ElectricalLoadClassification": {
+          "counts": {
+            "autodesk-sample": 18
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113160,
+                "class": "ElectricalLoadClassification",
+                "name": "Other"
+              },
+              {
+                "id": 113162,
+                "class": "ElectricalLoadClassification",
+                "name": "Motor"
+              },
+              {
+                "id": 113944,
+                "class": "ElectricalLoadClassification",
+                "name": "Power"
+              }
+            ]
+          }
+        },
+        "RbsPipeScheduleType": {
+          "counts": {
+            "autodesk-sample": 13
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102360,
+                "class": "RbsPipeScheduleType",
+                "name": "Schedule 40"
+              },
+              {
+                "id": 102361,
+                "class": "RbsPipeScheduleType",
+                "name": "Schedule 80"
+              },
+              {
+                "id": 102363,
+                "class": "RbsPipeScheduleType",
+                "name": "5S"
+              }
+            ]
+          }
+        },
+        "LoadNatureElem": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 51438,
+                "class": "LoadNatureElem",
+                "name": "Dead"
+              },
+              {
+                "id": 51440,
+                "class": "LoadNatureElem",
+                "name": "Live"
+              },
+              {
+                "id": 51442,
+                "class": "LoadNatureElem",
+                "name": "Wind"
+              }
+            ]
+          }
+        },
+        "LoadCaseElem": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 51439,
+                "class": "LoadCaseElem",
+                "name": "DL1"
+              },
+              {
+                "id": 51441,
+                "class": "LoadCaseElem",
+                "name": "LL1"
+              },
+              {
+                "id": 51443,
+                "class": "LoadCaseElem",
+                "name": "WIND1"
+              }
+            ]
+          }
+        },
+        "RbsPipeConnectionType": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102357,
+                "class": "RbsPipeConnectionType",
+                "name": "Threaded"
+              },
+              {
+                "id": 102358,
+                "class": "RbsPipeConnectionType",
+                "name": "Flanged"
+              },
+              {
+                "id": 102359,
+                "class": "RbsPipeConnectionType",
+                "name": "Welded"
+              }
+            ]
+          }
+        },
+        "ConduitStandardType": {
+          "counts": {
+            "autodesk-sample": 6
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113164,
+                "class": "ConduitStandardType",
+                "name": "EMT"
+              },
+              {
+                "id": 113165,
+                "class": "ConduitStandardType",
+                "name": "IMC"
+              },
+              {
+                "id": 113166,
+                "class": "ConduitStandardType",
+                "name": "RMC"
+              }
+            ]
+          }
+        },
+        "RbsPipeMaterialType": {
+          "counts": {
+            "autodesk-sample": 5
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102356,
+                "class": "RbsPipeMaterialType",
+                "name": "Carbon Steel"
+              },
+              {
+                "id": 102362,
+                "class": "RbsPipeMaterialType",
+                "name": "Stainless Steel"
+              },
+              {
+                "id": 102365,
+                "class": "RbsPipeMaterialType",
+                "name": "Copper"
+              }
+            ]
+          }
+        },
+        "StructConnectionType": {
+          "counts": {
+            "autodesk-sample": 5
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113122,
+                "class": "StructConnectionType",
+                "name": "Moment Frame"
+              },
+              {
+                "id": 113123,
+                "class": "StructConnectionType",
+                "name": "Cantilever Moment"
+              },
+              {
+                "id": 113124,
+                "class": "StructConnectionType",
+                "name": "Shear Column Connection"
+              }
+            ]
+          }
+        },
+        "RbsWireMaterialType": {
+          "counts": {
+            "autodesk-sample": 4
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102411,
+                "class": "RbsWireMaterialType",
+                "name": "Copper"
+              },
+              {
+                "id": 102412,
+                "class": "RbsWireMaterialType",
+                "name": "Aluminium"
+              },
+              {
+                "id": 102413,
+                "class": "RbsWireMaterialType",
+                "name": "Steel"
+              }
+            ]
+          }
+        },
+        "RbsWireTemperatureRatingType": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102441,
+                "class": "RbsWireTemperatureRatingType",
+                "name": "60"
+              },
+              {
+                "id": 102442,
+                "class": "RbsWireTemperatureRatingType",
+                "name": "75"
+              },
+              {
+                "id": 102443,
+                "class": "RbsWireTemperatureRatingType",
+                "name": "90"
+              }
+            ]
+          }
+        },
+        "RbsVoltageType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 55359,
+                "class": "RbsVoltageType",
+                "name": "Default"
+              }
+            ]
+          }
+        },
+        "RbsDistributionSysType": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 55360,
+                "class": "RbsDistributionSysType",
+                "name": "Default"
+              }
+            ]
+          }
+        },
+        "RbsDuctSizesElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102126,
+                "class": "RbsDuctSizesElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RbsPipeSizesElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102379,
+                "class": "RbsPipeSizesElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RbsWireSizesElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102410,
+                "class": "RbsWireSizesElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ConduitSizesElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113168,
+                "class": "ConduitSizesElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "CableTraySizesElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113169,
+                "class": "CableTraySizesElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "PipeSegment": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 137323,
+                "class": "PipeSegment",
+                "name": "Carbon Steel - Schedule 40"
+              }
+            ]
+          }
+        },
+        "FabricationSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1218727,
+                "class": "FabricationSettings",
+                "name": null
+              }
+            ]
+          }
+        },
+        "FabricationSettingsElement": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1457285,
+                "class": "FabricationSettingsElement",
+                "name": null
+              }
+            ]
+          }
+        },
+        "FabricationServiceSettings": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471905,
+                "class": "FabricationServiceSettings",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "datums": {
+      "label": "Datums (levels / grids / reference planes)",
+      "expression_bearing": false,
+      "description": "Level, Grid, RefPlane, extents \u2014 near-trivial numeric definitions (reported, not gated)",
+      "counts": {
+        "autodesk-sample": 85
+      },
+      "classes": {
+        "ExtentElem": {
+          "counts": {
+            "autodesk-sample": 39
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 9485,
+                "class": "ExtentElem",
+                "name": null
+              },
+              {
+                "id": 9486,
+                "class": "ExtentElem",
+                "name": null
+              },
+              {
+                "id": 9488,
+                "class": "ExtentElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RefPlane": {
+          "counts": {
+            "autodesk-sample": 21
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 273446,
+                "class": "RefPlane",
+                "name": null
+              },
+              {
+                "id": 275461,
+                "class": "RefPlane",
+                "name": null
+              },
+              {
+                "id": 275545,
+                "class": "RefPlane",
+                "name": null
+              }
+            ]
+          }
+        },
+        "Grid": {
+          "counts": {
+            "autodesk-sample": 16
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 195169,
+                "class": "Grid",
+                "name": "2"
+              },
+              {
+                "id": 195239,
+                "class": "Grid",
+                "name": "3"
+              },
+              {
+                "id": 195253,
+                "class": "Grid",
+                "name": "4"
+              }
+            ]
+          }
+        },
+        "Level": {
+          "counts": {
+            "autodesk-sample": 9
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 311,
+                "class": "Level",
+                "name": "Level 1"
+              },
+              {
+                "id": 694,
+                "class": "Level",
+                "name": "Ceiling"
+              },
+              {
+                "id": 196629,
+                "class": "Level",
+                "name": "Top of Parapet"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "placed-model-content": {
+      "label": "Placed model content (sample geometry)",
+      "expression_bearing": true,
+      "description": "instances, walls, floors, ceilings, MEP curves, rooms/spaces/zones, circuits, rebar, loads \u2014 the sample's model",
+      "counts": {
+        "autodesk-sample": 1464
+      },
+      "classes": {
+        "FamilyInstance": {
+          "counts": {
+            "autodesk-sample": 467
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 512319,
+                "class": "FamilyInstance",
+                "name": "M_Pile Cap-600 Pile : 600 x 600 x 900mm"
+              },
+              {
+                "id": 512321,
+                "class": "FamilyInstance",
+                "name": "M_Pile-Steel Pipe : 600mm Diameter"
+              },
+              {
+                "id": 512394,
+                "class": "FamilyInstance",
+                "name": "M_Pile Cap-600 Pile : 600 x 600 x 900mm"
+              }
+            ]
+          }
+        },
+        "RebarInSystem": {
+          "counts": {
+            "autodesk-sample": 224
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1316567,
+                "class": "RebarInSystem",
+                "name": null
+              },
+              {
+                "id": 1316568,
+                "class": "RebarInSystem",
+                "name": null
+              },
+              {
+                "id": 1316569,
+                "class": "RebarInSystem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ReferencePoint": {
+          "counts": {
+            "autodesk-sample": 128
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 876510,
+                "class": "ReferencePoint",
+                "name": null
+              },
+              {
+                "id": 876511,
+                "class": "ReferencePoint",
+                "name": null
+              },
+              {
+                "id": 876515,
+                "class": "ReferencePoint",
+                "name": null
+              }
+            ]
+          }
+        },
+        "Rebar": {
+          "counts": {
+            "autodesk-sample": 122
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1372293,
+                "class": "Rebar",
+                "name": null
+              },
+              {
+                "id": 1372483,
+                "class": "Rebar",
+                "name": null
+              },
+              {
+                "id": 1372484,
+                "class": "Rebar",
+                "name": null
+              }
+            ]
+          }
+        },
+        "Hub": {
+          "counts": {
+            "autodesk-sample": 122
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1472186,
+                "class": "Hub",
+                "name": null
+              },
+              {
+                "id": 1472188,
+                "class": "Hub",
+                "name": null
+              },
+              {
+                "id": 1472190,
+                "class": "Hub",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AnalyticalMember": {
+          "counts": {
+            "autodesk-sample": 90
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471776,
+                "class": "AnalyticalMember",
+                "name": null
+              },
+              {
+                "id": 1471777,
+                "class": "AnalyticalMember",
+                "name": null
+              },
+              {
+                "id": 1471778,
+                "class": "AnalyticalMember",
+                "name": null
+              }
+            ]
+          }
+        },
+        "CustomElement": {
+          "counts": {
+            "autodesk-sample": 61
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1472460,
+                "class": "CustomElement",
+                "name": null
+              },
+              {
+                "id": 1472461,
+                "class": "CustomElement",
+                "name": null
+              },
+              {
+                "id": 1472462,
+                "class": "CustomElement",
+                "name": null
+              }
+            ]
+          }
+        },
+        "DPart": {
+          "counts": {
+            "autodesk-sample": 45
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1139230,
+                "class": "DPart",
+                "name": null
+              },
+              {
+                "id": 1139232,
+                "class": "DPart",
+                "name": null
+              },
+              {
+                "id": 1142198,
+                "class": "DPart",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RebarSystem": {
+          "counts": {
+            "autodesk-sample": 44
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1316397,
+                "class": "RebarSystem",
+                "name": null
+              },
+              {
+                "id": 1316573,
+                "class": "RebarSystem",
+                "name": null
+              },
+              {
+                "id": 1316702,
+                "class": "RebarSystem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "LineLoad": {
+          "counts": {
+            "autodesk-sample": 35
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1433629,
+                "class": "LineLoad",
+                "name": null
+              },
+              {
+                "id": 1433630,
+                "class": "LineLoad",
+                "name": null
+              },
+              {
+                "id": 1433634,
+                "class": "LineLoad",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RoomElem": {
+          "counts": {
+            "autodesk-sample": 31
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 857191,
+                "class": "RoomElem",
+                "name": "1 Master Bedroom"
+              },
+              {
+                "id": 857194,
+                "class": "RoomElem",
+                "name": "2 Ensuite"
+              },
+              {
+                "id": 857197,
+                "class": "RoomElem",
+                "name": "3 Bedroom 1"
+              }
+            ]
+          }
+        },
+        "BoundaryConditions": {
+          "counts": {
+            "autodesk-sample": 20
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1404740,
+                "class": "BoundaryConditions",
+                "name": null
+              },
+              {
+                "id": 1407635,
+                "class": "BoundaryConditions",
+                "name": null
+              },
+              {
+                "id": 1431643,
+                "class": "BoundaryConditions",
+                "name": null
+              }
+            ]
+          }
+        },
+        "JoistSystem": {
+          "counts": {
+            "autodesk-sample": 16
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1175801,
+                "class": "JoistSystem",
+                "name": null
+              },
+              {
+                "id": 1175865,
+                "class": "JoistSystem",
+                "name": null
+              },
+              {
+                "id": 1175908,
+                "class": "JoistSystem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AnalyticalPanel": {
+          "counts": {
+            "autodesk-sample": 12
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471771,
+                "class": "AnalyticalPanel",
+                "name": null
+              },
+              {
+                "id": 1471772,
+                "class": "AnalyticalPanel",
+                "name": null
+              },
+              {
+                "id": 1471773,
+                "class": "AnalyticalPanel",
+                "name": null
+              }
+            ]
+          }
+        },
+        "SWall": {
+          "counts": {
+            "autodesk-sample": 9
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 493612,
+                "class": "SWall",
+                "name": "W-3.9"
+              },
+              {
+                "id": 493879,
+                "class": "SWall",
+                "name": "W-3.18"
+              },
+              {
+                "id": 627064,
+                "class": "SWall",
+                "name": "W-3.4"
+              }
+            ]
+          }
+        },
+        "PartMaker": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1139226,
+                "class": "PartMaker",
+                "name": null
+              },
+              {
+                "id": 1139228,
+                "class": "PartMaker",
+                "name": null
+              },
+              {
+                "id": 1142196,
+                "class": "PartMaker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "Floor": {
+          "counts": {
+            "autodesk-sample": 5
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 495352,
+                "class": "Floor",
+                "name": "S-3.5"
+              },
+              {
+                "id": 647908,
+                "class": "Floor",
+                "name": "S-3.3"
+              },
+              {
+                "id": 1206619,
+                "class": "Floor",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AreaLoad": {
+          "counts": {
+            "autodesk-sample": 5
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1433971,
+                "class": "AreaLoad",
+                "name": null
+              },
+              {
+                "id": 1434017,
+                "class": "AreaLoad",
+                "name": null
+              },
+              {
+                "id": 1434072,
+                "class": "AreaLoad",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ContFooting": {
+          "counts": {
+            "autodesk-sample": 4
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1178019,
+                "class": "ContFooting",
+                "name": null
+              },
+              {
+                "id": 1178029,
+                "class": "ContFooting",
+                "name": null
+              },
+              {
+                "id": 1178049,
+                "class": "ContFooting",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ImportInstance": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1382352,
+                "class": "ImportInstance",
+                "name": "SH01_2015_structure1"
+              },
+              {
+                "id": 1382746,
+                "class": "ImportInstance",
+                "name": "SH01_2015_structure3"
+              },
+              {
+                "id": 1382841,
+                "class": "ImportInstance",
+                "name": "SH01_2015_structure4"
+              }
+            ]
+          }
+        },
+        "AreaMeasureElem": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 9490,
+                "class": "AreaMeasureElem",
+                "name": null
+              },
+              {
+                "id": 9494,
+                "class": "AreaMeasureElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "FormElem": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 876509,
+                "class": "FormElem",
+                "name": null
+              },
+              {
+                "id": 876545,
+                "class": "FormElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "MassLevelData": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 876592,
+                "class": "MassLevelData",
+                "name": null
+              },
+              {
+                "id": 876593,
+                "class": "MassLevelData",
+                "name": null
+              }
+            ]
+          }
+        },
+        "StairsSupport": {
+          "counts": {
+            "autodesk-sample": 2
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1404374,
+                "class": "StairsSupport",
+                "name": null
+              },
+              {
+                "id": 1404375,
+                "class": "StairsSupport",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ZoneElement": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102462,
+                "class": "ZoneElement",
+                "name": null
+              }
+            ]
+          }
+        },
+        "StairsElement": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 513254,
+                "class": "StairsElement",
+                "name": null
+              }
+            ]
+          }
+        },
+        "StairsRun": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 513309,
+                "class": "StairsRun",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RvtLinkInstance": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1250030,
+                "class": "RvtLinkInstance",
+                "name": "rac_basic_sample_project.rvt"
+              }
+            ]
+          }
+        },
+        "ImageInstance": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1456463,
+                "class": "ImageInstance",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "view-annotation-2d-content": {
+      "label": "View-owned 2D / annotation content",
+      "expression_bearing": true,
+      "description": "detail lines, text notes, dimensions, tags, filled regions, sketches, legend components",
+      "counts": {
+        "autodesk-sample": 5198
+      },
+      "classes": {
+        "CurveElem": {
+          "counts": {
+            "autodesk-sample": 3956
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 626057,
+                "class": "CurveElem",
+                "name": null
+              },
+              {
+                "id": 626058,
+                "class": "CurveElem",
+                "name": null
+              },
+              {
+                "id": 626059,
+                "class": "CurveElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "LinearDimString": {
+          "counts": {
+            "autodesk-sample": 706
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 763420,
+                "class": "LinearDimString",
+                "name": null
+              },
+              {
+                "id": 876526,
+                "class": "LinearDimString",
+                "name": null
+              },
+              {
+                "id": 876527,
+                "class": "LinearDimString",
+                "name": null
+              }
+            ]
+          }
+        },
+        "SketchPlane": {
+          "counts": {
+            "autodesk-sample": 209
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 3325,
+                "class": "SketchPlane",
+                "name": null
+              },
+              {
+                "id": 103653,
+                "class": "SketchPlane",
+                "name": null
+              },
+              {
+                "id": 103654,
+                "class": "SketchPlane",
+                "name": null
+              }
+            ]
+          }
+        },
+        "VarSketch": {
+          "counts": {
+            "autodesk-sample": 140
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 495351,
+                "class": "VarSketch",
+                "name": null
+              },
+              {
+                "id": 647907,
+                "class": "VarSketch",
+                "name": null
+              },
+              {
+                "id": 876496,
+                "class": "VarSketch",
+                "name": null
+              }
+            ]
+          }
+        },
+        "FilledRegion": {
+          "counts": {
+            "autodesk-sample": 56
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1386185,
+                "class": "FilledRegion",
+                "name": null
+              },
+              {
+                "id": 1386191,
+                "class": "FilledRegion",
+                "name": null
+              },
+              {
+                "id": 1386197,
+                "class": "FilledRegion",
+                "name": null
+              }
+            ]
+          }
+        },
+        "SketchGrid": {
+          "counts": {
+            "autodesk-sample": 40
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 24927,
+                "class": "SketchGrid",
+                "name": null
+              },
+              {
+                "id": 24932,
+                "class": "SketchGrid",
+                "name": null
+              },
+              {
+                "id": 24933,
+                "class": "SketchGrid",
+                "name": null
+              }
+            ]
+          }
+        },
+        "LegendComponent": {
+          "counts": {
+            "autodesk-sample": 36
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907389,
+                "class": "LegendComponent",
+                "name": null
+              },
+              {
+                "id": 907390,
+                "class": "LegendComponent",
+                "name": null
+              },
+              {
+                "id": 907398,
+                "class": "LegendComponent",
+                "name": null
+              }
+            ]
+          }
+        },
+        "SunAnnotationElem": {
+          "counts": {
+            "autodesk-sample": 28
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 121711,
+                "class": "SunAnnotationElem",
+                "name": null
+              },
+              {
+                "id": 121712,
+                "class": "SunAnnotationElem",
+                "name": null
+              },
+              {
+                "id": 121713,
+                "class": "SunAnnotationElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ModelClipBox": {
+          "counts": {
+            "autodesk-sample": 12
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1138901,
+                "class": "ModelClipBox",
+                "name": null
+              },
+              {
+                "id": 1138908,
+                "class": "ModelClipBox",
+                "name": null
+              },
+              {
+                "id": 1138915,
+                "class": "ModelClipBox",
+                "name": null
+              }
+            ]
+          }
+        },
+        "Alignment": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 626063,
+                "class": "Alignment",
+                "name": null
+              },
+              {
+                "id": 626064,
+                "class": "Alignment",
+                "name": null
+              },
+              {
+                "id": 905982,
+                "class": "Alignment",
+                "name": null
+              }
+            ]
+          }
+        },
+        "NonPlanarSketch": {
+          "counts": {
+            "autodesk-sample": 4
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 876512,
+                "class": "NonPlanarSketch",
+                "name": null
+              },
+              {
+                "id": 876523,
+                "class": "NonPlanarSketch",
+                "name": null
+              },
+              {
+                "id": 876548,
+                "class": "NonPlanarSketch",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ContourSpacingElem": {
+          "counts": {
+            "autodesk-sample": 3
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 8953,
+                "class": "ContourSpacingElem",
+                "name": null
+              },
+              {
+                "id": 8991,
+                "class": "ContourSpacingElem",
+                "name": null
+              },
+              {
+                "id": 1352381,
+                "class": "ContourSpacingElem",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    "internal-bookkeeping": {
+      "label": "Internal bookkeeping (regenerated by Revit)",
+      "expression_bearing": false,
+      "description": "trackers, hubs, regen splitters, warnings, caches \u2014 machine state, not expression",
+      "counts": {
+        "autodesk-sample": 119
+      },
+      "classes": {
+        "RegenSplitterElem": {
+          "counts": {
+            "autodesk-sample": 68
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 495354,
+                "class": "RegenSplitterElem",
+                "name": null
+              },
+              {
+                "id": 1206621,
+                "class": "RegenSplitterElem",
+                "name": null
+              },
+              {
+                "id": 1210632,
+                "class": "RegenSplitterElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "PostedWarningElem": {
+          "counts": {
+            "autodesk-sample": 22
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 513510,
+                "class": "PostedWarningElem",
+                "name": null
+              },
+              {
+                "id": 1115142,
+                "class": "PostedWarningElem",
+                "name": null
+              },
+              {
+                "id": 1115143,
+                "class": "PostedWarningElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AreaTypeElem": {
+          "counts": {
+            "autodesk-sample": 8
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 9492,
+                "class": "AreaTypeElem",
+                "name": null
+              },
+              {
+                "id": 9493,
+                "class": "AreaTypeElem",
+                "name": null
+              },
+              {
+                "id": 9496,
+                "class": "AreaTypeElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ReactionsUpToDateElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 85104,
+                "class": "ReactionsUpToDateElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "Dwg2dExportUserSettingsData": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102444,
+                "class": "Dwg2dExportUserSettingsData",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AutoJoinTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102467,
+                "class": "AutoJoinTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AutoCamSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 102842,
+                "class": "AutoCamSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "GCSTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 103632,
+                "class": "GCSTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "WorksetVisibilitySettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 113134,
+                "class": "WorksetVisibilitySettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ProjectCopySettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 115987,
+                "class": "ProjectCopySettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ReconcileBrowserSettingsElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 116120,
+                "class": "ReconcileBrowserSettingsElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "MEPSystemTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 130510,
+                "class": "MEPSystemTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AssemblyTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 132328,
+                "class": "AssemblyTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "HubsTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 132466,
+                "class": "HubsTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "MEPComponentTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907354,
+                "class": "MEPComponentTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "KeynoteTagsOnSheetsTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907382,
+                "class": "KeynoteTagsOnSheetsTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "RevisionCloudsOnSheetsTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 907486,
+                "class": "RevisionCloudsOnSheetsTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "LayoutNodesTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1218550,
+                "class": "LayoutNodesTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "MEPNetworkTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1468014,
+                "class": "MEPNetworkTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "GraphicsCache": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471712,
+                "class": "GraphicsCache",
+                "name": null
+              }
+            ]
+          }
+        },
+        "AnalyticalToPhysicalRelationManager": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471770,
+                "class": "AnalyticalToPhysicalRelationManager",
+                "name": null
+              }
+            ]
+          }
+        },
+        "MEPNetworkDataElem": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471901,
+                "class": "MEPNetworkDataElem",
+                "name": null
+              }
+            ]
+          }
+        },
+        "ScheduleInstanceBaseOnSheetsTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1471910,
+                "class": "ScheduleInstanceBaseOnSheetsTracker",
+                "name": null
+              }
+            ]
+          }
+        },
+        "SheetsInSheetCollectionTracker": {
+          "counts": {
+            "autodesk-sample": 1
+          },
+          "examples": {
+            "autodesk-sample": [
+              {
+                "id": 1472007,
+                "class": "SheetsInSheetCollectionTracker",
+                "name": null
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "created_elements": [],
+  "modified_elements": [],
+  "warnings": [],
+  "gate_G1": {
+    "passes": false,
+    "strict": false,
+    "verdict": "FAIL \u2014 12,986 Autodesk-derived element(s) remain in expression-bearing categories",
+    "blocking": [
+      {
+        "category": "embedded-family-documents",
+        "provenance": "autodesk-sample",
+        "count": 52,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "loadable-families",
+        "provenance": "autodesk-sample",
+        "count": 150,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "family-types-symbols",
+        "provenance": "autodesk-sample",
+        "count": 96,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "system-family-types",
+        "provenance": "autodesk-sample",
+        "count": 104,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "views-and-templates",
+        "provenance": "autodesk-sample",
+        "count": 541,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "object-styles",
+        "provenance": "autodesk-sample",
+        "count": 2803,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "patterns-materials",
+        "provenance": "autodesk-sample",
+        "count": 843,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "text-dimension-types",
+        "provenance": "autodesk-sample",
+        "count": 302,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "annotation-symbols-titleblocks",
+        "provenance": "autodesk-sample",
+        "count": 27,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "parameter-definitions",
+        "provenance": "autodesk-sample",
+        "count": 971,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "phases-design-options",
+        "provenance": "autodesk-sample",
+        "count": 21,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "project-info-settings",
+        "provenance": "autodesk-sample",
+        "count": 38,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "mep-electrical-definitions",
+        "provenance": "autodesk-sample",
+        "count": 376,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "placed-model-content",
+        "provenance": "autodesk-sample",
+        "count": 1464,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "view-annotation-2d-content",
+        "provenance": "autodesk-sample",
+        "count": 5198,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      }
+    ],
+    "gap_list": [
+      {
+        "category": "embedded-family-documents",
+        "provenance": "autodesk-sample",
+        "count": 52,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "loadable-families",
+        "provenance": "autodesk-sample",
+        "count": 150,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "family-types-symbols",
+        "provenance": "autodesk-sample",
+        "count": 96,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "system-family-types",
+        "provenance": "autodesk-sample",
+        "count": 104,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "views-and-templates",
+        "provenance": "autodesk-sample",
+        "count": 541,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "object-styles",
+        "provenance": "autodesk-sample",
+        "count": 2803,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "patterns-materials",
+        "provenance": "autodesk-sample",
+        "count": 843,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "text-dimension-types",
+        "provenance": "autodesk-sample",
+        "count": 302,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "annotation-symbols-titleblocks",
+        "provenance": "autodesk-sample",
+        "count": 27,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "parameter-definitions",
+        "provenance": "autodesk-sample",
+        "count": 971,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "phases-design-options",
+        "provenance": "autodesk-sample",
+        "count": 21,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "project-info-settings",
+        "provenance": "autodesk-sample",
+        "count": 38,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "mep-electrical-definitions",
+        "provenance": "autodesk-sample",
+        "count": 376,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "placed-model-content",
+        "provenance": "autodesk-sample",
+        "count": 1464,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      },
+      {
+        "category": "view-annotation-2d-content",
+        "provenance": "autodesk-sample",
+        "count": 5198,
+        "why": "Autodesk-derived expression in an expression-bearing category"
+      }
+    ]
+  },
+  "elapsed_s": 0.5
+}

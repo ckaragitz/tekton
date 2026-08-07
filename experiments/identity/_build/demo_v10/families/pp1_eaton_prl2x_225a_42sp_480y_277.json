@@ -1,0 +1,343 @@
+{
+ "path": "/Users/ck/dev/things/tekton/experiments/identity/_build/demo_v10/families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa",
+ "family": {
+  "kind": "panelboard",
+  "family_name": "Panelboard PP-1 480Y/277 225A MLO 42sp",
+  "category": "Electrical Equipment",
+  "part_type": 14,
+  "elements": 1724,
+  "types": [
+   "225A MLO 42ckt"
+  ],
+  "parameters": [
+   "BusRating",
+   "Depth",
+   "Height",
+   "MainsRating",
+   "MainsType",
+   "Mounting",
+   "NeutralRating",
+   "NumberOfCircuits",
+   "PanelName",
+   "Phases",
+   "ShortCircuitRatingkA",
+   "Voltage",
+   "Width",
+   "Wires"
+  ],
+  "forms": [
+   {
+    "kind": "box",
+    "width_ft": 1.6666666666666667,
+    "depth_ft": 4.0,
+    "height_ft": 0.4791666666666667,
+    "base_z_ft": 0.0,
+    "rep": "solid"
+   }
+  ],
+  "connectors": 1,
+  "assumed_fields": [
+   "height_in",
+   "sccr_ka"
+  ],
+  "unverified_fields": [
+   "height_in",
+   "mains_rating_a",
+   "mains_type",
+   "mounting",
+   "neutral_rating",
+   "panel_name",
+   "phases",
+   "sccr_ka",
+   "spaces",
+   "voltage_ll_v",
+   "voltage_system",
+   "wires"
+  ],
+  "notes": [
+   "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+   "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka",
+   "birthright: authored birth set applied (1683 elements, zero donor bytes; spec template_birth.json)"
+  ]
+ },
+ "facts": {
+  "subject": "eaton/pow-r-line-panelboards PRL2X 225 A 42 sp 480Y/277",
+  "catalog": "eaton/pow-r-line-panelboards",
+  "variant": "PRL2X",
+  "values": {
+   "width_in": {
+    "value": 20.0,
+    "provenance": "fact",
+    "source": "PRL2X",
+    "note": ""
+   },
+   "depth_in": {
+    "value": 5.75,
+    "provenance": "fact",
+    "source": "PRL2X",
+    "note": ""
+   },
+   "height_in": {
+    "value": 48.0,
+    "provenance": "assumed",
+    "source": "PRL1X",
+    "note": "row '42 circuits <= 42' -> 48 in from the PRL1X sizing table (config 'main lugs or main breaker (PDD2x / PDG2x, vertical)'); borrowed from the shared box family (member's own sizing table not on record) -- SURFACED AS UNVERIFIED"
+   },
+   "gutter_top_bottom_min_in": {
+    "value": 5.5,
+    "provenance": "fact",
+    "source": "pow-r-line-panelboards",
+    "note": ""
+   },
+   "gutter_side_min_in": {
+    "value": 4.0,
+    "provenance": "fact",
+    "source": "pow-r-line-panelboards",
+    "note": ""
+   },
+   "voltage_ll_v": {
+    "value": 480.0,
+    "provenance": "given",
+    "source": "",
+    "note": "480Y/277"
+   },
+   "voltage_system": {
+    "value": "480Y/277",
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "phases": {
+    "value": 3,
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "wires": {
+    "value": 4,
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "mains_rating_a": {
+    "value": 225.0,
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "bus_rating_a": {
+    "value": 225.0,
+    "provenance": "derived",
+    "source": "",
+    "note": "bus ampacity taken equal to the mains rating (a smaller-bus option exists; ordering choice, not a catalog fact)"
+   },
+   "spaces": {
+    "value": 42,
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "mains_type": {
+    "value": "MLO",
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "mounting": {
+    "value": "surface",
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "panel_name": {
+    "value": "PP-1",
+    "provenance": "given",
+    "source": "",
+    "note": ""
+   },
+   "neutral_rating": {
+    "value": "100%",
+    "provenance": "given",
+    "source": "",
+    "note": "neutral rating is an ordering option (100% / 200%), user-given"
+   },
+   "voltage_max_ac_v": {
+    "value": 480.0,
+    "provenance": "fact",
+    "source": "PRL2X",
+    "note": ""
+   },
+   "sccr_ka": {
+    "value": 14.0,
+    "provenance": "assumed",
+    "source": "PRL2X",
+    "note": "default = low end of the member's fully-rated interrupting range at this voltage (catalog fact); the actual kA depends on the ordered branch devices -- UNVERIFIED"
+   },
+   "manufacturer": {
+    "value": "Eaton",
+    "provenance": "fact",
+    "source": "pow-r-line-panelboards",
+    "note": "brand of the catalog record"
+   },
+   "model": {
+    "value": "PRL2X",
+    "provenance": "fact",
+    "source": "pow-r-line-panelboards",
+    "note": "catalog member; carried as the Model parameter VALUE, not the family name"
+   }
+  },
+  "assumed_fields": [
+   "height_in",
+   "sccr_ka"
+  ],
+  "notes": [
+   "Panelboard weights are NOT published in the catalog sections read -> no Weight parameter is emitted.",
+   "Family / type NAMES avoid catalog numbers; manufacturer and model ride as identity-parameter VALUES (content-strategy 5.4 unsettled)."
+  ]
+ },
+ "container_source": "/Users/ck/dev/things/tekton/experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+ "container_mode": "bundled-base",
+ "emit": {
+  "path": "/Users/ck/dev/things/tekton/experiments/identity/_build/demo_v10/families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa",
+  "size": 393216,
+  "mode": "candidate",
+  "footer_mode": "nonce",
+  "elements": 1724,
+  "elem_table_count": 1724,
+  "partition_stream": "Partitions/0",
+  "logical_partition_bytes": 95778,
+  "footer_blob_hex": "bca7c99503fbc387049a50b806e0b926c0e3bc297b5462c7669810aa021ae3ce0320e5fc438e4963ff73b8ac06a5f2a6d8b9d55afcff102a321e1129fb5ceb9a",
+  "footer_blob_len": 64,
+  "end_record_hex": "a30300000000ffffffff",
+  "document_guid": "e1654955-aa96-43b5-8030-25059b3825dc",
+  "episode_guid": "034f8fcb-3ff6-4226-bb36-df6a2a0b11bb",
+  "streams": {
+   "Partitions/0": 96722,
+   "Global/ElemTable": 7711,
+   "Global/History": 130,
+   "Global/DocumentIncrementTable": 122,
+   "Global/PartitionTable": 126,
+   "Global/ContentDocuments": 82,
+   "Global/Latest": 78826,
+   "Contents": 204,
+   "BasicFileInfo": 2037,
+   "TransmissionData": 214,
+   "PartAtom": 833,
+   "Formats/Latest": 182953
+  },
+  "ours": [
+   "Global/Latest (OUR authored family ADocument)",
+   "Partitions/0 save unit (every element) + OUR unit footer blob + the universal signature string + the decoded 10-byte end record",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/DocumentIncrementTable",
+   "Global/PartitionTable",
+   "Global/ContentDocuments",
+   "Contents (prologue + payload)",
+   "BasicFileInfo (rvt.identity)",
+   "TransmissionData",
+   "PartAtom",
+   "CFB container / gzip / CRCIO framing"
+  ],
+  "carried": [
+   {
+    "stream": "Formats/Latest",
+    "inflated_bytes": 496597,
+    "sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+    "is_corpus_schema_constant": true,
+    "why": "the per-release archive class map, byte-identical in every Revit-2026 file (.rvt and .rfa) -- FORMAT, not content"
+   }
+  ],
+  "identity": {
+   "author": "rvt-writer",
+   "username": "rvt-writer",
+   "client_app_name": "rvt-writer",
+   "last_save_path": "pp1_eaton_prl2x_225a_42sp_480y_277.rfa",
+   "unique_document_guid": "034f8fcb-3ff6-4226-bb36-df6a2a0b11bb",
+   "central_episode_guid": "034f8fcb-3ff6-4226-bb36-df6a2a0b11bb",
+   "via": "rvt.identity.own_identity_model + own_increment_table_payload"
+  },
+  "seconds": 0.77,
+  "notes": [
+   "panelboard: work-plane-based (face-hosted like every rme panelboard); enclosure box in the family XY = the host face"
+  ]
+ },
+ "adocument": "family ADocument CONSTRUCTED (candidate): 1,357,682 B; decodes clean, round-trips; 0 dangling ids (schema census); byte-scan donor ids = 0; our ids present in the payload = 119 (byte scan); slots populated = 180",
+ "verify": {
+  "path": "/Users/ck/dev/things/tekton/experiments/identity/_build/demo_v10/families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa",
+  "gzip_members": 17,
+  "gzip_crc_failures": 0,
+  "ecc_full_pages": 4,
+  "ecc_mismatch": 0,
+  "streams": [
+   "BasicFileInfo",
+   "Contents",
+   "Formats/Latest",
+   "Global/ContentDocuments",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/History",
+   "Global/Latest",
+   "Global/PartitionTable",
+   "PartAtom",
+   "Partitions/0",
+   "TransmissionData"
+  ],
+  "walker_errors": [],
+  "n_units": 1,
+  "record_counts": {
+   "101": 1725,
+   "102": 1725,
+   "103": 1725
+  },
+  "decode_seq102": {
+   "records": 1724,
+   "clean": 1724,
+   "error_classes": {}
+  },
+  "id_sets_identical_across_seqs": true,
+  "ok": true
+ },
+ "validate": {
+  "ok": true,
+  "family_mode": {
+   "verdict": "VALID",
+   "n_errors": 0,
+   "errors": [],
+   "n_warnings": 0,
+   "warnings": [],
+   "adjustments": [
+    "PartAtom treated as UNFRAMED (plain Atom XML)",
+    "ProjectInformation not required (a family stream set has PartAtom instead)"
+   ]
+  },
+  "arbiter_raw": {
+   "verdict": "INVALID",
+   "n_errors": 3,
+   "errors": [
+    "structure ProjectInformation: expected stream is missing",
+    "structure PartAtom: final block (833 bytes) is not CRCIO-framed (no size class + pad-count field decodes it)",
+    "structure PartAtom: no gzip member found in framed stream"
+   ]
+  }
+ },
+ "provenance": {
+  "ok": true,
+  "suspects": [],
+  "verdict": "PROVENANCE-CLEAN: zero donor ADocument content bytes, zero donor element-id references, zero employee paths/usernames; carried = the schema constant only; footer = ours + the universal format tokens",
+  "checks": {
+   "adocument_decodes_clean": true,
+   "zero_dangling_element_refs": true,
+   "zero_donor_id_byte_hits": true,
+   "zero_donor_name_strings": true,
+   "owner_family_is_ours": true,
+   "identity_is_ours": true,
+   "footer_blob_not_donor": true,
+   "no_donor_end_parity": true,
+   "end_record_is_constant": true,
+   "signature_string_present": true,
+   "formats_latest_is_format_constant": true
+  }
+ },
+ "ok": true
+}

@@ -1,0 +1,241 @@
+{
+ "claim": "compose(B2025_K4, [the 9 cumulative Y2025 rung deltas]) reproduces the ladder's deepest cumulative rung Y9_2025.rvt BYTE-IDENTICALLY under the 2025 emit context",
+ "base": "experiments/genesis2025/reduce/B2025_K4.rvt",
+ "base_md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+ "base_certification": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder",
+ "target": "experiments/genesis/subst_k4_2025/Y9_2025.rvt",
+ "rung_sets": [
+  {
+   "name": "Y2025:Y1_2025",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2025/Y1_2025.rvt",
+   "source_md5": "cab8bec193e856d3a2d22430a892ca0c",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "report_file": "experiments/genesis/subst_k4_2025/Y1_2025.json",
+   "slots": 1,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "ParamValueSetInt": 1
+   },
+   "landed_slots": 1,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2025:Y2_2025",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2025/Y2_2025.rvt",
+   "source_md5": "34653be8acf59999e78a15b2ba8e60e9",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2025/Y1_2025.rvt",
+   "report_file": "experiments/genesis/subst_k4_2025/Y2_2025.json",
+   "slots": 9,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "BoundaryConditions": 5,
+    "ProxyDeleteElementsResolution": 1,
+    "FormVertexPair": 1,
+    "RebarInSystem": 1,
+    "ConnectorElemDomainCableTrayConduit": 1
+   },
+   "landed_slots": 12,
+   "landed_but_byte_identical": 3,
+   "notes": []
+  },
+  {
+   "name": "Y2025:Y3_2025",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2025/Y3_2025.rvt",
+   "source_md5": "b8007b720f690ca50d67cc1fcc1e7f6a",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2025/Y2_2025.rvt",
+   "report_file": "experiments/genesis/subst_k4_2025/Y3_2025.json",
+   "slots": 2,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "IndexPlusPick": 1,
+    "StairsRunLayoutGStep": 1
+   },
+   "landed_slots": 5,
+   "landed_but_byte_identical": 3,
+   "notes": []
+  },
+  {
+   "name": "Y2025:Y4_2025",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2025/Y4_2025.rvt",
+   "source_md5": "f5de718ae6c254dfbcb43944797cb1cb",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2025/Y3_2025.rvt",
+   "report_file": "experiments/genesis/subst_k4_2025/Y4_2025.json",
+   "slots": 8,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "RailStructure": 1,
+    "RailCurveData": 1,
+    "RbsDuctCurveDesignPropertyHelper": 1,
+    "RbsJustificationParamDefCombo": 1,
+    "RbsDuctInsulation": 1,
+    "RbsLayoutPathEditModeMgr": 1,
+    "RbsSingleCurve": 1,
+    "SegmentIdAndRefFaceKey": 1
+   },
+   "landed_slots": 8,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2025:Y5_2025",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2025/Y5_2025.rvt",
+   "source_md5": "a5f8ce1c3ac803e9b839242bf38b139f",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2025/Y4_2025.rvt",
+   "report_file": "experiments/genesis/subst_k4_2025/Y5_2025.json",
+   "slots": 11,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "AreaLoadMoveAlongMultiDirControl": 2,
+    "std::pair< RoomBoundingItem, ElementIdCircuitIdSetWrapper >": 1,
+    "ParamDefFormatOptions": 1,
+    "std::pair< TopologyKey, ElementId >": 1,
+    "PointElemDriver": 1,
+    "EnergyAnalysisDaySchedule": 1,
+    "EditingRequestData": 1,
+    "Viewer3d": 1,
+    "RebarShapeVertex": 1,
+    "ContourPolylineWrapper": 1
+   },
+   "landed_slots": 51,
+   "landed_but_byte_identical": 40,
+   "notes": []
+  },
+  {
+   "name": "Y2025:Y6_2025",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2025/Y6_2025.rvt",
+   "source_md5": "0348dc743ef43d84e85cc6d38062370a",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2025/Y5_2025.rvt",
+   "report_file": "experiments/genesis/subst_k4_2025/Y6_2025.json",
+   "slots": 1165,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "GFillPatternOverrider": 1165
+   },
+   "landed_slots": 1165,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2025:Y7_2025",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2025/Y7_2025.rvt",
+   "source_md5": "0fb00c07049022f3b859220faa14088f",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2025/Y6_2025.rvt",
+   "report_file": "experiments/genesis/subst_k4_2025/Y7_2025.json",
+   "slots": 60,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "PointLoad": 28,
+    "MassEAM_CalculateCoreGeometryGStep": 23,
+    "FamilySizeTable": 5,
+    "LapSettings": 4
+   },
+   "landed_slots": 60,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2025:Y8_2025",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2025/Y8_2025.rvt",
+   "source_md5": "d0cadbe2105a00abf6403657ecf2b968",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2025/Y7_2025.rvt",
+   "report_file": "experiments/genesis/subst_k4_2025/Y8_2025.json",
+   "slots": 16,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "JoinTrackerAppInfo": 2,
+    "BaseArray": 2,
+    "PointElem": 2,
+    "GPointCloud": 2,
+    "GPointCloudOverrider": 2,
+    "std::pair< ElementId, std::pair< int, PCOvrSettings > >": 1,
+    "CircuitIdSetWrapper": 1,
+    "JoistSystem": 1,
+    "std::pair< NumberingParameter, ParameterValue >": 1,
+    "TagReferencesCell": 1,
+    "TappedPipeData": 1
+   },
+   "landed_slots": 16,
+   "landed_but_byte_identical": 0,
+   "notes": []
+  },
+  {
+   "name": "Y2025:Y9_2025",
+   "group": "Y",
+   "kind": "file-delta",
+   "source_file": "experiments/genesis/subst_k4_2025/Y9_2025.rvt",
+   "source_md5": "79c310409848ef2932eb7e86f5b0e781",
+   "source_viewer": "UNTESTED",
+   "parent_file": "experiments/genesis/subst_k4_2025/Y8_2025.rvt",
+   "report_file": "experiments/genesis/subst_k4_2025/Y9_2025.json",
+   "slots": 36,
+   "seqs": [
+    102
+   ],
+   "classes": {
+    "DBView3dEnergyAnalysis": 19,
+    "StructVWallUserData": 4,
+    "FormVertexPair": 3,
+    "CutMassingWithLevelGStep": 2,
+    "ParamDefValue": 2,
+    "ExportPatternInfo": 2,
+    "CutSweepGStep": 1,
+    "ScheduleInstanceData": 1,
+    "UpdateMassMetricsStep": 1,
+    "CustomElementType": 1
+   },
+   "landed_slots": 46,
+   "landed_but_byte_identical": 10,
+   "notes": []
+  }
+ ],
+ "merged_slots": 1308,
+ "reproduction": "experiments/genesis/subst_k4_2025/compose/G_Y2025_anchor.rvt",
+ "md5_reproduction": "79c310409848ef2932eb7e86f5b0e781",
+ "md5_target": "79c310409848ef2932eb7e86f5b0e781",
+ "BYTE_IDENTICAL": true,
+ "meaning": "the composer's Phase I is EXACT on Revit 2025: the independently-emitted in-place rungs, merged into one substitute_elements call under context_compose_2025, land in precisely the file the Y2025 ladder emitted -- the 2026 anchor proof (compose(Y9, Group A) == ZA_deep) transfers",
+ "compose_verdict": "COMPOSED-VALID",
+ "compose_problems": [],
+ "seconds": 9.0
+}

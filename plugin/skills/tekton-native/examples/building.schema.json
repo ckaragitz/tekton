@@ -1,0 +1,1376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tekton.local/spec/building.schema.json",
+  "title": "tekton Parameterized Building Spec",
+  "description": "Versioned, generator-agnostic building description. A spec is the single input to every backend (IFC4 via IfcOpenShell, native .rvt via APS Automation, ODA BimRv, ...). Everything except a footprint has a default, so the minimal legal spec is {\"storeys\": 2, \"footprint\": [[0,0],[12,0],[12,8],[0,8]]}. Coordinates are 2D plan (x = east, y = north) in `units.length`; z is derived from levels. Polygons are counter-clockwise and implicitly closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "specVersion": {
+      "description": "Semantic version of this schema the document was written against. Generators refuse a MAJOR they do not understand.",
+      "type": "string",
+      "pattern": "^0\\.[0-9]+\\.[0-9]+$",
+      "default": "0.1.0"
+    },
+    "project": {
+      "$ref": "#/$defs/project"
+    },
+    "units": {
+      "$ref": "#/$defs/units"
+    },
+    "defaults": {
+      "$ref": "#/$defs/defaults"
+    },
+    "site": {
+      "$ref": "#/$defs/site"
+    },
+    "storeys": {
+      "description": "Shorthand: number of equally spaced storeys (each `defaults.storeyHeight` tall, first at elevation 0). Ignored when `levels` is given.",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 200,
+      "default": 1
+    },
+    "levels": {
+      "description": "Explicit levels/datums. When omitted they are synthesized from `storeys` + `defaults.storeyHeight` and named 'Level 1'..'Level N' plus a 'Roof' level at the top.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/level"
+      }
+    },
+    "footprint": {
+      "description": "Shorthand outline that auto-generates: exterior walls on every level, a floor slab per level, a flat roof, one room per level, and (if `defaults.autoOpenings` is true) an entrance door on level 1. Any explicit `walls`, `floors`, `roofs` REPLACE the corresponding auto elements for the levels they touch.",
+      "$ref": "#/$defs/polygon"
+    },
+    "grids": {
+      "$ref": "#/$defs/grids"
+    },
+    "types": {
+      "$ref": "#/$defs/typeLibrary"
+    },
+    "walls": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/wall"
+      },
+      "default": []
+    },
+    "doors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/opening"
+      },
+      "default": []
+    },
+    "windows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/opening"
+      },
+      "default": []
+    },
+    "floors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/floor"
+      },
+      "default": []
+    },
+    "roofs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/roof"
+      },
+      "default": []
+    },
+    "columns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/column"
+      },
+      "default": []
+    },
+    "beams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/beam"
+      },
+      "default": []
+    },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/room"
+      },
+      "default": []
+    },
+    "targets": {
+      "$ref": "#/$defs/targets"
+    },
+    "equipment": {
+      "type": "array",
+      "description": "MEP / electrical equipment items placed at explicit positions (metres). Each becomes a typed, instanced element with a real insertion point. Consumed by generate_ifc.py (IFC) and tools/spec_to_rvt.py (native .rvt).",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "kind",
+          "position"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "panelboard",
+              "switchboard",
+              "transformer",
+              "lightfixture",
+              "proxy"
+            ],
+            "description": "Equipment archetype; drives the IFC class / Revit family symbol."
+          },
+          "name": {
+            "type": "string",
+            "description": "Instance mark, e.g. B-HG4."
+          },
+          "level": {
+            "type": "string",
+            "description": "Level id from `levels` (default L1)."
+          },
+          "position": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number"
+            },
+            "description": "[x, y] in metres."
+          },
+          "rotationDeg": {
+            "type": "number",
+            "default": 0
+          },
+          "elevation": {
+            "type": "number",
+            "description": "Mounting height above the level, metres (default per kind)."
+          },
+          "dims": {
+            "type": "object",
+            "properties": {
+              "w": {
+                "type": "number"
+              },
+              "d": {
+                "type": "number"
+              },
+              "h": {
+                "type": "number"
+              }
+            },
+            "description": "Envelope dimensions in metres."
+          },
+          "typeName": {
+            "type": "string",
+            "description": "Type name; equipment sharing (kind, typeName) share ONE type."
+          },
+          "ifcClass": {
+            "type": "string",
+            "description": "Override the IFC entity class."
+          },
+          "predefinedType": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tag": {
+            "type": "string"
+          },
+          "psets": {
+            "type": "object",
+            "description": "Occurrence property sets: {PsetName: {Prop: {value, type}}}."
+          },
+          "typePsets": {
+            "type": "object",
+            "description": "Type-level property sets."
+          }
+        }
+      }
+    }
+  },
+  "anyOf": [
+    {
+      "required": [
+        "footprint"
+      ]
+    },
+    {
+      "required": [
+        "walls"
+      ]
+    },
+    {
+      "required": [
+        "levels"
+      ]
+    }
+  ],
+  "$defs": {
+    "id": {
+      "description": "Stable, spec-local identifier. Referenced by other elements (hostWall, level, type). Also seeds the deterministic GUID/UniqueId generation so re-runs produce identical GlobalIds.",
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_.-]{0,63}$"
+    },
+    "point2": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "point3": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "polygon": {
+      "description": "Closed simple polygon, CCW, at least 3 vertices, first != last (implicit closure).",
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "$ref": "#/$defs/point2"
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "default": "Untitled Project"
+        },
+        "number": {
+          "type": "string",
+          "default": "0001"
+        },
+        "buildingName": {
+          "type": "string",
+          "default": "Building"
+        },
+        "client": {
+          "type": "string",
+          "default": ""
+        },
+        "author": {
+          "type": "string",
+          "default": "tekton"
+        },
+        "organisation": {
+          "type": "string",
+          "default": "tekton"
+        },
+        "address": {
+          "type": "string",
+          "default": ""
+        },
+        "issueDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        },
+        "phase": {
+          "description": "Revit phase the generated elements are created in.",
+          "type": "string",
+          "default": "New Construction"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      },
+      "default": {}
+    },
+    "units": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "length": {
+          "enum": [
+            "m",
+            "mm",
+            "cm",
+            "ft",
+            "in"
+          ],
+          "default": "m"
+        },
+        "angle": {
+          "enum": [
+            "deg",
+            "rad"
+          ],
+          "default": "deg"
+        },
+        "area": {
+          "enum": [
+            "m2",
+            "ft2"
+          ],
+          "default": "m2"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      },
+      "default": {
+        "length": "m",
+        "angle": "deg",
+        "area": "m2"
+      }
+    },
+    "site": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "default": "Default Site"
+        },
+        "latitude": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "elevation": {
+          "description": "Site datum elevation above sea level, in length units.",
+          "type": "number",
+          "default": 0
+        },
+        "trueNorth": {
+          "description": "Degrees clockwise from project north to true north.",
+          "type": "number",
+          "default": 0
+        },
+        "boundary": {
+          "$ref": "#/$defs/polygon"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      },
+      "default": {}
+    },
+    "defaults": {
+      "description": "Fill-in values applied to any element that omits them. Changing a default re-parameterizes the whole building consistently.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "storeyHeight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 3.0
+        },
+        "wallThickness": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 0.2
+        },
+        "wallType": {
+          "type": "string",
+          "default": "Generic - 200mm"
+        },
+        "interiorWallType": {
+          "type": "string",
+          "default": "Generic - 100mm"
+        },
+        "wallLocationLine": {
+          "enum": [
+            "WallCenterline",
+            "CoreCenterline",
+            "FinishFaceExterior",
+            "FinishFaceInterior",
+            "CoreFaceExterior",
+            "CoreFaceInterior"
+          ],
+          "default": "WallCenterline"
+        },
+        "slabThickness": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 0.25
+        },
+        "floorType": {
+          "type": "string",
+          "default": "Generic - 250mm"
+        },
+        "roofType": {
+          "type": "string",
+          "default": "Generic - 250mm"
+        },
+        "roofForm": {
+          "enum": [
+            "flat",
+            "gable",
+            "hip",
+            "shed",
+            "none"
+          ],
+          "default": "flat"
+        },
+        "roofPitch": {
+          "description": "Degrees from horizontal; ignored for flat.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 89,
+          "default": 30
+        },
+        "roofOverhang": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.3
+        },
+        "doorType": {
+          "type": "string",
+          "default": "Single-Flush 0915 x 2134mm"
+        },
+        "doorWidth": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 0.9
+        },
+        "doorHeight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 2.1
+        },
+        "windowType": {
+          "type": "string",
+          "default": "Fixed 1200 x 1200mm"
+        },
+        "windowWidth": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1.2
+        },
+        "windowHeight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1.2
+        },
+        "sillHeight": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.9
+        },
+        "columnType": {
+          "type": "string",
+          "default": "M_Rectangular Column 400 x 400mm"
+        },
+        "beamType": {
+          "type": "string",
+          "default": "W-Wide Flange W310X38.7"
+        },
+        "autoOpenings": {
+          "description": "When only a footprint is given, place one entrance door plus one window per exterior wall segment per level.",
+          "type": "boolean",
+          "default": true
+        },
+        "roomBounding": {
+          "type": "boolean",
+          "default": true
+        },
+        "material": {
+          "type": "string",
+          "default": "Concrete, Cast-in-Place gray"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      },
+      "default": {}
+    },
+    "level": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "elevation"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string"
+        },
+        "elevation": {
+          "description": "Height of the datum above project zero, in length units.",
+          "type": "number"
+        },
+        "storey": {
+          "description": "True for a building storey (IfcBuildingStorey / Revit 'Building Story' level); false for reference datums (T.O. footing, parapet).",
+          "type": "boolean",
+          "default": true
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "grids": {
+      "description": "Structural/reference grid. Either regular (spacings) or explicit lines. Labels default A,B,C... for one axis and 1,2,3... for the other.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "$ref": "#/$defs/gridAxis"
+        },
+        "y": {
+          "$ref": "#/$defs/gridAxis"
+        },
+        "lines": {
+          "description": "Explicit grid lines (overrides x/y). Each is a 2D segment or arc with a bubble label.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "label",
+              "start",
+              "end"
+            ],
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "start": {
+                "$ref": "#/$defs/point2"
+              },
+              "end": {
+                "$ref": "#/$defs/point2"
+              },
+              "kind": {
+                "enum": [
+                  "line",
+                  "arc"
+                ],
+                "default": "line"
+              },
+              "center": {
+                "$ref": "#/$defs/point2"
+              }
+            }
+          }
+        },
+        "extents": {
+          "description": "Bounding rectangle [[xmin,ymin],[xmax,ymax]] the grid lines are drawn across.",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/point2"
+          }
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "gridAxis": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "spacings": {
+          "description": "Successive bay widths, e.g. [6,6,6] -> 4 lines.",
+          "type": "array",
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "positions": {
+          "description": "Absolute positions (mutually exclusive with spacings).",
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "labelStyle": {
+          "enum": [
+            "alpha",
+            "numeric"
+          ],
+          "default": "alpha"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "spacings"
+          ]
+        },
+        {
+          "required": [
+            "positions"
+          ]
+        }
+      ]
+    },
+    "typeLibrary": {
+      "description": "Named element types referenced by `type` on elements. Each carries an assembly (layers) for open backends and Revit family/type hints for native backends. Any type name used but not defined here is treated as a Revit-project or template type looked up by name.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "walls": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/layeredType"
+          }
+        },
+        "floors": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/layeredType"
+          }
+        },
+        "roofs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/layeredType"
+          }
+        },
+        "doors": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/familyType"
+          }
+        },
+        "windows": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/familyType"
+          }
+        },
+        "columns": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/familyType"
+          }
+        },
+        "beams": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/familyType"
+          }
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      },
+      "default": {}
+    },
+    "layeredType": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ifcType": {
+          "description": "Predefined type for IFC export, e.g. STANDARD, PARTITIONING, FLOOR, ROOF.",
+          "type": "string"
+        },
+        "function": {
+          "enum": [
+            "exterior",
+            "interior",
+            "foundation",
+            "retaining",
+            "soffit",
+            "coreShaft"
+          ],
+          "default": "exterior"
+        },
+        "layers": {
+          "description": "Ordered from exterior/top to interior/bottom. Total thickness overrides defaults.*Thickness.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "thickness"
+            ],
+            "properties": {
+              "material": {
+                "type": "string"
+              },
+              "thickness": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "function": {
+                "enum": [
+                  "Structure",
+                  "Substrate",
+                  "Insulation",
+                  "Finish1",
+                  "Finish2",
+                  "Membrane"
+                ],
+                "default": "Structure"
+              },
+              "isCore": {
+                "type": "boolean",
+                "default": true
+              }
+            }
+          }
+        },
+        "revit": {
+          "$ref": "#/$defs/revitRef"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "familyType": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ifcType": {
+          "type": "string"
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "depth": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "material": {
+          "type": "string"
+        },
+        "revit": {
+          "$ref": "#/$defs/revitRef"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "revitRef": {
+      "description": "How a native-Revit backend resolves this type: system-family type name (walls/floors/roofs) or loadable family + type (doors/windows/columns). Missing families are loaded from `rfaPath` if given, else the template's type is duplicated and renamed.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "type": "string",
+          "examples": [
+            "OST_Walls",
+            "OST_Doors",
+            "OST_Windows",
+            "OST_StructuralColumns"
+          ]
+        },
+        "family": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "rfaPath": {
+          "type": "string"
+        },
+        "builtInSystemFamily": {
+          "enum": [
+            "BasicWall",
+            "CurtainWall",
+            "StackedWall",
+            "Floor",
+            "RoofBase",
+            "Ceiling"
+          ]
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "wall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "start": {
+          "$ref": "#/$defs/point2"
+        },
+        "end": {
+          "$ref": "#/$defs/point2"
+        },
+        "kind": {
+          "enum": [
+            "line",
+            "arc"
+          ],
+          "default": "line"
+        },
+        "arc": {
+          "description": "Arc definition when kind=arc; give either a point on the arc (Revit's 3-point convention) or a signed bulge (tan(theta/4), CCW positive).",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "mid": {
+              "$ref": "#/$defs/point2"
+            },
+            "bulge": {
+              "type": "number"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "mid"
+              ]
+            },
+            {
+              "required": [
+                "bulge"
+              ]
+            }
+          ]
+        },
+        "type": {
+          "description": "Key into types.walls or a Revit wall type name.",
+          "type": "string"
+        },
+        "thickness": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "level": {
+          "description": "Base level id/name (base constraint). Default: lowest level.",
+          "type": "string"
+        },
+        "baseOffset": {
+          "type": "number",
+          "default": 0
+        },
+        "topLevel": {
+          "description": "Top constraint level. Omit + no height => 'up to next level'; 'unconnected' => use height.",
+          "type": "string"
+        },
+        "topOffset": {
+          "type": "number",
+          "default": 0
+        },
+        "height": {
+          "description": "Unconnected height. Used only when topLevel is 'unconnected' or absent with an explicit height.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "locationLine": {
+          "enum": [
+            "WallCenterline",
+            "CoreCenterline",
+            "FinishFaceExterior",
+            "FinishFaceInterior",
+            "CoreFaceExterior",
+            "CoreFaceInterior"
+          ]
+        },
+        "flip": {
+          "description": "Flip interior/exterior side.",
+          "type": "boolean",
+          "default": false
+        },
+        "structural": {
+          "type": "boolean",
+          "default": false
+        },
+        "roomBounding": {
+          "type": "boolean"
+        },
+        "function": {
+          "enum": [
+            "exterior",
+            "interior",
+            "foundation",
+            "retaining",
+            "soffit",
+            "coreShaft"
+          ]
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "opening": {
+      "description": "Hosted door or window. Position is measured along the host wall from its start point (or as a 0..1 fraction). Sill applies to windows; doors default to sill 0.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hostWall"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "hostWall": {
+          "description": "id of the hosting wall, or 'auto-N' for the Nth auto-generated footprint wall (0-based, per level).",
+          "type": "string"
+        },
+        "level": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "offset": {
+          "description": "Distance from the wall's start point to the opening's near edge (length units).",
+          "type": "number",
+          "minimum": 0
+        },
+        "fraction": {
+          "description": "Alternative to offset: centre position as a fraction of wall length.",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "width": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "sill": {
+          "type": "number",
+          "minimum": 0
+        },
+        "flipHand": {
+          "type": "boolean",
+          "default": false
+        },
+        "flipFacing": {
+          "type": "boolean",
+          "default": false
+        },
+        "operation": {
+          "description": "IFC OperationType / PartitioningType; drives geometry when no family is available.",
+          "enum": [
+            "SINGLE_SWING_LEFT",
+            "SINGLE_SWING_RIGHT",
+            "DOUBLE_DOOR_SINGLE_SWING",
+            "SLIDING_TO_LEFT",
+            "SLIDING_TO_RIGHT",
+            "REVOLVING",
+            "SINGLE_PANEL",
+            "DOUBLE_PANEL_VERTICAL",
+            "TRIPLE_PANEL_VERTICAL"
+          ],
+          "default": "SINGLE_SWING_LEFT"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "offset"
+          ]
+        },
+        {
+          "required": [
+            "fraction"
+          ]
+        },
+        {
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "offset"
+                ]
+              },
+              {
+                "required": [
+                  "fraction"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "floor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "level": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "thickness": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "boundary": {
+          "description": "Defaults to the building footprint.",
+          "$ref": "#/$defs/polygon"
+        },
+        "holes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/polygon"
+          },
+          "default": []
+        },
+        "levelOffset": {
+          "description": "Top of floor relative to its level.",
+          "type": "number",
+          "default": 0
+        },
+        "structural": {
+          "type": "boolean",
+          "default": true
+        },
+        "isFoundationSlab": {
+          "type": "boolean",
+          "default": false
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "roof": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "level": {
+          "description": "Base level (usually the topmost storey / 'Roof' level).",
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "form": {
+          "enum": [
+            "flat",
+            "gable",
+            "hip",
+            "shed",
+            "none"
+          ]
+        },
+        "pitch": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 89
+        },
+        "ridgeAxis": {
+          "description": "Direction of the ridge for gable/shed roofs.",
+          "enum": [
+            "x",
+            "y",
+            "longest"
+          ],
+          "default": "longest"
+        },
+        "overhang": {
+          "type": "number",
+          "minimum": 0
+        },
+        "thickness": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "boundary": {
+          "$ref": "#/$defs/polygon"
+        },
+        "baseOffset": {
+          "type": "number",
+          "default": 0
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "column": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "type": "string"
+        },
+        "at": {
+          "$ref": "#/$defs/point2"
+        },
+        "grid": {
+          "description": "Alternative to `at`: grid intersection like 'B/2'.",
+          "type": "string",
+          "pattern": "^[^/]+/[^/]+$"
+        },
+        "baseLevel": {
+          "type": "string"
+        },
+        "topLevel": {
+          "type": "string"
+        },
+        "baseOffset": {
+          "type": "number",
+          "default": 0
+        },
+        "topOffset": {
+          "type": "number",
+          "default": 0
+        },
+        "rotation": {
+          "description": "Degrees about vertical.",
+          "type": "number",
+          "default": 0
+        },
+        "structural": {
+          "type": "boolean",
+          "default": true
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "at"
+          ]
+        },
+        {
+          "required": [
+            "grid"
+          ]
+        }
+      ]
+    },
+    "beam": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "type": {
+          "type": "string"
+        },
+        "start": {
+          "$ref": "#/$defs/point2"
+        },
+        "end": {
+          "$ref": "#/$defs/point2"
+        },
+        "level": {
+          "type": "string"
+        },
+        "zOffset": {
+          "description": "Offset of the beam's top from its reference level.",
+          "type": "number",
+          "default": 0
+        },
+        "zJustification": {
+          "enum": [
+            "top",
+            "center",
+            "bottom"
+          ],
+          "default": "top"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "room": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "name": {
+          "type": "string",
+          "default": "Room"
+        },
+        "number": {
+          "type": "string"
+        },
+        "level": {
+          "type": "string"
+        },
+        "point": {
+          "description": "A point inside the room; Revit computes boundaries from bounding walls. Preferred over `boundary` for native backends.",
+          "$ref": "#/$defs/point2"
+        },
+        "boundary": {
+          "description": "Explicit boundary for backends without a room engine (IFC IfcSpace).",
+          "$ref": "#/$defs/polygon"
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "occupancy": {
+          "type": "string"
+        },
+        "department": {
+          "type": "string"
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    },
+    "targets": {
+      "description": "Backend-specific knobs. Absent = generator defaults. Never affects the abstract building.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ifc": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "schema": {
+              "enum": [
+                "IFC2X3",
+                "IFC4",
+                "IFC4X3_ADD2"
+              ],
+              "default": "IFC4"
+            },
+            "mvd": {
+              "enum": [
+                "DesignTransferView",
+                "ReferenceView",
+                "CoordinationView"
+              ],
+              "default": "DesignTransferView"
+            },
+            "emitStandardCaseSubtypes": {
+              "description": "Emit IfcWallStandardCase etc. (IFC2X3-friendly; better legacy Revit Open-IFC nativisation).",
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "revit": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "engine": {
+              "description": "APS Automation engine, e.g. Autodesk.Revit+2026.",
+              "type": "string",
+              "default": "Autodesk.Revit+2026"
+            },
+            "template": {
+              "description": "Project template (.rte) supplied to the work item; type names in the spec are looked up here first.",
+              "type": "string"
+            },
+            "units": {
+              "enum": [
+                "Metric",
+                "Imperial"
+              ],
+              "default": "Metric"
+            },
+            "worksharing": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "psets": {
+          "type": "object",
+          "description": "Property sets {PsetName: {Prop: {value, type}}}."
+        }
+      }
+    }
+  }
+}

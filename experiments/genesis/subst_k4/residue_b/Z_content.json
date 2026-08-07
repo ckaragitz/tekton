@@ -1,0 +1,1361 @@
+{
+ "rung": "Z_content",
+ "label": "reference planes / sketch planes / the room -> OUR content at the same registrations [SINGLE-CHANGE PROBE off the parent]",
+ "kind": "inplace",
+ "stream": "genesis-residue-B",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; one our-record per residue slot",
+ "base": {
+  "file": "experiments/genesis/subst_k4/Y9.rvt",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4/residue_b/CTRL_Y9_base.rvt",
+  "identical_to": "experiments/genesis/subst_k4/Y9.rvt",
+  "md5": "aa5952bceeb5830790f289af0d7cee27",
+  "certification": {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4/Y9.rvt",
+ "parent_rung": "BASE",
+ "out": "experiments/genesis/subst_k4/residue_b/Z_content.rvt",
+ "description": "The CONTENT probe: our setout reference planes, our work planes (on the slot's own datum or at our setout points), our room identity.  The endgame retires sample content by DELETION; this rung proves our datum-content constructors load at Autodesk's registrations.",
+ "tests": "Whether the reader accepts our reference-plane / sketch-plane geometry objects and the room's identity strings.",
+ "if_PASS": "Our datum-content constructors load; the content bucket is retired as an engineering question (deletion or ours, both certified paths).",
+ "if_FAIL": "Our refplane/sketch-plane geometry object is rejected -- bisect refplanes vs sketch planes vs the room (single-class probes); diff a rejected refplane vs rst 273446 field by field.",
+ "stages": [],
+ "group_b_classes": {},
+ "parent_context": {
+  "host_elements": 3342,
+  "watermark": 1472524,
+  "protected_slots_from_earlier_rungs": 1333
+ },
+ "candidates_old_by_class": {
+  "SketchPlane": 30,
+  "RefPlane": 21,
+  "RoomElem": 1
+ },
+ "our_records_by_class": {
+  "SketchPlane": 30,
+  "RefPlane": 21,
+  "RoomElem": 1
+ },
+ "build_notes": [
+  "reference planes: 21 <- our setout / gear-line / support-grid planes",
+  "sketch planes: 23 on-datum (slot datum kept) + 6 free (our setout points) + 1 view-owned <- ours",
+  "rooms: 1 identity <- ours (number/name); topology wiring kept; the room's companions (LevelRoomPlan / boundary CurveElems) are Group-A classes -- the endgame deletes the whole room constellation atomically"
+ ],
+ "build_info": {
+  "refplanes": 21,
+  "sketch_datum": 23,
+  "sketch_free": 6,
+  "sketch_view": 1,
+  "rooms": 1
+ },
+ "residue_named_by_builder": {},
+ "plan": {
+  "landed": 52,
+  "by_match": {
+   "role": 52
+  },
+  "landed_by_class": {
+   "SketchPlane": 30,
+   "RefPlane": 21,
+   "RoomElem": 1
+  },
+  "dropped_ours": 0,
+  "residue_olds": 0,
+  "class_mismatch": [],
+  "notes": []
+ },
+ "retarget": {
+  "leaves_remapped": 0,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 52,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 52,
+  "would_differ_103": 0,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/21"
+  ],
+  "seconds": 1.3
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/21"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   3325,
+   245433,
+   245452,
+   273446,
+   275461,
+   275545,
+   275573,
+   294086,
+   419494,
+   422081,
+   422805,
+   427686,
+   524165,
+   524241,
+   569452,
+   699327,
+   699381,
+   763366,
+   767295,
+   876916,
+   877029,
+   895431,
+   912817,
+   1003588,
+   1003982,
+   1004910,
+   1161610,
+   1301781,
+   1378596,
+   1417273,
+   1417468
+  ],
+  "records_changed_count": 31,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 52,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 21,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 3325,
+    "len_ours": 332,
+    "len_parent": 352,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "SketchPlane",
+      "class_parent": "SketchPlane"
+     },
+     {
+      "path": ".m_cellList",
+      "ours": "None",
+      "parent": "{'ptr_class': 'CellList', 'pid': -1, 'value': {'m_cells': [{'ptr_class': 'Patter"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 245433,
+    "len_ours": 332,
+    "len_parent": 332,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "SketchPlane",
+      "class_parent": "SketchPlane"
+     },
+     {
+      "path": ".m_oTrf.value.m_or[2]",
+      "ours": "12.0",
+      "parent": "9.84251968503937"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 245452,
+    "len_ours": 332,
+    "len_parent": 332,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "SketchPlane",
+      "class_parent": "SketchPlane"
+     },
+     {
+      "path": ".m_oTrf.value.m_or[2]",
+      "ours": "12.0",
+      "parent": "9.84251968503937"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 273446,
+    "len_ours": 806,
+    "len_parent": 744,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "RefPlane",
+      "class_parent": "RefPlane"
+     },
+     {
+      "path": ".m_geomSteps.value.m_flags",
+      "ours": "1",
+      "parent": "11"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][0]",
+      "ours": "-39.37007874015748",
+      "parent": "-34.76818380492605"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][1]",
+      "ours": "0.0",
+      "parent": "-6.889763779527558"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][0]",
+      "ours": "0.0",
+      "parent": "-0.6343255372094561"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][1]",
+      "ours": "9.84251968503937",
+      "parent": "19.180343150313895"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[0]",
+      "ours": "0.0",
+      "parent": "-1.437232554338511"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[1]",
+      "ours": "39.37007874015748",
+      "parent": "-18.36265223859326"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_origin[2]",
+      "ours": "0.0",
+      "parent": "3.9370078740157473"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_xVec[0]",
+      "ours": "-0.0",
+      "parent": "-1.6766766756448698e-15"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][0]",
+      "ours": "-39.37007874015748",
+      "parent": "-34.76818380492605"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][1]",
+      "ours": "0.0",
+      "parent": "-6.889763779527558"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][0]",
+      "ours": "0.0",
+      "parent": "-0.6343255372094561"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][1]",
+      "ours": "9.84251968503937",
+      "parent": "19.180343150313895"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[0]",
+      "ours": "0.0",
+      "parent": "-1.437232554338511"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[1]",
+      "ours": "39.37007874015748",
+      "parent": "-18.36265223859326"
+     },
+     {
+      "path": ".m_pSurface.value.m_origin[2]",
+      "ours": "0.0",
+      "parent": "3.9370078740157473"
+     },
+     {
+      "path": ".m_pSurface.value.m_xVec[0]",
+      "ours": "-0.0",
+      "parent": "-1.6766766756448698e-15"
+     },
+     {
+      "path": ".m_text",
+      "ours": "'GEN Setout - Origin North-South'",
+      "parent": "''"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 13,
+    "blocks_out": 13
+   },
+   {
+    "what": "21 landed slot(s) byte-identical to the parent",
+    "reason": "our constructor reproduces the sample's own object for these (empty trackers / machinery with no free value) -- landed, but no bytes to change",
+    "slots": [
+     196658,
+     417304,
+     511132,
+     511151,
+     515299,
+     869723,
+     1046280,
+     1046283,
+     1046286,
+     1046289,
+     1046292,
+     1046505,
+     1046514,
+     1250383,
+     1300892,
+     1351720,
+     1383090,
+     1386350,
+     1454515,
+     1457032,
+     1457177
+    ]
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 52,
+  "slots_with_registry_surface": 41,
+  "positional_uet_slots": [],
+  "surface_examples": [
+   {
+    "slot": 196658,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_curSPRecs[*]->CurSPRec.m_curSPId"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 245452,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_curSPRecs[*]->CurSPRec.m_curSPId"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 273446,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 275461,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 275545,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 275573,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 294086,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 417304,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_curSPRecs[*]->CurSPRec.m_curSPId"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 52,
+  "pairs_ok": 52,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 3325,
+   "class": "SketchPlane",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 16,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 196658,
+   "class": "SketchPlane",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 571,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 245433,
+   "class": "SketchPlane",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 576,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 0
+  },
+  {
+   "slot": 245452,
+   "class": "SketchPlane",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 576,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 273446,
+   "class": "RefPlane",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 582,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 275461,
+   "class": "RefPlane",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 582,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<500k"
+   },
+   "surface_paths": 2
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 18,
+   "records": 10029,
+   "elements_decoded": 3342,
+   "decode_failures": 1,
+   "refs_checked": 51466
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4/residue_b/Z_content.rvt",
+  "elements": 3342,
+  "file_size": 774144,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.5,
+ "correspondence": [
+  {
+   "ours_tmp": 1500021,
+   "slot": 3325,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500022,
+   "slot": 196658,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500023,
+   "slot": 245433,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 5,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500024,
+   "slot": 245452,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500000,
+   "slot": 273446,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Setout - Origin North-South"
+  },
+  {
+   "ours_tmp": 1500001,
+   "slot": 275461,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Setout - Origin East-West"
+  },
+  {
+   "ours_tmp": 1500002,
+   "slot": 275545,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Gear Line - Switchboard Front"
+  },
+  {
+   "ours_tmp": 1500003,
+   "slot": 275573,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Gear Line - Panel Row A"
+  },
+  {
+   "ours_tmp": 1500004,
+   "slot": 294086,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Gear Line - Panel Row B"
+  },
+  {
+   "ours_tmp": 1500025,
+   "slot": 417304,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500005,
+   "slot": 419494,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Equipment CL - Transformer T1"
+  },
+  {
+   "ours_tmp": 1500006,
+   "slot": 422081,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Equipment CL - Transformer T2"
+  },
+  {
+   "ours_tmp": 1500007,
+   "slot": 422805,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Clearance - Egress Path"
+  },
+  {
+   "ours_tmp": 1500008,
+   "slot": 427686,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 1"
+  },
+  {
+   "ours_tmp": 1500026,
+   "slot": 511132,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500027,
+   "slot": 511151,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500028,
+   "slot": 515299,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500009,
+   "slot": 524165,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 2"
+  },
+  {
+   "ours_tmp": 1500010,
+   "slot": 524241,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 3"
+  },
+  {
+   "ours_tmp": 1500011,
+   "slot": 569452,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 4"
+  },
+  {
+   "ours_tmp": 1500012,
+   "slot": 699327,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "GEN Trapeze Support Grid 5"
+  },
+  {
+   "ours_tmp": 1500013,
+   "slot": 699381,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "GEN Trapeze Support Grid 6"
+  },
+  {
+   "ours_tmp": 1500014,
+   "slot": 763366,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "GEN Trapeze Support Grid 7"
+  },
+  {
+   "ours_tmp": 1500015,
+   "slot": 767295,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 8"
+  },
+  {
+   "ours_tmp": 1500029,
+   "slot": 869723,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500016,
+   "slot": 876916,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 9"
+  },
+  {
+   "ours_tmp": 1500017,
+   "slot": 877029,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 10"
+  },
+  {
+   "ours_tmp": 1500018,
+   "slot": 895431,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 11"
+  },
+  {
+   "ours_tmp": 1500030,
+   "slot": 912817,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500031,
+   "slot": 1003588,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500032,
+   "slot": 1003982,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500051,
+   "slot": 1004910,
+   "class": "RoomElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500033,
+   "slot": 1046280,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500034,
+   "slot": 1046283,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500035,
+   "slot": 1046286,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500036,
+   "slot": 1046289,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500037,
+   "slot": 1046292,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500038,
+   "slot": 1046505,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500039,
+   "slot": 1046514,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500019,
+   "slot": 1161610,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 12"
+  },
+  {
+   "ours_tmp": 1500040,
+   "slot": 1250383,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500041,
+   "slot": 1300892,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500042,
+   "slot": 1301781,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500043,
+   "slot": 1351720,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500044,
+   "slot": 1378596,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500045,
+   "slot": 1383090,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500046,
+   "slot": 1386350,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500020,
+   "slot": 1417273,
+   "class": "RefPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": "GEN Trapeze Support Grid 13"
+  },
+  {
+   "ours_tmp": 1500047,
+   "slot": 1417468,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500048,
+   "slot": 1454515,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500049,
+   "slot": 1457032,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500050,
+   "slot": 1457177,
+   "class": "SketchPlane",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  }
+ ],
+ "landed_slots": [
+  {
+   "slot": 273446,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500000
+  },
+  {
+   "slot": 275461,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500001
+  },
+  {
+   "slot": 275545,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500002
+  },
+  {
+   "slot": 275573,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500003
+  },
+  {
+   "slot": 294086,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500004
+  },
+  {
+   "slot": 419494,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500005
+  },
+  {
+   "slot": 422081,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500006
+  },
+  {
+   "slot": 422805,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500007
+  },
+  {
+   "slot": 427686,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500008
+  },
+  {
+   "slot": 524165,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500009
+  },
+  {
+   "slot": 524241,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500010
+  },
+  {
+   "slot": 569452,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500011
+  },
+  {
+   "slot": 699327,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500012
+  },
+  {
+   "slot": 699381,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500013
+  },
+  {
+   "slot": 763366,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500014
+  },
+  {
+   "slot": 767295,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500015
+  },
+  {
+   "slot": 876916,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500016
+  },
+  {
+   "slot": 877029,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500017
+  },
+  {
+   "slot": 895431,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500018
+  },
+  {
+   "slot": 1161610,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500019
+  },
+  {
+   "slot": 1417273,
+   "class": "RefPlane",
+   "match": "role",
+   "ours_tmp": 1500020
+  },
+  {
+   "slot": 3325,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500021
+  },
+  {
+   "slot": 196658,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500022
+  },
+  {
+   "slot": 245433,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500023
+  },
+  {
+   "slot": 245452,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500024
+  },
+  {
+   "slot": 417304,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500025
+  },
+  {
+   "slot": 511132,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500026
+  },
+  {
+   "slot": 511151,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500027
+  },
+  {
+   "slot": 515299,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500028
+  },
+  {
+   "slot": 869723,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500029
+  },
+  {
+   "slot": 912817,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500030
+  },
+  {
+   "slot": 1003588,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500031
+  },
+  {
+   "slot": 1003982,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500032
+  },
+  {
+   "slot": 1046280,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500033
+  },
+  {
+   "slot": 1046283,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500034
+  },
+  {
+   "slot": 1046286,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500035
+  },
+  {
+   "slot": 1046289,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500036
+  },
+  {
+   "slot": 1046292,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500037
+  },
+  {
+   "slot": 1046505,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500038
+  },
+  {
+   "slot": 1046514,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500039
+  },
+  {
+   "slot": 1250383,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500040
+  },
+  {
+   "slot": 1300892,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500041
+  },
+  {
+   "slot": 1301781,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500042
+  },
+  {
+   "slot": 1351720,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500043
+  },
+  {
+   "slot": 1378596,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500044
+  },
+  {
+   "slot": 1383090,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500045
+  },
+  {
+   "slot": 1386350,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500046
+  },
+  {
+   "slot": 1417468,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500047
+  },
+  {
+   "slot": 1454515,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500048
+  },
+  {
+   "slot": 1457032,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500049
+  },
+  {
+   "slot": 1457177,
+   "class": "SketchPlane",
+   "match": "role",
+   "ours_tmp": 1500050
+  },
+  {
+   "slot": 1004910,
+   "class": "RoomElem",
+   "match": "role",
+   "ours_tmp": 1500051
+  }
+ ],
+ "ours_not_landed": {
+  "count": 0,
+  "by_class": {},
+  "examples": []
+ },
+ "residue_olds_left_in_place": {
+  "count": 0,
+  "by_class": {}
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 774144,
+ "seconds": 2.2
+}

@@ -1,0 +1,376 @@
+{
+ "tool": "rvt_job",
+ "tool_version": "1.0",
+ "mode": "edit",
+ "generated_at": "2026-08-05T04:18:45Z",
+ "inputs": {
+  "file": "/Users/ck/dev/things/tekton/experiments/routes/demo3-prompt-via-ifc-rvt/prompt_intent.rvt",
+  "ops": "/Users/ck/dev/things/tekton/experiments/routes/demo5-prompt-rvt-edit/ops.json",
+  "op_count": 2
+ },
+ "base": {
+  "path": "/Users/ck/dev/things/tekton/experiments/routes/demo3-prompt-via-ifc-rvt/prompt_intent.rvt",
+  "sha256": "77015db2e991a46beb51960f370e88f5bb4bf2b9c9120bc87e0af088d65826f3",
+  "is_autodesk_sample": false,
+  "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1"
+ },
+ "edit": {
+  "ops": [
+   {
+    "op": "move",
+    "id": 1472947,
+    "to": [
+     3.0,
+     1.0,
+     4.66
+    ]
+   },
+   {
+    "op": "delete",
+    "id": 1472952,
+    "cascade": true
+   }
+  ],
+  "log": [
+   "op1 move     id=1472947 to (3.0, 1.0, 4.66) ft",
+   "op2 delete   id=1472952 cascade=True -> removes 1 element(s)"
+  ],
+  "edited_ids": [
+   1472947
+  ],
+  "deleted_ids": [
+   1472952
+  ],
+  "created_ids": [],
+  "plans": [
+   {
+    "plan": "modify",
+    "kind": "move",
+    "elem_id": 1472947,
+    "class": "FamilyInstance",
+    "changes": [
+     {
+      "seq": 102,
+      "path": "m_pInstanceInfo.value.m_Trf.m_or",
+      "before": [
+       -14.666666666666664,
+       6.864829396325459,
+       4.658792650918635
+      ],
+      "after": [
+       3.0,
+       1.0,
+       4.66
+      ]
+     },
+     {
+      "seq": 101,
+      "path": "m_pBBox.value.m_minmax",
+      "before": [
+       [
+        -15.666666666666664,
+        5.864829396325459,
+        4.658792650918635
+       ],
+       [
+        -13.666666666666664,
+        7.864829396325459,
+        7.658792650918635
+       ]
+      ],
+      "after": [
+       [
+        2.0,
+        0.0,
+        4.66
+       ],
+       [
+        4.0,
+        2.0,
+        7.66
+       ]
+      ]
+     }
+    ],
+    "record_edits": [
+     {
+      "seq": 102,
+      "elem_id": 1472947,
+      "action": "replace",
+      "new_record_len": 787,
+      "reason": "move: placement transform"
+     },
+     {
+      "seq": 101,
+      "elem_id": 1472947,
+      "action": "replace",
+      "new_record_len": 217,
+      "reason": "move: header bbox"
+     }
+    ],
+    "notes": [
+     "translated by [17.666666666666664, -5.864829396325459, 0.0012073490813655496] ft"
+    ]
+   },
+   {
+    "plan": "delete",
+    "root_id": 1472952,
+    "cascade": true,
+    "ids_to_remove": [
+     1472952
+    ],
+    "dependents": [],
+    "referrer_edits": [],
+    "record_edits": [
+     {
+      "seq": 101,
+      "elem_id": 1472952,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 102,
+      "elem_id": 1472952,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     },
+     {
+      "seq": 103,
+      "elem_id": 1472952,
+      "action": "remove",
+      "new_record_len": 0,
+      "reason": "element deleted"
+     }
+    ],
+    "elemtable_remove": [
+     1472952
+    ],
+    "warnings": [],
+    "notes": [
+     "deleting 1 element(s): [1472952]; 0 referrer element(s) neutralised; ElemTable count -= 1, id watermark unchanged"
+    ]
+   }
+  ],
+  "stages": [
+   {
+    "stage": "manipulate",
+    "plans": 2,
+    "removed_ids": [
+     1472952
+    ],
+    "elemtable_before": 3241,
+    "elemtable_after": 3240
+   }
+  ]
+ },
+ "gates": {
+  "structural": {
+   "status": "PASS",
+   "kind": "verify_manipulated",
+   "edited": {
+    "1472947": {
+     "101": {
+      "class": "ElementHeader",
+      "clean": true
+     },
+     "102": {
+      "class": "FamilyInstance",
+      "clean": true
+     },
+     "103": {
+      "class": "SerializedDummy",
+      "clean": true
+     }
+    }
+   },
+   "warnings": [],
+   "report": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "isize_identity_mismatches": 0,
+    "stamps_ok": true,
+    "elemtable_count": 3240,
+    "header_count": 3240,
+    "sentinel_last": {
+     "101": true,
+     "102": true,
+     "103": true
+    },
+    "deleted_still_present": {},
+    "deleted_in_elemtable": [],
+    "elemtable_ids_sorted": true,
+    "unit0_ids_equal_elemtable": true
+   }
+  },
+  "validation": {
+   "status": "PASS",
+   "errors": 0,
+   "warnings": 1,
+   "infos": 2,
+   "layers": [
+    "structure",
+    "consistency",
+    "semantic"
+   ],
+   "strict": false,
+   "elapsed_s": 0.3,
+   "summary_line": "verdict: VALID (no errors); warnings=1 info=2; layers=structure,consistency,semantic",
+   "top_findings": [
+    {
+     "severity": "warning",
+     "layer": "semantic",
+     "where": "objects",
+     "message": "1/3529 seq-102 records failed schema decode (DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee"
+    }
+   ],
+   "stats": {
+    "streams": 12,
+    "pages_checked": 16,
+    "gzip_members": 8,
+    "partition_blocks": 36,
+    "records": 10611,
+    "elements_decoded": 3529,
+    "decode_failures": 1,
+    "refs_checked": 53611,
+    "connector_edges": 0,
+    "circuits": 0
+   },
+   "report_json": "/Users/ck/dev/things/tekton/experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt.validation.json"
+  },
+  "identity": {
+   "status": "PASS",
+   "issues": [],
+   "identity": {
+    "author": "rvt-writer",
+    "client_app_name": "rvt-writer",
+    "username": "",
+    "last_save_path": "prompt_intent.edited.rvt",
+    "central_model_path": "",
+    "unique_document_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+    "central_episode_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+    "format": "2026",
+    "build": "20250227_1515(x64)",
+    "locale": "ENU",
+    "unique_document_increments": "22"
+   },
+   "history_head_guid": "34447475-c1fb-44d1-b0f8-1adaa86cdbe1",
+   "our_identity": {
+    "author": "rvt-writer",
+    "client_app_name": "rvt-writer"
+   }
+  },
+  "base_provenance": {
+   "status": "PROOF-ONLY, NOT-DELIVERABLE",
+   "deliverable": false,
+   "base": "/Users/ck/dev/things/tekton/experiments/routes/demo3-prompt-via-ifc-rvt/prompt_intent.rvt",
+   "base_is_autodesk_sample": false,
+   "elapsed_s": 0.2,
+   "g1": {
+    "passes": false,
+    "verdict": "FAIL \u2014 3,187 Autodesk-derived element(s) in expression-bearing categories",
+    "blocking": [
+     {
+      "category": "embedded-family-documents",
+      "provenance": "autodesk-sample",
+      "count": 7,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "loadable-families",
+      "provenance": "autodesk-sample",
+      "count": 21,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "family-types-symbols",
+      "provenance": "autodesk-sample",
+      "count": 9,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "system-family-types",
+      "provenance": "autodesk-sample",
+      "count": 4,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "views-and-templates",
+      "provenance": "autodesk-sample",
+      "count": 87,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "object-styles",
+      "provenance": "autodesk-sample",
+      "count": 1591,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "patterns-materials",
+      "provenance": "autodesk-sample",
+      "count": 71,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "text-dimension-types",
+      "provenance": "autodesk-sample",
+      "count": 17,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "parameter-definitions",
+      "provenance": "autodesk-sample",
+      "count": 922,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "phases-design-options",
+      "provenance": "autodesk-sample",
+      "count": 11,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "project-info-settings",
+      "provenance": "autodesk-sample",
+      "count": 37,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     },
+     {
+      "category": "mep-electrical-definitions",
+      "provenance": "autodesk-sample",
+      "count": 354,
+      "why": "Autodesk-derived expression in an expression-bearing category"
+     }
+    ]
+   },
+   "provenance_totals": {
+    "autodesk-sample": 3239,
+    "ours-modified": 1
+   },
+   "created_elements": [],
+   "modified_elements": [
+    {
+     "id": 1472947,
+     "class": "FamilyInstance",
+     "category": "placed-model-content",
+     "provenance": "ours-modified",
+     "reason": "differs in object+header",
+     "attribution": "prompt_intent"
+    }
+   ],
+   "reason": "P0 genesis gate G1 fails (the base carries derived expression that G1 blocks): FAIL \u2014 3,187 Autodesk-derived element(s) in expression-bearing categories. Nothing built on a sample base is a product; ship only from a certified genesis base."
+  }
+ },
+ "hard_gates_passed": true,
+ "deliverable": false,
+ "status": "PROOF-ONLY, NOT-DELIVERABLE (hard gates PASSED)",
+ "elapsed_s": 1.6,
+ "output": {
+  "path": "/Users/ck/dev/things/tekton/experiments/routes/demo5-prompt-rvt-edit/prompt_intent.edited.rvt",
+  "bytes": 655360,
+  "sha256": "2e98d49f157e0ae2df519c39b40febbee148e1785b7064ffa95dc848ddc9fe20"
+ }
+}

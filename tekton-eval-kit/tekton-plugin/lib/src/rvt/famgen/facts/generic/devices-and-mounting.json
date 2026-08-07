@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "vendor": "generic",
+  "line": "devices-and-mounting",
+  "product_line": "Generic device facts: NEMA-configuration wiring devices, standard outlet-box sizes, and code / convention mounting heights (vendor-neutral)",
+  "category": "device",
+  "revit_category": "OST_ElectricalFixtures",
+  "license_note": "Code / standard FACTS and industry conventions only. Standards text is not reproduced; each entry states the figure and cites the code section. See ../LICENSE_NOTES.md.",
+  "collection_posture": {
+    "summary": "These are public code and standards facts (US ADA Standards, NFPA 70 National Electrical Code, NEMA WD 6 device configurations). The ADA reach-range figures and the NEC 4-in-square-box volume were corroborated by search this session; the underlying standards documents were not re-read verbatim, so entries citing them without a direct read are flagged accordingly. Design conventions (typical mounting heights) are 'assumed' by definition - they are firm/project choices within the code envelope, exposed as editable parameters.",
+    "primary_reachable": true,
+    "method": "search corroboration of code figures; conventions from practice"
+  },
+  "sources": {
+    "S1": {
+      "url": "https://www.ada.gov/law-and-regs/design-standards/2010-stds/",
+      "doc": "2010 ADA Standards for Accessible Design, section 308 (Reach Ranges) and 309 (Operable Parts)",
+      "publisher": "US Department of Justice",
+      "doc_date": "2010-09-15",
+      "accessed": "2026-08-03",
+      "verification": "SEARCH-SUMMARY",
+      "note": "308.2.1: unobstructed high forward reach 48 in (1220 mm) max, low forward reach 15 in (380 mm) min above finish floor - figures corroborated via search summary of the standard text; document not re-read verbatim this session."
+    },
+    "S2": {
+      "url": "https://www.nfpa.org/codes-and-standards/nfpa-70-standard-development/70",
+      "doc": "NFPA 70, National Electrical Code (NEC), Article 314.16 (box fill) and Table 314.16(A) (metal box volumes)",
+      "publisher": "NFPA",
+      "doc_date": null,
+      "accessed": "2026-08-03",
+      "verification": "SEARCH-SUMMARY",
+      "note": "Table 314.16(A) volume of a 4 in x 1-1/2 in square box = 21.0 in^3 - corroborated via search summary; other box volumes below are recalled and flagged 'assumed' until Table 314.16(A) is read directly."
+    },
+    "S3": {
+      "url": "https://www.nema.org/standards/view/wiring-devices-dimensional-specifications",
+      "doc": "NEMA WD 6 - Wiring Devices Dimensional Specifications (receptacle / plug configurations)",
+      "publisher": "NEMA",
+      "doc_date": null,
+      "accessed": null,
+      "verification": "UNVERIFIED",
+      "note": "Not read this session; NEMA configuration names below are common knowledge, dimensions from WD 6 are not transcribed."
+    }
+  },
+  "line_facts": {
+    "ada_forward_reach_high_max_in": {"value": 48, "unit": "in", "provenance": "fact", "source": "S1", "note": "ADA 308.2.1 unobstructed high forward reach maximum 48 in (1220 mm) - the CEILING for switch / control operable-part height."},
+    "ada_forward_reach_low_min_in": {"value": 15, "unit": "in", "provenance": "fact", "source": "S1", "note": "ADA 308.2.1 low forward reach minimum 15 in (380 mm) - the FLOOR for receptacle height (to the operable part)."},
+    "ada_obstructed_reach_high_max_in": {"value": 44, "unit": "in", "provenance": "fact", "source": "S1", "note": "ADA 308.2.2 obstructed high forward reach 44 in (1120 mm) max where reach depth exceeds 20 in (508 mm), 25 in (635 mm) max depth."},
+    "box_4in_square_1_5_deep_volume_in3": {"value": 21.0, "unit": "in3", "provenance": "fact", "source": "S2", "note": "NEC Table 314.16(A): 4 x 1-1/2 in square box = 21.0 in^3."}
+  },
+  "variants": [
+    {
+      "model": "duplex-receptacle-5-15R",
+      "aliases": ["NEMA 5-15R duplex", "convenience receptacle"],
+      "role": "125 V, 15 A duplex receptacle (NEMA 5-15R), the default room outlet",
+      "ratings": {"voltage_v": 125, "current_a": 15, "poles": 2, "wires": 3, "nema_config": "5-15R"},
+      "dims_in": {"w": 1.9, "h": 4.19, "d": 2.5},
+      "dims_note": "Envelope of a standard single-gang device box + duplex strap for the family symbol (single-gang device box nominal 3 x 2 in opening, 2-1/2 in deep typical; wall plate 4-1/2 x 2-3/4 in nominal). These are OUR modelling envelope values, flagged 'assumed'.",
+      "options": {
+        "mounting_height_aff_in": {"typical": 18, "ada_min_to_operable_part": 15, "note": "18 in above finished floor to the box centerline is a common design convention (assumed); ADA sets only the 15 in minimum to the lowest operable part (fact)."},
+        "box": "single-gang device box or 4 in square box with single-gang mud ring"
+      },
+      "source": {"url": "https://www.ada.gov/law-and-regs/design-standards/2010-stds/", "doc": "2010 ADA Standards 308 (reach ranges) - mounting-height envelope; NEMA WD 6 for the 5-15R configuration name", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_v": "assumed",
+        "ratings.current_a": "assumed",
+        "ratings.poles": "assumed",
+        "ratings.wires": "assumed",
+        "ratings.nema_config": "assumed",
+        "dims_in.w": "assumed",
+        "dims_in.h": "assumed",
+        "dims_in.d": "assumed",
+        "options.mounting_height_aff_in": "assumed",
+        "options.box": "assumed"
+      },
+      "notes": "The NEMA 5-15R = 125 V / 15 A / 2-pole 3-wire mapping is standard NEMA WD 6 nomenclature but S3 was not read this session, so it is 'assumed' pending a verbatim read. Only the ADA reach-range envelope (line_facts) is a corroborated fact."
+    },
+    {
+      "model": "duplex-receptacle-5-20R",
+      "aliases": ["NEMA 5-20R duplex"],
+      "role": "125 V, 20 A duplex receptacle (NEMA 5-20R)",
+      "ratings": {"voltage_v": 125, "current_a": 20, "poles": 2, "wires": 3, "nema_config": "5-20R"},
+      "dims_in": {"w": 1.9, "h": 4.19, "d": 2.5},
+      "options": {"mounting_height_aff_in": {"typical": 18, "ada_min_to_operable_part": 15}, "box": "single-gang device box or 4 in square box with single-gang mud ring"},
+      "source": {"url": "https://www.nema.org/standards/view/wiring-devices-dimensional-specifications", "doc": "NEMA WD 6 configuration naming (not read this session)", "accessed": null},
+      "field_provenance": {
+        "ratings.voltage_v": "assumed",
+        "ratings.current_a": "assumed",
+        "ratings.poles": "assumed",
+        "ratings.wires": "assumed",
+        "ratings.nema_config": "assumed",
+        "dims_in.w": "assumed",
+        "dims_in.h": "assumed",
+        "dims_in.d": "assumed",
+        "options.mounting_height_aff_in": "assumed",
+        "options.box": "assumed"
+      },
+      "notes": "All 'assumed' - see 5-15R notes."
+    },
+    {
+      "model": "toggle-switch-single-pole",
+      "aliases": ["light switch", "single-pole toggle 15 A"],
+      "role": "120/277 V single-pole toggle switch, the default lighting control",
+      "ratings": {"voltage_v": 277, "current_a": 15, "nema_config": "single-pole toggle"},
+      "dims_in": {"w": 1.9, "h": 4.19, "d": 2.5},
+      "options": {
+        "mounting_height_aff_in": {"typical": 48, "ada_max_to_operable_part": 48, "note": "48 in AFF to the top of the switch operable part satisfies the ADA 308.2.1 48 in unobstructed forward-reach maximum (fact); centering at 48 in is the common convention (assumed)."},
+        "box": "single-gang device box"
+      },
+      "source": {"url": "https://www.ada.gov/law-and-regs/design-standards/2010-stds/", "doc": "2010 ADA Standards 308.2.1 - reach ceiling", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.voltage_v": "assumed",
+        "ratings.current_a": "assumed",
+        "ratings.nema_config": "assumed",
+        "dims_in.w": "assumed",
+        "dims_in.h": "assumed",
+        "dims_in.d": "assumed",
+        "options.mounting_height_aff_in": "assumed",
+        "options.box": "assumed"
+      },
+      "notes": "The 48 in reach ceiling is the sourced fact (line_facts); device ratings and box envelope are 'assumed' conventions."
+    },
+    {
+      "model": "box-4in-square",
+      "aliases": ["4 square box", "1900 box"],
+      "role": "4 in square outlet / junction box, 1-1/2 in deep (21.0 in^3)",
+      "ratings": {"volume_in3": 21.0},
+      "dims_in": {"w": 4.0, "h": 4.0, "d": 1.5},
+      "options": {"deeper_variant_2_125in_volume_in3": 30.3, "note": "2-1/8 in deep 4 in square = 30.3 in^3 (NEC Table 314.16(A)) - recalled, flagged 'assumed' until the table is read directly."},
+      "source": {"url": "https://www.nfpa.org/codes-and-standards/nfpa-70-standard-development/70", "doc": "NEC Table 314.16(A) metal box volumes (4 x 1-1/2 square = 21.0 in^3 corroborated by search)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.volume_in3": "fact",
+        "dims_in.w": "fact",
+        "dims_in.h": "fact",
+        "dims_in.d": "fact",
+        "options.deeper_variant_2_125in_volume_in3": "assumed",
+        "options.note": "assumed"
+      },
+      "notes": "The 4 x 4 x 1-1/2 in = 21.0 in^3 identity is the corroborated fact; nominal box outside dims equal the nominal 4 in / 1-1/2 in designation."
+    }
+  ]
+}

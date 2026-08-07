@@ -1,0 +1,1189 @@
+{
+ "description": "Files certified by Autodesk's own reader (viewer.autodesk.com translation = PASS). Maintained by the orchestrator; consumed by tools/coverage.py.",
+ "integrity_audit": "docs/writer/verdict-integrity-audit.md (genesis-discipline stream, 2026-08-04): every 'failed' entry below carries a 'cause_status' (SOUND / UNGUARDED / VOID / REFUTED / CONFIRMED) classifying whether its recorded cause still stands after the K1 retraction (ORCHESTRATOR VERDICTS #15). History is ANNOTATED, never deleted. New batches are assembled ONLY through tools/probe_batch.py (certified-base + certified-control gate).",
+ "certified": [
+  {
+   "file": "experiments/acceptance/V15_regzip_ecc_full.rvt",
+   "proves": "whole-file rewrite, every framed byte ours"
+  },
+  {
+   "file": "experiments/acceptance/V18_first_authored_change.rvt",
+   "proves": "authored content edit"
+  },
+  {
+   "file": "experiments/acceptance/V19_authored_change_stamped.rvt",
+   "proves": "authored edit with recomputed stamp"
+  },
+  {
+   "file": "experiments/acceptance/V20_first_created_element.rvt",
+   "proves": "element creation (family instance)"
+  },
+  {
+   "file": "experiments/acceptance/V21_batch_four_columns.rvt",
+   "proves": "batch creation"
+  },
+  {
+   "file": "experiments/acceptance/V22_first_created_wall.rvt",
+   "proves": "wall creation, SerializedDummy regen"
+  },
+  {
+   "file": "experiments/acceptance/V23_electrical_room.rvt",
+   "proves": "spec -> .rvt (electrical room)"
+  },
+  {
+   "file": "experiments/acceptance/V25_room_from_ifc.rvt",
+   "proves": "Design IFC -> .rvt, zero hand-authoring"
+  },
+  {
+   "file": "experiments/acceptance/V26_room_from_ifc_with_walls.rvt",
+   "proves": "IFC -> spec with synthesized walls -> .rvt"
+  },
+  {
+   "file": "experiments/acceptance/V27_room_from_file_template.rvt",
+   "proves": "Document.from_file (no corpus) plugin path"
+  },
+  {
+   "file": "experiments/acceptance/V28_room_clean_connectors.rvt",
+   "proves": "exact-symbol clone + scrubbed connectors"
+  },
+  {
+   "file": "experiments/acceptance/V29_room_with_circuits.rvt",
+   "proves": "created circuits, graph closure"
+  },
+  {
+   "file": "experiments/hosting/H1_panel_on_existing_wall.rvt",
+   "proves": "face-hosting on existing wall"
+  },
+  {
+   "file": "experiments/hosting/H2_panel_on_created_wall.rvt",
+   "proves": "face-hosting on newly created wall"
+  },
+  {
+   "file": "experiments/genesis/R0_identity.rvt",
+   "proves": "delete-writer re-blocking accepted"
+  },
+  {
+   "file": "experiments/genesis/R4s.rvt",
+   "proves": "deep reduction (near-minimal document) accepted"
+  },
+  {
+   "file": "experiments/manipulate/M2_delete_cascade.rvt",
+   "proves": "delete with dependents (cascade) - MEP"
+  },
+  {
+   "file": "experiments/manipulate/M3_modify.rvt",
+   "proves": "modify existing parameters"
+  },
+  {
+   "file": "experiments/manipulate/M4_move_retype.rvt",
+   "proves": "move + retype existing instance"
+  },
+  {
+   "file": "experiments/manipulate/M2_delete_cascade_rac.rvt",
+   "proves": "cascade delete on a foreign (arch) file"
+  },
+  {
+   "file": "experiments/acceptance/V30_own_identity_keep_author.rvt",
+   "proves": "own BasicFileInfo identity (scrubbed path, fresh GUIDs)"
+  },
+  {
+   "file": "experiments/acceptance/V31_own_identity_own_author.rvt",
+   "proves": "non-Autodesk author string accepted (reader does not gatekeep)"
+  },
+  {
+   "file": "experiments/acceptance/V32_own_dit_usernames.rvt",
+   "proves": "scrubbed DocumentIncrementTable usernames accepted"
+  },
+  {
+   "file": "experiments/genesis/types/T_conduit_types.rvt",
+   "proves": "OUR constructed conduit types (field-by-field from parameters) accepted"
+  },
+  {
+   "file": "experiments/genesis/R5.rvt",
+   "proves": "Latest-DANGLING variant accepted \u2014 dangling ADocument refs (~100) are NOT fatal"
+  },
+  {
+   "file": "experiments/genesis/R5s.rvt",
+   "proves": "Latest-safe control accepted"
+  },
+  {
+   "file": "experiments/genesis/R9.rvt",
+   "proves": "THOUSANDS of dangling Latest refs (families intact) accepted \u2014 dangling exonerated at scale"
+  },
+  {
+   "file": "experiments/genesis/triage/K4.rvt",
+   "proves": "ZERO family documents (all 52 removed, FOUR-registry coherent) LOADS => family documents NOT required by the reader"
+  },
+  {
+   "file": "experiments/genesis/triage/KD1.rvt",
+   "proves": "R9b's exact document removal with all FOUR registries reconciled LOADS => Bug B = two-of-four splice, FIXED by four-registry reconciliation"
+  },
+  {
+   "file": "experiments/genesis/triage/K3.rvt",
+   "proves": "annotation-head USAGE fields can be nulled"
+  },
+  {
+   "file": "experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
+   "proves": "OUR generated family (level head) LOADED into a working project via the four-registry loader"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_L1a_recheck.rvt",
+   "proves": "ORACLE-HEALTH CONTROL: md5-identical copy of certified L1a PASSES at ~01:55 => the service is healthy; verdicts #8-#11 STAND; the constructed/registered failures are REAL"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_R9_recheck.rvt",
+   "proves": "ORACLE-HEALTH CONTROL (second): certified R9 re-passes"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_R9_recheck_b15.rvt",
+   "proves": "batch-15 oracle control PASS (round valid)"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_K4_base_b15.rvt",
+   "proves": "batch-15 base control PASS \u2014 K4 (the rebased ladder's base) re-confirmed in-round"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/Y1.rvt",
+   "proves": "*** THE FIRST CONSTRUCTED OBJECT LOADS ***: OUR pen table (our ISO widths, our constructor), swapped IN PLACE into certified K4 (zero registration motion, Latest/ElemTable byte-identical), LOADS in Autodesk's reader"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/Y_cat.rvt",
+   "proves": "OUR complete 1,407-row built-in category/GStyle catalog (our discipline rules), substituted IN PLACE row-for-row into certified K4, LOADS"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/Y9.rvt",
+   "proves": "*** THE DEEPEST RUNG LOADS ***: settings layer + whole catalog + palette + datum (levels/phases) + view constellations ALL OURS in place on certified K4 \u2014 1,333 of K4's 3,342 host elements now OUR constructors' output; residue = 2,009 elements in 11 named buckets"
+  },
+  {
+   "file": "experiments/genesis/autopsy/K1a_editfree.rvt",
+   "proves": "autopsy: K1 with all survivor EDITS removed (edit-free) PASSES \u2014 confirms the edited survivors were K1's killer"
+  },
+  {
+   "file": "experiments/genesis/autopsy/K1_suspect.rvt",
+   "proves": "autopsy: the in-place family orphaning group alone is NOT the killer (PASS) \u2014 another edit group is; remaining rungs name it"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_Y9_base_b16.rvt",
+   "proves": "batch-16 base control PASS (Y9 re-confirmed; round valid)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_a/ZA_deep.rvt",
+   "proves": "*** GROUP-A RESIDUE LOADS ***: Y9 + sub-category layer + annotation types/fonts + grids/levels + patterns + appearance assets ALL OURS in place \u2014 +473 elements ours => 1,806/3,342 (54%) of the base ours, viewer-PASSED"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_a/Z_subcat.rvt",
+   "proves": "our project sub-category layer (415 slots; differs from Autodesk's rows in name/pen/colour only) in place \u2014 PASS"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_b/Z_defs.rvt",
+   "proves": "Group B's parameter-definitions bucket alone in place \u2014 PASS (exonerated from ZB_deep's failure)"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_Y9_base_b17.rvt",
+   "proves": "batch-17 base control PASS (round valid)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_b/Z_mepcat.rvt",
+   "proves": "Group-B 'mepcat' bucket alone in place \u2014 PASS (clean)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_b/Z_pens.rvt",
+   "proves": "Group-B 'pens' bucket alone in place \u2014 PASS (clean)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_b/Z_annot.rvt",
+   "proves": "Group-B 'annot' bucket alone in place \u2014 PASS (clean)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_b/Z_filters.rvt",
+   "proves": "Group-B 'filters' bucket alone in place \u2014 PASS (clean)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_b/Z_machinery.rvt",
+   "proves": "Group-B 'machinery' bucket alone in place \u2014 PASS (clean)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_b/Z_content.rvt",
+   "proves": "Group-B 'content' bucket alone in place \u2014 PASS (clean)"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_ZA_deep_b20.rvt",
+   "proves": "batch-20 control PASS (round valid)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_a2/ZC_deep.rvt",
+   "proves": "*** 63% ***: ZA_deep + all remaining Group-A dispositions in place \u2014 2,116/3,342 base elements OURS, viewer-PASSED; only 4 elements not in-place-able"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/palette_fix/Z_palette_v2.rvt",
+   "proves": "THE LAST GROUP-B BUCKET CLEAN: corrected palette bucket (swapped (value,id) tuple fix) on Y9 \u2014 PASS => every genesis constructor layer certified"
+  },
+  {
+   "file": "experiments/families/ifc/L_downlight_loaded.rvt",
+   "proves": "IFC-derived family works: our downlight .rfa from OUR OWN IFC's facts instantiates and loads \u2014 PASS"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_ZA_deep_b21.rvt",
+   "proves": "batch-21 control PASS (round valid)"
+  },
+  {
+   "file": "experiments/ifc_room/electrical_room_2500a_walls_only_unjoined.rvt",
+   "proves": "CREATION ON THE GENESIS BASE LOADS: our 4 walls (unjoined) on ZA_deep translate; but the model tree contains ONLY the level node \u2014 walls emit NO viewable geometry (LOAD != RENDER)"
+  },
+  {
+   "file": "experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
+   "proves": "joined room shell on ZA_deep LOADS \u2014 walls present but no baked geometry; 3D view shows only the datum"
+  },
+  {
+   "file": "experiments/ifc_room/stage_L8_lp4.rvt",
+   "proves": "family LOAD + instance PLACEMENT on the genesis base translate (PASS) \u2014 loader + creation path proven on the genesis lineage; viewable is 'design is empty' (no baked geometry)"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_ZCdeep_b23.rvt",
+   "proves": "batch-23 control PASS (round valid)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/compose/G_ABP.rvt",
+   "proves": "COMPOSED CANDIDATE PASS: certified ZC_deep + all 7 clean Group-B buckets + corrected palette (724 slots transplanted by tools/genesis_compose.py, anchor-proven byte-exact) \u2014 LOADS"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "proves": "***** THE COMPOSED GENESIS PROJECT BASE LOADS ***** \u2014 G_ABP + the 240-element lawful maxgc deletion set; validator VALID 0 errors, EDIT-FREE, four-registry coherent; the viewer opens it as a browsable model (3D view + sheet 'GEN-101 - GEN OVERALL PLAN', not empty, not corrupt). A project base whose settings/catalog/palette/datum/views/residue layers are ALL our constructors' output, composed with NO Autodesk-authored base content, LOADS in Autodesk's reader."
+  },
+  {
+   "file": "experiments/acceptance/CTRL_render_b25.rvt",
+   "proves": "batch-25 control PASS (round valid)"
+  },
+  {
+   "file": "experiments/ifc_room/render/wall_baked_min.rvt",
+   "proves": "ONE created wall with an AUTHORED seq-103 GElement B-rep solid \u2014 translation PASS",
+   "renders": true
+  },
+  {
+   "file": "experiments/render/RSOLID_walls_A_solid.rvt",
+   "proves": "***** CREATION IS VISIBLE *****: 4 created walls with authored seq-103 GElement six-face solids on the LOAD-certified walls-only genesis base \u2014 translation PASS AND THE VIEWER RENDERS THE ROOM SHELL as shaded 3D geometry (screenshot 2026-08-04 ~13:00). LOAD + RENDER both proven for created content.",
+   "renders": true
+  },
+  {
+   "file": "experiments/acceptance/CTRL_GABPD_b27.rvt",
+   "proves": "batch-27 control PASS (G_ABPD re-confirmed)"
+  },
+  {
+   "file": "experiments/acceptance/CTRL_wallsonly_b27.rvt",
+   "proves": "batch-27 control PASS (walls-only base re-confirmed)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_c/RC_zero.rvt",
+   "proves": "***** ELEMENT-LAYER ENDGAME CLOSED *****: RC_deep + lawful deletion of the last 11 stragglers (incl. the identity leak) \u2014 0 errors 0 warnings, ZERO never-landed Autodesk elements \u2014 LOADS. The deepest genesis base is certified."
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_c/RC_deep.rvt",
+   "proves": "residue-C cumulative rung LOADS (year-schedule names ours, previews cleaned, headers cleaned, area rewire)"
+  },
+  {
+   "file": "experiments/render/g12/W1_gabpd_wall_solid.rvt",
+   "proves": "***** CREATE-AND-SEE *****: W1 loads AND RENDERS \u2014 the 3D view draws the created wall as shaded geometry (authored seq-103 GElement solid) on the genesis base. Screenshot in session ~22:55.",
+   "renders": true
+  },
+  {
+   "file": "experiments/render/g12/WF_fix.rvt",
+   "proves": "WF_fix PASS (walls + one family with the loader fix)"
+  },
+  {
+   "file": "experiments/render/g12/WF_nofix.rvt",
+   "proves": "WF_nofix PASS \u2014 the single-family reproduction does NOT reproduce the walls+families failure; mechanism attribution remains OPEN (original failure had 8 families)"
+  },
+  {
+   "file": "samples/2025/rstbasicsampleproject.rvt",
+   "proves": "2025 CONTROL PASS: the untouched Autodesk 2025 sample loads => the viewer READS 2025 uploads; the 2025 certification loop is live"
+  },
+  {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  },
+  {
+   "file": "experiments/genesis2025/reduce/K3_2025.rvt",
+   "proves": "2025 K3 rung LOADS (usage-null modify rung ports to 2025)"
+  },
+  {
+   "file": "experiments/genesis2025/reduce/R9_2025.rvt",
+   "proves": "2025 R9 rung LOADS (deep maxgc reduction ports to 2025)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "sha256": "6242c3aaccf86e7187fbd56879d450089c6fd33ad677d5847cb7c56d5e2b1171",
+   "when": "2026-08-05 ~01:20",
+   "proves": "THE COMPOSED 2025 GENESIS BASE loads (batch 29; control CTRL_B2025_K4_b29 byte-identical to the certified B2025_K4 also PASSED) \u2014 certifies the whole Y1..Y9+RA/RB/RC+deletion 2025 chain by bytes; native Revit-2025 creation base"
+  },
+  {
+   "file": "samples/2023/rstbasicsampleproject.rvt",
+   "when": "2026-08-05 ~01:20",
+   "proves": "CONTROL b30 (byte-identical renamed copy): the Autodesk viewer READS Revit 2023 uploads \u2014 2023 rounds are viewer-certifiable"
+  },
+  {
+   "file": "experiments/genesis2023/reduce/R9_2023.rvt",
+   "when": "2026-08-05 ~01:20",
+   "proves": "first 32-BIT RE-EMISSION accepted by Autodesk's reader (records32 layer: 8/12B framing, i32 ids, 28B ElemTable rows)"
+  },
+  {
+   "file": "experiments/genesis2023/reduce/K3_2023.rvt",
+   "when": "2026-08-05 ~01:20",
+   "proves": "32-bit modify-gate: 9,618 re-emitted stamps + 43 neutralised referrers accepted at 2023"
+  },
+  {
+   "file": "experiments/genesis2023/reduce/B2023_K4.rvt",
+   "sha256": "8de23abdc36256cbb61d07771ed4b09a3a9256d59914d9d00a3bec426e21cb99",
+   "when": "2026-08-05 ~01:20",
+   "proves": "THE 2023 FAMILY-FREE BASE CERTIFIED (4,171 elements; 52 docs removed; four-registry coherent; residual-GUID 0) \u2014 substitution campaign may build on it"
+  },
+  {
+   "file": "experiments/instbug/BX_f2.rvt",
+   "when": "2026-08-05 ~01:20",
+   "proves": "TWO chained famgen loads, no instances, UNFIXED (carries D2 unsorted ContentTable) PASSES \u2014 multi-load alone is tolerated; D2 not the audit trigger at N=2"
+  },
+  {
+   "file": "samples/2024/rstbasicsampleproject.rvt",
+   "when": "2026-08-05 ~02:25",
+   "proves": "CONTROL b28: the viewer reads Revit 2024 uploads"
+  },
+  {
+   "file": "experiments/genesis2024/reduce/R9_2024.rvt",
+   "when": "2026-08-05 ~02:25",
+   "proves": "2024 deep reduction accepted"
+  },
+  {
+   "file": "experiments/genesis2024/reduce/K3_2024.rvt",
+   "when": "2026-08-05 ~02:25",
+   "proves": "2024 modify-gate accepted"
+  },
+  {
+   "file": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "sha256": "505ed303f9c9e89eabff06e3ad7d594a58a8d8a48f9196d41401a58b079e57ee",
+   "when": "2026-08-05 ~02:25",
+   "proves": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  },
+  {
+   "file": "experiments/frontdoor2025/room_walls/ROOM2025_walls.rvt",
+   "sha256": "666f66a53525f0f913e325268ec0d9d3b69939dfa04387954a15683f51702d55",
+   "when": "2026-08-05 ~02:25",
+   "proves": "NATIVE 2025 AUTHORING VIEWER-CERTIFIED: author --target-version 2025 (release_ctx) emits a native Revit-2025 file from a prompt that Autodesk loads (control CTRL_G_ABPD_2025_b35 also PASS)"
+  },
+  {
+   "file": "experiments/genesis/subst_k4_2024/compose/G_ABPD_2024.rvt",
+   "sha256": "e4a40671d8b6c649f4c8ba2ee45c1843f6d61e722a738cc2c88bd6cdb3dd925a",
+   "when": "2026-08-05 ~03:10",
+   "proves": "THE COMPOSED 2024 GENESIS BASE loads (b36; control + Y9_2024 + Y7_2024 also PASS) \u2014 certifies the whole 2024 substitution chain by bytes"
+  },
+  {
+   "file": "experiments/genesis/subst_k4_2024/Y9_2024.rvt",
+   "when": "2026-08-05 ~03:10",
+   "proves": "2024 datum/views chain accepted"
+  },
+  {
+   "file": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+   "when": "2026-08-05 ~03:10",
+   "proves": "2024 settings/catalog chain accepted"
+  },
+  {
+   "file": "experiments/hostpair/H10.rvt",
+   "when": "2026-08-05 ~03:55",
+   "proves": "the byte-copied native host constellation + famload registration + new unit is STATICALLY LAWFUL (uninstanced) \u2014 copies and registration tolerated"
+  },
+  {
+   "file": "experiments/terminal/probes/E_ALL.rvt",
+   "when": "2026-08-05 ~05:35",
+   "proves": "the envelope round: all axes flipped PASSES"
+  },
+  {
+   "file": "experiments/terminal/probes/E1.rvt",
+   "when": "2026-08-05 ~05:35",
+   "proves": "donor 64-byte footer blob PASSES"
+  },
+  {
+   "file": "experiments/terminal/probes/E1b.rvt",
+   "when": "2026-08-05 ~05:35",
+   "proves": "RANDOM 64-byte footer blob PASSES \u2014 THE ANSWER: the 0x0f3f unit footer blob is a PRESENCE-ONLY audit check; the empty form is what failed every instanced probe"
+  },
+  {
+   "file": "experiments/famdoc_blobs/B7.rvt",
+   "when": "2026-08-05 ~06:35",
+   "proves": "donor famdoc + blob through OUR famload + instance PASSES \u2014 load machinery fully exonerated (batch-37's H7 FAIL was the empty blob)"
+  },
+  {
+   "file": "experiments/famdoc_blobs/B1.rvt",
+   "when": "2026-08-05 ~06:35",
+   "proves": "OUR geometry forms (m_geomSteps-less extrusions etc.) accepted when instanced, with blob"
+  },
+  {
+   "file": "experiments/famdoc_blobs/B2.rvt",
+   "when": "2026-08-05 ~06:35",
+   "proves": "OUR params/types accepted"
+  },
+  {
+   "file": "experiments/famdoc_blobs/B3.rvt",
+   "when": "2026-08-05 ~06:35",
+   "proves": "OUR datums accepted"
+  },
+  {
+   "file": "experiments/famdoc_blobs/B4.rvt",
+   "when": "2026-08-05 ~06:35",
+   "proves": "OUR views accepted"
+  },
+  {
+   "file": "experiments/famdoc_blobs/B5.rvt",
+   "when": "2026-08-05 ~06:35",
+   "proves": "OUR connector accepted"
+  },
+  {
+   "file": "experiments/famdoc_blobs/B6.rvt",
+   "when": "2026-08-05 ~06:35",
+   "proves": "our all-null inline ADocument accepted"
+  },
+  {
+   "file": "experiments/famdoc_final/U16.rvt",
+   "when": "2026-08-05 ~07:20",
+   "proves": "donor body + ALL SIX of our content axes at once ACCEPTED (452-row ElemTable, appended roster)"
+  },
+  {
+   "file": "experiments/famdoc_final/U12345.rvt",
+   "when": "2026-08-05 ~07:20",
+   "proves": "union with OUR all-null inline ADocument also ACCEPTED"
+  },
+  {
+   "file": "experiments/famdoc_final/U12.rvt",
+   "when": "2026-08-05 ~07:20",
+   "proves": "pair union accepted"
+  },
+  {
+   "file": "experiments/famdoc_final/U15.rvt",
+   "when": "2026-08-05 ~07:20",
+   "proves": "pair union accepted"
+  },
+  {
+   "file": "experiments/famdoc_final/U25.rvt",
+   "when": "2026-08-05 ~07:20",
+   "proves": "pair union accepted"
+  },
+  {
+   "file": "experiments/subtractive/SUB_ALL.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "THE BREAKTHROUGH: the donor famdoc lawfully REDUCED to our exact lean 41-element shape (donor frame + our 35 axis elements) PASSES with an instance \u2014 content-equal to FAILING F1, construction-different => the audit's objection is the document's PHYSICAL LAYOUT (record order/arrangement), not any element or field"
+  },
+  {
+   "file": "experiments/subtractive/SUB_S1.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "single class-group deletion tolerated"
+  },
+  {
+   "file": "experiments/subtractive/SUB_S2.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "single class-group deletion tolerated"
+  },
+  {
+   "file": "experiments/subtractive/SUB_S3.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "single class-group deletion tolerated"
+  },
+  {
+   "file": "experiments/subtractive/SUB_S4.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "single class-group deletion tolerated"
+  },
+  {
+   "file": "experiments/subtractive/SUB_S5.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "single class-group deletion tolerated"
+  },
+  {
+   "file": "experiments/subtractive/SUB_S5A.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "single class-group deletion tolerated"
+  },
+  {
+   "file": "experiments/subtractive/SUB_S5B.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "single class-group deletion tolerated"
+  },
+  {
+   "file": "experiments/subtractive/SUB_S6.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "single class-group deletion tolerated"
+  },
+  {
+   "file": "experiments/subtractive/SUB_S7.rvt",
+   "when": "2026-08-05 ~08:25",
+   "proves": "single class-group deletion tolerated"
+  },
+  {
+   "file": "experiments/layout/M2.rvt",
+   "when": "2026-08-05 ~09:30",
+   "proves": "the passing unit re-emitted in OUR famgen record order still PASSES \u2014 order exonerated in BOTH directions"
+  },
+  {
+   "file": "experiments/rftprobe/T2a.rvt",
+   "sha256": "7f29d4078071f01d051e8c9b6c4525688f49827b6218ca41fa959de4e02a83da",
+   "when": "2026-08-05 ~11:45",
+   "proves": "THE BIRTH LAW CONFIRMED: a Revit-BORN standalone .rfa famdoc (1,992 elements) through OUR famload onto OUR composed G_ABPD with a placed instance is ACCEPTED \u2014 birth-inheritance extends to standalone bodies AND the load-any-.rfa product path is viewer-certified end to end"
+  },
+  {
+   "file": "experiments/rftprobe/TB0.rvt",
+   "when": "2026-08-05 ~11:45",
+   "proves": "smallest Autodesk-born model famdoc via our machinery + instance: PASS"
+  },
+  {
+   "file": "experiments/rftprobe/TB0r.rvt",
+   "when": "2026-08-05 ~11:45",
+   "proves": "rst variant PASS (machinery re-affirmed vs certified B7)"
+  },
+  {
+   "file": "experiments/unionrec/T1u.rvt",
+   "when": "2026-08-05 ~13:50",
+   "proves": "standalone shell + our content via old machinery on rst: PASS (species exonerated)"
+  },
+  {
+   "file": "experiments/unionrec/T1r.rvt",
+   "when": "2026-08-05 ~13:50",
+   "proves": "T1v's BYTE-IDENTICAL famdoc on rst: PASS \u2014 the famdoc was never wrong; machinery exonerated"
+  },
+  {
+   "file": "experiments/species/TB0g.rvt",
+   "sha256": "0cc2856d25f06b3ab5abc967718247042467bedcfaf86e0bc079eb03020421c2",
+   "when": "2026-08-05 ~16:20",
+   "proves": "an EMBEDDED-BORN famdoc transplanted onto composed G_ABPD with a placed instance PASSES \u2014 reduced bases accept both born species; extract-family->place-into-our-projects has base-level evidence"
+  }
+ ],
+ "failed": [
+  {
+   "file": "experiments/genesis/G0.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-03 ~14:46",
+   "note": "validator-VALID but the Autodesk reader rejects it. Lead suspect: ~6,175 dangling element-id references carried verbatim in Global/Latest (the untested Latest-dangling tolerance); other candidates: constructed-skeleton omission, assembler commit path. Bisection uploads queued: R5 (~100 dangling), R9/R10 (thousands), R5s/R9s (Latest-safe controls), R10b (families removed).",
+   "cause_status": "REFUTED + VOID-by-base -- the recorded lead suspect (6,175 dangling Latest ids) was REFUTED by R5/R9 PASS (dangling tolerated at any scale); G0's own ladder rungs G0a-G0d were never viewer-tested, so its failing step is unlocalised (base uncertified). The FAIL itself is real (round self-guarded by V32/T_conduit passes). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/R10b.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-03 ~15:53",
+   "note": "embedded family DOCUMENTS removed (38/52 units spliced) \u2014 validator-clean, reader rejects. With R5's PASS this REPLACES Latest-dangling as the lead suspect for G0 (G0 has zero family docs).",
+   "cause_status": "VOID-by-base -- its base R10.rvt was never uploaded/certified; the underlying claim was re-run on the CERTIFIED R9 as R9b (SOUND) and refined by KD1/K4: family documents are NOT required, COHERENT four-registry reconciliation is. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/R9b.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-03 ~16:57",
+   "note": "family-document/unit removal (gentler than R10b) also fatal => unit-removal/content-registry INCOHERENCE is the killer, not dangling.",
+   "cause_status": "SOUND + CONFIRMED -- base R9 certified (co-uploaded PASS, same round); the finding (unit-removal / content-registry incoherence is fatal) was confirmed constructively by KD1 PASS (Bug B fixed by four-registry reconciliation). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/G1_candidate.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-03 ~18:15",
+   "note": "content-registry coherence was necessary but NOT sufficient. R10b kept the 12 view-annotation-head families and still failed => two DISTINCT bugs suspected: (A) constructed-skeleton completeness for G0/G1 (settings singletons / catalog elements the reader requires \u2014 the assembler's own \u00a75.2 branch), (B) malformed unit-removal splice for R9b/R10b (pre-dates the solved ContentDocuments grammar). P4_ids_null + P6_all (max ADocument sanitization on the WORKING rst base, families intact) uploaded to exonerate/convict the ADocument outright.",
+   "cause_status": "VOID -- built over the viewer-FAILED G0 skeleton, in a round with NO passing file; Bug B of the two-bug model was real (R9b/KD1, R9 lineage) but 'Bug A: settings singletons / catalog required' rests only on K1-lineage failures and is VOID (verdict #15). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/G1a.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-03 ~18:15",
+   "note": "content-registry coherence was necessary but NOT sufficient. R10b kept the 12 view-annotation-head families and still failed => two DISTINCT bugs suspected: (A) constructed-skeleton completeness for G0/G1 (settings singletons / catalog elements the reader requires \u2014 the assembler's own \u00a75.2 branch), (B) malformed unit-removal splice for R9b/R10b (pre-dates the solved ContentDocuments grammar). P4_ids_null + P6_all (max ADocument sanitization on the WORKING rst base, families intact) uploaded to exonerate/convict the ADocument outright.",
+   "cause_status": "VOID -- base G1_candidate.rvt had itself FAILED (verdict #4); content tested on a failed base measures nothing. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/G1b.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-03 ~18:15",
+   "note": "content-registry coherence was necessary but NOT sufficient. R10b kept the 12 view-annotation-head families and still failed => two DISTINCT bugs suspected: (A) constructed-skeleton completeness for G0/G1 (settings singletons / catalog elements the reader requires \u2014 the assembler's own \u00a75.2 branch), (B) malformed unit-removal splice for R9b/R10b (pre-dates the solved ContentDocuments grammar). P4_ids_null + P6_all (max ADocument sanitization on the WORKING rst base, families intact) uploaded to exonerate/convict the ADocument outright.",
+   "cause_status": "VOID -- base G1_candidate.rvt had itself FAILED (verdict #4); content tested on a failed base measures nothing. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/triage/K5.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~19:20",
+   "note": "K1 empty project MINUS the settings singletons => THE SETTINGS SINGLETONS ARE REQUIRED (Bug A component 1)",
+   "cause_status": "VOID -- 'THE SETTINGS SINGLETONS ARE REQUIRED' (Bug A component 1) rests on base K1.rvt, which was never certified and FAILS on its own (verdict #15); the requirement is NOT established. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/triage/K6.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~19:20",
+   "note": "K1 MINUS the built-in category/GStyle catalog => THE STYLE CATALOG IS REQUIRED (Bug A component 2); with P4/P6: the ADocument registries INDEX the catalog and are walked at load",
+   "cause_status": "VOID -- 'THE STYLE CATALOG IS REQUIRED' (Bug A component 2) rests on base K1.rvt (never certified; FAILS alone, verdict #15); NOT established. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/latest/probes/P4_ids_null.rvt",
+   "verdict": "PROCESSING FAILED",
+   "note": "nulling LIVE registry ids on a working base is fatal, while DANGLING ids of deleted elements (R5/R9) are tolerated => registries must correctly index PRESENT catalog rows",
+   "cause_status": "UNGUARDED -- base = the certified-lineage rst working sample (sound); uploaded in the pass-less round ~17:56 and read out at #6 after K3/K4/KD1 passed. The finding (live registry ids must index PRESENT rows; dangling ids of DELETED rows tolerated) is consistent with R5/R9 -- good evidence pending a controlled re-run. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/latest/probes/P6_all.rvt",
+   "verdict": "PROCESSING FAILED",
+   "note": "maximal ADocument sanitization incl. live-id nulling => fatal (dominated by the P4 effect)",
+   "cause_status": "UNGUARDED -- as P4_ids_null (dominated by the P4 effect); base sound (certified-lineage rst sample), round pass-less. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/singletons/S5.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~20:50",
+   "note": "our singletons/catalog on the G1_candidate base still trip Revit-DocumentCorruption/'Design is empty' \u2014 cannot separate mis-shaped content from an independent G1-base defect (content tested on the suspect base)",
+   "cause_status": "VOID -- base G1_candidate.rvt had itself FAILED (verdict #4); content tested on a failed base measures nothing. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/singletons/S4.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~20:50",
+   "note": "our singletons/catalog on the G1_candidate base still trip Revit-DocumentCorruption/'Design is empty' \u2014 cannot separate mis-shaped content from an independent G1-base defect (content tested on the suspect base)",
+   "cause_status": "VOID -- base G1_candidate.rvt had itself FAILED (verdict #4); content tested on a failed base measures nothing. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/singletons/S3.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~20:50",
+   "note": "our singletons/catalog on the G1_candidate base still trip Revit-DocumentCorruption/'Design is empty' \u2014 cannot separate mis-shaped content from an independent G1-base defect (content tested on the suspect base)",
+   "cause_status": "VOID -- base G1_candidate.rvt had itself FAILED (verdict #4); content tested on a failed base measures nothing. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/singletons/S1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~20:50",
+   "note": "our singletons/catalog on the G1_candidate base still trip Revit-DocumentCorruption/'Design is empty' \u2014 cannot separate mis-shaped content from an independent G1-base defect (content tested on the suspect base)",
+   "cause_status": "VOID -- base G1_candidate.rvt had itself FAILED (verdict #4); content tested on a failed base measures nothing. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/addback/R3.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~22:50",
+   "note": "same 'Revit-DocumentCorruption / Design is empty' signature \u2014 every file carrying our from-scratch CONSTRUCTED objects fails, even on the K1 lineage with byte-clean mechanics controls (R2s == K1); the clone/verbatim path passes everywhere",
+   "cause_status": "VOID -- base S5.rvt had itself FAILED (G1 lineage) and the round (verdicts #9) carried NO passing file; verdict #9's 'constructed vs cloned divide' is RETRACTED (verdict #15). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/subst/X9.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~22:50",
+   "note": "same 'Revit-DocumentCorruption / Design is empty' signature \u2014 every file carrying our from-scratch CONSTRUCTED objects fails, even on the K1 lineage with byte-clean mechanics controls (R2s == K1); the clone/verbatim path passes everywhere",
+   "cause_status": "VOID -- cumulative substitution rung whose parent rungs (X8 <- X7 <- ... <- X1 <- K1) were never certified; K1 FAILS alone (verdict #15); control-less round. Verdict #9 RETRACTED. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/addback/R2.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~22:50",
+   "note": "same 'Revit-DocumentCorruption / Design is empty' signature \u2014 every file carrying our from-scratch CONSTRUCTED objects fails, even on the K1 lineage with byte-clean mechanics controls (R2s == K1); the clone/verbatim path passes everywhere",
+   "cause_status": "VOID -- base K6.rvt had itself FAILED (K1 lineage; K1 FAILS alone, verdict #15); control-less round. Verdict #9 RETRACTED. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/subst/X5.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~22:50",
+   "note": "same 'Revit-DocumentCorruption / Design is empty' signature \u2014 every file carrying our from-scratch CONSTRUCTED objects fails, even on the K1 lineage with byte-clean mechanics controls (R2s == K1); the clone/verbatim path passes everywhere",
+   "cause_status": "VOID -- cumulative substitution rung on the never-certified K1 lineage (parent X4 never uploaded); control-less round. Verdict #9 RETRACTED. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/addback/R1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~22:50",
+   "note": "same 'Revit-DocumentCorruption / Design is empty' signature \u2014 every file carrying our from-scratch CONSTRUCTED objects fails, even on the K1 lineage with byte-clean mechanics controls (R2s == K1); the clone/verbatim path passes everywhere",
+   "cause_status": "VOID -- base K5.rvt had itself FAILED (K1 lineage; K1 FAILS alone, verdict #15); control-less round. Verdict #9 RETRACTED. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/triage/K5a.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~21:10",
+   "note": "singleton-subset removal from K1 fatal (subset bisection)",
+   "cause_status": "VOID -- base K1.rvt was NEVER certified and FAILS on its own (verdict #15, crash -1073741831); this failure is K1's defect, not evidence about the probe's change (control-less round). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/triage/K5d.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~21:10",
+   "note": "singleton-subset removal from K1 fatal (subset bisection)",
+   "cause_status": "VOID -- base K1.rvt was NEVER certified and FAILS on its own (verdict #15, crash -1073741831); this failure is K1's defect, not evidence about the probe's change (control-less round). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/subst/X1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~23:11",
+   "note": "our pen table with OUR imperial scale keys {24,48,96,192,384,768} \u2014 keys present in 0/3,494 specimens; the fixer predicted this fail (scale-key set = format constant {10,20,50,100,200,500})",
+   "cause_status": "VOID as a FAIL -- base K1.rvt never certified and FAILS on its own (verdict #15); NOT evidence that our pen-table values are rejected. The CORPUS FACT it cites (scale-key set = {10,20,50,100,200,500}, 0/3,494 specimens carry ours) is a descriptive law of real files and stands independently. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/controls/X0.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~00:25",
+   "note": "THE DECISIVE READOUT: X0 (AUTODESK'S OWN pen table verbatim via OUR add path) and C0 (Autodesk's own catalog row verbatim via our path) FAIL => the singleton/catalog ADD PATH itself corrupts; our objects are exonerated; every constructed-object failure this night was an add-path failure",
+   "cause_status": "VOID / RETRACTED (verdict #15) -- 'THE DECISIVE READOUT: the ADD PATH itself corrupts' rests on base K1.rvt, which FAILS alone; the round carried NO control. The add path is UNJUDGED, not condemned. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X_pen.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~00:25",
+   "note": "THE DECISIVE READOUT: X0 (AUTODESK'S OWN pen table verbatim via OUR add path) and C0 (Autodesk's own catalog row verbatim via our path) FAIL => the singleton/catalog ADD PATH itself corrupts; our objects are exonerated; every constructed-object failure this night was an add-path failure",
+   "cause_status": "VOID / RETRACTED (verdict #15) -- in-place payload probe on the never-certified K1 (FAILS alone); the round carried NO control; 'our pen-table payload is independently rejected' is NOT established. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/controls/X1u.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~00:25",
+   "note": "THE DECISIVE READOUT: X0 (AUTODESK'S OWN pen table verbatim via OUR add path) and C0 (Autodesk's own catalog row verbatim via our path) FAIL => the singleton/catalog ADD PATH itself corrupts; our objects are exonerated; every constructed-object failure this night was an add-path failure",
+   "cause_status": "VOID -- base K1.rvt was NEVER certified and FAILS on its own (verdict #15, crash -1073741831); this failure is K1's defect, not evidence about the probe's change (control-less round). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/subst_v2/X_cat.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~00:25",
+   "note": "THE DECISIVE READOUT: X0 (AUTODESK'S OWN pen table verbatim via OUR add path) and C0 (Autodesk's own catalog row verbatim via our path) FAIL => the singleton/catalog ADD PATH itself corrupts; our objects are exonerated; every constructed-object failure this night was an add-path failure",
+   "cause_status": "VOID -- base K1.rvt was NEVER certified and FAILS on its own (verdict #15, crash -1073741831); this failure is K1's defect, not evidence about the probe's change (control-less round). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/controls/C0.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~00:25",
+   "note": "THE DECISIVE READOUT: X0 (AUTODESK'S OWN pen table verbatim via OUR add path) and C0 (Autodesk's own catalog row verbatim via our path) FAIL => the singleton/catalog ADD PATH itself corrupts; our objects are exonerated; every constructed-object failure this night was an add-path failure",
+   "cause_status": "VOID / RETRACTED (verdict #15) -- as X0: base K1.rvt FAILS alone, control-less round; the catalog add path is UNJUDGED. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/controls/X0k.rvt",
+   "verdict": "PROCESSING FAILED (DIFFERENT SIGNATURE)",
+   "when": "~00:50",
+   "note": "NO Revit-DocumentCorruption line: 'Design is empty' + extractor crash exit -1073741831 (vs -1073742517 on audit failures) \u2014 a distinct failure mode (no audit trip; a crash) consistent with a record-order/layout artefact",
+   "cause_status": "VOID -- base K1.rvt never certified (FAILS alone, verdict #15); in hindsight X0k's CRASH signature (-1073741831, no corruption line) was the FIRST sighting of K1's OWN death mode (X0k = K1 + a zero-motion re-add). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/regadd/XR0.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~02:10",
+   "note": "CRASH -1073741831 (no corruption line) \u2014 but EVERY one of these derives from K1, which has NEVER itself been uploaded; nothing K1-derived has ever passed (the passing K3/K4/KD1 descend from R9).",
+   "cause_status": "VOID -- base K1.rvt FAILS alone (verdict #15); the round's intended positive control (XR_null) was itself a copy of the UNCERTIFIED K1, hence no control. Verdicts #13/#14 ('two independent constraints') RETRACTED. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/regadd/XA2.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~02:10",
+   "note": "FAIL \u2014 but EVERY one of these derives from K1, which has NEVER itself been uploaded; nothing K1-derived has ever passed (the passing K3/K4/KD1 descend from R9).",
+   "cause_status": "VOID -- base K1.rvt was NEVER certified and FAILS on its own (verdict #15, crash -1073741831); this failure is K1's defect, not evidence about the probe's change (control-less round). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/addpath/P_ep_only.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~02:10",
+   "note": "FAIL \u2014 but EVERY one of these derives from K1, which has NEVER itself been uploaded; nothing K1-derived has ever passed (the passing K3/K4/KD1 descend from R9).",
+   "cause_status": "VOID -- base K1.rvt was NEVER certified and FAILS on its own (verdict #15, crash -1073741831); this failure is K1's defect, not evidence about the probe's change (control-less round). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/addpath/P_pos_only.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~02:10",
+   "note": "FAIL \u2014 but EVERY one of these derives from K1, which has NEVER itself been uploaded; nothing K1-derived has ever passed (the passing K3/K4/KD1 descend from R9).",
+   "cause_status": "VOID -- base K1.rvt was NEVER certified and FAILS on its own (verdict #15, crash -1073741831); this failure is K1's defect, not evidence about the probe's change (control-less round). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/addpath/P_ident_only.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~02:10",
+   "note": "FAIL \u2014 but EVERY one of these derives from K1, which has NEVER itself been uploaded; nothing K1-derived has ever passed (the passing K3/K4/KD1 descend from R9).",
+   "cause_status": "VOID -- base K1.rvt was NEVER certified and FAILS on its own (verdict #15, crash -1073741831); this failure is K1's defect, not evidence about the probe's change (control-less round). See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/triage/K1.rvt",
+   "verdict": "PROCESSING FAILED \u2014 THE BASE ITSELF (crash -1073741831, no corruption line)",
+   "when": "~02:40",
+   "note": "K1 (= R5 minus placed model via triage maximal-GC), the never-tested BASE of the entire substitution program, FAILS on its own; XR_null (byte-identical) FAILS too. Every K1-derived failure was this defect. Verdicts #8-#11 conclusions RETRACTED.",
+   "cause_status": "SOUND-DECISIVE (strictly UNGUARDED in-round) -- base R5 IS certified, so K1's own FAIL is attributable to K1's construction ('R5 minus placed model' maximal-GC); corroborated by XR_null (byte-identical, same crash -1073741831) and by the two certified CONTROLS that PASSED ~50 min earlier (~01:55). Robust under either branch: healthy oracle => K1 broken; sick oracle => rounds 8-14 unread anyway. THE load-bearing FAIL of the campaign; split file: K1_step1_neutralised.rvt. See docs/writer/verdict-integrity-audit.md"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_b/ZB_deep.rvt",
+   "verdict": "PROCESSING FAILED (PARTIAL \u2014 viewer opens a view tree with a 3D view + sheet S101, no error page)",
+   "when": "~05:34",
+   "note": "one of Group B's 8 buckets carries a real, subtle defect (extractor emitted views + a sheet then died); Z_defs exonerated; the 7 remaining singles bisect it"
+  },
+  {
+   "file": "experiments/genesis/subst_k4/residue_b/Z_palette.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~06:15",
+   "note": "THE ONE DEFECTIVE GROUP-B BUCKET: the palette (colour/material appearance) bucket alone in place fails; all 7 other B buckets clean; ZB_deep's partial failure is fully explained by it"
+  },
+  {
+   "file": "experiments/ifc_room/electrical_room_2500a.rvt",
+   "verdict": "PROCESSING FAILED (audit signature -1073742517)",
+   "when": "~09:25",
+   "note": "first file CREATING new elements (walls + loaded families + circuits) ON THE GENESIS BASE; creation path onto the family-free genesis lineage is the new frontier \u2014 bisect with the staged build stages"
+  },
+  {
+   "file": "experiments/ifc_room/stage_W_loaded_walls.rvt",
+   "verdict": "PROCESSING FAILED (audit)",
+   "when": "~09:51",
+   "note": "walls + FULL family set FAILS while walls + ONE family + placement PASSES => one specific family is defective (suspect: the ad-hoc 2500 A house switchboard); the loading mechanism is exonerated"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/R_inst_box.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~12:20",
+   "note": "a placed instance of a minimal box family on the genesis lineage \u2014 instances/embedded family units + created content = the remaining creation-path bug"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_msb.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~12:20",
+   "note": "walls + ONE loaded family (switchboard) FAILS"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/F_lp4.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~12:20",
+   "note": "walls + ONE loaded family (LP-4) also FAILS => not a specific family: ANY embedded family unit combined with created content trips the audit \u2014 one named creation-path bug for the next round"
+  },
+  {
+   "file": "experiments/ifc_room/render_probes/R_inst_downlight.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "~22:45",
+   "note": "downlight family placement on the genesis lineage fails \u2014 read the card message; the panel placements pass elsewhere, so likely downlight-family-specific"
+  },
+  {
+   "file": "experiments/acceptance/BX_f1i1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~01:20",
+   "note": "unfixed famgen load + 1 placed instance on G_ABPD (expected FAIL side of the A/B)"
+  },
+  {
+   "file": "experiments/instbug/fix/BXfix_f1i1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~01:20",
+   "note": "D1..D5-FIXED instance still fails \u2014 the fix set is not the audit's objection"
+  },
+  {
+   "file": "experiments/instbug/fix/BXfix_f6i6.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~01:20",
+   "note": "fixed demo shape still fails"
+  },
+  {
+   "file": "experiments/instbug/fix/DEMO_250v_room_v2.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~01:20",
+   "note": "user's prompt through the fixed path still fails \u2014 residual axis open"
+  },
+  {
+   "file": "experiments/instbug/SX_f6i6.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~01:20",
+   "note": "THE INFORMATIVE ONE: same famgen-path operation on the RST SAMPLE also fails, while the famload-path load+place on the same sample (L_v2) PASSED \u2014 the discriminator is the CODE PATH (famgen registration / instance-referenced symbol geometry), NOT the base lineage"
+  },
+  {
+   "file": "experiments/acceptance/BXns_f1i1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~02:25",
+   "note": "no-solid symbol variant FAILS \u2014 dummy+no-steps (off-corpus) not the cure; symbol-side hypothesis dead"
+  },
+  {
+   "file": "experiments/acceptance/BXns_f6i6.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~02:25",
+   "note": "no-solid demo shape fails"
+  },
+  {
+   "file": "experiments/acceptance/SL_f1i1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~02:25",
+   "note": "FAMLOAD-path placed instance ALSO fails \u2014 path attribution dead; L_v2's historic PASS had zero instances"
+  },
+  {
+   "file": "experiments/acceptance/SL_f6i6.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~02:25",
+   "note": "famload N=6 fails. THE INVARIANT NOW: instances of Autodesk-authored families pass (V20..V29); instances of OUR generated families fail on any base/path/symbol-form => the defect is INSIDE our family document content, audit-walked only when instanced"
+  },
+  {
+   "file": "experiments/frontdoor2025/room_full/ROOM2025_full.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~02:25",
+   "note": "expected: carries the instance residual by construction; walls variant PASSED \u2014 release-independent"
+  },
+  {
+   "file": "experiments/famdoc_bisect/H7.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~03:10",
+   "note": "THE NAMING VERDICT: an UNMODIFIED Autodesk famdoc, famload-loaded + instanced, FAILS => the famdoc content axis is exonerated wholesale; the defect is in the LOADER'S AUTHORED ARTIFACTS (host Family/FamilySymbol elements) or its registration. H1..H6 fails carry no per-axis info (all share the load machinery); H8 anchor failed as expected. Corpus gap never probed: instanced symbol with GElement rep + POPULATED m_geomSteps/m_pGeomTable (201/201 corpus form)."
+  },
+  {
+   "file": "experiments/hostpair/H9.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~03:55",
+   "note": "THE BINARY'S ANSWER: identical to passing H10 plus ONE V20-shape instance => the audit performs an instance-walk cross-check against the NEWLY-REGISTERED unit that fails despite all-Autodesk bytes. Suspects: registration ROW CONTENT (not counts) and/or a FIFTH project-side content-identity surface beyond the four registries."
+  },
+  {
+   "file": "experiments/hostpair/BXhf_f1i1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~03:55",
+   "note": "corpus-lawful symbol form alone insufficient (expected under the registration hypothesis; independent probe)"
+  },
+  {
+   "file": "experiments/hostpair/DEMO_250v_room_v3.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~03:55",
+   "note": "v3 rides the same open axis"
+  },
+  {
+   "file": "experiments/regcorner/probes/H13.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~04:35",
+   "note": "CategoryTracking-indexed (620/620+2187/2187 perfect) STILL FAILS \u2014 the index totality law is not the audit's objection (or not alone)"
+  },
+  {
+   "file": "experiments/regcorner/probes/H12.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~04:35",
+   "note": "complete-copy (famdoc verbatim + populated inline ADocument + host constellation) FAILS"
+  },
+  {
+   "file": "experiments/regcorner/probes/H11.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~04:35",
+   "note": "native-modeled registration rows FAIL"
+  },
+  {
+   "file": "experiments/regcorner/probes/H11x12.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~04:35",
+   "note": "both combined FAIL"
+  },
+  {
+   "file": "experiments/terminal/probes/E3.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~05:35",
+   "note": "single envelope axis without the footer blob \u2014 consistent: the blob is the binding axis"
+  },
+  {
+   "file": "experiments/terminal/probes/E6.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~05:35",
+   "note": "single envelope axis without the footer blob \u2014 consistent: the blob is the binding axis"
+  },
+  {
+   "file": "experiments/terminal/probes/E4.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~05:35",
+   "note": "single envelope axis without the footer blob \u2014 consistent: the blob is the binding axis"
+  },
+  {
+   "file": "experiments/terminal/probes/E5.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~05:35",
+   "note": "single envelope axis without the footer blob \u2014 consistent: the blob is the binding axis"
+  },
+  {
+   "file": "experiments/terminal/probes/E2.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~05:35",
+   "note": "single envelope axis without the footer blob \u2014 consistent: the blob is the binding axis"
+  },
+  {
+   "file": "experiments/frontdoor/demo-250v-v5/prompt_room.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~05:50",
+   "note": "v5 (our famdoc + 64B blobs) FAILS: the blob is NECESSARY (E1/E1b) but not SUFFICIENT for OUR generated famdoc content. CRITICAL REFRAME: every b37 content hybrid carried an EMPTY blob, so b37 is VOID for content attribution \u2014 the blob failed them all. Native-famdoc+our-loader+blob = PASS is PROVEN (E1b). The content bisection must be re-run WITH blobs \u2014 the fixed writer gives them automatically."
+  },
+  {
+   "file": "experiments/famdoc_blobs/B0.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~06:35",
+   "note": "our COMPLETE famgen famdoc + blob still fails while every single axis passes => the defect is a COMBINATION of our axes or the RESIDUAL FRAME (famdoc skeleton elements outside all six categories)"
+  },
+  {
+   "file": "experiments/famdoc_final/F1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~07:20",
+   "note": "our famdoc + donor FRAME still fails \u2014 frame not the axis"
+  },
+  {
+   "file": "experiments/famdoc_final/F2.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~07:20",
+   "note": "frame single G1 fails"
+  },
+  {
+   "file": "experiments/famdoc_final/F3.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~07:20",
+   "note": "frame single G2 fails"
+  },
+  {
+   "file": "experiments/famdoc_final/F4.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~07:20",
+   "note": "frame single G3 fails"
+  },
+  {
+   "file": "experiments/famdoc_final/H8B.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~07:20",
+   "note": "our famdoc via famload on rst fails \u2014 base/loader independent (again)"
+  },
+  {
+   "file": "experiments/subtractive/SUB_O1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~08:25",
+   "note": "our famdoc with donor-convention ID numbering still fails \u2014 id numbering alone not the axis; physical record order/layout remains"
+  },
+  {
+   "file": "experiments/layout/M3.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~09:30",
+   "note": "order-cell dedup alone insufficient"
+  },
+  {
+   "file": "experiments/layout/M4.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~09:30",
+   "note": "sparse counters alone insufficient"
+  },
+  {
+   "file": "experiments/layout/M5.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~09:30",
+   "note": "partType -1 alone insufficient"
+  },
+  {
+   "file": "experiments/layout/M6.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~09:30",
+   "note": "m_deletion category prefix alone insufficient"
+  },
+  {
+   "file": "experiments/layout/M1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~09:30",
+   "note": "F1 in passing order still fails \u2014 order not the law"
+  },
+  {
+   "file": "experiments/layout/BX_layout_f1i1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~09:30",
+   "note": "layout_law normalization alone insufficient"
+  },
+  {
+   "file": "experiments/catchain/BX_conj.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~10:25",
+   "note": "ALL 12 corpus separators flipped through the famgen chain \u2014 still fails; the in-file enumeration is EXHAUSTED"
+  },
+  {
+   "file": "experiments/catchain/BX_cat_gm.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~10:25",
+   "note": "Generic Model category end-to-end \u2014 fails; category not the sole law"
+  },
+  {
+   "file": "experiments/catchain/BX_types_5.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~10:25",
+   "note": "donor 5-row type table \u2014 fails"
+  },
+  {
+   "file": "experiments/catchain/BX_bip.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~10:25",
+   "note": "mined BIP shape \u2014 fails"
+  },
+  {
+   "file": "experiments/catchain/BX_conj_minus_cat.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~10:25",
+   "note": "bisection rung \u2014 fails"
+  },
+  {
+   "file": "experiments/catchain/BX_conj_minus_types.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~10:25",
+   "note": "bisection rung \u2014 fails"
+  },
+  {
+   "file": "experiments/rftprobe/T0.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~11:45",
+   "note": "our famgen famdoc, same machinery/base: FAIL \u2014 the anchor. The matrix is singular: Revit-BORN passes, from-scratch fails => birthright authoring is the product fix"
+  },
+  {
+   "file": "experiments/birthright/T1v.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~12:45",
+   "note": "our content + born STANDALONE shell via NEW template_union_doc machinery on G_ABPD FAILS \u2014 but U16 (our content + born EMBEDDED shell via famdoc_final machinery on rst) PASSED: three variables differ (machinery/species/base); reconciliation probes commissioned"
+  },
+  {
+   "file": "experiments/birthright/BX_birth.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~12:45",
+   "note": "zero-donor birthright famdoc fails \u2014 gap list on disk (m_bShared adoption, overlapping-class shortfall) pending T1-axis reconciliation"
+  },
+  {
+   "file": "experiments/birthright/DEMO_250v_room_v7.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~12:45",
+   "note": "rides the same open axis"
+  },
+  {
+   "file": "experiments/unionrec/U16g.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~13:50",
+   "note": "U16's proven famdoc on G_ABPD FAILS => THE BASE IS CONVICTED (G_ABPD x famdoc interaction). T2a (fully self-contained famdoc, 0 host refs) passes on G_ABPD; the failing famdocs carry host-resident refs that on G_ABPD resolve to SUBSTITUTED elements => self-containment is the prime fix hypothesis"
+  },
+  {
+   "file": "experiments/selfcontained/SC1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~15:00",
+   "note": "fully self-contained + in-unit binds still FAILS on G_ABPD \u2014 the walked-bind law insufficient as authored"
+  },
+  {
+   "file": "experiments/selfcontained/U16gK4.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~15:00",
+   "note": "U16's famdoc FAILS on K4 though its ref targets there are BYTE-BORN \u2014 target content exonerated; the base ladder convicts the reduced-base x famdoc-SPECIES interaction"
+  },
+  {
+   "file": "experiments/selfcontained/U16gABP.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~15:00",
+   "note": "fails on pre-deletion G_ABP too \u2014 substitution layer implicated with deletion"
+  },
+  {
+   "file": "experiments/selfcontained/DEMO_250v_room_v8.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~15:00",
+   "note": "rides the same axis"
+  },
+  {
+   "file": "experiments/species/T1uG.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~16:20",
+   "note": "the same standalone-shell+our-content bytes that PASS on rst FAIL on G_ABPD \u2014 the law is OUR-authored-content x reduced-base interaction; self-contained, so references excluded; identity/episode coupling is the surviving axis"
+  },
+  {
+   "file": "experiments/species/BX_v3.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~16:20",
+   "note": "hostsym lane alone insufficient"
+  },
+  {
+   "file": "experiments/species/DEMO_250v_room_v9.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~16:20",
+   "note": "rides the same axis"
+  },
+  {
+   "file": "experiments/identity/I1.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~17:50",
+   "note": "frozen-birth-id + born-flags normalization insufficient \u2014 the 4-cell identity split was correlate, not cause"
+  },
+  {
+   "file": "experiments/identity/BX_v4.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~17:50",
+   "note": "born-identity lane insufficient"
+  },
+  {
+   "file": "experiments/identity/DEMO_250v_room_v10.rvt",
+   "verdict": "PROCESSING FAILED",
+   "when": "2026-08-05 ~17:50",
+   "note": "rides the same axis"
+  }
+ ]
+}

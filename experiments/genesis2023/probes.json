@@ -1,0 +1,85 @@
+{
+ "stream": "genesis-2023-reduce (the Revit-2023 reduction ladder)",
+ "situation": "2023 is the first release whose DATA LAYER differs from the certified 2026 lineage: element ids are 32-bit (Identifier v1) -- record framing, in-body ids and the ElemTable are narrower. This ladder re-runs the certified 2026 recipe (rstbasic -> R-rungs -> K3 -> K4; re-proven on 2025 in one round) on Autodesk's own 2023 rst basic sample under rvt.versions.records32 + reading.  NOTHING 2023 is viewer-certified yet, so every file here is a candidate-base; the batch control is the UNTOUCHED 2023 sample itself (Autodesk's own bytes -- certified by construction), which simultaneously answers: does the viewer read 2023 uploads at all?",
+ "ordering": "reading order: control (the 2023 sample) FIRST -- if it fails, the viewer/oracle cannot read 2023 uploads and every other verdict is VOID; then R9_2023, K3_2023, B2023_K4 (certification cascades; a parent FAIL voids its children).",
+ "base": "samples/2023/rstbasicsampleproject.rvt",
+ "known_passing_anchors": {
+  "sample": "samples/2023/rstbasicsampleproject.rvt (Autodesk's own file -- certified by construction)"
+ },
+ "probes": [
+  {
+   "name": "R9_2023",
+   "file": "experiments/genesis2023/reduce/R9_2023.rvt",
+   "kind": "candidate-base",
+   "base": "samples/2023/rstbasicsampleproject.rvt",
+   "the_ONE_thing_it_tests": "Deepest R-rung of the 2023 campaign AND the first viewer-read of a 32-BIT-ERA file we re-emitted: views/types/options/families' host elements gone (the certified 2026 R9 shape; all embedded docs present, censused).  K3_2023's parent.",
+   "if_PASS": "certify; the 2023 reduction mechanics (records32 framing, re-blocker, ECC, ordinals) are viewer-proven; K3/K4 verdicts readable.",
+   "if_FAIL": "with the sample control PASSING, the 2023 EMIT path is defective (32-bit framing / ordinal bug) -- bisect R5..R8 (staged locally, not in this batch) against the identity re-emit before reading anything else.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "EDIT-FREE",
+   "elements": 4809,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52
+   },
+   "report": "experiments/genesis2023/reduce/R9_2023.json"
+  },
+  {
+   "name": "K3_2023",
+   "file": "experiments/genesis2023/reduce/K3_2023.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2023/reduce/R9_2023.rvt",
+   "the_ONE_thing_it_tests": "Loadable-family USAGE nulled (families + documents still present) -- the M3-certified modify path, the mandatory parent state of B2023_K4 (2026 precedent: K3 PASS round 5; 2025: K3_2025 PASS round 1).",
+   "if_PASS": "certify; B2023_K4's verdict is readable.",
+   "if_FAIL": "the 2023 reader requires head/tag defaults to name real families -- B2023_K4 unreadable until split.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "SURVIVORS-EDITED",
+   "elements": 4809,
+   "coherence": {
+    "save_units": 53,
+    "contentdocs_entries": 52,
+    "contenttable_records": 52,
+    "familymgr_doc_guids": 52
+   },
+   "report": "experiments/genesis2023/reduce/K3_2023.json",
+   "parent_rung": "R9_2023"
+  },
+  {
+   "name": "B2023_K4",
+   "file": "experiments/genesis2023/reduce/B2023_K4.rvt",
+   "kind": "candidate-base",
+   "base": "experiments/genesis2023/reduce/K3_2023.rvt",
+   "the_ONE_thing_it_tests": "THE 2023 FAMILY-FREE BASE CANDIDATE: zero loadable families, zero embedded family documents, FOUR-registry coherent, on Autodesk's own 2023 skeleton (the certified 2026 K4 recipe, re-proven for 2025).  PASS = the certified 2023 base a G23 substitution campaign builds on.",
+   "if_PASS": "certify + ledger; the 2023 campaign proceeds to the constructor retarget + substitution ladder (the genesis-2023-port stream's territory).",
+   "if_FAIL": "(with K3_2023 passing) the 2023 reader diverges on the family-document question -- re-run the KD1-equivalent control before concluding anything.",
+   "validator": {
+    "ok": true,
+    "errors": 0,
+    "warnings": 2
+   },
+   "structural_ok": true,
+   "reduce_law": "EDIT-FREE",
+   "elements": 4171,
+   "coherence": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_doc_guids": 0
+   },
+   "report": "experiments/genesis2023/reduce/B2023_K4.json",
+   "parent_rung": "K3_2023"
+  }
+ ]
+}

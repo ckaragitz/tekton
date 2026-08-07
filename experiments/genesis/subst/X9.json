@@ -1,0 +1,5376 @@
+{
+ "rung": "X9",
+ "label": "the document skeleton: levels + phases + filters + view types + all views -> ours",
+ "kind": "substitute",
+ "parent": "experiments/genesis/subst/X8.rvt",
+ "parent_rung": "X8",
+ "out": "experiments/genesis/subst/X9.rvt",
+ "description": "X8 with the whole document SKELETON layer REPLACED in ONE coherent step (views are bound to levels, so they are substituted together): every level + the level type, the phases + AllProjectPhases (phasing overrides re-wired to OUR X7 phase materials) + phase filters, the document sun, all 19 PROJECT DBViewTypes (by m_systemFamilyIdx), and EVERY view constellation (project view, 3D views, plans, sections, elevations, drafting/legend/rendering views + their viewers, viewports, drawings, extents, clip boxes, sketch planes, per-view suns, light schemes) + the SYSTEM text types -> OUR skeleton from the house catalog (2 storey levels, 2 phases + set + 5 filters, our sun, our 19 view types, our project-view + 3D + 2 plan constellations, our 3 text types).  Correspondence: project view / '{3D}' / the two lowest-storey plans -> ours (their levels -> our L1/L2), phases by order, filters by role, view types by family, the default text type -> our body text; the DBView registries (project view, views index, navigator, view types for new levels, default types) re-pointed / purged.  Residue: curtain-family view types, dimension/leader/view-tag types, fonts, grids/reference planes.",
+ "tests": "Whether the reader accepts OUR complete document skeleton -- the layer G0/G1 were BUILT from (K2 proved the sample's own view minimality legal; this tests OUR views + levels + phases on the passing base).",
+ "if_PASS": "Our skeleton is reader-accepted: the constructed-base defect is NOT in our level / phase / view constructors -- what remains is the Xn residue (curtain systems, annotation types, datum content, the subcategory layer).",
+ "if_FAIL": "Our skeleton layer is where the reader objects -- the G0/G1 FAIL's most likely home. Bisect: X9a (view types only), X9b (views only, levels kept), X9c (levels + phases only), reading the card message each time.",
+ "old": {
+  "count": 534,
+  "ids": [
+   1,
+   230,
+   231,
+   232,
+   233,
+   305,
+   311,
+   371,
+   372,
+   373,
+   374,
+   375,
+   694,
+   8142,
+   8152,
+   8157,
+   8158,
+   8159,
+   8174,
+   8175,
+   8176,
+   8177,
+   8178,
+   8208,
+   8231,
+   8237,
+   8238,
+   8239,
+   9485,
+   9486,
+   9488,
+   9589,
+   9594,
+   9599,
+   9605,
+   9610,
+   9615,
+   9619,
+   9625,
+   9630,
+   12589,
+   23211,
+   24937,
+   46018,
+   49552,
+   49553,
+   49554,
+   49555,
+   49556,
+   49557,
+   49559,
+   49560,
+   49561,
+   49562,
+   49563,
+   49564,
+   54520,
+   54529,
+   55153,
+   55154,
+   55156,
+   55157,
+   55158,
+   56404,
+   56405,
+   56406,
+   56766,
+   56767,
+   69693,
+   69847,
+   86334,
+   86335,
+   86961,
+   98746,
+   98977,
+   98984,
+   98985,
+   98986,
+   98987,
+   99829,
+   99830,
+   99831,
+   99832,
+   99833,
+   99834,
+   99835,
+   99836,
+   99837,
+   103653,
+   103654,
+   103655,
+   103657,
+   105778,
+   116111,
+   116112,
+   116113,
+   116115,
+   121711,
+   121712,
+   121713,
+   121715,
+   121763,
+   121764,
+   121765,
+   121766,
+   121767,
+   121768,
+   121769,
+   121770,
+   121771,
+   121772,
+   121773,
+   121774,
+   121775,
+   137264,
+   137266,
+   196629,
+   196649,
+   196650,
+   196651,
+   196652,
+   196653,
+   196654,
+   196655,
+   196657,
+   245423,
+   245443,
+   245444,
+   245445,
+   245446,
+   245447,
+   245448,
+   245449,
+   245451,
+   417275,
+   417295,
+   417296,
+   417297,
+   417298,
+   417299,
+   417300,
+   417301,
+   417303,
+   511122,
+   511142,
+   511143,
+   511144,
+   511145,
+   511146,
+   511147,
+   511148,
+   511150,
+   515270,
+   515290,
+   515291,
+   515292,
+   515293,
+   515294,
+   515295,
+   515296,
+   515298,
+   569515,
+   569516,
+   712652,
+   712653,
+   712681,
+   712682,
+   712683,
+   712684,
+   712685,
+   712686,
+   712687,
+   712688,
+   712689,
+   713086,
+   713112,
+   857222,
+   907370,
+   928355,
+   928494,
+   928495,
+   928498,
+   928499,
+   928502,
+   928503,
+   928504,
+   928505,
+   947531,
+   947533,
+   1004909,
+   1062322,
+   1062379,
+   1064656,
+   1064657,
+   1064658,
+   1064659,
+   1064660,
+   1064661,
+   1064662,
+   1064664,
+   1138900,
+   1138901,
+   1138902,
+   1138903,
+   1138904,
+   1138905,
+   1138906,
+   1138907,
+   1138908,
+   1138909,
+   1138910,
+   1138911,
+   1138912,
+   1138913,
+   1138914,
+   1138915,
+   1138916,
+   1138917,
+   1138918,
+   1138919,
+   1138920,
+   1138921,
+   1138922,
+   1138923,
+   1138924,
+   1138925,
+   1138926,
+   1138927,
+   1141619,
+   1141620,
+   1141621,
+   1141622,
+   1141623,
+   1141624,
+   1141625,
+   1141626,
+   1182564,
+   1182565,
+   1182566,
+   1182567,
+   1182568,
+   1182569,
+   1182570,
+   1182572,
+   1199133,
+   1199134,
+   1199135,
+   1199136,
+   1199137,
+   1199138,
+   1199139,
+   1199141,
+   1214431,
+   1214432,
+   1214433,
+   1214434,
+   1214435,
+   1214436,
+   1214437,
+   1214439,
+   1250039,
+   1250040,
+   1250041,
+   1250042,
+   1250043,
+   1250045,
+   1250046,
+   1250047,
+   1250048,
+   1250049,
+   1250050,
+   1250051,
+   1250052,
+   1250053,
+   1250054,
+   1250101,
+   1250102,
+   1250103,
+   1250104,
+   1250105,
+   1250106,
+   1250107,
+   1250108,
+   1250374,
+   1250375,
+   1250376,
+   1250377,
+   1250378,
+   1250379,
+   1250380,
+   1250381,
+   1251892,
+   1251893,
+   1251894,
+   1251895,
+   1251896,
+   1251897,
+   1251898,
+   1251900,
+   1253611,
+   1253612,
+   1253613,
+   1253615,
+   1253617,
+   1253618,
+   1253620,
+   1253621,
+   1292650,
+   1292651,
+   1292652,
+   1292653,
+   1292654,
+   1292655,
+   1292656,
+   1292657,
+   1300863,
+   1300883,
+   1300884,
+   1300885,
+   1300886,
+   1300887,
+   1300888,
+   1300889,
+   1300891,
+   1351691,
+   1351711,
+   1351712,
+   1351713,
+   1351714,
+   1351715,
+   1351716,
+   1351717,
+   1351719,
+   1352079,
+   1352080,
+   1352081,
+   1352512,
+   1352513,
+   1352633,
+   1352962,
+   1352963,
+   1352964,
+   1352986,
+   1352987,
+   1352988,
+   1352989,
+   1353018,
+   1353019,
+   1353118,
+   1373834,
+   1373835,
+   1373836,
+   1373837,
+   1373838,
+   1373839,
+   1373840,
+   1373842,
+   1382180,
+   1382181,
+   1382182,
+   1382183,
+   1382184,
+   1382186,
+   1382272,
+   1382273,
+   1382274,
+   1382275,
+   1382276,
+   1382278,
+   1382352,
+   1382552,
+   1382553,
+   1382554,
+   1382555,
+   1382556,
+   1382558,
+   1382670,
+   1382671,
+   1382672,
+   1382673,
+   1382674,
+   1382676,
+   1382746,
+   1382760,
+   1382761,
+   1382762,
+   1382763,
+   1382764,
+   1382766,
+   1382841,
+   1383031,
+   1383032,
+   1383033,
+   1383035,
+   1383037,
+   1383038,
+   1383040,
+   1383041,
+   1383081,
+   1383082,
+   1383083,
+   1383084,
+   1383085,
+   1383086,
+   1383087,
+   1383088,
+   1386046,
+   1386133,
+   1386141,
+   1386169,
+   1386341,
+   1386342,
+   1386343,
+   1386344,
+   1386345,
+   1386346,
+   1386347,
+   1386348,
+   1387415,
+   1387459,
+   1387492,
+   1387497,
+   1389203,
+   1454506,
+   1454507,
+   1454508,
+   1454509,
+   1454510,
+   1454511,
+   1454512,
+   1454513,
+   1456455,
+   1456456,
+   1456457,
+   1456458,
+   1456459,
+   1456461,
+   1456462,
+   1456487,
+   1456977,
+   1456978,
+   1456979,
+   1456980,
+   1456981,
+   1457000,
+   1457002,
+   1457003,
+   1457004,
+   1457005,
+   1457006,
+   1457007,
+   1457008,
+   1457009,
+   1457010,
+   1457017,
+   1457018,
+   1457021,
+   1457028,
+   1457029,
+   1457030,
+   1457031,
+   1457032,
+   1457043,
+   1457044,
+   1457045,
+   1457046,
+   1457047,
+   1457048,
+   1457049,
+   1457060,
+   1457061,
+   1457062,
+   1457063,
+   1457064,
+   1457065,
+   1457066,
+   1457067,
+   1457068,
+   1457081,
+   1457082,
+   1457149,
+   1457150,
+   1457151,
+   1457152,
+   1457153,
+   1457154,
+   1457155,
+   1457166,
+   1457167,
+   1457168,
+   1457169,
+   1457170,
+   1457171,
+   1457172,
+   1457173,
+   1457174,
+   1457175,
+   1457178,
+   1457181,
+   1457182,
+   1457183,
+   1457184,
+   1457185,
+   1457197,
+   1457198,
+   1457199,
+   1457200,
+   1457201,
+   1457202,
+   1457203,
+   1457226,
+   1457228,
+   1457229,
+   1457230,
+   1457231,
+   1457232,
+   1457243,
+   1457244,
+   1470254,
+   1470255,
+   1470256,
+   1470257,
+   1470258,
+   1470259,
+   1470260,
+   1470261,
+   1470262,
+   1470263,
+   1470264,
+   1470265,
+   1470382,
+   1600009,
+   1600010,
+   1600011
+  ],
+  "by_class": {
+   "SunAndShadowSettings": 90,
+   "Viewport": 69,
+   "DBDrawing": 49,
+   "ExtentElem": 39,
+   "SketchPlane": 35,
+   "SunAnnotationElem": 28,
+   "Viewer": 24,
+   "DBView3d": 21,
+   "DBViewSection": 20,
+   "DBViewType": 19,
+   "DBViewPlan": 16,
+   "LightSchemeElement": 15,
+   "TextNoteAttributes": 12,
+   "Viewer3d": 12,
+   "ModelClipBox": 12,
+   "Level": 9,
+   "Section": 8,
+   "DBViewDrafting": 8,
+   "PhaseFilterElem": 7,
+   "InteriorElev": 6,
+   "DBViewAnonDrafting": 6,
+   "InteriorElevArrow": 4,
+   "CategoryElem": 3,
+   "GStyleElem": 3,
+   "FontElem": 3,
+   "ImportInstance": 3,
+   "ProjectPhase": 2,
+   "GCSViewport": 2,
+   "AllProjectPhases": 1,
+   "DBViewProject": 1,
+   "LevelAttributes": 1,
+   "DBViewTypeAreaPlan": 1,
+   "LevelRoomPlan": 1,
+   "GraphSchedColumnTable": 1,
+   "DBViewGraphSchedColumn": 1,
+   "DBViewRendering": 1,
+   "ImageSymbol": 1
+  }
+ },
+ "new": {
+  "count": 69,
+  "id_range": [
+   2300077,
+   2300249
+  ],
+  "by_class": {
+   "DBViewType": 19,
+   "PhaseFilterElem": 5,
+   "SunAndShadowSettings": 4,
+   "Viewport": 4,
+   "DBDrawing": 4,
+   "TextNoteAttributes": 3,
+   "FontElem": 3,
+   "CategoryElem": 3,
+   "GStyleElem": 3,
+   "Viewer": 3,
+   "ExtentElem": 3,
+   "Level": 2,
+   "ProjectPhase": 2,
+   "DBViewPlan": 2,
+   "SketchPlane": 2,
+   "LevelAttributes": 1,
+   "AllProjectPhases": 1,
+   "DBViewProject": 1,
+   "DBView3d": 1,
+   "Viewer3d": 1,
+   "ModelClipBox": 1,
+   "LightSchemeElement": 1
+  }
+ },
+ "correspondence": [
+  {
+   "old": 1,
+   "new": 2300195,
+   "old_class": "AllProjectPhases",
+   "new_class": "AllProjectPhases"
+  },
+  {
+   "old": 230,
+   "new": 2300205,
+   "old_class": "DBViewProject",
+   "new_class": "DBViewProject"
+  },
+  {
+   "old": 231,
+   "new": 2300206,
+   "old_class": "Viewer",
+   "new_class": "Viewer"
+  },
+  {
+   "old": 232,
+   "new": 2300207,
+   "old_class": "Viewport",
+   "new_class": "Viewport"
+  },
+  {
+   "old": 233,
+   "new": 2300208,
+   "old_class": "DBDrawing",
+   "new_class": "DBDrawing"
+  },
+  {
+   "old": 305,
+   "new": 2300192,
+   "old_class": "LevelAttributes",
+   "new_class": "LevelAttributes"
+  },
+  {
+   "old": 311,
+   "new": 2300193,
+   "old_class": "Level",
+   "new_class": "Level"
+  },
+  {
+   "old": 371,
+   "new": 2300199,
+   "old_class": "PhaseFilterElem",
+   "new_class": "PhaseFilterElem"
+  },
+  {
+   "old": 372,
+   "new": 2300201,
+   "old_class": "PhaseFilterElem",
+   "new_class": "PhaseFilterElem"
+  },
+  {
+   "old": 373,
+   "new": 2300200,
+   "old_class": "PhaseFilterElem",
+   "new_class": "PhaseFilterElem"
+  },
+  {
+   "old": 374,
+   "new": 2300200,
+   "old_class": "PhaseFilterElem",
+   "new_class": "PhaseFilterElem"
+  },
+  {
+   "old": 375,
+   "new": 2300198,
+   "old_class": "PhaseFilterElem",
+   "new_class": "PhaseFilterElem"
+  },
+  {
+   "old": 12589,
+   "new": 2300196,
+   "old_class": "ProjectPhase",
+   "new_class": "ProjectPhase"
+  },
+  {
+   "old": 23211,
+   "new": 2300198,
+   "old_class": "PhaseFilterElem",
+   "new_class": "PhaseFilterElem"
+  },
+  {
+   "old": 24937,
+   "new": 2300201,
+   "old_class": "PhaseFilterElem",
+   "new_class": "PhaseFilterElem"
+  },
+  {
+   "old": 49552,
+   "new": 2300210,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49553,
+   "new": 2300211,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49554,
+   "new": 2300240,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49555,
+   "new": 2300241,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49556,
+   "new": 2300239,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49557,
+   "new": 2300242,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49559,
+   "new": 2300209,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49560,
+   "new": 2300236,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49561,
+   "new": 2300238,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49562,
+   "new": 2300234,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49563,
+   "new": 2300235,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 49564,
+   "new": 2300237,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 54529,
+   "new": 2300245,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 56404,
+   "new": 2300243,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 56405,
+   "new": 2300244,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 56406,
+   "new": 2300246,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 69693,
+   "new": 2300247,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 69847,
+   "new": 2300248,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  },
+  {
+   "old": 86961,
+   "new": 2300197,
+   "old_class": "ProjectPhase",
+   "new_class": "ProjectPhase"
+  },
+  {
+   "old": 245423,
+   "new": 2300194,
+   "old_class": "Level",
+   "new_class": "Level"
+  },
+  {
+   "old": 245443,
+   "new": 2300227,
+   "old_class": "DBViewPlan",
+   "new_class": "DBViewPlan"
+  },
+  {
+   "old": 245444,
+   "new": 2300233,
+   "old_class": "ExtentElem",
+   "new_class": "ExtentElem"
+  },
+  {
+   "old": 245445,
+   "new": 2300228,
+   "old_class": "Viewer",
+   "new_class": "Viewer"
+  },
+  {
+   "old": 245446,
+   "new": 2300230,
+   "old_class": "SunAndShadowSettings",
+   "new_class": "SunAndShadowSettings"
+  },
+  {
+   "old": 245448,
+   "new": 2300231,
+   "old_class": "Viewport",
+   "new_class": "Viewport"
+  },
+  {
+   "old": 245449,
+   "new": 2300232,
+   "old_class": "DBDrawing",
+   "new_class": "DBDrawing"
+  },
+  {
+   "old": 245451,
+   "new": 2300229,
+   "old_class": "SketchPlane",
+   "new_class": "SketchPlane"
+  },
+  {
+   "old": 907370,
+   "new": 2300077,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1064656,
+   "new": 2300220,
+   "old_class": "DBViewPlan",
+   "new_class": "DBViewPlan"
+  },
+  {
+   "old": 1064657,
+   "new": 2300226,
+   "old_class": "ExtentElem",
+   "new_class": "ExtentElem"
+  },
+  {
+   "old": 1064659,
+   "new": 2300223,
+   "old_class": "SunAndShadowSettings",
+   "new_class": "SunAndShadowSettings"
+  },
+  {
+   "old": 1064664,
+   "new": 2300222,
+   "old_class": "SketchPlane",
+   "new_class": "SketchPlane"
+  },
+  {
+   "old": 1386046,
+   "new": 2300077,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1386133,
+   "new": 2300077,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1386141,
+   "new": 2300077,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1386169,
+   "new": 2300081,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1387415,
+   "new": 2300081,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1387459,
+   "new": 2300081,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1387492,
+   "new": 2300081,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1387497,
+   "new": 2300085,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1389203,
+   "new": 2300085,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1454506,
+   "new": 2300213,
+   "old_class": "Viewer3d",
+   "new_class": "Viewer3d"
+  },
+  {
+   "old": 1454507,
+   "new": 2300214,
+   "old_class": "ModelClipBox",
+   "new_class": "ModelClipBox"
+  },
+  {
+   "old": 1454508,
+   "new": 2300212,
+   "old_class": "DBView3d",
+   "new_class": "DBView3d"
+  },
+  {
+   "old": 1454509,
+   "new": 2300215,
+   "old_class": "SunAndShadowSettings",
+   "new_class": "SunAndShadowSettings"
+  },
+  {
+   "old": 1454511,
+   "new": 2300216,
+   "old_class": "Viewport",
+   "new_class": "Viewport"
+  },
+  {
+   "old": 1454512,
+   "new": 2300217,
+   "old_class": "DBDrawing",
+   "new_class": "DBDrawing"
+  },
+  {
+   "old": 1454513,
+   "new": 2300218,
+   "old_class": "LightSchemeElement",
+   "new_class": "LightSchemeElement"
+  },
+  {
+   "old": 1456487,
+   "new": 2300085,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1457021,
+   "new": 2300085,
+   "old_class": "TextNoteAttributes",
+   "new_class": "TextNoteAttributes"
+  },
+  {
+   "old": 1470264,
+   "new": 2300219,
+   "old_class": "ExtentElem",
+   "new_class": "ExtentElem"
+  },
+  {
+   "old": 1470382,
+   "new": 2300249,
+   "old_class": "DBViewType",
+   "new_class": "DBViewType"
+  }
+ ],
+ "unmapped_old_deleted": [
+  {
+   "id": 694,
+   "class": "Level"
+  },
+  {
+   "id": 8142,
+   "class": "InteriorElev"
+  },
+  {
+   "id": 8152,
+   "class": "InteriorElevArrow"
+  },
+  {
+   "id": 8157,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 8158,
+   "class": "Viewport"
+  },
+  {
+   "id": 8159,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 8174,
+   "class": "InteriorElev"
+  },
+  {
+   "id": 8175,
+   "class": "InteriorElevArrow"
+  },
+  {
+   "id": 8176,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 8177,
+   "class": "Viewport"
+  },
+  {
+   "id": 8178,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 8208,
+   "class": "InteriorElev"
+  },
+  {
+   "id": 8231,
+   "class": "InteriorElevArrow"
+  },
+  {
+   "id": 8237,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 8238,
+   "class": "Viewport"
+  },
+  {
+   "id": 8239,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 9485,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 9486,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 9488,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 9589,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 9594,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 9599,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 9605,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 9610,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 9615,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 9619,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 9625,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 9630,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 46018,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 54520,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 55153,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 55154,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 55156,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 55157,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 55158,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 56766,
+   "class": "DBView3d"
+  },
+  {
+   "id": 56767,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 86334,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 86335,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 98746,
+   "class": "InteriorElev"
+  },
+  {
+   "id": 98977,
+   "class": "InteriorElevArrow"
+  },
+  {
+   "id": 98984,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 98985,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 98986,
+   "class": "Viewport"
+  },
+  {
+   "id": 98987,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 99829,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 99830,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 99831,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 99832,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 99833,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 99834,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 99835,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 99836,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 99837,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 103653,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 103654,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 103655,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 103657,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 105778,
+   "class": "DBView3d"
+  },
+  {
+   "id": 116111,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 116112,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 116113,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 116115,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121711,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 121712,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 121713,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 121715,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 121763,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121764,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121765,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121766,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121767,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121768,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121769,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121770,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121771,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121772,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121773,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121774,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 121775,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 137264,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 137266,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 196629,
+   "class": "Level"
+  },
+  {
+   "id": 196649,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 196650,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 196651,
+   "class": "Viewer"
+  },
+  {
+   "id": 196652,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 196653,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 196654,
+   "class": "Viewport"
+  },
+  {
+   "id": 196655,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 196657,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 245447,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 417275,
+   "class": "Level"
+  },
+  {
+   "id": 417295,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 417296,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 417297,
+   "class": "Viewer"
+  },
+  {
+   "id": 417298,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 417299,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 417300,
+   "class": "Viewport"
+  },
+  {
+   "id": 417301,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 417303,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 511122,
+   "class": "Level"
+  },
+  {
+   "id": 511142,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 511143,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 511144,
+   "class": "Viewer"
+  },
+  {
+   "id": 511145,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 511146,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 511147,
+   "class": "Viewport"
+  },
+  {
+   "id": 511148,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 511150,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 515270,
+   "class": "Level"
+  },
+  {
+   "id": 515290,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 515291,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 515292,
+   "class": "Viewer"
+  },
+  {
+   "id": 515293,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 515294,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 515295,
+   "class": "Viewport"
+  },
+  {
+   "id": 515296,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 515298,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 569515,
+   "class": "DBView3d"
+  },
+  {
+   "id": 569516,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712652,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712653,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712681,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712682,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712683,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712684,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712685,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712686,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712687,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712688,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 712689,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 713086,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 713112,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 857222,
+   "class": "DBViewTypeAreaPlan"
+  },
+  {
+   "id": 928355,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 928494,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 928495,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 928498,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 928499,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 928502,
+   "class": "DBView3d"
+  },
+  {
+   "id": 928503,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 928504,
+   "class": "DBView3d"
+  },
+  {
+   "id": 928505,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 947531,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 947533,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1004909,
+   "class": "LevelRoomPlan"
+  },
+  {
+   "id": 1062322,
+   "class": "InteriorElev"
+  },
+  {
+   "id": 1062379,
+   "class": "InteriorElev"
+  },
+  {
+   "id": 1064658,
+   "class": "Viewer"
+  },
+  {
+   "id": 1064660,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1064661,
+   "class": "Viewport"
+  },
+  {
+   "id": 1064662,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1138900,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1138901,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1138902,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1138903,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1138904,
+   "class": "Viewport"
+  },
+  {
+   "id": 1138905,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1138906,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1138907,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1138908,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1138909,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1138910,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1138911,
+   "class": "Viewport"
+  },
+  {
+   "id": 1138912,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1138913,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1138914,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1138915,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1138916,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1138917,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1138918,
+   "class": "Viewport"
+  },
+  {
+   "id": 1138919,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1138920,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1138921,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1138922,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1138923,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1138924,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1138925,
+   "class": "Viewport"
+  },
+  {
+   "id": 1138926,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1138927,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1141619,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1141620,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1141621,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1141622,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1141623,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1141624,
+   "class": "Viewport"
+  },
+  {
+   "id": 1141625,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1141626,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1182564,
+   "class": "Section"
+  },
+  {
+   "id": 1182565,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 1182566,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1182567,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1182568,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1182569,
+   "class": "Viewport"
+  },
+  {
+   "id": 1182570,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1182572,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1199133,
+   "class": "Section"
+  },
+  {
+   "id": 1199134,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 1199135,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1199136,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1199137,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1199138,
+   "class": "Viewport"
+  },
+  {
+   "id": 1199139,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1199141,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1214431,
+   "class": "Section"
+  },
+  {
+   "id": 1214432,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 1214433,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1214434,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1214435,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1214436,
+   "class": "Viewport"
+  },
+  {
+   "id": 1214437,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1214439,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1250039,
+   "class": "GraphSchedColumnTable"
+  },
+  {
+   "id": 1250040,
+   "class": "DBViewGraphSchedColumn"
+  },
+  {
+   "id": 1250041,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1250042,
+   "class": "GCSViewport"
+  },
+  {
+   "id": 1250043,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1250045,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1250046,
+   "class": "CategoryElem"
+  },
+  {
+   "id": 1250047,
+   "class": "GStyleElem"
+  },
+  {
+   "id": 1250048,
+   "class": "FontElem"
+  },
+  {
+   "id": 1250049,
+   "class": "CategoryElem"
+  },
+  {
+   "id": 1250050,
+   "class": "GStyleElem"
+  },
+  {
+   "id": 1250051,
+   "class": "FontElem"
+  },
+  {
+   "id": 1250052,
+   "class": "CategoryElem"
+  },
+  {
+   "id": 1250053,
+   "class": "GStyleElem"
+  },
+  {
+   "id": 1250054,
+   "class": "FontElem"
+  },
+  {
+   "id": 1250101,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1250102,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1250103,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1250104,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1250105,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1250106,
+   "class": "Viewport"
+  },
+  {
+   "id": 1250107,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1250108,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1250374,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1250375,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1250376,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1250377,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1250378,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1250379,
+   "class": "Viewport"
+  },
+  {
+   "id": 1250380,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1250381,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1251892,
+   "class": "Section"
+  },
+  {
+   "id": 1251893,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 1251894,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1251895,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1251896,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1251897,
+   "class": "Viewport"
+  },
+  {
+   "id": 1251898,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1251900,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1253611,
+   "class": "Section"
+  },
+  {
+   "id": 1253612,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 1253613,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1253615,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1253617,
+   "class": "Viewport"
+  },
+  {
+   "id": 1253618,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1253620,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1253621,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1292650,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1292651,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1292652,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1292653,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1292654,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1292655,
+   "class": "Viewport"
+  },
+  {
+   "id": 1292656,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1292657,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1300863,
+   "class": "Level"
+  },
+  {
+   "id": 1300883,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 1300884,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1300885,
+   "class": "Viewer"
+  },
+  {
+   "id": 1300886,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1300887,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1300888,
+   "class": "Viewport"
+  },
+  {
+   "id": 1300889,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1300891,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1351691,
+   "class": "Level"
+  },
+  {
+   "id": 1351711,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 1351712,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1351713,
+   "class": "Viewer"
+  },
+  {
+   "id": 1351714,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1351715,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1351716,
+   "class": "Viewport"
+  },
+  {
+   "id": 1351717,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1351719,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1352079,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1352080,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1352081,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1352512,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 1352513,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1352633,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1352962,
+   "class": "DBViewPlan"
+  },
+  {
+   "id": 1352963,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1352964,
+   "class": "DBViewAnonDrafting"
+  },
+  {
+   "id": 1352986,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1352987,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1352988,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1352989,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1353018,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1353019,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1353118,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 1373834,
+   "class": "Section"
+  },
+  {
+   "id": 1373835,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 1373836,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1373837,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1373838,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1373839,
+   "class": "Viewport"
+  },
+  {
+   "id": 1373840,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1373842,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1382180,
+   "class": "DBViewAnonDrafting"
+  },
+  {
+   "id": 1382181,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1382182,
+   "class": "Viewer"
+  },
+  {
+   "id": 1382183,
+   "class": "Viewport"
+  },
+  {
+   "id": 1382184,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1382186,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1382272,
+   "class": "DBViewAnonDrafting"
+  },
+  {
+   "id": 1382273,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1382274,
+   "class": "Viewer"
+  },
+  {
+   "id": 1382275,
+   "class": "Viewport"
+  },
+  {
+   "id": 1382276,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1382278,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1382352,
+   "class": "ImportInstance"
+  },
+  {
+   "id": 1382552,
+   "class": "DBViewAnonDrafting"
+  },
+  {
+   "id": 1382553,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1382554,
+   "class": "Viewer"
+  },
+  {
+   "id": 1382555,
+   "class": "Viewport"
+  },
+  {
+   "id": 1382556,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1382558,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1382670,
+   "class": "DBViewAnonDrafting"
+  },
+  {
+   "id": 1382671,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1382672,
+   "class": "Viewer"
+  },
+  {
+   "id": 1382673,
+   "class": "Viewport"
+  },
+  {
+   "id": 1382674,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1382676,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1382746,
+   "class": "ImportInstance"
+  },
+  {
+   "id": 1382760,
+   "class": "DBViewAnonDrafting"
+  },
+  {
+   "id": 1382761,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1382762,
+   "class": "Viewer"
+  },
+  {
+   "id": 1382763,
+   "class": "Viewport"
+  },
+  {
+   "id": 1382764,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1382766,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1382841,
+   "class": "ImportInstance"
+  },
+  {
+   "id": 1383031,
+   "class": "Section"
+  },
+  {
+   "id": 1383032,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 1383033,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1383035,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1383037,
+   "class": "Viewport"
+  },
+  {
+   "id": 1383038,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1383040,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1383041,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1383081,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1383082,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1383083,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1383084,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1383085,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1383086,
+   "class": "Viewport"
+  },
+  {
+   "id": 1383087,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1383088,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1386341,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1386342,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1386343,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1386344,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1386345,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1386346,
+   "class": "Viewport"
+  },
+  {
+   "id": 1386347,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1386348,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1454510,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1456455,
+   "class": "DBViewRendering"
+  },
+  {
+   "id": 1456456,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1456457,
+   "class": "Viewer"
+  },
+  {
+   "id": 1456458,
+   "class": "Viewport"
+  },
+  {
+   "id": 1456459,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1456461,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1456462,
+   "class": "ImageSymbol"
+  },
+  {
+   "id": 1456977,
+   "class": "DBViewDrafting"
+  },
+  {
+   "id": 1456978,
+   "class": "Viewer"
+  },
+  {
+   "id": 1456979,
+   "class": "Viewport"
+  },
+  {
+   "id": 1456980,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1456981,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1457000,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457002,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457003,
+   "class": "Section"
+  },
+  {
+   "id": 1457004,
+   "class": "DBViewSection"
+  },
+  {
+   "id": 1457005,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1457006,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1457007,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457008,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1457009,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1457010,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1457017,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457018,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457028,
+   "class": "DBViewDrafting"
+  },
+  {
+   "id": 1457029,
+   "class": "Viewer"
+  },
+  {
+   "id": 1457030,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457031,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1457032,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1457043,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457044,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457045,
+   "class": "DBViewDrafting"
+  },
+  {
+   "id": 1457046,
+   "class": "Viewer"
+  },
+  {
+   "id": 1457047,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457048,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1457049,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1457060,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457061,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457062,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457063,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457064,
+   "class": "DBViewDrafting"
+  },
+  {
+   "id": 1457065,
+   "class": "Viewer"
+  },
+  {
+   "id": 1457066,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457067,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1457068,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1457081,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457082,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457149,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457150,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457151,
+   "class": "DBViewDrafting"
+  },
+  {
+   "id": 1457152,
+   "class": "Viewer"
+  },
+  {
+   "id": 1457153,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457154,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1457155,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1457166,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457167,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457168,
+   "class": "Viewer3d"
+  },
+  {
+   "id": 1457169,
+   "class": "ModelClipBox"
+  },
+  {
+   "id": 1457170,
+   "class": "DBView3d"
+  },
+  {
+   "id": 1457171,
+   "class": "SunAndShadowSettings"
+  },
+  {
+   "id": 1457172,
+   "class": "SunAnnotationElem"
+  },
+  {
+   "id": 1457173,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457174,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1457175,
+   "class": "LightSchemeElement"
+  },
+  {
+   "id": 1457178,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457181,
+   "class": "DBViewDrafting"
+  },
+  {
+   "id": 1457182,
+   "class": "Viewer"
+  },
+  {
+   "id": 1457183,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457184,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1457185,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1457197,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457198,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457199,
+   "class": "DBViewDrafting"
+  },
+  {
+   "id": 1457200,
+   "class": "Viewer"
+  },
+  {
+   "id": 1457201,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457202,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1457203,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1457226,
+   "class": "GCSViewport"
+  },
+  {
+   "id": 1457228,
+   "class": "DBViewDrafting"
+  },
+  {
+   "id": 1457229,
+   "class": "Viewer"
+  },
+  {
+   "id": 1457230,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457231,
+   "class": "DBDrawing"
+  },
+  {
+   "id": 1457232,
+   "class": "SketchPlane"
+  },
+  {
+   "id": 1457243,
+   "class": "Viewport"
+  },
+  {
+   "id": 1457244,
+   "class": "Viewport"
+  },
+  {
+   "id": 1470254,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470255,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470256,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470257,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470258,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470259,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470260,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470261,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470262,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470263,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1470265,
+   "class": "ExtentElem"
+  },
+  {
+   "id": 1600009,
+   "class": "Viewer"
+  },
+  {
+   "id": 1600010,
+   "class": "Viewport"
+  },
+  {
+   "id": 1600011,
+   "class": "DBDrawing"
+  }
+ ],
+ "new_only_registered": [],
+ "residue_left_in_place": {
+  "DBViewType(curtain-family-scoped)": "72 kept -- the 8 curtain SYSTEM families' editor types",
+  "DimensionStyle/LeaderStyle/SectionAttributes/CalloutTag/InteriorElevAttributes/ViewportAttributes/GridAttributes/SpotElevationStyle/FilledRegionAttributes": "annotation attribute types kept -- NO our-constructor (dimension / arrowhead / view-tag types)",
+  "FontElem": "77 kept -- the residue annotation types' fonts",
+  "Grid/RefPlane/MultiSegGrid": "sample datum content kept -- a datum-content rung (our grid/refplane constructors exist in the skeleton) or a removal rung"
+ },
+ "build_notes": [
+  "catalog re-wiring: 23 reference(s) re-pointed to the current file's elements: [('LinePatternElem', 'GEN Hidden 2mm'), ('FillPatternElem', 'GEN Solid Fill'), ('MaterialElem', 'GEN Phase - Existing'), ('MaterialElem', 'GEN Phase - Demolition'), ('MaterialElem', 'GEN Phase - New'), ('MaterialElem', 'GEN Phase - Temporary'), ('UnitsElem', ''), ('GeoLocation', 'GEN Project Position')]",
+  "project view: sample view 230 constellation 4 -> ours 4 records; 4 role-matched",
+  "3D view '{3D}': sample view 1454508 constellation 9 -> ours 8 records; 8 role-matched",
+  "plan 1: sample view 1064656 constellation 16 -> ours 7 records; 7 role-matched",
+  "plan 2: sample view 245443 constellation 17 -> ours 7 records; 7 role-matched",
+  "view layer: 483 sample elements (76 view roots); mapped constellations 23; deleted 460",
+  "view types: sample project types 19 -> ours 19 (by m_systemFamilyIdx); family-scoped (curtain) types untouched: 72",
+  "levels: sample 9 -> ours 2; mapped 2 (the levels the mapped plans sit on -> our L1/L2); the rest deleted with their views",
+  "phases: sample 2 -> ours 2 (by sequence order); phase set 1:1; filters sample 7 -> ours 5 (by role; unmatched sample filters deleted)",
+  "text types: sample system text types 12 -> ours 3 (many-to-one by size rank); their fonts/companions stay as residue with the un-substituted annotation types"
+ ],
+ "build_info": {
+  "mapped_views": {
+   "project_view": 230,
+   "view_3d": 1454508,
+   "plans": [
+    1064656,
+    245443
+   ]
+  },
+  "level_correspondence_from_plans": [
+   [
+    311,
+    0
+   ],
+   [
+    245423,
+    1
+   ]
+  ],
+  "our_constellation_sizes": {
+   "project": 4,
+   "3d": 8,
+   "plans": [
+    7,
+    7
+   ]
+  }
+ },
+ "stages": [
+  {
+   "stage": "A: append our records (rvt.commit.commit_new_elements)",
+   "new_elements": 69,
+   "elemtable_after": 4880,
+   "watermark_after": 2300249,
+   "verify_written": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true
+   },
+   "new_records_clean": 207,
+   "seconds": 0.9
+  },
+  {
+   "stage": "B: re-point survivor referrers + delete OLD (rvt.manipulate.commit_plans)",
+   "referrers_repointed": 80,
+   "referrer_records_edited": 159,
+   "repointed_by_class": [
+    [
+     "SketchPlane",
+     46
+    ],
+    [
+     "CategoryElem",
+     28
+    ],
+    [
+     "FontElem",
+     26
+    ],
+    [
+     "AllPlanTopologies",
+     24
+    ],
+    [
+     "CurveElem",
+     12
+    ],
+    [
+     "AreaSchemePlanTopologies",
+     4
+    ],
+    [
+     "StairsPathType",
+     4
+    ],
+    [
+     "ModelGraphicsStyle",
+     4
+    ],
+    [
+     "RvtLinkSymbol",
+     2
+    ],
+    [
+     "RbsDbViewSystemNavigator",
+     2
+    ],
+    [
+     "InitialViewSettings",
+     2
+    ],
+    [
+     "EnergyDataSettings",
+     2
+    ],
+    [
+     "ViewSheetSet",
+     2
+    ],
+    [
+     "FamilySymbol",
+     1
+    ]
+   ],
+   "embedded_document_referrers_uneditable": 0,
+   "old_records_removed": 534,
+   "elemtable_before": 4880,
+   "elemtable_after": 4346,
+   "verify_manipulated": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "isize_identity_mismatches": 0
+   },
+   "seconds": 0.8
+  },
+  {
+   "stage": "C: ADocument remap old->new / purge unmapped / register ours-only / re-encode",
+   "leaves_remapped": 141,
+   "remap_examples": [
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 305,
+     "new": 2300192
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 907370,
+     "new": 2300077
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 311,
+     "new": 2300193
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49559,
+     "new": 2300209
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49562,
+     "new": 2300234
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49563,
+     "new": 2300235
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49560,
+     "new": 2300236
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 54529,
+     "new": 2300245
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49564,
+     "new": 2300237
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49561,
+     "new": 2300238
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49556,
+     "new": 2300239
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 69847,
+     "new": 2300248
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49552,
+     "new": 2300210
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49553,
+     "new": 2300211
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49554,
+     "new": 2300240
+    },
+    {
+     "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "old": 49555,
+     "new": 2300241
+    }
+   ],
+   "purge_totals": {
+    "dangling": 338,
+    "nulled": 14,
+    "elements_dropped": 320,
+    "scalars_nulled": 1
+   },
+   "purge_bodies": [
+    {
+     "body": "SymbolIdMgr",
+     "dangling": 13,
+     "nulled": 0,
+     "elements_dropped": 13,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "DBViewInfo",
+     "dangling": 157,
+     "nulled": 0,
+     "elements_dropped": 157,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "SketchPlaneInfo",
+     "dangling": 52,
+     "nulled": 0,
+     "elements_dropped": 52,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "DBDrawingInfo",
+     "dangling": 47,
+     "nulled": 0,
+     "elements_dropped": 47,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "AppearanceInfo",
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 0,
+     "scalars_nulled": 1
+    },
+    {
+     "body": "CategoryTracking",
+     "dangling": 9,
+     "nulled": 0,
+     "elements_dropped": 6,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "ElementTrackingData",
+     "dangling": 8,
+     "nulled": 0,
+     "elements_dropped": 8,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "LevelPlanViewTracking",
+     "dangling": 13,
+     "nulled": 0,
+     "elements_dropped": 13,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "DatumTracking",
+     "dangling": 7,
+     "nulled": 0,
+     "elements_dropped": 7,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "AbsLayoutAppInfo",
+     "dangling": 26,
+     "nulled": 14,
+     "elements_dropped": 12,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "ImportInstanceTracking",
+     "dangling": 3,
+     "nulled": 0,
+     "elements_dropped": 3,
+     "scalars_nulled": 0
+    },
+    {
+     "body": "AppInfoSystemFamiliesNames",
+     "dangling": 2,
+     "nulled": 0,
+     "elements_dropped": 2,
+     "scalars_nulled": 0
+    }
+   ],
+   "new_only_registration": {
+    "applied": {},
+    "skipped": []
+   },
+   "latest_payload_before": 1573536,
+   "latest_payload_after": 1564686,
+   "seconds": 0.6
+  }
+ ],
+ "new_records_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "referrer_repoint": {
+  "referrer_elements": 80,
+  "record_edits": [
+   {
+    "referrer": 306,
+    "class": "CategoryElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 306,
+    "class": "CategoryElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "CategoryElem.m_ownerId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 308,
+    "class": "FontElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 308,
+    "class": "FontElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "FontElem.m_ownerId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 309,
+    "class": "CategoryElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 309,
+    "class": "CategoryElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "CategoryElem.m_ownerId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 3325,
+    "class": "SketchPlane",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 3325,
+    "class": "SketchPlane",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "SketchPlane.m_oPlaneRef->OnDatumPlaneRef.m_datumPlaneId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9744,
+    "class": "AreaSchemePlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[2]"
+    ],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   },
+   {
+    "referrer": 9744,
+    "class": "AreaSchemePlanTopologies",
+    "seq": 102,
+    "remapped": 2,
+    "example_paths": [
+     "AreaSchemePlanTopologies.m_pSet->PlanTopologies.m_set[0].m_levelId",
+     "AreaSchemePlanTopologies.m_varyInOption[0].first.m_linkInstOrHostId"
+    ],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   },
+   {
+    "referrer": 9745,
+    "class": "AreaSchemePlanTopologies",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+     "ElementHeader.m_parents->ElementParents.m_deletion[3]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 9745,
+    "class": "AreaSchemePlanTopologies",
+    "seq": 102,
+    "remapped": 2,
+    "example_paths": [
+     "AreaSchemePlanTopologies.m_varyInOption[0].first.m_linkInstOrHostId",
+     "AreaSchemePlanTopologies.m_varyInOption[1].first.m_linkInstOrHostId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 26009,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 26009,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 86962,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 3,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+     "ElementHeader.m_parents->ElementParents.m_deletion[3]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 86962,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 3,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId",
+     "AllPlanTopologies.m_varyInOption[0].first.m_linkInstOrHostId",
+     "AllPlanTopologies.m_varyInOption[1].first.m_linkInstOrHostId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102524,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102524,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102525,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 3,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]",
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+     "ElementHeader.m_parents->ElementParents.m_deletion[4]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 102525,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 3,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId",
+     "AllPlanTopologies.m_varyInOption[0].first.m_linkInstOrHostId",
+     "AllPlanTopologies.m_varyInOption[1].first.m_linkInstOrHostId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 141728,
+    "class": "StairsPathType",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 141728,
+    "class": "StairsPathType",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "StairsPathType.m_textTypeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 141729,
+    "class": "StairsPathType",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 141729,
+    "class": "StairsPathType",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "StairsPathType.m_textTypeId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 196658,
+    "class": "SketchPlane",
+    "seq": 101,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   },
+   {
+    "referrer": 196658,
+    "class": "SketchPlane",
+    "seq": 102,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 0,
+     "scalars_nulled": 1
+    }
+   },
+   {
+    "referrer": 245433,
+    "class": "SketchPlane",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 245433,
+    "class": "SketchPlane",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "SketchPlane.m_oPlaneRef->OnDatumPlaneRef.m_datumPlaneId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 245452,
+    "class": "SketchPlane",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 245452,
+    "class": "SketchPlane",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "SketchPlane.m_oPlaneRef->OnDatumPlaneRef.m_datumPlaneId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 417304,
+    "class": "SketchPlane",
+    "seq": 101,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   },
+   {
+    "referrer": 417304,
+    "class": "SketchPlane",
+    "seq": 102,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 0,
+     "scalars_nulled": 1
+    }
+   },
+   {
+    "referrer": 511132,
+    "class": "SketchPlane",
+    "seq": 101,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   },
+   {
+    "referrer": 511132,
+    "class": "SketchPlane",
+    "seq": 102,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 0,
+     "scalars_nulled": 1
+    }
+   },
+   {
+    "referrer": 511151,
+    "class": "SketchPlane",
+    "seq": 101,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   },
+   {
+    "referrer": 511151,
+    "class": "SketchPlane",
+    "seq": 102,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 0,
+     "scalars_nulled": 1
+    }
+   },
+   {
+    "referrer": 515299,
+    "class": "SketchPlane",
+    "seq": 101,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   },
+   {
+    "referrer": 515299,
+    "class": "SketchPlane",
+    "seq": 102,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 0,
+     "scalars_nulled": 1
+    }
+   },
+   {
+    "referrer": 869723,
+    "class": "SketchPlane",
+    "seq": 101,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   },
+   {
+    "referrer": 869723,
+    "class": "SketchPlane",
+    "seq": 102,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 0,
+     "scalars_nulled": 1
+    }
+   },
+   {
+    "referrer": 875636,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875636,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875637,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875637,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875639,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875639,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875640,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875640,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875642,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875642,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875643,
+    "class": "AllPlanTopologies",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 875643,
+    "class": "AllPlanTopologies",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "AllPlanTopologies.m_phaseId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 876569,
+    "class": "FamilySymbol",
+    "seq": 101,
+    "remapped": 0,
+    "example_paths": [],
+    "purged": {
+     "dangling": 1,
+     "nulled": 0,
+     "elements_dropped": 1,
+     "scalars_nulled": 0
+    }
+   },
+   {
+    "referrer": 907371,
+    "class": "CategoryElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 907371,
+    "class": "CategoryElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "CategoryElem.m_ownerId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 907373,
+    "class": "FontElem",
+    "seq": 101,
+    "remapped": 1,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 907373,
+    "class": "FontElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "FontElem.m_ownerId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 1004904,
+    "class": "CurveElem",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 1004904,
+    "class": "CurveElem",
+    "seq": 102,
+    "remapped": 1,
+    "example_paths": [
+     "CurveElem.m_assocLevelId"
+    ],
+    "purged": null
+   },
+   {
+    "referrer": 1004905,
+    "class": "CurveElem",
+    "seq": 101,
+    "remapped": 2,
+    "example_paths": [
+     "ElementHeader.m_parents->ElementParents.m_deletion[1]",
+     "ElementHeader.m_parents->ElementParents.m_appearanceParents[0]"
+    ],
+    "purged": null
+   }
+  ],
+  "embedded_document_referrers_uneditable": 0,
+  "errors": []
+ },
+ "parity": {
+  "pairs": 67,
+  "pairs_ok": 67,
+  "pairs_failed": 0,
+  "table_note": "all pairs stored",
+  "table": [
+   {
+    "old": 1,
+    "new": 2300195,
+    "class": "AllProjectPhases",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[74]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[74]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 230,
+    "new": 2300205,
+    "class": "DBViewProject",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewProjectId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewProjectId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 231,
+    "new": 2300206,
+    "class": "Viewer",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 232,
+    "new": 2300207,
+    "class": "Viewport",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 233,
+    "new": 2300208,
+    "class": "DBDrawing",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 305,
+    "new": 2300192,
+    "class": "LevelAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 311,
+    "new": 2300193,
+    "class": "Level",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LevelPlanViewTracking.m_levelIdToPlanViewIds[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LevelPlanViewTracking.m_levelIdToPlanViewIds[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 371,
+    "new": 2300199,
+    "class": "PhaseFilterElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 372,
+    "new": 2300201,
+    "class": "PhaseFilterElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 373,
+    "new": 2300200,
+    "class": "PhaseFilterElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 374,
+    "new": 2300200,
+    "class": "PhaseFilterElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 375,
+    "new": 2300198,
+    "class": "PhaseFilterElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 12589,
+    "new": 2300196,
+    "class": "ProjectPhase",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 23211,
+    "new": 2300198,
+    "class": "PhaseFilterElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 24937,
+    "new": 2300201,
+    "class": "PhaseFilterElem",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 49552,
+    "new": 2300210,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewTypesForNewLevel.m_newLevelDBViewTypes[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewTypesForNewLevel.m_newLevelDBViewTypes[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49553,
+    "new": 2300211,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewTypesForNewLevel.m_newLevelDBViewTypes[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewTypesForNewLevel.m_newLevelDBViewTypes[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49554,
+    "new": 2300240,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49555,
+    "new": 2300241,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49556,
+    "new": 2300239,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49557,
+    "new": 2300242,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49559,
+    "new": 2300209,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49560,
+    "new": 2300236,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_systemRecentLists->ElementTypeGroupRecentSymbolListMap.m_innerMap[*].second.m_arr[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_systemRecentLists->ElementTypeGroupRecentSymbolListMap.m_innerMap[*].second.m_arr[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49561,
+    "new": 2300238,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49562,
+    "new": 2300234,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49563,
+    "new": 2300235,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 49564,
+    "new": 2300237,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 54529,
+    "new": 2300245,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 56404,
+    "new": 2300243,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 56405,
+    "new": 2300244,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 56406,
+    "new": 2300246,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 69693,
+    "new": 2300247,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 69847,
+    "new": 2300248,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewTypesForNewLevel.m_newLevelDBViewTypes[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewTypesForNewLevel.m_newLevelDBViewTypes[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 86961,
+    "new": 2300197,
+    "class": "ProjectPhase",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NewItemNumber.m_items[*].m_equivalence",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NewItemNumber.m_items[*].m_equivalence",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NewItemNumber.m_items[*].m_equivalence",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->NewItemNumber.m_items[*].m_equivalence",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 245423,
+    "new": 2300194,
+    "class": "Level",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapCabelTrayLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapConduitLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LevelPlanViewTracking.m_levelIdToPlanViewIds[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapCabelTrayLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapConduitLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LevelPlanViewTracking.m_levelIdToPlanViewIds[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_paramSets[*]->ParamSet.m_pElementIdParams->ParamValueSetElementId.m_paramSet[*].m_value"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 245443,
+    "new": 2300227,
+    "class": "DBViewPlan",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LevelPlanViewTracking.m_levelIdToPlanViewIds[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_WPRMap[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_curSPRecs[*]->CurSPRec.m_dbViewId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LevelPlanViewTracking.m_levelIdToPlanViewIds[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_WPRMap[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_curSPRecs[*]->CurSPRec.m_dbViewId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 245444,
+    "new": 2300233,
+    "class": "ExtentElem",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 245445,
+    "new": 2300228,
+    "class": "Viewer",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 245446,
+    "new": 2300230,
+    "class": "SunAndShadowSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_aidSunAndShadowSettings[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_aidSunAndShadowSettings[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 245448,
+    "new": 2300231,
+    "class": "Viewport",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 245449,
+    "new": 2300232,
+    "class": "DBDrawing",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 245451,
+    "new": 2300229,
+    "class": "SketchPlane",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 907370,
+    "new": 2300077,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1064656,
+    "new": 2300220,
+    "class": "DBViewPlan",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LevelPlanViewTracking.m_levelIdToPlanViewIds[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_WPRMap[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_curSPRecs[*]->CurSPRec.m_dbViewId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->LevelPlanViewTracking.m_levelIdToPlanViewIds[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_WPRMap[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_curSPRecs[*]->CurSPRec.m_dbViewId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1064657,
+    "new": 2300226,
+    "class": "ExtentElem",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1064659,
+    "new": 2300223,
+    "class": "SunAndShadowSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_aidSunAndShadowSettings[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_aidSunAndShadowSettings[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1064664,
+    "new": 2300222,
+    "class": "SketchPlane",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1386046,
+    "new": 2300077,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1386133,
+    "new": 2300077,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1386141,
+    "new": 2300077,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1386169,
+    "new": 2300081,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1387415,
+    "new": 2300081,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1387459,
+    "new": 2300081,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1387492,
+    "new": 2300081,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1387497,
+    "new": 2300085,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1389203,
+    "new": 2300085,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1454506,
+    "new": 2300213,
+    "class": "Viewer3d",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1454507,
+    "new": 2300214,
+    "class": "ModelClipBox",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1454508,
+    "new": 2300212,
+    "class": "DBView3d",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_WPRMap[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_curSPRecs[*]->CurSPRec.m_dbViewId"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_DBViewsIndex[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_WPRMap[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SketchPlaneInfo.m_curSPRecs[*]->CurSPRec.m_dbViewId"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1454509,
+    "new": 2300215,
+    "class": "SunAndShadowSettings",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_aidSunAndShadowSettings[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBViewInfo.m_aidSunAndShadowSettings[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1454511,
+    "new": 2300216,
+    "class": "Viewport",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1454512,
+    "new": 2300217,
+    "class": "DBDrawing",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DBDrawingInfo.m_DBDrawingsIndex[*]"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1454513,
+    "new": 2300218,
+    "class": "LightSchemeElement",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1456487,
+    "new": 2300085,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1457021,
+    "new": 2300085,
+    "class": "TextNoteAttributes",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "missing": [],
+    "extra": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]"
+    ],
+    "parity": true
+   },
+   {
+    "old": 1470264,
+    "new": 2300219,
+    "class": "ExtentElem",
+    "surface_before": [],
+    "surface_after": [],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   },
+   {
+    "old": 1470382,
+    "new": 2300249,
+    "class": "DBViewType",
+    "surface_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "surface_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "missing": [],
+    "extra": [],
+    "parity": true
+   }
+  ],
+  "positional_uet_slots": [
+   {
+    "old": 1,
+    "new": 2300195,
+    "slot_before": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[74]"
+    ],
+    "slot_after": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[74]"
+    ],
+    "ok": true
+   }
+  ],
+  "uet_failed": 0,
+  "old_ids_still_in_adocument": {},
+  "adocument_dangling_before": 1721,
+  "adocument_dangling_after": 1684,
+  "adocument_dangling_created": [],
+  "seconds": 0.5
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "deleted_still_present": [],
+  "isize_identity_ok": true,
+  "unit0_element_records": 4346,
+  "walker_errors": 0
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 20,
+   "records": 13041,
+   "elements_decoded": 4346,
+   "decode_failures": 7,
+   "refs_checked": 62368
+  }
+ },
+ "census": {
+  "path": "experiments/genesis/subst/X9.rvt",
+  "elements": 4346,
+  "classes": {
+   "GStyleElem": 1956,
+   "ParamElemExternal": 466,
+   "CategoryElem": 389,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 77,
+   "CustomElement": 61,
+   "ConceptualConstructionType": 36,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 31,
+   "RbsFluidType": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "LegendComponent": 21,
+   "ElectricalLoadClassification": 18,
+   "TilePatternType": 17,
+   "DivisionRule": 17,
+   "DimensionStyle": 16,
+   "Grid": 16,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "MaterialElem": 13,
+   "LeaderStyle": 12,
+   "AllPlanTopologies": 12,
+   "RbsPipingSystemType": 11,
+   "SectionAttributes": 10,
+   "ColorFillSchema": 10,
+   "ConceptualSurfaceType": 10,
+   "InteriorElevAttributes": 9,
+   "FamilySurrogate": 9,
+   "CalloutTag": 9,
+   "PenWidthTableElem": 9,
+   "Family": 8,
+   "AreaTypeElem": 8,
+   "ParamElemProject": 8,
+   "LoadNatureElem": 8,
+   "LoadCaseElem": 8,
+   "RbsPipeConnectionType": 8,
+   "RebarShape": 8,
+   "ParameterFilterElement": 7,
+   "AreaSchemePlanTopologies": 6,
+   "ConduitStandardType": 6,
+   "CurveElem": 6,
+   "BrowserOrganization": 6,
+   "FloorAttributes": 5,
+   "RbsPipeMaterialType": 5,
+   "StructConnectionType": 5,
+   "RebarHookType": 5,
+   "FillPatternElem": 5,
+   "PhaseFilterElem": 5,
+   "SpotElevationStyle": 4,
+   "RbsWireMaterialType": 4,
+   "CustomElementType": 4,
+   "LinePatternElem": 4,
+   "SunAndShadowSettings": 4,
+   "Viewport": 4,
+   "DBDrawing": 4,
+   "BasicWallType": 3,
+   "RbsWireTemperatureRatingType": 3,
+   "RbsHvacSystemType": 3,
+   "StairsLandingType": 3,
+   "StairsType": 3,
+   "StairsRunType": 3,
+   "FamSymSurrogate": 3,
+   "DesignOption": 3,
+   "AbsDuctType": 3,
+   "NumberingSchema": 3,
+   "MasterImportSymbol": 3,
+   "TextNoteAttributes": 3,
+   "Viewer": 3,
+   "ExtentElem": 3,
+   "ViewportAttributes": 2,
+   "CompoundCeilingType": 2,
+   "SysPanelFamSym": 2,
+   "CoverType": 2,
+   "ComponentRepeaterSlotSpecialType": 2,
+   "StairsPathType": 2,
+   "StairsSupportType": 2,
+   "AbsFlexDuctType": 2,
+   "RbsCableTrayType": 2,
+   "RbsConduitType": 2,
+   "RebarBarType": 2,
+   "RebarBendingDetailType": 2,
+   "MEPSystemZoneElementType": 2,
+   "ModelGraphicsStyle": 2,
+   "RevisionNumberingSequence": 2,
+   "ViewSheetSet": 2,
+   "AreaMeasureElem": 2,
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "BasePoint": 2,
+   "Level": 2,
+   "ProjectPhase": 2,
+   "DBViewPlan": 2,
+   "ColorFillSymbol": 1,
+   "CurtainRoofAttributes": 1,
+   "GridAttributes": 1,
+   "RampAttributes": 1,
+   "TagNoteAttributes": 1,
+   "RevealAttr": 1,
+   "CorniceAttr": 1,
+   "Text3dAttrSymbol": 1,
+   "RoofSoffitType": 1,
+   "FasciaAttr": 1,
+   "GutterAttr": 1,
+   "EdgeSlabAttr": 1,
+   "ContourLabelingAttributes": 1,
+   "PropertyAttr": 1,
+   "StairsRailingAttr": 1,
+   "StairsAttributes": 1,
+   "RepeatingDetailAttributes": 1,
+   "JoistSystemAttr": 1,
+   "RevisionCloudAttr": 1,
+   "CurtaSystemAttr": 1,
+   "StackedWallType": 1,
+   "RbsWireType": 1,
+   "RbsVoltageType": 1,
+   "RbsDistributionSysType": 1,
+   "AreaReportSettingsElem": 1,
+   "ContFootingType": 1,
+   "ReferenceViewerAttributes": 1,
+   "ConduitSizesElem": 1,
+   "CableTraySizesElem": 1,
+   "ListConceptualSurfaceTypes": 1,
+   "AnalyticalLinkType": 1,
+   "HandRailType": 1,
+   "TopRailType": 1,
+   "CutMarkType": 1,
+   "SysMullionFamSym": 1,
+   "BuildingPadType": 1,
+   "NewCurtainWallType": 1,
+   "RoofAttributes": 1,
+   "StairsTriserSymbol": 1,
+   "LinearDimString": 1,
+   "DesignOptionSet": 1,
+   "FamilySymbol": 1,
+   "RbsPipeType": 1,
+   "RbsFlexPipeType": 1,
+   "AssemblyCodeTable": 1,
+   "RvtLinkSymbol": 1,
+   "RvtLinkInstance": 1,
+   "AreaReinforcementType": 1,
+   "FabricAreaType": 1,
+   "FabricWireType": 1,
+   "FabricSheetType": 1,
+   "DataStorage": 1,
+   "FilledRegionAttributes": 1,
+   "LineLoadType": 1,
+   "AreaLoadType": 1,
+   "SlaveSymbolTrackerElem": 1,
+   "ImageHolder": 1,
+   "MEPAnalyticalConnectionElementType": 1,
+   "MechanicalEquipmentSetType": 1,
+   "MEPSystemZoneType": 1,
+   "ToposolidType": 1,
+   "RbsCableType": 1,
+   "ReconcileBrowserSettingsElem": 1,
+   "ConstructionSetProject": 1,
+   "RbsDbViewSystemNavigator": 1,
+   "StructSettingsElem": 1,
+   "WallJoinDefaultSetting": 1,
+   "AutoJoinTracker": 1,
+   "KeynoteTable": 1,
+   "KeynotingSystem": 1,
+   "InitialViewSettings": 1,
+   "RbsWireSettingsElem": 1,
+   "RbsWireSizesElem": 1,
+   "RbsPipeSettingsElem": 1,
+   "RbsPipeSizesElem": 1,
+   "RbsDuctSettingsElem": 1,
+   "RbsDuctSizesElem": 1,
+   "ConduitSettingsElem": 1,
+   "CableTraySettingsElem": 1,
+   "MEPComponentTracker": 1,
+   "LayoutNodesTracker": 1,
+   "MEPSystemTracker": 1,
+   "MEPNetworkDataElem": 1,
+   "MEPNetworkTracker": 1,
+   "MEPHiddenLineSettingsElem": 1,
+   "CircuitNamingTypeSetting": 1,
+   "AssemblyTracker": 1,
+   "KeynoteTagsOnSheetsTracker": 1,
+   "RevisionCloudsOnSheetsTracker": 1,
+   "SheetsInSheetCollectionTracker": 1,
+   "AnalyticalToPhysicalRelationManager": 1,
+   "ReactionsUpToDateElem": 1,
+   "GraphicsCache": 1,
+   "ExternalParamLock": 1,
+   "DaylightSourceIdSet": 1,
+   "WorksetVisibilitySettingsElem": 1,
+   "Dwg2dExportUserSettingsData": 1,
+   "STEPExportSettings": 1,
+   "ZoneScheme": 1,
+   "RvtLinkInstanceAppearanceParentElem": 1,
+   "SketchGridAppearanceParentElem": 1,
+   "FabricationServiceSettings": 1,
+   "CurtaSystemFaceManager": 1,
+   "StructuralConnectionSettings": 1,
+   "AutoCamSettingsElem": 1,
+   "HalftoneUnderlaySettings": 1,
+   "MultipleValuesIndicationSettings": 1,
+   "DefaultDivideSettings": 1,
+   "ProjectCopySettingsElem": 1,
+   "AreaSettingsElem": 1,
+   "RouteAnalysisSettings": 1,
+   "FabricationSettings": 1,
+   "FabricationSettingsElement": 1,
+   "SSEPointVisibilitySettings": 1,
+   "ReinforcementSettings": 1,
+   "CoordinateSystemDisplayElem": 1,
+   "ElectricalSetting": 1,
+   "CopyWatchProperties": 1,
+   "ActiveGeoLocationTrackingElement": 1,
+   "EnergyDataSettings": 1,
+   "WorksharingViewModeSettings": 1,
+   "ProjectRevision": 1,
+   "AllProjectRevisions": 1,
+   "PrintSettings": 1,
+   "UnitsElem": 1,
+   "TrueNorth": 1,
+   "ProjectInfo": 1,
+   "LevelAttributes": 1,
+   "AllProjectPhases": 1,
+   "DBViewProject": 1,
+   "DBView3d": 1,
+   "Viewer3d": 1,
+   "ModelClipBox": 1,
+   "LightSchemeElement": 1
+  },
+  "file_size": 741376,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contentdocs_clean_tail": true,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "familymgr_entries": 9,
+  "familymgr_doc_guids": 0
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "familymgr_doc_guids": 0,
+  "coherent": true
+ },
+ "bytes": 741376,
+ "seconds": 4.2,
+ "problems": [],
+ "verdict": "VALID"
+}

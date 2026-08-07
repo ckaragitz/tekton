@@ -1,0 +1,372 @@
+{
+ "op": "add_element_like_original",
+ "parent": "/Users/ck/dev/things/rev-revit/experiments/genesis/triage/K1.rvt",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XA2.rvt",
+ "elem_id": 27,
+ "class_name": "PenWidthTableElem",
+ "replaced_old_id": 2,
+ "elemtable_row": {
+  "original_id": 27,
+  "creation_ep": 0,
+  "modified_ep": 976,
+  "user_modified_ep": 976,
+  "elem_id": 27,
+  "owner_id": -1,
+  "partition_id": 0
+ },
+ "corpus_rule": {
+  "creation_ep": "birth",
+  "id_band": "<5k",
+  "modified_ep": "any",
+  "usermod": "episode",
+  "owner": null,
+  "owns": [],
+  "support": "7/7 project pen tables ce==0, id 2/3/11 (m8); the 58 family-scoped copies are owned by @Family, late episodes"
+ },
+ "rule_violations": [],
+ "placement": {
+  "policy": "auto",
+  "per_seq": {
+   "101": {
+    "index": 2298,
+    "of": 6540,
+    "policy": "auto",
+    "seq": 101,
+    "id_predecessor": {
+     "id": 26,
+     "index": 2297
+    },
+    "id_successor": {
+     "id": 29,
+     "index": 2298
+    },
+    "reason": "ID-HOLE: id neighbours 26 and 29 are stream-adjacent (positions 2297, 2298) -- inserted between them, reproducing the corpus's consecutive-id run",
+    "neighbourhood_after": [
+     {
+      "pos": 2294,
+      "id": 23,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2295,
+      "id": 24,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2296,
+      "id": 25,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2297,
+      "id": 26,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2298,
+      "id": 27,
+      "class": "ElementHeader",
+      "HERE": true
+     },
+     {
+      "pos": 2299,
+      "id": 29,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2300,
+      "id": 414,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2301,
+      "id": 415,
+      "class": "ElementHeader"
+     },
+     {
+      "pos": 2302,
+      "id": 416,
+      "class": "ElementHeader"
+     }
+    ]
+   },
+   "102": {
+    "index": 2298,
+    "of": 6540,
+    "policy": "auto",
+    "seq": 102,
+    "id_predecessor": {
+     "id": 26,
+     "index": 2297
+    },
+    "id_successor": {
+     "id": 29,
+     "index": 2298
+    },
+    "reason": "ID-HOLE: id neighbours 26 and 29 are stream-adjacent (positions 2297, 2298) -- inserted between them, reproducing the corpus's consecutive-id run",
+    "neighbourhood_after": [
+     {
+      "pos": 2294,
+      "id": 23,
+      "class": "MaterialElem"
+     },
+     {
+      "pos": 2295,
+      "id": 24,
+      "class": "MaterialElem"
+     },
+     {
+      "pos": 2296,
+      "id": 25,
+      "class": "MaterialElem"
+     },
+     {
+      "pos": 2297,
+      "id": 26,
+      "class": "MaterialElem"
+     },
+     {
+      "pos": 2298,
+      "id": 27,
+      "class": "PenWidthTableElem",
+      "HERE": true
+     },
+     {
+      "pos": 2299,
+      "id": 29,
+      "class": "MaterialElem"
+     },
+     {
+      "pos": 2300,
+      "id": 414,
+      "class": "MaterialElem"
+     },
+     {
+      "pos": 2301,
+      "id": 415,
+      "class": "MaterialElem"
+     },
+     {
+      "pos": 2302,
+      "id": 416,
+      "class": "MaterialElem"
+     }
+    ]
+   },
+   "103": {
+    "index": 2298,
+    "of": 6540,
+    "policy": "auto",
+    "seq": 103,
+    "id_predecessor": {
+     "id": 26,
+     "index": 2297
+    },
+    "id_successor": {
+     "id": 29,
+     "index": 2298
+    },
+    "reason": "ID-HOLE: id neighbours 26 and 29 are stream-adjacent (positions 2297, 2298) -- inserted between them, reproducing the corpus's consecutive-id run",
+    "neighbourhood_after": [
+     {
+      "pos": 2294,
+      "id": 23,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2295,
+      "id": 24,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2296,
+      "id": 25,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2297,
+      "id": 26,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2298,
+      "id": 27,
+      "class": "SerializedDummy",
+      "HERE": true
+     },
+     {
+      "pos": 2299,
+      "id": 29,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2300,
+      "id": 414,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2301,
+      "id": 415,
+      "class": "SerializedDummy"
+     },
+     {
+      "pos": 2302,
+      "id": 416,
+      "class": "SerializedDummy"
+     }
+    ]
+   }
+  }
+ },
+ "owned_children_wired": [],
+ "registry": {
+  "latest_touched": true,
+  "remap_edits": 1,
+  "remap_examples": [
+   {
+    "path": "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[38]->PenWidthTableInfo.m_penWidthTableElemId",
+    "old": 2,
+    "new": 27
+   }
+  ]
+ },
+ "emit": {
+  "out": "/Users/ck/dev/things/rev-revit/experiments/genesis/regadd/XA2.rvt",
+  "partition": "Partitions/21",
+  "unit0_blocks_after": {
+   "101": 8,
+   "102": 47,
+   "103": 25
+  },
+  "elemtable_count": 6540,
+  "elemtable_rewritten": true,
+  "latest_rewritten": true,
+  "streams_replaced": [
+   "Global/ElemTable",
+   "Global/Latest",
+   "Partitions/21"
+  ]
+ },
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "notes": [
+  "deleted old element 2 (records at {101: 2516, 102: 2516, 103: 2516}, row {'original_id': 2, 'creation_ep': 0, 'modified_ep': 976, 'user_modified_ep': 976, 'elem_id': 2, 'owner_id': -1, 'partition_id': 0})",
+  "ElemTable row COPIED from element 2: (orig 27, ce 0, me 976, ue 976, owner -1)"
+ ],
+ "diff_summary": {
+  "streams_differing": [
+   "Global/ElemTable",
+   "Global/Latest",
+   "Partitions/21"
+  ],
+  "streams_identical_count": 9,
+  "partition_logical_identical": false,
+  "records_added": 3,
+  "records_removed": 3,
+  "records_changed": 0,
+  "changed_ids": [],
+  "id_order_identical": false,
+  "common_order_preserved": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": false,
+  "latest_identical": false,
+  "embedded_units_identical": true
+ },
+ "probe": "XA2",
+ "role": "THE ADD-PATH FIX: X0's experiment with the corpus-conformant registration",
+ "id_choice": {
+  "free_low_ids_sample": [
+   27,
+   28,
+   67,
+   83,
+   84,
+   85,
+   86,
+   92,
+   94,
+   96,
+   98,
+   100
+  ],
+  "chosen": 27,
+  "id_neighbours": [
+   26,
+   29
+  ],
+  "why": "id neighbours are stream-adjacent (clean ID-HOLE)"
+ },
+ "verbatim_content_assertion": {
+  "element": 2,
+  "seqs": {
+   "101": {
+    "identical": true,
+    "class": "ElementHeader",
+    "bytes": 135
+   },
+   "102": {
+    "identical": true,
+    "class": "PenWidthTableElem",
+    "bytes": 1223
+   },
+   "103": {
+    "identical": true,
+    "class": "SerializedDummy",
+    "bytes": 22
+   }
+  },
+  "all_identical": true
+ },
+ "vs_X0": {
+  "X0 (FAILED)": {
+   "new_id": 1500000,
+   "id_band": ">=1.5M (out of corpus band)",
+   "row": "(orig=new, ce 1016, me 1016, ue 1016) = parent's max ep",
+   "position": "appended at the unit END (position 6539/6540)",
+   "registry": "PenWidthTableInfo leaf re-pointed to 1,500,000"
+  },
+  "XA2 (this)": {
+   "new_id": 27,
+   "id_band": "<5k",
+   "row": "COPIED from K1's element 2 = (ce 0, me 976, ue 976): creation-episode 0 is the 7/7 corpus fact",
+   "position": "ID-HOLE: id neighbours 26 and 29 are stream-adjacent (positions 2297, 2298) -- inserted between them, reproducing the corpus's consecutive-id run",
+   "registry": "PenWidthTableInfo leaf re-pointed 2 -> new (typed)"
+  }
+ },
+ "the_one_thing_it_tests": "does the corpus-conformant REGISTRATION (low id + birth-vintage row + hole position) make the add path load, with Autodesk's own content held byte-exact?",
+ "if_PASS": "with X0 FAILED and XR_null PASSED: THE REGISTRATION IS AUDITED and this path fixes it -- id band / vintage / position (a KNOWLEDGE finding; the follow-up per-rule twins split which of the three).  The genesis writer must mint birth singletons at low ids with episode-0 rows.",
+ "if_FAIL": "(with XR_null PASSED) even a corpus-conformant NEW-id registration of a birth singleton is rejected => the reader binds these singletons to their canonical ids/history: DO NOT MOVE THEM.  The route is XR0's: substitute IN PLACE (a genesis writer mints them AT their canonical ids in a fresh document).  Also read: was the typed re-point the only registry motion (registry.remap_examples)?",
+ "seconds": 9.5
+}

@@ -1,0 +1,635 @@
+{
+ "generator": "tools/genesis_addpath_probes.py",
+ "stream": "genesis-addpath-probes -- PER-RULE VERBATIM CONTROLS for the ADD PATH",
+ "the_decisive_fact": "X0 (Autodesk's OWN pen table, exact bytes, through OUR add path at a new id) and C0 (Autodesk's own catalog row via our path) BOTH FAIL Revit-DocumentCorruption (verdicts #11): our objects are exonerated; the ADD PATH for non-instance elements corrupts, while the family-INSTANCE add path is proven (V20..V29 load).  The bug is the delta between how K1 registered the element and how our path does.",
+ "measured_delta_K1_vs_X0": {
+  "reference_PASS": "experiments/genesis/triage/K1.rvt",
+  "subject_FAIL": "experiments/genesis/controls/X0.rvt",
+  "streams": {
+   "BasicFileInfo": "DIFFERS",
+   "Contents": "identical",
+   "Formats/Latest": "identical",
+   "Global/ContentDocuments": "identical",
+   "Global/DocumentIncrementTable": "DIFFERS",
+   "Global/ElemTable": "DIFFERS",
+   "Global/History": "identical",
+   "Global/Latest": "DIFFERS",
+   "Global/PartitionTable": "identical",
+   "Partitions/21": "DIFFERS",
+   "ProjectInformation": "identical",
+   "TransmissionData": "identical"
+  },
+  "streams_differing": [
+   "BasicFileInfo",
+   "Global/DocumentIncrementTable",
+   "Global/ElemTable",
+   "Global/Latest",
+   "Partitions/21"
+  ],
+  "partition_compression": {
+   "embedded_unit_blocks": [
+    201,
+    201
+   ],
+   "embedded_blocks_with_identical_INFLATED_payload": 201,
+   "embedded_blocks_with_identical_COMPRESSED_member": 0,
+   "end_record_len": [
+    603,
+    823
+   ],
+   "reading": "all embedded-unit blocks inflate identically; their compressed members and the trailing end-record junk differ because commit_new_elements re-compresses every block and each re-block generation appends the source's final-page ECC pad.  Compression / trailing junk are reader-tolerated cosmetics (V15, V20..V29, K3/K4 all PASS) and are therefore NOT candidate rules; this tool's probes add no new junk and keep the original compression of every untouched block."
+  },
+  "adocument_leaf_differences": [
+   {
+    "path": "ADocument.m_pAppInfoManager.value.m_appInfoArr[38].value.m_penWidthTableElemId",
+    "K1": 2,
+    "X0": 1500000
+   }
+  ],
+  "elemtable": {
+   "K1_row_for_element_2": {
+    "elem_id": 2,
+    "original_id": 2,
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "user_modified_ep": 976,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "X0_row_for_element_1500000": {
+    "elem_id": 1500000,
+    "original_id": 1500000,
+    "creation_ep": 1016,
+    "modified_ep": 1016,
+    "user_modified_ep": 1016,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "K1_count": 6540,
+   "X0_count": 6540,
+   "K1_watermark": 1472524,
+   "X0_watermark": 1500000,
+   "K1_max_modified_ep": 1016
+  },
+  "record_order": {
+   "K1_records_per_seq": 6541,
+   "X0_records_per_seq": 6541,
+   "K1_position_of_id_2": 2516,
+   "K1_neighbours_of_id_2": [
+    1455333,
+    1455335,
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "X0_position_of_id_1500000": 6539,
+   "X0_records_after_sentinel_exclusive_last_index": 6539,
+   "three_seqs_identical_order": true,
+   "K1_order_law": "NOT id-sorted: 43 ascending id-runs; the max id 1,472,524 sits at position 131, the birth-vintage block (ids 1,2,3,...) starts at position 2,515; the last real record is id 49,026"
+  },
+  "identity": {
+   "BasicFileInfo_fields_changed": {
+    "last_save_path": [
+     "C:\\Users\\hansonje\\Desktop\\Downloadable Files\\rstbasicsampleproject.rvt",
+     ".X0.a_appended.rvt"
+    ],
+    "author": [
+     "Autodesk Revit",
+     "rvt-writer"
+    ],
+    "username": [
+     "",
+     "rvt-writer"
+    ],
+    "client_app_name": [
+     "RevitApplication",
+     "rvt-writer"
+    ]
+   },
+   "DIT_usernames_K1": [
+    "campbes",
+    "gbs_subsuser6",
+    "hansonje",
+    "loboarch",
+    "okapaw",
+    "xuew",
+    "youyi",
+    "zhangg"
+   ],
+   "DIT_usernames_X0": [
+    "rvt-writer"
+   ]
+  },
+  "end_record_junk_note": "K1's true partition logical ends with a 603-byte 'end record' = the genuine 68-byte end marker + 535 bytes of ancestor ECC-pad junk carried by every reduction generation; X0 carries one more generation of it.  delete_elements smuggles the source's final-page ECC pad into the output's logical stream (uses the depaged logical, whose tail extends past the true end), so no re-blocked file can be byte-identical to its parent.  READER-TOLERATED (K1 596 B of it, K4 1.5 KB, all PASS) => cosmetic, not a candidate rule; this tool builds every probe from unframe_exact() so no NEW junk is added.",
+  "dimensions_derived": [
+   "ID MOTION (records m_id + deletion entry, ElemTable row id, watermark, the ONE ADocument leaf PenWidthTableInfo.m_penWidthTableElemId)",
+   "EPISODES (ElemTable row (0,976,976) -> (1016,1016,1016))",
+   "RECORD POSITION (index 2,516 -> unit-0 end, before the sentinel)",
+   "IDENTITY (BasicFileInfo scrub + DIT usernames -- V30..V32-proven)"
+  ],
+  "X0k": {
+   "row_for_element_2": {
+    "elem_id": 2,
+    "original_id": 2,
+    "creation_ep": 1016,
+    "modified_ep": 1016,
+    "user_modified_ep": 1016,
+    "owner_id": -1,
+    "partition_id": 0
+   },
+   "watermark": 1472524,
+   "position_of_id_2": 6539,
+   "global_latest_identical_to_K1": true,
+   "streams_vs_K1": {
+    "BasicFileInfo": "DIFFERS",
+    "Contents": "identical",
+    "Formats/Latest": "identical",
+    "Global/ContentDocuments": "identical",
+    "Global/DocumentIncrementTable": "DIFFERS",
+    "Global/ElemTable": "DIFFERS",
+    "Global/History": "identical",
+    "Global/Latest": "identical",
+    "Global/PartitionTable": "identical",
+    "Partitions/21": "DIFFERS",
+    "ProjectInformation": "identical",
+    "TransmissionData": "identical"
+   }
+  }
+ },
+ "collapsed_probes_no_file": {
+  "P_owner": {
+   "collapsed_onto": "X0 (byte-identical -- NO FILE, NO UPLOAD; verdict = X0's)",
+   "elemrec_owner_K1_row2": -1,
+   "elemrec_owner_X0_row": -1,
+   "both_INVALID": true,
+   "header_owner_channels": "the pen table's ElementHeader has category -1, empty appearance/regen parents and deletion = [self]; the ElemTable owner is the only ownership channel and it is INVALID in both K1 and X0"
+  },
+  "P_flags": {
+   "collapsed_onto": "X0 (byte-identical -- NO FILE, NO UPLOAD; verdict = X0's)",
+   "elemrec_has_no_flag_field": "40-byte ElemRec = original_id(u64) + creation/modified/user_modified episodes(3 x u32) + id(u64) + owner(u64) + partition(u32): there is no flag word",
+   "header_field_differences_K1_id2_vs_X0_id1500000": [
+    {
+     "path": "ElementHeader.m_parents.value.m_deletion[0]",
+     "K1": 2,
+     "X0": 1500000
+    }
+   ],
+   "reading": "X0's ElementHeader is Autodesk's own header with only the element's own entry in ElementParents.m_deletion rebased 2 -> 1,500,000; the flag word m_abFlags4Bytes and every other field are byte-identical",
+   "X0_json_byte_identity_assertion": {
+    "all_three_seqs_identical_at_original_id": true,
+    "identity_rebased_leaves": {
+     "object": [
+      "PenWidthTableElem.m_id"
+     ],
+     "header": [
+      "ElementHeader.m_parents->ElementParents.m_deletion[*]"
+     ]
+    }
+   }
+  }
+ },
+ "reference_files": {
+  "K1": "experiments/genesis/triage/K1.rvt (viewer PASS -- the registration reference)",
+  "X0": "experiments/genesis/controls/X0.rvt (viewer FAIL -- our add path, new id 1,500,000)",
+  "X0k": "experiments/genesis/controls/X0k.rvt (verdict PENDING -- same id 2, zero registry motion, already in the orchestrator's queue)"
+ },
+ "reading_order": [
+  "P_ep_only",
+  "P_pos_only",
+  "P_allnew",
+  "P_lowid",
+  "P_ep",
+  "P_order",
+  "P_sameid_ep",
+  "P_sameid_order",
+  "P_ident_only",
+  "P_ident",
+  "P_sameid_ident",
+  "P_all",
+  "P_x0",
+  "P_sameid"
+ ],
+ "upload_plan": {
+  "PRIMARY_batch": [
+   "P_ep_only",
+   "P_pos_only",
+   "P_allnew",
+   "P_lowid"
+  ],
+  "PRIMARY_note": "the four FROM-K1 SINGLES: each = K1 + exactly ONE add-path deviation, Autodesk's own records throughout; a FAIL names the audited rule DIRECTLY on the passing file with zero other motion",
+  "SECONDARY_same_round_if_capacity": [
+   "P_ep",
+   "P_order"
+  ],
+  "SECONDARY_note": "the FROM-X0 RESCUES: X0 with ONE dimension restored; a PASS shows removing that ONE deviation makes a real add-path product load, and they expose interactions the singles cannot",
+  "OPTIONAL": [
+   "P_sameid_ep",
+   "P_sameid_order",
+   "P_sameid_ident",
+   "P_ident_only",
+   "P_ident"
+  ],
+  "OPTIONAL_note": "the FROM-X0k restores are only informative if X0k FAILS (pre-built for that branch); the two identity probes cover the V30..V32-proven fourth dimension for completeness",
+  "NO_UPLOAD_anchors": [
+   "P_all",
+   "P_x0",
+   "P_sameid"
+  ],
+  "NO_UPLOAD_note": "construction proofs: P_all is BYTE-IDENTICAL to K1 (its verdict IS K1's PASS); P_x0 / P_sameid are the assembler's semantic twins of X0 / X0k (their verdicts are those files')",
+  "NO_FILE_collapsed": [
+   "P_owner",
+   "P_flags"
+  ]
+ },
+ "decision_tree": {
+  "given": "K1 PASS; X0 FAIL; the K1->X0 delta = exactly four dimensions {ID MOTION, EPISODES, POSITION, IDENTITY} (measured; the ADocument differs in ONE leaf; P_owner / P_flags collapse onto X0 byte-identically); P_all == K1 byte-for-byte => the delete+re-add mechanics are lossless and the bug IS one (or an interaction) of the four.",
+  "P_ep_only FAIL": "ELEMTABLE VINTAGE IS THE HARD RULE (a 12-byte episode edit alone corrupts K1): birth-vintage singletons must keep creation episode 0 / birth-era episodes.  FIX: commit_new_elements honours an explicit ElemRecPlan.creation_ep (today it IGNORES the plan and stamps the parent's max episode) + the genesis writer mints birth-vintage classes at episode 0.  P_ep PASS confirms the rescue on a real add-path product.",
+  "P_pos_only FAIL": "RECORD POSITION IS A HARD RULE for this element: our path's append-before-sentinel (proven for instances) is NOT valid for birth singletons; the writer must place them at their canonical stream position.  P_order PASS confirms the rescue; the next bisect is 'unit end' vs 'birth-block start' vs 'exact original slot' (buildable in seconds with this tool).",
+  "P_allnew FAIL": "REGISTERING THE SINGLETON AT A NEW HIGH ID is fatal by itself.  Read P_lowid: PASS => it is the HIGH ID BAND (allocate settings singletons LOW ids from birth); FAIL => ANY re-registration of this element is fatal (the leaf re-point / watermark) => genesis must mint the pen table AT ITS CANONICAL id 2 and never move it.",
+  "several from-K1 singles FAIL": "MULTIPLE independent rules -- each named by its own FAIL; fix all; the from-X0 restores tell which single restoration is SUFFICIENT (none, if two are each fatal alone).",
+  "ALL four from-K1 singles PASS (while X0 FAILS)": "an INTERACTION: a dimension fatal only combined with another (typically with the id motion).  Read the from-X0 restores: P_ep PASS => vintage x new-id; P_order PASS => position x new-id; P_ident PASS => identity x new-id; none PASS => a 3-way interaction => next round: pairwise probes (each buildable in seconds via probe_specs()).  Also re-check the identity singles.",
+  "consistency_with_X0k": "X0k PASS predicts P_ep_only, P_pos_only and P_ident_only PASS (episodes/position/identity all tolerated at the same id) and pushes the fault onto the id motion => expect P_allnew FAIL and P_lowid to decide the band.  X0k FAIL predicts one of {P_ep_only, P_pos_only, P_ident_only} FAILS, and the matching P_sameid_* restore PASSES."
+ },
+ "cross_stream_observation_X_pen": "docs/coverage/viewer-certified.json lists experiments/genesis/subst_v2/X_pen.rvt as FAILED in the same batch as X0.  X_pen is the fixer's IN-PLACE probe: K1 with the pen table's records replaced AT ITS OWN id 2 by OUR pen-table object via the CERTIFIED modify path -- and, MEASURED here, X_pen differs from K1 in Partitions/21 ONLY (BasicFileInfo, DIT, ElemTable, Latest are byte-identical to K1's; no add path, no identity scrub, no registry motion, record IN PLACE at index 2,516).  Therefore X_pen convicts OUR PEN-TABLE PAYLOAD independently of the add path -- a SECOND, SEPARATE bug the 'our objects are exonerated' summary of verdicts #11 does not cover: X0/C0 prove Autodesk's payload fails through our ADD PATH, and X_pen proves our payload fails WITHOUT the add path.  Both must be fixed for genesis; this stream attacks only the add path (every probe here carries Autodesk's own payload).  The fixer's own tree names the follow-up: X_pen_obj (K1's own header, our object body).",
+ "assembler_findings": [
+  "K1's true partition logical (unframe_exact) round-trips byte-exactly through ecc.frame_stream; rebuilding unit 0 from its own record lists + K1's exact trailing region reproduces the stream byte-for-byte (P_all).",
+  "delete_elements appends the source's final-page ECC pad into the output logical (the depaged tail extends past the true end) => each re-block generation grows the partition 'end record' (K1 603 B, its re-block 668 B, K4 ~1.6 KB); the reader TOLERATES it (K1, K3, K4, KD1 PASS) so it is cosmetic, but it makes byte-identity with a parent impossible for delete_elements outputs; fix = truncate the source at unframe_exact()'s true end.  (Owner: the reduce stream; not applied here.)",
+  "The unit-0 record streams are NOT id-sorted: 43 ascending id-runs; the max id 1,472,524 sits at position 131 of 6,540; the birth-vintage block (ids 1..7...) starts at position 2,515; the last real record is id 49,026; the three seqs carry IDENTICAL id order.  'Append at the unit end' therefore does NOT match K1's own placement of its highest ids (which live in the FIRST run)."
+ ],
+ "probes": [
+  {
+   "order": 1,
+   "name": "P_ep_only",
+   "family": "from-K1",
+   "upload": "PRIMARY",
+   "file": "experiments/genesis/addpath/P_ep_only.rvt",
+   "report": "experiments/genesis/addpath/P_ep_only.json",
+   "template": "K1",
+   "sibling_it_differs_from": "K1.rvt (viewer PASS)",
+   "the_ONE_change": "ElemTable row 2: creation/modified/user_modified episodes (0,976,976) -> (max,max,max)=(1016,1016,1016) -- a 12-byte edit of one ElemRec",
+   "label": "K1 with the pen table's ElemTable EPISODES rewritten to the add path's vintage (0,976,976) -> (1016,1016,1016); NOTHING else changes",
+   "the_one_thing_it_tests": "Is the ElemTable VINTAGE of a birth-vintage settings singleton AUDITED?  This is the linter's ETR.created_at_birth rule (creation episode 0 in 6/6 project pen tables) tested with ZERO other motion: Autodesk's own file, Autodesk's own records at their own id and position, only the three episode u32s changed.",
+   "if_PASS": "VINTAGE ALONE is tolerated for the pen table -- the fresh-episode ElemTable row the add path writes is NOT the killer by itself (read P_pos_only / P_allnew / P_lowid for the other three dimensions).",
+   "if_FAIL": "THE ELEMTABLE VINTAGE IS A HARD RULE: a birth-vintage singleton must keep creation episode 0 (and its birth-era modified/user episodes).  Every genesis element carries a fresh episode -- FIX: commit_new_elements must honour an explicit ElemRecPlan.creation_ep (it currently IGNORES the plan and stamps the parent's max episode) and the genesis writer must mint birth-vintage classes at episode 0.  Confirm with P_ep (X0 rescued by episodes alone).",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "Global/ElemTable"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 2,
+   "name": "P_pos_only",
+   "family": "from-K1",
+   "upload": "PRIMARY",
+   "file": "experiments/genesis/addpath/P_pos_only.rvt",
+   "report": "experiments/genesis/addpath/P_pos_only.json",
+   "template": "K1",
+   "sibling_it_differs_from": "K1.rvt (viewer PASS)",
+   "the_ONE_change": "record POSITION: index 2,516 -> 6,539 in each of the three seqs (Autodesk's own bytes at id 2; ElemTable / Latest / identity untouched)",
+   "label": "K1 with element 2's OWN records MOVED from their original position (index 2,516, right after element 1) to the unit-0 END (before the sentinel)",
+   "the_one_thing_it_tests": "Is the RECORD POSITION of a settings singleton in the unit-0 seq streams audited?  K1's streams are NOT id-sorted (43 ascending runs; the birth block ids 1,2,3,... start at index 2,515); the add path appends every new record at the end.  Appending at the end is PROVEN for instance/type classes (V20..V29, T_conduit_types) -- a FAIL here would prove position is ELEMENT-/CLASS-SPECIFIC (e.g. birth singletons must sit inside the birth block).",
+   "if_PASS": "POSITION ALONE is tolerated: a settings singleton's records may sit at the unit end -- the add path's record placement is NOT the killer (read the episode / id-motion singles).",
+   "if_FAIL": "RECORD POSITION IS A HARD RULE for this element: the writer must place non-instance elements at their canonical stream position (inside the birth block / their original slot), NOT append them at the unit end.  Confirm with P_order (X0 rescued by position alone); P_pos_end vs the birth-block-start variant is the next positional bisect (buildable in seconds).",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "Partitions/21"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 3,
+   "name": "P_allnew",
+   "family": "from-K1",
+   "upload": "PRIMARY",
+   "file": "experiments/genesis/addpath/P_allnew.rvt",
+   "report": "experiments/genesis/addpath/P_allnew.json",
+   "template": "K1",
+   "sibling_it_differs_from": "K1.rvt (viewer PASS)",
+   "the_ONE_change": "the element id 2 -> 1,500,000 (records' m_id + own deletion entry, ElemTable row id + footer watermark, PenWidthTableInfo leaf) -- the ID MOTION dimension, everything else at K1's convention",
+   "label": "K1 with the pen table re-registered at the NEW HIGH id 1,500,000 IN PLACE (records rebased at their original position, birth episodes, K1 identity, watermark raised, the ONE ADocument leaf re-pointed) -- ID MOTION ALONE",
+   "the_one_thing_it_tests": "Is REGISTERING THE SETTINGS SINGLETON AT A NEW HIGH ID fatal by itself (the ADocument leaf now indexing a 1,500,000 id, the watermark jump 1,472,524 -> 1,500,000, the singleton living in the high user-content band -- objlint's ETR.id_band rule, <5k in 6/6 pen tables)?  This is the maximal registration match for a genuinely NEW id: from X0's side it is X0 with episodes + position + identity ALL restored.",
+   "if_PASS": "ID MOTION ALONE is tolerated: a settings singleton CAN be registered at a new high id when its episodes / position / identity follow K1's convention => the killer is among the other three dimensions (their singles name it), and the genesis writer may keep high ids for singletons.",
+   "if_FAIL": "THE ID MOTION IS FATAL: read P_lowid -- P_lowid PASS => it is the HIGH BAND (settings singletons must be minted at LOW ids in the birth band); P_lowid ALSO FAIL => ANY id/registry motion of this element is fatal (the leaf re-point / watermark itself) => genesis must mint each singleton once at its canonical low id and never delete+re-add it.",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "Global/ElemTable",
+    "Global/Latest",
+    "Partitions/21"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 4,
+   "name": "P_lowid",
+   "family": "from-K1",
+   "upload": "PRIMARY",
+   "file": "experiments/genesis/addpath/P_lowid.rvt",
+   "report": "experiments/genesis/addpath/P_lowid.json",
+   "template": "K1",
+   "sibling_it_differs_from": "K1.rvt (PASS); direct comparator: P_allnew (same motion, high band)",
+   "the_ONE_change": "the element id 2 -> 27 (a free, unreferenced id below the birth-band materials; the ADocument leaf re-pointed; watermark unchanged) -- vs P_allnew the ONLY difference is the id VALUE (band)",
+   "label": "K1 with the pen table re-registered at the LOW free id 27 (inside the birth band, watermark NOT raised) IN PLACE -- the ID-BAND control for P_allnew",
+   "the_one_thing_it_tests": "Does the id BAND decide?  Id 27 is free and unreferenced in K1 (host graph AND ADocument), sits among the birth-band materials/patterns, and does NOT raise the watermark.  Reads only against P_allnew.",
+   "if_PASS": "(with P_allnew FAILING) THE HIGH ID BAND is the audited rule for settings singletons -- genesis must allocate them low ids from birth (an id allocator per class band); (with P_allnew PASSING) id motion in general is fine and the band is irrelevant.",
+   "if_FAIL": "(with P_allnew FAILING) not the band: ANY re-registration of this element (leaf re-point / new id) is fatal even at a low id -- the reader ties the pen table's identity to id 2 (a positional/well-known-id singleton); genesis must mint the pen table AT ID 2.  (with P_allnew PASSING) a low-band-specific constraint -- unexpected; read the card message.",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "Global/ElemTable",
+    "Global/Latest",
+    "Partitions/21"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 5,
+   "name": "P_ep",
+   "family": "from-X0",
+   "upload": "SECONDARY",
+   "file": "experiments/genesis/addpath/P_ep.rvt",
+   "report": "experiments/genesis/addpath/P_ep.json",
+   "template": "X0",
+   "sibling_it_differs_from": "X0.rvt (viewer FAIL)",
+   "the_ONE_change": "ElemTable row 1,500,000 episodes (1016,1016,1016) -> (0,976,976); every other byte of X0 kept (a 12-byte Global/ElemTable edit)",
+   "label": "X0 with the new row's ElemTable EPISODES restored to the ORIGINAL element's vintage: (1016,1016,1016) -> (0,976,976)",
+   "the_one_thing_it_tests": "Does restoring the birth VINTAGE alone RESCUE the failing add-path product?  The rescue twin of P_ep_only.",
+   "if_PASS": "VINTAGE IS THE (SOLE) KILLER of X0: restoring the birth episodes makes Autodesk's own pen table load through our add path.  With P_ep_only FAILING this is a closed, single-cause diagnosis: honour birth episodes for birth-vintage classes in the commit path.",
+   "if_FAIL": "vintage alone does not rescue X0 => another dimension is (also) fatal or the rule is an interaction; read the from-K1 singles.",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "Global/ElemTable"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 6,
+   "name": "P_order",
+   "family": "from-X0",
+   "upload": "SECONDARY",
+   "file": "experiments/genesis/addpath/P_order.rvt",
+   "report": "experiments/genesis/addpath/P_order.json",
+   "template": "X0",
+   "sibling_it_differs_from": "X0.rvt (viewer FAIL)",
+   "the_ONE_change": "record POSITION of the id-1,500,000 records: unit end -> right after element 1 (X0's own record bytes; ElemTable / Latest / identity are X0's)",
+   "label": "X0 with the three appended records MOVED from the unit end back to the ORIGINAL position (right after element 1's records, K1's index 2,516)",
+   "the_one_thing_it_tests": "Does restoring the ORIGINAL record position alone RESCUE X0?  The rescue twin of P_pos_only.  Also the interaction detector: if every from-K1 single PASSES while X0 FAILS, a PASS here means position matters ONLY at a NEW id.",
+   "if_PASS": "record POSITION is the killer of X0 (alone, if P_pos_only also FAILS; only in combination with the new id, if P_pos_only PASSES): the add path must place non-instance element records at their canonical position, not the unit end.",
+   "if_FAIL": "position alone does not rescue X0.",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "Partitions/21"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 7,
+   "name": "P_sameid_ep",
+   "family": "from-X0k",
+   "upload": "OPTIONAL",
+   "file": "experiments/genesis/addpath/P_sameid_ep.rvt",
+   "report": "experiments/genesis/addpath/P_sameid_ep.json",
+   "template": "X0k",
+   "sibling_it_differs_from": "X0k.rvt (verdict PENDING -- pen table re-added at its own id 2)",
+   "the_ONE_change": "ElemTable row 2 episodes (1016,1016,1016) -> (0,976,976) -- X0k with only the vintage restored (X0k's raw partition / Latest / identity kept)",
+   "label": "X0k with row 2's EPISODES restored (1016,1016,1016) -> (0,976,976) [X0k = same-id re-add, verdict pending]",
+   "the_one_thing_it_tests": "Only relevant if X0k FAILS: separates VINTAGE from POSITION at the SAME id (zero registry motion).  With X0k PASSING these three are moot.",
+   "if_PASS": "(X0k FAIL) vintage was X0k's killer at the same id -- consistent with P_ep_only FAIL.",
+   "if_FAIL": "(X0k FAIL) not vintage alone; read P_sameid_order / P_sameid_ident.",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "Global/ElemTable"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 8,
+   "name": "P_sameid_order",
+   "family": "from-X0k",
+   "upload": "OPTIONAL",
+   "file": "experiments/genesis/addpath/P_sameid_order.rvt",
+   "report": "experiments/genesis/addpath/P_sameid_order.json",
+   "template": "X0k",
+   "sibling_it_differs_from": "X0k.rvt (verdict PENDING)",
+   "the_ONE_change": "record POSITION of the id-2 records: unit end -> right after element 1 (the seq record streams then equal K1's byte-for-byte)",
+   "label": "X0k with element 2's records MOVED from the unit end back to the ORIGINAL position (right after element 1) -- the unit-0 record streams become K1's exactly",
+   "the_one_thing_it_tests": "Only relevant if X0k FAILS: separates POSITION from VINTAGE at the same id.",
+   "if_PASS": "(X0k FAIL) position was X0k's killer at the same id -- consistent with P_pos_only FAIL.",
+   "if_FAIL": "(X0k FAIL) not position alone; read P_sameid_ep / P_sameid_ident.",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "Partitions/21"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 9,
+   "name": "P_ident_only",
+   "family": "from-K1",
+   "upload": "OPTIONAL",
+   "file": "experiments/genesis/addpath/P_ident_only.rvt",
+   "report": "experiments/genesis/addpath/P_ident_only.json",
+   "template": "K1",
+   "sibling_it_differs_from": "K1.rvt (viewer PASS)",
+   "the_ONE_change": "the identity scrub (two streams: BasicFileInfo + DocumentIncrementTable) -- the V30/V31/V32-PROVEN path, carried by every X0-class file",
+   "label": "K1 with ONLY the add path's identity scrub applied (BasicFileInfo author/username/last_save_path + DIT usernames -> 'rvt-writer'); document GUID kept",
+   "the_one_thing_it_tests": "The accounting single for the FOURTH dimension.  The scrub is viewer-proven on the rst working base (V30 own BasicFileInfo, V31 own author, V32 own DIT usernames PASS); this re-proves it on the K-lineage skeleton so no dimension is left unmeasured.  Upload only if the primary batch leaves the fourth dimension in question.",
+   "if_PASS": "the identity scrub is tolerated on the K1 lineage too (expected; V30..V32).",
+   "if_FAIL": "the identity scrub is NOT tolerated on the reduced K1 lineage (contradicts V30..V32 -- would point at a lineage-specific BasicFileInfo dependence).",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "BasicFileInfo",
+    "Global/DocumentIncrementTable"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 10,
+   "name": "P_ident",
+   "family": "from-X0",
+   "upload": "OPTIONAL",
+   "file": "experiments/genesis/addpath/P_ident.rvt",
+   "report": "experiments/genesis/addpath/P_ident.json",
+   "template": "X0",
+   "sibling_it_differs_from": "X0.rvt (viewer FAIL)",
+   "the_ONE_change": "BasicFileInfo + DIT streams: our scrubbed identity -> K1's originals",
+   "label": "X0 with K1's ORIGINAL BasicFileInfo + DocumentIncrementTable restored (the identity scrub reverted)",
+   "the_one_thing_it_tests": "The rescue twin of P_ident_only (accounting for the fourth, proven dimension).  Upload only if the primary batch leaves the identity in question.",
+   "if_PASS": "identity is X0's killer (would contradict V30..V32) -- lineage-specific.",
+   "if_FAIL": "identity is not X0's killer (expected).",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "BasicFileInfo",
+    "Global/DocumentIncrementTable"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 11,
+   "name": "P_sameid_ident",
+   "family": "from-X0k",
+   "upload": "OPTIONAL",
+   "file": "experiments/genesis/addpath/P_sameid_ident.rvt",
+   "report": "experiments/genesis/addpath/P_sameid_ident.json",
+   "template": "X0k",
+   "sibling_it_differs_from": "X0k.rvt (verdict PENDING)",
+   "the_ONE_change": "BasicFileInfo + DIT -> K1's originals (X0k's raw partition / ElemTable kept)",
+   "label": "X0k with K1's ORIGINAL BasicFileInfo + DIT restored",
+   "the_one_thing_it_tests": "Only relevant if X0k FAILS: the identity dimension at the same id (proven category).",
+   "if_PASS": "(X0k FAIL) identity was X0k's killer -- would contradict V30..V32.",
+   "if_FAIL": "(X0k FAIL) not identity; expected.",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "BasicFileInfo",
+    "Global/DocumentIncrementTable"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": null
+  },
+  {
+   "order": 90,
+   "name": "P_all",
+   "family": "anchor",
+   "upload": "NO (anchor)",
+   "file": "experiments/genesis/addpath/P_all.rvt",
+   "report": "experiments/genesis/addpath/P_all.json",
+   "template": "K1",
+   "sibling_it_differs_from": "K1.rvt (viewer PASS)",
+   "the_ONE_change": "none: delete + re-add with EVERYTHING restored (the lossless-mechanics proof)",
+   "label": "element 2 DELETED and RE-ADDED through this tool's assembler with ALL FOUR dimensions at K1's convention -- ASSERTED BYTE-IDENTICAL TO K1 IN EVERY STREAM",
+   "the_one_thing_it_tests": "Is delete + re-add LOSSLESS -- does anything outside {the 3 records, the ElemTable row, the ADocument leaf} encode the element?  Byte-identity with K1 PROVES no hidden per-element state exists (no ordinal / offset table / checksum elsewhere), so the whole bug is a REGISTRATION DETAIL among the four dimensions.  Verdict = K1's (PASS) by identity: NO UPLOAD.",
+   "if_PASS": "(by construction) the delete + re-add mechanics are lossless.",
+   "if_FAIL": "(only if the byte-identity assertion FAILS) hidden per-element state exists outside the three records / ElemTable row / Latest leaf -- named in the residual diff; then P_all IS a probe worth uploading.",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [],
+   "changed_set_as_expected": true,
+   "anchor_proof": {
+    "kind": "byte-identity vs K1",
+    "ALL_STREAMS_BYTE_IDENTICAL_TO_K1": true
+   }
+  },
+  {
+   "order": 91,
+   "name": "P_x0",
+   "family": "anchor",
+   "upload": "NO (anchor)",
+   "file": "experiments/genesis/addpath/P_x0.rvt",
+   "report": "experiments/genesis/addpath/P_x0.json",
+   "template": "K1",
+   "sibling_it_differs_from": "X0.rvt (viewer FAIL)",
+   "the_ONE_change": "none vs X0 semantically (reproduces the add path's registration exactly)",
+   "label": "ALL FOUR add-path deviations applied by THIS assembler (id 1,500,000 at the end, fresh episodes, leaf re-pointed, identity scrubbed) -- ASSERTED SEMANTICALLY IDENTICAL to X0",
+   "the_one_thing_it_tests": "Is this assembler a faithful stand-in for commit_new_elements?  Asserted: ElemTable model == X0's, ADocument tree == X0's, unit-0 record bytes + order == X0's, identity fields == X0's (the only raw differences allowed are the reader-tolerated end-record junk length and BasicFileInfo.last_save_path).  Therefore every from-K1 single reads as 'the add path with all but one deviation removed'.  Verdict = X0's (FAIL) semantically: NO UPLOAD.",
+   "if_PASS": "n/a",
+   "if_FAIL": "n/a",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "BasicFileInfo",
+    "Global/DocumentIncrementTable",
+    "Global/ElemTable",
+    "Global/Latest",
+    "Partitions/21"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": {
+    "kind": "semantic identity vs experiments/genesis/controls/X0.rvt",
+    "SEMANTICALLY_IDENTICAL": true
+   }
+  },
+  {
+   "order": 92,
+   "name": "P_sameid",
+   "family": "anchor",
+   "upload": "NO (anchor)",
+   "file": "experiments/genesis/addpath/P_sameid.rvt",
+   "report": "experiments/genesis/addpath/P_sameid.json",
+   "template": "K1",
+   "sibling_it_differs_from": "X0k.rvt (verdict PENDING -- already in the orchestrator's queue)",
+   "the_ONE_change": "none vs X0k semantically",
+   "label": "X0k's registration (pen table re-added AT ITS OWN id 2: records at the unit end, fresh episodes, identity scrubbed, ZERO registry motion) reproduced by this assembler -- ASSERTED SEMANTICALLY IDENTICAL to X0k",
+   "the_one_thing_it_tests": "Cross-check of the assembler against the SAME-ID add-path product (X0k).  Verdict = X0k's: NO UPLOAD (X0k is queued; the three P_sameid_* restores are pre-built for its FAIL branch).",
+   "if_PASS": "n/a",
+   "if_FAIL": "n/a",
+   "verdict": "CERTIFIED",
+   "validator": {
+    "ok": true,
+    "errors": 0
+   },
+   "changed_vs_template": [
+    "BasicFileInfo",
+    "Global/DocumentIncrementTable",
+    "Global/ElemTable",
+    "Partitions/21"
+   ],
+   "changed_set_as_expected": true,
+   "anchor_proof": {
+    "kind": "semantic identity vs experiments/genesis/controls/X0k.rvt",
+    "SEMANTICALLY_IDENTICAL": true
+   }
+  }
+ ],
+ "reproduce": "cd rev-revit && .venv/bin/python tools/genesis_addpath_probes.py (~2 min); .venv/bin/python -m pytest tests/test_addpath_probes.py -q"
+}

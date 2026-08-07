@@ -1,0 +1,126 @@
+{
+ "stream": "rft-probes (the birth-state probe ladder)",
+ "tool": "tools/rft_probe.py",
+ "created": "2026-08-05T09:16:23-0500",
+ "material": {
+  "rft_files": [],
+  "template_birth_json": null
+ },
+ "question": "is TEMPLATE-BIRTH INHERITANCE the law behind the instance audit's rejection of famgen-assembled famdocs (verdicts #36-#42: SUB_ALL passes, BX_conj fails)?",
+ "probes": [
+  {
+   "order": 1,
+   "rung": "TB0",
+   "file": "experiments/rftprobe/TB0.rvt",
+   "base": "samples/racadvancedsampleproject.rvt",
+   "kind": "probe",
+   "axis": "smallest model-instanceable Autodesk-born famdoc (M_RPC Female, racadvanced u33, 381 recs) through the H7 recipe on its own host",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the corpus-smallest model-instanceable Autodesk-born famdoc (M_RPC Female, racadvanced u33, 381 recs) famload-loaded into its OWN host + one uniform template instance.  The ONE new thing vs certified B7: the famdoc (and its host).",
+   "expected": "PASS (every born famdoc probed so far passes with a blob; FAIL reopens machinery generality)",
+   "md5": "194fb98cf064d9153e2eb5f384aea79b",
+   "symbol_id": 438953,
+   "family_id": 438949,
+   "instance_ids": [
+    438954
+   ],
+   "validator": {
+    "n_errors": 0,
+    "unexpected": 0
+   },
+   "gates_ok": true
+  },
+  {
+   "order": 2,
+   "rung": "TB0r",
+   "file": "experiments/rftprobe/TB0r.rvt",
+   "base": "samples/rstbasicsampleproject.rvt",
+   "kind": "probe",
+   "axis": "smallest model-instanceable famdoc of the rst sample itself (M_Pile-Steel Pipe, u41, 414 recs) -- single-variable famdoc swap against certified B7 (417-rec column, same host+path)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the smallest model-instanceable famdoc of rst basic itself (M_Pile-Steel Pipe u41, 414 recs) through B7's exact host+path.  The ONE new thing vs B7: the famdoc alone.",
+   "expected": "PASS (single-variable vs certified B7)",
+   "md5": "650133d89328cd2b38d17d4b58fbd49f",
+   "symbol_id": 1472945,
+   "family_id": 1472939,
+   "instance_ids": [
+    1472946
+   ],
+   "validator": {
+    "n_errors": 0,
+    "unexpected": 0
+   },
+   "gates_ok": true
+  },
+  {
+   "order": 3,
+   "rung": "T0",
+   "file": "experiments/rftprobe/T0.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "FAIL anchor: OUR famgen famdoc (PP-1) via famload + uniform template instance on G_ABPD (the substrate T3 augments)",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "OUR famgen famdoc via famload + uniform template instance on G_ABPD.  The T-ladder's FAIL anchor: every T-rung differs from T0 by one declared thing.",
+   "expected": "FAIL (the B0/H8B lineage verdict reproduces)",
+   "md5": "b8d143993d1601fb43aa5add5647d873",
+   "symbol_id": 1472583,
+   "family_id": 1472566,
+   "instance_ids": [
+    1472584
+   ],
+   "validator": {
+    "n_errors": 0,
+    "unexpected": 0
+   },
+   "gates_ok": true
+  },
+  {
+   "order": 4,
+   "rung": "T2a",
+   "file": "experiments/rftprobe/T2a.rvt",
+   "base": "experiments/genesis/subst_k4/compose/G_ABPD.rvt",
+   "kind": "probe",
+   "axis": "T2's dress rehearsal: the Revit-BORN standalone .rfa famdoc (vendor racbasicsamplefamily-2026, 1992 elements, full birth catalog) UNMODIFIED via famload + instance on G_ABPD",
+   "n_families": 1,
+   "n_instances": 1,
+   "n_walls": 0,
+   "the_ONE_thing_it_tests": "the Revit-BORN standalone .rfa famdoc (1992 elements, the full birth catalog: 1477 GStyleElem + 70 CategoryElem + materials/fonts) UNMODIFIED via famload + instance on G_ABPD.  The ONE thing vs T0: the famdoc is BORN (saved by desktop Revit as a standalone family).",
+   "expected": "PASS extends birth-inheritance to standalone-born bodies on G_ABPD; FAIL is a standalone-species finding that reframes T2 before any .rft is spent",
+   "md5": "d5e469e77010d5815e1160261d01230a",
+   "symbol_id": 1474526,
+   "family_id": 1474517,
+   "instance_ids": [
+    1474527
+   ],
+   "validator": {
+    "n_errors": 0,
+    "unexpected": 0
+   },
+   "gates_ok": true
+  }
+ ],
+ "reading_the_matrix": {
+  "CTRL FAIL": "round VOID (oracle/environment) -- interpret nothing",
+  "TB0/TB0r PASS": "the H7-recipe machinery generalizes beyond the concrete column: even the smallest model-instanceable Autodesk-born famdocs pass famload + instance -- birth-inheritance holds for every born body probed; the proven envelope widens (new host racadvanced, new categories).",
+  "TB0 FAIL + TB0r PASS": "host generality broken (racadvanced), famdoc generality intact on rst -- machinery, not birth; fix before reading T-rungs on other hosts.",
+  "TB0r FAIL": "REOPENS machinery suspicion: a single-variable famdoc swap against certified B7 (same host, same path) fails -- famdoc-specific variance the machinery mishandles; bisect the pile famdoc vs the column famdoc.",
+  "T0 FAIL": "expected (B0/H8B lineage): our famdoc still fails under the T-ladder's exact base+path -- the ladder is anchored.",
+  "T0 PASS": "SURPRISE: our famdoc passes famload+template-placement on G_ABPD while failing famgen-loader (B0) and famload-on-rst (H8B) -- the defect would be in the OTHER load paths, not the famdoc; re-read the whole campaign before proceeding.",
+  "T2 PASS + T1 PASS + T0 FAIL": "TEMPLATE-BIRTH INHERITANCE CONFIRMED as the law: a template-born shell accepts our exact content while our assembly of the same content fails.  The fix spec = the T1-body-vs-T0-body diff (template birth elements + self-Family/header field residues); T3/birthright is the product fix.",
+  "T2 PASS + T1 FAIL": "our content poisons even a template-born shell -- read against SUB_ALL PASS (project-donor body accepted the same 35 elements): the delta TEMPLATE-vs-PROJECT-DONOR body is the next bisection axis.",
+  "T2 FAIL": "an UNMODIFIED template famdoc through our machinery fails: either the .rft famdoc species differs from project-embedded famdocs (type table? category-coupled infrastructure?) or the machinery mishandles .rft-born content.  TB0/TB0r/B7 split machinery from famdoc: if they PASS, the .rft species itself is the finding.",
+  "T3 PASS": "the zero-donor birthright authoring closes the gap: port rvt.famgen.birthright into the product path (opt-in), rebuild DEMO, close the campaign's last bug.",
+  "T3 FAIL (T1 PASS)": "the authored birth set is incomplete/wrong -- diff T3's famdoc vs T1's body against template_birth.json; iterate birthright."
+ },
+ "notes": [
+  "every probe: validator 0 unexpected errors, 64-byte 0x0f3f blob on every unit (added units carry OUR deterministic nonce -- machine-verified), coherent four-registry census, references resolved, ONE family + ONE instance",
+  "TB0/TB0r embed Autodesk sample famdocs; T1/T2 embed .rft template content -- ALL quarantined under experiments/ (zero donor bytes in anything shipped)",
+  "T2b escalation (unbuilt): carry the .rft's own Global/Latest ADocument as the inline ContentDocuments entry (famdoc_bisect.swap_inline_adoc) if T2 fails and the inline-ADoc axis needs re-splitting for .rft-born bodies"
+ ]
+}

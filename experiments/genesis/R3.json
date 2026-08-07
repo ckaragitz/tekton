@@ -1,0 +1,376 @@
+{
+ "stage": "R3",
+ "safe_variant": false,
+ "out": "experiments/genesis/R3.rvt",
+ "file_size": 3596288,
+ "seed": 8750,
+ "deleted": 9337,
+ "surviving_elements": 4599,
+ "elemtable_before": 13936,
+ "records_removed": {
+  "101": 9337,
+  "102": 9337,
+  "103": 9337
+ },
+ "blocks_before": 213,
+ "blocks_after": 38,
+ "structural_ok": true,
+ "verify": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "units": 53,
+  "blocks_unit0": 38,
+  "isize_identity_ok": true,
+  "elemtable_ids_without_record": 0
+ },
+ "walker_errors": [],
+ "dangling": {
+  "survivors_with_dangling_refs": 767,
+  "dangling_by_survivor_class": [
+   [
+    "CategoryElem",
+    430
+   ],
+   [
+    "GStyleElem",
+    327
+   ],
+   [
+    "Level",
+    9
+   ],
+   [
+    "DBViewType",
+    1
+   ]
+  ],
+  "external": {
+   "Global/Latest": {
+    "dangling": 1901,
+    "by_class": [
+     [
+      "FamilyInstance",
+      439
+     ],
+     [
+      "RebarInSystem",
+      224
+     ],
+     [
+      "Rebar",
+      122
+     ],
+     [
+      "CustomElement",
+      61
+     ],
+     [
+      "DBDrawing",
+      58
+     ],
+     [
+      "SunAndShadowSettings",
+      57
+     ],
+     [
+      "FamilySurrogate",
+      50
+     ],
+     [
+      "DPart",
+      45
+     ],
+     [
+      "RebarSystem",
+      44
+     ],
+     [
+      "SketchGrid",
+      40
+     ],
+     [
+      "ConceptualConstructionType",
+      36
+     ],
+     [
+      "LineLoad",
+      35
+     ]
+    ]
+   },
+   "Global/ContentDocuments": {
+    "dangling": 0,
+    "by_class": []
+   }
+  },
+  "history_invariant_at_risk": false
+ },
+ "deleted_by_class": [
+  [
+   "CurveElem",
+   4351
+  ],
+  [
+   "LinearDimString",
+   710
+  ],
+  [
+   "FamilyInstance",
+   497
+  ],
+  [
+   "FontElem",
+   261
+  ],
+  [
+   "TextNote",
+   229
+  ],
+  [
+   "RebarInSystem",
+   224
+  ],
+  [
+   "SketchPlane",
+   209
+  ],
+  [
+   "VarSketch",
+   140
+  ],
+  [
+   "ReferencePoint",
+   128
+  ],
+  [
+   "Rebar",
+   122
+  ],
+  [
+   "Hub",
+   122
+  ],
+  [
+   "ParamElemFamily",
+   120
+  ],
+  [
+   "FamilySymbol",
+   106
+  ],
+  [
+   "LegendComponent",
+   96
+  ],
+  [
+   "TextNoteAttributes",
+   90
+  ],
+  [
+   "DBViewType",
+   90
+  ],
+  [
+   "AnalyticalMember",
+   90
+  ],
+  [
+   "Viewport",
+   79
+  ],
+  [
+   "RegenSplitterElem",
+   68
+  ],
+  [
+   "LeaderStyle",
+   61
+  ],
+  [
+   "CustomElement",
+   61
+  ],
+  [
+   "TagNoteAttributes",
+   60
+  ],
+  [
+   "DBDrawing",
+   59
+  ],
+  [
+   "SunAndShadowSettings",
+   57
+  ],
+  [
+   "FilledRegion",
+   56
+  ],
+  [
+   "FamilySurrogate",
+   50
+  ],
+  [
+   "FamSymSurrogate",
+   50
+  ],
+  [
+   "Family",
+   50
+  ],
+  [
+   "DPart",
+   45
+  ],
+  [
+   "RebarSystem",
+   44
+  ],
+  [
+   "SketchGrid",
+   40
+  ],
+  [
+   "ExtentElem",
+   39
+  ],
+  [
+   "IndependentTag",
+   37
+  ],
+  [
+   "ConceptualConstructionType",
+   36
+  ],
+  [
+   "LineLoad",
+   35
+  ],
+  [
+   "Viewer",
+   34
+  ],
+  [
+   "FilledRegionAttributes",
+   32
+  ],
+  [
+   "SunAnnotationElem",
+   31
+  ],
+  [
+   "RoomElem",
+   31
+  ],
+  [
+   "RbsFluidType",
+   28
+  ]
+ ],
+ "top_survivor_classes": [
+  [
+   "GStyleElem",
+   2183
+  ],
+  [
+   "CategoryElem",
+   616
+  ],
+  [
+   "ParamElemExternal",
+   466
+  ],
+  [
+   "ParamBinding",
+   209
+  ],
+  [
+   "LinePatternElem",
+   150
+  ],
+  [
+   "AppearanceAssetElem",
+   131
+  ],
+  [
+   "HVACLoadSpaceTypeElem",
+   125
+  ],
+  [
+   "FillPatternElem",
+   116
+  ],
+  [
+   "ParamElemElectricalLoadClassification",
+   108
+  ],
+  [
+   "MaterialElem",
+   93
+  ],
+  [
+   "PropertySetElement",
+   56
+  ],
+  [
+   "SunAndShadowSettings",
+   33
+  ],
+  [
+   "HVACLoadBuildingTypeElem",
+   33
+  ],
+  [
+   "HVACLoadScheduleElem",
+   27
+  ],
+  [
+   "BuildingOperatingYearSchedule",
+   27
+  ],
+  [
+   "ElectricalDemandFactorDefinition",
+   21
+  ],
+  [
+   "RefPlane",
+   18
+  ],
+  [
+   "ElectricalLoadClassification",
+   18
+  ],
+  [
+   "AllPlanTopologies",
+   12
+  ],
+  [
+   "Level",
+   9
+  ],
+  [
+   "ColorFillSchema",
+   9
+  ],
+  [
+   "LoadNatureElem",
+   8
+  ],
+  [
+   "LoadCaseElem",
+   8
+  ],
+  [
+   "ParamElemProject",
+   8
+  ],
+  [
+   "PhaseFilterElem",
+   7
+  ]
+ ],
+ "seconds": 5.7
+}

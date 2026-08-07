@@ -1,0 +1,97 @@
+{
+ "probe": "L3b",
+ "out": "experiments/genesis/loader/L3b_G1_candidate_our_heads.rvt",
+ "ok": true,
+ "seconds": 0.5,
+ "families": [
+  {
+   "key": "level_head",
+   "guid": "435675c9-0093-4ae2-8c02-9599b50ce536",
+   "host_family": 1500255,
+   "symbols": [
+    1500261
+   ],
+   "twins": 3,
+   "unit_records": 21,
+   "doc_ids": [
+    1500234,
+    1500254
+   ]
+  }
+ ],
+ "registries_after": {
+  "save_units": 2,
+  "contentdocs_entries": 1,
+  "contenttable_records": 1,
+  "familymgr_entries": 1,
+  "coherent": true,
+  "ours_in_all_four": true,
+  "units_added": 1
+ },
+ "registries_before": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "familymgr_entries": 0,
+  "coherent": true
+ },
+ "elemtable": {
+  "records": 241,
+  "watermark": 1500261,
+  "our_host_ids_present": true,
+  "watermark_covers_documents": true
+ },
+ "container": {
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": 0,
+  "stamps_ok": true,
+  "host_records_missing": [],
+  "host_records_unclean": []
+ },
+ "host_linkage_ok": true,
+ "family_inventory_ok": true,
+ "validate": {
+  "verdict": "VALID",
+  "n_errors": 0,
+  "n_warnings": 0,
+  "errors": [],
+  "warnings": []
+ },
+ "usage_repoint": {
+  "edits": [
+   {
+    "referrer": 1500192,
+    "class": "LevelAttributes",
+    "field": "m_familyTagId",
+    "symbol": 1500261,
+    "old_value": -1,
+    "deletion_added": 1500261,
+    "ok": true
+   }
+  ],
+  "written": true,
+  "plans": 1,
+  "verify": {
+   "crc_failures": 0,
+   "ecc_mismatches": 0,
+   "walker_errors": 0,
+   "stamps_ok": true,
+   "elemtable_count": 241,
+   "isize_identity_mismatches": 0
+  }
+ },
+ "acceptance": [
+  "H1: an EMBEDDED family ADocument with an all-null 239-slot AppInfoManager (the specimen carries ~110 populated family-editor registries) -- the factory's L3 open question, unchanged",
+  "H2: an annotation FamilySymbol whose seq-103 rep is a SerializedDummy and whose geometry bookkeeping (m_geomSteps / m_pGeomTable / m_refFaces / m_tagNoteData) is EMPTY -- Revit must regenerate the symbol graphics from the family document",
+  "H3: our family documents carry the S0 skeleton (self-Family, Ref. Level, origin planes, units, one plan view, parameters, one type) and NO detail geometry / label -- the head SHAPE is absent",
+  "H4: host Family.m_coreIds bind only the host's category GStyle rows (none when the host lacks that category); big2small maps only the parameter twins (our documents reference no host catalog rows)",
+  "H5: the ContentTable record's author is 'rvt-writer'; the load reuses the host's current episode (no new History row / DIT record)",
+  "H6: the host FamilyTypeTable = one blank ' ' row and the type lives as the FamilySymbol (the annotation flavour); OUR embedded document carries its single named type too (the specimen embedded head document's type table is empty)"
+ ],
+ "base": "experiments/genesis/G1_candidate.rvt",
+ "base_verdict": "constructed genesis base (viewer FAIL: 'Revit-DocumentCorruption')",
+ "tests": "The constructed base G1_candidate (234-element house-standard inventory, OUR ADocument, ZERO family documents) + our level-head head family document(s) loaded through all four registries, and its level type's m_familyTagId pointed at our level-head symbol.  = the K4-FAIL fix: the base now carries coherent embedded family documents.",
+ "if_PASS": "Embedded family documents were the missing skeleton class: the genesis base + OUR loaded families opens -- G1 has its K4-FAIL fix and the loader is the genesis-2 base's family route.",
+ "if_FAIL": "Family documents alone do not fix the constructed base: read the card message -- if L1a/L1b PASS, the residual is the base's OTHER missing skeleton content (settings singletons / catalogs, the K5x/K6 verdicts) or the head CONTENT (if L1b failed)."
+}

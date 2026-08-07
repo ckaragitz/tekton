@@ -1,0 +1,270 @@
+{
+  "specVersion": "2.0",
+  "intentVersion": "2.0",
+  "generator": "rvt.ifc.intent",
+  "source": {
+    "path": "prompt:add a 100 A lighting panel to my project",
+    "schema": "prompt/spec-v2",
+    "length_scale_m_per_unit": 1.0
+  },
+  "project": {
+    "name": "Prompt-authored model",
+    "description": "Resolved intent (spec v2.0) from prompt:add a 100 A lighting panel to my project by rvt.ifc.intent"
+  },
+  "units": {
+    "length": "m",
+    "angle": "deg"
+  },
+  "levels": [
+    {
+      "id": "L1",
+      "name": "Level 1",
+      "elevation": 0.0,
+      "elevation_from_placement": 0.0,
+      "step_id": null,
+      "guid": null
+    }
+  ],
+  "walls": [],
+  "equipment": [
+    {
+      "tag": "LP-1",
+      "name": "LP-1 - 100 A 480Y/277 V MLO lighting panelboard, 42 spaces",
+      "kind": "lighting_panelboard",
+      "ifcClass": "IfcElectricDistributionBoard",
+      "predefinedType": "DISTRIBUTIONBOARD",
+      "guid": "prompt:LP-1",
+      "step_id": -1,
+      "typeName": null,
+      "objectType": null,
+      "description": "100 A 480Y/277 V MLO lighting panelboard, 42 spaces; surface wall-mounted panelboard (front-door prompt layout)",
+      "disposition": "generated-family",
+      "position_m": [
+        5.854,
+        0.0
+      ],
+      "elevation_m": 0.8105,
+      "insertion_m": [
+        5.854,
+        0.0,
+        1.42
+      ],
+      "positionSource": "prompt-layout (deterministic room-layout rule; positions are authored from the prompt, not surveyed)",
+      "orientation": {
+        "front_normal": [
+          0.0,
+          -1.0,
+          0.0
+        ],
+        "yaw_deg": 0.0,
+        "frame_kind": "upright",
+        "frame3x3_rows_are_family_axes_in_world": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "convention": "family +X = width axis; front = family -Y (yaw frame) for floor equipment, or family +Z = front normal / family +Y = up (upright work-plane frame) for wall equipment"
+      },
+      "dims_m": {
+        "w": 0.508,
+        "d": 0.146,
+        "h": 1.2192
+      },
+      "mounting": "surface",
+      "mounting_height_m": 1.42,
+      "fedFrom": null,
+      "contract": {
+        "PanelName": "LP-1",
+        "Voltage": "480Y/277 V",
+        "Phases": 3,
+        "Wires": 4,
+        "BusRating": 100.0,
+        "MainsRating": 100.0,
+        "MainsType": "Main lugs only",
+        "NumberOfCircuits": 42,
+        "Mounting": "Surface, wall",
+        "FeederEntry": "Top",
+        "_voltage": {
+          "ll": 480.0,
+          "ln": 277.0,
+          "phases": 3,
+          "wires": 4,
+          "system": "480Y/277",
+          "raw": "480Y/277 V"
+        },
+        "_provenance": {
+          "PanelName": "pset:PanelSchedule.PanelName",
+          "Voltage": "pset:PanelSchedule.Voltage",
+          "Phases": "pset:PanelSchedule.Phases",
+          "Wires": "pset:PanelSchedule.Wires",
+          "BusRating": "pset:PanelSchedule.BusRating",
+          "MainsRating": "pset:PanelSchedule.MainsRating",
+          "MainsType": "pset:PanelSchedule.MainsType",
+          "NumberOfCircuits": "pset:PanelSchedule.NumberOfCircuits",
+          "Mounting": "pset:PanelSchedule.Mounting",
+          "FeederEntry": "pset:PanelSchedule.FeederEntry"
+        }
+      },
+      "psets": {
+        "PanelSchedule": {
+          "PanelName": "LP-1",
+          "Voltage": "480Y/277 V",
+          "Phases": 3,
+          "Wires": 4,
+          "BusRating": 100.0,
+          "MainsRating": 100.0,
+          "MainsType": "Main lugs only",
+          "NumberOfCircuits": 42,
+          "Mounting": "Surface, wall",
+          "FeederEntry": "Top"
+        }
+      },
+      "placementChain": {
+        "absolute_origin_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "absolute_xdir": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "absolute_zdir": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "is_identity": true,
+        "chain_depth": 0,
+        "chain": [],
+        "warnings": [
+          "prompt-authored: no IFC placement chain"
+        ]
+      },
+      "geometry": {
+        "has_body": false,
+        "items": []
+      },
+      "notes": [
+        "insertion = centre of the enclosure's mounting (back) plane on the nearest wall; upright work-plane frame (family +Z = front normal, +Y = up)",
+        "dims prompt-default (replaced by catalog facts once planned)",
+        "dims replaced by catalog facts (eaton/pow-r-line-panelboards PRL2X)"
+      ]
+    }
+  ],
+  "room": null,
+  "clearances": [],
+  "feederTree": {
+    "edges": [],
+    "conduitRuns": [],
+    "circuitPlan": [],
+    "notes": [
+      "each FedFrom edge = one feeder circuit (panel -> load) for rvt.mep add_circuit; the UTILITY service edge has no in-model circuit (the switchboard's own supply connector stays unconnected)"
+    ]
+  },
+  "familyMapping": [
+    {
+      "tag": "LP-1",
+      "kind": "lighting_panelboard",
+      "constructor": "rvt.famgen.factory.make_panelboard",
+      "kwargs": {
+        "vendor": "eaton",
+        "line": "pow-r-line",
+        "mains_a": 100.0,
+        "spaces": 42,
+        "voltage": "480Y/277",
+        "mcb": false,
+        "mounting": "surface",
+        "panel_name": "LP-1",
+        "sccr_ka": null
+      },
+      "status": "resolved",
+      "catalog": "eaton/pow-r-line-panelboards",
+      "variant": "PRL2X",
+      "facts": {
+        "subject": "eaton/pow-r-line-panelboards PRL2X 100 A 42 sp 480Y/277",
+        "model": "PRL2X",
+        "manufacturer": "Eaton",
+        "dims_in": {
+          "w": 20.0,
+          "h": 48.0,
+          "d": 5.75
+        },
+        "assumed_fields": [
+          "height_in",
+          "sccr_ka"
+        ],
+        "unverified_fields": [
+          "height_in",
+          "mains_rating_a",
+          "mains_type",
+          "mounting",
+          "neutral_rating",
+          "panel_name",
+          "phases",
+          "sccr_ka",
+          "spaces",
+          "voltage_ll_v",
+          "voltage_system",
+          "wires"
+        ],
+        "sccr_ka": 14.0,
+        "notes": [
+          "Panelboard weights are NOT published in the catalog sections read -> no Weight parameter is emitted.",
+          "Family / type NAMES avoid catalog numbers; manufacturer and model ride as identity-parameter VALUES (content-strategy 5.4 unsettled)."
+        ]
+      },
+      "dims": {
+        "modeled_m": {
+          "w": 0.508,
+          "d": 0.146,
+          "h": 1.219
+        },
+        "catalog_m": {
+          "w": 0.508,
+          "h": 1.2192,
+          "d": 0.146
+        },
+        "delta_m": {
+          "w": 0.0,
+          "h": 0.0002,
+          "d": 0.0
+        }
+      },
+      "notes": []
+    }
+  ],
+  "otherProducts": [],
+  "audit": {
+    "source": "prompt (built-in rules-first fallback; no external model call)",
+    "equipment_with_positions": 1,
+    "positions_all_zero": false,
+    "feeder_edges": 0,
+    "family_plans": {
+      "LP-1": "resolved"
+    },
+    "prompt_consumed_ratio": 0.475,
+    "prompt_ignored_words": [
+      "add"
+    ]
+  },
+  "notes": [
+    "positions are AUTHORED BY THE PROMPT LAYOUT RULE (not surveyed from geometry): room centred at the origin; floor gear in a lineup along the north wall facing into the room; wall panels surface-mounted on the west/east interior faces",
+    "the tagging-contract dict per board is synthesised from the prompt through the SAME normalize_contract() the IFC route uses, so the family mapping (plan_families) is identical for both routes",
+    "PRIMARY prompt path = the documented three-d-stage handoff (PROMPT_TO_IFC.md): an AI surface builds the Three.js scene, exports IFC4 with our tagging-contract Psets, and the file re-enters through --ifc; this fallback exists so the front door WORKS with no external model call and no API key",
+    "convert: intent translated by (5.6, 0.0) m (+0.0 m equipment z) into the target's frame"
+  ]
+}

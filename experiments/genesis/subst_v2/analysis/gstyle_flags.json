@@ -1,0 +1,550 @@
+{
+ "const_keys": 472,
+ "keys": 1407,
+ "six_keys": 1407,
+ "six_const": 472,
+ "varying_examples": {
+  "(-2006204, 1)": {
+   "rstbasicsampleproject": 67108878,
+   "rmebasicsampleproject": 67108878,
+   "racbasicsampleproject": 67108878,
+   "racadvancedsampleproject": 67108878,
+   "rstadvancedsampleproject": 67108878,
+   "dach-sample-project": 67117070
+  },
+  "(-2006204, 2)": {
+   "rstbasicsampleproject": 67108878,
+   "rmebasicsampleproject": 67108878,
+   "racbasicsampleproject": 67108878,
+   "racadvancedsampleproject": 67108878,
+   "rstadvancedsampleproject": 67108878,
+   "dach-sample-project": 67117070
+  },
+  "(-2006229, 1)": {
+   "rstbasicsampleproject": 67108878,
+   "rmebasicsampleproject": 67108878,
+   "racbasicsampleproject": 67108878,
+   "racadvancedsampleproject": 67108878,
+   "rstadvancedsampleproject": 67108878,
+   "dach-sample-project": 67117070
+  },
+  "(-2006229, 2)": {
+   "rstbasicsampleproject": 67108878,
+   "rmebasicsampleproject": 67108878,
+   "racbasicsampleproject": 67108878,
+   "racadvancedsampleproject": 67108878,
+   "rstadvancedsampleproject": 67108878,
+   "dach-sample-project": 67117070
+  },
+  "(-2009037, 1)": {
+   "rstbasicsampleproject": 67117070,
+   "rmebasicsampleproject": 67117070,
+   "racbasicsampleproject": 67117070,
+   "racadvancedsampleproject": 67117070,
+   "rstadvancedsampleproject": 67117070,
+   "dach-sample-project": 67108878
+  },
+  "(-2009037, 2)": {
+   "rstbasicsampleproject": 67117070,
+   "rmebasicsampleproject": 67117070,
+   "racbasicsampleproject": 67117070,
+   "racadvancedsampleproject": 67117070,
+   "rstadvancedsampleproject": 67117070,
+   "dach-sample-project": 67108878
+  },
+  "(-2009038, 1)": {
+   "rstbasicsampleproject": 67117070,
+   "rmebasicsampleproject": 67117070,
+   "racbasicsampleproject": 67117070,
+   "racadvancedsampleproject": 67117070,
+   "rstadvancedsampleproject": 67117070,
+   "dach-sample-project": 67108878
+  },
+  "(-2009038, 2)": {
+   "rstbasicsampleproject": 67117070,
+   "rmebasicsampleproject": 67117070,
+   "racbasicsampleproject": 67117070,
+   "racadvancedsampleproject": 67117070,
+   "rstadvancedsampleproject": 67117070,
+   "dach-sample-project": 67108878
+  },
+  "(-2000539, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000011, 1)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67117086
+  },
+  "(-2000011, 2)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67117086
+  },
+  "(-2000540, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000540, 2)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000014, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000014, 2)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000016, 1)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67108894
+  },
+  "(-2000016, 2)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67108894
+  },
+  "(-2000018, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67108894
+  },
+  "(-2000018, 2)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67108894
+  },
+  "(-2000020, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000020, 2)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000022, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000022, 2)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000023, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000023, 2)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000025, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67108894
+  },
+  "(-2000025, 2)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67108894
+  },
+  "(-2000027, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000027, 2)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000029, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67108894
+  },
+  "(-2000029, 2)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67108894
+  },
+  "(-2000031, 1)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67108894
+  },
+  "(-2000031, 2)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67108894
+  },
+  "(-2000032, 1)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67117086
+  },
+  "(-2000032, 2)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67117086
+  },
+  "(-2000541, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000541, 2)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000035, 1)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67117086
+  },
+  "(-2000035, 2)": {
+   "rstbasicsampleproject": 67108894,
+   "rmebasicsampleproject": 67108894,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67108894,
+   "rstadvancedsampleproject": 67108894,
+   "dach-sample-project": 67117086
+  },
+  "(-2000542, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000542, 2)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000038, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000038, 2)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000173, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000051, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000066, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000077, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000045, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000078, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000042, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000043, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000044, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000284, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000286, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000285, 1)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000287, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000080, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  },
+  "(-2000100, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67108894
+  },
+  "(-2000100, 2)": {
+   "rstbasicsampleproject": 67117086,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67108894
+  },
+  "(-2000120, 1)": {
+   "rstbasicsampleproject": 67110942,
+   "rmebasicsampleproject": 67117086,
+   "racbasicsampleproject": 67110942,
+   "racadvancedsampleproject": 67117086,
+   "rstadvancedsampleproject": 67117086,
+   "dach-sample-project": 67117086
+  }
+ },
+ "corr": {
+  "(67117070, False, 1)": 2659,
+  "(67117070, False, 2)": 922,
+  "(67108878, False, 1)": 174,
+  "(67108878, False, 2)": 19,
+  "(67117086, False, 1)": 2176,
+  "(67108894, False, 1)": 76,
+  "(67108894, False, 2)": 73,
+  "(67110942, True, 1)": 1092,
+  "(67110942, True, 2)": 292,
+  "(67117086, False, 2)": 633,
+  "(67110926, True, 1)": 263,
+  "(67110926, True, 2)": 59,
+  "(67108894, True, 1)": 2,
+  "(67117086, True, 1)": 2
+ },
+ "corr_pat": {
+  "(67117070, 'neg-other')": 1066,
+  "(67117070, 'solid-builtin')": 2027,
+  "(67108878, 'elem>0')": 18,
+  "(67108878, 'solid-builtin')": 171,
+  "(67117070, 'elem>0')": 488,
+  "(67117086, 'elem>0')": 388,
+  "(67108894, 'solid-builtin')": 139,
+  "(67110942, 'neg-other')": 446,
+  "(67117086, 'solid-builtin')": 1540,
+  "(67110942, 'solid-builtin')": 775,
+  "(67117086, 'neg-other')": 883,
+  "(67110942, 'elem>0')": 163,
+  "(67110926, 'neg-other')": 186,
+  "(67110926, 'solid-builtin')": 130,
+  "(67110926, 'elem>0')": 6,
+  "(67108894, 'elem>0')": 12,
+  "(67108878, 'neg-other')": 4
+ },
+ "neg_patterns": {
+  "-1": 2405,
+  "-3000010": 4782,
+  "-3000020": 49,
+  "-3000012": 89,
+  "-3000016": 12,
+  "-3000013": 12,
+  "-3000014": 6,
+  "-3000050": 6,
+  "-3000051": 6
+ },
+ "neg_materials": {
+  "-1": 7856,
+  "-4000010": 114,
+  "-4000041": 12,
+  "-4000035": 6,
+  "-4000033": 6,
+  "-4000036": 6,
+  "-4000032": 6,
+  "-4000031": 6,
+  "-4000040": 6,
+  "-4000049": 15,
+  "-4000050": 6,
+  "-4000051": 6,
+  "-4000052": 6
+ },
+ "pos_patterns": 1075
+}

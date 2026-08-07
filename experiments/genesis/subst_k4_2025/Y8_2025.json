@@ -1,0 +1,1088 @@
+{
+ "rung": "Y8_2025",
+ "label": "levels + phases (+ set/filter) + units / site / base points / project info -> ours, IN PLACE (2025)",
+ "kind": "inplace",
+ "mechanism": "rvt.regadd.substitute_elements -- IN-PLACE, seqs [102] (object record only), keep_row=True (ElemTable row byte-identical), Global/Latest byte-identical; nothing added, nothing deleted; slot-fill on",
+ "base": {
+  "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  },
+  "lineage": "B2025_K4 = the certified 2025 family-free base (viewer round of 2026-08-04, verdicts #28): samples/2025/rstbasicsampleproject -> R5..R9_2025 (maxgc, EDIT-FREE) -> K3_2025 (usage nulls) -> B2025_K4 (all 52 embedded documents removed, four-registry coherent 1/0/0/0). docs/inbox/genesis-2025-reduce.md"
+ },
+ "control_to_upload_with_batch": {
+  "file": "experiments/genesis/subst_k4_2025/CTRL_B2025_K4_base.rvt",
+  "identical_to": "experiments/genesis2025/reduce/B2025_K4.rvt",
+  "md5": "1da9813c15efa2a9bc484f1c383bb3ab",
+  "certification": {
+   "file": "experiments/genesis2025/reduce/B2025_K4.rvt",
+   "proves": "***** THE 2025 FAMILY-FREE BASE IS CERTIFIED *****: the certified 2026 recipe re-run on the 2025 sample (R5..R9 -> K3 -> K4-equivalent, four-registry coherent, EDIT-FREE) LOADS \u2014 the certified base for the Y2025 substitution ladder"
+  }
+ },
+ "parent": "experiments/genesis/subst_k4_2025/Y7_2025.rvt",
+ "parent_rung": "Y7_2025",
+ "out": "experiments/genesis/subst_k4_2025/Y8_2025.rvt",
+ "description": "The 2025 twin of the certified v3 Y8: the datum + identity layer's objects replaced in place on the 2025 chain -- our L1/L2 levels at the plan-bearing level slots, level type, phases + phase set + filter, units, true north, geo sites / locations, base points, ProjectInfo. Every record port2025-adapted (identical layout for this layer per the confirmed table).",
+ "tests": "Whether the 2025 reader accepts our datum + identity objects at Autodesk's own 2025 registrations.",
+ "if_PASS": "Our datum/identity constructors load at 2025 registrations.",
+ "if_FAIL": "Bisect levels+phases vs units vs site/base-points vs project info.",
+ "stages": [],
+ "parent_context": {
+  "host_elements": 3333,
+  "watermark": 1472011
+ },
+ "candidates_old_by_class": {
+  "Level": 9,
+  "ProjectPhase": 2,
+  "GeoSite": 2,
+  "GeoLocation": 2,
+  "BasePoint": 2,
+  "AllProjectPhases": 1,
+  "LevelAttributes": 1,
+  "PhaseFilterElem": 1,
+  "TrueNorth": 1,
+  "UnitsElem": 1,
+  "ProjectInfo": 1
+ },
+ "our_records_by_class": {
+  "PhaseFilterElem": 5,
+  "GeoSite": 2,
+  "GeoLocation": 2,
+  "BasePoint": 2,
+  "Level": 2,
+  "ProjectPhase": 2,
+  "UnitsElem": 1,
+  "TrueNorth": 1,
+  "ProjectInfo": 1,
+  "LevelAttributes": 1,
+  "AllProjectPhases": 1
+ },
+ "build_notes": [
+  "[X8] project geo-location 111428 -> ours 1500189; internal [21748] -> 1500188; sites 21747/21747 -> 1500187/1500186",
+  "[X8] our identity/site layer: [('units-registry', 1), ('true-north', 1), ('geo-site', 2), ('geo-location', 2), ('project-base-point', 1), ('survey-point', 1), ('project-info', 1)]",
+  "[X9-level/phase layer] catalog re-wiring: 21 reference(s) re-pointed to the current file's elements: [('LinePatternElem', 'GEN Hidden 2mm'), ('FillPatternElem', 'GEN Solid Fill'), ('MaterialElem', 'GEN Phase - Existing'), ('MaterialElem', 'GEN Phase - Demolition'), ('MaterialElem', 'GEN Phase - New'), ('MaterialElem', 'GEN Phase - Temporary'), ('UnitsElem', '')]",
+  "[X9-level/phase layer] catalog re-wiring: 1 sibling(s) had NO current-file counterpart -> 2 reference(s) dropped: [('GeoLocation', 'GEN Project Position')]",
+  "[X9-level/phase layer] project view: sample view 230 constellation 4 -> ours 4 records; 4 role-matched",
+  "[X9-level/phase layer] 3D view '{3D}': sample view 1454508 constellation 9 -> ours 8 records; 8 role-matched",
+  "[X9-level/phase layer] plan 1: sample view 1064656 constellation 16 -> ours 7 records; 7 role-matched",
+  "[X9-level/phase layer] plan 2: sample view 245443 constellation 17 -> ours 7 records; 7 role-matched",
+  "[X9-level/phase layer] view layer: 41 sample elements (6 view roots); mapped constellations 23; deleted 18",
+  "[X9-level/phase layer] view types: sample project types 19 -> ours 19 (by m_systemFamilyIdx); family-scoped (curtain) types untouched: 72",
+  "[X9-level/phase layer] levels: sample 9 -> ours 2; mapped 2 (the levels the mapped plans sit on -> our L1/L2); the rest deleted with their views",
+  "[X9-level/phase layer] phases: sample 2 -> ours 2 (by sequence order); phase set 1:1; filters sample 1 -> ours 5 (by role; unmatched sample filters deleted)",
+  "Y8 = X8 (units / true north / sites / base points / project info) + the level / phase layer of X9 (levels + level type + phases + phase set + filters); the view layer is Y9.  Split possible IN PLACE: no id changes, so the sample plan views keep pointing at the same level ids (now our levels).",
+  "[port2025] 20 records adapted to the Revit-2025 schema (2025 class ordinals, confirmed field maps); 0 record(s) of 2026-only classes emit nothing on 2025"
+ ],
+ "build_info": {
+  "x8": {},
+  "x9_level_phase": {
+   "mapped_views": {
+    "project_view": 230,
+    "view_3d": 1454508,
+    "plans": [
+     1064656,
+     245443
+    ]
+   },
+   "level_correspondence_from_plans": [
+    [
+     311,
+     0
+    ],
+    [
+     245423,
+     1
+    ]
+   ],
+   "our_constellation_sizes": {
+    "project": 4,
+    "3d": 8,
+    "plans": [
+     7,
+     7
+    ]
+   }
+  },
+  "port2025": {
+   "adapted": 20,
+   "dropped_2026_only": []
+  }
+ },
+ "residue_named_by_builder": {
+  "DBViewType(curtain-family-scoped)": "72 kept -- the 8 curtain SYSTEM families' editor types",
+  "DimensionStyle/LeaderStyle/SectionAttributes/CalloutTag/InteriorElevAttributes/ViewportAttributes/GridAttributes/SpotElevationStyle/FilledRegionAttributes": "annotation attribute types kept -- NO our-constructor (dimension / arrowhead / view-tag types)",
+  "FontElem": "35 kept -- the residue annotation types' fonts",
+  "Grid/RefPlane/MultiSegGrid": "sample datum content kept -- a datum-content rung (our grid/refplane constructors exist in the skeleton) or a removal rung"
+ },
+ "plan": {
+  "landed": 16,
+  "by_match": {
+   "role": 13,
+   "role-primary": 1,
+   "donor": 1,
+   "sibling-donor": 1
+  },
+  "landed_by_class": {
+   "GeoSite": 2,
+   "GeoLocation": 2,
+   "BasePoint": 2,
+   "Level": 2,
+   "ProjectPhase": 2,
+   "UnitsElem": 1,
+   "TrueNorth": 1,
+   "LevelAttributes": 1,
+   "AllProjectPhases": 1,
+   "PhaseFilterElem": 1,
+   "ProjectInfo": 1
+  },
+  "dropped_ours": 4,
+  "residue_olds": 7,
+  "class_mismatch": [],
+  "protected_slots_from_earlier_rungs": [],
+  "notes": [
+   "role groups where several sample elements shared one of our roles: {\"BasePoint\": 2}"
+  ]
+ },
+ "retarget": {
+  "leaves_remapped": 6,
+  "dropped_refs_resolved_by_prior_rung": [],
+  "dropped_refs_resolved_by_name": [],
+  "dropped_refs_neutralised": [],
+  "record_selfcheck_failures": [],
+  "records": 16,
+  "seqs": [
+   102
+  ],
+  "would_differ_101": 16,
+  "would_differ_103": 2,
+  "seconds": 0.0
+ },
+ "new_object_reference_check": {
+  "dangling": 0,
+  "examples": []
+ },
+ "substitute": {
+  "op": "substitute_elements",
+  "verdict": "VALID",
+  "problems": [],
+  "seqs_replaced": [
+   102
+  ],
+  "elemtable_rows": 3333,
+  "elemtable_rewritten": false,
+  "latest_rewritten": false,
+  "streams_replaced": [
+   "Partitions/20"
+  ],
+  "seconds": 2.2
+ },
+ "byte_delta": {
+  "streams_differing": [
+   "Partitions/20"
+  ],
+  "only_partition_differs": true,
+  "records_changed_ids": [
+   1,
+   305,
+   311,
+   375,
+   7850,
+   12589,
+   19236,
+   21747,
+   21748,
+   49504,
+   86961,
+   111426,
+   111427,
+   111428,
+   111429,
+   245423
+  ],
+  "records_changed_count": 16,
+  "records_changed_by_seq": {
+   "102": 12
+  },
+  "records_added_ids": [],
+  "records_removed_ids": [],
+  "expected_slots": 16,
+  "unexpected_changed_ids": [],
+  "landed_but_unchanged_slots": 0,
+  "id_order_identical_per_seq": {
+   "101": true,
+   "102": true,
+   "103": true
+  },
+  "block_partition_identical_per_seq": {
+   "101": true,
+   "102": false,
+   "103": true
+  },
+  "elemtable_identical": true,
+  "adocument_identical": true,
+  "embedded_units_identical": true,
+  "field_diff_examples": [
+   {
+    "seq": 102,
+    "id": 1,
+    "len_ours": 1029,
+    "len_parent": 1029,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "AllProjectPhases",
+      "class_parent": "AllProjectPhases"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[0].value.m_oGMaterialOverrider.value.m_materialId",
+      "ours": "137436",
+      "parent": "105007"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutFillColor.value.m_color",
+      "ours": "13158600",
+      "parent": "8355711"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutFillPattern.value.m_fillPatternId",
+      "ours": "4",
+      "parent": "3"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutLinePattern.value.m_linePatternId",
+      "ours": "-3000010",
+      "parent": "-1"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutPenColor.value.m_color",
+      "ours": "9211020",
+      "parent": "8355711"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+      "ours": "2",
+      "parent": "3"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oProjLinePattern.value.m_linePatternId",
+      "ours": "-3000010",
+      "parent": "-1"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oProjPenColor.value.m_color",
+      "ours": "9211020",
+      "parent": "8355711"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[0].value.m_oOverrideGraphicSettings.value.m_oProjPenNumber.value.m_penNumber",
+      "ours": "1",
+      "parent": "2"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[1].value.m_oGMaterialOverrider.value.m_materialId",
+      "ours": "417",
+      "parent": "105006"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutFillColor.value.m_color",
+      "ours": "16777215",
+      "parent": "16777216"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutLinePattern.value.m_linePatternId",
+      "ours": "20",
+      "parent": "21"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutPenColor.value.m_color",
+      "ours": "7237230",
+      "parent": "0"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+      "ours": "1",
+      "parent": "3"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oProjLinePattern.value.m_linePatternId",
+      "ours": "20",
+      "parent": "21"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[1].value.m_oOverrideGraphicSettings.value.m_oProjPenColor.value.m_color",
+      "ours": "7237230",
+      "parent": "0"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[2].value.m_oGMaterialOverrider.value.m_materialId",
+      "ours": "519",
+      "parent": "8798"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[2].value.m_oOverrideGraphicSettings.value.m_oCutFillPattern.value.m_fillPatternId",
+      "ours": "4",
+      "parent": "3"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[2].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+      "ours": "4",
+      "parent": "5"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[2].value.m_oOverrideGraphicSettings.value.m_oProjPenNumber.value.m_penNumber",
+      "ours": "1",
+      "parent": "4"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[3].value.m_oGMaterialOverrider.value.m_materialId",
+      "ours": "8798",
+      "parent": "29"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutFillColor.value.m_color",
+      "ours": "14470600",
+      "parent": "8323072"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutLinePattern.value.m_linePatternId",
+      "ours": "20",
+      "parent": "11"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutPenColor.value.m_color",
+      "ours": "9198150",
+      "parent": "8323072"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oCutPenNumber.value.m_penNumber",
+      "ours": "1",
+      "parent": "3"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oProjLinePattern.value.m_linePatternId",
+      "ours": "20",
+      "parent": "11"
+     },
+     {
+      "path": ".m_arrPhasingOverrides[3].value.m_oOverrideGraphicSettings.value.m_oProjPenColor.value.m_color",
+      "ours": "9198150",
+      "parent": "8323072"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 305,
+    "len_ours": 279,
+    "len_parent": 249,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "LevelAttributes",
+      "class_parent": "LevelAttributes"
+     },
+     {
+      "path": ".m_leaderCategoryId",
+      "ours": "-1",
+      "parent": "309"
+     },
+     {
+      "path": ".m_lineAndTextAttr.m_categoryId",
+      "ours": "-1",
+      "parent": "306"
+     },
+     {
+      "path": ".m_lineAndTextAttr.m_fontId",
+      "ours": "-1",
+      "parent": "308"
+     },
+     {
+      "path": ".m_roomComputationUserHeight",
+      "ours": "4.0",
+      "parent": "3.9370078740157473"
+     },
+     {
+      "path": ".m_symbolInfo.value.m_name",
+      "ours": "'GEN Level Head - Circle'",
+      "parent": "'8mm Head'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 311,
+    "len_ours": 822,
+    "len_parent": 802,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "Level",
+      "class_parent": "Level"
+     },
+     {
+      "path": ".m_bubbleEnd[0]",
+      "ours": "40.0",
+      "parent": "30.0"
+     },
+     {
+      "path": ".m_isBuildingStory",
+      "ours": "True",
+      "parent": "False"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][0]",
+      "ours": "-50.0",
+      "parent": "-51.66057056018548"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[0][1]",
+      "ours": "-50.0",
+      "parent": "-87.39567025725263"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][0]",
+      "ours": "50.0",
+      "parent": "66.52686260879011"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_Envelope.m_corners[1][1]",
+      "ours": "50.0",
+      "parent": "94.20488384847846"
+     },
+     {
+      "path": ".m_pFace.value.m_pSurf.value.m_xVec[1]",
+      "ours": "0.0",
+      "parent": "6.3576025574306265e-15"
+     },
+     {
+      "path": ".m_pGeomTable.value.m_lastCheckedKingsUserModificationDate",
+      "ours": "-1",
+      "parent": "210"
+     },
+     {
+      "path": ".m_pGeomTable.value.m_maxSafeTag",
+      "ours": "-1",
+      "parent": "0"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][0]",
+      "ours": "-50.0",
+      "parent": "-51.66057056018548"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[0][1]",
+      "ours": "-50.0",
+      "parent": "-87.39567025725263"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][0]",
+      "ours": "50.0",
+      "parent": "66.52686260879011"
+     },
+     {
+      "path": ".m_pSurface.value.m_Envelope.m_corners[1][1]",
+      "ours": "50.0",
+      "parent": "94.20488384847846"
+     },
+     {
+      "path": ".m_pSurface.value.m_xVec[1]",
+      "ours": "0.0",
+      "parent": "6.3576025574306265e-15"
+     },
+     {
+      "path": ".m_refPointsForNewViews[1][0]",
+      "ours": "40.0",
+      "parent": "30.0"
+     },
+     {
+      "path": ".m_text",
+      "ours": "'L1 - Ground Floor'",
+      "parent": "'Level 1'"
+     }
+    ]
+   },
+   {
+    "seq": 102,
+    "id": 375,
+    "len_ours": 210,
+    "len_parent": 198,
+    "first_diff_byte": 8,
+    "field_diff": [
+     {
+      "class_ours": "PhaseFilterElem",
+      "class_parent": "PhaseFilterElem"
+     },
+     {
+      "path": ".m_name",
+      "ours": "'GEN All Phases'",
+      "parent": "'Show All'"
+     },
+     {
+      "path": ".m_phaseStatusPresentation[2]",
+      "ours": "1",
+      "parent": "2"
+     },
+     {
+      "path": ".m_phaseStatusPresentation[3]",
+      "ours": "1",
+      "parent": "2"
+     },
+     {
+      "path": ".m_phaseStatusPresentation[5]",
+      "ours": "1",
+      "parent": "2"
+     }
+    ]
+   }
+  ],
+  "exceptions": [
+   {
+    "what": "seq-102 block partition re-flowed",
+    "reason": "our objects are not the same byte length as the sample's, so the certified re-blocker (rvt.reduce.reblock -- the mechanics behind every certified reduction) re-chunked the unit-0 seq-102 run; record ORDER is unchanged",
+    "blocks_parent": 12,
+    "blocks_out": 12
+   }
+  ],
+  "problems": [],
+  "assertion_holds": true
+ },
+ "parity": {
+  "slots_landed": 16,
+  "slots_with_registry_surface": 14,
+  "positional_uet_slots": [
+   {
+    "slot": 1,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[74]"
+    ]
+   },
+   {
+    "slot": 49504,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[2]"
+    ]
+   }
+  ],
+  "surface_examples": [
+   {
+    "slot": 1,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UniqueElementsTracking.m_elemIds[74]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 305,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AppInfoSystemFamiliesNames.m_idMap[*].second.m_elementIds[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SymbolIdMgr.m_defElementTypeMap[*].second"
+    ],
+    "n_paths": 2
+   },
+   {
+    "slot": 311,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapDuctLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->AbsLayoutAppInfo.m_mapPipeLevelToOffsets[*].first",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->DatumTracking.m_elemIdSet[*]",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 23
+   },
+   {
+    "slot": 375,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PhaseFilterTracking.m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 7850,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->SiteMgr.m_trueNorthId"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 12589,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId",
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->PlanTopologyIdInfo.m_topologyMap[*].first.m_phaseId"
+    ],
+    "n_paths": 6
+   },
+   {
+    "slot": 19236,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->UnitsTracking.m_unitsElemId"
+    ],
+    "n_paths": 1
+   },
+   {
+    "slot": 21748,
+    "paths": [
+     "ADocument.m_pAppInfoManager->AppInfoManager.m_appInfoArr[*]->ElementTrackingData.m_elems[*].m_elemIdSet[*]"
+    ],
+    "n_paths": 1
+   }
+  ],
+  "latest_byte_identical": true,
+  "parity": "100% by construction (Global/Latest byte-identical: every registry leaf that indexed a slot still indexes the same id, which now carries OUR object)",
+  "pairs": 16,
+  "pairs_ok": 16,
+  "pairs_failed": 0
+ },
+ "registration_diff_sample": [
+  {
+   "slot": 1,
+   "class": "AllProjectPhases",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 305,
+   "class": "LevelAttributes",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 2
+  },
+  {
+   "slot": 311,
+   "class": "Level",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 1003,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 23
+  },
+  {
+   "slot": 375,
+   "class": "PhaseFilterElem",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 0,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<5k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 7850,
+   "class": "TrueNorth",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 144,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 1
+  },
+  {
+   "slot": 12589,
+   "class": "ProjectPhase",
+   "registration_identical": true,
+   "non_object_differences": [],
+   "object_differences": [],
+   "row": {
+    "creation_ep": 95,
+    "modified_ep": 976,
+    "owner_id": null,
+    "id_band": "<50k"
+   },
+   "surface_paths": 6
+  }
+ ],
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 17,
+   "records": 10002,
+   "elements_decoded": 3333,
+   "decode_failures": 1,
+   "refs_checked": 51405
+  }
+ },
+ "structural": {
+  "ok": true,
+  "crc_failures": 0,
+  "ecc_mismatches": 0,
+  "walker_errors": [],
+  "counts_match": true,
+  "seq_id_sets_equal": true,
+  "stamps_bad": 0,
+  "isize_identity_ok": true
+ },
+ "census": {
+  "path": "experiments/genesis/subst_k4_2025/Y8_2025.rvt",
+  "elements": 3333,
+  "file_size": 749568,
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "classes_top": {
+   "GStyleElem": 1451,
+   "ParamElemExternal": 466,
+   "CategoryElem": 209,
+   "ParamBinding": 209,
+   "HVACLoadSpaceTypeElem": 125,
+   "ParamElemElectricalLoadClassification": 108,
+   "DBViewType": 91,
+   "FontElem": 35,
+   "HVACLoadBuildingTypeElem": 33,
+   "SketchPlane": 32,
+   "PropertySetElement": 28,
+   "HVACLoadScheduleElem": 27,
+   "BuildingOperatingYearSchedule": 27,
+   "RbsWireInsulationType": 26,
+   "MaterialElem": 23,
+   "ElectricalDemandFactorDefinition": 21,
+   "RefPlane": 21,
+   "ElectricalLoadClassification": 18,
+   "AppearanceAssetElem": 18,
+   "PipeSegment": 15,
+   "RbsPipeScheduleType": 13,
+   "DimensionStyle": 12,
+   "BrowserOrganization": 10,
+   "SectionAttributes": 10,
+   "PenWidthTableElem": 9,
+   "FillPatternElem": 9,
+   "Level": 9,
+   "InteriorElevAttributes": 9,
+   "CalloutTag": 9,
+   "ColorFillSchema": 9
+  }
+ },
+ "coherence": {
+  "save_units": 1,
+  "contentdocs_entries": 0,
+  "contenttable_records": 0,
+  "adocument_clean": true,
+  "coherent": true
+ },
+ "certification_seconds": 0.6,
+ "correspondence": [
+  {
+   "ours_tmp": 1500195,
+   "slot": 1,
+   "class": "AllProjectPhases",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 7,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500192,
+   "slot": 305,
+   "class": "LevelAttributes",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 4,
+   "our_name": "GEN Level Head - Circle"
+  },
+  {
+   "ours_tmp": 1500193,
+   "slot": 311,
+   "class": "Level",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 7,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500198,
+   "slot": 375,
+   "class": "PhaseFilterElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 4,
+   "our_name": "GEN All Phases"
+  },
+  {
+   "ours_tmp": 1500185,
+   "slot": 7850,
+   "class": "TrueNorth",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500196,
+   "slot": 12589,
+   "class": "ProjectPhase",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 2,
+   "our_name": "Existing Conditions"
+  },
+  {
+   "ours_tmp": 1500184,
+   "slot": 19236,
+   "class": "UnitsElem",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 10,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500186,
+   "slot": 21747,
+   "class": "GeoSite",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500188,
+   "slot": 21748,
+   "class": "GeoLocation",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "GEN Internal Origin"
+  },
+  {
+   "ours_tmp": 1500203,
+   "slot": 49504,
+   "class": "ProjectInfo",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500197,
+   "slot": 86961,
+   "class": "ProjectPhase",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 8,
+   "our_name": "New Work"
+  },
+  {
+   "ours_tmp": 1500190,
+   "slot": 111426,
+   "class": "BasePoint",
+   "match": "sibling-donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500187,
+   "slot": 111427,
+   "class": "GeoSite",
+   "match": "donor",
+   "role_group": 0,
+   "slot_referrers": 0,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500189,
+   "slot": 111428,
+   "class": "GeoLocation",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 1,
+   "our_name": "GEN Project Position"
+  },
+  {
+   "ours_tmp": 1500191,
+   "slot": 111429,
+   "class": "BasePoint",
+   "match": "role-primary",
+   "role_group": 2,
+   "slot_referrers": 4,
+   "our_name": ""
+  },
+  {
+   "ours_tmp": 1500194,
+   "slot": 245423,
+   "class": "Level",
+   "match": "role",
+   "role_group": 1,
+   "slot_referrers": 13,
+   "our_name": ""
+  }
+ ],
+ "correspondence_note": "all pairs stored",
+ "landed_slots": [
+  {
+   "slot": 19236,
+   "class": "UnitsElem",
+   "match": "role",
+   "ours_tmp": 1500184
+  },
+  {
+   "slot": 7850,
+   "class": "TrueNorth",
+   "match": "role",
+   "ours_tmp": 1500185
+  },
+  {
+   "slot": 21747,
+   "class": "GeoSite",
+   "match": "role",
+   "ours_tmp": 1500186
+  },
+  {
+   "slot": 21748,
+   "class": "GeoLocation",
+   "match": "role",
+   "ours_tmp": 1500188
+  },
+  {
+   "slot": 111428,
+   "class": "GeoLocation",
+   "match": "role",
+   "ours_tmp": 1500189
+  },
+  {
+   "slot": 111429,
+   "class": "BasePoint",
+   "match": "role-primary",
+   "ours_tmp": 1500191
+  },
+  {
+   "slot": 305,
+   "class": "LevelAttributes",
+   "match": "role",
+   "ours_tmp": 1500192
+  },
+  {
+   "slot": 311,
+   "class": "Level",
+   "match": "role",
+   "ours_tmp": 1500193
+  },
+  {
+   "slot": 245423,
+   "class": "Level",
+   "match": "role",
+   "ours_tmp": 1500194
+  },
+  {
+   "slot": 1,
+   "class": "AllProjectPhases",
+   "match": "role",
+   "ours_tmp": 1500195
+  },
+  {
+   "slot": 12589,
+   "class": "ProjectPhase",
+   "match": "role",
+   "ours_tmp": 1500196
+  },
+  {
+   "slot": 86961,
+   "class": "ProjectPhase",
+   "match": "role",
+   "ours_tmp": 1500197
+  },
+  {
+   "slot": 375,
+   "class": "PhaseFilterElem",
+   "match": "role",
+   "ours_tmp": 1500198
+  },
+  {
+   "slot": 49504,
+   "class": "ProjectInfo",
+   "match": "role",
+   "ours_tmp": 1500203
+  },
+  {
+   "slot": 111427,
+   "class": "GeoSite",
+   "match": "donor",
+   "ours_tmp": 1500187
+  },
+  {
+   "slot": 111426,
+   "class": "BasePoint",
+   "match": "sibling-donor",
+   "ours_tmp": 1500190
+  }
+ ],
+ "ours_not_landed": {
+  "count": 4,
+  "by_class": {
+   "PhaseFilterElem": 4
+  },
+  "examples": [
+   {
+    "ours": 1500199,
+    "class": "PhaseFilterElem",
+    "name": "GEN Existing Conditions Only",
+    "reason": "no free PhaseFilterElem slot in the base (1 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500200,
+    "class": "PhaseFilterElem",
+    "name": "GEN Demolition Plan",
+    "reason": "no free PhaseFilterElem slot in the base (1 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500201,
+    "class": "PhaseFilterElem",
+    "name": "GEN New Work Only",
+    "reason": "no free PhaseFilterElem slot in the base (1 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   },
+   {
+    "ours": 1500202,
+    "class": "PhaseFilterElem",
+    "name": "GEN Construction Set (Existing + New + Temporary)",
+    "reason": "no free PhaseFilterElem slot in the base (1 exist) -- landing it needs the ADD path (not this ladder's variable) or a base carrying the class"
+   }
+  ],
+  "meaning": "our records that found NO in-place slot in the parent (the parent lacks an element of the class, or fewer than we build); landing them requires the ADD path -- deliberately NOT this ladder's variable"
+ },
+ "residue_olds_left_in_place": {
+  "count": 7,
+  "by_class": {
+   "Level": 7
+  },
+  "meaning": "the parent's candidate elements our set did not land on (surplus sample instances / companions): left EXACTLY as they were -- residue for the census"
+ },
+ "problems": [],
+ "verdict": "VALID",
+ "bytes": 749568,
+ "seconds": 3.6,
+ "parent_mode": "settings-chain (Y7_2025 landed by the settings stream)",
+ "stream": "y2025-views"
+}

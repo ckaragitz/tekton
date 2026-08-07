@@ -1,0 +1,74 @@
+{
+ "probe": "X_pen_obj",
+ "kind": "in-place substitution (records of EXISTING ids replaced)",
+ "base": "experiments/genesis/triage/K1.rvt",
+ "out": "experiments/genesis/subst_v2/X_pen_obj.rvt",
+ "class": "PenWidthTableElem",
+ "one_change": "K1's project pen table (id 2) records replaced IN PLACE by OUR pen table built at id 2 (object only); scale set [10, 20, 50, 100, 200, 500] (the six-sample format constant), our ISO-128 widths",
+ "with_header": false,
+ "replaced_elements": 1,
+ "replaced": [
+  {
+   "id": 2,
+   "class": "PenWidthTableElem",
+   "seqs_replaced": [
+    "102"
+   ]
+  }
+ ],
+ "skipped_not_editable": [],
+ "commit": {
+  "partition": "Partitions/21",
+  "removed_ids": [],
+  "replaced": [
+   [
+    102,
+    2
+   ]
+  ],
+  "elemtable_count_before": 6540,
+  "elemtable_count_after": 6540,
+  "watermark": 1472524,
+  "blocks_before": {
+   "101": 8,
+   "102": 47,
+   "103": 25
+  },
+  "blocks_after": {
+   "101": 8,
+   "102": 47,
+   "103": 25
+  },
+  "out_path": "/Users/ck/dev/things/rev-revit/experiments/genesis/subst_v2/X_pen_obj.rvt"
+ },
+ "constructor_lint": {
+  "hard": [],
+  "ok": true
+ },
+ "wiring_keys": null,
+ "validator": {
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "error_messages": [],
+  "stats": {
+   "streams": 12,
+   "partition_blocks": 281,
+   "records": 74004,
+   "elements_decoded": 24615,
+   "decode_failures": 7,
+   "refs_checked": 389326
+  }
+ },
+ "reload_check": {
+  "checked": 1,
+  "decoded_clean": 1,
+  "equal_ours": 1,
+  "problems": [],
+  "streams_identical": 10,
+  "streams_differing": [],
+  "latest_identical": true
+ },
+ "verdict": "VALID",
+ "seconds": 5.6
+}

@@ -1,0 +1,2352 @@
+{
+ "engine": "rvt.convert.build_into_target",
+ "target": {
+  "path": "samples/rstbasicsampleproject.rvt",
+  "sha256": "e7cf23a9627d3ee97ecb9fdf1ce0e34fd582c1d7ed0080fdc00f9e6563375418",
+  "bytes": 6672384,
+  "release": 2026,
+  "release_supported": true,
+  "schema_sha256": "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2",
+  "quarantined": true,
+  "levels": [
+   {
+    "id": 1351691,
+    "name": "FOUNDATION-2700",
+    "elevation_ft": -8.858267716535433,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 511122,
+    "name": "Foundation",
+    "elevation_ft": -3.937007874015748,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 515270,
+    "name": "Level Lower",
+    "elevation_ft": -1.804461942257218,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 311,
+    "name": "Level 1",
+    "elevation_ft": 0.0,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 1300863,
+    "name": "Ref Beam system",
+    "elevation_ft": 8.001968503937007,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 694,
+    "name": "Ceiling",
+    "elevation_ft": 8.858267716536028,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 245423,
+    "name": "Level 2",
+    "elevation_ft": 9.84251968503937,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 196629,
+    "name": "Top of Parapet",
+    "elevation_ft": 19.68503937007874,
+    "attr_id": 305,
+    "is_building_story": false
+   },
+   {
+    "id": 417275,
+    "name": "Roof Level",
+    "elevation_ft": 29.52755905511811,
+    "attr_id": 305,
+    "is_building_story": false
+   }
+  ],
+  "n_walls": 9,
+  "n_instances": 497,
+  "n_family_docs": 41,
+  "wall_types": [
+   397,
+   54538,
+   600634
+  ],
+  "bbox_m": {
+   "x": [
+    -11.488,
+    25.064
+   ],
+   "y": [
+    -18.202,
+    8.541
+   ],
+   "z": [
+    -4.871,
+    10.406
+   ]
+  },
+  "watermark": 1472524,
+  "notes": []
+ },
+ "files": {
+  "families_dir": "experiments/convert_combo/B2_merge_rst_devonly/families",
+  "combined": "experiments/convert_combo/B2_merge_rst_devonly/B2_room_into_rst.rvt"
+ },
+ "stages": [
+  {
+   "stage": "F",
+   "built": 8,
+   "all_ok": true,
+   "dir": "experiments/convert_combo/B2_merge_rst_devonly/families"
+  },
+  {
+   "stage": "L",
+   "n_loaded": 8,
+   "n_planned": 8,
+   "final": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L8_lp4.rvt",
+   "blocker": null
+  },
+  {
+   "stage": "specimens",
+   "source": "(constructed vs target)",
+   "wall": 990000001,
+   "wall_type": 397,
+   "instance": 990000002
+  },
+  {
+   "stage": "W",
+   "ok": true,
+   "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L8_lp4.rvt",
+   "out": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_W_walls.rvt",
+   "wall_mode": "min",
+   "wall_type": 397,
+   "wall_type_name": "Exterior - Brick on Mtl. Stud",
+   "level": 311,
+   "elemtable_before": 14079,
+   "elemtable_after": 14083,
+   "new_ids": [
+    1472996,
+    1472997,
+    1472998,
+    1472999
+   ],
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_matches_header": true,
+    "sentinels_last": true,
+    "new_elements_clean_per_seq": {
+     "101": 4,
+     "102": 4,
+     "103": 4
+    }
+   },
+   "structurally_valid": true,
+   "seconds": 36.7,
+   "walls": [
+    {
+     "id": "W-N",
+     "elem_id": 1472996
+    },
+    {
+     "id": "W-W",
+     "elem_id": 1472997
+    },
+    {
+     "id": "W-E",
+     "elem_id": 1472998
+    },
+    {
+     "id": "W-S",
+     "elem_id": 1472999
+    }
+   ]
+  },
+  {
+   "stage": "E",
+   "ok": true,
+   "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_W_walls.rvt",
+   "out": "experiments/convert_combo/B2_merge_rst_devonly/B2_room_into_rst.rvt",
+   "level": 311,
+   "elemtable_before": 14083,
+   "elemtable_after": 14091,
+   "new_ids": [
+    1473000,
+    1473001,
+    1473002,
+    1473003,
+    1473004,
+    1473005,
+    1473006,
+    1473007
+   ],
+   "verify": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "elemtable_matches_header": true,
+    "sentinels_last": true,
+    "new_elements_clean_per_seq": {
+     "101": 8,
+     "102": 8,
+     "103": 8
+    }
+   },
+   "structurally_valid": true,
+   "seconds": 37.2,
+   "instances": [
+    {
+     "tag": "T1",
+     "elem_id": 1473000,
+     "symbol": 1472935
+    },
+    {
+     "tag": "MSB",
+     "elem_id": 1473001,
+     "symbol": 1472586
+    },
+    {
+     "tag": "DP-1",
+     "elem_id": 1473002,
+     "symbol": 1472645
+    },
+    {
+     "tag": "LP-1",
+     "elem_id": 1473003,
+     "symbol": 1472763
+    },
+    {
+     "tag": "LP-2",
+     "elem_id": 1473004,
+     "symbol": 1472822
+    },
+    {
+     "tag": "DP-2",
+     "elem_id": 1473005,
+     "symbol": 1472704
+    },
+    {
+     "tag": "LP-3",
+     "elem_id": 1473006,
+     "symbol": 1472881
+    },
+    {
+     "tag": "LP-4",
+     "elem_id": 1473007,
+     "symbol": 1472994
+    }
+   ]
+  }
+ ],
+ "created": [
+  {
+   "kind": "family(.rfa)",
+   "tag": "T1",
+   "name": "Dry Type Transformer T1 150kVA 480-208Y/120",
+   "path": "experiments/convert_combo/B2_merge_rst_devonly/families/t1_xfmr_150kva_480_208y_120.rfa",
+   "catalog": "eaton/dry-type-transformers",
+   "variant": "V48M28T4916",
+   "ok": true
+  },
+  {
+   "kind": "family(.rfa)",
+   "tag": "MSB",
+   "name": "Switchboard MSB 2500A 480Y/277",
+   "path": "experiments/convert_combo/B2_merge_rst_devonly/families/msb_switchboard_msb_2500a_480y_277.rfa",
+   "catalog": null,
+   "variant": null,
+   "ok": true
+  },
+  {
+   "kind": "family(.rfa)",
+   "tag": "DP-1",
+   "name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+   "path": "experiments/convert_combo/B2_merge_rst_devonly/families/dp1_eaton_prl2x_400a_42sp_480y_277.rfa",
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true
+  },
+  {
+   "kind": "family(.rfa)",
+   "tag": "LP-1",
+   "name": "Lighting Panelboard LP-1 480Y/277 100A MLO 30sp",
+   "path": "experiments/convert_combo/B2_merge_rst_devonly/families/lp1_eaton_prl2x_100a_30sp_480y_277.rfa",
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true
+  },
+  {
+   "kind": "family(.rfa)",
+   "tag": "LP-2",
+   "name": "Lighting Panelboard LP-2 480Y/277 100A MLO 30sp",
+   "path": "experiments/convert_combo/B2_merge_rst_devonly/families/lp2_eaton_prl2x_100a_30sp_480y_277.rfa",
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true
+  },
+  {
+   "kind": "family(.rfa)",
+   "tag": "DP-2",
+   "name": "Distribution Panelboard DP-2 480Y/277 400A MB 42sp",
+   "path": "experiments/convert_combo/B2_merge_rst_devonly/families/dp2_eaton_prl2x_400a_42sp_480y_277.rfa",
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true
+  },
+  {
+   "kind": "family(.rfa)",
+   "tag": "LP-3",
+   "name": "Lighting Panelboard LP-3 480Y/277 100A MLO 30sp",
+   "path": "experiments/convert_combo/B2_merge_rst_devonly/families/lp3_eaton_prl2x_100a_30sp_480y_277.rfa",
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL2X",
+   "ok": true
+  },
+  {
+   "kind": "family(.rfa)",
+   "tag": "LP-4",
+   "name": "Receptacle Panelboard LP-4 208Y/120 225A MB 42sp",
+   "path": "experiments/convert_combo/B2_merge_rst_devonly/families/lp4_eaton_prl1x_225a_42sp_208y_120.rfa",
+   "catalog": "eaton/pow-r-line-panelboards",
+   "variant": "PRL1X",
+   "ok": true
+  },
+  {
+   "kind": "wall",
+   "tag": "W-N",
+   "elem_id": 1472996,
+   "length_m": 9.2,
+   "height_ft": 12.008,
+   "file_role": "W"
+  },
+  {
+   "kind": "wall",
+   "tag": "W-W",
+   "elem_id": 1472997,
+   "length_m": 6.2,
+   "height_ft": 12.008,
+   "file_role": "W"
+  },
+  {
+   "kind": "wall",
+   "tag": "W-E",
+   "elem_id": 1472998,
+   "length_m": 6.2,
+   "height_ft": 12.008,
+   "file_role": "W"
+  },
+  {
+   "kind": "wall",
+   "tag": "W-S",
+   "elem_id": 1472999,
+   "length_m": 9.2,
+   "height_ft": 12.008,
+   "file_role": "W"
+  },
+  {
+   "kind": "equipment-instance",
+   "tag": "T1",
+   "elem_id": 1473000,
+   "symbol": 1472935,
+   "family": 1472922,
+   "position_ft": [
+    116.381,
+    -11.385,
+    0.328
+   ],
+   "file_role": "E"
+  },
+  {
+   "kind": "equipment-instance",
+   "tag": "MSB",
+   "elem_id": 1473001,
+   "symbol": 1472586,
+   "family": 1472568,
+   "position_ft": [
+    100.741,
+    -11.012,
+    0.328
+   ],
+   "file_role": "E"
+  },
+  {
+   "kind": "equipment-instance",
+   "tag": "DP-1",
+   "elem_id": 1473002,
+   "symbol": 1472645,
+   "family": 1472629,
+   "position_ft": [
+    92.907,
+    -13.927,
+    4.311
+   ],
+   "file_role": "E"
+  },
+  {
+   "kind": "equipment-instance",
+   "tag": "LP-1",
+   "elem_id": 1473003,
+   "symbol": 1472763,
+   "family": 1472747,
+   "position_ft": [
+    92.907,
+    -17.7,
+    5.062
+   ],
+   "file_role": "E"
+  },
+  {
+   "kind": "equipment-instance",
+   "tag": "LP-2",
+   "elem_id": 1473004,
+   "symbol": 1472822,
+   "family": 1472806,
+   "position_ft": [
+    92.907,
+    -21.309,
+    5.062
+   ],
+   "file_role": "E"
+  },
+  {
+   "kind": "equipment-instance",
+   "tag": "DP-2",
+   "elem_id": 1473005,
+   "symbol": 1472704,
+   "family": 1472688,
+   "position_ft": [
+    122.139,
+    -13.927,
+    4.311
+   ],
+   "file_role": "E"
+  },
+  {
+   "kind": "equipment-instance",
+   "tag": "LP-3",
+   "elem_id": 1473006,
+   "symbol": 1472881,
+   "family": 1472865,
+   "position_ft": [
+    122.139,
+    -17.7,
+    5.062
+   ],
+   "file_role": "E"
+  },
+  {
+   "kind": "equipment-instance",
+   "tag": "LP-4",
+   "elem_id": 1473007,
+   "symbol": 1472994,
+   "family": 1472978,
+   "position_ft": [
+    122.139,
+    -21.309,
+    5.062
+   ],
+   "file_role": "E"
+  },
+  {
+   "kind": "loaded-family",
+   "tag": "MSB",
+   "symbol_id": 1472586,
+   "family_id": 1472568,
+   "content_guid": "37f14a10-6c6b-4a40-8063-5cd6912b9292"
+  },
+  {
+   "kind": "loaded-family",
+   "tag": "DP-1",
+   "symbol_id": 1472645,
+   "family_id": 1472629,
+   "content_guid": "8b965119-b91d-4039-972b-d3f5fb04294c"
+  },
+  {
+   "kind": "loaded-family",
+   "tag": "DP-2",
+   "symbol_id": 1472704,
+   "family_id": 1472688,
+   "content_guid": "dae7ecd4-58d5-4745-989e-30e20fbc9fbe"
+  },
+  {
+   "kind": "loaded-family",
+   "tag": "LP-1",
+   "symbol_id": 1472763,
+   "family_id": 1472747,
+   "content_guid": "39c60e40-cad8-4e03-ac6a-497ab95aa560"
+  },
+  {
+   "kind": "loaded-family",
+   "tag": "LP-2",
+   "symbol_id": 1472822,
+   "family_id": 1472806,
+   "content_guid": "68401973-7d9a-4971-bd6d-26c6d40cfbd7"
+  },
+  {
+   "kind": "loaded-family",
+   "tag": "LP-3",
+   "symbol_id": 1472881,
+   "family_id": 1472865,
+   "content_guid": "ffed9559-057c-42ec-92cd-6c2129723b21"
+  },
+  {
+   "kind": "loaded-family",
+   "tag": "T1",
+   "symbol_id": 1472935,
+   "family_id": 1472922,
+   "content_guid": "ac64cbe6-7cf7-4ac1-bc33-5afd4016caec"
+  },
+  {
+   "kind": "loaded-family",
+   "tag": "LP-4",
+   "symbol_id": 1472994,
+   "family_id": 1472978,
+   "content_guid": "4deacfb5-5ab1-412b-b1f0-c7adfea9c9c1"
+  }
+ ],
+ "degradations": [
+  "TMGB (ground_bus): NOT built -- family plan unmapped: no house generator for a ground bus bar (a small generic-model family is the follow-up; the TMGB is a detail component, not equipment) -- recorded only",
+  "CONDUIT (conduit_run): NOT built -- family plan unmapped: conduit RUNS are rvt.mep.conduit territory (add_conduit_path over the recorded polyline); needs conduit types in the base -- recorded as run geometry, omitted from v1",
+  "SERVICE (service_entrance): NOT built -- family plan unmapped: utility service entrance: external source -- recorded as the SERVICE edge of the feeder tree",
+  "HANGERS (support): NOT built -- family plan unmapped: trapeze hangers / clevis supports = detailing (supports stream); recorded, omitted from the project file"
+ ],
+ "errors": [],
+ "validation": {
+  "combined": {
+   "validate": {
+    "path": "experiments/convert_combo/B2_merge_rst_devonly/B2_room_into_rst.rvt",
+    "md5": "629819e34202b1c36ca97252ef555900",
+    "size": 6766592,
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 1,
+    "errors": [],
+    "warnings": [
+     {
+      "severity": "warning",
+      "layer": "semantic",
+      "where": "objects",
+      "message": "7/32494 seq-102 records failed schema decode (RebarShape x6, DataStorage x1) \u2014 known decoder gap = Extensible-Storage entity blobs; these elements' references/connectors are unverifiable. e.g. DataStorage: 1382860: pointer token pid=-1 to unknown class 0x88ee; RebarShape: 1377250: pointer token pid=-1 to unknown class 0x7959"
+     }
+    ],
+    "stats": {
+     "streams": 12,
+     "pages_checked": 109,
+     "gzip_members": 8,
+     "partition_blocks": 438,
+     "records": 97665,
+     "elements_decoded": 32494,
+     "decode_failures": 7,
+     "refs_checked": 593829,
+     "connector_edges": 0,
+     "circuits": 0
+    },
+    "seconds": 8.5
+   },
+   "census": {
+    "save_units": 61,
+    "contentdocs_entries": 60,
+    "contentdocs_guids": [
+     "03f26a7f-f129-459a-9416-39e40d1f0b80",
+     "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+     "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+     "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+     "147abf91-ec71-4533-944c-4f2282b39389",
+     "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+     "238471d5-1cda-4554-8458-83bcf331f149",
+     "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+     "2774af49-2b12-4c51-9095-c3af78ae06a8",
+     "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+     "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+     "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+     "30640a46-4395-44f8-99ee-94759c623a88",
+     "3563d602-3ba7-4789-a3ee-254c15adc0ce",
+     "36b75aa9-8fc8-4691-b3a3-bcff9df6471a",
+     "37f14a10-6c6b-4a40-8063-5cd6912b9292",
+     "39c60e40-cad8-4e03-ac6a-497ab95aa560",
+     "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+     "4231c989-43a9-4cf4-8e57-62173b030da6",
+     "4d39b104-087e-47c8-885b-300dde8e24e3",
+     "4deacfb5-5ab1-412b-b1f0-c7adfea9c9c1",
+     "4f85134f-7e56-4935-9a1d-5c31503c3716",
+     "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+     "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+     "5478aabb-dc66-4a14-8715-9c0f5812259d",
+     "5e037af6-e747-4731-99e0-ed651d369c9b",
+     "652d2246-3c01-4148-8c16-17146f106321",
+     "68344216-9c79-4c4e-a832-3ed1233c2489",
+     "68401973-7d9a-4971-bd6d-26c6d40cfbd7",
+     "706e2be2-3779-421f-bfa7-57ff3562cd8f",
+     "78061000-56a3-428c-a5a8-5b1397dbb12d",
+     "830890eb-dfe2-4882-81ca-4f8bced826b1",
+     "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+     "8b965119-b91d-4039-972b-d3f5fb04294c",
+     "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+     "9c8df7a4-fbfa-4a9f-97fa-8b8aa5ff3e27",
+     "9d3038e2-a69e-40a4-9217-134a4015896a",
+     "a0717c14-e2fc-4b34-9c27-2ff3604705e6",
+     "ac64cbe6-7cf7-4ac1-bc33-5afd4016caec",
+     "af75f67d-1060-4650-b13a-d467c0872fda",
+     "b8e18dfa-91c5-4551-a51d-17012a753412",
+     "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+     "bd60da88-04cb-4223-a54c-555ba16b76a3",
+     "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+     "c7734839-cb9e-4274-bcad-003788721261",
+     "d12022c4-1496-4d94-973a-599c45ef14a8",
+     "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+     "d3ecb68c-670d-42af-82df-f684c77b9693",
+     "d4bdb58b-e63b-44a4-a882-c793b48ce304",
+     "d58b645f-9df5-42f4-b770-a00aea8bb4ba",
+     "dae7ecd4-58d5-4745-989e-30e20fbc9fbe",
+     "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+     "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+     "ef6a7555-0579-4d66-a628-a069d646838b",
+     "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+     "f8b30e73-e9cf-4d44-b7c8-d85fb9e63cb6",
+     "f932d848-0871-4902-ac37-bb38aec05088",
+     "fb5c6124-6046-4375-9cef-63f740620a8e",
+     "fe0923ee-a917-439a-a945-fae55292b3d1",
+     "ffed9559-057c-42ec-92cd-6c2129723b21"
+    ],
+    "contenttable_records": 60,
+    "contenttable_guids": [
+     "03f26a7f-f129-459a-9416-39e40d1f0b80",
+     "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+     "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+     "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+     "147abf91-ec71-4533-944c-4f2282b39389",
+     "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+     "238471d5-1cda-4554-8458-83bcf331f149",
+     "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+     "2774af49-2b12-4c51-9095-c3af78ae06a8",
+     "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+     "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+     "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+     "30640a46-4395-44f8-99ee-94759c623a88",
+     "3563d602-3ba7-4789-a3ee-254c15adc0ce",
+     "36b75aa9-8fc8-4691-b3a3-bcff9df6471a",
+     "37f14a10-6c6b-4a40-8063-5cd6912b9292",
+     "39c60e40-cad8-4e03-ac6a-497ab95aa560",
+     "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+     "4231c989-43a9-4cf4-8e57-62173b030da6",
+     "4d39b104-087e-47c8-885b-300dde8e24e3",
+     "4deacfb5-5ab1-412b-b1f0-c7adfea9c9c1",
+     "4f85134f-7e56-4935-9a1d-5c31503c3716",
+     "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+     "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+     "5478aabb-dc66-4a14-8715-9c0f5812259d",
+     "5e037af6-e747-4731-99e0-ed651d369c9b",
+     "652d2246-3c01-4148-8c16-17146f106321",
+     "68344216-9c79-4c4e-a832-3ed1233c2489",
+     "68401973-7d9a-4971-bd6d-26c6d40cfbd7",
+     "706e2be2-3779-421f-bfa7-57ff3562cd8f",
+     "78061000-56a3-428c-a5a8-5b1397dbb12d",
+     "830890eb-dfe2-4882-81ca-4f8bced826b1",
+     "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+     "8b965119-b91d-4039-972b-d3f5fb04294c",
+     "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+     "9c8df7a4-fbfa-4a9f-97fa-8b8aa5ff3e27",
+     "9d3038e2-a69e-40a4-9217-134a4015896a",
+     "a0717c14-e2fc-4b34-9c27-2ff3604705e6",
+     "ac64cbe6-7cf7-4ac1-bc33-5afd4016caec",
+     "af75f67d-1060-4650-b13a-d467c0872fda",
+     "b8e18dfa-91c5-4551-a51d-17012a753412",
+     "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+     "bd60da88-04cb-4223-a54c-555ba16b76a3",
+     "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+     "c7734839-cb9e-4274-bcad-003788721261",
+     "d12022c4-1496-4d94-973a-599c45ef14a8",
+     "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+     "d3ecb68c-670d-42af-82df-f684c77b9693",
+     "d4bdb58b-e63b-44a4-a882-c793b48ce304",
+     "d58b645f-9df5-42f4-b770-a00aea8bb4ba",
+     "dae7ecd4-58d5-4745-989e-30e20fbc9fbe",
+     "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+     "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+     "ef6a7555-0579-4d66-a628-a069d646838b",
+     "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+     "f8b30e73-e9cf-4d44-b7c8-d85fb9e63cb6",
+     "f932d848-0871-4902-ac37-bb38aec05088",
+     "fb5c6124-6046-4375-9cef-63f740620a8e",
+     "fe0923ee-a917-439a-a945-fae55292b3d1",
+     "ffed9559-057c-42ec-92cd-6c2129723b21"
+    ],
+    "familymgr_entries": 58,
+    "familymgr_guids": [
+     "03f26a7f-f129-459a-9416-39e40d1f0b80",
+     "09982dbb-c022-48fc-a116-6d8ba6867fdb",
+     "0c78fe6b-c9f7-409c-9a39-22068f7b32ab",
+     "1313cad4-dc67-46e2-9907-6c3c5be1f597",
+     "147abf91-ec71-4533-944c-4f2282b39389",
+     "22e4f734-e6bd-4cc1-af1b-d8f871825ea9",
+     "238471d5-1cda-4554-8458-83bcf331f149",
+     "264dda00-ca49-4bd8-8ee3-bac15b8da155",
+     "2774af49-2b12-4c51-9095-c3af78ae06a8",
+     "2b31a25b-53d1-4fc0-bea7-1f3503b9e235",
+     "2cda7ccf-3847-46e9-b7d0-7661c0eea654",
+     "2f53ad76-bd5c-418e-a1a0-810eda7b27a5",
+     "30640a46-4395-44f8-99ee-94759c623a88",
+     "3563d602-3ba7-4789-a3ee-254c15adc0ce",
+     "36b75aa9-8fc8-4691-b3a3-bcff9df6471a",
+     "37f14a10-6c6b-4a40-8063-5cd6912b9292",
+     "39c60e40-cad8-4e03-ac6a-497ab95aa560",
+     "3db6cb71-cd2c-4fdf-a082-00b46b2beb47",
+     "4231c989-43a9-4cf4-8e57-62173b030da6",
+     "4d39b104-087e-47c8-885b-300dde8e24e3",
+     "4deacfb5-5ab1-412b-b1f0-c7adfea9c9c1",
+     "4f85134f-7e56-4935-9a1d-5c31503c3716",
+     "4fbae0c3-1d72-471b-a27f-9fb0e8679b03",
+     "5431b0e9-1093-4c90-8f1e-a7b86e4be2f1",
+     "5478aabb-dc66-4a14-8715-9c0f5812259d",
+     "5e037af6-e747-4731-99e0-ed651d369c9b",
+     "652d2246-3c01-4148-8c16-17146f106321",
+     "68344216-9c79-4c4e-a832-3ed1233c2489",
+     "68401973-7d9a-4971-bd6d-26c6d40cfbd7",
+     "706e2be2-3779-421f-bfa7-57ff3562cd8f",
+     "78061000-56a3-428c-a5a8-5b1397dbb12d",
+     "830890eb-dfe2-4882-81ca-4f8bced826b1",
+     "8b4a67ea-913e-4ba3-8291-00648285cdb7",
+     "8b965119-b91d-4039-972b-d3f5fb04294c",
+     "9621bfe6-cb8e-4b22-80c3-ecb50ee6fdfe",
+     "9c8df7a4-fbfa-4a9f-97fa-8b8aa5ff3e27",
+     "9d3038e2-a69e-40a4-9217-134a4015896a",
+     "a0717c14-e2fc-4b34-9c27-2ff3604705e6",
+     "ac64cbe6-7cf7-4ac1-bc33-5afd4016caec",
+     "af75f67d-1060-4650-b13a-d467c0872fda",
+     "b8e18dfa-91c5-4551-a51d-17012a753412",
+     "bcd8c231-8f60-47a8-a2a0-6bccd2dfe99e",
+     "bd60da88-04cb-4223-a54c-555ba16b76a3",
+     "c31b9f41-ed69-4a2a-8fc8-bdf706ce7555",
+     "c7734839-cb9e-4274-bcad-003788721261",
+     "d12022c4-1496-4d94-973a-599c45ef14a8",
+     "d1a6a4ce-025f-407f-aaf5-9eadd5997940",
+     "d3ecb68c-670d-42af-82df-f684c77b9693",
+     "d4bdb58b-e63b-44a4-a882-c793b48ce304",
+     "d58b645f-9df5-42f4-b770-a00aea8bb4ba",
+     "dae7ecd4-58d5-4745-989e-30e20fbc9fbe",
+     "e2e70b03-dc3d-4d77-a52c-09ab0e345795",
+     "ecbae5a0-470e-4b1a-8f45-b2f803852da7",
+     "ef6a7555-0579-4d66-a628-a069d646838b",
+     "f709839c-bdae-4bbb-b386-bdb0f99c5227",
+     "f8b30e73-e9cf-4d44-b7c8-d85fb9e63cb6",
+     "f932d848-0871-4902-ac37-bb38aec05088",
+     "fb5c6124-6046-4375-9cef-63f740620a8e",
+     "fe0923ee-a917-439a-a945-fae55292b3d1",
+     "ffed9559-057c-42ec-92cd-6c2129723b21"
+    ],
+    "coherent": true
+   },
+   "release": {
+    "input": 2026,
+    "output": 2026,
+    "preserved": true
+   },
+   "self_checks_ok": true
+  }
+ },
+ "stamps": [
+  "PROOF-ONLY, NOT-DELIVERABLE (P0: identity/counsel gates G2-G3 open; every tekton output is an internal proof)",
+  "QUARANTINED TARGET (dev-only proof): the target file is an Autodesk sample standing in for a user upload; this output exists to PROVE the route and is never shipped or redistributed"
+ ],
+ "level": {
+  "id": 311,
+  "elevation_ft": 0.0,
+  "requested": "(nearest elevation 0)"
+ },
+ "verdict": {
+  "open_bug": "walls+loaded-families-audit",
+  "open_bug_text": "created WALLS + LOADED FAMILY DOCUMENTS in the SAME file currently trip Autodesk's audit ('Processing failed'), while walls alone PASS (electrical_room_2500a_walls_only.rvt, certified) and loaded families alone PASS (stage_L8_lp4.rvt, certified) -- docs/inbox/genesis-audit.md ORCHESTRATOR VERDICTS #24 (verdict #22's 'one defective family' RETRACTED). The mechanism is under bisection in the render/creation stream; until it is fixed the front door DEGRADES: --strict emits two coordinated files (shell + equipment), the default emits one combined file STAMPED 'PROOF-ONLY: walls+families combination unverified'.",
+  "has_walls": true,
+  "n_walls": 4,
+  "has_loaded_families": true,
+  "n_loaded_families": 8,
+  "triggers_open_bug": true,
+  "mode": "stamp-proof-only",
+  "stamp": "PROOF-ONLY: walls+families combination unverified",
+  "files": [
+   "combined"
+  ],
+  "reason": "default: ONE combined file (the room's walls + the loaded families + their instances) is emitted and the manifest is STAMPED 'PROOF-ONLY: walls+families combination unverified' -- this exact combination is the OPEN BUG (unverified/failing in the viewer). Pass --strict to get two coordinated proven-shaped files instead.",
+  "notes": [
+   "the stamp is not decoration: it is the front door refusing to represent an unverified combination as accepted; the file's own self-checks (validator / registries / identity) still run."
+  ]
+ },
+ "families": {
+  "stage": "F",
+  "families": [
+   {
+    "tag": "TMGB",
+    "kind": "ground_bus",
+    "built": false,
+    "reason": "no house generator for a ground bus bar (a small generic-model family is the follow-up; the TMGB is a detail component, not equipment) -- recorded only"
+   },
+   {
+    "tag": "T1",
+    "kind": "transformer",
+    "built": true,
+    "path": "experiments/convert_combo/B2_merge_rst_devonly/families/t1_xfmr_150kva_480_208y_120.rfa",
+    "size": 299008,
+    "family_name": "Dry Type Transformer T1 150kVA 480-208Y/120",
+    "constructor": "rvt.famgen.factory.make_transformer",
+    "kwargs": {
+     "kva": 150.0,
+     "vendor": "eaton",
+     "primary_v": 480,
+     "secondary_v": "208Y/120"
+    },
+    "catalog": "eaton/dry-type-transformers",
+    "variant": "V48M28T4916",
+    "ok": true,
+    "verify": {
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0
+    },
+    "validate_family_mode": {
+     "verdict": "VALID",
+     "n_errors": 0
+    },
+    "provenance_ok": true,
+    "provenance_suspects": [],
+    "assumed_fields": [],
+    "unverified_fields": [
+     "enclosure",
+     "primary_v",
+     "secondary_v"
+    ],
+    "notes": [
+     "two connectors (primary / secondary) on the top face; the secondary is bound to the kVA rating (the load it can serve)"
+    ],
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/families/t1_xfmr_150kva_480_208y_120.json"
+   },
+   {
+    "tag": "MSB",
+    "kind": "switchboard",
+    "built": true,
+    "path": "experiments/convert_combo/B2_merge_rst_devonly/families/msb_switchboard_msb_2500a_480y_277.rfa",
+    "size": 299008,
+    "family_name": "Switchboard MSB 2500A 480Y/277",
+    "constructor": "rvt.ifc.intent.make_house_switchboard",
+    "kwargs": {
+     "tag": "MSB",
+     "name": "Switchboard MSB",
+     "mains_a": 2500.0,
+     "voltage": "480Y/277",
+     "phases": 3,
+     "wires": 4,
+     "sccr_ka": 65.0,
+     "sections": 4,
+     "mains_device": "2500 A, 3-pole insulated-case main breaker, 100% rated",
+     "mounting": "Floor, on 100 mm housekeeping pad, front accessible",
+     "feeder_entry": "Top; overhead EMT on trapeze hangers",
+     "manufacturer": "Eaton",
+     "model_label": "Pow-R-Line C style switchboard",
+     "width_m": 4.27,
+     "depth_m": 0.6229999999999998,
+     "height_m": 2.286
+    },
+    "catalog": null,
+    "variant": null,
+    "ok": true,
+    "verify": {
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0
+    },
+    "validate_family_mode": {
+     "verdict": "VALID",
+     "n_errors": 0
+    },
+    "provenance_ok": true,
+    "provenance_suspects": [],
+    "assumed_fields": [],
+    "unverified_fields": [
+     "bus_rating_a",
+     "depth_in",
+     "height_in",
+     "mains_rating_a",
+     "mains_type",
+     "mounting",
+     "panel_name",
+     "phases",
+     "sccr_ka",
+     "sections",
+     "voltage_ll_v",
+     "voltage_system",
+     "width_in",
+     "wires"
+    ],
+    "notes": [
+     "house switchboard from OUR IFC-modeled dimensions (no catalog record); ratings are Pset values, identity strings are ifc-declared"
+    ],
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/families/msb_switchboard_msb_2500a_480y_277.json"
+   },
+   {
+    "tag": "DP-1",
+    "kind": "distribution_panelboard",
+    "built": true,
+    "path": "experiments/convert_combo/B2_merge_rst_devonly/families/dp1_eaton_prl2x_400a_42sp_480y_277.rfa",
+    "size": 299008,
+    "family_name": "Distribution Panelboard DP-1 480Y/277 400A MB 42sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "kwargs": {
+     "vendor": "eaton",
+     "line": "pow-r-line",
+     "mains_a": 400.0,
+     "spaces": 42,
+     "voltage": "480Y/277",
+     "mcb": true,
+     "mounting": "surface",
+     "panel_name": "DP-1",
+     "sccr_ka": null
+    },
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true,
+    "verify": {
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0
+    },
+    "validate_family_mode": {
+     "verdict": "VALID",
+     "n_errors": 0
+    },
+    "provenance_ok": true,
+    "provenance_suspects": [],
+    "assumed_fields": [
+     "height_in",
+     "sccr_ka"
+    ],
+    "unverified_fields": [
+     "height_in",
+     "mains_rating_a",
+     "mains_type",
+     "mounting",
+     "neutral_rating",
+     "panel_name",
+     "phases",
+     "sccr_ka",
+     "spaces",
+     "voltage_ll_v",
+     "voltage_system",
+     "wires"
+    ],
+    "notes": [
+     "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+     "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+    ],
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/families/dp1_eaton_prl2x_400a_42sp_480y_277.json"
+   },
+   {
+    "tag": "LP-1",
+    "kind": "lighting_panelboard",
+    "built": true,
+    "path": "experiments/convert_combo/B2_merge_rst_devonly/families/lp1_eaton_prl2x_100a_30sp_480y_277.rfa",
+    "size": 299008,
+    "family_name": "Lighting Panelboard LP-1 480Y/277 100A MLO 30sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "kwargs": {
+     "vendor": "eaton",
+     "line": "pow-r-line",
+     "mains_a": 100.0,
+     "spaces": 30,
+     "voltage": "480Y/277",
+     "mcb": false,
+     "mounting": "surface",
+     "panel_name": "LP-1",
+     "sccr_ka": null
+    },
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true,
+    "verify": {
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0
+    },
+    "validate_family_mode": {
+     "verdict": "VALID",
+     "n_errors": 0
+    },
+    "provenance_ok": true,
+    "provenance_suspects": [],
+    "assumed_fields": [
+     "height_in",
+     "sccr_ka"
+    ],
+    "unverified_fields": [
+     "height_in",
+     "mains_rating_a",
+     "mains_type",
+     "mounting",
+     "neutral_rating",
+     "panel_name",
+     "phases",
+     "sccr_ka",
+     "spaces",
+     "voltage_ll_v",
+     "voltage_system",
+     "wires"
+    ],
+    "notes": [
+     "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+     "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+    ],
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/families/lp1_eaton_prl2x_100a_30sp_480y_277.json"
+   },
+   {
+    "tag": "LP-2",
+    "kind": "lighting_panelboard",
+    "built": true,
+    "path": "experiments/convert_combo/B2_merge_rst_devonly/families/lp2_eaton_prl2x_100a_30sp_480y_277.rfa",
+    "size": 299008,
+    "family_name": "Lighting Panelboard LP-2 480Y/277 100A MLO 30sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "kwargs": {
+     "vendor": "eaton",
+     "line": "pow-r-line",
+     "mains_a": 100.0,
+     "spaces": 30,
+     "voltage": "480Y/277",
+     "mcb": false,
+     "mounting": "surface",
+     "panel_name": "LP-2",
+     "sccr_ka": null
+    },
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true,
+    "verify": {
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0
+    },
+    "validate_family_mode": {
+     "verdict": "VALID",
+     "n_errors": 0
+    },
+    "provenance_ok": true,
+    "provenance_suspects": [],
+    "assumed_fields": [
+     "height_in",
+     "sccr_ka"
+    ],
+    "unverified_fields": [
+     "height_in",
+     "mains_rating_a",
+     "mains_type",
+     "mounting",
+     "neutral_rating",
+     "panel_name",
+     "phases",
+     "sccr_ka",
+     "spaces",
+     "voltage_ll_v",
+     "voltage_system",
+     "wires"
+    ],
+    "notes": [
+     "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+     "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+    ],
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/families/lp2_eaton_prl2x_100a_30sp_480y_277.json"
+   },
+   {
+    "tag": "DP-2",
+    "kind": "distribution_panelboard",
+    "built": true,
+    "path": "experiments/convert_combo/B2_merge_rst_devonly/families/dp2_eaton_prl2x_400a_42sp_480y_277.rfa",
+    "size": 299008,
+    "family_name": "Distribution Panelboard DP-2 480Y/277 400A MB 42sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "kwargs": {
+     "vendor": "eaton",
+     "line": "pow-r-line",
+     "mains_a": 400.0,
+     "spaces": 42,
+     "voltage": "480Y/277",
+     "mcb": true,
+     "mounting": "surface",
+     "panel_name": "DP-2",
+     "sccr_ka": null
+    },
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true,
+    "verify": {
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0
+    },
+    "validate_family_mode": {
+     "verdict": "VALID",
+     "n_errors": 0
+    },
+    "provenance_ok": true,
+    "provenance_suspects": [],
+    "assumed_fields": [
+     "height_in",
+     "sccr_ka"
+    ],
+    "unverified_fields": [
+     "height_in",
+     "mains_rating_a",
+     "mains_type",
+     "mounting",
+     "neutral_rating",
+     "panel_name",
+     "phases",
+     "sccr_ka",
+     "spaces",
+     "voltage_ll_v",
+     "voltage_system",
+     "wires"
+    ],
+    "notes": [
+     "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+     "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+    ],
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/families/dp2_eaton_prl2x_400a_42sp_480y_277.json"
+   },
+   {
+    "tag": "LP-3",
+    "kind": "lighting_panelboard",
+    "built": true,
+    "path": "experiments/convert_combo/B2_merge_rst_devonly/families/lp3_eaton_prl2x_100a_30sp_480y_277.rfa",
+    "size": 299008,
+    "family_name": "Lighting Panelboard LP-3 480Y/277 100A MLO 30sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "kwargs": {
+     "vendor": "eaton",
+     "line": "pow-r-line",
+     "mains_a": 100.0,
+     "spaces": 30,
+     "voltage": "480Y/277",
+     "mcb": false,
+     "mounting": "surface",
+     "panel_name": "LP-3",
+     "sccr_ka": null
+    },
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL2X",
+    "ok": true,
+    "verify": {
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0
+    },
+    "validate_family_mode": {
+     "verdict": "VALID",
+     "n_errors": 0
+    },
+    "provenance_ok": true,
+    "provenance_suspects": [],
+    "assumed_fields": [
+     "height_in",
+     "sccr_ka"
+    ],
+    "unverified_fields": [
+     "height_in",
+     "mains_rating_a",
+     "mains_type",
+     "mounting",
+     "neutral_rating",
+     "panel_name",
+     "phases",
+     "sccr_ka",
+     "spaces",
+     "voltage_ll_v",
+     "voltage_system",
+     "wires"
+    ],
+    "notes": [
+     "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+     "UNVERIFIED (assumed) values surfaced: height_in, sccr_ka"
+    ],
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/families/lp3_eaton_prl2x_100a_30sp_480y_277.json"
+   },
+   {
+    "tag": "LP-4",
+    "kind": "receptacle_panelboard",
+    "built": true,
+    "path": "experiments/convert_combo/B2_merge_rst_devonly/families/lp4_eaton_prl1x_225a_42sp_208y_120.rfa",
+    "size": 299008,
+    "family_name": "Receptacle Panelboard LP-4 208Y/120 225A MB 42sp",
+    "constructor": "rvt.famgen.factory.make_panelboard",
+    "kwargs": {
+     "vendor": "eaton",
+     "line": "pow-r-line",
+     "mains_a": 225.0,
+     "spaces": 42,
+     "voltage": "208Y/120",
+     "mcb": true,
+     "mounting": "surface",
+     "panel_name": "LP-4",
+     "sccr_ka": null
+    },
+    "catalog": "eaton/pow-r-line-panelboards",
+    "variant": "PRL1X",
+    "ok": true,
+    "verify": {
+     "gzip_members": 11,
+     "gzip_crc_failures": 0,
+     "ecc_full_pages": 3,
+     "ecc_mismatch": 0
+    },
+    "validate_family_mode": {
+     "verdict": "VALID",
+     "n_errors": 0
+    },
+    "provenance_ok": true,
+    "provenance_suspects": [],
+    "assumed_fields": [
+     "sccr_ka"
+    ],
+    "unverified_fields": [
+     "mains_rating_a",
+     "mains_type",
+     "mounting",
+     "neutral_rating",
+     "panel_name",
+     "phases",
+     "sccr_ka",
+     "spaces",
+     "voltage_ll_v",
+     "voltage_system",
+     "wires"
+    ],
+    "notes": [
+     "connector hosted on the enclosure's top face (face-referenced, edge-loop tags of the solid) -- resolves the S0e datum-host gap",
+     "UNVERIFIED (assumed) values surfaced: sccr_ka"
+    ],
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/families/lp4_eaton_prl1x_225a_42sp_208y_120.json"
+   },
+   {
+    "tag": "CONDUIT",
+    "kind": "conduit_run",
+    "built": false,
+    "reason": "conduit RUNS are rvt.mep.conduit territory (add_conduit_path over the recorded polyline); needs conduit types in the base -- recorded as run geometry, omitted from v1"
+   },
+   {
+    "tag": "SERVICE",
+    "kind": "service_entrance",
+    "built": false,
+    "reason": "utility service entrance: external source -- recorded as the SERVICE edge of the feeder tree"
+   },
+   {
+    "tag": "HANGERS",
+    "kind": "support",
+    "built": false,
+    "reason": "trapeze hangers / clevis supports = detailing (supports stream); recorded, omitted from the project file"
+   }
+  ],
+  "dir": "experiments/convert_combo/B2_merge_rst_devonly/families",
+  "all_ok": true,
+  "built": 8
+ },
+ "load": {
+  "stage": "L",
+  "base": "samples/rstbasicsampleproject.rvt",
+  "loads": [
+   {
+    "tag": "MSB",
+    "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L0_base.rvt",
+    "out": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L1_msb.rvt",
+    "ok": true,
+    "stop_reason": "",
+    "host_watermark": 1472524,
+    "symbol_id": 1472586,
+    "family_id": 1472568,
+    "surrogate_id": 1472585,
+    "content_guid": "37f14a10-6c6b-4a40-8063-5cd6912b9292",
+    "twins": 16,
+    "elements_added": 20,
+    "proofs": {
+     "plan": {
+      "content_guid": "37f14a10-6c6b-4a40-8063-5cd6912b9292",
+      "host_watermark": 1472524,
+      "our_doc_ids": [
+       1472525,
+       1472567
+      ],
+      "host_ids": {
+       "family": 1472568,
+       "surrogate": 1472585,
+       "symbol": 1472586,
+       "symbol_surrogate": 1472587,
+       "instance": -1,
+       "twins": 16
+      }
+     },
+     "roundtrip_gate": {
+      "records": 60,
+      "roundtrip_ok": 60,
+      "failed": 0,
+      "encoded_bytes": 22597,
+      "failures": []
+     },
+     "save_unit": {
+      "guid": "37f14a10-6c6b-4a40-8063-5cd6912b9292",
+      "records": 43,
+      "bytes": 7746,
+      "segments": {
+       "101": 7197,
+       "102": 31712,
+       "103": 5424
+      }
+     },
+     "content_documents": {
+      "entries_before": 52,
+      "entries_after": 53,
+      "ours_present": true,
+      "end_record_intact": true,
+      "delta_bytes": 3133
+     },
+     "adocument_reencode": {
+      "clean": true,
+      "bytes_before": 1586246,
+      "bytes_after": 1586370
+     }
+    },
+    "acceptance": [
+     "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+     "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+     "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+     "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+     "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+     "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+    ],
+    "seconds": 51.3,
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L1_msb.rvt.load.json"
+   },
+   {
+    "tag": "DP-1",
+    "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L1_msb.rvt",
+    "out": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L2_dp1.rvt",
+    "ok": true,
+    "stop_reason": "",
+    "host_watermark": 1472587,
+    "symbol_id": 1472645,
+    "family_id": 1472629,
+    "surrogate_id": 1472644,
+    "content_guid": "8b965119-b91d-4039-972b-d3f5fb04294c",
+    "twins": 14,
+    "elements_added": 18,
+    "proofs": {
+     "plan": {
+      "content_guid": "8b965119-b91d-4039-972b-d3f5fb04294c",
+      "host_watermark": 1472587,
+      "our_doc_ids": [
+       1472588,
+       1472628
+      ],
+      "host_ids": {
+       "family": 1472629,
+       "surrogate": 1472644,
+       "symbol": 1472645,
+       "symbol_surrogate": 1472646,
+       "instance": -1,
+       "twins": 14
+      }
+     },
+     "roundtrip_gate": {
+      "records": 54,
+      "roundtrip_ok": 54,
+      "failed": 0,
+      "encoded_bytes": 19697,
+      "failures": []
+     },
+     "save_unit": {
+      "guid": "8b965119-b91d-4039-972b-d3f5fb04294c",
+      "records": 41,
+      "bytes": 7403,
+      "segments": {
+       "101": 6895,
+       "102": 29830,
+       "103": 5380
+      }
+     },
+     "content_documents": {
+      "entries_before": 53,
+      "entries_after": 54,
+      "ours_present": true,
+      "end_record_intact": true,
+      "delta_bytes": 3053
+     },
+     "adocument_reencode": {
+      "clean": true,
+      "bytes_before": 1586370,
+      "bytes_after": 1586482
+     }
+    },
+    "acceptance": [
+     "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+     "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+     "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+     "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+     "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+     "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+    ],
+    "seconds": 50.4,
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L2_dp1.rvt.load.json"
+   },
+   {
+    "tag": "DP-2",
+    "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L2_dp1.rvt",
+    "out": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L3_dp2.rvt",
+    "ok": true,
+    "stop_reason": "",
+    "host_watermark": 1472646,
+    "symbol_id": 1472704,
+    "family_id": 1472688,
+    "surrogate_id": 1472703,
+    "content_guid": "dae7ecd4-58d5-4745-989e-30e20fbc9fbe",
+    "twins": 14,
+    "elements_added": 18,
+    "proofs": {
+     "plan": {
+      "content_guid": "dae7ecd4-58d5-4745-989e-30e20fbc9fbe",
+      "host_watermark": 1472646,
+      "our_doc_ids": [
+       1472647,
+       1472687
+      ],
+      "host_ids": {
+       "family": 1472688,
+       "surrogate": 1472703,
+       "symbol": 1472704,
+       "symbol_surrogate": 1472705,
+       "instance": -1,
+       "twins": 14
+      }
+     },
+     "roundtrip_gate": {
+      "records": 54,
+      "roundtrip_ok": 54,
+      "failed": 0,
+      "encoded_bytes": 19697,
+      "failures": []
+     },
+     "save_unit": {
+      "guid": "dae7ecd4-58d5-4745-989e-30e20fbc9fbe",
+      "records": 41,
+      "bytes": 7398,
+      "segments": {
+       "101": 6895,
+       "102": 29830,
+       "103": 5380
+      }
+     },
+     "content_documents": {
+      "entries_before": 54,
+      "entries_after": 55,
+      "ours_present": true,
+      "end_record_intact": true,
+      "delta_bytes": 3053
+     },
+     "adocument_reencode": {
+      "clean": true,
+      "bytes_before": 1586482,
+      "bytes_after": 1586594
+     }
+    },
+    "acceptance": [
+     "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+     "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+     "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+     "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+     "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+     "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+    ],
+    "seconds": 54.1,
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L3_dp2.rvt.load.json"
+   },
+   {
+    "tag": "LP-1",
+    "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L3_dp2.rvt",
+    "out": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L4_lp1.rvt",
+    "ok": true,
+    "stop_reason": "",
+    "host_watermark": 1472705,
+    "symbol_id": 1472763,
+    "family_id": 1472747,
+    "surrogate_id": 1472762,
+    "content_guid": "39c60e40-cad8-4e03-ac6a-497ab95aa560",
+    "twins": 14,
+    "elements_added": 18,
+    "proofs": {
+     "plan": {
+      "content_guid": "39c60e40-cad8-4e03-ac6a-497ab95aa560",
+      "host_watermark": 1472705,
+      "our_doc_ids": [
+       1472706,
+       1472746
+      ],
+      "host_ids": {
+       "family": 1472747,
+       "surrogate": 1472762,
+       "symbol": 1472763,
+       "symbol_surrogate": 1472764,
+       "instance": -1,
+       "twins": 14
+      }
+     },
+     "roundtrip_gate": {
+      "records": 54,
+      "roundtrip_ok": 54,
+      "failed": 0,
+      "encoded_bytes": 19701,
+      "failures": []
+     },
+     "save_unit": {
+      "guid": "39c60e40-cad8-4e03-ac6a-497ab95aa560",
+      "records": 41,
+      "bytes": 7420,
+      "segments": {
+       "101": 6895,
+       "102": 29838,
+       "103": 5380
+      }
+     },
+     "content_documents": {
+      "entries_before": 55,
+      "entries_after": 56,
+      "ours_present": true,
+      "end_record_intact": true,
+      "delta_bytes": 3053
+     },
+     "adocument_reencode": {
+      "clean": true,
+      "bytes_before": 1586594,
+      "bytes_after": 1586706
+     }
+    },
+    "acceptance": [
+     "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+     "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+     "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+     "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+     "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+     "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+    ],
+    "seconds": 52.4,
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L4_lp1.rvt.load.json"
+   },
+   {
+    "tag": "LP-2",
+    "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L4_lp1.rvt",
+    "out": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L5_lp2.rvt",
+    "ok": true,
+    "stop_reason": "",
+    "host_watermark": 1472764,
+    "symbol_id": 1472822,
+    "family_id": 1472806,
+    "surrogate_id": 1472821,
+    "content_guid": "68401973-7d9a-4971-bd6d-26c6d40cfbd7",
+    "twins": 14,
+    "elements_added": 18,
+    "proofs": {
+     "plan": {
+      "content_guid": "68401973-7d9a-4971-bd6d-26c6d40cfbd7",
+      "host_watermark": 1472764,
+      "our_doc_ids": [
+       1472765,
+       1472805
+      ],
+      "host_ids": {
+       "family": 1472806,
+       "surrogate": 1472821,
+       "symbol": 1472822,
+       "symbol_surrogate": 1472823,
+       "instance": -1,
+       "twins": 14
+      }
+     },
+     "roundtrip_gate": {
+      "records": 54,
+      "roundtrip_ok": 54,
+      "failed": 0,
+      "encoded_bytes": 19701,
+      "failures": []
+     },
+     "save_unit": {
+      "guid": "68401973-7d9a-4971-bd6d-26c6d40cfbd7",
+      "records": 41,
+      "bytes": 7395,
+      "segments": {
+       "101": 6895,
+       "102": 29838,
+       "103": 5380
+      }
+     },
+     "content_documents": {
+      "entries_before": 56,
+      "entries_after": 57,
+      "ours_present": true,
+      "end_record_intact": true,
+      "delta_bytes": 3053
+     },
+     "adocument_reencode": {
+      "clean": true,
+      "bytes_before": 1586706,
+      "bytes_after": 1586818
+     }
+    },
+    "acceptance": [
+     "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+     "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+     "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+     "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+     "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+     "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+    ],
+    "seconds": 50.1,
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L5_lp2.rvt.load.json"
+   },
+   {
+    "tag": "LP-3",
+    "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L5_lp2.rvt",
+    "out": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L6_lp3.rvt",
+    "ok": true,
+    "stop_reason": "",
+    "host_watermark": 1472823,
+    "symbol_id": 1472881,
+    "family_id": 1472865,
+    "surrogate_id": 1472880,
+    "content_guid": "ffed9559-057c-42ec-92cd-6c2129723b21",
+    "twins": 14,
+    "elements_added": 18,
+    "proofs": {
+     "plan": {
+      "content_guid": "ffed9559-057c-42ec-92cd-6c2129723b21",
+      "host_watermark": 1472823,
+      "our_doc_ids": [
+       1472824,
+       1472864
+      ],
+      "host_ids": {
+       "family": 1472865,
+       "surrogate": 1472880,
+       "symbol": 1472881,
+       "symbol_surrogate": 1472882,
+       "instance": -1,
+       "twins": 14
+      }
+     },
+     "roundtrip_gate": {
+      "records": 54,
+      "roundtrip_ok": 54,
+      "failed": 0,
+      "encoded_bytes": 19701,
+      "failures": []
+     },
+     "save_unit": {
+      "guid": "ffed9559-057c-42ec-92cd-6c2129723b21",
+      "records": 41,
+      "bytes": 7395,
+      "segments": {
+       "101": 6895,
+       "102": 29838,
+       "103": 5380
+      }
+     },
+     "content_documents": {
+      "entries_before": 57,
+      "entries_after": 58,
+      "ours_present": true,
+      "end_record_intact": true,
+      "delta_bytes": 3053
+     },
+     "adocument_reencode": {
+      "clean": true,
+      "bytes_before": 1586818,
+      "bytes_after": 1586930
+     }
+    },
+    "acceptance": [
+     "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+     "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+     "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+     "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+     "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+     "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+    ],
+    "seconds": 44.5,
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L6_lp3.rvt.load.json"
+   },
+   {
+    "tag": "T1",
+    "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L6_lp3.rvt",
+    "out": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L7_t1.rvt",
+    "ok": true,
+    "stop_reason": "",
+    "host_watermark": 1472882,
+    "symbol_id": 1472935,
+    "family_id": 1472922,
+    "surrogate_id": 1472934,
+    "content_guid": "ac64cbe6-7cf7-4ac1-bc33-5afd4016caec",
+    "twins": 11,
+    "elements_added": 15,
+    "proofs": {
+     "plan": {
+      "content_guid": "ac64cbe6-7cf7-4ac1-bc33-5afd4016caec",
+      "host_watermark": 1472882,
+      "our_doc_ids": [
+       1472883,
+       1472921
+      ],
+      "host_ids": {
+       "family": 1472922,
+       "surrogate": 1472934,
+       "symbol": 1472935,
+       "symbol_surrogate": 1472936,
+       "instance": -1,
+       "twins": 11
+      }
+     },
+     "roundtrip_gate": {
+      "records": 45,
+      "roundtrip_ok": 45,
+      "failed": 0,
+      "encoded_bytes": 17836,
+      "failures": []
+     },
+     "save_unit": {
+      "guid": "ac64cbe6-7cf7-4ac1-bc33-5afd4016caec",
+      "records": 39,
+      "bytes": 7265,
+      "segments": {
+       "101": 6625,
+       "102": 29272,
+       "103": 5336
+      }
+     },
+     "content_documents": {
+      "entries_before": 58,
+      "entries_after": 59,
+      "ours_present": true,
+      "end_record_intact": true,
+      "delta_bytes": 2973
+     },
+     "adocument_reencode": {
+      "clean": true,
+      "bytes_before": 1586930,
+      "bytes_after": 1587042
+     }
+    },
+    "acceptance": [
+     "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+     "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+     "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+     "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+     "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+     "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+    ],
+    "seconds": 55.8,
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L7_t1.rvt.load.json"
+   },
+   {
+    "tag": "LP-4",
+    "in": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L7_t1.rvt",
+    "out": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L8_lp4.rvt",
+    "ok": true,
+    "stop_reason": "",
+    "host_watermark": 1472936,
+    "symbol_id": 1472994,
+    "family_id": 1472978,
+    "surrogate_id": 1472993,
+    "content_guid": "4deacfb5-5ab1-412b-b1f0-c7adfea9c9c1",
+    "twins": 14,
+    "elements_added": 18,
+    "proofs": {
+     "plan": {
+      "content_guid": "4deacfb5-5ab1-412b-b1f0-c7adfea9c9c1",
+      "host_watermark": 1472936,
+      "our_doc_ids": [
+       1472937,
+       1472977
+      ],
+      "host_ids": {
+       "family": 1472978,
+       "surrogate": 1472993,
+       "symbol": 1472994,
+       "symbol_surrogate": 1472995,
+       "instance": -1,
+       "twins": 14
+      }
+     },
+     "roundtrip_gate": {
+      "records": 54,
+      "roundtrip_ok": 54,
+      "failed": 0,
+      "encoded_bytes": 19689,
+      "failures": []
+     },
+     "save_unit": {
+      "guid": "4deacfb5-5ab1-412b-b1f0-c7adfea9c9c1",
+      "records": 41,
+      "bytes": 7407,
+      "segments": {
+       "101": 6895,
+       "102": 29830,
+       "103": 5380
+      }
+     },
+     "content_documents": {
+      "entries_before": 59,
+      "entries_after": 60,
+      "ours_present": true,
+      "end_record_intact": true,
+      "delta_bytes": 3053
+     },
+     "adocument_reencode": {
+      "clean": true,
+      "bytes_before": 1587042,
+      "bytes_after": 1587154
+     }
+    },
+    "acceptance": [
+     "H1: the family editor / project accepts a family document whose embedded ADocument carries an all-null AppInfoManager (the L3 open question, unchanged)",
+     "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + GeomTable + the seq-103 solid's flat id space) inferred from ONE specimen -- the symbol_solid=False variant leaves the symbol geometry to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+     "H3: the host Family's core-id / big2small completeness for a family document that carries no category / object-style copies (our doc has none; the specimen twins 45 style rows)",
+     "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry -1) and the shared creator GUID; the FamilyMgr entry is single-GUID (47/159 are)",
+     "H5: the placed instance uses symbol == masterSymbol on a face host (the specimen panelboards use a per-host slave geometry symbol); its connector manager is rebuilt for our connectors",
+     "H6: the ContentTable record's author string is ours (rvt-writer), the load episode reuses the host's current episode (no new History row)"
+    ],
+    "seconds": 44.5,
+    "report": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L8_lp4.rvt.load.json"
+   }
+  ],
+  "final": "experiments/convert_combo/B2_merge_rst_devonly/_stages/stage_L8_lp4.rvt",
+  "blocker": null,
+  "order": [
+   "MSB",
+   "DP-1",
+   "DP-2",
+   "LP-1",
+   "LP-2",
+   "LP-3",
+   "T1",
+   "LP-4"
+  ],
+  "loaded": {
+   "MSB": {
+    "symbol_id": 1472586,
+    "family_id": 1472568,
+    "content_guid": "37f14a10-6c6b-4a40-8063-5cd6912b9292"
+   },
+   "DP-1": {
+    "symbol_id": 1472645,
+    "family_id": 1472629,
+    "content_guid": "8b965119-b91d-4039-972b-d3f5fb04294c"
+   },
+   "DP-2": {
+    "symbol_id": 1472704,
+    "family_id": 1472688,
+    "content_guid": "dae7ecd4-58d5-4745-989e-30e20fbc9fbe"
+   },
+   "LP-1": {
+    "symbol_id": 1472763,
+    "family_id": 1472747,
+    "content_guid": "39c60e40-cad8-4e03-ac6a-497ab95aa560"
+   },
+   "LP-2": {
+    "symbol_id": 1472822,
+    "family_id": 1472806,
+    "content_guid": "68401973-7d9a-4971-bd6d-26c6d40cfbd7"
+   },
+   "LP-3": {
+    "symbol_id": 1472881,
+    "family_id": 1472865,
+    "content_guid": "ffed9559-057c-42ec-92cd-6c2129723b21"
+   },
+   "T1": {
+    "symbol_id": 1472935,
+    "family_id": 1472922,
+    "content_guid": "ac64cbe6-7cf7-4ac1-bc33-5afd4016caec"
+   },
+   "LP-4": {
+    "symbol_id": 1472994,
+    "family_id": 1472978,
+    "content_guid": "4deacfb5-5ab1-412b-b1f0-c7adfea9c9c1"
+   }
+  },
+  "n_loaded": 8,
+  "n_planned": 8
+ },
+ "mode": "stamp-proof-only",
+ "identity_note": "the output keeps the TARGET's own identity block (BasicFileInfo / history): this route EDITS the user's file, it does not re-author its identity; the P0 provenance gate does not apply a genesis-base ledger to a user-supplied target",
+ "seconds": 519.5,
+ "route": "ifc+rvt->rvt merge (rvt.convert.merge_ifc)",
+ "ifc": {
+  "path": "inputs/ifc/electrical-room-2500a.ifc",
+  "bytes": 686804,
+  "resolved_equipment": 12,
+  "resolved_walls": 4,
+  "incoming_bbox_pre_offset_m": {
+   "x": [
+    -4.709,
+    4.709
+   ],
+   "y": [
+    -3.351,
+    5.58
+   ]
+  }
+ },
+ "placement": {
+  "rule": "auto-disjoint: incoming content east of the target's bbox (+3.0 m margin, y-centred)",
+  "offset": {
+   "dx_m": 32.773,
+   "dy_m": -5.945,
+   "equip_dz_m": 0.0,
+   "equipment_translated": 12,
+   "walls_translated": 4,
+   "note": "clearance boxes / conduit runs (informational layers) are NOT translated; positions in the manifest are post-offset"
+  },
+  "level": {
+   "id": 311,
+   "elevation_ft": 0.0
+  },
+  "hosting": "free-standing placement at the intent's frames (certified shape); face-hosting follow-up"
+ },
+ "created_ids": [
+  1472568,
+  1472586,
+  1472629,
+  1472645,
+  1472688,
+  1472704,
+  1472747,
+  1472763,
+  1472806,
+  1472822,
+  1472865,
+  1472881,
+  1472922,
+  1472935,
+  1472978,
+  1472994,
+  1472996,
+  1472997,
+  1472998,
+  1472999,
+  1473000,
+  1473001,
+  1473002,
+  1473003,
+  1473004,
+  1473005,
+  1473006,
+  1473007
+ ],
+ "intent_summary": {
+  "project": "Electrical room - 2500 A service",
+  "source": "/Users/ck/dev/things/tekton/inputs/ifc/electrical-room-2500a.ifc",
+  "schema": "IFC4",
+  "levels": [
+   {
+    "id": "L1",
+    "name": "Level 1",
+    "elevation": 0.0
+   }
+  ],
+  "room": {
+   "name": "Electrical room shell",
+   "walls": 4,
+   "walls_synthesized": 1,
+   "doors": 2,
+   "ring_ccw": true,
+   "centerline_extents_m": {
+    "x": [
+     28.173000000000002,
+     37.373000000000005
+    ],
+    "y": [
+     -9.045,
+     -2.845
+    ]
+   }
+  },
+  "equipment_total": 12,
+  "equipment_by_kind": {
+   "ground_bus": 1,
+   "transformer": 1,
+   "switchboard": 1,
+   "distribution_panelboard": 2,
+   "lighting_panelboard": 3,
+   "receptacle_panelboard": 1,
+   "conduit_run": 1,
+   "service_entrance": 1,
+   "support": 1
+  },
+  "equipment": [
+   {
+    "tag": "TMGB",
+    "kind": "ground_bus",
+    "disposition": "recorded",
+    "insertion_m": [
+     33.673,
+     -2.977,
+     1.5
+    ],
+    "mounting": "wall",
+    "frame_kind": "upright"
+   },
+   {
+    "tag": "T1",
+    "kind": "transformer",
+    "disposition": "generated-family",
+    "insertion_m": [
+     35.473,
+     -3.47,
+     0.1
+    ],
+    "mounting": "floor",
+    "frame_kind": "yaw"
+   },
+   {
+    "tag": "MSB",
+    "kind": "switchboard",
+    "disposition": "generated-family",
+    "insertion_m": [
+     30.706,
+     -3.357,
+     0.1
+    ],
+    "mounting": "floor",
+    "frame_kind": "yaw"
+   },
+   {
+    "tag": "DP-1",
+    "kind": "distribution_panelboard",
+    "disposition": "generated-family",
+    "insertion_m": [
+     28.318,
+     -4.245,
+     1.314
+    ],
+    "mounting": "surface",
+    "frame_kind": "upright"
+   },
+   {
+    "tag": "LP-1",
+    "kind": "lighting_panelboard",
+    "disposition": "generated-family",
+    "insertion_m": [
+     28.318,
+     -5.395,
+     1.543
+    ],
+    "mounting": "surface",
+    "frame_kind": "upright"
+   },
+   {
+    "tag": "LP-2",
+    "kind": "lighting_panelboard",
+    "disposition": "generated-family",
+    "insertion_m": [
+     28.318,
+     -6.495,
+     1.543
+    ],
+    "mounting": "surface",
+    "frame_kind": "upright"
+   },
+   {
+    "tag": "DP-2",
+    "kind": "distribution_panelboard",
+    "disposition": "generated-family",
+    "insertion_m": [
+     37.228,
+     -4.245,
+     1.314
+    ],
+    "mounting": "surface",
+    "frame_kind": "upright"
+   },
+   {
+    "tag": "LP-3",
+    "kind": "lighting_panelboard",
+    "disposition": "generated-family",
+    "insertion_m": [
+     37.228,
+     -5.395,
+     1.543
+    ],
+    "mounting": "surface",
+    "frame_kind": "upright"
+   },
+   {
+    "tag": "LP-4",
+    "kind": "receptacle_panelboard",
+    "disposition": "generated-family",
+    "insertion_m": [
+     37.228,
+     -6.495,
+     1.543
+    ],
+    "mounting": "surface",
+    "frame_kind": "upright"
+   },
+   {
+    "tag": "CONDUIT",
+    "kind": "conduit_run",
+    "disposition": "recorded",
+    "insertion_m": [
+     32.783,
+     -4.861,
+     1.233
+    ],
+    "mounting": "floor",
+    "frame_kind": "yaw"
+   },
+   {
+    "tag": "SERVICE",
+    "kind": "service_entrance",
+    "disposition": "recorded",
+    "insertion_m": [
+     28.948,
+     -3.125,
+     2.386
+    ],
+    "mounting": "floor",
+    "frame_kind": "yaw"
+   },
+   {
+    "tag": "HANGERS",
+    "kind": "support",
+    "disposition": "recorded",
+    "insertion_m": [
+     32.773,
+     -4.495,
+     2.775
+    ],
+    "mounting": "floor",
+    "frame_kind": "yaw"
+   }
+  ],
+  "feeder_edges": [
+   {
+    "from": "MSB",
+    "to": "T1",
+    "kind": "primary",
+    "rating_a": 180.4,
+    "voltage": "480 V delta"
+   },
+   {
+    "from": "MSB",
+    "to": "DP-1",
+    "kind": "feeder",
+    "rating_a": 400.0,
+    "voltage": "480Y/277 V"
+   },
+   {
+    "from": "MSB",
+    "to": "LP-1",
+    "kind": "feeder",
+    "rating_a": 100.0,
+    "voltage": "480Y/277 V"
+   },
+   {
+    "from": "MSB",
+    "to": "LP-2",
+    "kind": "feeder",
+    "rating_a": 100.0,
+    "voltage": "480Y/277 V"
+   },
+   {
+    "from": "MSB",
+    "to": "DP-2",
+    "kind": "feeder",
+    "rating_a": 400.0,
+    "voltage": "480Y/277 V"
+   },
+   {
+    "from": "MSB",
+    "to": "LP-3",
+    "kind": "feeder",
+    "rating_a": 100.0,
+    "voltage": "480Y/277 V"
+   },
+   {
+    "from": "T1",
+    "to": "LP-4",
+    "kind": "secondary",
+    "rating_a": 225.0,
+    "voltage": "208Y/120 V"
+   },
+   {
+    "from": "UTILITY",
+    "to": "MSB",
+    "kind": "service",
+    "rating_a": null,
+    "voltage": null
+   }
+  ],
+  "family_plans_by_status": {
+   "unmapped": 4,
+   "resolved": 7,
+   "house": 1
+  },
+  "family_plans": [
+   {
+    "tag": "TMGB",
+    "kind": "ground_bus",
+    "status": "unmapped",
+    "constructor": null,
+    "variant": null,
+    "catalog": null,
+    "refusal": "no house generator for a ground bus bar (a small generic-model family is the follow-up; the TMGB is a detail component, not equipment) -- recorded only"
+   },
+   {
+    "tag": "T1",
+    "kind": "transformer",
+    "status": "resolved",
+    "constructor": "make_transformer",
+    "variant": "V48M28T4916",
+    "catalog": "eaton/dry-type-transformers",
+    "refusal": null
+   },
+   {
+    "tag": "MSB",
+    "kind": "switchboard",
+    "status": "house",
+    "constructor": "make_house_switchboard",
+    "variant": null,
+    "catalog": null,
+    "refusal": "FactoryError: no sizing rows for 2500.0 A mains; tabulated: [100.0, 225.0, 400.0, 600.0]"
+   },
+   {
+    "tag": "DP-1",
+    "kind": "distribution_panelboard",
+    "status": "resolved",
+    "constructor": "make_panelboard",
+    "variant": "PRL2X",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "refusal": null
+   },
+   {
+    "tag": "LP-1",
+    "kind": "lighting_panelboard",
+    "status": "resolved",
+    "constructor": "make_panelboard",
+    "variant": "PRL2X",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "refusal": null
+   },
+   {
+    "tag": "LP-2",
+    "kind": "lighting_panelboard",
+    "status": "resolved",
+    "constructor": "make_panelboard",
+    "variant": "PRL2X",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "refusal": null
+   },
+   {
+    "tag": "DP-2",
+    "kind": "distribution_panelboard",
+    "status": "resolved",
+    "constructor": "make_panelboard",
+    "variant": "PRL2X",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "refusal": null
+   },
+   {
+    "tag": "LP-3",
+    "kind": "lighting_panelboard",
+    "status": "resolved",
+    "constructor": "make_panelboard",
+    "variant": "PRL2X",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "refusal": null
+   },
+   {
+    "tag": "LP-4",
+    "kind": "receptacle_panelboard",
+    "status": "resolved",
+    "constructor": "make_panelboard",
+    "variant": "PRL1X",
+    "catalog": "eaton/pow-r-line-panelboards",
+    "refusal": null
+   },
+   {
+    "tag": "CONDUIT",
+    "kind": "conduit_run",
+    "status": "unmapped",
+    "constructor": null,
+    "variant": null,
+    "catalog": null,
+    "refusal": "conduit RUNS are rvt.mep.conduit territory (add_conduit_path over the recorded polyline); needs conduit types in the base -- recorded as run geometry, omitted from v1"
+   },
+   {
+    "tag": "SERVICE",
+    "kind": "service_entrance",
+    "status": "unmapped",
+    "constructor": null,
+    "variant": null,
+    "catalog": null,
+    "refusal": "utility service entrance: external source -- recorded as the SERVICE edge of the feeder tree"
+   },
+   {
+    "tag": "HANGERS",
+    "kind": "support",
+    "status": "unmapped",
+    "constructor": null,
+    "variant": null,
+    "catalog": null,
+    "refusal": "trapeze hangers / clevis supports = detailing (supports stream); recorded, omitted from the project file"
+   }
+  ],
+  "clearances": 8,
+  "audit": {
+   "equipment_with_geometry": 12,
+   "positions_all_zero": false,
+   "equipment_inside_room_ring": "12/12",
+   "feeder_edges": 8,
+   "feeder_edges_corroborated": 7,
+   "feeder_roots_external": [
+    "UTILITY"
+   ],
+   "load_equipment_unfed": [],
+   "non_load_products": [
+    "CONDUIT",
+    "HANGERS",
+    "SERVICE",
+    "TMGB"
+   ]
+  }
+ },
+ "tool": "tekton convert (rvt.convert)",
+ "tool_version": "1.0.0",
+ "written_at": "2026-08-05T04:44:14Z",
+ "deliverables": {
+  "combined": {
+   "path": "experiments/convert_combo/B2_merge_rst_devonly/B2_room_into_rst.rvt",
+   "bytes": 6766592,
+   "sha256": "b85a7785a037497df67ed6f7750f1929fdcbec5bd175bbc3b6ab6ce92d735462"
+  }
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "name": "D_2024_vendor_datastorage",
+ "ids": [
+  1382860
+ ],
+ "policy": "maxgc",
+ "purpose": "genesis-base",
+ "notes": [
+  "the vendor Extensible-Storage DataStorage blob: zero referrers (leaf) -- maxgc-proven pin-free."
+ ]
+}

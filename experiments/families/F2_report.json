@@ -1,0 +1,146 @@
+{
+ "src": "/Users/ck/dev/things/rev-revit/vendor/phi-ag-rvt/examples/Autodesk/racbasicsamplefamily-2026.rfa",
+ "out": "/Users/ck/dev/things/rev-revit/experiments/families/F2_rfa_type_param_edit.rfa",
+ "streams": [
+  {
+   "name": "BasicFileInfo",
+   "action": "copied",
+   "size": 2167
+  },
+  {
+   "name": "Contents",
+   "action": "re-gzip + real ECC",
+   "logical": 187,
+   "size": 236
+  },
+  {
+   "name": "Formats/Latest",
+   "action": "re-gzip + real ECC",
+   "logical": 181542,
+   "size": 182953
+  },
+  {
+   "name": "Global/ContentDocuments",
+   "action": "re-gzip + real ECC",
+   "logical": 43,
+   "size": 82
+  },
+  {
+   "name": "Global/DocumentIncrementTable",
+   "action": "re-gzip + real ECC",
+   "logical": 1991,
+   "size": 2072
+  },
+  {
+   "name": "Global/ElemTable",
+   "action": "re-gzip + real ECC",
+   "logical": 9847,
+   "size": 9945
+  },
+  {
+   "name": "Global/History",
+   "action": "re-gzip + real ECC",
+   "logical": 2276,
+   "size": 2357
+  },
+  {
+   "name": "Global/Latest",
+   "action": "re-gzip + real ECC",
+   "logical": 85329,
+   "size": 85975
+  },
+  {
+   "name": "Global/PartitionTable",
+   "action": "re-gzip + real ECC",
+   "logical": 138,
+   "size": 187
+  },
+  {
+   "name": "PartAtom",
+   "action": "copied",
+   "size": 4046
+  },
+  {
+   "name": "Partitions/69",
+   "action": "records re-encoded, re-blocked, real ECC",
+   "logical": 145102,
+   "size": 145903
+  },
+  {
+   "name": "RevitPreview4.0",
+   "action": "copied",
+   "size": 1368
+  },
+  {
+   "name": "TransmissionData",
+   "action": "copied",
+   "size": 2294
+  }
+ ],
+ "edits": [
+  {
+   "self_family_id": 17,
+   "class_id": 1967,
+   "record_offset": 129279,
+   "record_len": 26535,
+   "old_stamp": 3935391679,
+   "new_stamp": 3522383392,
+   "bytes_changed": 10,
+   "changed": [
+    {
+     "where": "type['0610 x 0160mm']",
+     "old": 2.001312335958005,
+     "new": 3.0
+    }
+   ]
+  }
+ ],
+ "reencode": {
+  "101": {
+   "records": 1993,
+   "reencoded": 1992,
+   "passthrough": 0,
+   "tail": 0,
+   "identical_to_original": true,
+   "length_preserved": true
+  },
+  "102": {
+   "records": 1993,
+   "reencoded": 1992,
+   "passthrough": 0,
+   "tail": 0,
+   "identical_to_original": true,
+   "length_preserved": true
+  },
+  "103": {
+   "records": 1993,
+   "reencoded": 1992,
+   "passthrough": 0,
+   "tail": 0,
+   "identical_to_original": true,
+   "length_preserved": true
+  }
+ },
+ "size": 462848,
+ "verify": {
+  "path": "/Users/ck/dev/things/rev-revit/experiments/families/F2_rfa_type_param_edit.rfa",
+  "gzip_members": 18,
+  "gzip_crc_failures": 0,
+  "ecc_full_pages": 5,
+  "ecc_mismatch": 0,
+  "walker_errors": [],
+  "n_units": 1,
+  "record_counts": {
+   "101": 1993,
+   "102": 1993,
+   "103": 1993
+  },
+  "decode_seq102": {
+   "records": 1992,
+   "clean": 1992,
+   "error_classes": {}
+  },
+  "ids_match_source": true,
+  "ok": true
+ }
+}

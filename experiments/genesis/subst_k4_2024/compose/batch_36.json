@@ -1,0 +1,64 @@
+{
+ "batch": 36,
+ "created": "2026-08-05T02:01:12-05:00",
+ "tool": "tools/probe_batch.py",
+ "law": "every entry's declared base is ITSELF in viewer-certified.json 'certified' (or is an Autodesk sample source); the batch carries >= 1 CONTROL = a byte-identical copy of a certified file; read the round with read_batch_verdicts(): control FAIL => every verdict VOID",
+ "ledger": "docs/coverage/viewer-certified.json",
+ "control_count": 1,
+ "note": "2024 compose round (the charter's four-file bisection): control = byte-identical copy of the CERTIFIED 2024 family-free base B2024_K4; candidate-bases = G_ABPD_2024 (the full composed 2024 candidate), Y9_2024 (deepest views rung) and Y7_2024 (deepest settings rung), bisection-first.  Batch number = 1 + the highest batch_N.json anywhere under experiments/.  Read with probe_batch.read_batch_verdicts; control FAIL voids the round.",
+ "reading_order": [
+  "CTRL_B2024_K4_b36.rvt",
+  "G_ABPD_2024.rvt",
+  "Y9_2024.rvt",
+  "Y7_2024.rvt"
+ ],
+ "entries": [
+  {
+   "order": 0,
+   "file": "experiments/genesis/subst_k4_2024/compose/CTRL_B2024_K4_b36.rvt",
+   "staged_as": "experiments/genesis/subst_k4_2024/compose/CTRL_B2024_K4_b36.rvt",
+   "md5": "b953513bf80a963021b7de8e96d1be9d",
+   "kind": "control",
+   "control": true,
+   "control_source": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "base_certification": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  },
+  {
+   "order": 1,
+   "file": "experiments/genesis/subst_k4_2024/compose/G_ABPD_2024.rvt",
+   "staged_as": "experiments/genesis/subst_k4_2024/compose/G_ABPD_2024.rvt",
+   "md5": "3797961599d17d307d5f223d2ce02464",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4_2024/compose/probes.json entry 'G_ABPD_2024' field 'base'",
+   "base_status": "certified (lineage informational only for a candidate-base)",
+   "base_certification": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  },
+  {
+   "order": 2,
+   "file": "experiments/genesis/subst_k4_2024/Y9_2024.rvt",
+   "staged_as": "experiments/genesis/subst_k4_2024/compose/Y9_2024.rvt",
+   "md5": "b4bc6df0cfcebbd2c5c69c9d76f03398",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4_2024/probes.json entry 'Y9_2024' field 'base'",
+   "base_status": "certified (lineage informational only for a candidate-base)",
+   "base_certification": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  },
+  {
+   "order": 3,
+   "file": "experiments/genesis/subst_k4_2024/Y7_2024.rvt",
+   "staged_as": "experiments/genesis/subst_k4_2024/compose/Y7_2024.rvt",
+   "md5": "668a419d5e3b29fb2fa9c906e3d023fb",
+   "kind": "candidate-base",
+   "control": false,
+   "base": "experiments/genesis2024/reduce/B2024_K4.rvt",
+   "base_declared_by": "experiments/genesis/subst_k4_2024/probes.json entry 'Y7_2024' field 'base'",
+   "base_status": "certified (lineage informational only for a candidate-base)",
+   "base_certification": "THE 2024 FAMILY-FREE BASE CERTIFIED (3,295 elements) \u2014 every roster release now has a certified base"
+  }
+ ]
+}

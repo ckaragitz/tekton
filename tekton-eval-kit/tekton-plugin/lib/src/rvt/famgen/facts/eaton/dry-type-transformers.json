@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "vendor": "eaton",
+  "line": "dry-type-transformers",
+  "product_line": "Eaton 600 V class DOE 2016 energy-efficient general-purpose ventilated dry-type distribution transformers (Type DT-3), aluminum windings, three-phase 480 delta - 208Y/120 V",
+  "category": "transformer",
+  "revit_category": "OST_ElectricalEquipment",
+  "license_note": "Dimensional and rating FACTS only (kVA, frame, W/H/D, weight, enclosure type, clearances). No Eaton drawings, CAD/BIM files, catalog prose or images are stored. See ../LICENSE_NOTES.md.",
+  "collection_posture": {
+    "summary": "eaton.com blocks scripted clients. Facts were read from Eaton's own catalog Volume 2 Tab 2 'Transformers' (CA08100003E, August 2017) hosted as a PDF by an electrical distributor. One manual-equivalent read; factual figures only (Feist basis).",
+    "primary_reachable": false,
+    "method": "single WebFetch of the distributor-hosted PDF + local text extraction; figures transcribed by hand"
+  },
+  "sources": {
+    "S1": {
+      "url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf",
+      "canonical_url": "https://www.eaton.com/us/en-us/products/low-voltage-power-distribution-control-systems/transformers.html",
+      "doc": "Eaton Volume 2 - Commercial Distribution, Tab 2 'Transformers', CA08100003E, August 2017 (pages V2-T2-1 .. V2-T2-2xx; product selection tables + 'Dimensions' V2-T2-204)",
+      "publisher": "Eaton",
+      "doc_date": "2017-08",
+      "accessed": "2026-08-03",
+      "verification": "VERIFIED",
+      "note": "Read: Three-Phase Type DT-3 DOE 2016 aluminum 480 Delta - 208Y/120 selection table (kVA / temp rise / frame / weight / weathershield kit / wall-mount bracket / catalog number); Frame dimension table (Height / Width / Length); Technical Data (frequency, enclosures, overload, sound levels statement)."
+    }
+  },
+  "line_facts": {
+    "frequency_hz": {"value": 60, "provenance": "fact", "source": "S1", "note": "Standard low-voltage dry-type distribution transformers are designed for 60 Hz; other frequencies are specifically designed."},
+    "efficiency_standard": {"value": "DOE 2016 (10 CFR Part 431)", "provenance": "fact", "source": "S1", "note": ""},
+    "enclosure_indoor": {"value": "NEMA 2 (drip-proof) ventilated, standard", "provenance": "fact", "source": "S1", "note": "Types DS-3 and DT-3 use a NEMA 2 rated (drip-proof) enclosure as standard."},
+    "enclosure_outdoor": {"value": "NEMA 3R with weathershields", "provenance": "fact", "source": "S1", "note": "Rated NEMA 3R with the addition of weathershields (WS57..WS62 kits by frame)."},
+    "install_clearance_side_rear_in": {"value": 2, "unit": "in", "provenance": "fact", "source": "S1", "note": "Enclosures 939/940/942/943/944/945 are UL Listed to be installed indoors (without weathershields) with just 2 inches of clearance on the sides and behind the transformer."},
+    "windings": {"value": "aluminum standard (aluminum terminals); copper models have copper terminals", "provenance": "fact", "source": "S1", "note": ""},
+    "sound_levels": {"value": "meet NEMA ST-20 sound levels (measured in a soundproof environment; installed level can be as much as 15 dB higher)", "provenance": "fact", "source": "S1", "note": "Per-kVA dB values not transcribed."},
+    "overload_capability": {"value": "200% for one-half hour, 150% for one hour, 125% for four hours (ANSI, with 50% preload)", "provenance": "fact", "source": "S1", "note": "ANSI C57.96 short-term overload."},
+    "temperature_rise_options_c": {"value": [150, 115, 80], "provenance": "fact", "source": "S1", "note": "150 C standard (V48M28T....); 115 C (V48M28F....) and 80 C low-rise options are tabulated in the same catalog family. 80 C variants observed in adjacent tables; only 150 and 115 rows are transcribed here."},
+    "front_working_clearance_in": {"value": 36, "unit": "in", "provenance": "assumed", "source": null, "note": "NEC 110.26 working-space depth for 0-150 V-to-ground live parts on one side is 36 in - a CODE requirement (not a manufacturer fact); flagged 'assumed' because the code text was not re-read this session. The generated family exposes it as a clearance zone parameter."}
+  },
+  "frames": {
+    "note": "Frame outside dimensions from the catalog 'Dimensions' table (Frame / Drawing Number / Height / Width / Length); Length = depth front-to-back. 'Frames (dimensions and weights) subject to revision.'",
+    "provenance": "fact",
+    "source": "S1",
+    "table": {
+      "FR939": {"h_in": 28.00, "w_in": 21.88, "d_in": 17.75, "h_mm": 711, "w_mm": 556, "d_mm": 451, "drawing": 4},
+      "FR940": {"h_in": 36.88, "w_in": 24.88, "d_in": 21.13, "h_mm": 937, "w_mm": 632, "d_mm": 537, "drawing": 5},
+      "FR942": {"h_in": 43.00, "w_in": 30.50, "d_in": 24.00, "h_mm": 1092, "w_mm": 775, "d_mm": 610, "drawing": 5},
+      "FR943": {"h_in": 51.00, "w_in": 34.50, "d_in": 31.50, "h_mm": 1295, "w_mm": 876, "d_mm": 800, "drawing": 5},
+      "FR944": {"h_in": 60.00, "w_in": 38.00, "d_in": 33.50, "h_mm": 1524, "w_mm": 965, "d_mm": 851, "drawing": 5},
+      "FR945": {"h_in": 66.18, "w_in": 42.18, "d_in": 33.50, "h_mm": 1681, "w_mm": 1071, "d_mm": 851, "drawing": 5}
+    }
+  },
+  "variants": [
+    {
+      "model": "V48M28T1516",
+      "aliases": ["Eaton 15 kVA 480D-208Y/120 dry-type"],
+      "role": "15 kVA, 3-phase, 480 delta - 208Y/120 V, 150 C rise, aluminum",
+      "ratings": {"kva": 15, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "temp_rise_c": 150, "frequency_hz": 60, "windings": "aluminum", "weight_lb": 225, "weight_kg": 102, "frame": "FR939", "wiring_diagram": "280B", "weathershield_kit": "WS57", "wall_mount_bracket": "WMB05"},
+      "dims_in": {"w": 21.88, "h": 28.00, "d": 17.75},
+      "options": {"nema_types": ["2 (indoor, standard)", "3R (with weathershield WS57)"], "mounting": ["floor", "wall (WMB05 bracket)"]},
+      "source": {"url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 2 (Aug 2017) - Three-Phase Type DT-3 DOE 2016 aluminum 480 Delta-208Y/120 table + frame dimensions", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.temp_rise_c": "fact", "ratings.frequency_hz": "fact", "ratings.windings": "fact", "ratings.weight_lb": "fact", "ratings.weight_kg": "fact", "ratings.frame": "fact", "ratings.wiring_diagram": "fact", "ratings.weathershield_kit": "fact", "ratings.wall_mount_bracket": "fact",
+        "dims_in.w": "fact", "dims_in.h": "fact", "dims_in.d": "fact",
+        "options.nema_types": "fact", "options.mounting": "fact"
+      },
+      "notes": ""
+    },
+    {
+      "model": "V48M28T3016",
+      "aliases": ["Eaton 30 kVA 480D-208Y/120 dry-type"],
+      "role": "30 kVA, 3-phase, 480 delta - 208Y/120 V, 150 C rise, aluminum",
+      "ratings": {"kva": 30, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "temp_rise_c": 150, "frequency_hz": 60, "windings": "aluminum", "weight_lb": 409, "weight_kg": 186, "frame": "FR940", "weathershield_kit": "WS58", "wall_mount_bracket": "WMB05"},
+      "dims_in": {"w": 24.88, "h": 36.88, "d": 21.13},
+      "options": {"nema_types": ["2 (indoor, standard)", "3R (with weathershield WS58)"], "mounting": ["floor", "wall (WMB05 bracket)"]},
+      "source": {"url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 2 (Aug 2017)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.temp_rise_c": "fact", "ratings.frequency_hz": "fact", "ratings.windings": "fact", "ratings.weight_lb": "fact", "ratings.weight_kg": "fact", "ratings.frame": "fact", "ratings.weathershield_kit": "fact", "ratings.wall_mount_bracket": "fact",
+        "dims_in.w": "fact", "dims_in.h": "fact", "dims_in.d": "fact",
+        "options.nema_types": "fact", "options.mounting": "fact"
+      },
+      "notes": "Weights 409 lb (30 kVA) / 416 lb (45 kVA) share frame FR940."
+    },
+    {
+      "model": "V48M28T4516",
+      "aliases": ["Eaton 45 kVA 480D-208Y/120 dry-type"],
+      "role": "45 kVA, 3-phase, 480 delta - 208Y/120 V, 150 C rise, aluminum",
+      "ratings": {"kva": 45, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "temp_rise_c": 150, "frequency_hz": 60, "windings": "aluminum", "weight_lb": 416, "weight_kg": 189, "frame": "FR940", "weathershield_kit": "WS58", "wall_mount_bracket": "WMB05"},
+      "dims_in": {"w": 24.88, "h": 36.88, "d": 21.13},
+      "options": {"nema_types": ["2 (indoor, standard)", "3R (with weathershield WS58)"], "mounting": ["floor", "wall (WMB05 bracket)"]},
+      "source": {"url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 2 (Aug 2017)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.temp_rise_c": "fact", "ratings.frequency_hz": "fact", "ratings.windings": "fact", "ratings.weight_lb": "fact", "ratings.weight_kg": "fact", "ratings.frame": "fact", "ratings.weathershield_kit": "fact", "ratings.wall_mount_bracket": "fact",
+        "dims_in.w": "fact", "dims_in.h": "fact", "dims_in.d": "fact",
+        "options.nema_types": "fact", "options.mounting": "fact"
+      },
+      "notes": ""
+    },
+    {
+      "model": "V48M28T7516",
+      "aliases": ["Eaton 75 kVA 480D-208Y/120 dry-type"],
+      "role": "75 kVA, 3-phase, 480 delta - 208Y/120 V, 150 C rise, aluminum",
+      "ratings": {"kva": 75, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "temp_rise_c": 150, "frequency_hz": 60, "windings": "aluminum", "weight_lb": 570, "weight_kg": 259, "frame": "FR942", "weathershield_kit": "WS59", "wall_mount_bracket": "WMB04"},
+      "dims_in": {"w": 30.50, "h": 43.00, "d": 24.00},
+      "options": {"nema_types": ["2 (indoor, standard)", "3R (with weathershield WS59)"], "mounting": ["floor", "wall (WMB04 bracket)"]},
+      "source": {"url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 2 (Aug 2017)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.temp_rise_c": "fact", "ratings.frequency_hz": "fact", "ratings.windings": "fact", "ratings.weight_lb": "fact", "ratings.weight_kg": "fact", "ratings.frame": "fact", "ratings.weathershield_kit": "fact", "ratings.wall_mount_bracket": "fact",
+        "dims_in.w": "fact", "dims_in.h": "fact", "dims_in.d": "fact",
+        "options.nema_types": "fact", "options.mounting": "fact"
+      },
+      "notes": ""
+    },
+    {
+      "model": "V48M28T1216",
+      "aliases": ["Eaton 112.5 kVA 480D-208Y/120 dry-type"],
+      "role": "112.5 kVA, 3-phase, 480 delta - 208Y/120 V, 150 C rise, aluminum",
+      "ratings": {"kva": 112.5, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "temp_rise_c": 150, "frequency_hz": 60, "windings": "aluminum", "weight_lb": 976, "weight_kg": 443, "frame": "FR943", "weathershield_kit": "WS60", "wall_mount_bracket": "WMB04"},
+      "dims_in": {"w": 34.50, "h": 51.00, "d": 31.50},
+      "options": {"nema_types": ["2 (indoor, standard)", "3R (with weathershield WS60)"], "mounting": ["floor", "wall (WMB04 bracket)"]},
+      "source": {"url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 2 (Aug 2017)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.temp_rise_c": "fact", "ratings.frequency_hz": "fact", "ratings.windings": "fact", "ratings.weight_lb": "fact", "ratings.weight_kg": "fact", "ratings.frame": "fact", "ratings.weathershield_kit": "fact", "ratings.wall_mount_bracket": "fact",
+        "dims_in.w": "fact", "dims_in.h": "fact", "dims_in.d": "fact",
+        "options.nema_types": "fact", "options.mounting": "fact"
+      },
+      "notes": ""
+    },
+    {
+      "model": "V48M28T4916",
+      "aliases": ["Eaton 150 kVA 480D-208Y/120 dry-type"],
+      "role": "150 kVA, 3-phase, 480 delta - 208Y/120 V, 150 C rise, aluminum",
+      "ratings": {"kva": 150, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "temp_rise_c": 150, "frequency_hz": 60, "windings": "aluminum", "weight_lb": 1239, "weight_kg": 563, "frame": "FR943", "weathershield_kit": "WS60", "wall_mount_bracket": "WMB04"},
+      "dims_in": {"w": 34.50, "h": 51.00, "d": 31.50},
+      "options": {"nema_types": ["2 (indoor, standard)", "3R (with weathershield WS60)"], "mounting": ["floor", "wall (WMB04 bracket)"]},
+      "source": {"url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 2 (Aug 2017)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.temp_rise_c": "fact", "ratings.frequency_hz": "fact", "ratings.windings": "fact", "ratings.weight_lb": "fact", "ratings.weight_kg": "fact", "ratings.frame": "fact", "ratings.weathershield_kit": "fact", "ratings.wall_mount_bracket": "fact",
+        "dims_in.w": "fact", "dims_in.h": "fact", "dims_in.d": "fact",
+        "options.nema_types": "fact", "options.mounting": "fact"
+      },
+      "notes": ""
+    },
+    {
+      "model": "V48M28T2216",
+      "aliases": ["Eaton 225 kVA 480D-208Y/120 dry-type"],
+      "role": "225 kVA, 3-phase, 480 delta - 208Y/120 V, 150 C rise, aluminum",
+      "ratings": {"kva": 225, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "temp_rise_c": 150, "frequency_hz": 60, "windings": "aluminum", "weight_lb": 1624, "weight_kg": 737, "frame": "FR944", "weathershield_kit": "WS61", "wall_mount_bracket": "not offered (floor mount)"},
+      "dims_in": {"w": 38.00, "h": 60.00, "d": 33.50},
+      "options": {"nema_types": ["2 (indoor, standard)", "3R (with weathershield WS61)"], "mounting": ["floor"]},
+      "source": {"url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 2 (Aug 2017)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.temp_rise_c": "fact", "ratings.frequency_hz": "fact", "ratings.windings": "fact", "ratings.weight_lb": "fact", "ratings.weight_kg": "fact", "ratings.frame": "fact", "ratings.weathershield_kit": "fact", "ratings.wall_mount_bracket": "fact",
+        "dims_in.w": "fact", "dims_in.h": "fact", "dims_in.d": "fact",
+        "options.nema_types": "fact", "options.mounting": "fact"
+      },
+      "notes": "No wall-mount bracket listed (floor-mounted at this size)."
+    },
+    {
+      "model": "V48M28T3316",
+      "aliases": ["Eaton 300 kVA 480D-208Y/120 dry-type"],
+      "role": "300 kVA, 3-phase, 480 delta - 208Y/120 V, 150 C rise, aluminum",
+      "ratings": {"kva": 300, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "temp_rise_c": 150, "frequency_hz": 60, "windings": "aluminum", "weight_lb": 2283, "weight_kg": 1036, "frame": "FR945", "weathershield_kit": "WS62", "wall_mount_bracket": "not offered (floor mount)"},
+      "dims_in": {"w": 42.18, "h": 66.18, "d": 33.50},
+      "options": {"nema_types": ["2 (indoor, standard)", "3R (with weathershield WS62)"], "mounting": ["floor"]},
+      "source": {"url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 2 (Aug 2017)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.temp_rise_c": "fact", "ratings.frequency_hz": "fact", "ratings.windings": "fact", "ratings.weight_lb": "fact", "ratings.weight_kg": "fact", "ratings.frame": "fact", "ratings.weathershield_kit": "fact", "ratings.wall_mount_bracket": "fact",
+        "dims_in.w": "fact", "dims_in.h": "fact", "dims_in.d": "fact",
+        "options.nema_types": "fact", "options.mounting": "fact"
+      },
+      "notes": ""
+    },
+    {
+      "model": "V48M28T5516",
+      "aliases": ["Eaton 500 kVA 480D-208Y/120 dry-type"],
+      "role": "500 kVA, 3-phase, 480 delta - 208Y/120 V, 150 C rise, aluminum",
+      "ratings": {"kva": 500, "phase": 3, "primary_v": "480 delta", "secondary_v": "208Y/120", "temp_rise_c": 150, "frequency_hz": 60, "windings": "aluminum", "weight_lb": null, "frame": null},
+      "dims_in": {"w": null, "h": null, "d": null},
+      "options": {"nema_types": ["2 (indoor)", "3R"], "mounting": ["floor"]},
+      "source": {"url": "https://www.elliottelectric.com/Media/S10N04P51P-ETN-2-1-SpecificationSheet.pdf", "doc": "Eaton CA08100003E Vol 2 Tab 2 (Aug 2017)", "accessed": "2026-08-03"},
+      "field_provenance": {
+        "ratings.kva": "fact", "ratings.phase": "fact", "ratings.primary_v": "fact", "ratings.secondary_v": "fact", "ratings.temp_rise_c": "fact", "ratings.frequency_hz": "fact", "ratings.windings": "fact", "ratings.weight_lb": "assumed", "ratings.frame": "assumed",
+        "dims_in.w": "assumed", "dims_in.h": "assumed", "dims_in.d": "assumed",
+        "options.nema_types": "assumed", "options.mounting": "assumed"
+      },
+      "notes": "Catalog row reads 'Contact local Eaton representative' for 500-1000 kVA (V48M28T5516, V48D28T7716, V48D28T1116): NO dimensions or weights published in this table - left null on purpose. Never emit dimensions for 500 kVA without a sourced value."
+    }
+  ]
+}
