@@ -40,21 +40,36 @@ for QA. Read this file fully before touching anything; then read
    reduction.
 6. **Keep this repo private.** It carries counsel-review material (see
    `docs/product/COUNSEL-BRIEF.md`: author strings C1, the per-release
-   schema/ESSchema corpora C4, footer token C5). Nothing here goes to a
-   public remote.
+   schema/ESSchema corpora C4, footer token C5, trademark). Nothing here
+   goes to a public remote. Leave `PRODUCT_AUTHOR_PLACEHOLDER = "rvt-writer"`
+   in `src/rvt/identity.py` alone; never echo "Autodesk Revit" or a
+   template's identity as *our* author string.
+7. **No Autodesk APS / Design Automation.** Decided twice by the owner; do
+   not re-propose it. The writer is our own native binary writer.
+8. **If an automated task/charter is declined by a policy layer, surface it
+   to the owner verbatim — never reword to get around it.**
 
 ## 2. Setup and the commands you'll actually use
 
 ```bash
-python3.11 -m venv .venv && .venv/bin/pip install -e .   # package name: rvt (src/rvt)
-.venv/bin/python -m pytest tests/test_frontdoor.py -q     # ALWAYS run python from repo root via .venv
+uv venv .venv && uv pip install --python .venv/bin/python -e .          # package: rvt (src layout); only declared dep is olefile
+uv pip install --python .venv/bin/python pytest numpy                   # test/geometry extras are NOT declared in pyproject
+uv pip install --python .venv/bin/python ifcopenshell                   # OPTIONAL: IFC *authoring* only; IFC reading has a stdlib fallback (steplite)
+.venv/bin/python -m pytest tests/test_frontdoor.py -q                   # ALWAYS run python from repo root via .venv/bin/python
 ```
+(Plain `python3.11 -m venv .venv && .venv/bin/pip install -e . pytest numpy` also works; the checked-in `.venv` on the owner's machine is uv-built and has no `pip` inside.)
 
-- **Tests:** the full suite is ~1,700 tests and takes ~25 min; **do not run
-  it casually or concurrently** (see `docs/inbox/SUITE-COORDINATION.md` —
-  one canonical run at a time; contributors run their *stream-local* test
-  files). `RVT_SKIP_LARGE=1` skips sample-size cases. Some tests
-  self-skip when `samples/` is absent — that's expected in a fresh clone.
+- **Tests:** the full suite is ~1,700 tests / ~25 min (last canonical:
+  1697 passed / 7 failed / 2 skipped); **do not run it casually or
+  concurrently** (`docs/inbox/SUITE-COORDINATION.md` — one canonical run at
+  a time; contributors run their *stream-local* files:
+  `.venv/bin/python -m pytest tests/test_<yours>.py -q`). `RVT_SKIP_LARGE=1`
+  skips `@slow` large-file cases. Many tests self-skip when `samples/` or
+  built ladders are absent — expected in a fresh clone. After any engine or
+  tools change also run `tests/test_plugin_sync.py` + `tools/sync_plugin.py --check`.
+- **Validate every output you produce:**
+  `.venv/bin/python tools/rvt_validate.py out.rvt --json out.validation.json`
+  — 0 errors required (necessary, *not* sufficient — rule 4).
 - **The front door** (one entrypoint, three inputs — exactly one of
   `--prompt` / `--ifc` / `--rvt --edit`):
   ```bash
@@ -73,9 +88,22 @@ python3.11 -m venv .venv && .venv/bin/pip install -e .   # package name: rvt (sr
   don't commit). `--check` = report drift only, exit 1 on any. **Run it
   after every change under `src/` or `skills/`** — the plugin ships source
   copies.
-- **Viewer rounds:** `tools/probe_batch.py` (stage/check batches; the
-  orchestrating human/session uploads), `tools/serve_acceptance.py`
-  (serves `experiments/acceptance/` on 127.0.0.1:8765 for browser upload).
+- **Viewer rounds:** `tools/probe_batch.py {check,stage,resolve,verdicts,retro}`
+  gates a batch (certified base + byte-identical control) and stages it
+  into `experiments/acceptance/`; **streams STAGE only and stop at READY —
+  the orchestrating human/session uploads and records verdicts.**
+  `tools/serve_acceptance.py [PORT]` serves that dir on 127.0.0.1:8765 for
+  the browser upload loop.
+- **Provenance before anything ships:** `.venv/bin/python tools/provenance.py FILE.rvt --baseline all --streams --json out.json`;
+  families: `.venv/bin/python tools/make_family.py provenance PATH.rfa`.
+- **Target version is a first-class input:** `--target-version {2026,2025,2024}`.
+  Revit cannot open a *newer* file — always ask/pass the recipient's
+  release; never present a 2026 file as openable in 2025.
+- **Env vars:** `TEKTON_ROOT` (repo-root override), `RVT_PLUGIN_ROOT`
+  (plugin bundle root for the standalone path), `RVT_GENESIS_BASE`
+  (explicit base override), `RVT_STEPLITE_FORCE=1` (force the pure-Python
+  IFC reader), `RVT_SEG_CACHE=<dir>` (cache slow segment builds),
+  `RVT_SKIP_LARGE=1` (tests).
 
 ## 3. Map
 
@@ -100,7 +128,15 @@ python3.11 -m venv .venv && .venv/bin/pip install -e .   # package name: rvt (sr
   = zero-pip bootstrap + one-call `go` dispatch), `commands/`, `agents/`,
   `assets/genesis/` (the certified composed bases G_ABPD /_2025 /_2024),
   `assets/schema_cache/`, `lib/` (mirrored source). Edit **sources**
-  (`src/`, `skills/`), never `plugin/lib` directly — sync overwrites it.
+  (`src/`, `skills/`, `tools/`), never `plugin/lib/`, `plugin/skills/*/scripts/`,
+  or `plugin/assets/` directly — sync overwrites them. Plugin gotchas that
+  each cost a failed upload once: the manifest lives at
+  `plugin/.claude-plugin/plugin.json` (+ `marketplace.json`; the root
+  `plugin/marketplace.json` is a derived byte-identical copy); `SKILL.md`
+  frontmatter is exactly `{name, description}`, `name` == folder name,
+  description ≤ 1024 chars with **no `<`/`>`**; every plugin-relative path a
+  skill/command references must exist; the zip has plugin contents at the
+  archive root. `plugin/scripts/validate_plugin.py` checks all of this.
 - `docs/inbox/` — one record per workstream (see §4). `docs/product/` —
   user-facing truth (`PERMUTATION-MATRIX.md`, `HONEST-STATUS`,
   `SURFACE-PLAYBOOK.md`, `MCP-PATH.md`, `COUNSEL-BRIEF.md`).
