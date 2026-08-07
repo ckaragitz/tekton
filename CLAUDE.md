@@ -192,6 +192,39 @@ before writing code.
   and `plugin/scripts/validate_plugin.py`; red CI blocks merge — fix, don't
   bypass.
 
+**Git cadence on your laptop (several engineers, sessions that come and go):**
+```bash
+git config pull.rebase true && git config rebase.autoStash true   # once per clone
+```
+- **Start of every session:** `git fetch origin --prune`; on your branch
+  `git rebase origin/main` (or `git switch main && git pull --ff-only`
+  before cutting a new branch). Never build on a stale trunk.
+- **While working:** small commits, each one logical change that leaves
+  tests for your area green. **Push early** — after the first meaningful
+  commit run `git push -u origin HEAD` and open a **draft PR**
+  (`gh pr create --draft --fill`) so the other humans/sessions can see the
+  branch and its territory exist. Keep pushing as you go; a laptop that
+  sleeps with unpushed commits is invisible work.
+- **Re-sync often:** `git fetch && git rebase origin/main` at least at the
+  start and end of each session and always right before marking the PR
+  ready; if `main` moved under a file you touch, rebase *now*, not at the
+  end. After a rebase of an already-pushed branch use
+  `git push --force-with-lease` (never plain `--force`, never on `main`,
+  never on a branch someone else is also committing to).
+- **End of every session:** everything committed and pushed; the draft PR
+  description says where you stopped (or the record's `BRANCH STATE`
+  does); the issue stays assigned to you. If you're abandoning it,
+  unassign yourself and say so on the issue.
+- **Ready for review:** rebase on `origin/main`, run your gates, fill the PR
+  template, `gh pr ready`. Reviewer merges with **squash**; delete the
+  branch; `git switch main && git pull --ff-only` before the next task.
+- **Conflicts:** resolve them on your branch during rebase; if the conflict
+  is in someone else's active territory or a hot file, talk on the issue
+  first rather than guessing. Never "resolve" by reverting their change.
+- **Never:** commit directly to `main`; force-push `main`; rewrite history
+  others have pulled; leave generated artifacts or ignored-dir content in
+  a commit; let a branch live for more than a few days without rebasing.
+
 **Hot files — serialize, don't stack.** `tools/frontdoor.py`,
 `plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`,
 `TRACKER.md`, `KNOWLEDGE.md`, `docs/coverage/viewer-certified.json`: changes
