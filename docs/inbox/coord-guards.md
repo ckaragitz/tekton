@@ -64,9 +64,13 @@ assignment event; `stack-guard` folded into `pr-check`, gated to body/base
 edits; the two 30-minute sweeps became one hourly job (Actions minutes on a
 private repo: ~2,900/month → ~730); per-branch and per-PR API calls hoisted;
 one closing-keyword parser instead of two. **Live finding from this PR's own
-first push:** `pr-link` checked out trunk for a "trusted" helper that trunk
-does not have until this merges → red; it now checks out the PR head (sparse,
-`tools/dev` only), which also keeps working while a PR conflicts.
+first push:** `pr-link` checked out trunk for the helper, which trunk does not
+have until this merges → red. The second cut checked out the PR head instead;
+the automated security review rightly objected (that job holds a write token,
+so PR-supplied *code* must not run in it even though same-repo PR authors are
+already collaborators), so the final form is back to **trunk checkout, and a
+notice + skip when the helper is not on trunk yet** — a state that only exists
+until this PR lands. PR text stays data; PR code never executes with the token.
 
 ## Verification (numbers)
 
@@ -90,8 +94,16 @@ does not have until this merges → red; it now checks out the PR head (sparse,
   in sync, `validate_plugin` PASS, CI shard **88 passed / 23 skipped**.
 * Live: `pr-check` runs from the PR's own copy of the workflow on this PR
   (pull_request events use the head's workflow files) — first push red for the
-  trunk-checkout reason above, fixed in the second; `claim`, `single-holder`,
-  `issue-dedup` and `sweep` only go live once this is on `main`.
+  bootstrap reason above; second cut green end-to-end on GitHub (stacked step,
+  checkout, link step: 11 s); final cut exercises the bootstrap-skip path on
+  this PR and the full path on every PR after the merge. `claim`,
+  `single-holder`, `issue-dedup` and `sweep` only go live once this is on
+  `main`.
+* Residual, inherent to GitHub: for `pull_request` events the *workflow file*
+  itself comes from the PR head, so a collaborator can still rewrite
+  `coord.yml` in their own PR — exactly as they can `ci.yml`. That is the
+  existing trust boundary (write access), not something a workflow can close;
+  workflow-file PRs already require a human merge here.
 
 ## Cleanup done alongside (GitHub state, no code)
 

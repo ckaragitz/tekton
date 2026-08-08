@@ -219,7 +219,10 @@ jobs:
           say "#$PR stacked on $BASE"
       - uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.pull_request.head.sha }}   # the head, not the merge ref: works while the PR conflicts, and while coord.py itself is what the PR adds
+          # The helper comes from the DEFAULT branch, never from the PR: this job holds a write
+          # token, so PR-supplied text is data and PR-supplied code does not run here. (Also
+          # sidesteps the merge ref, so it works while the PR conflicts.)
+          ref: ${{ github.event.repository.default_branch }}
           sparse-checkout: tools/dev
       - name: Linked issue present, claimed, and not double-worked
         env:
@@ -231,6 +234,7 @@ jobs:
         run: |
           set -euo pipefail
           eval "$COORD_LIB"
+          if [ ! -f tools/dev/coord.py ]; then say "#$PR: tools/dev/coord.py is not on $DEFAULT yet (bootstrap) — link check skipped"; exit 0; fi
           refs=$(python3 tools/dev/coord.py refs <<<"$BODY")
           echo "refs: $refs"
           closing=$(jq -r '.closing[]' <<<"$refs")
