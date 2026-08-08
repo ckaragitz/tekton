@@ -217,11 +217,20 @@ repo's record conventions riding on top. A session never freelances on
 
 **The queue is GitHub Issues.** One issue per task/stream, labelled by area
 (`engine`, `frontdoor`, `famgen`, `plugin`, `genesis`, `docs`, …) and state
-(`ready`, `hot-file`, `needs-viewer`, `blocked`). **Claiming = assigning
-yourself** (`gh issue edit <n> --add-assignee @me`) — atomic and visible to
-everyone; never start work someone else is assigned to. If the work you
-want isn't an issue yet, open one first (title = the checkable DONE, body =
-territory + record path), then claim it.
+(`ready`, `hot-file`, `needs-viewer`, `blocked`, `in-progress`). **Claiming =
+commenting `/claim` on the issue** — from `gh issue comment <n> -b /claim`,
+the GitHub MCP `add_issue_comment` tool (cloud sessions have no `gh`), or the
+web UI. The `coord` bot (`.github/workflows/coord.yml`, no secrets needed)
+assigns you and labels the issue `in-progress` within a minute, or replies
+**who already holds it — if it refuses, pick something else**; that reply is
+the whole point. `/release` hands an issue back. Never start work someone
+else is assigned to: on this repo's first night three bugs were filed and
+fixed twice by two people's sessions minutes apart, because nobody had
+claimed anything. **Before filing a new issue, search for it** (`gh issue list
+--search "<two or three keywords>" --state all`, or MCP `search_issues`) —
+the bot comments likely duplicates on every new issue, but by then you have
+already written it. If the work you want isn't an issue yet, open one (title
+= the checkable DONE, body = territory + record path), then `/claim` it.
 
 **Don't know what to work on? That's expected.** Read the pinned issue
 **"START HERE"** ([#25](https://github.com/ckaragitz/tekton/issues/25)):
@@ -234,9 +243,13 @@ for your first PR here.
 ```bash
 git switch main && git pull --ff-only          # start from current trunk
 gh issue list --assignee @me --state open      # resume yours, or:
-gh issue list --label ready --search "no:assignee"   # pick one, then self-assign it
-git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR
+gh issue list --label ready --search "no:assignee -label:in-progress"   # pick one, then:
+gh issue comment <n> -b /claim                 # wait for the bot's 🔒 (or ⛔ -> pick another)
+git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR, always from main
 ```
+Cloud sessions (no `gh` CLI) do the same through the GitHub MCP tools:
+`list_issues`/`search_issues` to pick, `add_issue_comment` with body `/claim`
+to claim, `issue_read` to see the bot's answer.
 **Before picking new work, service your own open PRs** — this is how a
 session "gets notified": it looks.
 ```bash
@@ -261,6 +274,13 @@ before writing code.
 - Keep PRs small and short-lived; `git fetch && git rebase origin/main`
   before pushing; resolve conflicts on *your* branch, never by force-pushing
   shared branches.
+- **Never stack a PR on another PR's branch.** `main` squash-merges and
+  deletes branches; when the parent's branch disappears GitHub closes the
+  stacked child **unmerged** and nobody is told (#39 was lost this way and
+  #40 stranded on a dead base). Branch from `main`; if you depend on an
+  unmerged PR, wait for it or say so on the issue. The `coord` bot warns on
+  stacked PRs and tries to retarget/reopen them after the parent merges, but
+  that is a safety net, not a workflow.
 - The PR **must** include the stream record `docs/inbox/<stream>.md` (with
   its closing `BRANCH STATE`), the stream-local tests you ran (counts), and
   `tools/sync_plugin.py --check` clean if you touched `src/`/`tools/`/`skills/`.
@@ -283,9 +303,12 @@ git config pull.rebase true && git config rebase.autoStash true   # once per clo
 - **While working:** small commits, each one logical change that leaves
   tests for your area green. **Push early** — after the first meaningful
   commit run `git push -u origin HEAD` and open a **draft PR**
-  (`gh pr create --draft --fill`) so the other humans/sessions can see the
-  branch and its territory exist. Keep pushing as you go; a laptop that
-  sleeps with unpushed commits is invisible work.
+  (`gh pr create --draft --fill`, body starting `Closes #<n>`) so the other
+  humans/sessions can see the branch and its territory exist. Keep pushing
+  as you go; a laptop that sleeps with unpushed commits is invisible work,
+  and so is a pushed branch with no PR — the `coord` bot opens a draft PR
+  itself for any branch left that way for 20+ minutes, which you then have
+  to adopt or close, so beat it to it.
 - **Re-sync often:** `git fetch && git rebase origin/main` at least at the
   start and end of each session and always right before marking the PR
   ready; if `main` moved under a file you touch, rebase *now*, not at the
@@ -315,6 +338,13 @@ git config pull.rebase true && git config rebase.autoStash true   # once per clo
 Contributors here are mostly *not* developers; their coding sessions open PRs and
 the repo takes it from there. Tell your human plainly: "PR is open; nothing for
 you to do unless the bot asks for a human."
+0. **`coord`** (token-free, always on) checks the PR the moment it opens or its
+   description changes: no `Closes #N`/`Refs #N` → label `needs-issue`; the linked
+   issue unclaimed → it assigns the PR author; the linked issue held by someone
+   else, or a second open PR closing the same issue → label `overlap` + a comment
+   on the spot (settle it then, not at merge time); base branch not `main` →
+   `stacked` warning; "does not close #N" in the body → warning, because GitHub's
+   linker ignores the *not* and will close #N. Read what it says and act on it.
 1. **`CI`** runs on every push: portable paths, `sync_plugin.py --check`,
    `validate_plugin.py`, the fast no-samples shard (`tests/ci_shard.txt`).
    If CI finishes **red**, `claude-review`'s `ci-autofix` job reads the failed log,
@@ -331,8 +361,9 @@ you to do unless the bot asks for a human."
    branch; `Closes #N` closes the issue. It refuses (and comments why) on zero/red
    checks, conflicts, or a missing verdict, and re-checks on every new commit and
    every 30 minutes. **Duplicate rule:** if two open PRs close the same issue, the
-   older PR wins and the newer gets `needs-human` — so *assign yourself to the
-   issue before you start*.
+   older PR wins and the newer gets `needs-human` — so *`/claim` the issue before
+   you start*; `coord` will already have flagged the pair with `overlap` when the
+   second PR opened.
 4. Escape hatches (humans only): `do-not-merge` holds a PR; `merge-when-green`
    applied by someone other than the author (or by the owner) substitutes for the
    AI verdict when the review bot is down or wrong; `@claude <instruction>` in any
@@ -351,7 +382,11 @@ you to do unless the bot asks for a human."
 6. One-time setup this depends on (repo admin): Claude GitHub App installed on the
    repo, and an Actions secret `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`)
    or `ANTHROPIC_API_KEY`. Without it `claude-review` fails red on purpose and only
-   the `merge-when-green` label path can merge.
+   the `merge-when-green` label path can merge. **`coord` and `CI` need no secret**
+   and keep working either way; optionally tick *Settings → Actions → General →
+   Allow GitHub Actions to create and approve pull requests* so `coord`'s
+   orphan-branch sweep can open draft PRs itself instead of listing branches on
+   a tracking issue.
 
 **Hot files — serialize, don't stack.** `tools/frontdoor.py`,
 `plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`,
