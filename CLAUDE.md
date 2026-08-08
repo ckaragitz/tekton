@@ -250,8 +250,12 @@ before writing code.
   its closing `BRANCH STATE`), the stream-local tests you ran (counts), and
   `tools/sync_plugin.py --check` clean if you touched `src/`/`tools/`/`skills/`.
   Link the issue (`Closes #n`). The PR template carries the checklist.
-- CI (as it comes online) runs the targeted tests, `sync_plugin.py --check`,
-  and `plugin/scripts/validate_plugin.py`; red CI blocks merge — fix, don't
+- CI: the `CI` workflow (`.github/workflows/ci.yml`) runs on every PR and on
+  pushes to `main` — jobs `py3.11` and `py3.12` on ubuntu-latest, each running
+  `tools/dev/check_portable_paths.py`, `tools/sync_plugin.py --check`,
+  `plugin/scripts/validate_plugin.py`, then the fast shard listed in
+  `tests/ci_shard.txt` (never the full suite — see
+  `docs/inbox/SUITE-COORDINATION.md`). Red CI blocks merge — fix, don't
   bypass.
 
 **Git cadence on your laptop (several engineers, sessions that come and go):**
