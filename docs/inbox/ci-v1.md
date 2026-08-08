@@ -62,9 +62,14 @@ Final shard (7 files): `test_frontdoor.py`, `test_versions.py`,
   cases self-skipping exactly as CLAUDE.md §2 describes. CI asserts the
   no-corpus path stays green; it does not and cannot assert the corpus path.
 - **CI green here is evidence for two Windows-only bug reports.** The drift
-  guard passed in 0s on Linux while the same command fails on a Windows clone,
-  which is the direct confirmation of #27 (no `.gitattributes`, `autocrlf=true`
-  gives CRLF, byte-compare against LF-generated content can never match).
+  guard passed in 0s on Linux while the same command fails on a Windows clone —
+  the platform split that isolated #27. (This bullet originally named CRLF
+  checkout as the cause. That was wrong: adding `.gitattributes` took the file
+  from 36 CRLF to 0 and `--check` still failed. The real cause is a generator
+  bug in `src/rvt/schema_cache.py` — backslash separators from
+  `os.path.relpath`, plus `open(..., "w")` translating `\n` to `\r\n`. Fixed in
+  #38; the line-endings work still matters, but for binary corruption rather
+  than drift.)
   Likewise `test_frontdoor.py`, `test_bootstrap.py` and `test_coldstart.py` are
   all in the shard and all pass on Linux, while the same three fail on Windows
   with `UnicodeEncodeError: charmap` — confirming #29 is a platform bug, not a
