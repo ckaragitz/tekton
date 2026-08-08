@@ -286,7 +286,9 @@ def build_cache(plugin_root: str, out_dir: Optional[str] = None) -> Dict[str, An
         with open_rvt(src) as f:
             blob = f.inflate("Formats/Latest", 0)
         digest = hashlib.sha256(blob).hexdigest()
-        rel_src = os.path.relpath(src, plugin_root)
+        # POSIX separators: index.json is a build artifact compared byte-for-byte
+        # by tools/sync_plugin.py --check, so it must not vary by host platform.
+        rel_src = os.path.relpath(src, plugin_root).replace(os.sep, "/")
         if digest in entries:
             entries[digest]["sources"].append(rel_src)
             continue
@@ -304,7 +306,10 @@ def build_cache(plugin_root: str, out_dir: Optional[str] = None) -> Dict[str, An
              "schema cache; built by tools/sync_plugin.py via rvt.schema_cache",
              "entries": sorted(entries.values(), key=lambda e: e["schema_sha256"])}
     os.makedirs(out_dir, exist_ok=True)
-    with open(os.path.join(out_dir, "index.json"), "w") as fh:
+    # newline="\n": text mode would translate to CRLF on Windows, and this file
+    # is byte-compared by tools/sync_plugin.py --check.
+    with open(os.path.join(out_dir, "index.json"), "w",
+              encoding="utf-8", newline="\n") as fh:
         json.dump(index, fh, indent=1, sort_keys=True)
         fh.write("\n")
     return index
