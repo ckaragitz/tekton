@@ -105,6 +105,16 @@ uv pip install --python .venv/bin/python ifcopenshell                   # OPTION
   IFC reader), `RVT_SEG_CACHE=<dir>` (cache slow segment builds),
   `RVT_SKIP_LARGE=1` (tests).
 
+### Working from a Claude Code cloud session (claude.ai/code)
+
+Cloud sessions clone this repo into a fresh VM, so they behave like a fresh
+clone: no `samples/`, no viewer login → pick `ready` issues. Point the cloud
+environment's **Setup script** at `bash scripts/cloud-setup.sh` (creates
+`.venv`, installs the engine + test extras, sets `pull.rebase`, checks plugin
+drift + portable paths). This file and `.claude/agents/` load automatically.
+Work on a branch, push, and open the PR from the session UI (or `gh pr create
+--draft`) exactly as in section 4.
+
 ## 3. Map
 
 - `src/rvt/` — the engine. Container/codec layers (CFB → framed gzip →
