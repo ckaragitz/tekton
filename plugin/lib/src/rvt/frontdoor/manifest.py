@@ -362,11 +362,15 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
 
 def write_manifest(manifest: Dict[str, Any], out_dir: str) -> Dict[str, str]:
     os.makedirs(out_dir, exist_ok=True)
+    # encoding="utf-8": the rendered markdown carries non-ASCII (e.g. "->" as
+    # U+2192), and text mode would otherwise use the locale codepage — cp1252 on
+    # Windows, which cannot encode it and aborts the delivery. newline="\n" keeps
+    # the written artifacts identical across platforms.
     jp = os.path.join(out_dir, "manifest.json")
-    with open(jp, "w") as fh:
+    with open(jp, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(manifest, fh, indent=1, default=str)
     mp = os.path.join(out_dir, "MANIFEST.md")
-    with open(mp, "w") as fh:
+    with open(mp, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(_render_md(manifest))
     return {"json": jp, "md": mp}
 
