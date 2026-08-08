@@ -1,0 +1,61 @@
+# CI v1 (issue #2): the shared, automatic definition of green.
+#
+# Deliberately NOT the full ~25-min suite (docs/inbox/SUITE-COORDINATION.md):
+# a fast shard that passes in a fresh clone -- no samples/, no viewer, no
+# secrets. Three checks: portable paths + plugin drift/validation + the
+# no-samples test shard (RVT_SKIP_LARGE=1). Target < 10 min per job.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          # ifcopenshell: optional IFC-authoring extra (manylinux wheel);
+          # reading has the stdlib steplite fallback but the router's
+          # spec->ifc cell exercises authoring.
+          pip install -e . pytest numpy ifcopenshell
+
+      - name: Portable paths (Windows/macOS collaborators)
+        run: python tools/dev/check_portable_paths.py
+
+      - name: Plugin drift check
+        run: python tools/sync_plugin.py --check
+
+      - name: Plugin structural validation
+        run: python plugin/scripts/validate_plugin.py
+
+      - name: Fast no-samples test shard
+        env:
+          RVT_SKIP_LARGE: "1"
+        run: >
+          python -m pytest -q
+          tests/test_frontdoor.py
+          tests/test_router.py
+          tests/test_versions.py
+          tests/test_plugin_sync.py
+          tests/test_steplite.py
+          tests/test_coldstart.py
