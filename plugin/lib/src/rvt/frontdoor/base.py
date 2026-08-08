@@ -185,6 +185,11 @@ class GenesisPin:
         rp = relpath or self.base_relpath
         name = os.path.basename(rp)
         out = [os.path.join(repo_root(), rp)]
+        # dev/cloud checkout: the source-of-truth plugin tree ships the
+        # pinned bases in-repo (plugin/assets/genesis) even when the research
+        # compose (experiments/...) is git-ignored and absent -- still
+        # sha-verified against the pin by every caller
+        out.append(os.path.join(repo_root(), "plugin", "assets", "genesis", name))
         # the plugin mounts the engine at <plugin>/lib/src/rvt/** and the ONE
         # bundled .rvt at <plugin>/assets/genesis/ -- discover the bundle
         # relative to THIS package, then honour explicit roots

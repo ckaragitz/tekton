@@ -126,6 +126,7 @@ def bundled_base_path(explicit: Optional[str] = None, *, verify: bool = True) ->
     """Locate the certified genesis base from BUNDLED locations only.
 
     Order: ``explicit`` -> ``$RVT_GENESIS_BASE`` -> the repo pin path ->
+    the repo's plugin tree (``plugin/assets/genesis/<name>``) ->
     ``<plugin>/assets/genesis/<name>`` -> ``<plugin>/lib/genesis/<name>``
     (the pin's historic bundled location).  The sha256 must equal the pin
     unless the caller supplied the file (their authority, recorded upstream
@@ -139,6 +140,12 @@ def bundled_base_path(explicit: Optional[str] = None, *, verify: bool = True) ->
     if envp:
         cands.append((envp, False))
     cands.append((os.path.join(repo_root(), PIN.base_relpath), True))
+    # dev/cloud checkout: the source-of-truth plugin tree ships the pinned
+    # base in-repo (plugin/assets/genesis) even when the research compose
+    # (experiments/...) is git-ignored and absent -- a fresh clone resolves
+    # here, still sha-verified against the pin
+    cands.append((os.path.join(repo_root(), "plugin", "assets", "genesis",
+                               name), True))
     pr = plugin_root()
     if pr:
         cands.append((os.path.join(pr, "assets", "genesis", name), True))

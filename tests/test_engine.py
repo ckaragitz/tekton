@@ -44,6 +44,14 @@ def run(*args, cwd=ROOT):
     return p.returncode, p.stdout + p.stderr
 
 
+#: the real Design sample is quarantined dev data (git-ignored); a fresh
+#: clone self-skips the tests that read it -- the fixture-built defect
+#: file covers the rest everywhere
+needs_sample = pytest.mark.skipif(
+    not os.path.isfile(SAMPLE),
+    reason="samples/design-ifc not present (fresh clone)")
+
+
 @pytest.fixture(scope="module")
 def sample_report():
     assert os.path.isfile(SAMPLE), "real Design sample missing"
@@ -58,6 +66,7 @@ def fixture_path(tmp_path_factory):
 
 # --------------------------------------------------------------- validate ---
 
+@needs_sample
 def test_validate_real_sample_flags_defects(sample_report):
     rep = sample_report
     st = rep["score"]["stats"]
@@ -98,6 +107,7 @@ def test_validate_fixture_flags_duplicate_types_and_phantom(fixture_path):
     assert rep["spatial"]["orphan_count"] == 1
 
 
+@needs_sample
 def test_validate_cli_writes_json(tmp_path):
     out = tmp_path / "v.json"
     rc, txt = run(os.path.join(SCRIPTS, "validate_ifc.py"), SAMPLE, "--json", str(out))
@@ -132,6 +142,7 @@ def test_harden_fixture_merges_types_and_removes_phantom(fixture_path, tmp_path)
     assert res["actions"]["psets_moved_to_types"] >= 1
 
 
+@needs_sample
 def test_harden_real_sample_recovers_geometry(tmp_path):
     out = tmp_path / "sample_hardened.ifc"
     res = harden_ifc.harden(SAMPLE, str(out))
@@ -150,6 +161,7 @@ def test_harden_real_sample_recovers_geometry(tmp_path):
     assert a["score"] > b["score"]
 
 
+@needs_sample
 def test_harden_geometry_is_unchanged(tmp_path):
     """World-space bounding boxes of every element are identical after hardening."""
     ifcopenshell = pytest.importorskip("ifcopenshell")
@@ -179,6 +191,7 @@ def test_harden_geometry_is_unchanged(tmp_path):
         assert np.allclose(mx, mx2, atol=2e-3), gid
 
 
+@needs_sample
 def test_harden_cli(tmp_path):
     out = tmp_path / "h.ifc"
     rep = tmp_path / "h.json"
@@ -239,6 +252,7 @@ def test_generate_minimal_spec(tmp_path):
 
 # ----------------------------------------------------------------- report ---
 
+@needs_sample
 def test_report_cli(tmp_path):
     v = tmp_path / "v.json"
     assert run(os.path.join(SCRIPTS, "validate_ifc.py"), SAMPLE, "--json", str(v), "--quiet")[0] == 0

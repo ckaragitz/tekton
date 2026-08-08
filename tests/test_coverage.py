@@ -104,6 +104,13 @@ def test_runner_executes_on_two_cells(matrix):
     certified V20/V21, ~3 s each to validate) and one READ probe cell."""
     m = copy.deepcopy(matrix)
     cells = ["family_instances:create", "levels:read"]
+    by0 = {(c["category"], c["verb"]): c for c in m["cells"]}
+    missing = [p for cell in cells
+               for p in coverage.proof_paths(by0[tuple(cell.split(":"))])
+               if not os.path.isfile(os.path.join(ROOT, p))]
+    if missing:
+        pytest.skip("proof files not on this machine (git-ignored "
+                    "experiments/): " + ", ".join(missing))
     summary = coverage.run(m, cells=cells, validate_only=True, log=lambda *a: None)
     by = {(c["category"], c["verb"]): c for c in m["cells"]}
     fi = by[("family_instances", "create")]["result"]

@@ -123,7 +123,14 @@ def _strict_read(path: str) -> olefile.OleFileIO:
 
 
 def _no_compoundfiles_warnings(path: str) -> None:
-    from compoundfiles import CompoundFileReader
+    """Second, independent CFB reader check.  ``compoundfiles`` is an
+    optional dev extra (not a declared dependency): absent, the strict
+    olefile assertions above still gate the writer -- skip only this
+    cross-check, don't fail the test."""
+    try:
+        from compoundfiles import CompoundFileReader
+    except ImportError:
+        pytest.skip("compoundfiles not installed (optional cross-check reader)")
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
         r = CompoundFileReader(path)

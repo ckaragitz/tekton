@@ -29,6 +29,39 @@ ZB_DIR = os.path.join(ROOT, "experiments", "genesis", "subst_k4", "residue_b")
 from rvt.genesis import residue_b as RB   # noqa: E402
 
 
+def _ensure_schema() -> bool:
+    """The constructors need the canonical 2026 class map: the extracted
+    research corpus when present (owner machine), else the sha-pinned
+    bundled base's embedded schema (fresh clone / cloud session).  The
+    fallback seeds ONLY the ``rvt.genesis.types`` codec singleton -- never
+    the process-wide ``install_schema`` chokepoints, which would defeat
+    other modules' corpus skip guards for the rest of the suite run.
+    Never raises -- a False return self-skips the module instead of
+    aborting the whole suite's collection."""
+    from rvt import schema as _RS
+    if os.path.isfile(_RS.DEFAULT_PATH):
+        return True
+    try:
+        from rvt.encode import ObjectEncoder
+        from rvt.frontdoor.standalone import bundled_schema
+        from rvt.genesis import types as GT
+        from rvt.objects import ObjectDecoder
+        if not GT._STATE:
+            dec = ObjectDecoder(bundled_schema())
+            GT._STATE.update({"dec": dec, "enc": ObjectEncoder(decoder=dec),
+                              "schema": dec.schema})
+        return True
+    except Exception:
+        return False
+
+
+_HAVE_SCHEMA = _ensure_schema()
+
+pytestmark = pytest.mark.skipif(
+    not _HAVE_SCHEMA,
+    reason="no class schema available (extracted corpus and bundled base both absent)")
+
+
 # ---------------------------------------------------------------------------
 # 1. the Group-B claim vs the residue census (Yn.json)
 # ---------------------------------------------------------------------------
@@ -61,6 +94,8 @@ def test_every_group_b_class_has_a_rung_or_the_endgame():
 # ---------------------------------------------------------------------------
 
 def _all_constructor_records():
+    if not _HAVE_SCHEMA:      # collection must never crash on a fresh clone
+        return []
     recs = [
         RB.shared_parameter("GEN Mounting Height AFF", "e30c5485-191a-4e25-8830-aac0ab9fee47",
                             kind="ParamDefValue", spec=RB.SPEC_LENGTH,

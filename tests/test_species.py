@@ -401,6 +401,9 @@ class TestStagedBatch:
         a = _j(ACCT)
         by_name = {os.path.basename(e["file"]): e for e in m["entries"]
                    if e["kind"] == "probe"}
+        if not any(os.path.isfile(os.path.join(ROOT, e["staged_as"]))
+                   for e in m["entries"]):
+            pytest.skip("staged binaries are git-ignored and absent (fresh clone)")
         for n in ("T1uG", "TB0g", "BX_v3", "DEMO_250v_room_v9"):
             built = a["built"][n]
             e = by_name[f"{n}.rvt"]

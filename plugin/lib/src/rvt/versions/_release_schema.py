@@ -56,10 +56,21 @@ def load_release_schema(release: Release, source: Optional[str] = None):
     ``rvt.schema`` grammar and verify it against the pinned signature."""
     src = source or default_source(release)
     if src is None:
+        # no dev sample on this machine (fresh clone / cloud session): the
+        # plugin bundles a parsed-schema cache keyed by this release's pinned
+        # sha256 (assets/schema_cache/<sha>.tksc) -- reconstruct from it and
+        # hold it to the same pin
+        from ..schema_cache import load_cached
+        s = load_cached(release.schema_sha256,
+                        source=f"schema_cache:{release.schema_sha256[:16]}")
+        if s is not None:
+            verify_schema(release, s)
+            return s
         raise FileNotFoundError(
             f"no {release.label} sample under {release.samples_dir}/ to load the "
-            f"schema from; supply source=<any {release.year} .rvt/.rfa> "
-            "(the schema is byte-identical across a release's files)")
+            f"schema from and no bundled schema cache for "
+            f"{release.schema_sha256[:16]}..; supply source=<any {release.year} "
+            ".rvt/.rfa> (the schema is byte-identical across a release's files)")
     from ..versions import schema_of
     s = schema_of(src)
     verify_schema(release, s)

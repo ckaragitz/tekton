@@ -398,14 +398,44 @@ def _repair_block(block: bytearray, syn_row: np.ndarray, geom_first: int,
     return n_corr, n_data, n_other, uncorrectable
 
 
+def _numpy_available() -> bool:
+    if "_np_ok" not in _NP_STATE:
+        try:
+            import numpy                                     # noqa: F401
+            _NP_STATE["_np_ok"] = True
+        except ImportError:
+            _NP_STATE["_np_ok"] = False
+    return _NP_STATE["_np_ok"]
+
+
+_NP_STATE: dict = {}
+
+
 def ecc_verify_stream(name: str, raw: bytes, rep: Report,
                       batch: int = 64) -> _EccStreamResult:
     """Syndrome-verify every CRCIO block of a framed stream and return the
-    ECC-repaired logical stream.  Emits ECC findings on ``rep``."""
+    ECC-repaired logical stream.  Emits ECC findings on ``rep``.
+
+    Without numpy (a bare zero-pip surface) the syndrome math cannot run:
+    the stream is unframed with the pure-python reader and ONE warning per
+    report says the ECC pages went unverified -- an unavailable checker is
+    an environment gap, not a file defect (the deliverable rule), and every
+    other structure check still runs on the logical bytes."""
     res = _EccStreamResult(b"")
     out = bytearray()
     n_full = len(raw) // ecc.PAGE_STRIDE
     where = f"{name}"
+
+    if not _numpy_available():
+        res.logical = ecc.unframe_stream(raw)
+        res.pages += n_full + (1 if raw[n_full * ecc.PAGE_STRIDE:] else 0)
+        if not getattr(rep, "_ecc_skip_warned", False):
+            rep._ecc_skip_warned = True
+            rep.warn(L_STRUCTURE, where,
+                     "ECC page verification SKIPPED: numpy not installed "
+                     "(pages unframed without syndrome checks; install numpy "
+                     "for full verification)")
+        return res
 
     # ---- full pages (fixed params, batched) --------------------------------
     if n_full:

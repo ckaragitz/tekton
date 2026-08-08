@@ -658,8 +658,11 @@ def test_committed_reports_valid_and_control_matches_base():
         assert rep["byte_delta"]["assertion_holds"]
         assert (rep["validator"] or {}).get("errors") == 0
         assert rep["new_object_reference_check"]["dangling"] == 0
-    # the standing control is byte-identical to the certified base
+    # the standing control is byte-identical to the certified base (the
+    # .rvt binaries are git-ignored: absent on a fresh clone -> skip)
     ctrl = os.path.join(RESIDUE_DIR, "CTRL_ZA_deep_base.rvt")
+    if not (os.path.exists(ctrl) or os.path.exists(ZA_DEEP)):
+        pytest.skip("control binaries are git-ignored and absent (fresh clone)")
     assert os.path.exists(ctrl)
     def md5(p):
         with open(p, "rb") as fh:

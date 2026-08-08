@@ -43,6 +43,19 @@ if _SRC not in sys.path:
 from rvt.famgen import factory as F                            # noqa: E402
 
 
+def _ensure_standalone() -> None:
+    """On a machine without the research corpus (fresh clone / cloud
+    session), arm the standalone resolvers: the sha-pinned bundled base
+    supplies the schema AND the family container writer.  On the owner's
+    machine (extracted corpus present) this is a no-op -- the research
+    path stays first, bit-for-bit identical to before."""
+    from rvt import schema as _RS
+    if os.path.isfile(_RS.DEFAULT_PATH):
+        return
+    from rvt.frontdoor import standalone as SA
+    SA.activate()
+
+
 def _print_report(rep: dict, as_json: bool) -> None:
     if as_json:
         print(json.dumps(rep, indent=1, default=str))
@@ -238,6 +251,7 @@ def main(argv=None) -> int:
 
     ns = ap.parse_args(argv)
     try:
+        _ensure_standalone()
         return int(ns.func(ns) or 0)
     except F.FactoryError as e:
         print(f"factory refused the job: {e}", file=sys.stderr)

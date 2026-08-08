@@ -439,7 +439,11 @@ class TestStagedBatch:
         for want in ("I1.rvt", "BX_v4.rvt", "DEMO_250v_room_v10.rvt"):
             assert want in names
         assert ours["reading_order"][0].startswith("CTRL_")
-        # staged copies byte-match their manifests
+        # staged copies byte-match their manifests (the staged .rvt binaries
+        # are git-ignored: absent on a fresh clone -> skip, never fail)
+        if not any(os.path.isfile(os.path.join(ROOT, e.get("staged_as") or e["file"]))
+                   for e in ours["entries"]):
+            pytest.skip("staged binaries are git-ignored and absent (fresh clone)")
         for e in ours["entries"]:
             staged = e.get("staged_as") or e["file"]
             path = os.path.join(ROOT, staged)

@@ -196,6 +196,10 @@ def check_skills() -> None:
         sd = os.path.join(d, name)
         if not os.path.isdir(sd):
             continue
+        if name.startswith("_"):
+            # helper dirs (skills/_shared: the zero-pip bootstrap + vendored
+            # olefile) are not skills and carry no SKILL.md by design
+            continue
         sm = os.path.join(sd, "SKILL.md")
         if not os.path.isfile(sm):
             fail(f"skills/{name}: SKILL.md missing")

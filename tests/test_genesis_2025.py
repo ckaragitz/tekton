@@ -31,7 +31,7 @@ FACTS = os.path.join(OUT, "format_facts_2025.json")
 
 needs_sample = pytest.mark.skipif(not os.path.exists(SRC),
                                   reason="quarantined 2025 samples not on this machine")
-needs_rungs = pytest.mark.skipif(not os.path.exists(os.path.join(RUNGS, "B2025_K4.json")),
+needs_rungs = pytest.mark.skipif(not os.path.exists(os.path.join(RUNGS, "B2025_K4.rvt")),
                                  reason="2025 ladder artifacts not built")
 needs_facts = pytest.mark.skipif(not os.path.exists(FACTS),
                                  reason="2025 format facts not collected")
