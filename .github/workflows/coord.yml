@@ -5,41 +5,44 @@ name: coord
 # It exists because on the repo's first night two contributors' sessions filed and fixed the
 # same three bugs twice, a stacked PR was silently closed unmerged when its parent was
 # squash-merged, and a 39-file branch sat pushed with no PR where nobody could see it.
+# CLAUDE.md section 4 is the user-facing description; keep the two in step.
 #
-#   claim             "/claim" comment on an issue = you own it (assigns you + `in-progress`), or
-#                     the bot says who already does. "/release" hands it back. Works from gh, the
-#                     GitHub MCP tools (cloud sessions have no gh), or the web UI.
-#   assignment-label  direct (un)assignment keeps the `in-progress` label truthful too.
-#   issue-dedup       a newly opened issue gets a "possible duplicates" hint ranked by title
-#                     similarity (tools/dev/coord.py) against open + recently closed issues.
-#   pr-link           every PR must reference an issue; an unclaimed linked issue is late-claimed
-#                     for the PR author; a linked issue held by someone else, or a second open PR
-#                     closing the same issue, is called out at OPEN time (automerge's oldest-wins
-#                     rule only bites at merge time); "does not close #N" wording is flagged
-#                     because GitHub closes #N anyway.
-#   stack-guard       a PR whose base is not the default branch is warned: squash+delete of the
-#                     parent closes stacked children unmerged.
-#   stack-rescue      after a merge (and every 30 min, because merges done with the Actions token
-#                     emit no event): children still based on the merged branch are retargeted;
-#                     children GitHub already closed because the branch vanished are reopened
-#                     and retargeted.
-#   orphan-sweep      every 30 min: any branch pushed >20 min ago, ahead of the default branch,
-#                     with no PR in any state, gets a draft PR (or, if Actions may not open PRs in
-#                     this repo, a line on a tracking issue) so the work is visible.
+#   claim         "/claim" comment = assign the commenter (for surfaces that cannot assign, e.g. a
+#                 cloud session's MCP tools without write, or a phone), or say who holds it;
+#                 "/release" unassigns. Serialized per issue.
+#   single-holder however an assignment happens (UI, gh, MCP, /claim), a SECOND assignee is
+#                 removed again and told who holds the issue — unless a current holder added
+#                 them (pairing). This is the invariant; /claim is sugar.
+#   issue-dedup   a newly opened issue gets a "possible duplicates" hint ranked by title
+#                 similarity (tools/dev/coord.py) against open + recently closed issues.
+#   pr-check      on open / body-or-base edit: base not the default branch -> `stacked` warning;
+#                 no `Closes/Refs #N` -> `needs-issue`; linked issue unclaimed -> assigned to the
+#                 PR author; linked issue held by someone else, or another open PR closing the
+#                 same issue -> `overlap` + comment now (automerge's oldest-wins rule only bites
+#                 at merge time); "does not close #N" -> warning, GitHub closes #N anyway.
+#   sweep         hourly + after every merge GitHub tells us about: (a) PRs stacked on a merged
+#                 PR's branch are retargeted, and ones GitHub already closed because that branch
+#                 was deleted are reopened + retargeted (unless their commits ride in an open PR);
+#                 (b) any branch pushed >20 min ago, ahead of the default branch, with no PR in
+#                 any state gets a draft PR — or, if this repo does not let Actions open PRs, a
+#                 line on a tracking issue — so the work is visible.
 #
-# Optional one-time repo setting that lets orphan-sweep open the draft PR itself instead of
-# writing to a tracking issue: Settings → Actions → General → Workflow permissions →
-# "Allow GitHub Actions to create and approve pull requests".
+# Structural settings that make most of `sweep` unnecessary (repo admin, no token involved):
+#   * Settings -> General -> "Automatically delete head branches": GitHub then deletes merged
+#     branches itself AND retargets stacked children instead of closing them. Deleting by hand
+#     with `gh pr merge --delete-branch` / `git push --delete` is what closes children.
+#   * Settings -> Actions -> General -> "Allow GitHub Actions to create and approve pull
+#     requests": lets the orphan sweep open the draft PR itself.
 
 on:
   issue_comment:
     types: [created]
   issues:
-    types: [opened, assigned, unassigned]
+    types: [opened, assigned]
   pull_request:
-    types: [opened, edited, reopened, ready_for_review, closed]
+    types: [opened, edited, reopened, closed]
   schedule:
-    - cron: "15,45 * * * *"
+    - cron: "40 * * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -55,12 +58,26 @@ env:
   COORD_LIB: |
     say() { echo "::notice::$*"; }
     : "${DEFAULT:=$(gh api "repos/$REPO" --jq .default_branch)}"   # schedule events carry no repository payload
-    ensure_label() { gh label create "$1" --repo "$REPO" --color "${2:-cfd3d7}" --description "${3:-}" >/dev/null 2>&1 || true; }
-    comment_once() {  # $1=issue/pr number  $2=marker key  $3=body — one comment per (number, key)
-      local n="$1" marker="<!-- coord:$2 -->" body="$3"
-      if gh api "repos/$REPO/issues/$n/comments" --paginate --jq '.[].body' | grep -qF -- "$marker"; then return 0; fi
-      gh issue comment "$n" --repo "$REPO" --body "$body"$'\n\n'"$marker" >/dev/null
+    comment_once() {  # $1=issue/pr number  $2=marker key  $3=body -- one comment per (number, key)
+      local marker="<!-- coord:$2 -->"
+      if gh api "repos/$REPO/issues/$1/comments?per_page=100" --paginate --jq '.[].body' | grep -qF -- "$marker"; then return 0; fi
+      gh issue comment "$1" --repo "$REPO" --body "$3"$'\n\n'"$marker" >/dev/null
     }
+    label() {  # label <number> +name | -name  (issues and PRs alike; creates the label on first use)
+      local n="$1" name="${2:1}"
+      if [ "${2:0:1}" = "-" ]; then gh api -X DELETE "repos/$REPO/issues/$n/labels/$name" >/dev/null 2>&1 || true; return 0; fi
+      gh api -X POST "repos/$REPO/issues/$n/labels" -f "labels[]=$name" >/dev/null 2>&1 && return 0
+      local color=cfd3d7 desc=""
+      case "$name" in
+        needs-issue) color=b60205 desc="PR has no linked issue (Closes #N / Refs #N)";;
+        overlap)     color=d93f0b desc="another open PR or another assignee targets the same issue";;
+        stacked)     color=fbca04 desc="base is another PR's branch, not the default branch";;
+        tracking)    color=5319e7;;
+      esac
+      gh label create "$name" --repo "$REPO" --color "$color" --description "$desc" >/dev/null 2>&1 || true
+      gh api -X POST "repos/$REPO/issues/$n/labels" -f "labels[]=$name" >/dev/null 2>&1 || true
+    }
+    holders() { gh api "repos/$REPO/issues/$1" --jq '[.assignees[].login]|join(",")'; }   # "a,b" or ""
 
 jobs:
   claim:
@@ -70,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
-      group: claim-${{ github.event.issue.number }}
+      group: issue-${{ github.event.issue.number }}
       cancel-in-progress: false
     steps:
       - name: Claim or release the issue for the commenter
@@ -83,27 +100,24 @@ jobs:
         run: |
           set -euo pipefail
           eval "$COORD_LIB"
-          ensure_label in-progress 1d76db "claimed: someone is actively working this issue"
           react() { gh api -X POST "repos/$REPO/issues/comments/$COMMENT_ID/reactions" -f content="$1" >/dev/null 2>&1 || true; }
           reply() { gh issue comment "$N" --repo "$REPO" --body "$1" >/dev/null; }
-          # Re-read live state: two /claim comments seconds apart are serialized by the
-          # concurrency group, so the second one sees the first one's assignment.
-          assignees=$(gh api "repos/$REPO/issues/$N" --jq '[.assignees[].login]|join(",")')
+          # Live state, not the event payload: two /claim comments seconds apart are serialized by
+          # the concurrency group, so the second one sees the first one's assignment.
+          held=$(holders "$N")
           case "$BODY" in
             /release*)
               gh issue edit "$N" --repo "$REPO" --remove-assignee "$WHO" >/dev/null 2>&1 || true
-              left=$(gh api "repos/$REPO/issues/$N" --jq '.assignees|length')
-              if [ "$left" = "0" ]; then gh issue edit "$N" --repo "$REPO" --remove-label in-progress >/dev/null 2>&1 || true; fi
-              react "+1"; say "#$N released by $WHO ($left assignee(s) left)"
+              react "+1"; say "#$N released by $WHO"
               ;;
             *)
-              if [ -n "$assignees" ] && [[ ",$assignees," != *",$WHO,"* ]]; then
+              if [ -n "$held" ] && [[ ",$held," != *",$WHO,"* ]]; then
                 react "-1"
-                reply "⛔ @$WHO — #$N is already claimed by @${assignees//,/, @}. Pick another \`ready\` issue with no assignee, or ask here to pair or take over (the holder can \`/release\`). Starting anyway is how duplicate PRs happen."
-                say "#$N: claim by $WHO refused (held by $assignees)"
-              elif gh issue edit "$N" --repo "$REPO" --add-assignee "$WHO" --add-label in-progress >/dev/null 2>err.txt; then
+                reply "⛔ @$WHO — #$N is already held by @${held//,/, @}. Pick another \`ready\` issue with no assignee, or ask here to pair or take over (a holder can assign you, or \`/release\`). Starting anyway is how duplicate PRs happen."
+                say "#$N: claim by $WHO refused (held by $held)"
+              elif gh issue edit "$N" --repo "$REPO" --add-assignee "$WHO" >/dev/null 2>err.txt; then
                 react "+1"
-                reply "🔒 Claimed by @$WHO. Branch \`<you>/$N-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$N\`** after the first commit. \`/release\` if you drop it."
+                reply "🔒 @$WHO holds #$N. Branch \`<you>/$N-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$N\`** after the first commit. \`/release\` if you drop it."
                 say "#$N claimed by $WHO"
               else
                 react "confused"
@@ -113,23 +127,40 @@ jobs:
               ;;
           esac
 
-  assignment-label:
-    if: github.event_name == 'issues' && github.event.action != 'opened'
+  single-holder:
+    if: github.event_name == 'issues' && github.event.action == 'assigned'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    concurrency:
+      group: issue-${{ github.event.issue.number }}
+      cancel-in-progress: false
     steps:
-      - name: Keep the in-progress label truthful for direct (un)assignment
+      - name: A second assignee is removed and told who holds the issue
         env:
           N: ${{ github.event.issue.number }}
+          NEW: ${{ github.event.assignee.login }}
+          SENDER: ${{ github.event.sender.login }}
         shell: bash
         run: |
           set -euo pipefail
           eval "$COORD_LIB"
-          ensure_label in-progress 1d76db "claimed: someone is actively working this issue"
-          count=$(gh api "repos/$REPO/issues/$N" --jq '.assignees|length')
-          if [ "$count" = "0" ]; then gh issue edit "$N" --repo "$REPO" --remove-label in-progress >/dev/null 2>&1 || true
-          else gh issue edit "$N" --repo "$REPO" --add-label in-progress >/dev/null 2>&1 || true; fi
-          say "#$N assignees=$count"
+          # Earliest standing assignment wins. Order comes from the issue's event log, not from
+          # the payload, so two near-simultaneous assignments resolve the same way in both runs.
+          current=$(holders "$N")
+          [ -z "$current" ] && { say "#$N: no assignees left"; exit 0; }
+          # Replay assigned/unassigned events in order; the survivor assigned longest ago holds it.
+          first=$(gh api "repos/$REPO/issues/$N/events?per_page=100" --paginate \
+                    --jq '.[]|select(.event=="assigned" or .event=="unassigned")|"\(.event) \(.assignee.login)"' \
+                  | awk -v cur=",$current," '
+                      $1=="assigned" && !($2 in pos) { pos[$2]=++n; order[n]=$2 }
+                      $1=="unassigned"               { delete pos[$2] }
+                      END { for (i=1; i<=n; i++) if ((order[i] in pos) && pos[order[i]]==i && index(cur, ","order[i]",")) { print order[i]; exit } }')
+          [ -z "$first" ] && first=${current%%,*}
+          if [ "$NEW" = "$first" ] || [[ ",$current," != *",$NEW,"* ]]; then say "#$N: $NEW holds it"; exit 0; fi
+          if [[ ",$current," == *",$SENDER,"* ]] && [ "$SENDER" != "$NEW" ]; then say "#$N: holder $SENDER added $NEW (pairing) — allowed"; exit 0; fi
+          gh issue edit "$N" --repo "$REPO" --remove-assignee "$NEW" >/dev/null 2>&1 || true
+          gh issue comment "$N" --repo "$REPO" --body "⛔ @$NEW — #$N is already held by @$first, so your assignment was removed. Pick another \`ready\` issue with no assignee, or ask here: @$first can add you to pair, or \`/release\` it. Two people quietly working one issue is how this repo got duplicate PRs." >/dev/null
+          say "#$N: removed second assignee $NEW (holder: $first)"
 
   issue-dedup:
     if: github.event_name == 'issues' && github.event.action == 'opened' && github.event.issue.user.type != 'Bot'
@@ -137,6 +168,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
+        with:
+          sparse-checkout: tools/dev
       - name: Point out likely duplicates of the new issue
         env:
           N: ${{ github.event.issue.number }}
@@ -160,19 +193,34 @@ jobs:
           comment_once "$N" "dedup" "$(cat body.md)"
           say "#$N: posted $(wc -l < hits.md) candidate(s)"
 
-  pr-link:
+  pr-check:
+    # opened/reopened always; edited only when the body or the base changed (title edits are noise).
     if: >-
       github.event_name == 'pull_request' && github.event.action != 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event.action != 'edited' || github.event.changes.body || github.event.changes.base)
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
-      group: pr-link-${{ github.event.pull_request.number }}
+      group: pr-check-${{ github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
+      - name: Stacked-base warning
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          BASE: ${{ github.event.pull_request.base.ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          eval "$COORD_LIB"
+          if [ "$BASE" = "$DEFAULT" ]; then label "$PR" -stacked; exit 0; fi
+          label "$PR" +stacked
+          comment_once "$PR" "stacked-$BASE" "🥞 **Stacked PR:** base is \`$BASE\`, not \`$DEFAULT\`. \`$DEFAULT\` squash-merges here, and if \`$BASE\` is deleted by hand afterwards (\`gh pr merge --delete-branch\`, \`git push --delete\`) GitHub closes this PR **unmerged** — that is how #39 was lost. The hourly \`coord / sweep\` retargets or reopens such PRs, but the safe move is to branch from \`$DEFAULT\`, or retarget this PR yourself (\`gh pr edit $PR --base $DEFAULT\`) before the parent lands and rebase after."
+          say "#$PR stacked on $BASE"
       - uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.repository.default_branch }}   # trusted helper from trunk; also fine when the PR conflicts
+          ref: ${{ github.event.pull_request.head.sha }}   # the head, not the merge ref: works while the PR conflicts, and while coord.py itself is what the PR adds
+          sparse-checkout: tools/dev
       - name: Linked issue present, claimed, and not double-worked
         env:
           PR: ${{ github.event.pull_request.number }}
@@ -183,86 +231,52 @@ jobs:
         run: |
           set -euo pipefail
           eval "$COORD_LIB"
-          ensure_label needs-issue b60205 "PR has no linked issue (Closes #N / Refs #N)"
-          ensure_label overlap d93f0b "another open PR or another assignee targets the same issue"
-          ensure_label in-progress 1d76db "claimed: someone is actively working this issue"
-          printf '%s' "$BODY" > body.txt
-          refs=$(python3 tools/dev/coord.py refs --body-file body.txt)
-          closing=$(jq -r '.closing[]' <<<"$refs"); mentioned=$(jq -r '.refs[]' <<<"$refs"); negated=$(jq -r '.negated[]' <<<"$refs")
-          echo "refs: $(jq -c . <<<"$refs")"
-
-          if [ -z "$closing$mentioned" ]; then
-            gh pr edit "$PR" --repo "$REPO" --add-label needs-issue >/dev/null 2>&1 || true
-            comment_once "$PR" "needs-issue" "🏷️ No linked issue. Every PR here answers an issue — that is how other sessions see the territory is taken. Add \`Closes #N\` (or \`Refs #N\` for a partial) to the description; if no issue exists yet, search open issues for a duplicate first, then open one and \`/claim\` it."
+          refs=$(python3 tools/dev/coord.py refs <<<"$BODY")
+          echo "refs: $refs"
+          closing=$(jq -r '.closing[]' <<<"$refs")
+          if [ "$(jq '(.closing+.refs)|length' <<<"$refs")" = "0" ]; then
+            label "$PR" +needs-issue
+            comment_once "$PR" "needs-issue" "🏷️ No linked issue. Every PR here answers an issue — that is how other sessions see the territory is taken. Add \`Closes #N\` (or \`Refs #N\` for a partial) to the description; if no issue exists yet, search open issues for a duplicate first, then open one and assign yourself (or comment \`/claim\`)."
             say "#$PR: no issue reference"; exit 0
           fi
-          gh pr edit "$PR" --repo "$REPO" --remove-label needs-issue >/dev/null 2>&1 || true
-
-          for n in $negated; do
+          label "$PR" -needs-issue
+          for n in $(jq -r '.negated[]' <<<"$refs"); do
             comment_once "$PR" "negated-$n" "⚠️ The description says something like *does not close #$n*, but GitHub's linker ignores the negation: merging this PR **will close #$n**. Reword it (e.g. *Refs #$n; #$n stays open*)."
           done
-
-          others=$(gh pr list --repo "$REPO" --state open --limit 100 --json number,author,body \
-                   | jq -c --argjson me "$PR" '[.[]|select(.number != $me)]')
+          [ -z "$closing" ] && { label "$PR" -overlap; say "#$PR: refs only"; exit 0; }
+          gh pr list --repo "$REPO" --state open --limit 100 --json number,author,body > prs.json
           overlap=""
           for n in $closing; do
             issue=$(gh api "repos/$REPO/issues/$n" 2>/dev/null || echo '{}')
-            # Skip references that are PRs or do not resolve.
-            if [ "$(jq -r 'has("pull_request")' <<<"$issue")" = "true" ] || [ -z "$(jq -r '.number // empty' <<<"$issue")" ]; then continue; fi
-            holders=$(jq -r '[.assignees[].login]|join(",")' <<<"$issue")
-            if [ -z "$holders" ]; then
-              if [ "$AUTHOR_TYPE" != "Bot" ]; then
-                gh issue edit "$n" --repo "$REPO" --add-assignee "$AUTHOR" --add-label in-progress >/dev/null 2>&1 || true
-                say "#$PR: late-claimed #$n for $AUTHOR"
-              fi
-            elif [[ ",$holders," != *",$AUTHOR,"* ]] && [ "$AUTHOR_TYPE" != "Bot" ]; then
+            jq -e 'has("pull_request") or (has("number")|not)' <<<"$issue" >/dev/null && continue   # a PR, or nothing
+            held=$(jq -r '[.assignees[].login]|join(",")' <<<"$issue")
+            if [ -z "$held" ]; then
+              if [ "$AUTHOR_TYPE" != "Bot" ] && gh issue edit "$n" --repo "$REPO" --add-assignee "$AUTHOR" >/dev/null 2>&1; then say "#$PR: #$n was unclaimed — assigned to $AUTHOR"; fi
+            elif [[ ",$held," != *",$AUTHOR,"* ]] && [ "$AUTHOR_TYPE" != "Bot" ]; then
               overlap=1
-              comment_once "$PR" "held-$n" "⚠️ This PR closes #$n, but #$n is claimed by @${holders//,/, @} — not by @$AUTHOR. If that is coordinated (pairing, hand-off), say so on #$n; otherwise one of you is doing duplicate work. The older PR wins at merge time."
+              comment_once "$PR" "held-$n" "⚠️ This PR closes #$n, but #$n is held by @${held//,/, @} — not by @$AUTHOR. If that is coordinated (pairing, hand-off), say so on #$n; otherwise one of you is doing duplicate work. The older PR wins at merge time."
             fi
-            # Other open PRs that also close #n (word boundary so #4 does not match #40).
-            rivals=$(jq -r --arg n "$n" '[.[]|select((.body//"")|test("(?i)(close[sd]?|fix(e[sd])?|resolve[sd]?)\\s*:?\\s+#" + $n + "\\b"))|"#\(.number) (@\(.author.login))"]|join(", ")' <<<"$others")
+            rivals=""
+            while read -r rn ra; do
+              [ -z "${rn:-}" ] && continue
+              rivals="$rivals #$rn (@$ra)"; label "$rn" +overlap
+            done < <(python3 tools/dev/coord.py rivals --issue "$n" --self "$PR" --prs prs.json)
             if [ -n "$rivals" ]; then
               overlap=1
-              comment_once "$PR" "rival-$n" "⚠️ **Duplicate work:** $rivals also close(s) #$n. automerge lets the **oldest** open PR win and parks the rest with \`needs-human\` — settle it now: keep one, close or re-scope the other, and note the decision on #$n."
-              for r in $(grep -oE '#[0-9]+' <<<"$rivals" | tr -d '#'); do gh pr edit "$r" --repo "$REPO" --add-label overlap >/dev/null 2>&1 || true; done
+              comment_once "$PR" "rival-$n" "⚠️ **Duplicate work:**$rivals also close(s) #$n. automerge lets the **oldest** open PR win and parks the rest with \`needs-human\` — settle it now: keep one, close or re-scope the other, and note the decision on #$n."
             fi
           done
-          if [ -n "$overlap" ]; then gh pr edit "$PR" --repo "$REPO" --add-label overlap >/dev/null 2>&1 || true
-          else gh pr edit "$PR" --repo "$REPO" --remove-label overlap >/dev/null 2>&1 || true; fi
+          if [ -n "$overlap" ]; then label "$PR" +overlap; else label "$PR" -overlap; fi
           say "#$PR checked"
 
-  stack-guard:
-    if: >-
-      github.event_name == 'pull_request' &&
-      (github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'reopened')
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Warn when a PR is stacked on another PR's branch
-        env:
-          PR: ${{ github.event.pull_request.number }}
-          BASE: ${{ github.event.pull_request.base.ref }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          eval "$COORD_LIB"
-          ensure_label stacked fbca04 "base is another PR's branch, not the default branch"
-          if [ "$BASE" = "$DEFAULT" ]; then
-            gh pr edit "$PR" --repo "$REPO" --remove-label stacked >/dev/null 2>&1 || true
-            say "#$PR based on $DEFAULT"; exit 0
-          fi
-          gh pr edit "$PR" --repo "$REPO" --add-label stacked >/dev/null 2>&1 || true
-          comment_once "$PR" "stacked-$BASE" "🥞 **Stacked PR:** base is \`$BASE\`, not \`$DEFAULT\`. Here \`$DEFAULT\` squash-merges and deletes branches, and when \`$BASE\` disappears GitHub closes this PR **unmerged** (it happened to #39). \`coord / stack-rescue\` will try to retarget or reopen it when the parent merges, but the safe move is to branch from \`$DEFAULT\`, or retarget this PR yourself (\`gh pr edit $PR --base $DEFAULT\`) before the parent lands and rebase after."
-          say "#$PR stacked on $BASE"
-
-  stack-rescue:
+  sweep:
     if: >-
       github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
-      group: stack-rescue
+      group: sweep
       cancel-in-progress: false
     steps:
       - name: Retarget (or reopen) PRs stacked on a branch whose PR has merged
@@ -273,28 +287,23 @@ jobs:
           note() {  # $1=child $2=parent $3=onto $4=extra
             comment_once "$1" "rescued-$2" "🔧 Parent #$2 merged and its branch went away, so this PR was **retargeted to \`$3\`**$4. Rebase when convenient (\`git fetch && git rebase origin/$3 && git push --force-with-lease\`) so the diff shows only your change."
           }
-          parent_of() {  # $1=branch -> "number headsha base mergedAt" of the MERGED PR whose head was that branch, or nothing
+          parent_of() {  # $1=branch -> "number headsha base mergedAt" of the merged PR whose head was that branch, or nothing
             gh pr list --repo "$REPO" --head "$1" --state merged --limit 1 --json number,headRefOid,baseRefName,mergedAt \
-              | jq -r '.[0]|select(.)|"\(.number) \(.headRefOid) \(.baseRefName) \(.mergedAt)"'
+              --jq '.[]|"\(.number) \(.headRefOid) \(.baseRefName) \(.mergedAt)"'
           }
-          # 1) Open PRs whose base is a branch that a merged PR used as its head: retarget now,
-          #    before the branch is deleted out from under them.
+          open=$(gh pr list --repo "$REPO" --state open --limit 100 --json number,baseRefName,headRefOid)
+          # (1) Open PRs based on a branch that a merged PR used as its head: retarget them before
+          #     anyone deletes that branch out from under them.
           while read -r num base; do
-            [ -z "${num:-}" ] && continue
-            [ "$base" = "$DEFAULT" ] && continue
             read -r p _sha onto _merged <<<"$(parent_of "$base")" || true
             [ -z "${p:-}" ] && continue
             if gh pr edit "$num" --repo "$REPO" --base "$onto" >/dev/null 2>&1; then note "$num" "$p" "$onto" ""; say "#$num retargeted $base -> $onto (parent #$p)"
             else echo "::warning::could not retarget #$num from $base to $onto"; fi
-          done < <(gh pr list --repo "$REPO" --state open --limit 100 --json number,baseRefName | jq -r '.[]|"\(.number) \(.baseRefName)"')
-          # 2) PRs GitHub closed unmerged in the last 2 h because their base branch was deleted right
-          #    after the parent merged (closed within 15 min of that merge): bring them back — unless
-          #    their commits already ride in some open PR (someone carried the work by hand).
-          cutoff=$(date -u -d '2 hours ago' +%Y-%m-%dT%H:%M:%SZ)
-          open_heads=$(gh pr list --repo "$REPO" --state open --limit 100 --json number,headRefOid | jq -r '.[]|"\(.number) \(.headRefOid)"')
+          done < <(jq -r --arg d "$DEFAULT" '.[]|select(.baseRefName != $d)|"\(.number) \(.baseRefName)"' <<<"$open")
+          # (2) PRs GitHub closed unmerged in the last 2 h because their base branch was deleted right
+          #     after the parent merged (closed within 15 min of that merge): bring them back, unless
+          #     their commits already ride in some open PR (someone carried the work by hand).
           while read -r num base closed kidsha; do
-            [ -z "${num:-}" ] && continue
-            [ "$base" = "$DEFAULT" ] && continue
             gh api "repos/$REPO/branches/$base" >/dev/null 2>&1 && continue      # base still exists: not our case
             read -r p sha onto merged <<<"$(parent_of "$base")" || true
             [ -z "${p:-}" ] && continue
@@ -305,7 +314,7 @@ jobs:
               [ -z "${onum:-}" ] && continue
               st=$(gh api "repos/$REPO/compare/$kidsha...$osha" --jq .status 2>/dev/null || true)
               if [ "$st" = "ahead" ] || [ "$st" = "identical" ]; then carrier=$onum; break; fi
-            done <<<"$open_heads"
+            done < <(jq -r '.[]|"\(.number) \(.headRefOid)"' <<<"$open")
             if [ -n "$carrier" ]; then say "#$num: its commits already ride in open PR #$carrier — not reopening"; continue; fi
             gh api -X POST "repos/$REPO/git/refs" -f ref="refs/heads/$base" -f sha="$sha" >/dev/null 2>&1 || { echo "::warning::#$num: could not recreate $base"; continue; }
             if gh pr reopen "$num" --repo "$REPO" >/dev/null 2>&1 && gh pr edit "$num" --repo "$REPO" --base "$onto" >/dev/null 2>&1; then
@@ -315,18 +324,11 @@ jobs:
             fi
             gh api -X DELETE "repos/$REPO/git/refs/heads/$base" >/dev/null 2>&1 || true
           done < <(gh pr list --repo "$REPO" --state closed --limit 50 --json number,baseRefName,closedAt,mergedAt,headRefOid \
-                     | jq -r --arg c "$cutoff" '.[]|select(.mergedAt==null and .closedAt > $c)|"\(.number) \(.baseRefName) \(.closedAt) \(.headRefOid)"')
-          say "stack-rescue sweep done"
-
-  orphan-sweep:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    concurrency:
-      group: orphan-sweep
-      cancel-in-progress: false
-    steps:
-      - name: Open a draft PR for pushed branches nobody can see
+                     | jq -r --arg d "$DEFAULT" --arg c "$(date -u -d '2 hours ago' +%Y-%m-%dT%H:%M:%SZ)" \
+                          '.[]|select(.mergedAt==null and .closedAt > $c and .baseRefName != $d)|"\(.number) \(.baseRefName) \(.closedAt) \(.headRefOid)"')
+          say "stack rescue done"
+      - name: Surface pushed branches nobody can see
+        if: github.event_name != 'pull_request'
         env:
           MIN_AGE_S: "1200"
         shell: bash
@@ -339,24 +341,23 @@ jobs:
             local t="coord: branches pushed without a PR"
             tracking=$(gh issue list --repo "$REPO" --state open --search "\"$t\" in:title" --json number,title \
                        | jq -r --arg t "$t" '[.[]|select(.title==$t)][0].number // empty')
-            if [ -z "$tracking" ]; then
-              ensure_label tracking 5319e7 ""
-              tracking=$(gh issue create --repo "$REPO" --title "$t" --label tracking --body "Fallback ledger for \`coord / orphan-sweep\`: this repository does not let GitHub Actions open pull requests (Settings → Actions → General → *Allow GitHub Actions to create and approve pull requests*), so branches that were pushed with no PR are listed here instead. Owners of these branches: open your draft PR (\`Closes #N\`) or delete the branch." | grep -oE '[0-9]+$')
-            fi
+            [ -n "$tracking" ] && return 0
+            tracking=$(gh issue create --repo "$REPO" --title "$t" --body "Fallback ledger for \`coord / sweep\`: this repository does not let GitHub Actions open pull requests (Settings → Actions → General → *Allow GitHub Actions to create and approve pull requests*), so branches that were pushed with no PR are listed here instead. Owners of these branches: open your draft PR (\`Closes #N\`) or delete the branch." | grep -oE '[0-9]+$')
+            label "$tracking" +tracking
           }
-          fmt='> **Opened automatically by `coord / orphan-sweep`.** Branch `%s` was pushed %s min ago (%s commit(s) ahead of `%s`) with **no pull request**, so no other human or session could see this territory was taken. Last commit by %s.\n\n**If this is your branch:** rewrite this description using the PR template (link the issue with `Closes #N` and `/claim` it), keep pushing here, and mark the PR *Ready* when done. **If the work is abandoned:** close this PR and delete the branch.\n\n_CI does not start for a bot-opened PR until the next push to the branch._\n'
+          fmt='> **Opened automatically by `coord / sweep`.** Branch `%s` was pushed %s min ago (%s commit(s) ahead of `%s`) with **no pull request**, so no other human or session could see this territory was taken. Last commit by %s.\n\n**If this is your branch:** rewrite this description using the PR template (link the issue with `Closes #N` and assign yourself), keep pushing here, and mark the PR *Ready* when done. **If the work is abandoned:** close this PR and delete the branch.\n\n_CI does not start for a bot-opened PR until the next push to the branch._\n'
+          # Every branch any PR (open, closed, merged) has ever used as its head is accounted for.
+          known=$(gh pr list --repo "$REPO" --state all --limit 1000 --json headRefName --jq '.[].headRefName' | sort -u)
           while read -r br; do
-            [ -z "$br" ] && continue
-            case "$br" in "$DEFAULT"|gh-pages|dependabot/*) continue;; esac
-            n=$(gh pr list --repo "$REPO" --head "$br" --state all --limit 1 --json number --jq length)
-            [ "$n" != "0" ] && continue
-            tip=$(gh api -X GET "repos/$REPO/commits" -f sha="$br" -f per_page=1 \
-                  --jq '.[0]|{sha:.sha, date:.commit.committer.date, subj:(.commit.message|split("\n")[0]), login:(.author.login//""), name:.commit.author.name}')
-            age=$(( now - $(date -u -d "$(jq -r .date <<<"$tip")" +%s) ))
+            case "$br" in ""|"$DEFAULT"|gh-pages|dependabot/*) continue;; esac
+            grep -qxF -- "$br" <<<"$known" && continue
+            sha=""; { read -r sha; read -r date; read -r login; read -r name; read -r subj; } < <(gh api -X GET "repos/$REPO/commits" -f sha="$br" -f per_page=1 \
+                --jq '.[0]|.sha, .commit.committer.date, (.author.login//""), .commit.author.name, (.commit.message|split("\n")[0])') || true
+            [ -z "$sha" ] && { echo "::warning::$br: could not read tip commit"; continue; }
+            age=$(( now - $(date -u -d "$date" +%s) ))
             if [ "$age" -lt "$MIN_AGE_S" ]; then say "$br: pushed ${age}s ago — giving its session time to open its own PR"; continue; fi
             ahead=$(gh api "repos/$REPO/compare/$DEFAULT...$br" --jq .ahead_by 2>/dev/null || echo 0)
             if [ "$ahead" = "0" ]; then say "$br: nothing ahead of $DEFAULT — stale, skipping"; continue; fi
-            subj=$(jq -r .subj <<<"$tip"); login=$(jq -r .login <<<"$tip"); name=$(jq -r .name <<<"$tip"); sha=$(jq -r .sha <<<"$tip")
             if [ -n "$login" ]; then owner_txt="@$login"; else owner_txt="\`$name\`"; fi
             body=$(printf "$fmt" "$br" "$((age/60))" "$ahead" "$DEFAULT" "$owner_txt")
             if gh pr create --repo "$REPO" --head "$br" --base "$DEFAULT" --draft --title "$subj" --body "$body" >/dev/null 2>pr.err; then
@@ -368,5 +369,5 @@ jobs:
             else
               echo "::warning::$br: could not open PR: $(tr '\n' ' ' <pr.err | cut -c1-300)"
             fi
-          done < <(gh api "repos/$REPO/branches" --paginate --jq '.[].name')
-          say "orphan-sweep done: $opened draft PR(s) opened"
+          done < <(gh api "repos/$REPO/branches?per_page=100" --paginate --jq '.[].name')
+          say "orphan sweep done: $opened draft PR(s) opened"

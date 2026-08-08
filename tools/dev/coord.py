@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Coordination helpers for .github/workflows/coord.yml (stdlib only, GITHUB_TOKEN only).
 
-Two jobs the workflow cannot do well in bash:
+The parts of the workflow that bash + jq do badly:
 
   similar  Rank existing issues whose TITLE looks like a new issue's title, so a
            freshly filed issue gets a "possible duplicates" hint before two
@@ -10,15 +10,20 @@ Two jobs the workflow cannot do well in bash:
            schema_cache/index.json or cp1252 carry most of the weight.
              python tools/dev/coord.py similar --title "T" --self 45 --issues issues.json
 
-  refs     Parse a PR body the way GitHub does: which issues it CLOSES on merge
-           (close/closes/closed/fix/fixes/fixed/resolve/resolves/resolved #N) vs
-           merely mentions, plus the "does not close #N" trap - GitHub ignores
-           the negation and closes #N anyway.
-             python tools/dev/coord.py refs --body-file body.txt      -> JSON
+  refs     Parse a PR body (stdin) the way GitHub's linker does: which issues it
+           CLOSES on merge (close/closes/closed/fix/fixes/fixed/resolve/resolves/
+           resolved #N) vs merely mentions, plus the "does not close #N" trap -
+           GitHub ignores the negation and closes #N anyway.
+             python tools/dev/coord.py refs < body.txt                 -> JSON
 
-issues.json is `gh issue list --json number,title,state,assignees` output.
+  rivals   Other PRs whose body closes a given issue, through the same parser.
+             python tools/dev/coord.py rivals --issue 37 --prs prs.json  -> "number login" lines
+
+issues.json / prs.json are `gh issue list --json number,title,state,assignees` and
+`gh pr list --json number,author,body` output.
 """
 import argparse, json, math, re, sys
+from collections import Counter
 
 STOP = frozenset("""
 the a an and or of on in to for with without from by at as is are be it its this that these those
@@ -26,8 +31,9 @@ when then than not no into via per all any every each own one two make add fix r
 does did which what who how here there after before under over out up so if
 """.split())
 
-CLOSING = re.compile(r"(?<![\w-])(close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+#(\d+)", re.I)
-NEGATED = re.compile(r"\bnot\b[\s*_`~]{0,8}(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+#(\d+)", re.I)
+_KEYWORD = r"(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s*:?\s+#(\d+)"
+CLOSING = re.compile(r"(?<![\w-])" + _KEYWORD, re.I)
+NEGATED = re.compile(r"\bnot\b[\s*_`~]{0,8}" + _KEYWORD, re.I)
 MENTION = re.compile(r"(?<![\w/&])#(\d+)\b")
 
 
@@ -44,16 +50,12 @@ def _stem(t: str) -> str:
 def tokens(title: str) -> set:
     """Lower-cased content tokens of a title: whole identifiers plus their parts."""
     out = set()
-    for run in re.findall(r"[a-z0-9_][a-z0-9_.\-/]*", title.lower()):
-        for piece in run.strip("._-/").split("/"):
-            piece = piece.strip("._-")
-            if not piece or piece in STOP:
-                continue
-            if re.search(r"[a-z]", piece):
-                out.add(_stem(piece))
-            for sub in re.split(r"[._\-]", piece):
-                if len(sub) >= 3 and sub not in STOP and re.search(r"[a-z]", sub):
-                    out.add(_stem(sub))
+    for piece in re.findall(r"[a-z0-9_][a-z0-9_.\-]*", title.lower()):
+        piece = piece.strip("._-")
+        subs = [s for s in re.split(r"[._\-]", piece) if len(s) >= 3]
+        for t in [piece] + subs:
+            if t and t not in STOP and re.search(r"[a-z]", t):
+                out.add(_stem(t))
     return out
 
 
@@ -65,29 +67,22 @@ def similar(title: str, issues: list, self_number: int = 0,
     from the candidate list itself plus the new title, so words every issue uses
     ("windows", "plugin") count little and rare identifiers count a lot.
     """
-    cands = [i for i in issues if int(i.get("number", 0)) != int(self_number or 0)]
-    toks = {int(i["number"]): tokens(i.get("title", "")) for i in cands}
     mine = tokens(title)
-    n_docs = len(toks) + 1
-    df = {}
-    for s in list(toks.values()) + [mine]:
-        for t in s:
-            df[t] = df.get(t, 0) + 1
-
-    def weight(t):
-        return math.log((n_docs + 1) / (df.get(t, 0) + 0.5))
-
-    mine_w = sum(weight(t) for t in mine)
+    cands = [(i, tokens(i.get("title", ""))) for i in issues
+             if int(i.get("number", 0)) != int(self_number or 0)]
+    if not mine or not cands:
+        return []
+    df = Counter(t for toks in [mine, *(toks for _, toks in cands)] for t in toks)
+    w = {t: math.log((len(cands) + 2) / (c + 0.5)) for t, c in df.items()}
+    mine_w = sum(w[t] for t in mine)
     hits = []
-    for i in cands:
-        other = toks[int(i["number"])]
+    for issue, other in cands:
         shared = mine & other
-        if not shared or not mine_w:
+        if not shared:
             continue
-        den = min(mine_w, sum(weight(t) for t in other))
-        score = sum(weight(t) for t in shared) / den if den else 0.0
+        score = sum(w[t] for t in shared) / min(mine_w, sum(w[t] for t in other))
         if score >= threshold:
-            hits.append((round(score, 3), i, sorted(shared, key=lambda t: (-weight(t), t))))
+            hits.append((round(score, 3), issue, sorted(shared, key=lambda t: (-w[t], t))))
     hits.sort(key=lambda h: (-h[0], int(h[1]["number"])))
     return hits[:limit]
 
@@ -95,14 +90,21 @@ def similar(title: str, issues: list, self_number: int = 0,
 def refs(body: str) -> dict:
     """{'closing': [...], 'refs': [...], 'negated': [...]} issue numbers found in a PR body."""
     body = re.sub(r"<!--.*?-->", " ", body or "", flags=re.S)   # template comments don't count
-    closing = sorted({int(n) for _, n in CLOSING.findall(body)})
-    negated = sorted({int(n) for n in NEGATED.findall(body)})
-    mentioned = sorted({int(n) for n in MENTION.findall(body)} - set(closing))
-    return {"closing": closing, "refs": mentioned, "negated": negated}
+    closing = sorted({int(n) for n in CLOSING.findall(body)})
+    return {"closing": closing,
+            "refs": sorted({int(n) for n in MENTION.findall(body)} - set(closing)),
+            "negated": sorted({int(n) for n in NEGATED.findall(body)})}
+
+
+def rivals(issue: int, prs: list, self_number: int = 0) -> list:
+    """[(number, author_login)] of PRs (other than self) whose body closes `issue`."""
+    return [(int(p["number"]), (p.get("author") or {}).get("login", ""))
+            for p in prs
+            if int(p["number"]) != int(self_number or 0) and issue in refs(p.get("body") or "")["closing"]]
 
 
 def _fmt_hit(score, issue, shared) -> str:
-    who = ",".join("@" + a["login"] for a in (issue.get("assignees") or []) if a.get("login"))
+    who = ", ".join("@" + a["login"] for a in (issue.get("assignees") or []) if a.get("login"))
     state = str(issue.get("state", "")).lower() or "?"
     held = f", held by {who}" if who else (", unassigned" if state == "open" else "")
     return (f"- #{issue['number']} ({state}{held}) {issue.get('title', '').strip()} "
@@ -116,19 +118,23 @@ def main(argv=None) -> int:
     s.add_argument("--title", required=True)
     s.add_argument("--self", type=int, default=0, help="number of the issue being checked (excluded)")
     s.add_argument("--issues", required=True, help="JSON file: gh issue list --json number,title,state,assignees")
-    s.add_argument("--threshold", type=float, default=0.22)
-    s.add_argument("--limit", type=int, default=3)
-    r = sub.add_parser("refs", help="print JSON {closing, refs, negated} parsed from a PR body")
-    r.add_argument("--body-file", required=True)
+    sub.add_parser("refs", help="read a PR body on stdin, print JSON {closing, refs, negated}")
+    r = sub.add_parser("rivals", help="print 'number login' per other PR that closes --issue")
+    r.add_argument("--issue", type=int, required=True)
+    r.add_argument("--self", type=int, default=0, help="number of the PR being checked (excluded)")
+    r.add_argument("--prs", required=True, help="JSON file: gh pr list --json number,author,body")
     a = ap.parse_args(argv)
-    if a.cmd == "similar":
-        with open(a.issues, encoding="utf-8") as fh:
-            issues = json.load(fh)
-        for hit in similar(a.title, issues, a.self, a.threshold, a.limit):
-            print(_fmt_hit(*hit))
+    if a.cmd == "refs":
+        print(json.dumps(refs(sys.stdin.read())))
         return 0
-    with open(a.body_file, encoding="utf-8", errors="replace") as fh:
-        print(json.dumps(refs(fh.read())))
+    with open(a.issues if a.cmd == "similar" else a.prs, encoding="utf-8") as fh:
+        data = json.load(fh)
+    if a.cmd == "similar":
+        for hit in similar(a.title, data, a.self):
+            print(_fmt_hit(*hit))
+    else:
+        for number, login in rivals(a.issue, data, a.self):
+            print(number, login)
     return 0
 
 

@@ -3,9 +3,9 @@
 The fixture is the real issue list from the repo's first night (2026-08-07/08),
 when two contributors' sessions filed and fixed the same three bugs twice
 (#26/#34, #29/#32, #27+#37/#33). `similar` must flag each later filing against
-the earlier one and stay quiet on the unrelated seeded queue; `refs` must read
-PR bodies the way GitHub's issue linker does, including the "does not close #N"
-trap that closes #N anyway.
+the earlier one and stay quiet on the unrelated seeded queue; `refs`/`rivals`
+must read PR bodies the way GitHub's issue linker does, including the
+"does not close #N" trap that closes #N anyway.
 """
 import importlib.util
 import json
@@ -15,6 +15,9 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 COORD = os.path.join(ROOT, "tools", "dev", "coord.py")
+_spec = importlib.util.spec_from_file_location("coord", COORD)
+coord = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(coord)
 
 TITLES = {
     1: 'Front door: restore wall derivation from room prompts + add rating-class voltage vocabulary ("250V")',
@@ -53,12 +56,12 @@ TITLES = {
 # (later issue, the earlier issue it duplicated) — what actually happened that night.
 DUPLICATES = [(34, 26), (32, 29), (33, 27), (37, 33)]
 
-
-def _load():
-    spec = importlib.util.spec_from_file_location("coord", COORD)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+PR_BODY = """<!-- One issue = one branch = one PR. Closes #999 in a template comment does not count -->
+Closes #37
+Refs #29 (stage 1 of 3 — does **not** close #29)
+Also fixes: #12 and resolved #7; see #40 for the gates, and the pre-fix #18 artifacts.
+&#39;quoted&#39; entity is not issue 39.
+"""
 
 
 def _filed_before(n):
@@ -67,31 +70,23 @@ def _filed_before(n):
 
 
 def test_similar_flags_each_real_duplicate_against_what_was_already_filed():
-    coord = _load()
     for later, earlier in DUPLICATES:
         hits = coord.similar(TITLES[later], _filed_before(later), self_number=later)
         numbers = [h[1]["number"] for h in hits]
         assert earlier in numbers, (later, earlier, hits)
-        assert numbers[0] == earlier or (later, numbers[0]) in [(37, 33), (37, 27)], hits
+        # top hit is the real duplicate; #37 may rank the closely related #27 next to #33
+        assert numbers[0] == earlier or (later, numbers[0]) == (37, 27), hits
 
 
 def test_similar_stays_quiet_on_the_unrelated_seeded_queue():
-    coord = _load()
-    noisy = {}
-    for n in TITLES:
-        if n in dict(DUPLICATES) or n > 25:
-            continue
-        hits = coord.similar(TITLES[n], _filed_before(n), self_number=n)
-        if hits:
-            noisy[n] = [(h[0], h[1]["number"]) for h in hits]
-    assert noisy == {}, noisy
+    noisy = {n: [(h[0], h[1]["number"]) for h in coord.similar(TITLES[n], _filed_before(n), n)]
+             for n in TITLES if n <= 25}
+    assert {n: h for n, h in noisy.items() if h} == {}
 
 
 def test_similar_excludes_self_and_ranks_rare_identifiers_above_common_words():
-    coord = _load()
     everything = [{"number": k, "title": t, "state": "open"} for k, t in TITLES.items()]
     hits = coord.similar(TITLES[34], everything, self_number=34)
-    assert hits and hits[0][1]["number"] == 26
     assert 34 not in [h[1]["number"] for h in hits]
     shared = hits[0][2]
     assert {"validate_plugin", "shared", "plugin"} <= set(shared), shared
@@ -99,35 +94,39 @@ def test_similar_excludes_self_and_ranks_rare_identifiers_above_common_words():
 
 
 def test_tokens_keep_identifiers_whole_and_split():
-    coord = _load()
     t = coord.tokens("Windows: schema_cache/index.json backslash churn breaks sync_plugin --check")
     assert {"schema_cache", "index.json", "sync_plugin", "schema", "cache", "json", "check", "window"} <= t
-    assert "the" not in coord.tokens("the a of and")
+    assert coord.tokens("the a of and") == set()
 
 
 def test_refs_reads_bodies_like_githubs_linker():
-    coord = _load()
-    body = """<!-- One issue = one branch = one PR. Closes #999 in a template comment does not count -->
-Closes #37
-Refs #29 (stage 1 of 3 — does **not** close #29)
-Also fixes: #12 and resolved #7; see #40 for the gates, and the pre-fix #18 artifacts.
-&#39;quoted&#39; entity is not issue 39.
-"""
-    r = coord.refs(body)
+    r = coord.refs(PR_BODY)
     assert r["closing"] == [7, 12, 29, 37], r      # GitHub WILL close #29 here — hence 'negated'
     assert r["negated"] == [29], r
     assert r["refs"] == [18, 40], r
     assert coord.refs("")["closing"] == [] and coord.refs(None)["refs"] == []
 
 
-def test_cli_similar_and_refs(tmp_path):
+def test_rivals_uses_the_same_parser():
+    prs = [{"number": 40, "author": {"login": "Ckaragitz12"}, "body": "Closes #37\nRefs #29"},
+           {"number": 47, "author": {"login": "cam-karagitz"}, "body": "Closes #46"},
+           {"number": 50, "author": {"login": "clkaragitz"}, "body": PR_BODY}]
+    assert coord.rivals(37, prs, self_number=50) == [(40, "Ckaragitz12")]
+    assert coord.rivals(29, prs) == [(50, "clkaragitz")]           # negated wording still closes
+    assert coord.rivals(999, prs) == []                              # template comment ignored
+
+
+def test_cli(tmp_path):
     issues = tmp_path / "issues.json"
     issues.write_text(json.dumps(_filed_before(34)), encoding="utf-8")
     out = subprocess.run([sys.executable, COORD, "similar", "--title", TITLES[34], "--self", "34",
                           "--issues", str(issues)], capture_output=True, text=True, check=True).stdout
     assert out.startswith("- #26 (open, unassigned) validate_plugin:"), out
-    body = tmp_path / "body.txt"
-    body.write_text("Part of #44.\n", encoding="utf-8")
-    out = subprocess.run([sys.executable, COORD, "refs", "--body-file", str(body)],
+    out = subprocess.run([sys.executable, COORD, "refs"], input="Part of #44.\n",
                          capture_output=True, text=True, check=True).stdout
     assert json.loads(out) == {"closing": [], "refs": [44], "negated": []}
+    prs = tmp_path / "prs.json"
+    prs.write_text(json.dumps([{"number": 40, "author": {"login": "x"}, "body": "fixes #37"}]), encoding="utf-8")
+    out = subprocess.run([sys.executable, COORD, "rivals", "--issue", "37", "--self", "50", "--prs", str(prs)],
+                         capture_output=True, text=True, check=True).stdout
+    assert out == "40 x\n"

@@ -217,20 +217,24 @@ repo's record conventions riding on top. A session never freelances on
 
 **The queue is GitHub Issues.** One issue per task/stream, labelled by area
 (`engine`, `frontdoor`, `famgen`, `plugin`, `genesis`, `docs`, …) and state
-(`ready`, `hot-file`, `needs-viewer`, `blocked`, `in-progress`). **Claiming =
-commenting `/claim` on the issue** — from `gh issue comment <n> -b /claim`,
-the GitHub MCP `add_issue_comment` tool (cloud sessions have no `gh`), or the
-web UI. The `coord` bot (`.github/workflows/coord.yml`, no secrets needed)
-assigns you and labels the issue `in-progress` within a minute, or replies
-**who already holds it — if it refuses, pick something else**; that reply is
-the whole point. `/release` hands an issue back. Never start work someone
-else is assigned to: on this repo's first night three bugs were filed and
-fixed twice by two people's sessions minutes apart, because nobody had
-claimed anything. **Before filing a new issue, search for it** (`gh issue list
---search "<two or three keywords>" --state all`, or MCP `search_issues`) —
-the bot comments likely duplicates on every new issue, but by then you have
-already written it. If the work you want isn't an issue yet, open one (title
-= the checkable DONE, body = territory + record path), then `/claim` it.
+(`ready`, `hot-file`, `needs-viewer`, `blocked`). **Claiming = being the
+issue's assignee.** Assign yourself however your surface allows — `gh issue
+edit <n> --add-assignee @me`, the GitHub MCP `issue_write` tool (cloud
+sessions have no `gh`), the web UI — or comment `/claim` and the `coord` bot
+(`.github/workflows/coord.yml`, no secrets needed) assigns you. **One holder
+per issue is enforced, not requested:** if the issue already has an
+assignee, a second one is removed again within a minute with a ⛔ comment
+naming the holder (a holder *can* add a partner themselves — that is
+pairing, and it sticks). If you get the ⛔, pick something else; that
+comment is the whole point. `/release` (or unassigning yourself) hands an
+issue back. Never start work someone else is assigned to: on this repo's
+first night three bugs were filed and fixed twice by two people's sessions
+minutes apart, because nobody had claimed anything. **Before filing a new
+issue, search for it** (`gh issue list --search "<two or three keywords>"
+--state all`, or MCP `search_issues`) — the bot comments likely duplicates
+on every new issue, but by then you have already written it. If the work you
+want isn't an issue yet, open one (title = the checkable DONE, body =
+territory + record path) and assign yourself in the same call.
 
 **Don't know what to work on? That's expected.** Read the pinned issue
 **"START HERE"** ([#25](https://github.com/ckaragitz/tekton/issues/25)):
@@ -243,13 +247,15 @@ for your first PR here.
 ```bash
 git switch main && git pull --ff-only          # start from current trunk
 gh issue list --assignee @me --state open      # resume yours, or:
-gh issue list --label ready --search "no:assignee -label:in-progress"   # pick one, then:
-gh issue comment <n> -b /claim                 # wait for the bot's 🔒 (or ⛔ -> pick another)
+gh issue list --label ready --search "no:assignee"   # pick one, then claim it:
+gh issue edit <n> --add-assignee @me           # (or: gh issue comment <n> -b /claim)
 git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR, always from main
 ```
 Cloud sessions (no `gh` CLI) do the same through the GitHub MCP tools:
-`list_issues`/`search_issues` to pick, `add_issue_comment` with body `/claim`
-to claim, `issue_read` to see the bot's answer.
+`list_issues`/`search_issues` to pick, `issue_write` (assignees) or
+`add_issue_comment` with body `/claim` to claim. Either way, glance at the
+issue a minute later (`gh issue view <n>` / `issue_read`): a ⛔ from the bot
+means someone beat you to it — stop and pick another.
 **Before picking new work, service your own open PRs** — this is how a
 session "gets notified": it looks.
 ```bash
@@ -274,13 +280,16 @@ before writing code.
 - Keep PRs small and short-lived; `git fetch && git rebase origin/main`
   before pushing; resolve conflicts on *your* branch, never by force-pushing
   shared branches.
-- **Never stack a PR on another PR's branch.** `main` squash-merges and
-  deletes branches; when the parent's branch disappears GitHub closes the
-  stacked child **unmerged** and nobody is told (#39 was lost this way and
-  #40 stranded on a dead base). Branch from `main`; if you depend on an
-  unmerged PR, wait for it or say so on the issue. The `coord` bot warns on
-  stacked PRs and tries to retarget/reopen them after the parent merges, but
-  that is a safety net, not a workflow.
+- **Never stack a PR on another PR's branch.** `main` squash-merges; when the
+  parent's branch is then deleted by hand (`gh pr merge --delete-branch`,
+  `git push --delete`) GitHub closes the stacked child **unmerged** and
+  nobody is told (#39 was lost this way and #40 stranded on a dead base).
+  Branch from `main`; if you depend on an unmerged PR, wait for it or say so
+  on the issue. Mergers: let the repo's *automatically delete head branches*
+  setting do the deleting (GitHub then retargets children instead of closing
+  them) rather than `--delete-branch`. The `coord` bot warns on stacked PRs
+  and its hourly sweep retargets/reopens stranded ones, but that is a safety
+  net, not a workflow.
 - The PR **must** include the stream record `docs/inbox/<stream>.md` (with
   its closing `BRANCH STATE`), the stream-local tests you ran (counts), and
   `tools/sync_plugin.py --check` clean if you touched `src/`/`tools/`/`skills/`.
@@ -306,9 +315,10 @@ git config pull.rebase true && git config rebase.autoStash true   # once per clo
   (`gh pr create --draft --fill`, body starting `Closes #<n>`) so the other
   humans/sessions can see the branch and its territory exist. Keep pushing
   as you go; a laptop that sleeps with unpushed commits is invisible work,
-  and so is a pushed branch with no PR — the `coord` bot opens a draft PR
-  itself for any branch left that way for 20+ minutes, which you then have
-  to adopt or close, so beat it to it.
+  and so is a pushed branch with no PR — the `coord` bot's hourly sweep
+  surfaces any branch left that way for 20+ minutes (a bot-opened draft PR
+  you then have to adopt or close, or a line on its tracking issue if the
+  repo does not let Actions open PRs), so beat it to it.
 - **Re-sync often:** `git fetch && git rebase origin/main` at least at the
   start and end of each session and always right before marking the PR
   ready; if `main` moved under a file you touch, rebase *now*, not at the
@@ -383,10 +393,12 @@ you to do unless the bot asks for a human."
    repo, and an Actions secret `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`)
    or `ANTHROPIC_API_KEY`. Without it `claude-review` fails red on purpose and only
    the `merge-when-green` label path can merge. **`coord` and `CI` need no secret**
-   and keep working either way; optionally tick *Settings → Actions → General →
-   Allow GitHub Actions to create and approve pull requests* so `coord`'s
-   orphan-branch sweep can open draft PRs itself instead of listing branches on
-   a tracking issue.
+   and keep working either way. Two token-free repo checkboxes do most of
+   `coord`'s sweep work structurally: *Settings → General → Automatically delete
+   head branches* (GitHub deletes merged branches itself and retargets stacked
+   children instead of closing them) and *Settings → Actions → General → Allow
+   GitHub Actions to create and approve pull requests* (the orphan-branch sweep
+   can open the draft PR itself instead of listing branches on a tracking issue).
 
 **Hot files — serialize, don't stack.** `tools/frontdoor.py`,
 `plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`,

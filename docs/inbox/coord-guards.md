@@ -26,53 +26,72 @@ prose only.
 
 ## What was built
 
-* `.github/workflows/coord.yml` — seven small jobs, `GITHUB_TOKEN` only, no
-  third-party actions beyond `actions/checkout`:
-  `claim` (`/claim` / `/release` comments; serialized per issue by a
-  concurrency group so two claims seconds apart resolve deterministically),
-  `assignment-label`, `issue-dedup`, `pr-link` (needs-issue / late-claim /
-  overlap / negation-trap), `stack-guard`, `stack-rescue` (event + 30-min sweep,
-  because merges made with the Actions token emit no events; recreates the
-  deleted base ref, reopens, retargets, deletes the ref again; skips children
-  whose commits already ride in an open PR), `orphan-sweep` (draft PR per orphan
-  branch, or a tracking-issue line if the repo forbids Actions-created PRs).
-* `tools/dev/coord.py` — stdlib helper: IDF-weighted title-overlap ranking and
+* `.github/workflows/coord.yml` — five jobs, `GITHUB_TOKEN` only, no
+  third-party actions beyond `actions/checkout` (job roster and the two repo
+  settings that make most of the sweep unnecessary are in the file header;
+  CLAUDE.md §4 is the user-facing description):
+  `claim` (`/claim`·`/release` sugar for surfaces that cannot assign),
+  `single-holder` (the actual invariant, on every native `assigned` event:
+  replay the issue's assign/unassign events, earliest standing assignee holds
+  it, a second assignee is removed with a ⛔ unless a holder added them —
+  serialized per issue together with `claim`), `issue-dedup`, `pr-check`
+  (stacked-base warning, then needs-issue / late-assign / held-by-other / rival
+  PR / negation trap — rivals go through the same `coord.py` parser, not a
+  second regex), `sweep` (hourly + on merges GitHub reports: stack rescue, then
+  orphan branches; one job so a private repo pays one billed minute per hour,
+  not four).
+* `tools/dev/coord.py` — stdlib helper: IDF-weighted title-overlap ranking,
   a PR-body parser that mirrors GitHub's closing-keyword linker (including the
   fact that "does **not** close #29" closes #29 — found the hard way while
-  editing #40's description tonight; fixed there before merge).
+  editing #40's description tonight; fixed there before merge), and `rivals`
+  on top of the same parser.
 * `tests/test_coord.py` (7 tests, in `tests/ci_shard.txt`): the fixture is the
   real 32-title issue list from that night; `similar` flags all four real
   duplicate filings against what was already filed (scores 0.54 / 0.54 / 0.35 /
   0.27 vs ≤ 0.24 for everything else) and returns nothing for every one of the
-  23 unrelated seeded issues.
-* `CLAUDE.md` §4: claiming = `/claim`; search-before-filing; MCP equivalents
-  for cloud sessions; never stack PRs (why, with #39/#40 as the example);
-  orphan sweep; item 0 `coord` in "what happens after you open a PR"; note that
-  `coord` + `CI` need no secret. PR template: claim checkbox + the
-  "Refs, never *does not close*" rule.
+  25 seeded issues; `refs`/`rivals` pinned on a body with every keyword form.
+* `CLAUDE.md` §4: claiming = being the assignee (any surface; `/claim` as the
+  fallback), one holder enforced; search-before-filing; MCP equivalents for
+  cloud sessions; never stack PRs and never delete merged branches by hand
+  (why, with #39/#40 as the example); the sweep; item 0 `coord` in "what
+  happens after you open a PR"; the two token-free repo checkboxes. PR
+  template: assignee checkbox + the "Refs, never *does not close*" rule.
+
+Review pass (`/simplify`, four angles) changed the first cut materially:
+the `in-progress` label mirror was dropped (it duplicated assignee state);
+the single-holder rule moved from the `/claim` verb onto the native
+assignment event; `stack-guard` folded into `pr-check`, gated to body/base
+edits; the two 30-minute sweeps became one hourly job (Actions minutes on a
+private repo: ~2,900/month → ~730); per-branch and per-PR API calls hoisted;
+one closing-keyword parser instead of two. **Live finding from this PR's own
+first push:** `pr-link` checked out trunk for a "trusted" helper that trunk
+does not have until this merges → red; it now checks out the PR head (sparse,
+`tools/dev` only), which also keeps working while a PR conflicts.
 
 ## Verification (numbers)
 
 * `actionlint` 1.7 with shellcheck: **0 errors** on `coord.yml` (two
   intentional info notes suppressed: literal backticks in single quotes,
   variable printf format).
-* Every job's script extracted from the YAML (helpers inlined) passes `bash -n`
-  and was **dry-run against a fake `gh`** serving fixtures that mirror tonight's
-  real state (calls logged, `--jq` applied by real jq): claim free / held /
-  re-claim / release / non-collaborator; pr-link no-ref → `needs-issue`,
-  unclaimed → late-claim, held-by-other + rival PR #40 → two warnings +
-  `overlap` on both, negation → warning; stack-guard; stack-rescue reopening
-  #39-shaped case (recreate ref → reopen → retarget → delete ref) and *not*
-  reopening it when its commit rides in open #40; orphan-sweep young branch →
-  wait, old+ahead → draft PR, PR creation forbidden → tracking issue #77
-  fallback; issue-dedup #34 → "#26 (open, held by @Ckaragitz12) … 54 %", #33 →
-  #27, unrelated title → silent.
-* Repo gates on this branch: `check_portable_paths` ok (2621), `sync_plugin
-  --check` in sync, `validate_plugin` PASS, CI shard **88 passed / 23 skipped**.
-* Live test still to come: `pr-link` and `stack-guard` run from the PR's own
-  copy of the workflow the moment this PR opens (pull_request events use the
-  head's workflow files); `claim` / `issue-dedup` / the sweeps only go live once
-  this is on `main`.
+* Every step's script extracted from the YAML (helpers inlined) was **dry-run
+  against a fake `gh`** serving fixtures that mirror tonight's real state (calls
+  logged, `--jq` applied by real jq): single-holder — second self-assignee
+  removed, holder-adds-partner allowed, first assignee's own event quiet,
+  release-then-reassign ordering resolved from the event log, sole assignee
+  quiet; claim free / held / release; pr-check based-on-main / stacked, closes
+  held issue + rival #40 → two warnings + `overlap` on both + negation warning,
+  no refs → `needs-issue` (including the create-label-on-first-use path), refs
+  only → quiet, closes unassigned #44 → author assigned; sweep rescue reopening
+  the #39-shaped case (recreate ref → reopen → retarget → delete ref) and *not*
+  reopening it when its commit rides in open #40; orphan branch → draft PR, PR
+  creation forbidden → tracking issue fallback; issue-dedup #34 → "#26 (open,
+  held by @Ckaragitz12) … 54 %".
+* Repo gates on this branch: `check_portable_paths` ok, `sync_plugin --check`
+  in sync, `validate_plugin` PASS, CI shard **88 passed / 23 skipped**.
+* Live: `pr-check` runs from the PR's own copy of the workflow on this PR
+  (pull_request events use the head's workflow files) — first push red for the
+  trunk-checkout reason above, fixed in the second; `claim`, `single-holder`,
+  `issue-dedup` and `sweep` only go live once this is on `main`.
 
 ## Cleanup done alongside (GitHub state, no code)
 
@@ -94,8 +113,15 @@ prose only.
   independent of it. If they stay off, consider replacing the AI verdict in
   `automerge.yml` with GitHub-native required reviews (1 approval from another
   collaborator) — same "no work token" property.
-* Optional repo checkbox: *Allow GitHub Actions to create and approve pull
-  requests* (lets `orphan-sweep` open the draft PR itself).
+* Owner, two checkboxes (no token): *Automatically delete head branches* and
+  *Allow GitHub Actions to create and approve pull requests* (see CLAUDE.md §4
+  item 6). With the first on, `automerge.yml` should drop `--delete-branch`
+  from its `gh pr merge` (that raw ref delete is what closes stacked children —
+  cli/cli#1168) or retarget open children before merging; then part 2 of the
+  sweep's rescue can go. Not done here: automerge is out of territory.
+* `automerge.yml` still carries its own closing-keyword grep and its own copy
+  of `comment_once`; when it is next touched, point both at `tools/dev/coord.py`
+  / a shared `COORD_LIB` so there is one parser and one helper.
 * `ci.yml` could run `actionlint` on workflow changes (pip `actionlint-py`);
   left out to keep this PR off the CI workflow.
 * A `windows-latest` CI job (#40 makes the shard green on Windows) is the
@@ -107,7 +133,8 @@ prose only.
 * Files: `.github/workflows/coord.yml` (new), `tools/dev/coord.py` (new),
   `tests/test_coord.py` (new), `tests/ci_shard.txt` (+1 line),
   `.github/pull_request_template.md`, `CLAUDE.md` (§4 only — hot file, issue
-  carries the label), this record.
+  carries the label), this record. Two commits: first cut, then the
+  review-pass refactor + live-test fix.
 * Gates: listed above, all green locally. Touches `.github/workflows/**` →
   cannot be bot-merged; owner squash-merges by hand.
 * Nothing staged for the viewer; no `.rvt`/`.rfa` produced; no plugin content
