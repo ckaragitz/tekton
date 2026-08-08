@@ -51,6 +51,7 @@ import os
 import shutil
 import subprocess
 import sys
+import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLUGIN = os.path.join(ROOT, "plugin")
@@ -323,18 +324,49 @@ def verify_assets() -> list[str]:
 # ---------------------------------------------------------------------------
 # zip + validate
 # ---------------------------------------------------------------------------
+ZIP_SKIP_DIRS = {"node_modules", "__pycache__"}
+ZIP_EPOCH = (1980, 1, 1, 0, 0, 0)        # the zip format's minimum timestamp
+
+
+def zip_members() -> list[tuple[str, str]]:
+    """``(absolute path, archive name)`` for every file that belongs in the
+    bundle, sorted by archive name.
+
+    Plugin contents sit at the archive ROOT. Example/proof ``.rvt`` outputs are
+    excluded (they are large research proofs) EXCEPT under ``assets/``, which
+    carries the certified genesis bases the product actually ships.
+    """
+    out: list[tuple[str, str]] = []
+    for base, dirs, files in os.walk(PLUGIN):
+        dirs[:] = sorted(d for d in dirs if d not in ZIP_SKIP_DIRS)
+        for f in sorted(files):
+            if f == ".DS_Store":
+                continue
+            path = os.path.join(base, f)
+            arc = os.path.relpath(path, PLUGIN).replace(os.sep, "/")
+            if f.lower().endswith(".rvt") and not arc.startswith("assets/"):
+                continue
+            out.append((path, arc))
+    return sorted(out, key=lambda t: t[1])
+
+
 def rebuild_zip() -> int:
+    """Build tekton-plugin.zip with the stdlib.
+
+    Deliberately NOT `subprocess(["zip", ...])`: there is no `zip` binary on
+    Windows, and the shell-out died AFTER plugin/ had already been rewritten,
+    leaving a half-synced tree (issue #37). Entries are sorted and stamped with
+    a fixed timestamp so the artifact does not churn between runs.
+    """
     if os.path.exists(ZIP):
         os.remove(ZIP)
-    # plugin contents at the archive root; example/proof .rvt outputs are
-    # excluded (they are large research proofs), then the certified genesis
-    # base ASSETS are added back explicitly.
-    subprocess.check_call(
-        ["zip", "-qr", ZIP, ".", "-x", "*/node_modules/*", "-x", "*/__pycache__/*",
-         "-x", "*.rvt", "-x", "*.DS_Store", "-x", ".DS_Store"], cwd=PLUGIN)
-    if os.path.isdir(os.path.join(PLUGIN, "assets")):
-        subprocess.check_call(
-            ["zip", "-qr", ZIP, "assets", "-x", "*.DS_Store"], cwd=PLUGIN)
+    with zipfile.ZipFile(ZIP, "w", zipfile.ZIP_DEFLATED) as zf:
+        for path, arc in zip_members():
+            zi = zipfile.ZipInfo(arc, date_time=ZIP_EPOCH)
+            zi.compress_type = zipfile.ZIP_DEFLATED
+            zi.external_attr = (os.stat(path).st_mode & 0xFFFF) << 16
+            with open(path, "rb") as src, zf.open(zi, "w") as dst:
+                shutil.copyfileobj(src, dst)
     return os.path.getsize(ZIP)
 
 
