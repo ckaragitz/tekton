@@ -1,4 +1,4 @@
-<!-- One issue = one branch = one PR. Keep it small; rebase on main before pushing. -->
+<!-- One issue = one branch = one PR. After you open it: CI + claude-review run automatically, a bounded auto-fix may push to your branch, and automerge squash-merges when green + approved. Humans are only pinged via a `needs-human` label. -->
 Closes #
 
 ## What changed and why
@@ -7,6 +7,9 @@ Closes #
 ## Stream record
 - Record: `docs/inbox/<stream>.md` (ends with a `BRANCH STATE` block) — [ ] included / updated in this PR
 - Learnings for KNOWLEDGE.md (if any): `docs/inbox/learned-<slug>.md` — [ ] included  [ ] n/a
+
+## After opening
+- [ ] Auto-fix turned on for this PR (cloud: CI bar → Auto-fix / "auto-fix this PR"; terminal: `/autofix-pr`)
 
 ## Gates run (paste counts / outputs)
 - [ ] Stream-local tests: `.venv/bin/python -m pytest tests/test_<yours>.py -q` → 

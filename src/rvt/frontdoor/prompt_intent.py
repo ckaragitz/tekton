@@ -157,6 +157,12 @@ _RE_SERVICE = re.compile(
     r"(?:rated\s+(?:for|at)\s+|with\s+|providing\s+|serving\s+)?(?:an?\s+)?"
     r"(?P<a>\d{3,5})\s*[- ]?\s*(?:a|amps?|ampere?s?)\s+(?:electrical\s+)?service\b"
     r"|service\s+(?:rated\s+(?:for|at)\s+|of\s+)?(?P<a2>\d{3,5})\s*[- ]?\s*(?:a|amps?|ampere?s?)\b", re.I)
+#: 'rated for 250V' / '600V class' -- an amp-less service VOLTAGE rating.
+#: Kept separate from :data:`_RE_SERVICE` (which is the AMP service clause)
+#: so a voltage-only rating is never mistaken for a bus ampacity.
+_RE_RATED_VOLT = re.compile(
+    r"rated\s+(?:for|at)\s+(?:an?\s+)?(?P<v>\d{2,3})(?!\d)\s*[- ]?\s*(?:v\b|volts?\b|vac\b)"
+    r"|(?P<v2>\d{2,3})(?!\d)\s*[- ]?\s*(?:v\b|volts?\b|vac\b)[\s-]*(?:rated\b|class\b)", re.I)
 _RE_NO_WALLS = re.compile(r"no\s+walls|without\s+walls|equipment\s+only|no\s+room", re.I)
 _RE_NO_FEEDERS = re.compile(r"no\s+(?:feeders|circuits)|without\s+(?:feeders|circuits)|uncircuited", re.I)
 _RE_WALL_THICK = re.compile(r"walls?\s+(?:that\s+are\s+|of\s+)?(?P<t>\d{1,3}(?:\.\d+)?)\s*(?P<u>" +
@@ -165,6 +171,15 @@ _RE_LEVEL = re.compile(r"(?:on|at)\s+(?:level|floor|storey|story)\s+(?P<n>\d{1,2
                        r"|(?P<n2>two|three|2|3)[\s-]*(?:stor(?:e)?y|level|floor)\b", re.I)
 _RE_FED_FROM = re.compile(r"(?P<load>[A-Za-z][A-Za-z0-9\-]{0,10})\s+(?:is\s+)?fed\s+(?:from|by)\s+"
                           r"(?:the\s+)?(?P<src>[A-Za-z][A-Za-z0-9\-]{0,10})", re.I)
+
+#: UL RATING CLASSES -> the service system they imply.  A '250 V'
+#: panelboard rating names the equipment's MAXIMUM voltage class (UL 67),
+#: not a system voltage; the system a 250 V-class rating implies is the
+#: 240 V-class one.  Applying this mapping is ALWAYS stated in
+#: ``coverage.defaults_applied`` -- never silent (the deliverable rule).
+#: (600 V is NOT here: :func:`_voltage_system_from` already reads it as the
+#: real 600Y/347 system.)
+RATING_CLASS_TO_SYSTEM = {250: "240", 240: "240"}
 
 #: default voltages / dims (prompt defaults -- always flagged as defaults)
 DEFAULT_SERVICE_VOLTAGE = "480Y/277"
@@ -175,6 +190,8 @@ DEFAULT_LP_SPACES = 42
 DEFAULT_PANEL_MOUNT_CENTER_M = 1.42     # enclosure centre AFF (top ~2.0 m for a 60 in box)
 DEFAULT_PAD_M = 0.1                     # housekeeping pad height (floor gear elevation)
 DEFAULT_XFMR_KVA = 75.0
+DEFAULT_ROOM_W_M = 9.144                # 30 ft \ the DEFAULT room shell when a room is
+DEFAULT_ROOM_D_M = 6.096                # 20 ft / named without dimensions (always stated)
 
 #: prompt-default panelboard box (metres) used ONLY when the catalog resolver
 #: refuses; a resolved plan REPLACES these with catalog facts
@@ -451,9 +468,15 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             if not (m_dims.group("u1") or m_dims.group("u2")):
                 cov.defaults_applied.append("room dimension unit: feet (no unit given)")
         else:
-            cov.warnings.append("a room was named but no dimensions were given: no room shell "
-                                "will be built (equipment only)")
-            room.walls = False
+            # a room was NAMED: build the default shell (stated, never silent)
+            # rather than silently dropping to an equipment-only layout --
+            # 'an electrical room with 6 panels' must yield a room.
+            room.width_m = DEFAULT_ROOM_W_M
+            room.depth_m = DEFAULT_ROOM_D_M
+            cov.defaults_applied.append(
+                f"room dimensions: {DEFAULT_ROOM_W_M:g} x {DEFAULT_ROOM_D_M:g} m "
+                "(30 x 20 ft) DEFAULT room shell -- the room was named with no "
+                "dimensions; say 'W by D ft' to size it")
         m_h = _RE_HEIGHT.search(text)
         if m_h:
             mark(m_h.span())
@@ -501,6 +524,33 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                     break
             cov.understood.append({"clause": text[s0:s1].strip(), "as": "service voltage",
                                    "voltage": srv_voltage})
+    # amp-less voltage rating ('rated for 250V'): the service system, with
+    # RATING CLASSES (250 V / 600 V equipment classes) mapped to the system
+    # they imply -- the mapping is STATED in defaults_applied, never silent.
+    if srv_voltage is None:
+        m_rv = _RE_RATED_VOLT.search(text)
+        if m_rv:
+            raw_v = int(m_rv.group("v") or m_rv.group("v2"))
+            s0 = max(0, m_rv.start() - 12)
+            sys_v = _voltage_system_from(text[s0:m_rv.end()])
+            mapped = None
+            if raw_v in RATING_CLASS_TO_SYSTEM and sys_v in (None, str(raw_v)):
+                mapped = RATING_CLASS_TO_SYSTEM[raw_v]
+                sys_v = mapped
+            if sys_v is not None:
+                mark(m_rv.span())
+                srv_voltage = sys_v
+                if room is None:
+                    room = PromptRoom(walls=False)
+                    cov.warnings.append("a voltage rating was given without a room: "
+                                        "equipment-only build")
+                cov.understood.append({"clause": m_rv.group(0), "as": "service voltage",
+                                       "voltage": sys_v, "rated": f"{raw_v} V"})
+                if mapped is not None:
+                    cov.defaults_applied.append(
+                        f"service voltage: {mapped} V-class system mapped from the "
+                        f"prompt's '{raw_v} V' rating class (a {raw_v} V rating names "
+                        "the equipment's maximum voltage class, not a system voltage)")
     #: the room noun (and its pre-word: 'switchgear room', 'transformer
     #: vault') is a place, never a piece of equipment
     room_taken: List[Tuple[int, int]] = [m_room.span()] if m_room else []

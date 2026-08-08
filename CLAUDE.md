@@ -105,6 +105,16 @@ uv pip install --python .venv/bin/python ifcopenshell                   # OPTION
   IFC reader), `RVT_SEG_CACHE=<dir>` (cache slow segment builds),
   `RVT_SKIP_LARGE=1` (tests).
 
+### Working from a Claude Code cloud session (claude.ai/code)
+
+Cloud sessions clone this repo into a fresh VM, so they behave like a fresh
+clone: no `samples/`, no viewer login → pick `ready` issues. Point the cloud
+environment's **Setup script** at `bash scripts/cloud-setup.sh` (creates
+`.venv`, installs the engine + test extras, sets `pull.rebase`, checks plugin
+drift + portable paths). This file and `.claude/agents/` load automatically.
+Work on a branch, push, and open the PR from the session UI (or `gh pr create
+--draft`) exactly as in section 4.
+
 ## 3. Map
 
 - `src/rvt/` — the engine. Container/codec layers (CFB → framed gzip →
@@ -227,6 +237,21 @@ gh issue list --assignee @me --state open      # resume yours, or:
 gh issue list --label ready --search "no:assignee"   # pick one, then self-assign it
 git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR
 ```
+**Before picking new work, service your own open PRs** — this is how a
+session "gets notified": it looks.
+```bash
+gh pr list --author @me --state open --json number,title,isDraft,labels,statusCheckRollup \
+  --jq '.[]|"#\(.number) \(.title) draft=\(.isDraft) labels=\([.labels[].name]|join(",")) checks=\([.statusCheckRollup[]?|.conclusion//"…"]|join("/"))"'
+gh pr view <n> --comments        # read the review summary, inline notes, automerge/needs-human comments
+```
+If a PR of yours is red, has `🛑 Changes requested`, or carries `needs-human`:
+fix that first (address each blocking bullet, run your gates, push to the same
+branch — the bots re-run on the new commit; remove `needs-human` with
+`gh pr edit <n> --remove-label needs-human` once you've pushed a real fix).
+Cloud sessions (claude.ai/code) can instead turn on **Auto-fix** in the PR's CI
+bar (or run `/autofix-pr` in a terminal session) so the session itself watches
+CI failures and review comments and pushes fixes.
+
 Then read the issue, `KNOWLEDGE.md`, and any `docs/inbox/` records it cites
 before writing code.
 
@@ -240,8 +265,12 @@ before writing code.
   its closing `BRANCH STATE`), the stream-local tests you ran (counts), and
   `tools/sync_plugin.py --check` clean if you touched `src/`/`tools/`/`skills/`.
   Link the issue (`Closes #n`). The PR template carries the checklist.
-- CI (as it comes online) runs the targeted tests, `sync_plugin.py --check`,
-  and `plugin/scripts/validate_plugin.py`; red CI blocks merge — fix, don't
+- CI: the `CI` workflow (`.github/workflows/ci.yml`) runs on every PR and on
+  pushes to `main` — jobs `py3.11` and `py3.12` on ubuntu-latest, each running
+  `tools/dev/check_portable_paths.py`, `tools/sync_plugin.py --check`,
+  `plugin/scripts/validate_plugin.py`, then the fast shard listed in
+  `tests/ci_shard.txt` (never the full suite — see
+  `docs/inbox/SUITE-COORDINATION.md`). Red CI blocks merge — fix, don't
   bypass.
 
 **Git cadence on your laptop (several engineers, sessions that come and go):**
@@ -281,6 +310,48 @@ git config pull.rebase true && git config rebase.autoStash true   # once per clo
 - **Never:** commit directly to `main`; force-push `main`; rewrite history
   others have pulled; leave generated artifacts or ignored-dir content in
   a commit; let a branch live for more than a few days without rebasing.
+
+**What happens after you open a PR — fully automatic (`.github/workflows/`):**
+Contributors here are mostly *not* developers; their coding sessions open PRs and
+the repo takes it from there. Tell your human plainly: "PR is open; nothing for
+you to do unless the bot asks for a human."
+1. **`CI`** runs on every push: portable paths, `sync_plugin.py --check`,
+   `validate_plugin.py`, the fast no-samples shard (`tests/ci_shard.txt`).
+   If CI finishes **red**, `claude-review`'s `ci-autofix` job reads the failed log,
+   makes the smallest in-territory fix, re-runs the CI commands locally, and pushes
+   (same 2-attempt budget; exhausted → `needs-human`).
+2. **`claude-review`** reviews every push against this file's rules and the linked
+   issue's DONE, posts inline comments + one summary whose first line is the
+   verdict (✅ Approve / 🟡 Nits only / 🛑 Changes requested) and whose last line is a
+   machine-readable marker for that exact head SHA. On 🛑 it runs a **bounded
+   auto-fix pass** (max 2 attempts per PR): edits, runs the gates, pushes to your
+   branch, which re-triggers CI + review. Still 🛑 after 2 → label `needs-human`.
+3. **`automerge`** squash-merges as soon as: not draft **and** CI green on the head
+   SHA **and** the review verdict for that SHA is Approve/Nits. It deletes the
+   branch; `Closes #N` closes the issue. It refuses (and comments why) on zero/red
+   checks, conflicts, or a missing verdict, and re-checks on every new commit and
+   every 30 minutes. **Duplicate rule:** if two open PRs close the same issue, the
+   older PR wins and the newer gets `needs-human` — so *assign yourself to the
+   issue before you start*.
+4. Escape hatches (humans only): `do-not-merge` holds a PR; `merge-when-green`
+   applied by someone other than the author (or by the owner) substitutes for the
+   AI verdict when the review bot is down or wrong; `@claude <instruction>` in any
+   comment makes the bot answer or push a change. PRs touching
+   `.github/workflows/**` can never be bot-merged (GitHub restriction) → owner
+   merges those by hand.
+5. So a session's PR checklist is: link the issue (`Closes #N`), include the record,
+   run your stream-local gates, push, open the PR **ready** (not draft) when done —
+   or draft early and `gh pr ready <n>` when finished. **Then turn on Auto-fix for
+   that PR, every time** — cloud session (claude.ai/code or Desktop-in-cloud): the
+   PR's CI status bar → **Auto-fix**, or just say "auto-fix this PR: watch CI
+   failures and review comments"; terminal session on the PR branch: `/autofix-pr`.
+   That makes *your own session* wake on red CI / review comments and push fixes
+   (needs the Claude GitHub App on the repo; uses your plan, no repo secret). Tell
+   your human you did it. Then stop; read the bot's comments if it pings.
+6. One-time setup this depends on (repo admin): Claude GitHub App installed on the
+   repo, and an Actions secret `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`)
+   or `ANTHROPIC_API_KEY`. Without it `claude-review` fails red on purpose and only
+   the `merge-when-green` label path can merge.
 
 **Hot files — serialize, don't stack.** `tools/frontdoor.py`,
 `plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`,

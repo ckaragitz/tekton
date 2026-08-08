@@ -1,0 +1,237 @@
+name: claude-review
+
+# Automatic review of every PR push, with a machine-readable verdict and a bounded
+# auto-fix ladder. Flow per head SHA:
+#   review -> verdict marker  <!-- claude-review: approve|nits|changes sha=<sha> -->
+#   changes + attempts<2  -> fix pass pushes commits to the PR branch (re-triggers CI + review)
+#   changes + attempts>=2 -> label needs-human, comment, stop
+# automerge.yml merges when CI is green AND the verdict for the exact head SHA is approve/nits.
+#
+# Needs ONE repo secret set by the repo admin (Settings → Secrets and variables → Actions):
+#   CLAUDE_CODE_OAUTH_TOKEN  (`claude setup-token` on a Pro/Max plan)  — or —  ANTHROPIC_API_KEY
+# plus the Claude GitHub App installed on the repo (github.com/apps/claude).
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+  workflow_run:            # red CI on a PR head -> bounded auto-fix pass (job ci-autofix below)
+    workflows: ["CI"]
+    types: [completed]
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number || github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+env:
+  MAX_FIX_ATTEMPTS: "2"
+
+jobs:
+  claude-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Require a credential (fail red, never skip quietly)
+        env:
+          HAS_OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          if [ "$HAS_OAUTH" != "true" ] && [ "$HAS_KEY" != "true" ]; then
+            echo "::error::No CLAUDE_CODE_OAUTH_TOKEN or ANTHROPIC_API_KEY repo secret. Repo admin: run 'claude setup-token' locally and add it as CLAUDE_CODE_OAUTH_TOKEN under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+            HEAD SHA: ${{ github.event.pull_request.head.sha }}
+
+            You are the automated reviewer AND the merge gatekeeper for this repository; the
+            contributors are not developers, so your verdict decides whether this PR merges.
+            Read CLAUDE.md at the repo root first — sections 1 (hard rules), 3b (plugin sources vs
+            generated mirrors) and 4 (PR requirements) are the standard. Review ONLY this PR's diff
+            (`gh pr diff`), reading full files where needed to judge correctness. Also read the
+            linked issue (`Closes #N` → `gh issue view N`) and check its DONE criteria are met, and
+            run `gh pr list --state open` to detect another open PR for the same issue.
+
+            Blocking (→ verdict `changes`):
+            - hard-rule violations (refusal logic instead of labels; reading Autodesk install dirs;
+              donor/sample-derived bytes entering src/ tools/ plugin/ skills/; secrets; non-portable paths)
+            - correctness bugs with a concrete failure scenario
+            - edits to GENERATED mirrors (plugin/lib/**, plugin/skills/*/scripts/*.py except _bootstrap.py,
+              plugin/skills/tekton-ifc/**, plugin/assets/**, plugin/marketplace.json) instead of sources,
+              or src/tools/skills edits without the synced mirror (`tools/sync_plugin.py`)
+            - the linked issue's DONE clearly not met, or no linked issue at all
+            - a "loads/opens in Revit" claim without a docs/coverage/viewer-certified.json entry
+            - this PR duplicates an OLDER open PR for the same issue (say which; the older one wins)
+            Non-blocking (→ `nits`): style, record bookkeeping, small hygiene gaps, optional improvements.
+
+            Output, in this order:
+            1. Inline comments for line-anchored findings (only real ones).
+            2. Exactly ONE summary comment via `gh pr comment`, starting with a verdict line —
+               `✅ Approve`, `🟡 Nits only`, or `🛑 Changes requested` — then ≤8 bullets, most severe
+               first, each with file:line and the concrete failure scenario or the exact fix wanted.
+               Write for a non-developer's coding assistant: each blocking bullet must say precisely
+               what to change. No praise padding, no diff restating.
+            3. The LAST line of that summary comment must be exactly one of:
+               <!-- claude-review: approve sha=${{ github.event.pull_request.head.sha }} -->
+               <!-- claude-review: nits sha=${{ github.event.pull_request.head.sha }} -->
+               <!-- claude-review: changes sha=${{ github.event.pull_request.head.sha }} -->
+            Do not push commits in this step.
+          claude_args: |
+            --max-turns 40
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(git log:*),Bash(git diff:*),Bash(git show:*),Read,Glob,Grep"
+
+      - name: Read verdict + decide on auto-fix
+        id: verdict
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          comments=$(gh api "repos/$REPO/issues/$PR/comments" --paginate --jq '.[].body')
+          verdict=$(grep -oE "<!-- claude-review: (approve|nits|changes) sha=$SHA -->" <<<"$comments" | tail -1 | sed -E 's/.*: (approve|nits|changes) .*/\1/' || true)
+          attempts=$(grep -cE '<!-- claude-autofix attempt=[0-9]+ -->' <<<"$comments" || true)
+          [ -z "$verdict" ] && { echo "::error::review step posted no verdict marker for $SHA"; exit 1; }
+          echo "verdict=$verdict"   >> "$GITHUB_OUTPUT"
+          echo "attempts=$attempts" >> "$GITHUB_OUTPUT"
+          fix=no
+          if [ "$verdict" = "changes" ]; then
+            if [ "$attempts" -lt "$MAX_FIX_ATTEMPTS" ]; then fix=yes
+            else
+              gh label create needs-human --repo "$REPO" --color b60205 --description "Automation exhausted; a person must look" --force >/dev/null 2>&1 || true
+              gh pr edit "$PR" --repo "$REPO" --add-label needs-human >/dev/null
+              gh pr comment "$PR" --repo "$REPO" --body "🧑‍🔧 **Needs a human.** The reviewer still requests changes after $attempts automatic fix attempt(s). Owner/orchestrator: read the last review summary above and either fix by hand, comment \`@claude <instruction>\` with specific guidance, or close. <!-- claude-autofix exhausted sha=$SHA -->" >/dev/null
+            fi
+          fi
+          echo "fix=$fix" >> "$GITHUB_OUTPUT"
+          echo "verdict=$verdict attempts=$attempts fix=$fix"
+
+      - name: Prepare Python env for the fix pass
+        if: steps.verdict.outputs.fix == 'yes'
+        run: |
+          git checkout -B "${{ github.event.pull_request.head.ref }}" "${{ github.event.pull_request.head.sha }}"
+          bash scripts/cloud-setup.sh || echo "::warning::cloud-setup.sh failed; fix pass runs without a prepared venv"
+
+      - name: Auto-fix pass (bounded)
+        if: steps.verdict.outputs.fix == 'yes'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}   PR: ${{ github.event.pull_request.number }}   BRANCH: ${{ github.event.pull_request.head.ref }}
+            This is auto-fix attempt number ${{ steps.verdict.outputs.attempts }} + 1 of ${{ env.MAX_FIX_ATTEMPTS }}.
+
+            The automated review of this PR requested changes. Read CLAUDE.md, then read the latest
+            review summary comment and inline comments on the PR (`gh pr view --comments`, `gh api`).
+            Address every BLOCKING bullet with the smallest correct change, staying inside the linked
+            issue's territory. If a bullet says this PR duplicates an older open PR, do NOT fix code:
+            post a comment recommending this PR be closed in favour of the older one and stop.
+
+            After editing: if you touched src/, tools/ or skills/, run `.venv/bin/python tools/sync_plugin.py`;
+            run `.venv/bin/python tools/dev/check_portable_paths.py`, `.venv/bin/python plugin/scripts/validate_plugin.py`,
+            and the stream-local tests named in the PR/issue (never the full suite). Only if those pass:
+            commit with a plain message describing the fix and push to BRANCH. Then post ONE PR comment
+            summarising what you changed and the gate results, whose LAST line is exactly:
+            <!-- claude-autofix attempt=${{ steps.verdict.outputs.attempts }} -->
+            (post that marker comment even if you could not fix everything, saying what is left).
+          claude_args: |
+            --max-turns 60
+            --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh api:*),Bash(gh issue view:*),Bash(.venv/bin/python:*),Bash(python:*),Bash(python3:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*)"
+
+  ci-autofix:
+    # CI finished RED for a pull request: read the failed logs, fix, run gates, push (bounded).
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Require a credential (fail red, never skip quietly)
+        env:
+          HAS_OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          if [ "$HAS_OAUTH" != "true" ] && [ "$HAS_KEY" != "true" ]; then echo "::error::No CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY secret — cannot auto-fix red CI."; exit 1; fi
+      - name: Resolve the PR + attempt budget
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          pr=$(gh pr list --repo "$REPO" --state open --head "$BRANCH" --json number,headRefOid --jq '.[]|select(.headRefOid=="'"$SHA"'")|.number' | head -1)
+          if [ -z "$pr" ]; then echo "no open PR whose head is $SHA on $BRANCH (superseded by a newer push?) — nothing to fix"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0; fi
+          comments=$(gh api "repos/$REPO/issues/$pr/comments" --paginate --jq '.[].body')
+          attempts=$(grep -cE '<!-- claude-autofix attempt=[0-9]+ -->' <<<"$comments" || true)
+          gh run view "$RUN_ID" --repo "$REPO" --log-failed 2>/dev/null | tail -300 > /tmp/ci-failed.log || true
+          echo "pr=$pr" >> "$GITHUB_OUTPUT"; echo "attempts=$attempts" >> "$GITHUB_OUTPUT"
+          if [ "$attempts" -ge "$MAX_FIX_ATTEMPTS" ]; then
+            gh label create needs-human --repo "$REPO" --color b60205 --force >/dev/null 2>&1 || true
+            gh pr edit "$pr" --repo "$REPO" --add-label needs-human >/dev/null
+            gh pr comment "$pr" --repo "$REPO" --body "🧑‍🔧 **Needs a human.** CI is still red after $attempts automatic fix attempt(s). Failed log tail is in run $RUN_ID. Owner/orchestrator: guide with \`@claude <instruction>\`, fix by hand, or close. <!-- claude-autofix exhausted sha=$SHA -->" >/dev/null
+            echo "go=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=yes" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v6
+        if: steps.pr.outputs.go == 'yes'
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+      - name: Prepare Python env
+        if: steps.pr.outputs.go == 'yes'
+        run: bash scripts/cloud-setup.sh || echo "::warning::cloud-setup.sh failed; fix pass runs without a prepared venv"
+      - name: Auto-fix red CI (bounded)
+        if: steps.pr.outputs.go == 'yes'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}   PR: #${{ steps.pr.outputs.pr }}   BRANCH: ${{ github.event.workflow_run.head_branch }}
+            CI run ${{ github.event.workflow_run.id }} finished RED for this PR's head. This is auto-fix attempt
+            ${{ steps.pr.outputs.attempts }} + 1 of ${{ env.MAX_FIX_ATTEMPTS }}.
+
+            Read CLAUDE.md first. The failed-step log tail is at /tmp/ci-failed.log (also: `gh run view ${{ github.event.workflow_run.id }} --log-failed`).
+            Diagnose the actual failure (portable paths / sync_plugin drift / validate_plugin / a test in
+            tests/ci_shard.txt), make the smallest correct fix inside the PR's territory — never weaken a gate
+            or delete a test to go green; if the right fix is outside the PR's territory or needs samples/viewer,
+            say so in a comment and stop. If you touched src/, tools/ or skills/, run `.venv/bin/python tools/sync_plugin.py`.
+            Re-run locally exactly what CI runs: `.venv/bin/python tools/dev/check_portable_paths.py`,
+            `.venv/bin/python tools/sync_plugin.py --check`, `.venv/bin/python plugin/scripts/validate_plugin.py`,
+            `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q $(grep -v '^#' tests/ci_shard.txt | xargs)`.
+            Only if green: commit with a plain message and push to BRANCH. Then post ONE PR comment: what failed,
+            what you changed, gate results — LAST line exactly:
+            <!-- claude-autofix attempt=${{ steps.pr.outputs.attempts }} -->
+            (post the marker comment even if you could not fix it, stating what is left for a human).
+          claude_args: |
+            --max-turns 60
+            --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh run view:*),Bash(gh api:*),Bash(gh issue view:*),Bash(.venv/bin/python:*),Bash(python:*),Bash(python3:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*),Bash(xargs:*),Bash(grep:*)"
+

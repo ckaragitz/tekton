@@ -1,0 +1,56 @@
+name: CI
+
+# CI v1 (issue #2). Three humans' sessions need one shared definition of green.
+# Deliberately does NOT run the full ~1,700-test suite (~25 min) — see
+# docs/inbox/SUITE-COORDINATION.md. The per-PR shard lives in tests/ci_shard.txt.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: py${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    env:
+      RVT_SKIP_LARGE: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package and test deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install pytest numpy
+
+      - name: Portable paths
+        run: python tools/dev/check_portable_paths.py
+
+      - name: Plugin drift guard
+        run: python tools/sync_plugin.py --check
+
+      - name: Plugin structure
+        run: python plugin/scripts/validate_plugin.py
+
+      - name: Fast test shard
+        run: |
+          mapfile -t SHARD < <(grep -vE '^\s*(#|$)' tests/ci_shard.txt)
+          printf 'shard: %s\n' "${SHARD[@]}"
+          python -m pytest "${SHARD[@]}" -q --durations=10
