@@ -14,9 +14,12 @@ name: claude-review
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
+  workflow_run:            # red CI on a PR head -> bounded auto-fix pass (job ci-autofix below)
+    workflows: ["CI"]
+    types: [completed]
 
 concurrency:
-  group: claude-review-${{ github.event.pull_request.number }}
+  group: claude-review-${{ github.event.pull_request.number || github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 env:
@@ -24,6 +27,7 @@ env:
 
 jobs:
   claude-review:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
@@ -153,3 +157,81 @@ jobs:
           claude_args: |
             --max-turns 60
             --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh api:*),Bash(gh issue view:*),Bash(.venv/bin/python:*),Bash(python:*),Bash(python3:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*)"
+
+  ci-autofix:
+    # CI finished RED for a pull request: read the failed logs, fix, run gates, push (bounded).
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - name: Require a credential (fail red, never skip quietly)
+        env:
+          HAS_OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          if [ "$HAS_OAUTH" != "true" ] && [ "$HAS_KEY" != "true" ]; then echo "::error::No CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY secret — cannot auto-fix red CI."; exit 1; fi
+      - name: Resolve the PR + attempt budget
+        id: pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          pr=$(gh pr list --repo "$REPO" --state open --head "$BRANCH" --json number,headRefOid --jq '.[]|select(.headRefOid=="'"$SHA"'")|.number' | head -1)
+          if [ -z "$pr" ]; then echo "no open PR whose head is $SHA on $BRANCH (superseded by a newer push?) — nothing to fix"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0; fi
+          comments=$(gh api "repos/$REPO/issues/$pr/comments" --paginate --jq '.[].body')
+          attempts=$(grep -cE '<!-- claude-autofix attempt=[0-9]+ -->' <<<"$comments" || true)
+          gh run view "$RUN_ID" --repo "$REPO" --log-failed 2>/dev/null | tail -300 > /tmp/ci-failed.log || true
+          echo "pr=$pr" >> "$GITHUB_OUTPUT"; echo "attempts=$attempts" >> "$GITHUB_OUTPUT"
+          if [ "$attempts" -ge "$MAX_FIX_ATTEMPTS" ]; then
+            gh label create needs-human --repo "$REPO" --color b60205 --force >/dev/null 2>&1 || true
+            gh pr edit "$pr" --repo "$REPO" --add-label needs-human >/dev/null
+            gh pr comment "$pr" --repo "$REPO" --body "🧑‍🔧 **Needs a human.** CI is still red after $attempts automatic fix attempt(s). Failed log tail is in run $RUN_ID. Owner/orchestrator: guide with \`@claude <instruction>\`, fix by hand, or close. <!-- claude-autofix exhausted sha=$SHA -->" >/dev/null
+            echo "go=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=yes" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v6
+        if: steps.pr.outputs.go == 'yes'
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+      - name: Prepare Python env
+        if: steps.pr.outputs.go == 'yes'
+        run: bash scripts/cloud-setup.sh || echo "::warning::cloud-setup.sh failed; fix pass runs without a prepared venv"
+      - name: Auto-fix red CI (bounded)
+        if: steps.pr.outputs.go == 'yes'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            REPO: ${{ github.repository }}   PR: #${{ steps.pr.outputs.pr }}   BRANCH: ${{ github.event.workflow_run.head_branch }}
+            CI run ${{ github.event.workflow_run.id }} finished RED for this PR's head. This is auto-fix attempt
+            ${{ steps.pr.outputs.attempts }} + 1 of ${{ env.MAX_FIX_ATTEMPTS }}.
+
+            Read CLAUDE.md first. The failed-step log tail is at /tmp/ci-failed.log (also: `gh run view ${{ github.event.workflow_run.id }} --log-failed`).
+            Diagnose the actual failure (portable paths / sync_plugin drift / validate_plugin / a test in
+            tests/ci_shard.txt), make the smallest correct fix inside the PR's territory — never weaken a gate
+            or delete a test to go green; if the right fix is outside the PR's territory or needs samples/viewer,
+            say so in a comment and stop. If you touched src/, tools/ or skills/, run `.venv/bin/python tools/sync_plugin.py`.
+            Re-run locally exactly what CI runs: `.venv/bin/python tools/dev/check_portable_paths.py`,
+            `.venv/bin/python tools/sync_plugin.py --check`, `.venv/bin/python plugin/scripts/validate_plugin.py`,
+            `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q $(grep -v '^#' tests/ci_shard.txt | xargs)`.
+            Only if green: commit with a plain message and push to BRANCH. Then post ONE PR comment: what failed,
+            what you changed, gate results — LAST line exactly:
+            <!-- claude-autofix attempt=${{ steps.pr.outputs.attempts }} -->
+            (post the marker comment even if you could not fix it, stating what is left for a human).
+          claude_args: |
+            --max-turns 60
+            --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh run view:*),Bash(gh api:*),Bash(gh issue view:*),Bash(.venv/bin/python:*),Bash(python:*),Bash(python3:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*),Bash(xargs:*),Bash(grep:*)"
+
