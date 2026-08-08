@@ -341,8 +341,13 @@ you to do unless the bot asks for a human."
    merges those by hand.
 5. So a session's PR checklist is: link the issue (`Closes #N`), include the record,
    run your stream-local gates, push, open the PR **ready** (not draft) when done —
-   or draft early and `gh pr ready <n>` when finished. Then stop; read the bot's
-   comments if it pings.
+   or draft early and `gh pr ready <n>` when finished. **Then turn on Auto-fix for
+   that PR, every time** — cloud session (claude.ai/code or Desktop-in-cloud): the
+   PR's CI status bar → **Auto-fix**, or just say "auto-fix this PR: watch CI
+   failures and review comments"; terminal session on the PR branch: `/autofix-pr`.
+   That makes *your own session* wake on red CI / review comments and push fixes
+   (needs the Claude GitHub App on the repo; uses your plan, no repo secret). Tell
+   your human you did it. Then stop; read the bot's comments if it pings.
 6. One-time setup this depends on (repo admin): Claude GitHub App installed on the
    repo, and an Actions secret `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`)
    or `ANTHROPIC_API_KEY`. Without it `claude-review` fails red on purpose and only

@@ -8,6 +8,9 @@ Closes #
 - Record: `docs/inbox/<stream>.md` (ends with a `BRANCH STATE` block) — [ ] included / updated in this PR
 - Learnings for KNOWLEDGE.md (if any): `docs/inbox/learned-<slug>.md` — [ ] included  [ ] n/a
 
+## After opening
+- [ ] Auto-fix turned on for this PR (cloud: CI bar → Auto-fix / "auto-fix this PR"; terminal: `/autofix-pr`)
+
 ## Gates run (paste counts / outputs)
 - [ ] Stream-local tests: `.venv/bin/python -m pytest tests/test_<yours>.py -q` → 
 - [ ] Touched `src/`, `tools/`, `skills/`, or `plugin/`? → `tools/sync_plugin.py` run, `--check` clean, `plugin/scripts/validate_plugin.py` OK
