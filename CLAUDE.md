@@ -237,6 +237,21 @@ gh issue list --assignee @me --state open      # resume yours, or:
 gh issue list --label ready --search "no:assignee"   # pick one, then self-assign it
 git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR
 ```
+**Before picking new work, service your own open PRs** — this is how a
+session "gets notified": it looks.
+```bash
+gh pr list --author @me --state open --json number,title,isDraft,labels,statusCheckRollup \
+  --jq '.[]|"#\(.number) \(.title) draft=\(.isDraft) labels=\([.labels[].name]|join(",")) checks=\([.statusCheckRollup[]?|.conclusion//"…"]|join("/"))"'
+gh pr view <n> --comments        # read the review summary, inline notes, automerge/needs-human comments
+```
+If a PR of yours is red, has `🛑 Changes requested`, or carries `needs-human`:
+fix that first (address each blocking bullet, run your gates, push to the same
+branch — the bots re-run on the new commit; remove `needs-human` with
+`gh pr edit <n> --remove-label needs-human` once you've pushed a real fix).
+Cloud sessions (claude.ai/code) can instead turn on **Auto-fix** in the PR's CI
+bar (or run `/autofix-pr` in a terminal session) so the session itself watches
+CI failures and review comments and pushes fixes.
+
 Then read the issue, `KNOWLEDGE.md`, and any `docs/inbox/` records it cites
 before writing code.
 
@@ -302,6 +317,9 @@ the repo takes it from there. Tell your human plainly: "PR is open; nothing for
 you to do unless the bot asks for a human."
 1. **`CI`** runs on every push: portable paths, `sync_plugin.py --check`,
    `validate_plugin.py`, the fast no-samples shard (`tests/ci_shard.txt`).
+   If CI finishes **red**, `claude-review`'s `ci-autofix` job reads the failed log,
+   makes the smallest in-territory fix, re-runs the CI commands locally, and pushes
+   (same 2-attempt budget; exhausted → `needs-human`).
 2. **`claude-review`** reviews every push against this file's rules and the linked
    issue's DONE, posts inline comments + one summary whose first line is the
    verdict (✅ Approve / 🟡 Nits only / 🛑 Changes requested) and whose last line is a
