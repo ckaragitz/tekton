@@ -296,6 +296,40 @@ git config pull.rebase true && git config rebase.autoStash true   # once per clo
   others have pulled; leave generated artifacts or ignored-dir content in
   a commit; let a branch live for more than a few days without rebasing.
 
+**What happens after you open a PR — fully automatic (`.github/workflows/`):**
+Contributors here are mostly *not* developers; their coding sessions open PRs and
+the repo takes it from there. Tell your human plainly: "PR is open; nothing for
+you to do unless the bot asks for a human."
+1. **`CI`** runs on every push: portable paths, `sync_plugin.py --check`,
+   `validate_plugin.py`, the fast no-samples shard (`tests/ci_shard.txt`).
+2. **`claude-review`** reviews every push against this file's rules and the linked
+   issue's DONE, posts inline comments + one summary whose first line is the
+   verdict (✅ Approve / 🟡 Nits only / 🛑 Changes requested) and whose last line is a
+   machine-readable marker for that exact head SHA. On 🛑 it runs a **bounded
+   auto-fix pass** (max 2 attempts per PR): edits, runs the gates, pushes to your
+   branch, which re-triggers CI + review. Still 🛑 after 2 → label `needs-human`.
+3. **`automerge`** squash-merges as soon as: not draft **and** CI green on the head
+   SHA **and** the review verdict for that SHA is Approve/Nits. It deletes the
+   branch; `Closes #N` closes the issue. It refuses (and comments why) on zero/red
+   checks, conflicts, or a missing verdict, and re-checks on every new commit and
+   every 30 minutes. **Duplicate rule:** if two open PRs close the same issue, the
+   older PR wins and the newer gets `needs-human` — so *assign yourself to the
+   issue before you start*.
+4. Escape hatches (humans only): `do-not-merge` holds a PR; `merge-when-green`
+   applied by someone other than the author (or by the owner) substitutes for the
+   AI verdict when the review bot is down or wrong; `@claude <instruction>` in any
+   comment makes the bot answer or push a change. PRs touching
+   `.github/workflows/**` can never be bot-merged (GitHub restriction) → owner
+   merges those by hand.
+5. So a session's PR checklist is: link the issue (`Closes #N`), include the record,
+   run your stream-local gates, push, open the PR **ready** (not draft) when done —
+   or draft early and `gh pr ready <n>` when finished. Then stop; read the bot's
+   comments if it pings.
+6. One-time setup this depends on (repo admin): Claude GitHub App installed on the
+   repo, and an Actions secret `CLAUDE_CODE_OAUTH_TOKEN` (from `claude setup-token`)
+   or `ANTHROPIC_API_KEY`. Without it `claude-review` fails red on purpose and only
+   the `merge-when-green` label path can merge.
+
 **Hot files — serialize, don't stack.** `tools/frontdoor.py`,
 `plugin/skills/*/SKILL.md`, `src/rvt/versions/`, `src/rvt/frontdoor/base.py`,
 `TRACKER.md`, `KNOWLEDGE.md`, `docs/coverage/viewer-certified.json`: changes
