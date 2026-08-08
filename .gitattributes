@@ -1,0 +1,54 @@
+# Line endings.
+#
+# Git for Windows ships core.autocrlf=true in its system config, so without
+# this file a Windows clone rewrites every tracked text file to CRLF on
+# checkout. Two consequences, both measured on a clean clone (issue #27):
+#
+#  1. `tools/sync_plugin.py --check` byte-compares content generated in memory
+#     (LF) against the file on disk (CRLF) and can never match, so it reports
+#     false drift. That is a standing gate per CLAUDE.md §2/§4 which no Windows
+#     contributor could satisfy.
+#  2. Worse, autocrlf's binary detection only samples for NUL bytes, so a small
+#     PDF with no NUL early in the file is treated as text and CORRUPTED on
+#     checkout: tekton-eval-kit/Tekton-Eval-Kit-Instructions.pdf arrived as
+#     11,148 bytes against a stored 11,012 — 136 bytes of CRLF expansion. git
+#     status hid it, because it normalised the file again on compare.
+#
+# Normalise text to LF in the repository AND in the working tree on every
+# platform. macOS and Linux see no change; Windows stops seeing false drift and
+# stops corrupting binaries.
+* text=auto eol=lf
+
+# --- binary: never convert these bytes ---------------------------------------
+# Do not rely on content sniffing. Revit containers in particular are the
+# product's deliverable format and are byte-compared against sha256 pins in
+# src/rvt/frontdoor/assets/genesis_base.json.
+*.rvt   binary
+*.rfa   binary
+*.rte   binary
+*.rft   binary
+*.zip   binary
+*.gz    binary
+*.bin   binary
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+
+# --- exempt from renormalisation ---------------------------------------------
+# The only tracked text blobs that already store CRLF. Listed file-by-file
+# rather than by directory so that adding this file changes no stored content:
+# a directory-wide -text would have captured LF-stored siblings and committed
+# the CRLF-polluted working-tree copies of them instead.
+#
+# Vendored third-party source — upstream's bytes, not ours to reformat.
+**/_vendor/olefile/olefile.py        -text
+**/_vendor/olefile/LICENSE.txt       -text
+**/_vendor/olefile/CONTRIBUTORS.txt  -text
+# Revit shared-parameter files are a Revit-side interchange format; leave the
+# bytes exactly as Revit wrote them.
+*shared-parameters.txt               -text
+
+# --- always LF regardless of the above ---------------------------------------
+*.sh    text eol=lf
