@@ -196,6 +196,13 @@ def check_skills() -> None:
         sd = os.path.join(d, name)
         if not os.path.isdir(sd):
             continue
+        if name.startswith("_"):
+            # `_`-prefixed dirs are shared infrastructure, not skills
+            # (skills/_shared/tekton_env.py = the zero-pip bootstrap); the
+            # plugin loader only enumerates dirs carrying a SKILL.md, and
+            # D9 load-tested exactly 5 skills WITH _shared present.
+            ok(f"skills/{name}: infrastructure dir (no SKILL.md required)")
+            continue
         sm = os.path.join(sd, "SKILL.md")
         if not os.path.isfile(sm):
             fail(f"skills/{name}: SKILL.md missing")
