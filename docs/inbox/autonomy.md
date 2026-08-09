@@ -208,3 +208,35 @@ immediate 60-turn fix pass per 🛑 is no longer spent when the author fixes it 
 Tests: 36 passed (new tripwire: dispatch string, `mode` input, no inline fix, no `workflow_run`).
 First engineer PR of the fan-out went through the untouched pipeline end-to-end meanwhile: #68
 (issue #9) — CI green, ✅ review, automerge, issue closed, zero human involvement.
+
+## Hardening the session-merge path (issue #88), same session
+
+An automated security review of `main` objected — fairly — that reviewer-edit PRs were being offered
+to a session with no verdict at all, and that the authoring session merged its own workflow PRs
+(#57/#65/#78). Kept the owner's intent (nothing waits on a human click) but restored an independent
+check: automerge no longer special-cases reviewer edits; the generic no-verdict path re-requests the
+review from **the default branch's reviewer**, which the action accepts even when the PR edits
+`claude-review.yml`; `session-merge` is only ever applied on the approved path (✅/🟡 verdict for the
+exact head + green CI), its comment/banner/CLAUDE.md text require re-checking both at merge time,
+`--match-head-commit`, reading the workflow diff, and preferring a non-author session; a workflow
+PR for which no independent verdict can be produced within the re-request window becomes
+`needs-human` = `merge-when-green` from a collaborator other than the author (last resort, not the
+default). Also least privilege: `worker.yml`/`techlead.yml` model jobs drop to `actions: read`; a
+separate `refresh-board` job holds `actions: write`. This PR is itself the first to go through the
+hardened path (it edits automerge but not the reviewer: verdict from its own run, then a session
+merge with `--match-head-commit`).
+
+**Found while dogfooding #89 (review dispatched from `main` by hand):** the review action rejects
+every run "initiated by non-human actor" unless `allowed_bots` names it — and it was empty. That
+silently broke every automerge-dispatched review re-request and fix pass, coord's planner
+wake-ups, automerge's rebase dispatch, and the review of any PR *authored* by the planner or the
+worker (`claude[bot]`) — why #63/#73 sat verdict-less. Every `claude-code-action` step
+(`claude-review.yml` ×3, `techlead.yml`, `worker.yml`, `claude.yml`) now sets
+`allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"` (our own bots only, both
+spellings), pinned by a test. The same review also caught a real thrash in my `needs-human`
+self-heal: it must not apply when GitHub refused the merge at this head (a persistent refusal
+would be retried every sweep); the lift is now scoped by reason via the per-head marker comments
+(`review-stuck-<sha>` lifts on approval, `merge-failed-<sha>` holds, no marker for the current head
+= head moved → re-evaluate). Note: `worker.yml`'s `refresh-board` job now also fires after a
+`rebase`-mode run (the old inline step exited first) — intentional and harmless (idempotent
+dispatch; a rebase push changes the board anyway).

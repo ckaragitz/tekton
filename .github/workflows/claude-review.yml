@@ -70,6 +70,7 @@ jobs:
       issues: write
       id-token: write
       actions: read
+      checks: read              # the reviewer / fixer may verify CI state on the head themselves
     steps:
       - name: Require a credential (fail red, never skip quietly)
         env:
@@ -115,6 +116,7 @@ jobs:
         continue-on-error: true      # a turn-cap exit must not skip the verdict rescue below
         uses: anthropics/claude-code-action@v1
         with:
+          allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"   # our own bots dispatch/author these runs (automerge, coord, planner, worker); default rejects every non-human actor
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
@@ -182,6 +184,7 @@ jobs:
         continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
+          allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"   # our own bots dispatch/author these runs (automerge, coord, planner, worker); default rejects every non-human actor
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
@@ -238,6 +241,7 @@ jobs:
       issues: write
       id-token: write
       actions: read
+      checks: read              # the reviewer / fixer may verify CI state on the head themselves
     steps:
       - name: Require a credential (fail red, never skip quietly)
         env:
@@ -299,6 +303,7 @@ jobs:
         if: steps.pr.outputs.go == 'yes'
         uses: anthropics/claude-code-action@v1
         with:
+          allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"   # our own bots dispatch/author these runs (automerge, coord, planner, worker); default rejects every non-human actor
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |

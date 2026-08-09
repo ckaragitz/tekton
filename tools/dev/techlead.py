@@ -100,7 +100,7 @@ REVIEWER_WORKFLOW = ".github/workflows/claude-review.yml"
 # tests/test_techlead.py fails when a bot workflow gains a job that neither list knows.
 BOT_CHECK_NAMES = frozenset({
     "automerge", "claude-review", "fix", "ci-autofix", "claude",   # merge machine, reviewer + dispatched fix pass, mention bot
-    "render",                                                      # board.yml
+    "render", "refresh-board",                                     # board.yml, and the planner/worker's board-refresh job
     "claim", "single-holder", "issue-intake", "pr-check", "sweep",  # coord.yml
     "gate", "plan",                                                # techlead.yml
     "pick", "implement",                                           # worker.yml
@@ -481,11 +481,14 @@ def pr_status(pr: dict, cfg: dict) -> tuple:
     if "do-not-merge" in L:
         return "⏸ held by `do-not-merge`" + note, "held"
     if "session-merge" in L:
-        why = ("it changes the reviewer workflow itself, which cannot be bot-reviewed — read the diff, check CI" if pr["touches_reviewer"]
-               else "it changes `.github/workflows/**`, which the Actions token may not merge — check CI + verdict")
-        return f"🧑‍💻 waiting for **any coding session** to squash-merge it ({why}); no human needed" + note, "session"
+        return ("🧑‍💻 waiting for **a coding session** (preferably not the author's) to squash-merge it: it changes "
+                "`.github/workflows/**`, which the Actions token may not merge; prerequisites already met and to be re-checked "
+                "at merge time — ✅/🟡 verdict for this exact head + green CI; read the workflow diff once more") + note, "session"
     if "needs-human" in L:
-        return "🧑 needs a human: GitHub refused the merge — see the bot's last comment" + note, "human"
+        why = ("no independent review verdict could be produced for a workflow-file PR — a collaborator other than the author "
+               "applies `merge-when-green` (or the owner merges)" if pr["touches_workflows"] and rv["verdict"] not in ("approve", "nits")
+               else "GitHub refused the merge — see the bot's last comment")
+        return f"🧑 needs a human: {why}" + note, "human"
     if "duplicate-pr" in L:
         return "👯 a second PR for an issue another open PR already closes (older wins) — the planner closes one" + note, "human"
     if ch["total"] == 0:
@@ -500,8 +503,9 @@ def pr_status(pr: dict, cfg: dict) -> tuple:
         if v == "changes":
             return f"🟢 CI · 🛑 changes requested · {fix}" + (" · draft" if pr["draft"] else "") + note, "changes"
         if pr["touches_reviewer"]:
-            return ("🟢 CI · 🧑‍💻 changes the reviewer workflow itself, which the review bot refuses to run modified — "
-                    "automerge labels it `session-merge`: **the next coding session reads the diff and squash-merges it**") + note, "session"
+            return ("🟢 CI · ⏳ changes the reviewer workflow itself: its own review run refuses a modified copy, so automerge "
+                    "re-requests the review from `main`'s reviewer — an independent verdict for this head is **required** "
+                    "before any session may merge it (`needs-human` = `merge-when-green` from a non-author if none can be produced)") + note, "review"
         return ("🟢 CI · ⏳ no review verdict for this commit yet (automerge re-requests it after "
                 f"{cfg['pipeline']['review_wait_minutes']} min; `bot-stuck` after {cfg['pipeline']['review_stuck_minutes']})") + note, "review"
     if pr["draft"]:
@@ -1063,8 +1067,10 @@ def hello(repo: str, timeout=4.0) -> str:
         merge_me = gh.get("issues", state="open", labels="session-merge", per_page=20)
         lines.append(f"  Live: {len(inbox)} untriaged steer(s) · {len(ready)} ready & unassigned (floor {cfg['planner']['ready_floor']}) · board: {board_url}")
         if merge_me:
-            lines.append("  MERGE FIRST (bots may not; you can): " + "; ".join(f"PR #{i['number']} {i['title'][:50]}" for i in merge_me[:4])
-                         + " — check CI + verdict (or read the diff), then `gh pr merge <n> --squash` / MCP merge_pull_request")
+            lines.append("  MERGE FIRST (bots may not; a session can): " + "; ".join(f"PR #{i['number']} {i['title'][:50]}" for i in merge_me[:4])
+                         + " — ONLY with a ✅/🟡 verdict for the exact head + green CI (re-check both, read the workflow diff; prefer a PR"
+                           " you did not author), then `gh pr merge <n> --squash --match-head-commit <sha>` / MCP merge_pull_request."
+                           " No verdict → do not merge; a non-author collaborator applies `merge-when-green`.")
         if inbox:
             lines.append("  Untriaged: " + "; ".join(f"#{i['number']} {i['title'][:60]}" for i in inbox[:3]))
         if ready:
