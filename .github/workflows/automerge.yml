@@ -171,6 +171,9 @@ jobs:
             cbodies=$(gh api "repos/$REPO/issues/$pr/comments" --paginate --jq '.[]|(.created_at + " " + (.body|gsub("[\r\n]";" ")))')
 
             has_label do-not-merge && { say "#$pr held by do-not-merge"; continue; }
+            # coord's batch judge (#285): this PR stages a viewer batch under a number another stream owns; merging
+            # it would put two files behind one batch number in the ledger. coord clears the label once renumbered.
+            has_label batch-clash && { say "#$pr held by batch-clash (renumber its viewer batch: see coord's comment)"; continue; }
             if has_label needs-human; then
               # The human gate holds or lifts depending on WHY it was set (marker comments per head):
               #  * merge refused by GitHub at this head  -> a true stop: a human clears it, or a new push moves the head;
