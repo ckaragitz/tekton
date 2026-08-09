@@ -21,9 +21,10 @@ name: claude-review
 #   CLAUDE_CODE_OAUTH_TOKEN  (`claude setup-token` on a Pro/Max plan)  — or —  ANTHROPIC_API_KEY
 # plus the Claude GitHub App installed on the repo (github.com/apps/claude).
 on:
-  pull_request:
-    types: [opened, synchronize, ready_for_review, reopened]
-  workflow_dispatch:       # automerge (or a human: Actions → claude-review → Run): re-review, or the fix pass
+  # steer #302: no GitHub-hosted compute. Every event/schedule trigger is off; the file is kept as the
+  # reference design and can be run by hand (workflow_dispatch) if minutes ever exist again. The live
+  # pipeline is session-hosted: docs/process/AUTONOMY.md section 12c, tools/dev/session_ci.sh.
+  workflow_dispatch:
     inputs:
       pr:
         description: "PR number, at its current head"

@@ -10,17 +10,9 @@ name: board
 # Events raised by our own bots' GITHUB_TOKEN do not re-trigger workflows, so no loops.
 
 on:
-  # Bounded on purpose: a 20-min cron plus the few events that change the picture for a human
-  # (issues/PRs opening, closing, becoming ready). Label/assignment storms from a planner pass and
-  # `workflow_run` fan-out are NOT triggers — they produced 30 runs in 3 minutes on day one (#64).
-  # State-changing bots refresh the board explicitly instead: automerge after a merge, the planner
-  # and the worker at the end of a run (`gh workflow run board.yml`).
-  issues:
-    types: [opened, closed, reopened]
-  pull_request_target:
-    types: [opened, closed, reopened, ready_for_review, converted_to_draft]
-  schedule:
-    - cron: "*/20 * * * *"
+  # steer #302: no GitHub-hosted compute. Every event/schedule trigger is off; the file is kept as the
+  # reference design and can be run by hand (workflow_dispatch) if minutes ever exist again. The live
+  # pipeline is session-hosted: docs/process/AUTONOMY.md section 12c, tools/dev/session_ci.sh.
   workflow_dispatch: {}
 
 permissions:
