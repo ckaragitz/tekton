@@ -221,10 +221,13 @@ def stage_load_batched(model: FI.IntentModel, base_path: str, stages_dir: str, R
 
     Degrade policy (the chain's, kept): the deliverable is the DEEPEST GOOD
     PREFIX of the load order.  A family that cannot be authored stops the
-    batch there (the loader's own rule); a family that fails the written
-    file's verification is dropped with everything after it and the prefix is
-    loaded again (one more host pass, logged) -- so a bad family costs a pass,
-    never the families before it.
+    batch there (the loader's own rule); a family the loader blames for a
+    failed write step or a failed verification (``BatchLoadResult.culprit``)
+    is dropped with everything after it and the prefix is loaded again; a
+    failure the loader cannot pin on one family (host write crashed,
+    file-level verification) sheds the LAST family and tries again -- so a
+    bad family costs host passes (logged, counted in ``host_passes``), never
+    the families before it.
 
     Returns the stage record shape of ``tools/ifc_intent.stage_load``
     (``loads`` / ``loaded`` / ``final`` / ``n_loaded`` / ``blocker`` + the
@@ -250,26 +253,25 @@ def stage_load_batched(model: FI.IntentModel, base_path: str, stages_dir: str, R
     dropped: List[Dict[str, Any]] = []       # rows of families dropped by an earlier pass
     attempt = list(order)
     while attempt:
+        rec["host_passes"] += 1
         try:
             res = L.load_families_into_project(base_path, out, [builder(t) for t in attempt],
                                                symbol_solid=symbol_solid,
                                                report_path=out + ".load.json", validate=False)
         except Exception as e:                                       # noqa: BLE001
-            rec["blocker"] = rec["blocker"] or f"{attempt[0]}: {type(e).__name__}: {e}"
-            dropped.insert(0, {"tag": attempt[0], "ok": False,
-                               "error": f"{type(e).__name__}: {e}",
-                               "traceback": traceback.format_exc(limit=8)})
+            # the host itself could not be surveyed / opened: no family to blame
+            rec["blocker"] = rec["blocker"] or f"host: {type(e).__name__}: {e}"
+            dropped = [{"tag": t, "ok": False, "blocker": f"{type(e).__name__}: {e}"}
+                       for t in attempt] + dropped
+            dropped[0]["traceback"] = traceback.format_exc(limit=8)
             R._log(f"L  EXCEPTION: {type(e).__name__}: {e}")
             break
-        rec["host_passes"] += int(res.out_path is not None)
         rec["shared_proofs"] = {k: res.shared.get(k) for k in
-                                ("adocument_reencode", "content_documents", "pass1_commit")}
+                                ("adocument_reencode", "content_documents", "pass1_commit",
+                                 "write_error")}
         rec["verify"] = res.shared.get("verify_written")
         entries = [_load_entry(tag, lr, base_path, out, R) for tag, lr in zip(attempt, res.loads)]
-        k = res.first_failure
-        if k is not None and rec["blocker"] is None:
-            rec["blocker"] = f"{attempt[k]}: {res.loads[k].stop_reason}"
-        n_written = sum(1 for lr in res.loads if lr.out_path)     # the authored prefix
+        n_written = sum(1 for lr in res.loads if lr.out_path)     # families in the written file
         file_ok = bool(n_written) and bool((rec["verify"] or {}).get("file_ok"))
         if file_ok and all(lr.ok for lr in res.loads[:n_written]):
             # the written file is good: all N, or the prefix before a family
@@ -280,22 +282,27 @@ def stage_load_batched(model: FI.IntentModel, base_path: str, stages_dir: str, R
                                "content_guid": lr.plan.guid, "product": products.get(tag)}
             rec["loads"] = entries[:n_written]
             dropped = entries[n_written:] + dropped
+            if res.culprit is not None and rec["blocker"] is None:
+                rec["blocker"] = f"{attempt[res.culprit]}: {res.loads[res.culprit].stop_reason}"
             break
-        if not n_written:                     # the first family could not be authored
-            dropped = entries + dropped
-            break
-        # a written family failed verification (or the file itself did): drop
-        # it and everything after it, load the prefix again
-        good = k if (k is not None and k < n_written and file_ok) else n_written - 1
+        # not deliverable as attempted.  Deepest good prefix: keep everything
+        # before the family to blame; when the loader cannot pin the failure
+        # on one family (host write crashed, file-level verification), shed
+        # the LAST family and try again -- a bad family costs passes, never
+        # the families before it.
+        keep = res.culprit if res.culprit is not None else len(attempt) - 1
+        blame = attempt[keep] if keep < len(attempt) else attempt[-1]
         if rec["blocker"] is None:
-            rec["blocker"] = f"{attempt[good]}: {res.stop_reason}"
-        for e in entries[good:]:
+            rec["blocker"] = f"{blame}: {res.stop_reason}"
+        for e in entries[keep:]:
             e["ok"] = False
             e.setdefault("blocker", res.stop_reason)
-        dropped = entries[good:] + dropped
+        dropped = entries[keep:] + dropped
+        if keep <= 0:
+            break                                 # nothing left to keep
         R._log(f"L  pass {rec['host_passes']}: {res.stop_reason} -> loading the "
-               f"{good}-family prefix again")
-        attempt = attempt[:good]
+               f"{keep}-family prefix again")
+        attempt = attempt[:keep]
     rec["loads"] = rec["loads"] + dropped
     current = out if loaded else base_path
     rec["loaded"] = {t: {k: v for k, v in d.items() if k != "product"} for t, d in loaded.items()}

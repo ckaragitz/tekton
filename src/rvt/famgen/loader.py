@@ -1602,6 +1602,15 @@ def _require_ids_above(product, watermark: int) -> None:
 # the BATCHED loader: N families, ONE host pass (issue #124)
 # ---------------------------------------------------------------------------
 
+class _FamilyStepError(LoaderError):
+    """A step of the shared host write failed FOR ONE FAMILY (``index`` in
+    load order) -- so the caller can exclude exactly that family."""
+
+    def __init__(self, index: int, message: str):
+        super().__init__(message)
+        self.index = index
+
+
 @dataclass
 class BatchLoadResult:
     """N families loaded in one host pass.  ``loads[i]`` is the per-family
@@ -1609,25 +1618,27 @@ class BatchLoadResult:
     the single loader; ``proofs['verify_written']`` = that family's slice of
     the one verification); ``shared`` = the proofs of the single host edit
     (ADocument re-encode, ContentDocuments, pass-1 commit, partition splices,
-    the file-level verification ``verify_written``)."""
+    the file-level verification ``verify_written``).  When ``ok`` is False,
+    ``culprit`` is the index of the family to blame (authoring gate, an
+    attributable write step, or the first failing per-family verification)
+    or ``None`` when the failure cannot be pinned on one family (host write
+    crashed, file-level verification) -- the caller's degrade policy decides
+    what to retry."""
     ok: bool                              # file written, verifies, every family ok
-    out_path: Optional[str]               # None when nothing could be written
+    out_path: Optional[str]               # None when no usable file was written
     loads: List[LoadResult]               # attempted families, in order
     shared: Dict[str, Any]
     stop_reason: str = ""                 # first failure (names the family)
+    culprit: Optional[int] = None         # index of the family to blame, if known
 
     @property
     def n_loaded(self) -> int:
         return sum(1 for r in self.loads if r.ok)
 
-    @property
-    def first_failure(self) -> Optional[int]:
-        """Index of the first family that is not ok (None when all are)."""
-        return next((i for i, r in enumerate(self.loads) if not r.ok), None)
-
     def as_json(self) -> dict:
         return {"ok": self.ok, "out_path": self.out_path, "stop_reason": self.stop_reason,
-                "shared": self.shared, "loads": [r.as_json() for r in self.loads]}
+                "culprit": self.culprit, "shared": self.shared,
+                "loads": [r.as_json() for r in self.loads]}
 
 
 def load_families_into_project(host_rvt: str, out_path: str, products: Sequence[Any], *,
@@ -1652,10 +1663,14 @@ def load_families_into_project(host_rvt: str, out_path: str, products: Sequence[
 
     Honest, single pass: a family whose authoring gates fail stops the batch
     THERE (the id ladder needs every earlier family) and the families before
-    it are written; the written file is verified once and each family gets its
-    verdict -- ``ok`` only if the file verifies and every family does.  What
-    to do with a partial result (keep the good prefix, retry without a family)
-    is the CALLER's degrade policy (``rvt.frontdoor.build.stage_load_batched``).
+    it are written; a failure inside the shared host write (registration,
+    ContentDocuments, commit, unit splice) writes NO file and is attributed to
+    the offending family when the step is per-family (``culprit``); the
+    written file is verified once and each family gets its verdict -- ``ok``
+    only if the file verifies and every family does.  What to do with a
+    partial result (keep the prefix before ``culprit``, shed a family and try
+    again) is the CALLER's degrade policy
+    (``rvt.frontdoor.build.stage_load_batched``).
 
     Runs under the HOST's own release like the single loader.
     """
@@ -1687,28 +1702,50 @@ def _load_families_into_project(host_rvt: str, out_path: str, products: List[Any
         cursor = a.max_host_id
     loads: List[LoadResult] = []
     stop_reason = ""
+    culprit: Optional[int] = None
     file_ok = False
+    written = False
     if authored:
-        new_latest, cd_new, edit_proofs = _edit_host_registries(host_rvt, host, authored)
-        shared.update(edit_proofs)
-        shared.update(_commit_and_write(host_rvt, out_path, host, authored, new_latest, cd_new))
+        try:
+            new_latest, cd_new, edit_proofs = _edit_host_registries(host_rvt, host, authored)
+            shared.update(edit_proofs)
+            shared.update(_commit_and_write(host_rvt, out_path, host, authored,
+                                            new_latest, cd_new))
+            written = True
+        except Exception as exc:                                  # noqa: BLE001
+            culprit = getattr(exc, "index", None)
+            stop_reason = ((f"family {culprit + 1}/{len(products)}: " if culprit is not None
+                            else "host write failed: ") + f"{type(exc).__name__}: {exc}")
+            shared["write_error"] = stop_reason
+            for k, a in enumerate(authored):
+                loads.append(a.result(False, None, stop_reason=(
+                    stop_reason if k == culprit else "not written: the shared host write failed")))
+            for junk in (out_path, out_path + ".pass1.tmp"):
+                try:
+                    os.remove(junk)
+                except OSError:
+                    pass
+    if written:
         ver = verify_loaded_projects(out_path, [a.plan for a in authored], validate=validate)
         shared["verify_written"] = {k: v for k, v in ver.items() if k != "per_plan"}
         file_ok = bool(ver["file_ok"])
         for k, (a, pv) in enumerate(zip(authored, ver["per_plan"])):
             loads.append(a.result(bool(pv["ok"]), out_path, verify=pv,
                                   stop_reason="" if pv["ok"] else "verify_written reported failures"))
-            if not pv["ok"] and not stop_reason:
+            if not pv["ok"] and culprit is None:
+                culprit = k
                 stop_reason = f"family {k + 1}/{len(products)}: verify_written reported failures"
         if not file_ok:
             stop_reason = "file-level verification failed: " + "; ".join(ver["file_errors"])[:300]
     if auth_failure:
         loads.append(LoadResult(ok=False, out_path=None, plan=None, proofs={}, acceptance=[],
                                 elements=[], stop_reason=auth_failure))
+        if culprit is None and (written and file_ok or not authored):
+            culprit = len(authored)              # the un-authorable family is the one to blame
         stop_reason = stop_reason or auth_failure
     res = BatchLoadResult(ok=file_ok and not auth_failure and all(r.ok for r in loads),
-                          out_path=out_path if authored else None,
-                          loads=loads, shared=shared, stop_reason=stop_reason)
+                          out_path=out_path if written else None,
+                          loads=loads, shared=shared, stop_reason=stop_reason, culprit=culprit)
     if report_path:
         _write_report(report_path, res.as_json())
     return res
@@ -1731,18 +1768,24 @@ def _edit_host_registries(host_rvt: str, host: HostContext,
     if not lat.clean:
         raise LoaderError("host Global/Latest does not decode clean")
     lv = _dc(lat.value)
-    regs = [register_in_host_adocument(lv, a.plan, category=host.category,
-                                       unit_records=int(a.unit["record_count"]))
-            for a in authored]
+    regs = []
+    for i, a in enumerate(authored):
+        try:
+            regs.append(register_in_host_adocument(lv, a.plan, category=host.category,
+                                                   unit_records=int(a.unit["record_count"])))
+        except Exception as exc:                                  # noqa: BLE001
+            raise _FamilyStepError(i, f"host ADocument registration failed: "
+                                      f"{type(exc).__name__}: {exc}") from exc
     new_latest = encode_latest(lv, trailer=lat.trailer)
     back = decode_latest(new_latest)
     if not back.clean:
         raise LoaderError("edited host ADocument does not re-decode clean")
     ents_before, tail = F.parse_content_documents(cd_payload)
     have = {g for g, _a in ents_before}
-    dup = next((a.plan.guid for a in authored if a.plan.guid in have), None)
-    if dup is not None:
-        raise LoaderError(f"content document {dup} already present in the host")
+    for i, a in enumerate(authored):
+        if a.plan.guid in have:
+            raise _FamilyStepError(i, f"content document {a.plan.guid} already present in the host")
+        have.add(a.plan.guid)
     cd_new = F.assemble_content_documents(
         ents_before + [(a.plan.guid, bytes(a.adocument["payload"])) for a in authored],
         tail=tail or F.CD_END_RECORD)
@@ -1793,8 +1836,11 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
     }, "pass2_partition_splice": []}
     with open_rvt(tmp1) as f2:
         part_logical = f2.logical(host.partition_name)
-    for a in authored:
-        sp = F.splice_save_unit(part_logical, a.unit["bytes"])
+    for i, a in enumerate(authored):
+        try:
+            sp = F.splice_save_unit(part_logical, a.unit["bytes"])
+        except Exception as exc:                                  # noqa: BLE001
+            raise _FamilyStepError(i, f"unit splice failed: {type(exc).__name__}: {exc}") from exc
         w = sp["walker"]
         rep["pass2_partition_splice"].append({
             "units_before": w["units_before"], "units_after": w["units_after"],
@@ -1805,8 +1851,8 @@ def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
         })
         if (w["errors"] or w["units_after"] != w["units_before"] + 1
                 or w["our_unit_guid"] != a.plan.guid):
-            raise LoaderError(f"partition splice failed: {w['errors'][:3]} "
-                              f"(unit guid {w['our_unit_guid']}, want {a.plan.guid})")
+            raise _FamilyStepError(i, f"partition splice failed: {w['errors'][:3]} "
+                                      f"(unit guid {w['our_unit_guid']}, want {a.plan.guid})")
         part_logical = sp["logical"]
     new_streams = {
         host.partition_name: ecc.frame_stream(part_logical),

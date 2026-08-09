@@ -113,7 +113,7 @@ def batch26(tmp_path_factory):
 def test_batch_loads_n_families_ok(batch26):
     res = batch26
     assert res.ok, res.stop_reason
-    assert res.first_failure is None
+    assert res.culprit is None
     assert res.n_loaded == 3 and len(res.loads) == 3
     assert all(r.ok and r.plan is not None for r in res.loads)
     # ids ladder like the chain: family i+1's ids all above family i's
@@ -262,7 +262,7 @@ def test_authoring_failure_stops_the_batch_there(tmp_path):
     res = L.load_families_into_project(BASE26, out, [_factory(0), broken, _factory(2)],
                                        validate=False)
     assert not res.ok
-    assert res.n_loaded == 1 and res.first_failure == 1
+    assert res.n_loaded == 1 and res.culprit == 1
     assert res.loads[0].ok and res.loads[0].plan is not None
     assert not res.loads[1].ok and "no catalog facts" in res.loads[1].stop_reason
     assert len(res.loads) == 2                      # family 3 never attempted
@@ -277,9 +277,91 @@ def test_nothing_loadable_writes_no_file(tmp_path):
         raise ValueError("boom")
     out = str(tmp_path / "none.rvt")
     res = L.load_families_into_project(BASE26, out, [broken], validate=False)
-    assert not res.ok and res.n_loaded == 0 and res.first_failure == 0
+    assert not res.ok and res.n_loaded == 0 and res.culprit == 0
     assert res.out_path is None and not os.path.exists(out)
     assert "family 1/1" in res.stop_reason
+
+
+def test_write_step_failure_is_attributed_and_writes_no_file(tmp_path, monkeypatch):
+    """A per-family step of the SHARED host write failing (here: family 2's
+    unit splice) writes no file, blames that family (``culprit``), and marks
+    the others 'not written' -- the caller can retry without it."""
+    from rvt.famgen import loader as L, factory as F
+    real = F.splice_save_unit
+    calls = {"n": 0}
+
+    def flaky_splice(logical, unit_bytes):
+        calls["n"] += 1
+        if calls["n"] == 2:
+            raise RuntimeError("walker error on this unit")
+        return real(logical, unit_bytes)
+    monkeypatch.setattr(F, "splice_save_unit", flaky_splice)
+    out = str(tmp_path / "w.rvt")
+    res = L.load_families_into_project(BASE26, out, [_factory(i) for i in range(3)],
+                                       validate=False)
+    assert not res.ok and res.out_path is None and res.culprit == 1
+    assert not os.path.exists(out) and not os.path.exists(out + ".pass1.tmp")
+    assert "family 2/3" in res.stop_reason and "unit splice failed" in res.stop_reason
+    assert [r.ok for r in res.loads] == [False, False, False]
+    assert res.loads[1].stop_reason == res.stop_reason
+    assert res.loads[0].stop_reason.startswith("not written")
+    assert res.shared["write_error"] == res.stop_reason
+
+
+def test_stage_load_keeps_the_prefix_before_a_write_time_culprit(tmp_path, monkeypatch):
+    """The reviewer's scenario on #256: families 1..k-1 fine, family k breaks
+    the shared write.  The front door retries with the prefix before k --
+    k-1 families delivered, two host passes, blocker names family k."""
+    from rvt.frontdoor import build as B, prompt_intent as PP
+    from rvt.frontdoor.base import resolve_base
+    from rvt.famgen import factory as F
+    R = B.load_ifc_room_module()
+    model, _parsed = PP.prompt_to_intent("an electrical room with 3 panels")
+    order = R._load_order(model)
+    real = F.splice_save_unit
+    calls = {"n": 0}
+
+    def flaky_splice(logical, unit_bytes):
+        calls["n"] += 1
+        if calls["n"] == 3:                    # family 3's unit, first pass
+            raise RuntimeError("walker error on this unit")
+        return real(logical, unit_bytes)
+    monkeypatch.setattr(F, "splice_save_unit", flaky_splice)
+    stages = tmp_path / "_stages"
+    stages.mkdir()
+    rec = B.stage_load_batched(model, resolve_base(None).path, str(stages), R)
+    assert rec["n_loaded"] == 2 and rec["n_planned"] == 3
+    assert rec["host_passes"] == 2
+    assert list(rec["loaded"]) == order[:2]
+    assert rec["blocker"].startswith(f"{order[2]}: ") and "unit splice failed" in rec["blocker"]
+    assert [(e["tag"], e["ok"]) for e in rec["loads"]] == \
+        [(order[0], True), (order[1], True), (order[2], False)]
+    assert os.path.isfile(rec["_current"]) and rec["_current"].endswith("stage_L_loaded.rvt")
+
+
+def test_stage_load_sheds_the_last_family_when_the_culprit_is_unknown(tmp_path, monkeypatch):
+    """A host-write crash the loader cannot pin on one family: shed the last
+    family and try again (never drop the whole batch)."""
+    from rvt.frontdoor import build as B, prompt_intent as PP
+    from rvt.frontdoor.base import resolve_base
+    from rvt.famgen import loader as L
+    R = B.load_ifc_room_module()
+    model, _parsed = PP.prompt_to_intent("an electrical room with 3 panels")
+    order = R._load_order(model)
+    real = L._commit_and_write
+
+    def crash_at_three(host_rvt, out_path, host, authored, new_latest, cd_new):
+        if len(authored) == 3:
+            raise RuntimeError("disk hiccup")
+        return real(host_rvt, out_path, host, authored, new_latest, cd_new)
+    monkeypatch.setattr(L, "_commit_and_write", crash_at_three)
+    stages = tmp_path / "_stages"
+    stages.mkdir()
+    rec = B.stage_load_batched(model, resolve_base(None).path, str(stages), R)
+    assert rec["n_loaded"] == 2 and rec["host_passes"] == 2
+    assert list(rec["loaded"]) == order[:2]
+    assert rec["blocker"].startswith(f"{order[2]}: host write failed: RuntimeError: disk hiccup")
+    assert [e["ok"] for e in rec["loads"]] == [True, True, False]
 
 
 def test_single_loader_report_shape_is_unchanged(tmp_path):

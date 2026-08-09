@@ -24,12 +24,16 @@ the schema-cache memo to #183 (its share is measured below, not touched).
    stop_reason, first_failure}`. The loader is single-pass and honest: a
    family whose authoring gates fail stops the batch *there* (the id ladder
    needs every earlier family) and the prefix is written; the file is
-   verified once and every family gets its verdict. The *policy* — keep the
-   deepest good prefix, and if a written family fails verification drop it +
-   everything after it and load the prefix again (one more pass, logged) —
-   lives in the front door's `stage_load_batched`, so the chain's "deepest
-   good load" degrade is unchanged and a bad family costs a pass, never the
-   families before it.
+   verified once and every family gets its verdict; a failure inside the
+   shared host write (registration / ContentDocuments / commit / unit splice)
+   writes no file and is attributed to the offending family when the step is
+   per-family (`culprit`). The *policy* — keep the prefix before the culprit
+   and load it again; when the loader cannot pin a failure on one family
+   (host write crashed, file-level verification) shed the last family and
+   try again — lives in the front door's `stage_load_batched`, so the chain's
+   "deepest good load" degrade holds for author-, write- and verify-time
+   failures alike (review point on #256, pinned by three tests): a bad
+   family costs host passes, never the families before it.
    The single `load_family_into_project` now runs on the same three helpers
    (`_author_load`, `_edit_host_registries`, `_commit_and_write`) and
    `verify_loaded_project(path, plan)` is the one-plan view of
@@ -141,7 +145,7 @@ All of the above is pinned sample-free in `tests/test_famload_batch.py`.
 ## 3. Gates run
 
 * `tests/test_famload_batch.py` (new, sample-free, in `tests/ci_shard.txt`):
-  **12 passed** in 25 s — batch loads N ok with laddered ids; four-registry
+  **15 passed** in 31 s — batch loads N ok with laddered ids; four-registry
   coherent + VALID; ONE container write for N (seam on `cfb_writer.write_cfb`:
   batch 1 vs chain 2 for two families); chain ≡ batch logically (above);
   authoring failure stops the batch there / nothing loadable writes no file;
@@ -149,8 +153,10 @@ All of the above is pinned sample-free in `tests/test_famload_batch.py`.
   manifest `build.stages[*].seconds` are numbers incl. the V gate split;
   a 2-panel prompt loads in `host_passes == 1` with one `_stages`
   intermediate and a whole deliverable; `stage_load_batched` degrades to the
-  deepest good prefix when a family cannot be built (blocker names it, one
-  pass); `surface_bench.stage_breakdown` reads the breakdown back.
+  deepest good prefix when a family cannot be built (one pass), when a
+  family breaks the shared write (culprit attributed → prefix kept, two
+  passes) and when the write crashes unattributably (last family shed, two
+  passes); `surface_bench.stage_breakdown` reads the breakdown back.
 * `tests/test_frontdoor.py tests/test_target2025.py tests/test_go_target_version.py`
   → 47 passed / 12 skipped; `tests/test_famgen_loader.py test_famgen_factory.py
   test_famload.py test_famload_2025.py test_hostsym_product.py test_bootstrap.py
@@ -257,7 +263,7 @@ All of the above is pinned sample-free in `tests/test_famload_batch.py`.
   stage under the one clock, V-stage entry with per-gate split, `stages` in
   `as_json`), `tools/surface_bench.py` (+`stage_breakdown`, `_fmt_breakdown`,
   `JobResult.breakdown`, job `go-author-6panels`), `tests/test_famload_batch.py`
-  (new, 12 tests), `tests/ci_shard.txt` (+1 line), this record; sync mirrors
+  (new, 15 tests), `tests/ci_shard.txt` (+1 line), this record; sync mirrors
   `plugin/lib/src/rvt/{frontdoor/build.py,famgen/loader.py}`.
 * `src/rvt/frontdoor/manifest.py`, `src/rvt/famload.py`: no change needed
   (the manifest already copied `build.stages`; the prompt path never used the
