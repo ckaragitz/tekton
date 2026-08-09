@@ -46,6 +46,7 @@ jobs:
         run: bash scripts/cloud-setup.sh || echo "::warning::cloud-setup.sh failed; the session will run without a prepared venv"
       - uses: anthropics/claude-code-action@v1
         with:
+          allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"   # the requirements intake and our other bots may post @claude mentions
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: |

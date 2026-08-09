@@ -301,6 +301,14 @@ def test_workflow_file_prs_need_a_verdict_before_session_merge():
     assert "add_label session-merge" not in no_verdict, "session-merge must never be offered before a verdict exists"
     assert "-f mode=review" in no_verdict and "add_label needs-human" in no_verdict and "other than the author" in no_verdict
     assert "drop_label needs-human" in am, "the human gate must lift itself once the approval it asked for exists"
+    assert 'has_marker "merge-failed-$sha"' in am, "a merge GitHub refused at this head must stay a true stop (no thrashing)"
+    # Our own bots dispatch or author these runs (automerge re-requests, coord wake-ups, planner/worker PRs):
+    # the action rejects every non-human actor unless allowed_bots names them.
+    for wf_name in ("claude-review.yml", "techlead.yml", "worker.yml", "claude.yml"):
+        text = _wf(wf_name)
+        uses = text.count("uses: anthropics/claude-code-action@v1")
+        assert uses and text.count("allowed_bots:") == uses, f"{wf_name}: every claude-code-action step must set allowed_bots"
+        assert "github-actions[bot]" in text and "claude[bot]" in text
     approved = am.split("if [ \"$touches_wf\" != \"0\" ]; then", 1)[1].split("if [ \"$mergeable\" = \"CONFLICTING\" ]", 1)[0]
     assert "add_label session-merge" in approved and "--match-head-commit" in approved
     for wf_name in ("worker.yml", "techlead.yml"):

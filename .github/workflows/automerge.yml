@@ -160,12 +160,21 @@ jobs:
 
             has_label do-not-merge && { say "#$pr held by do-not-merge"; continue; }
             if has_label needs-human; then
-              # Self-healing: the human gate lifts itself once the approval it asked for exists — a
-              # `merge-when-green` label (validated as non-author below) or a verdict for THIS head.
-              if has_label merge-when-green || grep -qE "<!-- claude-review: (approve|nits) sha=$sha -->" <<<"$cbodies"; then
-                drop_label needs-human; say "#$pr: needs-human lifted (approval present) — re-evaluating"
+              # The human gate holds or lifts depending on WHY it was set (marker comments per head):
+              #  * merge refused by GitHub at this head  -> a true stop: a human clears it, or a new push moves the head;
+              #  * no independent verdict at this head   -> lifts itself once the approval it asked for exists
+              #    (`merge-when-green`, validated as non-author below, or a verdict for THIS sha);
+              #  * neither marker matches this head        -> the head moved since the label: re-evaluate afresh.
+              if has_marker "merge-failed-$sha"; then
+                say "#$pr waiting on a human (GitHub refused the merge at ${sha:0:7})"; continue
+              elif has_marker "review-stuck-$sha"; then
+                if has_label merge-when-green || grep -qE "<!-- claude-review: (approve|nits) sha=$sha -->" <<<"$cbodies"; then
+                  drop_label needs-human; say "#$pr: needs-human lifted (approval now present for ${sha:0:7}) — re-evaluating"
+                else
+                  say "#$pr waiting on a human (no independent verdict for ${sha:0:7})"; continue
+                fi
               else
-                say "#$pr waiting on a human"; continue
+                drop_label needs-human; say "#$pr: head moved since needs-human was set — re-evaluating"
               fi
             fi
             if has_label session-merge && [ -z "${MERGE_TOKEN:-}" ]; then say "#$pr waiting for a coding session to merge it"; continue; fi
