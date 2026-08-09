@@ -228,6 +228,11 @@ def test_single_storey_prompts_are_unchanged():
     # a level digit is never an equipment count: 'level 2 lighting panels' != 2 panels by count
     p2 = PP.parse_prompt("an electrical room with level 2 lighting panels LP-7")
     assert [(it.tag, it.level) for it in p2.items] == [("LP-7", 2)]
+    # ... and '<n> level <digit>' is n ITEMS on that level, never n storeys
+    p3 = PP.parse_prompt("an electrical room with 4 level 2 lighting panels")
+    assert len(p3.items) == 4 and {it.level for it in p3.items} == {2}
+    assert [lv["id"] for lv in p3.levels] == ["L1", "L2"]
+    assert not any(u["as"] == "storeys" for u in p3.coverage.understood)
 
 
 @needs_catalog

@@ -205,9 +205,16 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
     # one IfcBuildingStorey per intent level, its placement AT the level's
     # elevation: a product sits under ITS level's storey with level-relative
     # z (Equipment.level / RoomShell.level set), so the storey chain composes
-    # back to world z and `frontdoor author --ifc` re-reads the same levels
-    levels = list(getattr(model, "levels", None) or []) or [
-        {"id": "L1", "name": "Level 1", "elevation": 0.0}]
+    # back to world z and `frontdoor author --ifc` re-reads the same levels.
+    # Only BUILDING STORIES become storeys (a read-back model also lists the
+    # source's reference datums, ``is_building_story: False``); a level-blind
+    # caller (no object carries a level: world z throughout) gets ONE storey.
+    room = getattr(model, "room", None)
+    all_levels = list(getattr(model, "levels", None) or [])
+    levels = [lv for lv in all_levels if lv.get("is_building_story") is not False] or all_levels
+    if not any(getattr(o, "level", None) for o in list(getattr(model, "equipment", None) or []) + [room]):
+        levels = levels[:1]
+    levels = levels or [{"id": "L1", "name": "Level 1", "elevation": 0.0}]
     storeys: Dict[str, Tuple[str, str, float]] = {}     # level id -> (storey, placement, elev)
     for i, lv in enumerate(levels):
         lid = str(lv.get("id") or f"L{i + 1}")
@@ -248,7 +255,6 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
     products: Dict[str, List[str]] = {}                 # storey -> contained products
 
     # ---- the room shell proxy (wall_<i> box solids) ------------------------
-    room = getattr(model, "room", None)
     if room is not None and getattr(room, "walls", None):
         sto, plc_sto, zoff = storey_for(getattr(room, "level", None))
         items: List[str] = []

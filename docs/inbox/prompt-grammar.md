@@ -297,11 +297,31 @@ with tests, plus its four nits:
    electrical room on the second floor", "a second floor electrical room")
    scopes the ROOM (`test_level_reference_adjacent_to_the_room_scopes_the_room`);
    `tests/test_prompt_intent.py` added to `tests/ci_shard.txt`.
-4. Side effect worth knowing (convert stream): `rvt_to_ifc` feeds the same
-   emitter with world-z equipment and no `level`, so converted files now list
-   every level of the source as a storey and contain the gear under the one
-   nearest 0 (its "dominant level first" sort and comment predate this);
-   `test_convert_combo` / `test_router*` unchanged and green.
+4. **Round 2 (re-review of `bbf560d`): the convert lane under the same
+   contract.** `rvt_to_ifc` fed the emitter EVERY Level of the source (9 on a
+   tekton-authored file: 2 stories + 7 'GEN …' reference datums) with
+   level-less gear, so `rvt → ifc` wrote 9 storeys and `ifc → rvt` of that
+   file duplicated level names / sank the walls. Fixed on both sides:
+   `write_intent_ifc` emits storeys only for levels whose `is_building_story`
+   is not False, and only ONE storey when no object carries a level
+   (level-blind callers keep main's shape); `rvt_to_ifc._extract_intent` sets
+   `ExtractedEquipment.level` / `_Room.level` from `m_assocLevelId` when that
+   datum is a building story and rebases z / wall `base_m` on it. Belt and
+   braces: `bind_levels` never renames a datum to a name another Level of the
+   document keeps (`rename_skipped`, surfaced as a degradation), and
+   `_RE_STOREYS` no longer reads '4 level 2 lighting panels' as 4 storeys.
+   Evidence: `convert_rvt_to_ifc(<pinned 2026 base>)` → 1 storey ('L1 -
+   Ground Floor', no GEN datum); `convert_rvt_to_ifc(<built two-storey job>)`
+   → 2 storeys 'Level 1'/'Level 2', LP-1..4 contained under 'Level 2' with z
+   1.42, MSB + shell under 'Level 1'; that IFC through `frontdoor author
+   --ifc` → 311 'Level 1' @ 0 / 245423 'Level 2' @ 14, unique level names,
+   LPs on 245423 @ 18.659 ft, MSB 311 @ 0.328, walls @ 0, no degradations, 0
+   validator errors (`test_rvt_to_ifc_of_the_pinned_base_writes_only_its_story_datum`,
+   `test_rvt_ifc_rvt_round_trip_keeps_storeys_and_unique_level_names`,
+   `test_a_datum_is_never_renamed_to_a_name_another_level_keeps`).
+   `src/rvt/convert/rvt_to_ifc.py` is the convert stream's file — edited here
+   on the tech lead's explicit instruction (round-2 review), one hunk + the
+   `level` field.
 
 ## Open questions
 
@@ -318,7 +338,7 @@ with tests, plus its four nits:
 - Files written: `src/rvt/frontdoor/prompt_intent.py`, `src/rvt/ifc/intent.py`,
   `src/rvt/frontdoor/levels.py` (new), `src/rvt/frontdoor/build.py`,
   `src/rvt/frontdoor/manifest.py`, `src/rvt/frontdoor/ifc_out.py`,
-  `tools/ifc_intent.py`, `tests/test_prompt_intent.py`,
+  `src/rvt/convert/rvt_to_ifc.py` (round 2), `tools/ifc_intent.py`, `tests/test_prompt_intent.py`,
   `tests/test_frontdoor.py`, `tests/ci_shard.txt`, this record; sync
   mirrors `plugin/lib/src/rvt/frontdoor/{prompt_intent,levels,build,manifest,ifc_out}.py`,
   `plugin/lib/src/rvt/ifc/intent.py`, `plugin/lib/tools/ifc_intent.py`,

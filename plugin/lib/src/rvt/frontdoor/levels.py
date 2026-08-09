@@ -71,28 +71,40 @@ def bind_levels(doc, intent_levels: Sequence[dict]) -> Tuple[List[dict], List[di
     all, or one flagged ``"default": True`` (a prompt / IFC silent about
     levels) -- binds the first storey and keeps the datum's own name AND
     elevation (it never renames or moves anything)."""
-    stories = story_levels(doc)
+    all_levels = doc.levels()
+    stories = [lv for lv in all_levels if lv.get("is_building_story")] or all_levels
     if not stories:
         raise ValueError("the base carries no Level datum to bind the intent's levels to")
     want = sorted((dict(lv) for lv in intent_levels or [{"id": "L1", "elevation": 0.0,
                                                           "default": True}]),
                   key=lambda lv: float(lv.get("elevation") or 0.0))
+    n_bound = min(len(want), len(stories))
+    #: Revit requires unique level names: a datum is never renamed to a name
+    #: another Level of the document keeps (reference datums, unbound stories)
+    taken = {lv.get("name") for lv in all_levels} - {st.get("name") for st in stories[:n_bound]}
     bound: List[dict] = []
     not_built: List[dict] = []
     for i, lv in enumerate(want):
         elev_ft = round(float(lv.get("elevation") or 0.0) * FT_PER_M, 6)
         name = str(lv.get("name") or f"Level {i + 1}")
         lid = str(lv.get("id") or f"L{i + 1}")
-        if i < len(stories):
+        if i < n_bound:
             st = stories[i]
             base_elev = float(st.get("elevation_ft") or 0.0)
+            kept = None
             if lv.get("default"):                    # asserts nothing: keep the datum as is
                 name, elev_ft = st.get("name") or name, base_elev
+            elif name != st.get("name") and name in taken:
+                kept = (f"name '{name}' is already a Level of the document: the datum keeps "
+                        f"'{st.get('name')}' (Revit level names must be unique)")
+                name = st.get("name") or name
+            taken.add(name)
             bound.append({"id": lid, "name": name, "elevation_ft": elev_ft,
                           "base_id": int(st["id"]), "base_name": st.get("name"),
                           "base_elevation_ft": base_elev,
                           "rename": name != (st.get("name") or ""),
-                          "move": abs(elev_ft - base_elev) > ELEV_TOL_FT})
+                          "move": abs(elev_ft - base_elev) > ELEV_TOL_FT,
+                          **({"rename_skipped": kept} if kept else {})})
         else:
             top = bound[-1]
             not_built.append({

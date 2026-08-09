@@ -134,10 +134,13 @@ class ExtractedEquipment:
     family_unit: Optional[int] = None
     contract_source: List[str] = dc_field(default_factory=list)
     notes: List[str] = dc_field(default_factory=list)
+    #: the extracted level id ('L1'..) of the instance's building-story datum;
+    #: SET => insertion_m[2] is relative to it (the emitter's storey contract)
+    level: Optional[str] = None
 
     def as_json(self) -> Dict[str, Any]:
         return {"elem_id": self.elem_id, "tag": self.tag, "name": self.name,
-                "kind": self.kind, "ifc_class": self.ifc_class,
+                "kind": self.kind, "ifc_class": self.ifc_class, "level": self.level,
                 "insertion_m": [round(x, 4) for x in self.insertion_m],
                 "front_normal": [round(x, 4) for x in self.front_normal],
                 "frame_kind": self.frame_kind,
@@ -160,6 +163,7 @@ class _Room:
         self.doors: list = []
         self.clear: Dict[str, Any] = {}
         self.info = {"RoomName": name}
+        self.level: Optional[str] = None      # SET => wall base_m is relative to it
 
 
 class ExtractedModel:
@@ -617,14 +621,32 @@ def _extract_intent(rvt_path: str, *, max_walls: Optional[int]) -> ExtractedMode
     model.equipment, eq_skipped = _extract_equipment(doc, idx)
     model.feeders, feeder_stats = _extract_feeders(doc, model.equipment)
 
-    # the emitter takes levels[0] as THE storey: put the dominant level first
+    # STOREYS: the emitter writes one IfcBuildingStorey per building-story
+    # level and contains each object under ITS level with level-relative z
+    # (rvt.frontdoor.ifc_out's contract) -- so every instance / the room shell
+    # takes the story datum it is associated to (m_assocLevelId) and its z is
+    # rebased on that datum.  Objects on a non-story reference datum keep
+    # world z and no level (they land under the storey nearest 0).  The
+    # dominant story still sorts first for level-blind consumers.
+    stories = {lv["elem_id"]: lv for lv in model.levels
+               if lv.get("is_building_story") is not False}
     lvl_use: Dict[Any, int] = {}
-    for wid in doc.straight_walls():
-        lid = (doc.value(wid) or {}).get("m_assocLevelId")
-        lvl_use[lid] = lvl_use.get(lid, 0) + 1
     for e in model.equipment:
         lid = (doc.value(e.elem_id) or {}).get("m_assocLevelId")
         lvl_use[lid] = lvl_use.get(lid, 0) + 1
+        if lid in stories:
+            e.level = stories[lid]["id"]
+            e.insertion_m[2] = float(e.insertion_m[2]) - float(stories[lid]["elevation"])
+    wall_lvls: Dict[Any, int] = {}
+    for row in wall_rows:
+        wall_lvls[row.get("level_id")] = wall_lvls.get(row.get("level_id"), 0) + 1
+        lvl_use[row.get("level_id")] = lvl_use.get(row.get("level_id"), 0) + 1
+    if model.room is not None and wall_lvls:
+        rlid = max(wall_lvls, key=lambda k: wall_lvls[k])
+        if rlid in stories:                # the shell stands on its walls' dominant story
+            model.room.level = stories[rlid]["id"]
+            for wr in model.room.walls:
+                wr.base_m = round(float(wr.base_m) - float(stories[rlid]["elevation"]), 6)
     if lvl_use and model.levels:
         dominant = max(lvl_use, key=lambda k: lvl_use[k])
         model.levels.sort(key=lambda l: (l.get("elem_id") != dominant,

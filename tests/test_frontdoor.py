@@ -1119,3 +1119,77 @@ def test_prompt_to_ifc_addition_keeps_every_storey(tmp_path):
     for e in m2.equipment:
         assert abs(e.insertion_m[2] - model.by_tag(e.tag).insertion_m[2]) < 1e-3, e.tag
     assert m2.room is not None and m2.room.level == "L1" and len(m2.room.walls) == 4
+
+
+# ===========================================================================
+# 11. the convert lane under the same contract (round-2 review): rvt -> ifc
+#     writes one storey per BUILDING STORY (never the base's GEN reference
+#     datums), gear under its own storey, and ifc -> rvt of that file lands
+#     like main (unique level names, no degradations)
+# ===========================================================================
+
+def _storey_lines(path: str) -> list:
+    return [ln for ln in open(path, encoding="ascii").read().splitlines()
+            if "IFCBUILDINGSTOREY(" in ln]
+
+
+@needs_pinned
+def test_rvt_to_ifc_of_the_pinned_base_writes_only_its_story_datum(tmp_path):
+    """The 2026 base has 9 Levels (2 building stories, 7 'GEN ...' reference
+    datums) and no gear: a level-blind read-back gets ONE storey, never nine."""
+    from rvt.convert import rvt_to_ifc as R
+    out = str(tmp_path / "base.ifc")
+    R.convert_rvt_to_ifc(PINNED[2026], out)
+    stos = _storey_lines(out)
+    assert len(stos) == 1 and "GEN " not in stos[0], stos
+
+
+def test_rvt_ifc_rvt_round_trip_keeps_storeys_and_unique_level_names(two_storey_job, tmp_path):
+    """convert_rvt_to_ifc(<the built two-storey job>) -> 2 storeys ('Level 1'
+    / 'Level 2', none of the base's 7 reference datums), each product under
+    ITS storey with level-relative z; that IFC re-read binds back onto the
+    pinned base exactly like the prompt did (unique names, main's placement)."""
+    from rvt.convert import rvt_to_ifc as R
+    from rvt.mutate import Document
+    r = two_storey_job
+    combined = r.manifest["build"]["files"]["combined"]["path"]
+    out = str(tmp_path / "two.ifc")
+    R.convert_rvt_to_ifc(combined, out)
+    assert [ln.split(",")[2] for ln in _storey_lines(out)] == ["'Level 1'", "'Level 2'"]
+    text = open(out, encoding="ascii").read()
+    assert text.count("IFCRELCONTAINEDINSPATIALSTRUCTURE(") == 2 and "GEN " not in "".join(_storey_lines(out))
+    m = FI.intent_from_ifc(out)
+    assert [(lv["name"], lv["elevation"]) for lv in m.levels] == [("Level 1", 0.0), ("Level 2", 4.2672)]
+    assert {e.tag: (e.level, round(e.insertion_m[2], 2)) for e in m.equipment} == {
+        "MSB": ("L1", 0.1), "LP-1": ("L2", 1.42), "LP-2": ("L2", 1.42),
+        "LP-3": ("L2", 1.42), "LP-4": ("L2", 1.42)}
+    assert m.room is not None and m.room.level == "L1" and {round(w.base_m, 3) for w in m.room.walls} == {0.0}
+    # ifc -> rvt leg: the level map the build uses (no full second build needed)
+    doc = Document.from_file(PINNED[2026])
+    bound, nb = LV.bind_levels(doc, m.levels)
+    assert [(b["base_id"], b["name"], b["elevation_ft"], b.get("rename_skipped")) for b in bound] == [
+        (311, "Level 1", 0.0, None), (245423, "Level 2", 14.0, None)] and not nb
+    lm = LV.level_map(bound, nb)
+    assert LV.resolve(lm, m.room.level) == (311, 0.0)
+    lvl, z0 = LV.resolve(lm, m.by_tag("LP-1").level)
+    assert (lvl, round(z0 + m.by_tag("LP-1").insertion_m[2] * PP.FT_PER_M, 3)) == (245423, 18.659)
+
+
+@needs_pinned
+def test_a_datum_is_never_renamed_to_a_name_another_level_keeps():
+    """Revit level names must be unique: an intent naming a storey like one of
+    the base's reference datums keeps the datum's own name and says so."""
+    from rvt.mutate import Document
+    doc = Document.from_file(PINNED[2026])
+    ref = next(lv for lv in doc.levels() if not lv["is_building_story"])      # a 'GEN ...' datum
+    bound, _nb = LV.bind_levels(doc, [{"id": "L1", "name": ref["name"], "elevation": 0.0},
+                                       {"id": "L2", "name": "Level 2", "elevation": 4.0}])
+    assert bound[0]["name"] == bound[0]["base_name"] and not bound[0]["rename"]
+    assert "must be unique" in bound[0]["rename_skipped"]
+    assert bound[1]["name"] == "Level 2" and "rename_skipped" not in bound[1]
+    # swapping the two story names between the two story datums is fine (both are re-bound)
+    s = LV.story_levels(doc)
+    bound, _nb = LV.bind_levels(doc, [{"id": "L1", "name": s[1]["name"], "elevation": 0.0},
+                                       {"id": "L2", "name": s[0]["name"], "elevation": 4.0}])
+    assert [b["name"] for b in bound] == [s[1]["name"], s[0]["name"]]
+    assert not any("rename_skipped" in b for b in bound)

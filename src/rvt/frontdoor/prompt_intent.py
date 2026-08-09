@@ -192,9 +192,10 @@ _RE_WALL_THICK = re.compile(r"walls?\s+(?:that\s+are\s+|of\s+)?(?P<t>\d{1,3}(?:\
                             _DIM_UNIT + r")\s*thick", re.I)
 #: levels, three clause kinds (each may appear any number of times):
 #: a STOREY COUNT ('two storey', '3-story', 'two floors', 'single storey'),
+#: -- never '<n> level <digit>' ('4 level 2 lighting panels' = 4 panels on L2)
 _RE_STOREYS = re.compile(
     r"\b(?P<n>\d{1,2}|one|two|three|four|five|six|single|double)[\s-]*"
-    r"(?:stor(?:e)?ys?\b|stories\b|levels?\b|floors\b)", re.I)
+    r"(?:stor(?:e)?ys?\b|stories\b|levels?\b|floors\b)(?![\s-]*\d)", re.I)
 #: a LEVEL REFERENCE ('on level 2', 'the second floor', 'ground floor',
 #: 'at L2') -- scoped to the equipment clause it sits in, else to the room,
 _LEVEL_NOUN = r"(?:level|floor|stor(?:e)?y)"

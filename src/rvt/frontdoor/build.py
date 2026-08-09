@@ -505,6 +505,9 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                                   "(equipment still associates to its storey's datum)")
     for nb in drec["not_built"]:
         res.degradations.append(nb["reason"])
+    for b in drec["levels"]:
+        if b.get("rename_skipped"):
+            res.degradations.append(f"level {b['id']}: {b['rename_skipped']}")
 
     # ------------------------------------------------------------------
     # F. our generated FAMILIES (.rfa) -- standalone deliverables too
