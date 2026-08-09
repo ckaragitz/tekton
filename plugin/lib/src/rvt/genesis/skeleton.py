@@ -980,13 +980,25 @@ def new_base_point(elem_id: int, shared: bool = False,
                        notes=["seq103 rep = GElement point marker (bitmapType 79 = base-point glyph)"])
 
 
+def our_guid(purpose: str, *parts: Any) -> str:
+    """A DETERMINISTIC GUID in OUR namespace: uuid5 under
+    ``rvt-writer.gen.<purpose>`` over ``parts``.  Same inputs, same GUID (two
+    builds of one intent are byte-identical); distinct inputs differ; no
+    donor GUID is ever the material (residue_b._stable_guid is the
+    'house-standard' instance of the same derivation)."""
+    ns = uuid.uuid5(uuid.NAMESPACE_DNS, f"rvt-writer.gen.{purpose}")
+    return str(uuid.uuid5(ns, "|".join(str(p) for p in parts)))
+
+
 def new_geo_site(elem_id: int, name: str = "", *, latitude_rad: float = 0.7397927100428358,
                  longitude_rad: float = -1.2434074657057992, timezone_h: float = -5.0,
                  shared_coord_guid: Optional[str] = None) -> SkelElement:
     """A ``GeoSite`` symbol (class 0x8e1): the site location (lat/long in
     radians, time zone) + weather data [VERIFIED structure vs rstbasic
     21747].  Templates carry two ('Internal', 'Project').  Weather arrays
-    hold Revit's stock design-day temperatures (Kelvin) [product defaults]."""
+    hold Revit's stock design-day temperatures (Kelvin) [product defaults].
+    ``shared_coord_guid`` defaults to :func:`our_guid` ('geo-site') of the
+    site's identity (id, name, lat, lon, tz); an explicit GUID wins."""
     o = symbol_base(elem_id, name, cell_list=False)
     o["m_dLatitude"] = float(latitude_rad)
     o["m_dLongitude"] = float(longitude_rad)
@@ -996,7 +1008,8 @@ def new_geo_site(elem_id: int, name: str = "", *, latitude_rad: float = 0.739792
     o["m_ClearnessNumber"] = 1.0
     o["m_ownerSymbolId"] = -1
     o["m_geodeticCoordinatesBasePointType"] = 0
-    o["m_sharedCoordGUID"] = shared_coord_guid or str(uuid.uuid4())
+    o["m_sharedCoordGUID"] = shared_coord_guid or our_guid(
+        "geo-site", int(elem_id), name, o["m_dLatitude"], o["m_dLongitude"], o["m_dTimeZone"])
     o["m_bUseDST"] = False
     o["m_bUserDefinedWeatherData"] = False
     o["m_bFromClimateServer"] = False

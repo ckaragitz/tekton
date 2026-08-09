@@ -22,5 +22,9 @@ tests/test_bootstrap.py
 tests/test_coldstart.py
 tests/test_coord.py
 tests/test_validate_release.py
+tests/test_validate_footer_blob.py
 tests/test_rvt_analyze.py
 tests/test_techlead.py
+tests/test_geo_site_determinism.py
+tests/test_verify_manipulated_release.py
+tests/test_hostsym_product.py

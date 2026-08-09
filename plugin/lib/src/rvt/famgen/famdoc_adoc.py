@@ -679,6 +679,80 @@ def donor_element_ids(donor: str = TEMPLATE_DONOR, min_id: int = 4700) -> List[i
         return []
 
 
+def _tree_int_leaves(node: Any) -> Set[int]:
+    """Every integer leaf of a decoded value tree, under ANY key (a strict
+    superset of the id-named census: counters, ordinals and sizes count too,
+    so the corroboration below can only err towards 'genuine')."""
+    out: Set[int] = set()
+    stack = [node]
+    while stack:
+        v = stack.pop()
+        if isinstance(v, dict):
+            stack.extend(v.values())
+        elif isinstance(v, list):
+            stack.extend(v)
+        elif isinstance(v, int) and not isinstance(v, bool):
+            out.add(v)
+    return out
+
+
+def corroborated_donor_scan(payload: bytes, tree: Any, donor_ids: Set[int], *,
+                            trailer: Optional[bytes] = None) -> Dict[str, Any]:
+    """The donor-id byte scan (``genesis_assemble.byte_scan_ids``: every
+    offset of ``payload`` read as a little-endian i64, counted against
+    ``donor_ids``), its hits adjudicated against the schema-DECODED ``tree``
+    of the same payload -- the module's documented authority order: the
+    typed decode decides, the sliding window is the independent cross-check.
+
+    Premise, verified here (not trusted from the caller): ``payload`` is
+    byte-for-byte the encoding of ``tree`` + the trailer, so every payload
+    byte is produced from a tree leaf.  Then an i64 window whose value is a
+    donor id is a REAL carried reference iff some integer leaf of the tree
+    holds that value; a window matching no leaf straddles two fields (the
+    scan's own documented false-positive class -- e.g. a monotone
+    position-index table read one byte off yields ``k<<8``, and the 2025
+    base really has element 18432 == 72<<8).  Genuine hits are re-counted
+    EXACTLY by re-scanning against the donor ids the tree carries (no top-N
+    truncation can hide one); they stay in ``hits`` and remain fatal at
+    every raise site.  Uncorroborated windows move to
+    ``false_positive_windows`` -- recorded, never silently dropped.  If the
+    premise does not hold the raw scan is returned as-is (hits stand).
+    """
+    from .. import adocument as A
+    byte_scan = _ga().byte_scan_ids
+    scan = byte_scan(payload, donor_ids)
+    if not scan.get("hits"):
+        return scan
+    try:
+        exact = A.encode_latest(
+            tree, trailer=A.TRAILER if trailer is None else trailer) == bytes(payload)
+    except Exception:                                     # pragma: no cover
+        exact = False
+    if not exact:
+        return {**scan, "corroboration": "skipped: payload is not the exact encoding "
+                                         "of the decoded tree -- raw window hits stand"}
+    carried = set(donor_ids) & _tree_int_leaves(tree)
+    real = byte_scan(payload, carried) if carried else {"hits": 0, "distinct": 0,
+                                                        "examples": []}
+    fp_windows = [i for i in scan["examples"] if i not in carried]
+    return {
+        **real,
+        "raw_window_hits": scan["hits"],
+        "raw_window_distinct": scan["distinct"],
+        "false_positive_windows": fp_windows,
+        # byte_scan_ids names at most its 12 most common values; say so when
+        # more distinct uncorroborated windows exist than are listed
+        "false_positive_windows_complete": (
+            scan["distinct"] - real.get("distinct", 0) <= len(fp_windows)),
+        "false_positive_note": (
+            "i64 byte window(s) equal a donor id but NO integer leaf of the "
+            "schema-decoded tree holds that value -- cross-field alignment "
+            "artefact (the scan's documented false-positive class); recorded, "
+            "not fatal.  'hits' counts only tree-corroborated donor ids; "
+            "'raw_window_distinct' is the full distinct-window count."),
+    }
+
+
 # ---------------------------------------------------------------------------
 # OUR family document's registry facts (from OUR records only)
 # ---------------------------------------------------------------------------
@@ -1060,8 +1134,9 @@ def author_family_adocument(source, *, mode: str = "candidate",
     # provenance: schema census + independent byte scan + strings
     ids_after = set(back.element_ids())
     donor_ids = list(meta.get("donor_element_ids") or [])
-    scan_donor = GA.byte_scan_ids(payload, set(donor_ids)) if donor_ids else {
-        "hits": None, "distinct": None, "note": "no donor id universe (supplied tree)"}
+    scan_donor = (corroborated_donor_scan(payload, back.value, set(donor_ids),
+                                          trailer=trailer_bytes) if donor_ids else
+                  {"hits": None, "distinct": None, "note": "no donor id universe (supplied tree)"})
     scan_ours = GA.byte_scan_ids(payload, live)
     census = GA.tree_string_census(tree)
     strings: List[str] = []
@@ -1081,7 +1156,8 @@ def author_family_adocument(source, *, mode: str = "candidate",
         "byte_scan_donor_ids": {**scan_donor,
                                 "universe": len(donor_ids),
                                 "note": "little-endian i64 window scan against the ARCHETYPE's "
-                                        "own element ids (>= 4700); must be 0"},
+                                        "own element ids (>= 4700), each hit corroborated "
+                                        "against the decoded tree; must be 0"},
         "byte_scan_our_ids": scan_ours,
         "appinfo_slots_populated": sum(1 for s in back.appinfo_slots() if s),
         "string_census": census,
@@ -1789,7 +1865,8 @@ def provenance_scan_v2(path: str, *, donor: str = TEMPLATE_DONOR,
     naive_dangling = sorted(i for i in dref if i > 0 and i not in ours
                             and i >= 100)    # < 100 = counters / weak refs
     donor_ids = set(donor_element_ids(donor))
-    scan_donor = GA.byte_scan_ids(latest_payload, donor_ids) if donor_ids else {"hits": 0}
+    scan_donor = (corroborated_donor_scan(latest_payload, ad.value, donor_ids)
+                  if donor_ids else {"hits": 0})
     scan_ours = GA.byte_scan_ids(latest_payload, ours)
     strings: List[str] = []
     GA._collect_all_strings(ad.value, strings)

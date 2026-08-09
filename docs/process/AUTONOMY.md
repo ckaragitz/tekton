@@ -70,7 +70,7 @@ flowchart TD
     E1 --> PR[PR: Closes #n]
     E2 --> PR
     PR --> CI[CI] --> R{{claude-review<br/>verdict marker per SHA}}
-    R -->|changes, budget left| F[auto-fix pushes] --> CI
+    R -->|changes or CI red:<br/>session pushes first;<br/>after 15 quiet min automerge<br/>dispatches the bot fix pass| F[fix pushes] --> CI
     R -->|approve / nits + green| M[automerge: squash, delete branch,<br/>close linked issues]
     R -->|budget exhausted| K[bot-stuck → sweep re-queues issue<br/>ready + retry, same branch] --> Q
     PR -->|draft, green, approved,<br/>quiet ≥ 90 min| RD[auto-marked ready] --> M
@@ -80,10 +80,14 @@ flowchart TD
     S --> B
 ```
 
-Timings on the unhappy paths: a missing review verdict is re-requested after 20 min and parked
-`bot-stuck` after 4 h; a stuck PR's issue is re-queued after 24 quiet hours; an untouched draft is
-nudged at 5 days and closed (branch kept, issue re-queued) at 14; a dead worker lease is freed
-after 3 h; an abandoned human claim (no PR, no activity) after 72 h.
+Timings (CI ≈ 1–2 min, AI review ≈ 5–15 min per push): **fixing is single-owner** — on red CI or
+a 🛑 verdict the authoring session (subscribed to its PR) has `fix_grace_minutes` (15) after the
+last signal to push; only then does `automerge` dispatch one bot fix pass for the current head
+(the same path carries a PR whose session or laptop went away; worst case ≈ grace + one 30-min
+sweep). A missing review verdict is re-requested after 20 min and parked `bot-stuck` after 4 h;
+a stuck PR's issue is re-queued after 24 quiet hours; an untouched draft is nudged at 5 days and
+closed (branch kept, issue re-queued) at 14; a dead worker lease is freed after 3 h; an abandoned
+human claim (no PR, no activity) after 72 h.
 
 ## 5. How humans steer (pick whichever is at hand)
 
@@ -132,7 +136,8 @@ session, not left for a human to notice.
 | `retry` | re-queued after a stuck/stale attempt: continue the named branch | board sweep |
 | `bot-stuck` (PR) | bots exhausted the fix budget or cannot get a verdict; issue will be re-queued | `claude-review` / `automerge` |
 | `needs-rebase` (PR) · `duplicate-pr` (PR) · `stale` (PR) | conflicts, rebase job dispatched · second PR for one issue, older wins · untouched draft | `automerge` / sweep |
-| `needs-human` (PR) | genuinely needs a person: workflow-file merge without `AUTOMERGE_TOKEN`, or GitHub refused the merge | `automerge` |
+| `session-merge` (PR) | a workflow-file PR that already has a ✅/🟡 verdict for its exact head + green CI, which the Actions token may not merge: the next coding session (preferably not the author's) re-checks both, reads the diff, and squash-merges with its own credentials | `automerge` |
+| `needs-human` (PR) | GitHub itself refused the merge, or no independent verdict could be produced for a workflow-file PR (a non-author collaborator applies `merge-when-green`) | `automerge` |
 | `wip` · `do-not-merge` · `merge-when-green` (PR) | hold a draft from auto-ready · hold anything · human substitute for the AI verdict (non-author) | humans / sessions |
 | `needs-issue` · `overlap` · `stacked` (PR) | no `Closes #n` · issue held by someone else or rival PR · based on another PR's branch | `coord` |
 | `board` · `tracking` · `bots-paused` | the board issue · context-only issues · pause switch (on the board issue) | system / humans |
@@ -142,10 +147,10 @@ session, not left for a human to notice.
 | Workflow | Runs on | Token | Does |
 |---|---|---|---|
 | `coord.yml` | comments, issue open/assign, PR open/edit, hourly | built-in | `/claim` `/release` `/next` `/steer`; one holder per issue; intake labelling + duplicate hints; PR↔issue link/overlap/stacked checks; stacked-PR rescue; orphan-branch draft PRs; 72 h stale-claim reaper |
-| `board.yml` | issue/PR events, bot workflows finishing, hourly | built-in | hygiene sweep (re-queue stuck, free dead leases, nudge/close stale drafts) then re-render + pin the board |
+| `board.yml` | every 20 min; issues/PRs opening, closing, becoming ready; dispatched by automerge/planner/worker after they change state | built-in | hygiene sweep (re-queue stuck, free dead leases, nudge/close stale drafts) then re-render + pin the board |
 | `CI` (`ci.yml`) | every PR push, `main`, dispatch | built-in | portable paths, plugin drift, plugin structure, fast test shard (py3.11 + 3.12) |
-| `claude-review.yml` | every PR push; dispatch (re-request); red CI | Claude | review → verdict marker per head SHA (rescue pass if missing); bounded auto-fix on 🛑 and on red CI (budget 3, reset-aware); exhaustion → `bot-stuck` |
-| `automerge.yml` | CI/review finishing, labels, every 30 min | built-in (+ optional `AUTOMERGE_TOKEN`) | zero-check CI dispatch; review re-request; quiet-draft auto-ready; conflict → rebase dispatch; squash-merge; close linked issues; duplicate parking |
+| `claude-review.yml` | every PR push; dispatch `mode=review` (re-request) / `mode=fix` (from automerge, after the grace) | Claude | review → verdict marker per head SHA (rescue pass if missing); job `fix` = the bounded fix pass for red CI + 🛑 findings at the current head (budget 3, reset-aware; yields if the branch moved); exhaustion → `bot-stuck` |
+| `automerge.yml` | CI/review finishing, labels, every 30 min | built-in (+ optional `AUTOMERGE_TOKEN`) | zero-check CI dispatch; review re-request; quiet-draft auto-ready; conflict → rebase dispatch; squash-merge; close linked issues; duplicate parking; `session-merge` labelling for what only a session may merge |
 | `techlead.yml` | every 6 h, on `steer`/`intake` labels, dispatch | Claude | the tech-lead pass (§4 of the charter): triage, groom, replenish, `auto` marking, planning note; ≤ 5 new issues/run; may open one docs PR |
 | `worker.yml` | every 2 h, dispatch (also `mode=rebase` from automerge) | Claude | pick (deterministic) → lease → implement per `CLAUDE.md` → PR `Closes #n`; WIP ≤ 2 bot PRs, ≤ 4 runs/day |
 | `requirements.yml` | push to `main` under `docs/requirements/` | built-in | legacy drop-box: one issue per requirement file |
@@ -184,8 +189,8 @@ system (file it, `area:process`).
 
 | Needs a person | Why it cannot be automated | How it is surfaced | Optional way to remove it |
 |---|---|---|---|
-| Merging a PR that changes `.github/workflows/**` | GitHub forbids the Actions token from merging workflow changes (platform rule) | PR labelled `needs-human` + comment; board | add a fine-grained PAT of the owner (contents + pull requests + workflows: write, this repo only) as secret `AUTOMERGE_TOKEN` — automerge then merges these too. Logic lives in `tools/dev/*.py` + prompts + `autonomy.json` precisely so workflow files rarely change. |
-| Reviewing a PR that changes `claude-review.yml` itself | the review action refuses to run a copy of its workflow that differs from `main`'s, so no AI verdict can exist for such a PR (observed on #57) | `automerge` labels it `needs-human` immediately with the reason; board | none — keep reviewer edits in tiny dedicated PRs the owner reads by eye; every other workflow file is reviewed normally |
+| ~~Merging a PR that changes `.github/workflows/**`~~ — **not a human's job any more** (steer #61) | GitHub forbids the *Actions token* from merging workflow changes, but a coding session acts under a person's GitHub identity and may | PR labelled `session-merge` + comment; board *In review* lane; SessionStart banner "MERGE FIRST" | any session, at session start: CI green + verdict stands → `gh pr merge <n> --squash` (or MCP `merge_pull_request`). Hands-free alternative: owner adds a fine-grained PAT (contents + pull requests + workflows: write) as secret `AUTOMERGE_TOKEN`. Logic lives in `tools/dev/*.py` + prompts + `autonomy.json` precisely so workflow files rarely change. |
+| Reviewing a PR that changes `claude-review.yml` itself | its own `pull_request` review run refuses a copy that differs from `main`'s (observed on #57) | `automerge` re-requests the review from **`main`'s reviewer**, which judges it like any diff; the verdict is required before `session-merge` is offered (#88) | if even that yields no verdict within the re-request window: `needs-human` = a collaborator other than the author applies `merge-when-green`; keep reviewer edits in tiny dedicated PRs |
 | `needs-decision` issues | money, legal/counsel (C1/C4/C5, trademark), going public, product direction calls the steerers reserved | issue label; board; planning note | answer in a comment (it is a steer); the tech leads proceed |
 | Viewer certification uploads (`needs-viewer`) | Autodesk's viewer needs an interactive login; rule 4 makes it the arbiter | sessions STAGE batches (`probe_batch.py stage`) and stop at READY; board lists them | none by design (no APS — rule 7) |
 | Desktop-Revit checks (`needs-revit-desktop`) | needs a licensed desktop install a bot may not touch (rule 2) | label; board | none by design |
@@ -209,7 +214,7 @@ number). Values at the time of writing:
 | `worker.enabled` · `eligible` | true · `auto` | `auto` = only issues the tech lead cleared; `any-ready` = any queue head |
 | `worker.wip_limit` · `max_runs_per_day` · `allow_hot_file` · `max_turns` | 2 · 4 · false · 120 | unattended throughput and blast radius |
 | `pipeline.quiet_minutes` | 90 | green + approved draft with no commits this long → auto-ready → merge |
-| `pipeline.max_fix_attempts` | 3 | auto-fix passes per PR since the last budget reset |
+| `pipeline.max_fix_attempts` · `fix_grace_minutes` | 3 · 15 | bot fix passes per PR since the last budget reset · how long after the last signal (push / red CI / 🛑 / previous attempt) a live session has the PR to itself before a bot fix pass is dispatched |
 | `pipeline.review_wait_minutes` · `review_stuck_minutes` | 20 · 240 | how long automerge waits for a running review before re-requesting it · before parking the PR `bot-stuck` |
 | `pipeline.requeue_stuck_after_hours` · `stale_draft_days` · `close_stale_days` · `worker_lease_hours` | 24 · 5 · 14 · 3 | hygiene timings |
 | `pause_label` | `bots-paused` | label on the board issue pauses planner + worker |
@@ -239,10 +244,12 @@ owner's plan feels it; set `worker.enabled=false` to keep planning but stop unat
 |---|---|
 | Session dies mid-work, branch pushed, no PR | `coord` sweep opens a draft PR for the orphan branch after 20 min (or lists it on a tracking issue) |
 | Session dies with a green, approved draft | `automerge` marks it ready after 90 quiet min and merges |
-| Session dies with a red / 🛑 PR | auto-fix passes (≤ 3); then `bot-stuck` → after 24 h the issue is `ready`+`retry`, unassigned, pointing at the branch; `/next` or the worker continues it with a fresh budget |
+| Session dies with a red / 🛑 PR | after `fix_grace_minutes` with no push, automerge dispatches the bot fix pass (≤ 3 attempts, one per sha/attempt); then `bot-stuck` → after 24 h the issue is `ready`+`retry`, unassigned, pointing at the branch; `/next` or the worker continues it with a fresh budget |
+| Session and bot both want to fix the same head | cannot happen by construction: bots act only after the grace window and only if the head has not moved; the fix job re-fetches before pushing and yields to a newer head; sessions seeing a `🔧 dispatched` marker for their head let it push |
 | Claim abandoned without a PR | 72 h reaper unassigns; issue back in the queue |
 | Review run ends without a verdict (turn cap, crash) | rescue pass in the same run; else `automerge` re-requests the review; after 4 h `bot-stuck` |
-| PR edits `claude-review.yml` (the reviewer refuses modified copies of itself) | `automerge` labels it `needs-human` at once with the reason; the owner reviews + merges that one by eye |
+| PR edits `claude-review.yml` (its own review run refuses modified copies) | `automerge` re-requests the review from `main`'s reviewer; with a ✅/🟡 verdict + green CI it becomes `session-merge`; with none obtainable, `needs-human` (non-author `merge-when-green`) |
+| A bot's own check run (cancelled board `render`, coord `pr-check`, …) lands on a PR head | not CI: the merge gate and the board ignore bot job names (`BOT_CHECK_NAMES` / `IGNORED_CHECKS`, pinned by tests) |
 | PR branch carries an older copy of `claude-review.yml` than `main` (dispatched review refuses to run) | the re-request comment says so; merging `main` into the branch (any session, or the worker's rebase mode) re-arms the review on the new head |
 | Bot merge did not close the linked issue | `automerge` closes linked issues itself after every merge |
 | PR conflicts with `main` | `automerge` dispatches the worker's rebase mode; result re-reviewed and merged |

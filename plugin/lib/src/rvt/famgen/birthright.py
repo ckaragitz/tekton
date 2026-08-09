@@ -1162,6 +1162,13 @@ def walked_bind_census(doc) -> Dict[str, Any]:
 #      to drop blank-named rows it copied from the unit table, restoring
 #      the native [' ', real..] m_idx-on-real shape.
 # Zero donor bytes; v1/v2 surfaces unchanged; opt-in only.
+#
+# PROMOTED TO PRODUCT (#10, docs/inbox/hostsym-product.md): both loaders now
+# enforce this law themselves (``rvt.famgen.loader.real_type_names`` /
+# ``symbol_type_name``; ``rvt.famload._plan_family``).  The v3 lane is KEPT
+# as a verifier of the baked unit-side shape and for the species/identity
+# accounting; on product output it has nothing left to change (the loader
+# half reports ``applied: False``).
 # ---------------------------------------------------------------------------
 
 _V3_LANES = _V2_LANES + ("hostsym",)
@@ -1231,7 +1238,8 @@ def apply_host_family_table_law(host_family_el) -> Dict[str, Any]:
     the unit table, keeping the loader's own single leading blank
     current-values row; point m_idx at the first real pair.  Restores the
     native shape (rstbasic: [' ', 'Notch'] m_idx 1; single-type [' ']
-    m_idx 0)."""
+    m_idx 0).  Since #10 the product loader authors that shape itself, so
+    on loader output this is a verifier that reports ``applied: False``."""
     o = getattr(host_family_el, "obj", None) or {}
     ftt = ((o.get("m_pFamilyTypes") or {}).get("value") or {})
     pairs = ftt.get("m_pairs") or []

@@ -29,7 +29,7 @@ on:
         required: false
         default: ""
 
-permissions:
+permissions:            # least privilege for the jobs that run a model; `refresh-board` alone gets actions: write
   contents: write
   issues: write
   pull-requests: write
@@ -146,6 +146,7 @@ jobs:
         continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
+          allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"   # our own bots dispatch/author these runs (automerge, coord, planner, worker); default rejects every non-human actor
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
@@ -184,3 +185,17 @@ jobs:
             gh issue comment "$ISSUE" --repo "$REPO" --body "🤖 Worker run ended (**$OUTCOME**) without opening a PR — see the [run log]($RUN_URL) and any comment above for why.$pushed The issue is released back to the queue (label \`bot-working\` removed); the planner may sharpen it or clear \`auto\` if it is not workable unattended." >/dev/null
             echo "::warning::#$ISSUE: no PR opened ($OUTCOME)"
           fi
+
+  refresh-board:
+    # Separate job so the model-running job above never holds `actions: write` (#88).
+    needs: implement
+    if: always() && needs.implement.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      actions: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
+        run: gh workflow run board.yml --repo "$GITHUB_REPOSITORY" --ref "$DEFAULT_BRANCH" >/dev/null 2>&1 || true

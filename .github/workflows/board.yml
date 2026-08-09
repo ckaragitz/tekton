@@ -10,15 +10,17 @@ name: board
 # Events raised by our own bots' GITHUB_TOKEN do not re-trigger workflows, so no loops.
 
 on:
+  # Bounded on purpose: a 20-min cron plus the few events that change the picture for a human
+  # (issues/PRs opening, closing, becoming ready). Label/assignment storms from a planner pass and
+  # `workflow_run` fan-out are NOT triggers — they produced 30 runs in 3 minutes on day one (#64).
+  # State-changing bots refresh the board explicitly instead: automerge after a merge, the planner
+  # and the worker at the end of a run (`gh workflow run board.yml`).
   issues:
-    types: [opened, closed, reopened, labeled, unlabeled, assigned, unassigned]
+    types: [opened, closed, reopened]
   pull_request_target:
-    types: [opened, closed, reopened, ready_for_review, converted_to_draft, labeled, unlabeled]
-  workflow_run:                # state-changing bot runs only (automerge's 30-min sweep is covered by the cron)
-    workflows: ["CI", "claude-review", "techlead", "worker"]
-    types: [completed]
+    types: [opened, closed, reopened, ready_for_review, converted_to_draft]
   schedule:
-    - cron: "20 * * * *"
+    - cron: "*/20 * * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -30,17 +32,17 @@ permissions:
 
 concurrency:
   group: board
-  cancel-in-progress: true     # a burst of events collapses into one render
+  cancel-in-progress: true     # two events close together collapse into one render
 
 jobs:
   render:
-    # The board's own edits arrive via GITHUB_TOKEN and trigger nothing; label events on the
-    # board issue itself (pause switch) do re-render, which is what we want.
+    # The board's own edits arrive via GITHUB_TOKEN and trigger nothing (no loops). Its check run
+    # can land on a PR head via pull_request_target; the merge gate ignores bot jobs by name (#64).
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Let a burst of events settle
-        run: sleep 45
+      - name: Let paired events settle (e.g. PR closed + issue closed)
+        run: sleep 20
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.repository.default_branch || 'main' }}

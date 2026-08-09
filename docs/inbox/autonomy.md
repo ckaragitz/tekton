@@ -168,3 +168,75 @@ Anything off → fix in `tools/dev/techlead.py` / prompts (bot-mergeable) where 
   (steers, triaged), #55 (task), #56 (board placeholder), #25 (rewritten). Follow-ups filed as
   task issues by this session in its tech-lead role: SHA-pin third-party actions; single GraphQL
   query for the board snapshot.
+
+## Day-one live fixes (issue #64) and the session-merge path (issue #62), same session
+
+Observed within minutes of #57 landing (board render 06:25 UTC, run list): (1) `board.yml` ran
+~30 times in 3 minutes — label/assignment events from the planner pass and the engineers' claims
+plus `workflow_run` fan-out — 29 cancelled by the concurrency group, each still a billed runner
+start; (2) a *cancelled* `render` run attached to PR #63's head read as "🟥 CI red (render)" on
+the board and would have blocked automerge, and the same would have hit every engineer PR opened
+during a busy spell. Fixes: board triggers bounded to a 20-min cron + issue/PR open/close/ready
+(automerge, planner and worker dispatch a refresh themselves after changing state); one shared
+ignore-list of the bots' own job names (`BOT_CHECK_NAMES` in techlead.py == `IGNORED_CHECKS` in
+automerge.yml), with a tripwire test that parses every non-CI workflow's job ids/names and fails
+if one is missing, and asserts CI's own jobs are *not* ignored.
+
+Steer #61 ("let's fix it and keep the show running") made the workflow-file gate a **session's**
+job: automerge now labels such PRs (and reviewer-edit PRs) `session-merge` with a comment telling
+the next coding session to check CI + verdict (or read the diff) and squash-merge with its own
+credentials; the board shows them in review as "waiting for any coding session", not under
+*Waiting on a human*; the SessionStart banner prints "MERGE FIRST: PR #…"; `CLAUDE.md` §4 step 1
+and AUTONOMY §7/§10/§13 say so. `needs-human` is left for a merge GitHub itself refused. The
+planner had already filed this as #62 from the steer and opened #63 for the STEERING row — the
+loop closing on itself. Tests: 35 passed (2 new tripwires); actionlint clean; gates clean.
+This PR (#62 + #64) is itself a workflow-file PR: merged by the authoring session once CI is green.
+
+## Single-owner fixing (steer #67 → issue #69), same session
+
+Question from ck: do the sessions' PR subscriptions duplicate the repo bots, given review/CI
+latency and sessions that vanish? Audit: review, merge, claims, board/planning are single-owner;
+**fixing was not** — `ci-autofix` (on red CI) and the review job's inline fix pass started within
+minutes of a push while the subscribed authoring session did the same. Change: the review job only
+reviews; a new dispatch-only `fix` job (mode=fix) handles red CI + 🛑 findings for the *current*
+head; `automerge` dispatches it once per (sha, attempt) only when `now − max(head commit, red-CI
+completion, 🛑 verdict comment, last attempt marker) ≥ pipeline.fix_grace_minutes` (15), from the
+default branch (so branches with an older reviewer copy still work; review re-requests too). The
+fix job re-fetches before pushing and yields to a newer head. Effect: a live session always goes
+first; an abandoned PR is picked up within ≈ grace + one sweep; no double-fixing; and one
+immediate 60-turn fix pass per 🛑 is no longer spent when the author fixes it two minutes later.
+Tests: 36 passed (new tripwire: dispatch string, `mode` input, no inline fix, no `workflow_run`).
+First engineer PR of the fan-out went through the untouched pipeline end-to-end meanwhile: #68
+(issue #9) — CI green, ✅ review, automerge, issue closed, zero human involvement.
+
+## Hardening the session-merge path (issue #88), same session
+
+An automated security review of `main` objected — fairly — that reviewer-edit PRs were being offered
+to a session with no verdict at all, and that the authoring session merged its own workflow PRs
+(#57/#65/#78). Kept the owner's intent (nothing waits on a human click) but restored an independent
+check: automerge no longer special-cases reviewer edits; the generic no-verdict path re-requests the
+review from **the default branch's reviewer**, which the action accepts even when the PR edits
+`claude-review.yml`; `session-merge` is only ever applied on the approved path (✅/🟡 verdict for the
+exact head + green CI), its comment/banner/CLAUDE.md text require re-checking both at merge time,
+`--match-head-commit`, reading the workflow diff, and preferring a non-author session; a workflow
+PR for which no independent verdict can be produced within the re-request window becomes
+`needs-human` = `merge-when-green` from a collaborator other than the author (last resort, not the
+default). Also least privilege: `worker.yml`/`techlead.yml` model jobs drop to `actions: read`; a
+separate `refresh-board` job holds `actions: write`. This PR is itself the first to go through the
+hardened path (it edits automerge but not the reviewer: verdict from its own run, then a session
+merge with `--match-head-commit`).
+
+**Found while dogfooding #89 (review dispatched from `main` by hand):** the review action rejects
+every run "initiated by non-human actor" unless `allowed_bots` names it — and it was empty. That
+silently broke every automerge-dispatched review re-request and fix pass, coord's planner
+wake-ups, automerge's rebase dispatch, and the review of any PR *authored* by the planner or the
+worker (`claude[bot]`) — why #63/#73 sat verdict-less. Every `claude-code-action` step
+(`claude-review.yml` ×3, `techlead.yml`, `worker.yml`, `claude.yml`) now sets
+`allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"` (our own bots only, both
+spellings), pinned by a test. The same review also caught a real thrash in my `needs-human`
+self-heal: it must not apply when GitHub refused the merge at this head (a persistent refusal
+would be retried every sweep); the lift is now scoped by reason via the per-head marker comments
+(`review-stuck-<sha>` lifts on approval, `merge-failed-<sha>` holds, no marker for the current head
+= head moved → re-evaluate). Note: `worker.yml`'s `refresh-board` job now also fires after a
+`rebase`-mode run (the old inline step exited first) — intentional and harmless (idempotent
+dispatch; a rebase push changes the board anyway).

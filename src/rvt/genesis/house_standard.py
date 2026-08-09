@@ -1639,6 +1639,7 @@ def build_catalog(start_id: int = 1_500_000, *, scrub: str = "full",
         tn.obj["m_pocheDepth"] = -abs(float(POCHE_DEPTH_FT))       # our poche depth
     lat = math.radians(float(SITE["latitude_deg"]))
     lon = math.radians(float(SITE["longitude_deg"]))
+    # shared-coordinate GUIDs: sk.new_geo_site's deterministic default (sk.our_guid)
     site_int = sk.new_geo_site(ids.next(), SITE["site_symbol_name"], latitude_rad=lat,
                                longitude_rad=lon, timezone_h=float(SITE["timezone_h"]))
     site_prj = sk.new_geo_site(ids.next(), SITE["site_symbol_name"], latitude_rad=lat,

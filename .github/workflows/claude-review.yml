@@ -1,36 +1,40 @@
 name: claude-review
 
-# Automatic review of every PR push, with a machine-readable verdict and a bounded
-# auto-fix ladder. Flow per head SHA:
+# Automatic review of every PR push, with a machine-readable verdict, plus a bounded fix pass
+# that is DISPATCHED, never immediate. Flow per head SHA:
 #   review (≤80 turns) -> verdict marker  <!-- claude-review: approve|nits|changes sha=<sha> -->
 #   no marker (turn cap / crash) -> a short "verdict rescue" pass posts it; still none -> red, and
-#                                    automerge re-requests the review once (workflow_dispatch below)
-#   changes + attempts<N  -> fix pass pushes commits to the PR branch (re-triggers CI + review)
-#   changes + attempts>=N -> label `bot-stuck` (NOT a human dead-end): after a quiet day the board's
-#                            sweep re-queues the issue `ready`+`retry` so a fresh session or the
-#                            unattended worker continues on the same branch with a fresh budget
-#                            (budget = attempt markers since the last <!-- claude-autofix reset -->).
-# N and the other knobs live in .github/autonomy.json on the default branch (pipeline.max_fix_attempts).
+#                                    automerge re-requests the review once (workflow_dispatch, mode=review)
+#   CI red or verdict `changes`  -> NOTHING here. A live coding session subscribed to the PR fixes it
+#                                    first (steer #67: one owner per step, no session/bot double-fixing).
+#                                    Only after pipeline.fix_grace_minutes (default 15) with no new push
+#                                    does automerge dispatch job `fix` below (mode=fix) for the current
+#                                    head — which is also how a PR whose session or laptop went away is
+#                                    picked up. `fix` handles red CI and review findings in one pass,
+#                                    keeps the reset-aware budget (attempt markers since the last
+#                                    <!-- claude-autofix reset -->), and at the cap labels `bot-stuck`
+#                                    (NOT a human dead-end: the board's sweep re-queues the issue).
+# Knobs live in .github/autonomy.json on the default branch (pipeline.max_fix_attempts, fix_grace_minutes).
 # automerge.yml merges when CI is green AND the verdict for the exact head SHA is approve/nits.
 #
 # Needs ONE repo secret set by the repo admin (Settings → Secrets and variables → Actions):
 #   CLAUDE_CODE_OAUTH_TOKEN  (`claude setup-token` on a Pro/Max plan)  — or —  ANTHROPIC_API_KEY
 # plus the Claude GitHub App installed on the repo (github.com/apps/claude).
-
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
-  workflow_dispatch:       # automerge (or a human: Actions → claude-review → Run) re-requests a review
+  workflow_dispatch:       # automerge (or a human: Actions → claude-review → Run): re-review, or the fix pass
     inputs:
       pr:
-        description: "PR number to (re-)review at its current head"
+        description: "PR number, at its current head"
         required: true
-  workflow_run:            # red CI on a PR head -> bounded auto-fix pass (job ci-autofix below)
-    workflows: ["CI"]
-    types: [completed]
+      mode:
+        description: "review (default) | fix — the fix pass is only ever dispatched (by automerge, after the grace window)"
+        required: false
+        default: "review"
 
 concurrency:
-  group: claude-review-${{ github.event.pull_request.number || inputs.pr || github.event.workflow_run.head_branch }}
+  group: claude-review-${{ github.event.pull_request.number || inputs.pr }}-${{ inputs.mode || 'review' }}
   cancel-in-progress: true
 
 env:
@@ -57,7 +61,7 @@ env:
 
 jobs:
   claude-review:
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'fix')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -66,6 +70,7 @@ jobs:
       issues: write
       id-token: write
       actions: read
+      checks: read              # the reviewer / fixer may verify CI state on the head themselves
     steps:
       - name: Require a credential (fail red, never skip quietly)
         env:
@@ -111,6 +116,7 @@ jobs:
         continue-on-error: true      # a turn-cap exit must not skip the verdict rescue below
         uses: anthropics/claude-code-action@v1
         with:
+          allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"   # our own bots dispatch/author these runs (automerge, coord, planner, worker); default rejects every non-human actor
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
@@ -178,6 +184,7 @@ jobs:
         continue-on-error: true
         uses: anthropics/claude-code-action@v1
         with:
+          allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"   # our own bots dispatch/author these runs (automerge, coord, planner, worker); default rejects every non-human actor
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
@@ -199,7 +206,7 @@ jobs:
             --max-turns 25
             --allowedTools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh api:*),Bash(gh issue view:*),Read,Grep,Glob"
 
-      - name: Read verdict + decide on auto-fix
+      - name: Read verdict, keep the budget honest
         id: verdict
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -213,140 +220,118 @@ jobs:
           comments=$(gh api "repos/$REPO/issues/$PR/comments" --paginate)
           verdict=$(jq -r '.[].body' <<<"$comments" | grep -oE "<!-- claude-review: (approve|nits|changes) sha=$SHA -->" | tail -1 | sed -E 's/.*: (approve|nits|changes) .*/\1/' || true)
           attempts=$(attempts_since_reset)
-          [ -z "$verdict" ] && { echo "::error::no verdict marker for $SHA even after the rescue pass — automerge re-requests this review once, then parks the PR as bot-stuck (a PR that edits this very workflow can never be bot-reviewed: the action refuses modified copies; the owner reviews it)"; exit 1; }
-          echo "verdict=$verdict"   >> "$GITHUB_OUTPUT"
-          echo "attempts=$attempts" >> "$GITHUB_OUTPUT"
-          fix=no
-          if [ "$verdict" = "changes" ]; then
-            if [ "$attempts" -lt "$MAX_FIX_ATTEMPTS" ]; then fix=yes
-            else park_stuck "$PR" "$SHA" "the review still requests changes after $attempts attempt(s) since the last budget reset"; fi
+          [ -z "$verdict" ] && { echo "::error::no verdict marker for $SHA even after the rescue pass — automerge re-requests this review once, then parks the PR as bot-stuck (a PR that edits this very workflow can never be bot-reviewed: the action refuses modified copies; a session merges it)"; exit 1; }
+          echo "verdict=$verdict attempts=$attempts/$MAX_FIX_ATTEMPTS"
+          # No fix pass here: a live session goes first; automerge dispatches job `fix` after the
+          # grace window if the head is still red / requesting changes (steer #67).
+          if [ "$verdict" = "changes" ] && [ "$attempts" -ge "$MAX_FIX_ATTEMPTS" ]; then
+            park_stuck "$PR" "$SHA" "the review still requests changes after $attempts fix attempt(s) since the last budget reset"
           fi
-          echo "fix=$fix" >> "$GITHUB_OUTPUT"
-          echo "verdict=$verdict attempts=$attempts/$MAX_FIX_ATTEMPTS fix=$fix"
 
-      - name: Prepare Python env for the fix pass
-        if: steps.verdict.outputs.fix == 'yes'
-        env:
-          REF: ${{ steps.ctx.outputs.ref }}
-          SHA: ${{ steps.ctx.outputs.sha }}
-        run: |
-          git checkout -B "$REF" "$SHA"
-          git config user.name  "claude[bot]"
-          git config user.email "209825114+claude[bot]@users.noreply.github.com"
-          bash scripts/cloud-setup.sh || echo "::warning::cloud-setup.sh failed; fix pass runs without a prepared venv"
-
-      - name: Auto-fix pass (bounded)
-        if: steps.verdict.outputs.fix == 'yes'
-        uses: anthropics/claude-code-action@v1
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
-            REPO: ${{ github.repository }}   PR: ${{ steps.ctx.outputs.pr }}   BRANCH: ${{ steps.ctx.outputs.ref }}
-            This is auto-fix attempt number ${{ steps.verdict.outputs.attempts }} + 1 of ${{ steps.ctx.outputs.max_fix }}.
-
-            The automated review of this PR requested changes. Read CLAUDE.md, then read the latest
-            review summary comment and inline comments on the PR (`gh pr view --comments`, `gh api`).
-            Address every BLOCKING bullet with the smallest correct change, staying inside the linked
-            issue's territory. If a bullet says this PR duplicates an older open PR, do NOT fix code:
-            post a comment recommending this PR be closed in favour of the older one and stop.
-            If this is the LAST attempt (attempt + 1 == max), prefer the change that certainly clears the
-            blocking bullets even if it narrows scope — and file the narrowed-out remainder as a follow-up
-            issue with `gh issue create` (title = its checkable DONE, labels: ready + the area) so nothing is lost.
-
-            After editing: if you touched src/, tools/ or skills/, run `.venv/bin/python tools/sync_plugin.py`;
-            run `.venv/bin/python tools/dev/check_portable_paths.py`, `.venv/bin/python plugin/scripts/validate_plugin.py`,
-            and the stream-local tests named in the PR/issue (never the full suite). Only if those pass:
-            commit with a plain message describing the fix and push to BRANCH (`git push origin HEAD:BRANCH`;
-            if the push is rejected because the branch moved, `git pull --rebase origin BRANCH` once and push again).
-            Then post ONE PR comment summarising what you changed and the gate results, whose LAST line is exactly:
-            <!-- claude-autofix attempt=${{ steps.verdict.outputs.attempts }} -->
-            (post that marker comment even if you could not fix everything, saying what is left).
-          claude_args: |
-            --max-turns 60
-            --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh api:*),Bash(gh issue view:*),Bash(gh issue create:*),Bash(.venv/bin/python:*),Bash(python:*),Bash(python3:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*)"
-
-  ci-autofix:
-    # CI finished RED for a pull request head (a normal PR run, or a run automerge dispatched on the
-    # PR branch): read the failed logs, fix, run gates, push (bounded by the same reset-aware budget).
-    if: >-
-      github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure' &&
-      (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'workflow_dispatch')
+  fix:
+    # The bounded fix pass — ONLY on workflow_dispatch mode=fix, which automerge sends once the grace
+    # window after the last signal (push / red CI / 🛑 verdict / previous attempt) has passed with no
+    # new push. Handles red CI and review findings for the PR's CURRENT head in one pass.
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'fix'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 50
     permissions:
       contents: write
       pull-requests: write
       issues: write
       id-token: write
       actions: read
+      checks: read              # the reviewer / fixer may verify CI state on the head themselves
     steps:
       - name: Require a credential (fail red, never skip quietly)
         env:
           HAS_OAUTH: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
           HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
         run: |
-          if [ "$HAS_OAUTH" != "true" ] && [ "$HAS_KEY" != "true" ]; then echo "::error::No CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY secret — cannot auto-fix red CI."; exit 1; fi
-      - name: Resolve the PR + attempt budget
+          if [ "$HAS_OAUTH" != "true" ] && [ "$HAS_KEY" != "true" ]; then echo "::error::No CLAUDE_CODE_OAUTH_TOKEN / ANTHROPIC_API_KEY secret — cannot run the fix pass."; exit 1; fi
+      - name: Resolve the PR, the budget, and what is wrong at its head
         id: pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-          BRANCH: ${{ github.event.workflow_run.head_branch }}
-          SHA: ${{ github.event.workflow_run.head_sha }}
-          RUN_ID: ${{ github.event.workflow_run.id }}
+          IN_PR: ${{ inputs.pr }}
         run: |
           set -euo pipefail
           eval "$REVIEW_LIB"
-          pr=$(gh pr list --repo "$REPO" --state open --head "$BRANCH" --json number,headRefOid --jq '.[]|select(.headRefOid=="'"$SHA"'")|.number' | head -1)
-          if [ -z "$pr" ]; then echo "no open PR whose head is $SHA on $BRANCH (superseded by a newer push, or a main run) — nothing to fix"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0; fi
+          [[ "$IN_PR" =~ ^[0-9]+$ ]] || { echo "::error::pr input must be a number"; exit 1; }
+          j=$(gh pr view "$IN_PR" --repo "$REPO" --json state,headRefOid,headRefName,isCrossRepository)
+          [ "$(jq -r .state <<<"$j")" = "OPEN" ] || { echo "PR #$IN_PR is not open — nothing to fix"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0; }
+          [ "$(jq -r .isCrossRepository <<<"$j")" = "false" ] || { echo "PR #$IN_PR comes from a fork — not pushing there"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0; }
+          sha=$(jq -r .headRefOid <<<"$j"); ref=$(jq -r .headRefName <<<"$j")
           max=$(cfg_max_fix)
-          # shellcheck disable=SC2034   # read by attempts_since_reset / park_stuck from REVIEW_LIB
-          comments=$(gh api "repos/$REPO/issues/$pr/comments" --paginate)
+          comments=$(gh api "repos/$REPO/issues/$IN_PR/comments" --paginate)
           attempts=$(attempts_since_reset)
-          gh run view "$RUN_ID" --repo "$REPO" --log-failed 2>/dev/null | tail -300 > /tmp/ci-failed.log || true
-          { echo "pr=$pr"; echo "attempts=$attempts"; echo "max=$max"; } >> "$GITHUB_OUTPUT"
           if [ "$attempts" -ge "$max" ]; then
-            park_stuck "$pr" "$SHA" "CI is still red (run $RUN_ID) after $attempts attempt(s)"
-            echo "go=no" >> "$GITHUB_OUTPUT"
-          else
-            echo "go=yes" >> "$GITHUB_OUTPUT"
+            park_stuck "$IN_PR" "$sha" "the fix budget ($max since the last reset) is spent"
+            echo "go=no" >> "$GITHUB_OUTPUT"; exit 0
           fi
+          # What is wrong at THIS head: red CI (latest CI run for the sha) and/or a `changes` verdict.
+          run_id=$(gh run list --repo "$REPO" --workflow ci.yml --commit "$sha" --limit 5 --json databaseId,conclusion,status \
+                     --jq '[.[]|select(.status=="completed")][0] | if . == null then "" else "\(.databaseId) \(.conclusion)" end')
+          ci_red=no
+          if [ -n "$run_id" ] && [ "${run_id#* }" != "success" ]; then
+            ci_red=yes; gh run view "${run_id% *}" --repo "$REPO" --log-failed 2>/dev/null | tail -300 > /tmp/ci-failed.log || true
+          fi
+          verdict=$(jq -r '.[].body' <<<"$comments" | grep -oE "<!-- claude-review: (approve|nits|changes) sha=$sha -->" | tail -1 | sed -E 's/.*: (approve|nits|changes) .*/\1/' || true)
+          if [ "$ci_red" = "no" ] && [ "$verdict" != "changes" ]; then
+            echo "head ${sha:0:7}: CI not red and verdict is '${verdict:-none}' — nothing to fix (a session probably pushed first)"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          { echo "go=yes"; echo "pr=$IN_PR"; echo "sha=$sha"; echo "ref=$ref"; echo "attempts=$attempts"; echo "max=$max"
+            echo "ci_red=$ci_red"; echo "verdict=${verdict:-none}"; echo "run_id=${run_id% *}"; } >> "$GITHUB_OUTPUT"
+          echo "fixing #$IN_PR at ${sha:0:7}: ci_red=$ci_red verdict=${verdict:-none} attempt $((attempts+1))/$max"
       - uses: actions/checkout@v6
         if: steps.pr.outputs.go == 'yes'
         with:
-          ref: ${{ github.event.workflow_run.head_branch }}
+          ref: ${{ steps.pr.outputs.sha }}
           fetch-depth: 0
-      - name: Prepare Python env
+      - name: Prepare the branch and the Python env
         if: steps.pr.outputs.go == 'yes'
+        env:
+          REF: ${{ steps.pr.outputs.ref }}
+          SHA: ${{ steps.pr.outputs.sha }}
         run: |
+          git checkout -B "$REF" "$SHA"
           git config user.name  "claude[bot]"
           git config user.email "209825114+claude[bot]@users.noreply.github.com"
-          bash scripts/cloud-setup.sh || echo "::warning::cloud-setup.sh failed; fix pass runs without a prepared venv"
-      - name: Auto-fix red CI (bounded)
+          bash scripts/cloud-setup.sh || echo "::warning::cloud-setup.sh failed; the fix pass runs without a prepared venv"
+      - name: Fix pass (bounded, dispatched after the grace window)
         if: steps.pr.outputs.go == 'yes'
         uses: anthropics/claude-code-action@v1
         with:
+          allowed_bots: "github-actions[bot],github-actions,claude[bot],claude"   # our own bots dispatch/author these runs (automerge, coord, planner, worker); default rejects every non-human actor
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            REPO: ${{ github.repository }}   PR: #${{ steps.pr.outputs.pr }}   BRANCH: ${{ github.event.workflow_run.head_branch }}
-            CI run ${{ github.event.workflow_run.id }} finished RED for this PR's head. This is auto-fix attempt
-            ${{ steps.pr.outputs.attempts }} + 1 of ${{ steps.pr.outputs.max }}.
+            REPO: ${{ github.repository }}   PR: #${{ steps.pr.outputs.pr }}   BRANCH: ${{ steps.pr.outputs.ref }}   HEAD: ${{ steps.pr.outputs.sha }}
+            This is automatic fix attempt ${{ steps.pr.outputs.attempts }} + 1 of ${{ steps.pr.outputs.max }}, dispatched because
+            no session pushed a fix within the grace window. At this head: CI red = ${{ steps.pr.outputs.ci_red }};
+            review verdict = ${{ steps.pr.outputs.verdict }}.
 
-            Read CLAUDE.md first. The failed-step log tail is at /tmp/ci-failed.log (also: `gh run view ${{ github.event.workflow_run.id }} --log-failed`).
-            Diagnose the actual failure (portable paths / sync_plugin drift / validate_plugin / a test in
-            tests/ci_shard.txt), make the smallest correct fix inside the PR's territory — never weaken a gate
-            or delete a test to go green; if the right fix is outside the PR's territory or needs samples/viewer,
-            say so in a comment and stop. If you touched src/, tools/ or skills/, run `.venv/bin/python tools/sync_plugin.py`.
-            Re-run locally exactly what CI runs: `.venv/bin/python tools/dev/check_portable_paths.py`,
-            `.venv/bin/python tools/sync_plugin.py --check`, `.venv/bin/python plugin/scripts/validate_plugin.py`,
-            `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q $(grep -v '^#' tests/ci_shard.txt | xargs)`.
-            Only if green: commit with a plain message and push to BRANCH (`git push origin HEAD:BRANCH`; on a
-            rejected push, `git pull --rebase origin BRANCH` once and push again). Then post ONE PR comment: what failed,
-            what you changed, gate results — LAST line exactly:
+            Read CLAUDE.md first (§1 hard rules, §3b sources vs generated mirrors, §4). Then:
+            - If CI is red: the failed-step log tail is at /tmp/ci-failed.log (also `gh run view ${{ steps.pr.outputs.run_id }} --log-failed`).
+              Diagnose the real failure (portable paths / sync_plugin drift / validate_plugin / a test in tests/ci_shard.txt).
+            - If the verdict is `changes`: read the latest review summary + inline comments (`gh pr view --comments`,
+              `gh api repos/${{ github.repository }}/pulls/${{ steps.pr.outputs.pr }}/comments`) and address every BLOCKING bullet.
+              If a bullet says this PR duplicates an older open PR, do NOT fix code: comment recommending closure and stop.
+            Make the smallest correct change inside the linked issue's territory — never weaken a gate or delete a test to
+            go green; if the right fix is outside the territory or needs samples/viewer/a human decision, say so in a comment
+            and stop. On the LAST attempt (attempt + 1 == max) prefer the change that certainly clears the blockers even if it
+            narrows scope, and file the narrowed-out remainder as a follow-up issue (`gh issue create`, title = checkable DONE,
+            labels ready + area).
+            After editing: if you touched src/, tools/ or skills/, run `.venv/bin/python tools/sync_plugin.py`; then run exactly
+            what CI runs: `.venv/bin/python tools/dev/check_portable_paths.py`, `.venv/bin/python tools/sync_plugin.py --check`,
+            `.venv/bin/python plugin/scripts/validate_plugin.py`, `RVT_SKIP_LARGE=1 .venv/bin/python -m pytest -q $(grep -v '^#' tests/ci_shard.txt | xargs)`,
+            plus the stream-local tests named in the PR/issue (never the full suite).
+            Before pushing, `git fetch origin BRANCH`: if the remote branch moved past HEAD, a session pushed meanwhile — STOP
+            without pushing (post the marker comment saying you yielded). Otherwise commit with a plain message and
+            `git push origin HEAD:BRANCH`. Then post ONE PR comment: what was wrong, what you changed, gate results — LAST line exactly:
             <!-- claude-autofix attempt=${{ steps.pr.outputs.attempts }} -->
-            (post the marker comment even if you could not fix it, stating what is left).
+            (post that marker comment even if you could not fix it or yielded, saying what is left).
           claude_args: |
             --max-turns 60
-            --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh run view:*),Bash(gh api:*),Bash(gh issue view:*),Bash(.venv/bin/python:*),Bash(python:*),Bash(python3:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*),Bash(xargs:*),Bash(grep:*)"
+            --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr comment:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh run view:*),Bash(gh api:*),Bash(gh issue view:*),Bash(gh issue create:*),Bash(.venv/bin/python:*),Bash(python3:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*),Bash(xargs:*),Bash(grep:*)"

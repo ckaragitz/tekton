@@ -439,61 +439,10 @@ def release_build_context(base_path: str) -> Iterator[Optional[Dict[str, Any]]]:
         # ---- (7) the record-boundary port adaptation ----------------------
         _wrap_records_methods(swap, port, dec)
 
-        # ---- (8) donor-id byte scan: corroborate hits against the tree ----
-        # famdoc_adoc's zero-donor gate byte-scans the authored family
-        # ADocument for the donor's element ids.  With a PROJECT-base donor
-        # the id universe is every host element id, and our own authored
-        # position-index tables read misaligned as k<<8 i64 windows -- on
-        # this base a real element id can collide (2025: Family 18432 ==
-        # 72<<8, sitting inside the monotone 52..86 index run).  The scan
-        # module itself documents the schema-typed census as the authority;
-        # apply exactly that rule, process-locally: a byte window counts
-        # ONLY when the decoded tree also carries the id as a value.  A real
-        # carried reference stays fatal; a cross-field window is recorded as
-        # a named false positive instead of refusing the artefact
-        # (deliverable rule: gates are labels, never refusal logic).
-        ga = FDA._ga()
-        orig_scan = ga.byte_scan_ids
-
-        def _tree_ids(value) -> set:
-            out: set = set()
-
-            def walk(node):
-                if isinstance(node, dict):
-                    for v in node.values():
-                        walk(v)
-                elif isinstance(node, list):
-                    for v in node:
-                        walk(v)
-                elif isinstance(node, int) and not isinstance(node, bool):
-                    out.add(node)
-
-            walk(value)
-            return out
-
-        def corroborated_scan(payload, id_set):
-            r = orig_scan(payload, id_set)
-            if not r.get("hits"):
-                return r
-            try:
-                back = ADOC.decode_latest(bytes(payload))
-            except Exception:
-                return r                    # cannot corroborate -> keep hits
-            if not back.clean:
-                return r
-            present = _tree_ids(back.value)
-            real = [i for i in (r.get("examples") or []) if i in present]
-            if real:
-                return r                    # tree-corroborated: genuine
-            return {**r, "hits": 0, "distinct": 0, "examples": [],
-                    "false_positive_windows": r.get("examples"),
-                    "false_positive_note": (
-                        "byte window(s) matched donor ids but the schema-"
-                        "decoded tree carries none of them as a value -- "
-                        "cross-field alignment artefact (the module's own "
-                        "authority rule); recorded, not fatal")}
-
-        swap(ga, "byte_scan_ids", corroborated_scan)
+        # (8) -- retired: the donor-id byte-scan corroboration this context
+        # used to monkeypatch onto genesis_assemble.byte_scan_ids now lives at
+        # famdoc_adoc's own raise sites (corroborated_donor_scan, issue #12),
+        # so every release path -- 2026 included -- gets it.
 
         info = {"release": year, "native": native_release(),
                 "ordinals": dict(ords), "schema_sha256": schema.stats()["sha256"],

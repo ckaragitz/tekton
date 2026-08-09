@@ -194,11 +194,11 @@ skill wording/flow/UX → change the `SKILL.md` / `_shared` / commands
 directly under `plugin/`.
 
 **Two hygiene notes so a dev session doesn't confuse itself with an
-end-user session:** the repo intentionally has **no `.claude/skills/`** (the
-product skills aren't auto-loaded into the session that is editing them —
-`.claude/` holds only the *process* pieces: the SessionStart banner and the
-`/steer` `/techlead` `/board` `/fanout` commands, none of which are product
-skills),
+end-user session:** the repo has **no *product* skills under `.claude/skills/`**
+(the product skills aren't auto-loaded into the session that is editing them —
+`.claude/` holds only *process* pieces: the SessionStart banner, the `/steer`
+`/techlead` `/board` `/fanout` commands, and the `verify` skill = this repo's
+build-and-drive recipe that the pre-commit `/verify` step uses),
 and interactive dogfooding of the skills is best done in a *separate*
 scratch session with the built plugin loaded (`claude --plugin-dir
 /path/to/tekton/plugin` or the installed zip) — so "the skill I'm editing"
@@ -319,7 +319,9 @@ first, the engineer second:**
 ```bash
 git switch main && git pull --ff-only          # start from current trunk
 python3 tools/dev/techlead.py brief            # or /board: steers, queue vs floor, PR blockers, waiting-on-human
-gh pr list --author @me --state open           # 1. service your own PRs first (below)
+gh pr list --author @me --state open           # 1. service your own PRs first (below) — and squash-merge any PR labelled `session-merge`
+                                               #    (bots may not; a session can) IF it has a ✅/🟡 verdict for its exact head + green CI;
+                                               #    prefer one you did not author; no verdict -> never merge a workflow-file PR
 #  2. your human said something directional this session? -> /steer "<their words>"  (before acting on it)
 #  3. untriaged steers, or ready&unassigned below the floor? -> /techlead  (≤10 min, charter-bounded)
 gh issue list --assignee @me --state open      # 4. resume yours, or take the head of the queue:
@@ -347,10 +349,12 @@ clear themselves; remove `needs-human` with
 `gh pr edit <n> --remove-label needs-human` once you've pushed a real fix).
 Cloud sessions (claude.ai/code) can instead turn on **Auto-fix** in the PR's CI
 bar (or run `/autofix-pr` in a terminal session) so the session itself watches
-CI failures and review comments and pushes fixes. A PR you simply walk away
-from is fine: the bots review it, push bounded fixes, mark a green + approved
-draft ready after 90 quiet minutes, merge it, and close the issue — or, if
-they cannot, re-queue the issue `ready` + `retry` with your branch named.
+CI failures and review comments and pushes fixes — it has the first
+`fix_grace_minutes` (15) after each signal to itself; the bots only step in after
+that. A PR you simply walk away from is fine: the bots review it, dispatch
+bounded fixes after the grace window, mark a green + approved draft ready after
+90 quiet minutes, merge it, and close the issue — or, if they cannot, re-queue
+the issue `ready` + `retry` with your branch named.
 
 Then read the issue, `KNOWLEDGE.md`, and any `docs/inbox/` records it cites
 before writing code.
@@ -436,22 +440,25 @@ you to do unless the bot asks for a human."
    on the spot (settle it then, not at merge time); base branch not `main` →
    `stacked` warning; "does not close #N" in the body → warning, because GitHub's
    linker ignores the *not* and will close #N. Read what it says and act on it.
-1. **`CI`** runs on every push: portable paths, `sync_plugin.py --check`,
+1. **`CI`** runs on every push (~1–2 min): portable paths, `sync_plugin.py --check`,
    `validate_plugin.py`, the fast no-samples shard (`tests/ci_shard.txt`).
-   If CI finishes **red**, `claude-review`'s `ci-autofix` job reads the failed log,
-   makes the smallest in-territory fix, re-runs the CI commands locally, and pushes
-   (same fix budget as below).
-2. **`claude-review`** reviews every push against this file's rules and the linked
-   issue's DONE, posts inline comments + one summary whose first line is the
-   verdict (✅ Approve / 🟡 Nits only / 🛑 Changes requested) and whose last line is a
-   machine-readable marker for that exact head SHA (a short rescue pass posts it if
+2. **`claude-review`** reviews every push (~5–15 min) against this file's rules and
+   the linked issue's DONE, posts inline comments + one summary whose first line is
+   the verdict (✅ Approve / 🟡 Nits only / 🛑 Changes requested) and whose last line is
+   a machine-readable marker for that exact head SHA (a short rescue pass posts it if
    the review ran out of turns; `automerge` re-requests a review whose verdict is
-   still missing). On 🛑 it runs a **bounded auto-fix pass** — budget 3 attempts per
-   PR since the last budget reset (`.github/autonomy.json`): edits, runs the gates,
-   pushes to your branch, which re-triggers CI + review. Budget exhausted → label
-   `bot-stuck`, which is **not** a human dead-end: after a quiet day the `board`
-   sweep re-queues the issue `ready` + `retry`, unassigned, naming the branch, and
-   `/next` or the worker continues it with a fresh budget.
+   still missing). **Fixing is single-owner (steer #67): on red CI or 🛑, your live
+   session goes first** — that is what its PR subscription / Auto-fix is for. The
+   bots do *not* fix immediately: only when nothing has been pushed for
+   `pipeline.fix_grace_minutes` (15) after the last signal does `automerge` dispatch
+   ONE bot fix pass for the current head (budget 3 attempts per PR since the last
+   budget reset, `.github/autonomy.json`) — which is also how a PR is carried when
+   your session or laptop is gone. If you see the bot's `🔧 dispatched the bot fix
+   pass` comment for your head, let it push (or push first — it yields to a newer
+   head); never race it. Budget exhausted → label `bot-stuck`, which is **not** a
+   human dead-end: after a quiet day the `board` sweep re-queues the issue `ready` +
+   `retry`, unassigned, naming the branch, and `/next` or the worker continues it
+   with a fresh budget.
 3. **`automerge`** squash-merges as soon as: CI green on the head SHA **and** the
    review verdict for that SHA is Approve/Nits **and** the PR is ready — or is a
    **draft that has been quiet (no commits) for 90 min**, which it then marks ready
@@ -471,10 +478,22 @@ you to do unless the bot asks for a human."
    down or wrong; `@claude <instruction>` in any comment makes the bot answer or
    push a change; label `bots-paused` on the board issue idles planner + worker.
    PRs touching `.github/workflows/**` cannot be merged by the Actions token
-   (GitHub restriction) → `needs-human`, owner merges by hand — unless the owner
-   has added the optional `AUTOMERGE_TOKEN` secret (docs/process/AUTONOMY.md §10).
-   That, `needs-decision` questions, viewer uploads, desktop-Revit checks and
-   owner-machine work are the **complete** list of things that wait for a person,
+   (GitHub restriction), and a PR that edits `claude-review.yml` cannot even be
+   bot-reviewed *by their own run* → automerge re-requests the review from
+   `main`'s reviewer (an independent verdict for the exact head is **required** for
+   any workflow-file PR — these files run with the repo's secrets, #88) and, once
+   ✅/🟡 + green, labels them **`session-merge`: the next coding session —
+   preferably not the authoring one — re-checks head SHA, CI and verdict, reads the
+   workflow diff once more, and squash-merges with its own credentials**
+   (`gh pr merge <n> --squash --match-head-commit <sha>` or MCP
+   `merge_pull_request`); a session runs under a human's GitHub identity, so
+   GitHub allows it (steer #61, S-2026-08-09-d). If no independent verdict can be
+   produced, the PR becomes `needs-human`: a collaborator other than the author
+   applies `merge-when-green` — the human gate as last resort, not the default.
+   The optional `AUTOMERGE_TOKEN` secret makes the approved path hands-free
+   (docs/process/AUTONOMY.md §10). `needs-decision` questions, viewer uploads,
+   desktop-Revit checks, owner-machine work and a merge GitHub itself refused
+   (`needs-human`) are the **complete** list of things that wait for a person,
    and the board's *Waiting on a human* section shows them with the reason.
 5. So a session's PR checklist is: link the issue (`Closes #N`), include the record,
    run your stream-local gates, push, open the PR **ready** (not draft) when done —
@@ -514,13 +533,13 @@ tech-lead loop* — the scheduled planner plus every session at session start,
 one charter (`.github/prompts/techlead.md`). That loop triages steers, keeps
 the queue and its labels healthy, keeps `TRACKER.md` / `docs/PROGRAM.md`
 current **via small PRs** (curated roadmap and goals — never the live claim
-board; Issues + the 📋 board are), and folds `docs/inbox/learned-*.md` notes
-into `KNOWLEDGE.md`. Humans keep exactly the physical and reserved things
-(docs/process/AUTONOMY.md §10): answering `needs-decision` issues, uploading
-STAGED viewer batches and recording verdicts (`docs/coverage/viewer-certified.json`
-+ `docs/inbox/genesis-audit.md`, `hot-file` PR — a session prepares the PR,
-the human supplies the verdicts), desktop-Revit checks, owner-machine runs,
-merging workflow-file PRs, and keeping the token/billing alive. Contributors'
+board; Issues + the 📋 board are), folds `docs/inbox/learned-*.md` notes
+into `KNOWLEDGE.md`, and merges `session-merge` PRs. Humans keep exactly the
+physical and reserved things (docs/process/AUTONOMY.md §10): answering
+`needs-decision` issues, uploading STAGED viewer batches and recording verdicts
+(`docs/coverage/viewer-certified.json` + `docs/inbox/genesis-audit.md`,
+`hot-file` PR — a session prepares the PR, the human supplies the verdicts),
+desktop-Revit checks, owner-machine runs, and keeping the token/billing alive. Contributors'
 sessions STAGE viewer batches on their branch (`probe_batch.py stage`) and
 stop at READY, as before.
 
