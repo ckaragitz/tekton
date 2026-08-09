@@ -109,7 +109,7 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
     Stage("intent->rvt", "rvt.frontdoor:author",
           "the build step on the CERTIFIED GENESIS BASE (families F, load L, "
           "walls W, equipment E, circuits C plan, gates V) with the honest "
-          "walls+families degrade (stamp / --strict split)",
+          "open-cell degrade (placed instances: stamp / --strict split)",
           ("test:tests/test_frontdoor.py",
            "certified:experiments/ifc_room/electrical_room_2500a_walls_only.rvt",
            "certified:experiments/ifc_room/stage_L8_lp4.rvt",
@@ -265,10 +265,16 @@ def key_for(inputs: Sequence[str], output: str) -> Tuple[Tuple[str, ...], str]:
 _PROOF_ONLY = ("every output is PROOF-ONLY, NOT-DELIVERABLE until TRACKER "
                "gates G2/G3 clear (docs/product/content-strategy.md); the "
                "manifest says so explicitly")
-_OPEN_BUG = ("walls + loaded families in ONE file is the OPEN BUG (r2): the "
-             "combined file is STAMPED 'PROOF-ONLY: walls+families "
-             "combination unverified'; --strict emits two coordinated "
-             "certified-shape files instead")
+_OPEN_BUG = ("PLACED INSTANCES of our generated families on our composed "
+             "genesis base are THE OPEN CELL (docs/inbox/genesis-audit.md "
+             "#48, issue #16; walls, loaded families and walls + loaded "
+             "families in one file are certified -- WF_fix / WF_nofix): a "
+             "job that places instances is DELIVERED and STAMPED 'PROOF-ONLY: "
+             "generated-family INSTANCES on a composed genesis base (open "
+             "cell, docs/inbox/genesis-audit.md #48, issue #16)'; --strict "
+             "emits two coordinated files instead, both delivered -- 'shell' "
+             "(walls + loaded families, the certified shape) + 'equipment' "
+             "(the placed instances, the open cell isolated)")
 _CIRCUITS = ("feeder CIRCUITS are a NAMED BLOCKER on the genesis base: the "
              "resolved circuit plan rides in the manifest, never faked")
 _CATALOG = ("family generation covers the catalog-backed kinds (panelboard / "

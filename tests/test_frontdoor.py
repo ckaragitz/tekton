@@ -323,32 +323,65 @@ def test_prompt_to_ifc_doc_ships_with_the_package():
 
 
 # ===========================================================================
-# 4. the OPEN-BUG degrade (walls + loaded families)
+# 4. the OPEN-CELL degrade (placed instances of OUR families on OUR composed
+#    base -- genesis-audit #48 / issue #16; walls + loaded families PASS)
 # ===========================================================================
 
 @needs_catalog
 def test_combination_detected_and_degraded():
-    model, _ = PP.prompt_to_intent(PROMPT)          # walls + families
-    v = FI.combination_check(model)                 # default
+    """The truth table keys on PLACED INSTANCES on a composed base (#142)."""
+    model, _ = PP.prompt_to_intent(PROMPT)          # walls + families + 7 instances
+    v = FI.combination_check(model)                 # default: pinned/composed base, E on
     assert v.triggers_open_bug and v.mode == "stamp-proof-only"
-    assert v.stamp and "walls+families" in v.stamp
+    assert v.stamp == FI.OPEN_CELL_STAMP
+    assert "generated-family INSTANCES on a composed genesis base" in v.stamp
+    assert "genesis-audit.md #48" in v.stamp and "issue #16" in v.stamp
+    assert v.places_instances and v.n_instances == 7 and v.composed_base
     assert v.files == ["combined"]
     vs = FI.combination_check(model, strict=True)   # --strict
     assert vs.triggers_open_bug and vs.mode == "split-strict"
     assert vs.stamp is None and vs.files == ["shell", "equipment"]
+    assert "walls + the 7 loaded families, NO placement" in vs.reason   # shell = WF_fix shape
+    assert "PLACED instances" in vs.reason                              # equipment = the cell
     j = vs.as_json()
     assert j["open_bug"] == FI.OPEN_BUG_ID and j["open_bug_text"]
+    assert j["n_instances"] == 7 and j["places_instances"] is True
+    # equipment-only (no room, no walls) STILL exercises the open cell
+    equip_only, _ = PP.prompt_to_intent("six 225A panelboards")
+    ve = FI.combination_check(equip_only)
+    assert not ve.has_walls and ve.has_loaded_families
+    assert ve.triggers_open_bug and ve.mode == "stamp-proof-only"
+    assert ve.stamp == FI.OPEN_CELL_STAMP and ve.n_instances == 6
+    ves = FI.combination_check(equip_only, strict=True)
+    assert ves.mode == "split-strict" and ves.files == ["shell", "equipment"]
 
 
 @needs_catalog
 def test_no_combination_when_walls_or_families_only():
+    """No instance placed on a composed base -> single, no open-cell stamp:
+    walls only, walls + LOADED families without placement (--stages FLWV, the
+    WF_fix / WF_nofix certified shape), and instances on a NON-composed host."""
     walls_only, _ = PP.prompt_to_intent("an electrical room 9.2m x 6.2m")
     v = FI.combination_check(walls_only)
     assert not v.triggers_open_bug and v.mode == "single" and v.has_walls
+    assert v.stamp is None and not v.places_instances
+    room, _ = PP.prompt_to_intent(PROMPT)           # walls + loadable families
+    v1 = FI.combination_check(room, stages="FLWV")  # loaded, NOT placed
+    assert v1.has_walls and v1.has_loaded_families
+    assert not v1.triggers_open_bug and v1.mode == "single" and v1.stamp is None
+    assert v1.n_instances == 0 and not v1.places_instances
+    assert "WITHOUT placement" in v1.reason and "WF_fix" in v1.reason
+    v1s = FI.combination_check(room, strict=True, stages="FLWV")   # strict is moot here
+    assert v1s.mode == "single" and v1s.files == ["combined"]
     fams_only, _ = PP.prompt_to_intent("a 150 kVA transformer and a 225 A 208Y/120 "
                                           "receptacle panel")
-    v2 = FI.combination_check(fams_only, strict=True)
+    v2 = FI.combination_check(fams_only, strict=True, stages="FLV")   # load only
     assert not v2.triggers_open_bug and v2.mode == "single" and v2.has_loaded_families
+    # instances on a host that is NOT our composed base (pristine host: T1r/T1u/U16 PASS)
+    v3 = FI.combination_check(fams_only, composed_base=False)
+    assert v3.places_instances and v3.n_instances == 2
+    assert not v3.triggers_open_bug and v3.mode == "single" and v3.stamp is None
+    assert "NOT the composed genesis base" in v3.reason
 
 
 @needs_catalog
@@ -497,8 +530,8 @@ def test_manifest_crud_and_honesty_shape():
     cov = MF.coverage_cross_reference(created)
     cells = {(c["category"], c["verb"]) for c in cov["cells_exercised"]}
     assert ("walls", "create") in cells and ("electrical_equipment", "create") in cells
-    hon = MF._honesty(None, {"stamp": "PROOF-ONLY: walls+families combination unverified"})
-    assert hon["proof_only_stamps"] == ["PROOF-ONLY: walls+families combination unverified"]
+    hon = MF._honesty(None, {"stamp": FI.OPEN_CELL_STAMP})
+    assert hon["proof_only_stamps"] == [FI.OPEN_CELL_STAMP]
     assert "NOT claimed" in hon["tiers"]["autodesk_acceptance"]
 
 
@@ -514,7 +547,8 @@ def test_manifest_crud_and_honesty_shape():
 def test_e2e_prompt_fallback_builds_on_genesis_base(tmp_path):
     """The whole chain: prompt -> intent -> families -> LOAD onto the pinned
     genesis base -> walls -> instances -> gates -> manifest, default degrade
-    mode (one combined file + the PROOF-ONLY stamp)."""
+    mode (one combined file + the open-cell PROOF-ONLY stamp: 7 instances of
+    OUR families placed on the composed base)."""
     out = tmp_path / "e2e"
     r = FD.author(prompt=PROMPT, out=str(out), no_handoff=True)
     assert r.route == "prompt", r.errors
@@ -523,7 +557,8 @@ def test_e2e_prompt_fallback_builds_on_genesis_base(tmp_path):
     build = man["build"]
     v = build["combination_verdict"]
     assert v["mode"] == "stamp-proof-only"
-    assert v["stamp"] == "PROOF-ONLY: walls+families combination unverified"
+    assert v["stamp"] == FI.OPEN_CELL_STAMP
+    assert v["places_instances"] is True and v["composed_base"] is True
     assert "combined" in build["files"]
     combined = build["files"]["combined"]["path"]
     assert os.path.isfile(combined)
