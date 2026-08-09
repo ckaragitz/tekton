@@ -270,14 +270,38 @@ def _default_host() -> Tuple[str, str]:
                      f"{rb.sha256[:12]}...)")
 
 
-def _resolve_host(res: RouteResult, host: Optional[str], *, verb: str) -> Optional[str]:
-    """``host`` when given (the user's project), else the default host; on a
-    missing pin returns None after setting a FAILED status + the clear line
-    (never a traceback)."""
+def _resolve_host(res: RouteResult, host: Optional[str], *, verb: str,
+                  opts: Optional[Dict[str, Any]] = None) -> Optional[str]:
+    """``host`` when given (the user's project -- its own release rules), else
+    the default host: the pinned certified genesis base, or with
+    ``--target-version N`` the certified base OF THAT RELEASE (the front
+    door's one resolver; the load then runs under that host's release via
+    ``rvt.famload``'s host_release_context).  An uncertified / refused target
+    degrades to the default base + THE line as a caveat (rule 1: delivered,
+    labelled).  On a missing pin returns None after setting a FAILED status +
+    the clear line (never a traceback)."""
+    target = (opts or {}).get("target_version")
     if host is not None:
+        if target is not None:
+            res.caveats.append(f"--target-version {target} ignored for the LOAD: the "
+                               "family goes INTO your --rvt, whose own release rules")
         return host
     try:
-        path, desc = _default_host()
+        if target is None:
+            path, desc = _default_host()
+        else:
+            from . import AuthorRequest, _resolve_base_and_version
+            base, vb, errors = _resolve_base_and_version(
+                AuthorRequest(prompt="(family load)", base=opts.get("base"),
+                              target_version=int(target)))
+            res.target_version = vb
+            if base is None:
+                raise RouteError("; ".join(errors) or str(vb.get("note")))
+            path = base.path
+            desc = (f"the certified Revit {vb.get('output_release')} genesis base "
+                    f"({base.source}, sha256 {base.sha256[:12]}...)")
+            if vb.get("status") != "match":
+                res.caveats.append(f"target {target} requested: {vb.get('line') or vb.get('note')}")
     except Exception as e:                                           # noqa: BLE001
         res.ok = False
         res.status = f"FAILED (no host project: {type(e).__name__}: {e})"
@@ -964,7 +988,7 @@ def _load_family(res: RouteResult, out_dir: str, opts: Dict[str, Any], *,
     famfrom_ifc.load_into_project)."""
     from ..ifc import famfrom_ifc as FFI
     steps = _Steps(res)
-    host_rvt = _resolve_host(res, host, verb="load")
+    host_rvt = _resolve_host(res, host, verb="load", opts=opts)
     if host_rvt is None:
         return
     if host is not None:
@@ -992,55 +1016,81 @@ def _load_family(res: RouteResult, out_dir: str, opts: Dict[str, Any], *,
 
 _FAMSPEC_KINDS = ("downlight",)
 
-_STANDALONE_BORN_LINE = (
-    "this .rfa is STANDALONE-BORN (its element ids sit at/below the host's id "
-    "watermark): the component loader splices family records verbatim and cannot "
-    "re-number them, and the schema-typed id-remap + famload lane that DOES load any "
-    "Revit-born .rfa is viewer-certified in the research lane only (T2a) -- not "
-    "product-wired yet. What loads today: a .rfa tekton EXTRACTED from a loaded "
-    "project (rvt -> rfa --family X, then this route), or a famspec JSON ({'kind': "
-    "'downlight'}). Closest supported routes: rvt -> rfa -> rfa+rvt -> rvt (the "
-    "extract/reload cycle), prompt+rvt -> rvt ('add a ... to my project' generates, "
-    "loads AND places), prompt -> rvt.")
+_RFA_LANES_LINE = (
+    "What this cell reads: a famspec JSON ({'kind': 'downlight'}), a .rfa tekton "
+    "EXTRACTED from a loaded project (reloaded verbatim), or any STANDALONE-BORN .rfa "
+    "-- our own .rfa deliverables and Revit-saved 2024-2026 family files whose "
+    "ElemTable our codec parses (schema-typed id remap + four-registry famload, the "
+    "certified T2a mechanism). Refused by name: a GraveyardRec ElemTable footer (codec "
+    "gap #13), nested family documents, seq-103 classes beyond GElement/SerializedDummy, "
+    "a release with no certified creation support. Closest supported routes: rvt -> rfa "
+    "-> rfa+rvt -> rvt (the extract/reload cycle), prompt+rvt -> rvt ('add a ... to my "
+    "project' generates, loads AND places), prompt -> rvt.")
 
 
 def _reload_rfa(res: RouteResult, rfa_path: str, out_dir: str, opts: Dict[str, Any], *,
                 host: Optional[str]) -> None:
-    """The extracted-.rfa lane: rvt.convert.extract_family.reload_family (a
-    standalone .rfa on disk -> RfaFamilyDoc -> the four-registry COMPONENT
-    loader into a copy of the host).  A standalone-born family (ids below
-    the host watermark) is answered with THE clear line, never a traceback."""
+    """A .rfa PATH -> loaded project.  Two lanes, chosen by the id law:
+
+    * the family's ids sit ABOVE the host watermark (a .rfa tekton extracted
+      from a loaded project) -> ``rvt.convert.extract_family.reload_family``:
+      records spliced VERBATIM through the four-registry COMPONENT loader
+      (unchanged -- the certified extract/reload cycle);
+    * the ids sit AT/BELOW it (STANDALONE-BORN: our own ``start_id=1000``
+      deliverables, any Revit-saved family) -> ``rvt.convert.rfa_load``: the
+      schema-typed decode-time id remap into the free block above the
+      watermark + ``rvt.famload`` (the viewer-certified T2a mechanism,
+      issue #99).
+
+    A file neither lane can read is answered with THE clear line, never a
+    traceback."""
     from ..convert import extract_family as EF
+    from ..convert import rfa_load as RL
     steps = _Steps(res)
-    host_rvt = _resolve_host(res, host, verb="reload")
+    host_rvt = _resolve_host(res, host, verb="reload", opts=opts)
     if host_rvt is None:
         return
     if host is not None:
-        res.caveats.append("reloaded into YOUR host project: the component loader + "
+        res.caveats.append("reloaded into YOUR host project: the loader + "
                            "census/validator gates ran; viewer evidence for this lane "
-                           "is base-level (TB0g / stage_L8 on our composed base), not "
-                           "for arbitrary hosts")
+                           "is base-level (T2a / TB0g / stage_L8 on our composed base), "
+                           "not for arbitrary hosts")
     stem = _slug(opts.get("stem") or os.path.splitext(os.path.basename(rfa_path))[0])
     out_rvt = os.path.join(out_dir, f"{stem}_loaded.rvt")
     try:
-        rec = steps.run("rfa-reload", "rvt.convert.extract_family:reload_family "
-                                      "(rvt.famgen.loader four-registry component load)",
-                        lambda: EF.reload_family(rfa_path, host_rvt, out_rvt,
-                                                 validate=not opts.get("no_validate")))
+        born, floor, wm = steps.run(
+            "rfa-classify", "rvt.convert.rfa_load:is_standalone_born (ElemTable id law)",
+            lambda: RL.is_standalone_born(rfa_path, host_rvt))
+        res.steps[-1]["detail"] = (f"rfa id floor {floor} vs host watermark {wm}: "
+                                   + ("standalone-born -> id-remap lane" if born
+                                      else "above the watermark -> verbatim reload lane"))
+        if born:
+            rec = steps.run("rfa-born-load", "rvt.convert.rfa_load:load_rfa_into_project "
+                                             "(schema-typed id remap + rvt.famload four-registry)",
+                            lambda: RL.load_rfa_into_project(
+                                rfa_path, host_rvt, out_rvt,
+                                validate=not opts.get("no_validate")))
+        else:
+            rec = steps.run("rfa-reload", "rvt.convert.extract_family:reload_family "
+                                          "(rvt.famgen.loader four-registry component load)",
+                            lambda: EF.reload_family(rfa_path, host_rvt, out_rvt,
+                                                     validate=not opts.get("no_validate")))
     except _StepFailed:
         res.ok = False
         err = res.errors[-1] if res.errors else "reload failed"
         msg = err.split(": ", 2)[-1][:400]
-        if "host watermark" in err or "watermark" in msg:
-            res.status = "UNSUPPORTED-INPUT-FORM (standalone-born .rfa: ids below the host watermark)"
-            res.line = f"rfa -> rvt: {_STANDALONE_BORN_LINE} (loader said: {msg})"
-        else:
-            res.status = f"FAILED (rfa-reload: {msg})"
-            res.line = ("rfa -> rvt could not reload this .rfa: " + msg + " -- the "
-                        "extracted-.rfa lane reads tekton/Revit 2024-2026 family files "
-                        "whose ElemTable our codec parses (a foreign file's GraveyardRec "
-                        "footer is a named codec gap). " + _STANDALONE_BORN_LINE)
+        res.status = f"FAILED ({err.split(':', 1)[0]}: {msg})"
+        res.line = f"rfa -> rvt could not load this .rfa: {msg}. {_RFA_LANES_LINE}"
         return
+    if born:
+        rb = rec.get("rebase") or {}
+        res.caveats.append(
+            f"STANDALONE-BORN .rfa (ids from {floor} <= host watermark {wm}): loaded by "
+            f"the schema-typed id remap ({rb.get('ids_remapped_values')} ElementId values "
+            f"-> block {rb.get('block')}) + rvt.famload. The MECHANISM is viewer-certified "
+            f"({RL.CERTIFIED_BY}: a Revit-born 1,992-element .rfa on the composed base + "
+            "instance); THIS artifact is not -- it validates, certification stays with the "
+            "ledger (docs/coverage/viewer-certified.json)")
     res.files["loaded_rvt"] = _abs_repo(rec.get("out")) or out_rvt
     rep_p = out_rvt + ".load.json"
     if os.path.isfile(rep_p):
@@ -1057,9 +1107,11 @@ def _reload_rfa(res: RouteResult, rfa_path: str, out_dir: str, opts: Dict[str, A
     res.caveats.append("the family is LOADED, no instance is placed by this cell "
                        "(place with prompt+rvt 'add ...' or edit ops add-instance)")
     delivered = os.path.isfile(res.files["loaded_rvt"])
+    how = ("loaded four-registry via the id-remap lane, standalone-born" if born
+           else "reloaded four-registry")
     if delivered and rec.get("ok"):
         res.ok = True
-        res.status = (f"OK (family reloaded four-registry: host family {ids.get('host_family')}, "
+        res.status = (f"OK (family {how}: host family {ids.get('host_family')}, "
                       f"symbol {ids.get('symbol')}, +{rec.get('elements_added')} host elements; "
                       f"project validator {verdict}"
                       + (f" {n_err} errors" if n_err is not None else "") + ")")
@@ -1074,7 +1126,8 @@ def _reload_rfa(res: RouteResult, rfa_path: str, out_dir: str, opts: Dict[str, A
 
 def _r_rfa_load(res, inputs, out_dir, opts):
     """rfa[+rvt] -> rvt: famspec -> our .rfa -> loaded project (rvt.famload);
-    or a .rfa PATH -> the extracted-.rfa reload lane (rvt.famgen.loader)."""
+    or a .rfa PATH -> the verbatim reload lane (extracted .rfa) / the
+    id-remap lane (standalone-born .rfa), see :func:`_reload_rfa`."""
     from ..ifc import famfrom_ifc as FFI
     famspec, rfa_path = _read_famspec(inputs["rfa"])
     if rfa_path is not None:
