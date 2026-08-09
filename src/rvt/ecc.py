@@ -54,8 +54,65 @@ def encoded_size(nbytes: int, m: int, period: int, align: int, N: int) -> int:
     return (first * second + 7) // 8
 
 
+def _crc_planes(big: int, rounds: int, second: int, poly: int, m: int) -> list:
+    """Bit-sliced per-lane reflected CRC (init 0, no xorout), stdlib only.
+
+    ``big`` is the codeword prefix as one little-endian int: bit p belongs to
+    lane ``p % second``, round ``p // second`` -- so round r's input bit of
+    every lane is the contiguous slice ``big >> (r*second) & lane_mask``.
+    The ``m`` CRC state bits are kept as ``m`` Python ints ("planes") whose
+    bit i is lane i's state bit; one round is then a handful of big-int
+    XORs over ``second`` (<= 2047) bits instead of ``second`` scalar
+    updates.  Returns the planes: bit i of ``planes[j]`` == bit j of lane
+    i's CRC.  (Same slicing as the verify side's ``lane_syndromes``, #75.)"""
+    lane_mask = (1 << second) - 1
+    taps = [j for j in range(m) if (poly >> j) & 1]
+    c = [0] * m
+    CH = 64                                  # rounds sliced off `big` per chunk
+    chunk_bits = CH * second
+    chunk_mask = (1 << chunk_bits) - 1
+    r = 0
+    while r < rounds:
+        chunk = big & chunk_mask
+        big >>= chunk_bits
+        for _ in range(min(CH, rounds - r)):
+            fb = c[0] ^ (chunk & lane_mask)  # (state ^ in) & 1, all lanes
+            chunk >>= second
+            c = c[1:] + [0]                  # state >>= 1, all lanes
+            for j in taps:                   # state ^= poly where fb set
+                c[j] ^= fb
+        r += CH
+    return c
+
+
 def encode_block(data: bytes, params=(11, 0x500, 2047, 2)) -> bytes:
-    """Return the full encoded block (data + pad + size field + parity)."""
+    """Return the full encoded block (data + pad + size field + parity).
+
+    Lane-parallel (bit-sliced) encoder, byte-identical to the bit-at-a-time
+    reference ``_encode_block_ref`` (kept for the tests): the codeword is
+    built as one int -- data bits, zero slack, the N-bit pad-byte-count
+    field at bit ``pre - N``, then parity plane j (bit i = parity bit j of
+    lane i) at bit ``pre + j*second`` -- which is exactly CRCIO's layout
+    "parity bit j of lane i -> bit position pre + i + j*second"."""
+    m, poly, period, align = params
+    N = size_field_bits(period, align)
+    first, second = geometry(len(data), m, period, align, N)
+    rounds = first - m
+    pre = rounds * second                    # bits before the parity area
+    slack = pre - len(data) * 8 - N
+    assert slack >= 0
+    pad_field = (slack >> 3) & ((1 << N) - 1)
+    big = int.from_bytes(data, "little") | (pad_field << (pre - N))
+    shift = pre
+    for plane in _crc_planes(big, rounds, second, poly, m):
+        big |= plane << shift
+        shift += second
+    return big.to_bytes((first * second + 7) >> 3, "little")
+
+
+def _encode_block_ref(data: bytes, params=(11, 0x500, 2047, 2)) -> bytes:
+    """Reference bit-at-a-time encoder (the original CRCIO transcription);
+    ~90 ms per full page.  Kept only as the oracle for ``encode_block``."""
     m, poly, period, align = params
     N = size_field_bits(period, align)
     bits = len(data) * 8
