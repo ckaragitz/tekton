@@ -274,6 +274,66 @@ def test_END_STATE_author_2025_produces_a_2025_file(tmp_path):
                 StreamWalker(f.logical(pn), inflate=True, keep_data=False)
 
 
+def _bundled_2025_base():
+    """The certified 2025 base from BUNDLED locations (plugin/assets in git),
+    so the family/instance finish line runs in a fresh clone and in CI."""
+    from rvt.frontdoor import release_ctx as RC
+    return RC._bundled_base_of(2025) if certified_2025 else None
+
+
+@pytest.mark.skipif(_bundled_2025_base() is None,
+                    reason="no bundled certified 2025 base resolves (or 2025 "
+                           "is not a certified creation release)")
+def test_END_STATE_2025_family_and_instance_lane(tmp_path):
+    """Issue #14 finish line: ``author --prompt <panel> --target-version 2025``
+    emits a Revit-2025 file with ONE generated family LOADED four-registry and
+    ONE instance PLACED, and that file -- judged standalone under its own
+    release, no context around the judge -- validates with 0 errors, carries
+    only 2025 framing on disk, and reads four-registry coherent.  Then the
+    manifest's advertised CRUD entrypoint (``--rvt <that file> --edit``)
+    moves the placed instance and the result is still a clean 2025 file."""
+    from rvt.famload import four_registry_census
+    from rvt.partitions import StreamWalker
+    from rvt.container import open_rvt
+    from rvt.validate import validate_file
+    from rvt.frontdoor import release_ctx as RC
+
+    r = FD.author(prompt=PANEL_PROMPT, target_version=2025, no_handoff=True,
+                  out=str(tmp_path / "a"))
+    assert r.ok, r.errors
+    assert (r.manifest.get("target_version") or {}).get("status") == "match"
+    build = r.manifest.get("build") or {}
+    kinds = [c.get("kind") for c in (build.get("elements_created") or [])]
+    assert kinds.count("loaded-family") == 1, kinds
+    assert kinds.count("equipment-instance") == 1, kinds
+    out = r.files.get("combined") or r.files.get("equipment")
+    assert out and os.path.isfile(out)
+
+    def clean_2025(path):
+        assert V.detect_release(path) == 2025
+        rep = validate_file(path)                       # release-aware judge, bare
+        assert rep.ok, [f"{x.where}: {x.message}" for x in rep.errors]
+        census = four_registry_census(path)             # bare: the file's release
+        assert census["coherent"] and census["contentdocs_entries"] == 1, census
+        with open_rvt(path) as f:
+            pns = f.partition_streams()
+            with V.reading(path):
+                for pn in pns:
+                    assert not StreamWalker(f.logical(pn), inflate=True,
+                                            keep_data=False).errors
+            with pytest.raises(Exception):              # native framing refuses
+                for pn in pns:
+                    StreamWalker(f.logical(pn), inflate=True, keep_data=False)
+
+    clean_2025(out)
+    assert RC.active_release() is None
+    # the CRUD entrypoint the manifest prints, on the 2025 output (gap B)
+    e = FD.author(rvt=out, edit="move DP-1 to 3,1,0", out=str(tmp_path / "e"))
+    assert e.ok, e.errors
+    clean_2025(e.files["edited"])
+    assert RC.active_release() is None
+
+
 # ===========================================================================
 # THE RELEASE BUILD CONTEXT (rvt.frontdoor.release_ctx -- build-2025 stream)
 # ===========================================================================
