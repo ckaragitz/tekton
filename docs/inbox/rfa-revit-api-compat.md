@@ -121,6 +121,38 @@ for Autodesk's readers.  Branch: `claude/rfa-revit-api-compat-izqaum`.
 * `plugin/lib/tools/make_family.py` mirror not shipped in skills' scripts;
   if a skill later shells to it, it inherits `_ensure_standalone()`.
 
+## Iteration 2 — analysis tooling (same branch)
+
+* **`rvt_validate --family` LANDED** — the request recorded in
+  `famdoc_adoc.validate_family_file` ("the 6-line diff that would make it a
+  certified `rvt_validate --family` mode").  `rvt.validate.Validator` now
+  takes `family=` (instance-scoped stream sets, no global mutation): PartAtom
+  unframed, ProjectInformation not required; everything else identical.  The
+  CLI auto-enables it for `.rfa`/`.rft` (`--project` forces it off);
+  `skeleton.validate_family` now calls the parameter instead of patching
+  module globals.  Generated `.rfa`: family mode 0 errors; forced project
+  mode still shows exactly the two family-shape calibration findings.
+* **`tools/rvt_analyze.py` NEW** — one-shot analysis report (text + JSON)
+  for any `.rvt`/`.rfa`/`.rft`: identity (BFI, release, ours?), the file's
+  own schema signature, stream inventory, element-class census + the
+  coherence tuple + family documents (via `rvt.census`), layered validation
+  in the right mode, optional famgen provenance scan.  Read-only; works
+  from a fresh clone.
+* Tests: `tests/test_rvt_analyze.py` (5 tests, all runnable on a fresh
+  clone: bundled base + factory-generated family).  Full suite after:
+  1047 passed / 0 failed / 0 errors.
+
+### Autodesk-account question (asked by the owner this session)
+
+No Autodesk account is needed for anything the engine, the plugin, or this
+analysis tooling does — that independence is the product.  The ONE place an
+Autodesk login matters is **viewer certification** (hard rule 4): a human
+with viewer.autodesk.com access uploads staged batches
+(`tools/probe_batch.py stage` → `tools/serve_acceptance.py`) and records
+verdicts in the ledger.  I can STAGE batches from a session but must stop at
+READY — the upload is the orchestrating human's step.  APS / Design
+Automation stays off the table (decided twice; hard rule 7).
+
 ## BRANCH STATE
 
 * Branch `claude/rfa-revit-api-compat-izqaum`; all work committed and
