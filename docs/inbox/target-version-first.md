@@ -120,9 +120,10 @@ Unsupported year, still one call: *"…target 2019 requested: tekton has no cert
 | `--target-version 2019`, 1-panel prompt (full build) | 5.3 s | 0 | 2019 / 2026 / fallback / not-supported, `nearest_supported 2024`, `line` as §2, `ifc_addition` written | `.rvt` + `.ifc` both delivered; before: argparse exit 2, nothing |
 | `--handoff-only --target-version {2026,2025,2024,2019}` | ~1 s each | 0 | match ×3 / fallback (2019, IFC emitted from the intent) | — |
 | `go author --rvt <2026 output> --edit "move PP-1 to 3,4"` (tekton-edit) | 2.2 s | 0 | null / 2026 / detected, `input_release 2026`; `go.inputs[0].revit_release 2026` | edited `.rvt` written, hard gates PASSED |
-| `go rvt_edit.py assets/genesis/G_ABPD_2025.rvt info` | 0.1 s | 1 | `go.inputs[0].revit_release 2025` stated; job: `unexpected Partitions header: v=9 cls=0x391` = #70 (edit engine not release-aware) — pre-existing, now at least announced with the release | — |
+| `go rvt_edit.py assets/genesis/G_ABPD_2025.rvt info` | 0.1 s | 1 | `go.inputs[0].revit_release 2025` stated; job: `unexpected Partitions header: v=9 cls=0x391` = #70 (the id-based `rvt_edit.py` is not release-aware) — pre-existing, now at least announced with the release | — |
+| after rebasing on `main@a1bba74` (PR #91 merged mid-stream): `go author --rvt assets/genesis/G_ABPD_2025.rvt --edit "move NOPE-9 to 1,1"` and the same on `G_ABPD_2024.rvt` | ~2 s | 3 | the front door's edit route now OPENS 2025/2024 files under their own release (`release` = detected / `input_release` 2025 resp. 2024; the exit 3 is only the deliberately unknown element name) — the skills' wording was corrected to *by-name route: 2026/2025/2024; id-based `rvt_edit.py`: 2026 only (#70)* | — |
 
-¹ `tools/rvt_validate.py` on `main` reports one `FOUR-REGISTRY INCOHERENCE 6/0/0/0` on the 2025/2024 outputs (and `rvt_analyze` "coherence BROKEN") while the in-job, release-aware gate and `validate_file` inside `release_ctx.release_build_context(G_ABPD_2025)` both say VALID 0 errors on the same bytes — the known standalone-instrument false positive on non-2026 loaded content; PR #91 (#14) carries the fix, #93 the deeper one. Not caused or touched here; `this_file` quotes the in-job gate.
+¹ Measured before the rebase: `tools/rvt_validate.py` on `main@33622e3` reported one `FOUR-REGISTRY INCOHERENCE 6/0/0/0` on the 2025/2024 outputs (and `rvt_analyze` "coherence BROKEN", `provenance.py` crashed with the Partitions header error) while the in-job release-aware gate said VALID 0 errors on the same bytes — the known standalone-instrument false positive. **After rebasing on `main@a1bba74` (PR #91) the same 2025 output validates `VALID (no errors); warnings=0` standalone and `tools/provenance.py … --baseline all --streams` completes** (no baseline in a fresh clone → "unattributable", identity ours). `this_file` quotes the in-job gate either way.
 
 **Sizes (bytes) — SKILL.md is what a skill session loads eagerly; references load on demand:**
 
@@ -202,7 +203,10 @@ Round trips per creation job on the documented path: before 2 tool calls
 
 ## BRANCH STATE
 
-- Branch `cam/24-target-version-first` from `main@33622e3`; PR `Closes #24`, `Closes #123`.
+- Branch `cam/24-target-version-first` from `main@33622e3`, rebased on `main@a1bba74`
+  (one conflict: `tests/ci_shard.txt` appends — kept both); PR `Closes #24`, `Closes #123`.
+  Post-rebase gates: `sync_plugin.py --check` in sync, `validate_plugin.py` PASS, CI shard re-run
+  (numbers in the PR body).
 - Files written: `src/rvt/frontdoor/__init__.py`, `src/rvt/frontdoor/target_status.py` (new),
   `tools/frontdoor.py` (hot, the one argument), `plugin/skills/_shared/tekton_env.py` (`go.inputs`),
   `plugin/skills/tekton-author/SKILL.md`, `plugin/skills/tekton-author/references/REVIT-VERSIONS.md` (new),

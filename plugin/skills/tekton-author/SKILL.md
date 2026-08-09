@@ -121,9 +121,9 @@ caveat 3), `--handoff-only` (prompt route: only the AI-surface handoff),
   maps every board onto OUR constructors by the tagging-contract Pset join
   key (`references/TAGGING-CONTRACT.md`, `references/CATALOG-FACTS.md`).
   Worked inputs ship in `examples/`.
-- **`--rvt --edit`** edits the user's own file; its release is detected and
-  KEPT (`result.release.input_release`; today the edit engine opens Revit
-  2026 project files — an older input is reported, not mangled). Surgical
+- **`--rvt --edit`** edits the user's own file by element NAME; its release
+  is detected and KEPT (`result.release.input_release`; Revit 2026, 2025 and
+  2024 project files open under their own release). Surgical id-based
   detail: the **tekton-edit** skill.
 
 ## Honest caveats (state with the delivery, never instead of it)

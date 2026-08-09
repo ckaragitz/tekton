@@ -35,11 +35,11 @@ if a release certifies later, the same command resolves its base and
 The release is **auto-detected** from the file (`go.inputs[].revit_release`
 and `result.release.input_release`) and **kept**: an edit never up- or
 down-grades. So the only question for the user is whether *they* can open
-the input they gave you. Today the edit engine opens Revit **2026** project
-files; a 2025/2024 input is detected and reported but the edit itself
-fails with one clear line (release-aware editing is tracked as its own
-issue) — say so, hand back nothing false, offer the create route at their
-year instead.
+the input they gave you. The front door's by-name route (`go author --rvt X
+--edit "…"`) edits Revit 2026, 2025 and 2024 project files under their own
+release; the id-based `rvt_edit.py` commands open 2026 files only today and
+stop on a 2025/2024 input with one clear line (tracked as its own issue) —
+say so and switch to the by-name route; hand back nothing false.
 
 ## What to say, compactly
 

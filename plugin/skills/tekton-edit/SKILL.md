@@ -20,10 +20,12 @@ each `.rvt`/`.rfa` you pass and returns it as `go.inputs[].revit_release`
 edited file stays Revit N and opens in N and newer, never older."** Only if
 the user mentions an OLDER Revit than N is there a problem — say plainly it
 cannot open either file, and offer the create route at their year
-(**tekton-author**, `--target-version`). Honest limit today: the edit
-engine opens Revit **2026** project files; a 2025/2024 input is detected
-and reported, but the edit stops with one clear line — relay it, promise
-nothing else.
+(**tekton-author**, `--target-version`). Honest limit today: the by-name
+front-door route below (`go author --rvt … --edit …`) edits Revit 2026,
+2025 and 2024 project files under their own release; the id-based
+`rvt_edit.py` / `rvt_job.py` commands open **2026** files only — on a
+2025/2024 input they stop with one clear line (relay it, then use the
+by-name route instead).
 
 ## THE DELIVERABLE RULE (non-negotiable)
 
