@@ -368,3 +368,30 @@ is TWO units (unit 0 = the 2,054-element host/editor doc, unit 1 = the
 224-element embedded famdoc — the true minimal family inventory) + a
 ContentDocuments inline ADocument; our flat single-unit shape has no
 ContentDocuments row (accepted by load-into-project so far).
+
+## Iteration 8 — dimension-style law HOLDS; the FAMILY-UNITS LAW (round 16)
+
+**Round 16 verdict (journal 0026, probe N):** open, zoom, SELECT the panel
+body, middle-mouse PAN — all clean, zero warnings (the dimension-style law
+holds).  New crash: the Family Types ribbon button (`ID_FAMILY_TYPE`) →
+`ADialog::doModal start` → immediate 0xe06d7363, no DBG_WARN.
+
+**Diagnosis (instrumented, no desktop round needed):** the dialog formats
+every parameter value through `UnitsElem.m_units.m_formatOptionsMap`.
+Donor famdoc: **136** spec entries.  Ours: **8**, and with MISMATCHED spec
+versions — the table spoke `current-2.0.0`/`potential-2.0.0` while our
+ParamElemFamily defs declare `-1.0.0` specs.  First electrical lookup
+missed → throw at doModal.
+
+**Landed:** `src/rvt/famgen/assets/family_units.json` (the donor-measured
+136-spec table; pure unit configuration — spec/unit type ids, accuracies,
+rounding; no identity strings, verified by string scan) +
+`_apply_family_units_law` replacing the project-derived 8-entry table in
+`new_family_document`.  **Probe O** (`probe_o_units.rfa` = N + this law)
+with the owner; validator VALID 0 errors; famgen suites 87 passed / 28
+skipped.
+
+Ladder so far: viewer law (convicted round 15) → dimension-style law
+(holds round 16) → units law (probe O pending).  Each round's crash has
+been strictly LATER in the user journey: open → click → pan → select →
+Family Types dialog.

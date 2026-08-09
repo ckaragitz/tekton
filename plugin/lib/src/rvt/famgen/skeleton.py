@@ -477,6 +477,22 @@ def new_required_settings(ids, self_family_id: int) -> List[SkelElement]:
     return out
 
 
+#: the FAMILY-UNITS LAW (issue #333, desktop round 16): the Family Types
+#: dialog formats EVERY parameter value through UnitsElem.m_units --
+#: a Revit-born family carries a 136-spec m_formatOptionsMap (measured on
+#: the owner's donor; pure unit configuration, spec/unit type ids +
+#: accuracies only) where our project-derived table carried 8 entries with
+#: MISMATCHED spec versions (-2.0.0 vs the -1.0.0 our param defs declare).
+#: The first electrical lookup missed and the dialog threw at doModal.
+_FAMILY_UNITS_ASSET = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "assets", "family_units.json")
+
+
+def _apply_family_units_law(units: "SkelElement") -> None:
+    with open(_FAMILY_UNITS_ASSET, "r", encoding="utf-8") as fh:
+        units.obj["m_units"] = json.load(fh)
+
+
 def _dim_format_options(unit: str = "autodesk.unit.unit:meters-1.0.0", *,
                         symbol: str = "", accuracy: float = 1.0,
                         use_default: bool = True) -> dict:
@@ -1677,6 +1693,7 @@ def new_family_document(category, name: str, *, host: str = "none",
     units.obj["m_famId"] = fam.elem_id
     units.header["m_familyId"] = fam.elem_id
     units.kind = "registry"
+    _apply_family_units_law(units)
     doc.add(units)
     # -- the level type + reference level ------------------------------
     ltype = new_family_level_type(_alloc(ids), fam.elem_id)
