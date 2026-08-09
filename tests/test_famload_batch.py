@@ -448,11 +448,12 @@ def test_multi_family_prompt_loads_in_one_host_pass(fd_job):
     assert load["n_loaded"] == 2 and not load.get("blocker")
     assert [e["ok"] for e in load["loads"]] == [True, True]
     assert load["loads"][1]["host_watermark"] > load["loads"][0]["symbol_id"]
-    # one intermediate, not one per family
+    # one load intermediate, not one per family (stage P's identity-stamped
+    # base and the walls stage are the only other intermediates)
     stages_dir = os.path.join(r.manifest["out_dir"] if os.path.isabs(r.manifest["out_dir"])
                               else os.path.join(ROOT, r.manifest["out_dir"]), "_stages")
     rvts = sorted(f for f in os.listdir(stages_dir) if f.endswith(".rvt"))
-    assert rvts == ["stage_L_loaded.rvt", "stage_W_walls.rvt"], rvts
+    assert rvts == ["stage_L_loaded.rvt", "stage_P_identity.rvt", "stage_W_walls.rvt"], rvts
     # and the deliverable is whole: 2 rfa + 2 loaded + 2 placed + walls, VALID 0 errors
     kinds = [c["kind"] for c in build["elements_created"]]
     assert kinds.count("family(.rfa)") == 2 and kinds.count("loaded-family") == 2
