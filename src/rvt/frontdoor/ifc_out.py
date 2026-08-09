@@ -13,7 +13,10 @@ route reads back.
 The emitted file is the shape our own resolver (:mod:`rvt.ifc.intent`) is
 proven on -- the worked ``inputs/ifc/electrical-room-2500a.ifc`` dialect:
 
-* IFC4, SI metres, project -> site -> building -> one storey;
+* IFC4, SI metres, project -> site -> building -> one storey PER INTENT LEVEL
+  (building stories only; placed at the level's elevation; every product
+  contained under ITS level's storey with local z = world z - elevation, so
+  the chain composes back to the model's WORLD z);
 * ONE room-shell ``IfcBuildingElementProxy`` carrying a ``RoomInformation``
   pset and per-wall box solids named ``wall_<i>`` (world-baked
   ``IfcTriangulatedFaceSet``; the resolver re-derives centerlines);
@@ -200,15 +203,46 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
     site = w.add(f"IFCSITE({_s(_guid('site'))},{oh},'Site',$,$,{plc_site},$,$,.ELEMENT.,$,$,$,$,$)")
     plc_bld = w.add(f"IFCLOCALPLACEMENT({plc_site},{a2p})")
     bld = w.add(f"IFCBUILDING({_s(_guid('building'))},{oh},'Building',$,$,{plc_bld},$,$,.ELEMENT.,$,$,$)")
-    plc_sto = w.add(f"IFCLOCALPLACEMENT({plc_bld},{a2p})")
-    levels = list(getattr(model, "levels", None) or [])
-    lvl_name = (levels[0].get("name") if levels else None) or "Level 1"
-    lvl_elev = float((levels[0].get("elevation") if levels else 0.0) or 0.0)
-    sto = w.add(f"IFCBUILDINGSTOREY({_s(_guid('storey:' + lvl_name))},{oh},{_s(lvl_name)},"
-                f"$,$,{plc_sto},$,$,.ELEMENT.,{_f(lvl_elev)})")
+    # one IfcBuildingStorey per intent level, its placement AT the level's
+    # elevation: a product sits under ITS level's storey (Equipment.level /
+    # RoomShell.level) with local z = world z - that elevation, so the storey
+    # chain composes back to world z and `author --ifc` re-reads the levels.
+    # Only BUILDING STORIES become storeys (a read-back model also lists the
+    # source's reference datums, ``is_building_story: False``); a level-blind
+    # caller (no object carries a level: world z throughout) gets ONE storey.
+    room = getattr(model, "room", None)
+    all_levels = list(getattr(model, "levels", None) or [])
+    levels = [lv for lv in all_levels if lv.get("is_building_story") is not False] or all_levels
+    if not any(getattr(o, "level", None) for o in list(getattr(model, "equipment", None) or []) + [room]):
+        levels = levels[:1]
+    levels = levels or [{"id": "L1", "name": "Level 1", "elevation": 0.0}]
+    storeys: Dict[str, Tuple[str, str, float]] = {}     # level id -> (storey, placement, elev)
+    for i, lv in enumerate(levels):
+        lid = str(lv.get("id") or f"L{i + 1}")
+        lname = str(lv.get("name") or f"Level {i + 1}")
+        lelev = float(lv.get("elevation") or 0.0)
+        if abs(lelev) > 1e-9:
+            lorg = w.add(f"IFCCARTESIANPOINT((0.,0.,{_f(lelev)}))")
+            lax = w.add(f"IFCAXIS2PLACEMENT3D({lorg},{dirz},{dirx})")
+        else:
+            lax = a2p
+        plc_sto = w.add(f"IFCLOCALPLACEMENT({plc_bld},{lax})")
+        sto = w.add(f"IFCBUILDINGSTOREY({_s(_guid('storey:' + lid + ':' + lname))},{oh},"
+                    f"{_s(lname)},$,$,{plc_sto},$,$,.ELEMENT.,{_f(lelev)})")
+        storeys[lid] = (sto, plc_sto, lelev)
+    #: an object goes under ITS level's storey (level-less: the storey
+    #: nearest 0); its z in the model is WORLD (rvt.ifc.intent.level_elevation
+    #: contract), so the local z under the storey = world z - storey elevation
+    ground_id = min(storeys, key=lambda k: (abs(storeys[k][2]), storeys[k][2]))
+
+    def storey_for(level: Optional[str]) -> Tuple[str, str, float]:
+        """(storey, its placement, its elevation to subtract from world z)."""
+        return storeys[str(level)] if level in storeys else storeys[ground_id]
+
     w.add(f"IFCRELAGGREGATES({_s(_guid('agg:project'))},{oh},$,$,{proj},({site}))")
     w.add(f"IFCRELAGGREGATES({_s(_guid('agg:site'))},{oh},$,$,{site},({bld}))")
-    w.add(f"IFCRELAGGREGATES({_s(_guid('agg:building'))},{oh},$,$,{bld},({sto}))")
+    w.add(f"IFCRELAGGREGATES({_s(_guid('agg:building'))},{oh},$,$,{bld},"
+          f"({','.join(s for s, _p, _e in storeys.values())}))")
 
     # one shared surface style
     rgb = w.add("IFCCOLOURRGB($,0.611765,0.635294,0.639216)")
@@ -216,11 +250,11 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
     sstyle = w.add(f"IFCSURFACESTYLE('tekton_gray',.BOTH.,({rend}))")
     style = w.add(f"IFCPRESENTATIONSTYLEASSIGNMENT(({sstyle}))")
 
-    products: List[str] = []
+    products: Dict[str, List[str]] = {}                 # storey -> contained products
 
     # ---- the room shell proxy (wall_<i> box solids) ------------------------
-    room = getattr(model, "room", None)
     if room is not None and getattr(room, "walls", None):
+        sto, plc_sto, zoff = storey_for(getattr(room, "level", None))
         items: List[str] = []
         for i, wr in enumerate(room.walls, start=1):
             p0 = list(map(float, wr.p0_m))[:2]
@@ -228,7 +262,7 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
             dx, dy = p1[0] - p0[0], p1[1] - p0[1]
             ln = math.hypot(dx, dy) or 1.0
             ax, ay = dx / ln, dy / ln
-            base = float(getattr(wr, "base_m", 0.0) or 0.0)
+            base = float(getattr(wr, "base_m", 0.0) or 0.0) - zoff
             th = float(wr.thickness_m)
             items.append(_faceset(
                 w, _box_pts((p0[0] + p1[0]) / 2.0, (p0[1] + p1[1]) / 2.0, ax, ay,
@@ -241,7 +275,7 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
         rname = f"{getattr(room, 'name', None) or 'Electrical Room'} room shell"
         proxy = w.add(f"IFCBUILDINGELEMENTPROXY({_s(_guid('shell:' + rname))},{oh},"
                       f"{_s(rname)},$,$,{plc},{rep},$,$)")
-        products.append(proxy)
+        products.setdefault(sto, []).append(proxy)
         info = dict(getattr(room, "info", None) or {})
         if not info:
             clear = dict(getattr(room, "clear", None) or {})
@@ -259,7 +293,9 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
         wd = float(dims.get("w", 0.6))
         dd = float(dims.get("d", 0.3))
         hh = float(dims.get("h", 1.2))
+        sto, plc_sto, zoff = storey_for(getattr(eq, "level", None))
         ins = list(map(float, getattr(eq, "insertion_m", [0.0, 0.0, 0.0])))
+        ins[2] -= zoff                                   # world -> local under ITS storey
         fr = list(map(float, (getattr(eq, "front_normal", None) or [0.0, -1.0, 0.0])))[:2]
         fl = math.hypot(*fr) or 1.0
         fx, fy = fr[0] / fl, fr[1] / fl                 # front normal (out of the face)
@@ -296,7 +332,7 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
         name = str(getattr(eq, "name", None) or tag)
         prod = w.add(f"{cls.upper()}({_s(_guid('eq:' + tag))},{oh},{_s(name)},$,$,"
                      f"{plc},{rep},{_s(tag)},{('.' + pdt + '.') if pdt else '$'})")
-        products.append(prod)
+        products.setdefault(sto, []).append(prod)
         contract = {k: v for k, v in (getattr(eq, "contract", None) or {}).items()
                     if not str(k).startswith("_") and v not in (None, "")}
         # the feeder tree rides as FedFrom (the reader rebuilds edges from it)
@@ -314,9 +350,10 @@ def write_intent_ifc(model: Any, path: str, *, note: str = "") -> str:
         if man:
             _pset(w, oh, prod, "Pset_ManufacturerTypeInformation", man)
 
-    if products:
-        w.add(f"IFCRELCONTAINEDINSPATIALSTRUCTURE({_s(_guid('contains:storey'))},{oh},"
-              f"$,$,({','.join(products)}),{sto})")
+    for lid, (sto, _plc, _elev) in storeys.items():
+        if products.get(sto):
+            w.add(f"IFCRELCONTAINEDINSPATIALSTRUCTURE({_s(_guid('contains:storey:' + lid))},{oh},"
+                  f"$,$,({','.join(products[sto])}),{sto})")
 
     fname = os.path.basename(path)
     text = (

@@ -14,6 +14,7 @@
 #                           ifcopenshell, which is an optional dep.
 
 tests/test_frontdoor.py
+tests/test_prompt_intent.py
 tests/test_versions.py
 tests/test_steplite.py
 tests/test_plugin_sync.py

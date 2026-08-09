@@ -106,6 +106,7 @@ __all__ = [
     "compose_placement", "axis2placement3d_matrix", "identity_matrix",
     "is_identity", "analyze_product",
     "resolve_intent", "intent_to_json", "write_intent", "plan_families",
+    "level_elevation", "level_relative_z",
     "make_house_switchboard", "resolve_products",
 ]
 
@@ -929,6 +930,10 @@ class Equipment:
     elevation_m: float = 0.0
     mounting: str = "floor"
     mounting_height_m: Optional[float] = None
+    #: the intent level ('L2') this item belongs to -- an ANNOTATION: every z
+    #: here stays WORLD (see :func:`level_elevation`); the placed instance
+    #: associates to that level's datum; None => the storey nearest 0
+    level: Optional[str] = None
     position_source: str = "geometry-recovered"
     notes: List[str] = dc_field(default_factory=list)
     fed_from: Optional[str] = None
@@ -961,6 +966,7 @@ class Equipment:
             "dims_m": {k: _f(v) for k, v in self.dims_m.items()},
             "mounting": self.mounting,
             "mounting_height_m": None if self.mounting_height_m is None else _f(self.mounting_height_m),
+            "level": self.level,
             "fedFrom": self.fed_from,
             "contract": {k: v for k, v in self.contract.items()},
             "psets": self.psets,
@@ -1216,9 +1222,10 @@ class RoomShell:
     clear: Dict[str, Any] = dc_field(default_factory=dict)
     info: Dict[str, Any] = dc_field(default_factory=dict)
     notes: List[str] = dc_field(default_factory=list)
+    level: Optional[str] = None          # intent level ('L1') the shell's walls stand on (annotation; z stays world)
 
     def as_json(self) -> dict:
-        return {"name": self.name, "step_id": self.step_id,
+        return {"name": self.name, "step_id": self.step_id, "level": self.level,
                 "walls": [w.as_json() for w in self.walls],
                 "doors": [d.as_json() for d in self.doors],
                 "floor": self.floor, "housekeepingPads": self.pads,
@@ -2126,8 +2133,90 @@ def _levels(f) -> List[dict]:
     if not out:
         out.append({"id": "L1", "name": "Level 1", "elevation": 0.0,
                     "elevation_from_placement": 0.0, "step_id": None, "guid": None,
-                    "note": "no IfcBuildingStorey: default Level 1 at 0"})
+                    "default": True, "note": "no IfcBuildingStorey: default Level 1 at 0"})
     return out
+
+
+def _storey_of_products(f) -> Dict[int, int]:
+    """``{product step id: IfcBuildingStorey step id}`` from the spatial
+    containment relations; a product contained in an ``IfcSpace`` resolves
+    through the space's aggregation / containment up to its storey."""
+    parent: Dict[int, Any] = {}                        # spatial element id -> parent structure
+    for rel in f.by_type("IfcRelAggregates"):
+        whole = getattr(rel, "RelatingObject", None)
+        for part in (getattr(rel, "RelatedObjects", None) or []):
+            if whole is not None:
+                parent[part.id()] = whole
+    contained: Dict[int, Any] = {}
+    for rel in f.by_type("IfcRelContainedInSpatialStructure"):
+        struct = getattr(rel, "RelatingStructure", None)
+        for el in (getattr(rel, "RelatedElements", None) or []):
+            if struct is not None:
+                contained[el.id()] = struct
+    for sid, struct in list(contained.items()):        # spaces are contained too
+        parent.setdefault(sid, struct)
+    out: Dict[int, int] = {}
+    for pid, struct in contained.items():
+        hops = 0
+        while struct is not None and not struct.is_a("IfcBuildingStorey") and hops < 8:
+            struct = parent.get(struct.id())
+            hops += 1
+        if struct is not None and struct.is_a("IfcBuildingStorey"):
+            out[pid] = struct.id()
+    return out
+
+
+def level_elevation(levels: Optional[Sequence[dict]], level: Optional[str]) -> Optional[float]:
+    """Elevation (m) of intent level ``level`` ('L2') in ``levels``, else None.
+
+    THE Z CONTRACT: every z in the intent model is WORLD (``insertion_m[2]``,
+    ``elevation_m``, ``mounting_height_m``, wall ``base_m``); ``level`` on an
+    Equipment / RoomShell is an ANNOTATION naming the storey it belongs to.
+    The few consumers that need a level-relative z (IFC storey containment,
+    the placed instance's offset above its datum) derive it here through
+    :func:`level_relative_z` -- nobody stores one."""
+    if not level:
+        return None
+    for i, lv in enumerate(levels or []):
+        if str(lv.get("id") or f"L{i + 1}") == str(level):
+            return float(lv.get("elevation") or 0.0)
+    return None
+
+
+def level_relative_z(z_world: float, levels: Optional[Sequence[dict]],
+                     level: Optional[str]) -> float:
+    """``z_world`` measured from level ``level``'s elevation (unchanged when
+    the level is unknown / unset)."""
+    return float(z_world) - float(level_elevation(levels, level) or 0.0)
+
+
+def _assign_storeys(f, levels: List[dict], equipment: List["Equipment"],
+                    room: Optional["RoomShell"], room_prod) -> None:
+    """Annotate ``Equipment.level`` / ``RoomShell.level`` with each product's
+    containing storey (spatial containment; spaces walked up to their
+    storey).  Nothing is rebased: z stays WORLD (see :func:`level_elevation`).
+    Products with no resolvable storey keep ``level = None`` (the build lands
+    them on the datum nearest 0)."""
+    by_step = {lv.get("step_id"): lv for lv in levels if lv.get("step_id") is not None}
+    if not by_step:
+        return
+    storey_of = _storey_of_products(f)
+
+    def level_for(step_id: Optional[int]) -> Optional[dict]:
+        return by_step.get(storey_of.get(step_id)) if step_id is not None else None
+
+    for eq in equipment:
+        lv = level_for(eq.step_id)
+        if lv is not None:
+            eq.level = str(lv["id"])
+            eq.notes.append(f"level = {eq.level} ('{lv.get('name')}', storey #{lv.get('step_id')}, "
+                            f"{float(lv.get('elevation') or 0.0):g} m); z values stay world")
+    if room is not None and room_prod is not None:
+        lv = level_for(room_prod.id())
+        if lv is not None:
+            room.level = str(lv["id"])
+            room.notes.append(f"level = {room.level} ('{lv.get('name')}'): the shell's walls "
+                              "stand on its datum")
 
 
 def _length_scale(f) -> float:
@@ -2250,13 +2339,17 @@ def resolve_intent(ifc_path: str, *, plan_families_flag: bool = True) -> IntentM
     # ---- family mapping
     plans = plan_families(equipment) if plan_families_flag else []
 
+    # ---- storeys: every product's level from its spatial containment
+    levels = _levels(f)
+    _assign_storeys(f, levels, equipment, room, room_prod)
+
     # ---- audit / self-checks
     audit = _audit(equipment, room, feeders)
 
     model = IntentModel(
         source_path=os.path.abspath(ifc_path), schema=f.schema,
         project_name=(proj.Name if proj else None) or "Imported model",
-        length_scale_m=scale, levels=_levels(f), equipment=equipment,
+        length_scale_m=scale, levels=levels, equipment=equipment,
         other_products=others, room=room, clearances=clearances,
         feeders=feeders, conduit_runs=runs, family_plans=plans, audit=audit)
     model.notes += [

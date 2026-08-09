@@ -7,15 +7,20 @@ The mechanics are the ifc-room stream's PROVEN build code, reused as-is
     P  the job's PROJECT INFORMATION (rvt.frontdoor.project_info: the
        intent's identity written into the base's ProjectInfo element by the
        certified modify shape -- first, so every later file inherits it);
+    D  the intent's LEVELS bound to the base's two building-story DATUMS
+       (rvt.frontdoor.levels: rename + re-elevate, the same modify shape;
+       storeys beyond them recorded not-built, never silently dropped);
     F  our generated FAMILIES (.rfa) from the intent's family mapping
        (rvt.famgen.factory catalog products + the honest house switchboard);
     L  LOAD them onto the base (rvt.famgen.loader, four-registry, chained);
     W  the room's WALLS (rvt.mutate.add_wall on the base's own wall type,
        specimen scaffolding cloned from the certified ancestor R5; each wall
        carries an AUTHORED seq-103 GElement solid -- rvt.render.brep, the
-       W1_gabpd_wall_solid recipe -- unless ``RVT_WALL_REP=dummy``);
+       W1_gabpd_wall_solid recipe -- unless ``RVT_WALL_REP=dummy``) on the
+       room's level datum;
     E  the EQUIPMENT instances (rvt.mutate.add_family_instance onto OUR
-       loaded symbols at the intent's frames, our connector managers);
+       loaded symbols at the intent's WORLD frames, our connector managers),
+       each associated to ITS level's datum (m_assocLevelId);
     C  the feeder CIRCUITS (rvt.mep territory) -- today a NAMED BLOCKER on
        the family-free base (no circuit specimen); recorded, never faked;
     V  the gates: rvt.validate (0 errors) / four-registry census / identity
@@ -62,6 +67,7 @@ from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, Optional
 
 from . import intent as FI
+from . import levels as LV
 from . import project_info as PI
 from . import release_ctx as RC
 from .base import ResolvedBase, repo_root, resolve_specimen_source
@@ -158,6 +164,7 @@ class BuildResult:
     circuits: Dict[str, Any] = dc_field(default_factory=dict)
     status_gate: Dict[str, Any] = dc_field(default_factory=dict)
     project_info: Dict[str, Any] = dc_field(default_factory=dict)    # stage P record
+    levels: Dict[str, Any] = dc_field(default_factory=dict)          # stage D record
     degradations: List[str] = dc_field(default_factory=list)
     created: List[Dict[str, Any]] = dc_field(default_factory=list)   # created elements
     errors: List[str] = dc_field(default_factory=list)
@@ -178,6 +185,7 @@ class BuildResult:
             "families": self.families, "load": self.load,
             "validation": self.validation, "circuits": self.circuits,
             "status_gate": self.status_gate, "project_info": self.project_info,
+            "levels": self.levels,
             "degradations": list(self.degradations),
             "created": list(self.created), "errors": list(self.errors),
             "stages": list(self.stages), "seconds": self.seconds,
@@ -469,12 +477,37 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         prec = PI.stage_project_info(base_path, p_out, PI.identity_from_intent(model))
         res.stages.append(_slim_stage(prec))
     res.project_info = {**prec, "in": _relp(base_path), "out": _relp(p_out)}
-    src_base = p_out if prec["ok"] else base_path     # what L / W grow on
+    src_base = p_out if prec["ok"] else base_path     # what D / L / W grow on
     if not prec["ok"]:
         res.degradations.append("job identity NOT written into ProjectInfo: "
                                 + str(prec.get("blocker"))
                                 + " -> the output keeps the base's placeholder Project "
                                   "Information (edit it in Revit: Manage > Project Information)")
+
+    # ------------------------------------------------------------------
+    # D. the intent's levels -> the base's building-story DATUMS (rename +
+    #    re-elevate, one modify; storeys beyond them recorded; issue #147)
+    # ------------------------------------------------------------------
+    d_out = os.path.join(stages_dir, "stage_D_levels.rvt")
+    with _timed_stage(res):
+        drec = LV.stage_levels(src_base, d_out, model.levels or [],
+                               room_level=model.room.level if model.room else None)
+        res.stages.append(_slim_stage(drec))
+    res.levels = {**drec, "in": _relp(src_base), "out": _relp(d_out) if drec["written"] else None}
+    level_ids = drec["level_map"]                     # intent level id -> (base Level id, z ft)
+    room_level = drec["room_level_id"]                # the datum the room's walls stand on
+    if drec["ok"] and drec["written"]:
+        src_base = d_out
+    elif not drec["ok"]:
+        res.degradations.append("levels NOT bound to the base's story datums: "
+                                + str(drec.get("blocker"))
+                                + " -> the output keeps the base's level names / elevations "
+                                  "(equipment still associates to its storey's datum)")
+    for nb in drec["not_built"]:
+        res.degradations.append(nb["reason"])
+    for b in drec["levels"]:
+        if b.get("rename_skipped"):
+            res.degradations.append(f"level {b['id']}: {b['rename_skipped']}")
 
     # ------------------------------------------------------------------
     # F. our generated FAMILIES (.rfa) -- standalone deliverables too
@@ -573,7 +606,8 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         if want_walls:
             with _timed_stage(res):
                 wrec, wok = R.stage_walls(model, loaded_file, shell_path, specimens,
-                                          wall_mode=opts.wall_mode, wall_rep=opts.wall_rep)
+                                          level_id=room_level, wall_mode=opts.wall_mode,
+                                          wall_rep=opts.wall_rep)
                 wrec["stage"] = "W(shell)"
                 res.stages.append(_slim_stage(wrec))
             if wok:
@@ -589,7 +623,8 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         # (b) equipment = the loaded families + their PLACED instances (the
         #     open cell, isolated from the certified shell)
         with _timed_stage(res):
-            erec, eok = R.stage_equipment(model, loaded_file, equip_path, specimens, loaded)
+            erec, eok = R.stage_equipment(model, loaded_file, equip_path, specimens, loaded,
+                                          level_ids=level_ids)
             erec["stage"] = "E(equipment)"
             res.stages.append(_slim_stage(erec))
         if eok:
@@ -608,7 +643,8 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                        if (have_fams and "E" in opts.stages) else combined_path)
             with _timed_stage(res):
                 wrec, wok = R.stage_walls(model, src, wtarget, specimens,
-                                          wall_mode=opts.wall_mode, wall_rep=opts.wall_rep)
+                                          level_id=room_level, wall_mode=opts.wall_mode,
+                                          wall_rep=opts.wall_rep)
                 wrec["stage"] = "W"
                 res.stages.append(_slim_stage(wrec))
             if wok:
@@ -621,7 +657,8 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         if have_fams and "E" in opts.stages:
             src = current or loaded_file
             with _timed_stage(res):
-                erec, eok = R.stage_equipment(model, src, combined_path, specimens, loaded)
+                erec, eok = R.stage_equipment(model, src, combined_path, specimens, loaded,
+                                              level_ids=level_ids)
                 erec["stage"] = "E"
                 res.stages.append(_slim_stage(erec))
             if eok:
@@ -739,6 +776,8 @@ def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str) -> None:
                                 "elem_id": i.get("elem_id"), "symbol": i.get("symbol"),
                                 "family": i.get("family"), "equip_kind": i.get("kind"),
                                 "position_ft": i.get("position_ft"),
+                                "level": i.get("level"), "level_id": i.get("level_id"),
+                                "z_above_level_ft": i.get("z_above_level_ft"),
                                 "frame_kind": i.get("frame_kind"),
                                 "connector_slots_panel": i.get("connector_slots_panel"),
                                 "file_role": rec.get("stage")})
@@ -758,8 +797,8 @@ def _harvest_loaded_families(res: BuildResult, loaded: Dict[str, Any]) -> None:
 def _slim_stage(rec: Dict[str, Any]) -> Dict[str, Any]:
     """Keep the stage record small enough for the manifest."""
     keep = ("stage", "ok", "in", "out", "wall_mode", "wall_rep", "wall_type", "wall_type_name",
-            "level", "elemtable_before", "elemtable_after", "new_ids", "verify",
-            "structurally_valid", "seconds", "blocker", "error", "notes")
+            "level", "written", "edited_ids", "elemtable_before", "elemtable_after", "new_ids",
+            "verify", "structurally_valid", "seconds", "blocker", "error", "notes")
     out = {k: rec.get(k) for k in keep if k in rec}
     for k in ("in", "out"):
         if out.get(k):

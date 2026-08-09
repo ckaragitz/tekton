@@ -713,11 +713,56 @@ def add_to_project(prompt: str, target_path: str, out_dir: str, *,
     bbox (east side, y-centred).  ``level`` picks the target level.
     """
     from ..frontdoor import prompt_intent as PI
+    from ..ifc.intent import level_relative_z
     target = resolve_target(target_path)
     model, parsed = PI.prompt_to_intent(prompt)
+    notes: List[str] = []                 # placement.level.notes (informational)
+    degrade: List[str] = []               # honest degradations
+
+    # THE TARGET'S storey stack replaces the prompt's: the addition lands on
+    # ONE target level -- ``--level``, else the target story the prompt named
+    # ('on level 2' -> its 2nd building story), else the story nearest 0 --
+    # and every item's z is re-expressed above ITS OWN prompt storey
+    # (rvt.ifc.intent.level_relative_z: the intent carries WORLD z on the
+    # prompt's default stack) before it is lifted onto that target level.
+    item_levels = sorted({int(str(e.level or "L1")[1:] or 1) for e in model.equipment}
+                         | ({int(str(model.room.level or "L1")[1:] or 1)} if model.room else set()))
+    named = [lv for lv in item_levels if lv > 1]
+    if level in (None, "") and named:
+        stories = sorted([l for l in target.levels if l.get("is_building_story")] or target.levels,
+                         key=lambda l: float(l.get("elevation_ft", 0.0)))
+        k = named[0]
+        if k <= len(stories):
+            level = str(k)
+            notes.append(f"the prompt's 'level {k}' matched the target's building story {k}: "
+                         f"'{stories[k - 1].get('name')}' @ {float(stories[k - 1].get('elevation_ft', 0.0)):g} ft")
+        else:
+            degrade.append(f"the prompt names level {k} but the target has {len(stories)} building "
+                           "stories: placed on the story nearest 0 -- pass --level to choose")
+    if len(item_levels) > 1:
+        degrade.append(f"the prompt spreads items over levels {item_levels}; an addition lands on "
+                       "ONE target level (all items placed on it, each at its height above its "
+                       "own storey) -- run one addition per level to split them")
+    for eq in model.equipment:
+        dz = level_relative_z(0.0, model.levels, eq.level)          # = -(its storey's elevation)
+        eq.insertion_m = [float(eq.insertion_m[0]), float(eq.insertion_m[1]),
+                          float(eq.insertion_m[2]) + dz]
+        eq.elevation_m = float(eq.elevation_m) + dz
+        if eq.mounting_height_m is not None:
+            eq.mounting_height_m = float(eq.mounting_height_m) + dz
 
     # placement: translate the prompt layout (origin-centred) to the anchor
     lvl_id, lvl_elev_ft = resolve_level(target, level)
+    lvl_name = next((l.get("name") for l in target.levels if int(l["id"]) == lvl_id), None)
+    # the retargeted intent speaks the target's level from here on
+    model.levels = [{"id": "L1", "name": lvl_name or "target level",
+                     "elevation": round(lvl_elev_ft * M_PER_FT, 6), "target_level_id": lvl_id}]
+    for eq in model.equipment:
+        eq.level = "L1"
+    if model.room is not None:
+        model.room.level = "L1"
+        for wl in model.room.walls:
+            wl.base_m = round(lvl_elev_ft * M_PER_FT, 6)
     mb = model_bbox_m(model)
     if at is not None and len(at) >= 2:
         dx = float(at[0]) - (mb["x"][0] if mb else 0.0)
@@ -741,11 +786,9 @@ def add_to_project(prompt: str, target_path: str, out_dir: str, *,
                                     "stand upright at panel height; FACE-HOSTING on "
                                     "the target's walls (H1 recipe) is the fidelity "
                                     "follow-up")}
-    if any("level" in (c.get("clause") or "").lower()
-           for c in parsed.coverage.understood):
-        rec.setdefault("degradations", []).append(
-            "a level/storey clause in the prompt is recorded but NOT used for "
-            "target-level selection -- pass --level to pick the target's level")
+    rec["placement"]["level"]["name"] = lvl_name
+    rec["placement"]["level"]["notes"] = notes + degrade
+    rec.setdefault("degradations", []).extend(degrade)
     rec["intent_summary"] = FI.summarize(model)
     try:
         FI.write_intent_json(model, os.path.join(out_dir, "intent.json"))
