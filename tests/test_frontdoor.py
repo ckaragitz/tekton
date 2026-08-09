@@ -1222,3 +1222,29 @@ def test_merge_ifc_of_a_two_storey_ifc_is_world_faithful(tmp_path):
     assert set(z) == {"MSB", "LP-1", "LP-2", "LP-3", "LP-4"}, rec.get("degradations")
     assert all(abs(z[t] - 18.659) < 1e-3 for t in z if t.startswith("LP")), z
     assert abs(z["MSB"] - 0.328) < 1e-3, z
+
+
+@needs_pinned
+@needs_catalog
+@pytest.mark.parametrize("level", ["L2 - Second Floor", None])
+def test_add_to_project_lifts_prompt_gear_onto_the_target_level_once(tmp_path, level):
+    """The prompt+rvt -> rvt cell: 'add four lighting panels on level 2' into a
+    COPY of the pinned base lands LP-1..4 on the TARGET's second story
+    (245423 @ 12 ft) at 12 + 4.659 = 16.659 ft -- never 18.659 (the prompt's
+    own default 14 ft stack) nor 30.659 (both stacked).  Without --level the
+    prompt's 'level 2' picks the target's 2nd building story and says so."""
+    import shutil
+    from rvt.convert import add_to_project as A
+    tgt = str(tmp_path / "target.rvt")
+    shutil.copyfile(PINNED[2026], tgt)
+    kw = {"level": level} if level else {}
+    rec = A.add_to_project("add four lighting panels on level 2 to my project", tgt,
+                           str(tmp_path / "out"), stem="add_l2", **kw)
+    assert rec.get("deliverables"), rec.get("errors")
+    plc = rec["placement"]["level"]
+    assert (plc["id"], plc["elevation_ft"], plc["name"]) == (245423, 12.0, "L2 - Second Floor")
+    z = {c["tag"]: c["position_ft"][2] for c in rec["created"] if c["kind"] == "equipment-instance"}
+    assert set(z) == {"LP-1", "LP-2", "LP-3", "LP-4"} and all(abs(v - 16.659) < 1e-3 for v in z.values()), z
+    if level is None:
+        assert any("'level 2' matched the target's building story 2" in n for n in plc["notes"])
+    assert not any("NOT used" in d for d in rec.get("degradations", []))

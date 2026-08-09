@@ -1669,8 +1669,10 @@ def scene_brief(prompt: str, *, parsed: Optional[ParsedPrompt] = None,
                 "id": w.wall_id, "start_m": [round(x, 4) for x in w.p0_m],
                 "end_m": [round(x, 4) for x in w.p1_m],
                 "thickness_m": round(w.thickness_m, 4), "height_m": round(w.height_m, 4),
+                "base_m": round(float(w.base_m or 0.0), 4),
                 "how": "a THREE.BoxGeometry(length, height, thickness) centred on the "
-                       "centerline, base at z=0, named 'wall_<n>' inside ONE room-shell group "
+                       "centerline, base at z=base_m (the room storey's elevation), named "
+                       "'wall_<n>' inside ONE room-shell group "
                        "tagged ifcClass IFCBUILDINGELEMENTPROXY predefinedType USERDEFINED "
                        "objectType 'room shell' (or model each wall as its own IFCWALL "
                        "product -- both resolve through the front door)",

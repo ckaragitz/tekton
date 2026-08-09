@@ -333,8 +333,10 @@ shared intent model is WORLD** (`Equipment.insertion_m[2]`, `elevation_m`,
 `mounting_height_m`, `WallRun.base_m`, `RoomShell.clear['base_m']`), and
 `Equipment.level` / `RoomShell.level` are ANNOTATIONS naming the storey. ONE
 helper — `rvt.ifc.intent.level_elevation(levels, level)` /
-`level_relative_z(z, levels, level)` — serves the two consumers that need a
-level-relative z: `ifc_out` (local z under the containing storey = world −
+`level_relative_z(z, levels, level)` — is where a level-relative z is derived
+from the model (its caller: `add_to_project`, round 4); the two build-side
+consumers subtract the elevation of the storey/datum they place under, which
+they hold directly: `ifc_out` (local z under the containing storey = world −
 storey elevation, uniformly for levelled and level-less objects) and stage E's
 per-instance `z_above_level_ft` report (world − datum z). Consequences:
 `_assign_storeys` only sets `level`; `prompt_to_intent` adds the level's
@@ -352,6 +354,20 @@ test carries the numpy gate; the rvt_to_ifc "story nearest 0 not at 0" case is
 moot (ifc_out subtracts the CONTAINING storey's elevation from world z for
 level-less gear too: world 10 ft under a storey @ 9.84 → local 0.16 → composes
 back to 10).
+
+**Round 4 (re-review of `bc5eabf`).** The last product consumer per the
+audit, the `prompt+rvt → rvt` ADD cell (`add_to_project`), stacked the
+prompt's own default storey stack under the target level (LPs 30.659 ft with
+`--level`, 18.659 on 311 without). Fixed locally: each item's z is re-expressed
+above ITS OWN prompt storey through `level_relative_z` before it is lifted onto
+ONE target level; without `--level` the prompt's 'level N' picks the target's
+N-th building story ("the prompt's 'level 2' matched the target's building
+story 2: 'L2 - Second Floor' @ 12 ft"), out-of-range or multi-level spreads are
+honest degradations, and the stale "recorded but NOT used" line is gone; the
+retargeted intent's `levels` speak the target level, walls' `base_m` its
+elevation; the scene brief's walls now carry `base_m`. Evidence on a copy of
+the pinned base: LP-1..4 **16.659 ft on 245423** with `--level "L2 - Second
+Floor"` AND without it (`test_add_to_project_lifts_prompt_gear_onto_the_target_level_once[×2]`).
 
 ### Audit — every reader of `insertion_m` / `elevation_m` / `base_m` / `mounting_height_m` under `src/` and `tools/` (`grep -rnE`), world or relative, and why it is right now
 
@@ -372,7 +388,8 @@ back to 10).
 | `tools/ifc_intent.py:852-856` (`stage_equipment`) | insertion | world → `position_ft` directly; datum from the level map only for `m_assocLevelId` + the `z_above_level_ft` report | LPs 18.659 on 245423, MSB 0.328 on 311; IFC-route inputs land where main put them |
 | `tools/ifc_intent.py:1313-1314` (CLI print) | insertion, elevation | display | — |
 | `src/rvt/convert/add_to_project.py:350-351` (`model_bbox_m`) | insertion x/y | plan bbox | z not used |
-| `src/rvt/convert/add_to_project.py:384-388` (`translate_model`) | insertion, elevation | world + (dx, dy, target-level dz) | untouched; correct BECAUSE z is world again (`test_merge_ifc_of_a_two_storey_ifc_is_world_faithful`, `test_add_to_project_end_to_end`, `test_merge_ifc_end_to_end`) |
+| `src/rvt/convert/add_to_project.py:384-388` (`translate_model`) | insertion, elevation | world + (dx, dy, dz) — a pure translation | IFC callers (`merge_ifc`) pass world z straight through: `test_merge_ifc_of_a_two_storey_ifc_is_world_faithful`, `test_merge_ifc_end_to_end` |
+| `src/rvt/convert/add_to_project.py:717-760` (`add_to_project`, the prompt+rvt cell) | insertion, elevation, mounting_height, wall base_m | world on the PROMPT's stack → re-expressed above each item's own storey via `level_relative_z` → lifted onto ONE target level (`--level`, else the target story the prompt named, else nearest 0); `model.levels` then speaks the target level | round 4: LP-1..4 16.659 ft on 245423 with and without `--level` (never 18.659 / 30.659); `test_add_to_project_lifts_prompt_gear_onto_the_target_level_once` ×2, `test_add_to_project_end_to_end` |
 | `src/rvt/convert/merge_ifc.py:58` (via `translate_model`) | insertion | world | same as above; reviewer's repro = main's numbers |
 | `src/rvt/convert/rvt_to_ifc.py:257,265,479` (`_extract_walls` / `_extract_equipment`) | base_m, insertion | WRITES world (curve z / `m_Trf` origin) | unchanged from main; `level` annotated separately at `:626-648` |
 | `src/rvt/convert/rvt_to_ifc.py:710` (`roundtrip_table`) | insertion | world vs world (re-read IFC composes to world) | no false PARTIAL: both sides world (`test_convert_combo` green) |
