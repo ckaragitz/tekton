@@ -1,0 +1,259 @@
+{
+  "specVersion": "2.0",
+  "intentVersion": "2.0",
+  "generator": "rvt.ifc.intent",
+  "source": {
+    "path": "prompt:an electrical room 30 by 20 ft",
+    "schema": "prompt/spec-v2",
+    "length_scale_m_per_unit": 1.0
+  },
+  "project": {
+    "name": "Electrical Room",
+    "description": "Resolved intent (spec v2.0) from prompt:an electrical room 30 by 20 ft by rvt.ifc.intent"
+  },
+  "units": {
+    "length": "m",
+    "angle": "deg"
+  },
+  "levels": [
+    {
+      "id": "L1",
+      "name": "Level 1",
+      "elevation": 0.0,
+      "elevation_from_placement": 0.0,
+      "step_id": null,
+      "guid": null
+    }
+  ],
+  "walls": [
+    {
+      "id": "W-S",
+      "start": [
+        -4.572,
+        -3.048
+      ],
+      "end": [
+        4.572,
+        -3.048
+      ],
+      "thickness": 0.2032,
+      "height": 3.6576,
+      "type": "Room shell (from the shell proxy's wall solids)",
+      "derivedFrom": [
+        "prompt: electrical room 30 by 20 ft"
+      ],
+      "synthesized": false,
+      "openings": []
+    },
+    {
+      "id": "W-E",
+      "start": [
+        4.572,
+        -3.048
+      ],
+      "end": [
+        4.572,
+        3.048
+      ],
+      "thickness": 0.2032,
+      "height": 3.6576,
+      "type": "Room shell (from the shell proxy's wall solids)",
+      "derivedFrom": [
+        "prompt: electrical room 30 by 20 ft"
+      ],
+      "synthesized": false,
+      "openings": []
+    },
+    {
+      "id": "W-N",
+      "start": [
+        4.572,
+        3.048
+      ],
+      "end": [
+        -4.572,
+        3.048
+      ],
+      "thickness": 0.2032,
+      "height": 3.6576,
+      "type": "Room shell (from the shell proxy's wall solids)",
+      "derivedFrom": [
+        "prompt: electrical room 30 by 20 ft"
+      ],
+      "synthesized": false,
+      "openings": []
+    },
+    {
+      "id": "W-W",
+      "start": [
+        -4.572,
+        3.048
+      ],
+      "end": [
+        -4.572,
+        -3.048
+      ],
+      "thickness": 0.2032,
+      "height": 3.6576,
+      "type": "Room shell (from the shell proxy's wall solids)",
+      "derivedFrom": [
+        "prompt: electrical room 30 by 20 ft"
+      ],
+      "synthesized": false,
+      "openings": []
+    }
+  ],
+  "equipment": [],
+  "room": {
+    "name": "Electrical Room",
+    "step_id": null,
+    "walls": [
+      {
+        "id": "W-S",
+        "start": [
+          -4.572,
+          -3.048
+        ],
+        "end": [
+          4.572,
+          -3.048
+        ],
+        "length_m": 9.144,
+        "thickness": 0.2032,
+        "height": 3.6576,
+        "base_m": 0.0,
+        "synthesized": false,
+        "reason": "authored from the prompt's room dimensions (deterministic layout: closed counter-clockwise centerline ring centred at the origin, interior on the left of every wall's drawing direction)",
+        "derivedFrom": [
+          "prompt: electrical room 30 by 20 ft"
+        ],
+        "openings": [],
+        "type": "Room shell wall (from the shell proxy's wall solids)"
+      },
+      {
+        "id": "W-E",
+        "start": [
+          4.572,
+          -3.048
+        ],
+        "end": [
+          4.572,
+          3.048
+        ],
+        "length_m": 6.096,
+        "thickness": 0.2032,
+        "height": 3.6576,
+        "base_m": 0.0,
+        "synthesized": false,
+        "reason": "authored from the prompt's room dimensions (deterministic layout: closed counter-clockwise centerline ring centred at the origin, interior on the left of every wall's drawing direction)",
+        "derivedFrom": [
+          "prompt: electrical room 30 by 20 ft"
+        ],
+        "openings": [],
+        "type": "Room shell wall (from the shell proxy's wall solids)"
+      },
+      {
+        "id": "W-N",
+        "start": [
+          4.572,
+          3.048
+        ],
+        "end": [
+          -4.572,
+          3.048
+        ],
+        "length_m": 9.144,
+        "thickness": 0.2032,
+        "height": 3.6576,
+        "base_m": 0.0,
+        "synthesized": false,
+        "reason": "authored from the prompt's room dimensions (deterministic layout: closed counter-clockwise centerline ring centred at the origin, interior on the left of every wall's drawing direction)",
+        "derivedFrom": [
+          "prompt: electrical room 30 by 20 ft"
+        ],
+        "openings": [],
+        "type": "Room shell wall (from the shell proxy's wall solids)"
+      },
+      {
+        "id": "W-W",
+        "start": [
+          -4.572,
+          3.048
+        ],
+        "end": [
+          -4.572,
+          -3.048
+        ],
+        "length_m": 6.096,
+        "thickness": 0.2032,
+        "height": 3.6576,
+        "base_m": 0.0,
+        "synthesized": false,
+        "reason": "authored from the prompt's room dimensions (deterministic layout: closed counter-clockwise centerline ring centred at the origin, interior on the left of every wall's drawing direction)",
+        "derivedFrom": [
+          "prompt: electrical room 30 by 20 ft"
+        ],
+        "openings": [],
+        "type": "Room shell wall (from the shell proxy's wall solids)"
+      }
+    ],
+    "doors": [],
+    "floor": null,
+    "housekeepingPads": [],
+    "clear": {
+      "clearWidth_m": 8.9408,
+      "clearDepth_m": 5.8928,
+      "clearHeight_m": 3.6576,
+      "wall_height_m": 3.6576,
+      "base_m": 0.0,
+      "ring_ccw": true,
+      "centerline_extents_m": {
+        "x": [
+          -4.572,
+          4.572
+        ],
+        "y": [
+          -3.048,
+          3.048
+        ]
+      }
+    },
+    "roomInformation": {
+      "RoomName": "Electrical Room",
+      "ClearWidth": 9.144,
+      "ClearDepth": 6.096,
+      "ClearHeight": 3.6576,
+      "ServiceRatingA": null,
+      "ServiceVoltage": "480Y/277"
+    },
+    "notes": [
+      "prompt-authored room shell: door openings, floor slab and housekeeping pads are NOT authored from a prompt (hosting / floor streams); the walls sit on Level 1"
+    ]
+  },
+  "clearances": [],
+  "feederTree": {
+    "edges": [],
+    "conduitRuns": [],
+    "circuitPlan": [],
+    "notes": [
+      "each FedFrom edge = one feeder circuit (panel -> load) for rvt.mep add_circuit; the UTILITY service edge has no in-model circuit (the switchboard's own supply connector stays unconnected)"
+    ]
+  },
+  "familyMapping": [],
+  "otherProducts": [],
+  "audit": {
+    "source": "prompt (built-in rules-first fallback; no external model call)",
+    "equipment_with_positions": 0,
+    "positions_all_zero": null,
+    "feeder_edges": 0,
+    "family_plans": {},
+    "prompt_consumed_ratio": 0.867,
+    "prompt_ignored_words": [],
+    "equipment_inside_room_ring": "0/0"
+  },
+  "notes": [
+    "positions are AUTHORED BY THE PROMPT LAYOUT RULE (not surveyed from geometry): room centred at the origin; floor gear in a lineup along the north wall facing into the room; wall panels surface-mounted on the west/east interior faces",
+    "the tagging-contract dict per board is synthesised from the prompt through the SAME normalize_contract() the IFC route uses, so the family mapping (plan_families) is identical for both routes",
+    "PRIMARY prompt path = the documented three-d-stage handoff (PROMPT_TO_IFC.md): an AI surface builds the Three.js scene, exports IFC4 with our tagging-contract Psets, and the file re-enters through --ifc; this fallback exists so the front door WORKS with no external model call and no API key"
+  ]
+}
