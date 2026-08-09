@@ -1,0 +1,23 @@
+# CI v1 fast shard (issue #2).
+#
+# Test files that are green in a FRESH CLONE: no samples/, no extracted/, no
+# vendor/, no built ladders, no Autodesk viewer login, no ifcopenshell.
+# Target: the whole shard well under 10 minutes. The full ~1,700-test suite
+# (~25 min) must NOT run per-PR — see docs/inbox/SUITE-COORDINATION.md.
+#
+# One path per line. Blank lines and # comments ignored.
+#
+# Deliberately NOT in the shard:
+#   tests/test_router.py  — test_e2e_prompt_to_rfa needs the git-ignored
+#                           extracted/racbasicsampleproject corpus (owner
+#                           machine), and the spec->ifc cases need
+#                           ifcopenshell, which is an optional dep.
+
+tests/test_frontdoor.py
+tests/test_versions.py
+tests/test_steplite.py
+tests/test_plugin_sync.py
+tests/test_plugin_validate.py
+tests/test_bootstrap.py
+tests/test_coldstart.py
+tests/test_coord.py
