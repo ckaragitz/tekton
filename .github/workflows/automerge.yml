@@ -44,13 +44,9 @@ name: automerge
 # labels, ready-for-review, every 30 min, manual.
 
 on:
-  pull_request_target:
-    types: [labeled, ready_for_review]
-  workflow_run:
-    workflows: ["CI", "claude-review"]
-    types: [completed]
-  schedule:
-    - cron: "*/30 * * * *"
+  # steer #302: no GitHub-hosted compute. Every event/schedule trigger is off; the file is kept as the
+  # reference design and can be run by hand (workflow_dispatch) if minutes ever exist again. The live
+  # pipeline is session-hosted: docs/process/AUTONOMY.md section 12c, tools/dev/session_ci.sh.
   workflow_dispatch: {}
 
 permissions:

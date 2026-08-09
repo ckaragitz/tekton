@@ -19,9 +19,9 @@ name: requirements
 # issue exists does NOT re-file or edit the issue — discussion lives on the issue.
 
 on:
-  push:
-    branches: [main]
-    paths: ["docs/requirements/**"]
+  # steer #302: no GitHub-hosted compute. Every event/schedule trigger is off; the file is kept as the
+  # reference design and can be run by hand (workflow_dispatch) if minutes ever exist again. The live
+  # pipeline is session-hosted: docs/process/AUTONOMY.md section 12c, tools/dev/session_ci.sh.
   workflow_dispatch: {}
 
 permissions:

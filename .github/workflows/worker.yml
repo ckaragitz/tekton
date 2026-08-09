@@ -12,8 +12,9 @@ name: worker
 # Needs the same secret as claude-review.yml; without it nothing here runs.
 
 on:
-  schedule:
-    - cron: "43 */2 * * *"
+  # steer #302: no GitHub-hosted compute. Every event/schedule trigger is off; the file is kept as the
+  # reference design and can be run by hand (workflow_dispatch) if minutes ever exist again. The live
+  # pipeline is session-hosted: docs/process/AUTONOMY.md section 12c, tools/dev/session_ci.sh.
   workflow_dispatch:
     inputs:
       mode:

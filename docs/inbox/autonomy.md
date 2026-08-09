@@ -328,3 +328,49 @@ clean on every touched step; `sync_plugin.py --check` clean (probe_batch mirrors
 validate_plugin PASS; portable paths ok. First live proof is necessarily post-merge (`pull_request` /
 `issue_comment` runs use `main`'s helper; the bootstrap guard skips until then): this session posts the
 first `/batches` and records the reply on #285.
+
+## The pipeline moved onto the sessions (steer #302), same session, 2026-08-09
+
+The owner declined to fund Actions minutes or a self-hosted runner ("Not going to do any of that. Not
+paying."). Logged as steer #302; #300 closed *not planned*, #301 (minute cuts) closed as superseded.
+Design change instead of billing: GitHub stays the ledger; compute moves to the sessions.
+- `tools/dev/session_ci.sh <pr>` — the CI job as the tech-lead session runs it: head merged with
+  `origin/main` in a root-owned worktree; portable-paths (trusted checker) over the PR's file names;
+  then the PR tree EXPORTED into a box owned by `nobody`, and `sync_plugin --check`, `validate_plugin`,
+  the whole `tests/ci_shard.txt` run as `nobody` under `unshare -n` with `env -i` (no network, no
+  credentials, no access to the session's files or the trusted checkout); one JSON verdict line.
+  Two sandbox artefacts fixed on the way: the box must live under `/tmp` (every parent traversable by
+  `nobody`), and `TMPDIR` must be OUTSIDE the tree (repo-relative path logic in `probe_batch` tests).
+  With those the sandboxed shard equals the unsandboxed one test-for-test (703/703 on #299's head).
+- `tools/dev/review_brief.md` — the reviewer charter for a fresh context (subagent), same standard as
+  the old bot plus an execution rule (PR code only through the sandbox) and the "grep every consumer
+  of a changed contract" lesson; returns `✅/🟡/🛑 … VERDICT=`.
+- Merge rule: same-tick evidence only (this tick's CI pass + this tick's spawned reviewer's approve/nits
+  for the exact head), re-read the head, `merge_pull_request` squash; markers are posted for humans and
+  tools but never trusted as authorisation (one GitHub identity for all sessions). A background
+  security review of the plan drove both the sandbox and this rule.
+- Every `.github/workflows/*` is now `workflow_dispatch`-only (dispatch inputs preserved), so events
+  stop producing failed runs and e-mails; tests pin "dispatch-only + the two instruments checked in".
+Evidence, first afternoon: #299 (703 passed, 🟡) → d6019ff; #297 (755, 🟡) → c66333e; #304 (787, 🟡,
+rule-3 audit of synthetic fixtures) → 2c91fd6; #306 (789, 🟡, allowlist re-measured 41/41 by the
+reviewer's own instrument) → 5b6b5a8; #293 (822 after FIVE rounds — each round found one more consumer
+of a changed z contract until the tech lead directed a structural settlement: world z canonical,
+`level` an annotation) → f3ac44e; #308 (813, 🟡, 1-type loader ids byte-identical to main) → 109345e.
+Merges by the session identity fire the `Closes #N` linker; branch protection did not object.
+Throughput cost: ~3 min CPU per shard run + one reviewer subagent per head; merges land per tick.
+Review of this very PR (#309) by a fresh context returned 🛑 with three real holes in the first checked-in
+`session_ci.sh`, all fixed before merge: root read the PR-controlled `tests/ci_shard.txt` from the box AFTER
+sandboxed code had run there (a planted symlink exfiltrated root-only file lines into the posted summary —
+now read from the git blob on the trusted side, validated as plain `tests/*.py` paths, empty list refused,
+`--` before the paths, and the summary reduced to a pytest-shaped tally); the privileged scratch defaulted into
+world-writable `/tmp` (now `REPO/.git/session-ci`, 0700, must be an own non-symlink dir; `/tmp/tekton-ci`
+parent root-owned) and steps had no PID namespace, so a `nobody` daemon could outlive a run and prepare traps
+(now `unshare -n -m -p -f --mount-proc --kill-child` + `--bounding-set=-all --no-new-privs`; verified a
+`setsid sleep` no longer survives); and the new test imported PyYAML, which no extra declares (now textual).
+Plus: PR number validated, `origin/main` refreshed before the merge test, one run per PR (`flock`).
+
+BRANCH STATE (cam/302-session-hosted-pipeline): `.github/workflows/*.yml` (dispatch-only), `tools/dev/session_ci.sh`,
+`tools/dev/review_brief.md`, `CLAUDE.md` §4 banner, `docs/process/AUTONOMY.md` §12c, `docs/STEERING.md`
+S-2026-08-09-i, `.claude/commands/fanout.md`, `tests/test_techlead.py`, this record. Gates: `tests/test_techlead.py`
+green; portable paths ok; plugin untouched (`--check` in sync). Shipped when merged; the fresh-session hourly
+ticker with a lease is the next slice of #302.

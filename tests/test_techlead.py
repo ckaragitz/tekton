@@ -287,7 +287,7 @@ def test_fix_pass_is_dispatched_after_a_grace_window_never_inline():
     assert "-f mode=review" in am                                    # re-requests also come from the default branch
     on_block = cr.split("\non:\n", 1)[1].split("\nconcurrency:", 1)[0]
     keys = "\n".join(ln for ln in on_block.splitlines() if not ln.lstrip().startswith("#"))
-    assert "workflow_run" not in keys and "mode:" in keys
+    assert "workflow_run" not in keys and "mode:" in keys                # dispatch-only since steer #302; the mode input survives for a by-hand run
     review_job = cr.split("\n  claude-review:\n", 1)[1].split("\n  fix:\n", 1)[0]
     assert "anthropics/claude-code-action" in review_job and "Auto-fix" not in review_job and "claude-autofix attempt=${{" not in review_job
     fix_job = cr.split("\n  fix:\n", 1)[1]
@@ -445,7 +445,7 @@ def test_viewer_batch_numbers_are_reserved_server_side_and_clashes_are_judged():
                    "tools/dev/coord.py reserve", "tools/dev/coord.py batchjudge", "batch_judge_apply", "git ls-tree -r --name-only HEAD",
                    "Re-judge viewer batch numbers across open PRs", "pulls/$PR/files"):
         assert needle in cy, needle
-    assert "synchronize" not in cy.split("pull_request:")[1].split("schedule:")[0]                    # no runner per push (hourly sweep instead)
+    assert "pull_request:" not in cy.split("\non:\n", 1)[1].split("\npermissions:", 1)[0]        # dispatch-only since steer #302 (the judge runs from a session)
     assert "has_label batch-clash" in _wf("automerge.yml")
     with open(os.path.join(ROOT, ".github", "prompts", "worker.md"), encoding="utf-8") as fh:
         assert "batch-clash" in fh.read()
@@ -463,14 +463,26 @@ def test_automerge_grep_captures_survive_no_match():
     assert not bad, "grep captures without a no-match guard:\n" + "\n".join(bad)
 
 
-def test_board_triggers_stay_bounded():
-    """#64: no workflow_run fan-out and no label/assignment triggers on the board (30 runs in 3 min on day one)."""
-    on_block = _wf("board.yml").split("\non:\n", 1)[1].split("\npermissions:", 1)[0]
-    keys = "\n".join(ln for ln in on_block.splitlines() if not ln.lstrip().startswith("#"))   # trigger keys, not the prose
-    assert "workflow_run" not in keys and "labeled" not in keys and "assigned" not in keys
-    assert "*/20" in keys and "workflow_dispatch" in keys
-    for wf_name in ("automerge.yml", "techlead.yml", "worker.yml"):
-        assert "gh workflow run board.yml" in _wf(wf_name), f"{wf_name} must refresh the board itself after changing state"
+def test_workflows_are_dispatch_only_and_the_session_pipeline_is_checked_in():
+    """Steer #302: no GitHub-hosted compute — no event, schedule or workflow_run trigger may remain on any
+    workflow (each executed job billed a metered minute the owner will not fund; the quota died in a day).
+    The files stay as reference designs runnable by hand; the live pipeline is session-hosted and its two
+    instruments (sandboxed CI + the reviewer brief) must be in the repo so any fresh session can run it.
+    Parsed textually on purpose: PyYAML is not a declared test dependency."""
+    for path in sorted(glob.glob(os.path.join(WF, "*.yml"))):
+        on_block = _wf(os.path.basename(path)).split("\non:\n", 1)[1]
+        on_block = re.split(r"(?m)^(?=[a-z])", on_block, maxsplit=1)[0]                    # up to the next top-level key
+        keys = re.findall(r"(?m)^  ([a-z_]+):", on_block)                                     # 2-space-indented trigger names
+        assert keys == ["workflow_dispatch"], f"{os.path.basename(path)} still has triggers {keys}"
+    ci = os.path.join(ROOT, "tools", "dev", "session_ci.sh")
+    assert os.access(ci, os.X_OK)
+    src = open(ci, encoding="utf-8").read()
+    for needle in ("--kill-child", "setpriv --reuid=65534", "--no-new-privs", "env -i ", "git worktree add --detach",
+                   "merge --no-edit origin/main", "show HEAD:tests/ci_shard.txt", '[[ "$PR" =~ ^[0-9]+$ ]]', '"verdict"'):
+        assert needle in src, needle                       # sandbox + trusted-side shard read + merge-with-main + JSON verdict
+    brief = open(os.path.join(ROOT, "tools", "dev", "review_brief.md"), encoding="utf-8").read()
+    for needle in ("VERDICT=approve|nits|changes", "claude-review:", "session-ci:", "same tick", "--kill-child"):
+        assert needle in brief, needle
 
 
 # ───────────────────────── classify + board ─────────────────────────

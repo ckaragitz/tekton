@@ -233,6 +233,22 @@ clarity, not a ban.
 
 ## 4. How work is done here (process) — multiple humans, multiple sessions
 
+> **Regime since 2026-08-09 (steer #302, `docs/STEERING.md` S-2026-08-09-i): there is NO
+> GitHub-hosted compute.** Every `.github/workflows/*` file is `workflow_dispatch`-only (reference
+> designs); anything below that says a *bot* does something (`coord` answering `/claim`·`/next`·
+> `/batches`, `CI`, `claude-review`, `automerge`, `board`, planner/worker runs) is now done by
+> **sessions**: the tech-lead session runs each PR head's CI in a sandbox (`tools/dev/session_ci.sh`),
+> gets an independent verdict from a fresh reviewer context (`tools/dev/review_brief.md`), and
+> squash-merges through the API only with **same-tick evidence** for the exact head; PRs get no
+> GitHub check runs at all (or instantly-failed ones with `runner_id 0`) — either way they mean nothing.
+> `/batches` reservations are answered by the tech-lead session (`tools/dev/coord.py reserve`), not within
+> a minute by a bot. As an **engineer session**: claim by assigning
+> yourself through the API (after reading that nobody holds the issue) + one plain 🔒 comment; run
+> your gates locally and paste counts; after pushing, **report the head SHA to the tech-lead session**
+> and fix on the same branch when findings come back. Issue/branch/PR/record discipline below is
+> unchanged. Full description: `docs/process/AUTONOMY.md` §12c.
+
+
 Several people work here at once, each driving one or more coding
 sessions that start fresh at random times on laptops that get switched off.
 Coordination is **GitHub Issues + trunk-based git**, with this repo's record

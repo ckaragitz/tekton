@@ -254,6 +254,36 @@ at that moment by one central authority (`coord`, server-side) — never by N la
 | unlock | `/release` (posts `<!-- unlock by=… -->`), the 72 h reaper, the stuck-PR re-queue, or the merge closing the issue |
 | viewer batch numbers (#285) | the same pattern for the one campaign-global counter sessions used to race on: `/batches <k>` on any issue/PR → coord (one repo-wide concurrency group) reserves `N..N+k-1` above everything on the default branch, every earlier reservation (a marker on the one `batch-registry` issue) and every `batch_<n>.json` any open PR adds, and replies with `probe_batch.py stage --batch N` / `RVT_BATCH_FLOOR=N` (honoured by `probe_batch.next_batch_number()`, so every stager sees it); `coord.py batchjudge` runs when a PR opens / is edited and hourly in `sweep`: a PR adding a number reserved for another issue, or one an OLDER open PR also adds, gets `batch-clash` + the exact renumber range (automerge holds it; the label clears itself); the worker's rebase mode never hand-merges an add/add batch manifest |
 
+## 12c. No GitHub-hosted compute (steer #302): the pipeline is session-hosted
+
+On 2026-08-09 the Actions-based pipeline (§7) consumed the account's entire free monthly runner
+quota in about 14 hours (2,952 workflow runs, ~2,000 billed minutes — every executed job bills at
+least a whole minute), and the owner decided not to fund minutes or a self-hosted runner. Since then
+**every workflow file is `workflow_dispatch`-only** — kept as the reference design, runnable by hand,
+triggering on nothing — and the pipeline runs on the Claude sessions themselves. GitHub stays the
+ledger (issues, PRs, comments, markers, merges through the API); the compute moved:
+
+| Step | Was (§7) | Is now |
+|---|---|---|
+| CI on a PR head | `ci.yml` on a runner | the tech-lead session runs `tools/dev/session_ci.sh <pr>`: the head merged with `origin/main`, PR code executed as `nobody` with no network, a scrubbed environment and an exported tree it owns (it cannot reach the GitHub connector, git credentials or the session's files); trusted checks (portable paths) run privileged over the PR's file names only; one JSON verdict line |
+| Review | `claude-review.yml` | a fresh reviewer context spawned by the tech-lead session with `tools/dev/review_brief.md` — one that did not write the change and carries none of the authoring conversation (a subagent qualifies, also for the tech lead's own PRs: it starts from the diff and the brief, and it is told when the author is the would-be merger); it executes PR code only through the same sandbox; returns `✅/🟡/🛑` + `VERDICT=` |
+| Fix loop | bot fix pass after a grace window | single owner unchanged in spirit: the findings go to the authoring engineer session, which fixes and reports the new head; the tech lead starts a fix session from the branch only if that session is gone; every new head gets a fresh reviewer (reviews converge, they are not re-litigated) |
+| Merge | `automerge.yml` | the tech-lead session, `merge_pull_request` (squash) after re-reading that the head is unchanged, **only when in the same tick its own CI run said pass AND the reviewer it spawned said approve/nits for that exact head**; it posts both as one comment with `<!-- session-ci: … sha=… -->` + `<!-- claude-review: … sha=… -->` (the markers every tool already parses). A marker found from an earlier tick or another author is information, never authorisation — all sessions write under one GitHub identity, so comments authenticate nothing. Merges by a session identity fire GitHub's `Closes #N` linker (verified); branch protection does not require the dead checks (verified) |
+| Claims | `coord` bot (`/claim`, `/next`, single-holder) | the assignee field, set through the API by the session taking the issue after reading that nobody holds it, plus a plain lock comment; the tech-lead session is the only dispatcher of engineer sessions and evicts a second assignee on its tick; `/batches` reservations are answered by the tech-lead session with `tools/dev/coord.py reserve` over API-fetched inputs |
+| Board / planner / worker | `board.yml`, `techlead.yml`, `worker.yml` | the tech-lead loop: an hourly server-side wake into the tech-lead session (or a fresh session per fire) does the picture, the servicing, the fan-out to engineer sessions (≤ 5, disjoint territories) and the planning pass; the board issue is updated from that tick |
+
+What an **engineer session** does differently: claims by self-assigning; ignores GitHub checks
+(there are none, or instantly-failed ones with `runner_id 0` — meaningless either way); runs its gates locally and pastes counts;
+after pushing, REPORTS the head SHA to the tech-lead session instead of waiting for bots; fixes on
+the same branch when findings come back. Everything else in `CLAUDE.md` §4 (one issue = one branch =
+one PR from `main`, records, territories, hard rules) is unchanged.
+
+Cost of the model: a shard run is ~3 min of the tech-lead session's CPU per head and a review is one
+subagent per head, so merges land in batches per tick rather than continuously; six PRs went through
+it on its first afternoon (#299, #297, #304, #306, #293 after five review rounds, #308) with zero
+runner minutes and zero human clicks. If minutes ever exist again, re-enable at most a nightly `main`
+CI inside the free quota — never per-push / per-comment / per-label triggers.
+
 ## 13. Failure modes and how each heals
 
 | Failure | What happens |
@@ -277,3 +307,4 @@ at that moment by one central authority (`coord`, server-side) — never by N la
 | Planner files junk | bounded to 5/run; everything it did is in its planning note; humans steer ("stop filing X"), which outranks its judgement next pass; `bots-paused` stops it cold |
 | No Claude token / token expired | model rows go red/skipped, visible in board Health; token-free rows keep the queue, claims, board and label-path merges working; sessions plan and shepherd manually |
 | GitHub API hiccup in a sweep | every bot action is idempotent (marker comments, labels); the next run converges |
+| Actions quota exhausted / no runners (every job `runner_id 0`) | nothing depends on runners any more (§12c): sessions run CI in the sandbox, review, and merge through the API; the workflow files are dispatch-only reference designs |
