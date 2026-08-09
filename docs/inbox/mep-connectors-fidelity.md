@@ -181,3 +181,22 @@ session could not execute** (expected byte-exact: every specimen is 1-pole-loade
   byte-exact specimen test (owner machine).
 * Nothing staged for the viewer; no `.rvt`/`.rfa` committed; no ledger change; no hot
   file touched; `tekton-plugin.zip` regenerated locally, not committed.
+
+## 2026-08-09 — addition by stream #330 (review-nit sweep), not the mep-connectors voice
+
+Correction to source row **S3** above (from #323's independent review): the sentence
+"Apparent Load Phase A + Apparent Load Phase B + Apparent Load Phase C = Total Connected" is
+genuine Autodesk help text but lives on the *Current Calculations* page —
+<https://help.autodesk.com/cloudhelp/2023/ENU/Revit-MEPEng/files/GUID-2266E299-35D3-4A1A-8E76-EC17616F2C75.htm>
+— not on *About Load Calculations* (GUID-EE3F38E5…). The law itself is unchanged; only the
+attribution moves. `docs/writer/family-skeleton.md` §7 (the "unbalanced (31)" row) now cites
+the *Current Calculations* URL; the S3 row above is left as its author wrote it and should be
+read with this correction. Also from that review: `tests/test_famgen_skeleton.py::
+test_electrical_connectors_byte_exact` now additionally asserts
+`dom["m_bIsConnectorPrimary"] is True` on each of the three single-connector specimens
+(panelboard, lighting fixture, receptacle), so the factory's "first connector is primary"
+default stays pinned to Revit's own bytes; the case is `needs_rme`-gated and still self-skips
+on a fresh clone ("rme sample absent").
+BRANCH STATE: `cam/330-review-nit-sweep`; `tests/test_famgen_skeleton.py` 13 passed /
+9 skipped (samples absent) in 0.3 s on a cloud clone; the new assert executes only on the
+owner machine (samples present) — nothing else touched in famgen.
