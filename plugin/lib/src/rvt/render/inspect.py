@@ -66,7 +66,9 @@ Public API::
     ref = resolve_instance_reference(doc, row)   # instance -> its symbol's row
 
 ``source`` = a :class:`rvt.mutate.Document`, a ``.rvt`` path, or a corpus
-project name (``rstbasicsampleproject``).  CLI::
+project name (``rstbasicsampleproject``).  A path is read under the file's
+OWN release (``rvt.global_framing.enter_own_release`` -- any Revit release
+we can frame, not only the latest; restored on return).  CLI::
 
     python -m rvt.render.inspect <file.rvt|project>
         [--class SWall] [--id 493612] [--all] [--limit N] [--json out.json]
@@ -78,9 +80,11 @@ import json
 import os
 import sys
 from collections import Counter, defaultdict
+from contextlib import ExitStack
 from dataclasses import asdict, dataclass, field as dc_field
 from typing import Any, Iterable, Optional, Sequence, Union
 
+from ..global_framing import enter_own_release
 from ..mutate import Document
 
 # --- classes -----------------------------------------------------------------
@@ -165,15 +169,28 @@ class ElementGeometry:
 
 # --- source normalisation -----------------------------------------------------
 
+def _is_file_source(source: Any) -> bool:
+    """True when ``source`` names a file on disk (not a Document / corpus name)."""
+    return isinstance(source, str) and (
+        source.lower().endswith((".rvt", ".rte", ".rfa")) or os.sep in source)
+
+
 def _open(source: Union[str, "Document"]) -> Document:
     """A Document from a corpus project name, a .rvt path, or a Document."""
     if isinstance(source, Document):
         return source
     if isinstance(source, str):
-        if source.lower().endswith((".rvt", ".rte", ".rfa")) or os.sep in source:
+        if _is_file_source(source):
             return Document.from_file(source)
         return Document.load(source)
     raise TypeError(f"unsupported source {type(source)!r}")
+
+
+def _enter_release(stack: ExitStack, source: Any) -> Optional[str]:
+    """Put a file source's OWN release in force on ``stack`` (the shared
+    lenient ladder; a Document / corpus name has no file to read it from).
+    Returns the fallback sentence when the own schema did not settle it."""
+    return enter_own_release(stack, source) if _is_file_source(source) else None
 
 
 def _ptr(x: Any):
@@ -369,23 +386,26 @@ def inspect(source: Union[str, Document], *, classes: Optional[Sequence[str]] = 
     (``["SWall", "FamilyInstance"]``); neither -> EVERY host-document
     element that owns a seq-103 record.  ``host_only`` keeps to the host
     document (unit 0 = ``Global/ElemTable`` ids), excluding embedded family
-    documents; ``limit`` caps the row count.
+    documents; ``limit`` caps the row count.  A path is opened and decoded
+    under the file's own release (restored on return).
     """
-    doc = _open(source)
-    if ids:
-        want = list(ids)
-    elif classes:
-        want = []
-        for cname in classes:
-            want.extend(doc.ids_of_class(cname, host_only=host_only))
-        want = sorted(set(want))
-    else:
-        want = sorted(doc.idx[103])
-        if host_only:
-            want = [i for i in want if i in doc.et_by_id]
-    if limit:
-        want = want[:limit]
-    return [inspect_element(doc, eid) for eid in want]
+    with ExitStack() as stack:
+        _enter_release(stack, source)
+        doc = _open(source)
+        if ids:
+            want = list(ids)
+        elif classes:
+            want = []
+            for cname in classes:
+                want.extend(doc.ids_of_class(cname, host_only=host_only))
+            want = sorted(set(want))
+        else:
+            want = sorted(doc.idx[103])
+            if host_only:
+                want = [i for i in want if i in doc.et_by_id]
+        if limit:
+            want = want[:limit]
+        return [inspect_element(doc, eid) for eid in want]
 
 
 # --- reporting -------------------------------------------------------------------
@@ -546,6 +566,14 @@ def main(argv: Optional[list] = None) -> int:
             show_all = True; i += 1
         else:
             print(f"unknown arg {a!r}"); return 2
+    with ExitStack() as stack:                  # the file's own release, once
+        note = _enter_release(stack, source)
+        if note:
+            print(f"release: {note}")
+        return _report(source, classes, ids, json_out, limit, show_faces, show_all)
+
+
+def _report(source, classes, ids, json_out, limit, show_faces, show_all) -> int:
     doc = _open(source)
     if not classes and not ids and not show_all:
         # default: the classes a genesis / creation stream cares about

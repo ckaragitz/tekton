@@ -38,3 +38,4 @@ tests/test_edit_own_release.py
 tests/test_bare_family_validate.py
 tests/test_ecc_encode.py
 tests/test_revit_kit.py
+tests/test_readers_own_release.py
