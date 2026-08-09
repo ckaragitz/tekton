@@ -439,7 +439,12 @@ def _plan_family(fl: FamilyLoad, doc, host: HostContext, cursor: int) -> Tuple[L
     if lo <= host.watermark:
         raise LoaderError(f"{fl.key}: family document ids start at {lo} <= host "
                           f"watermark {host.watermark} (build above it)")
-    type_names = [str(n) for n, _v in (doc.types or [(doc.name, {})])] or [str(doc.name)]
+    # host symbol pairs for the REAL-named types only: a blank ' ' pair is the
+    # family document's own current-values row (born blank-pair-first law,
+    # kept inside the unit), never a host FamSymSurrogate/FamilySymbol and
+    # never the symbol an instance binds [corpus law: 0/36 native host rows]
+    from .famgen.loader import real_type_names
+    type_names = real_type_names(doc) or [str(doc.name)]
     plan = LoadPlan(key=fl.key, guid=guid, fam_doc_guid=str(uuid.uuid4()),
                     session_guid_hex=uuid.uuid4().hex,
                     family_name=str(doc.name), category=int(doc.category_id),
