@@ -210,9 +210,11 @@ def test_electrical_connectors_byte_exact(idx_rme, enc):
         binds = [(d["m_famParamId"], d["m_elemPropId"])
                  for c in cells for d in c["value"]["m_paramDrivenData"]]
         phases = ("m_dApparentLoadPhase1", "m_dApparentLoadPhase2", "m_dApparentLoadPhase3")
-        # every specimen is Power-Unbalanced (31): per-phase loads, m_dApparentLoad 0
+        # every specimen is Power-Unbalanced (31): per-phase loads, m_dApparentLoad 0,
+        # and -- being its family's only connector -- primary (the factory default's premise)
         assert dom["m_systemType"] == fs.ELECTRICAL_SYSTEM_POWER_UNBALANCED
         assert dom["m_dApparentLoad"] == 0.0
+        assert dom["m_bIsConnectorPrimary"] is True
         el = fs.new_electrical_connector(
             eid, famid, host_element_id=gr["m_elemId"], host_geom_tag=gr["m_geomTag"],
             location=fu["m_origin"], direction=fu["m_xVec"], u_axis=fu["m_yVec"],

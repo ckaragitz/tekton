@@ -78,7 +78,7 @@ def test_roundtrip_stream_equality(name: str) -> None:
     dst = os.path.join(OUT, name + ".rvt")
     t0 = time.time()
     layout, tread, twrite = roundtrip(src, dst)
-    problems = verify_pair(src, dst)
+    problems, _notes = verify_pair(src, dst)
     dt = time.time() - t0
     print(f"\n[{name}] {layout.file_size:,} B out, v{layout.major_version}, "
           f"{layout.num_fat_sectors} FAT/{layout.num_difat_sectors} DIFAT sectors; "

@@ -25,7 +25,7 @@ import os
 import struct
 import sys
 import time
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, NamedTuple, Optional, Tuple
 
 import olefile
 
@@ -194,9 +194,22 @@ def roundtrip(in_path: str, out_path: str) -> Tuple[CfbLayout, float, float]:
 
 # --- verification ---------------------------------------------------------------
 
-def verify_pair(orig_path: str, new_path: str) -> List[str]:
-    """Assert stream-level equality of two CFB files. Returns a list of
-    human-readable mismatch descriptions (empty list == identical content).
+class VerifyResult(NamedTuple):
+    """``problems``: real mismatches / reader rejections (empty == identical
+    content). ``notes``: informational only (e.g. the optional second reader
+    is not installed), never a difference. Truthy iff ``problems`` — so
+    ``if verify_pair(a, b):`` still means "differs"; compare ``.problems``,
+    not the result, against ``[]``."""
+    problems: List[str]
+    notes: List[str]
+
+    def __bool__(self) -> bool:
+        return bool(self.problems)
+
+
+def verify_pair(orig_path: str, new_path: str) -> VerifyResult:
+    """Assert stream-level equality of two CFB files; returns
+    ``VerifyResult(problems, notes)``.
 
     Checks: identical ordered set of paths/types, identical size + sha256 for
     every stream, identical CLSIDs, state bits and creation/modified FILETIMEs
@@ -204,6 +217,7 @@ def verify_pair(orig_path: str, new_path: str) -> List[str]:
     the strict DEFECT_INCORRECT level.
     """
     problems: List[str] = []
+    notes: List[str] = []
 
     # strict re-parse of the output first
     try:
@@ -212,7 +226,7 @@ def verify_pair(orig_path: str, new_path: str) -> List[str]:
                 problems.append(f"olefile parsing issue in output: {d}")
     except Exception as exc:  # pragma: no cover - reported, not raised
         problems.append(f"olefile could not parse output at DEFECT_INCORRECT: {exc!r}")
-        return problems
+        return VerifyResult(problems, notes)
 
     a = catalog(orig_path)
     b = catalog(new_path)
@@ -252,19 +266,28 @@ def verify_pair(orig_path: str, new_path: str) -> List[str]:
         if ra["mtime"] != rb["mtime"]:
             problems.append(f"{who}: mtime {ra['mtime']} vs {rb['mtime']}")
 
-    # cross-check with the independent 'compoundfiles' reader if available
+    # cross-check with the independent 'compoundfiles' reader if installed:
+    # its absence is a note; its refusing our output is a problem
     try:
-        problems.extend(_verify_with_compoundfiles(a, new_path))
-    except Exception as exc:                                   # reader missing etc.
-        problems.append(f"(compoundfiles cross-check skipped: {exc!r})")
-    return problems
+        second = _verify_with_compoundfiles(a, new_path)
+    except Exception as exc:                                   # noqa: BLE001
+        second = [f"compoundfiles could not read output: {exc!r}"]
+    if second is None:
+        notes.append("(compoundfiles cross-check skipped: reader not installed)")
+    else:
+        problems.extend(second)
+    return VerifyResult(problems, notes)
 
 
-def _verify_with_compoundfiles(orig_catalog: Dict[str, object], new_path: str) -> List[str]:
+def _verify_with_compoundfiles(orig_catalog: Dict[str, object],
+                               new_path: str) -> Optional[List[str]]:
     """Read the OUTPUT with the independent ``compoundfiles`` package and make
     sure it sees the same tree and stream sizes; also surface any structural
-    warnings it emits."""
+    warnings it emits. ``None`` == the package is not installed (no verdict)."""
+    import importlib.util
     import warnings
+    if importlib.util.find_spec("compoundfiles") is None:
+        return None
     from compoundfiles import CompoundFileReader           # type: ignore
 
     problems: List[str] = []
@@ -500,7 +523,7 @@ def main(argv: Optional[List[str]] = None) -> int:
           f"mini stream {layout.mini_stream_size:,} B")
     rc = 0
     if a.verify:
-        problems = verify_pair(a.input, a.output)
+        problems, notes = verify_pair(a.input, a.output)
         if problems:
             print("VERIFY: FAILED")
             for p in problems:
@@ -508,7 +531,9 @@ def main(argv: Optional[List[str]] = None) -> int:
             rc = 1
         else:
             print("VERIFY: OK (identical paths, stream bytes, CLSIDs, state bits, timestamps; "
-                  "olefile strict + compoundfiles cross-check clean)")
+                  "olefile strict clean; second-reader cross-check clean unless noted below)")
+        for n in notes:
+            print("  note: " + n)
     if a.byte_report:
         print_byte_report(byte_diff_report(a.input, a.output))
     return rc

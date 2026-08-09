@@ -90,3 +90,21 @@ Wall time: no regression (same work; one extra small file write).
   `tools/sync_plugin.py --check`, `plugin/scripts/validate_plugin.py`,
   `tools/dev/check_portable_paths.py`, and the two DONE pipelines + a bare-unzip `go author --json`.
 * Staged vs shipped: nothing viewer-facing; no ledger / genesis-audit change; no binaries.
+
+## 2026-08-09 — addition by stream #330 (review-nit sweep), not the route-json-stdout voice
+
+The three `_stage_stdout` nits from #313's review are applied in
+`src/rvt/frontdoor/router.py`: (1) `route.log` is opened at `_stage_stdout(...)` call
+time, *before* `route()` enters its stage `try`; an `OSError` there degrades `quiet` to an
+unlogged run (`io.StringIO()` sink + `res.errors` note "route.log not writable (…); stage
+output not logged") and the stage still runs, so `--json` is never worse than the human
+path; `manifest_paths["route.log"]` is set only when the file actually opened; (2) the log
+is opened `encoding="utf-8", errors="backslashreplace"` (cp1252 hardening, O2); (3) the
+docstring states the capture is `sys.stdout`-level only — a stage that shells out must
+capture its child. New test `test_quiet_route_into_readonly_dir_still_runs_its_stage`
+(synthetic stage, no catalog needed; `chmod 0555`, self-skips via `os.access` when root
+keeps the dir writable): as uid `nobody` it is 1 passed on this head and 1 failed on the
+pre-change router (`ran == []` — stage never ran), i.e. a matched pass/fail pair.
+BRANCH STATE: `cam/330-review-nit-sweep`; `tests/test_router.py -k "quiet or json or
+log"` 13 passed / 1 skipped (the read-only case, root) in 11.7 s; the same case as
+`nobody` 1 passed; not added to the CI shard (that is #102's call); mirror regenerated.
