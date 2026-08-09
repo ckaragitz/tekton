@@ -35,19 +35,30 @@ RFA = os.path.join(ROOT, "vendor", "phi-ag-rvt", "examples", "Autodesk",
                    "racbasicsamplefamily-2026.rfa")
 RME = os.path.join(ROOT, "samples", "rmebasicsampleproject.rvt")
 RAC = os.path.join(ROOT, "samples", "racbasicsampleproject.rvt")
-HAVE_SCHEMA = os.path.exists(os.path.join(
-    ROOT, "extracted", "racbasicsampleproject", "Formats__Latest.gz", "000.bin")) \
-    or os.path.exists(RFA)
 HAVE_RFA = os.path.exists(RFA)
 HAVE_RME = os.path.exists(RME)
 HAVE_RAC = os.path.exists(RAC)
 
 from rvt.famgen import skeleton as fs                     # noqa: E402
 
+
+def _have_schema() -> bool:
+    """A class schema loads: the extracted corpus blob or, on a fresh clone /
+    CI, the sha-pinned bundled base's embedded copy (load_schema's fallback)."""
+    try:
+        from rvt.schema import load_schema
+        load_schema()
+        return True
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+HAVE_SCHEMA = _have_schema()
 needs_rfa = pytest.mark.skipif(not HAVE_RFA, reason="sample .rfa absent")
 needs_rme = pytest.mark.skipif(not HAVE_RME, reason="rme sample absent")
 needs_rac = pytest.mark.skipif(not HAVE_RAC, reason="rac sample absent")
-needs_schema = pytest.mark.skipif(not HAVE_SCHEMA, reason="schema blob absent")
+needs_schema = pytest.mark.skipif(
+    not HAVE_SCHEMA, reason="no class schema (extracted corpus and bundled base both absent)")
 
 
 # ---------------------------------------------------------------------------
