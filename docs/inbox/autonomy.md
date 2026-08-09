@@ -374,3 +374,5 @@ BRANCH STATE (cam/302-session-hosted-pipeline): `.github/workflows/*.yml` (dispa
 S-2026-08-09-i, `.claude/commands/fanout.md`, `tests/test_techlead.py`, this record. Gates: `tests/test_techlead.py`
 green; portable paths ok; plugin untouched (`--check` in sync). Shipped when merged; the fresh-session hourly
 ticker with a lease is the next slice of #302.
+Merged as f0bde6a after a third review round (🟡; sandboxed shard 885 passed / 44 skipped / 3 xfailed on the final head);
+its three nits (`timeout -k`, loud abort in the brief's recipe, `[ -O "$JAIL" ]`) landed in the follow-up branch cam/302-session-ci-nits.
