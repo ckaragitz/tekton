@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import contextlib
 import importlib.util
+import io
 import json
 import os
 import re
@@ -172,17 +173,31 @@ class _StepFailed(Exception):
     pass
 
 
-@contextlib.contextmanager
 def _stage_stdout(res: RouteResult, out_dir: str, quiet: bool):
     """``quiet``: the stages' stdout streams into ``<out_dir>/route.log``
     (line-buffered: a long route can be tailed, a killed one keeps its
-    progress) and the path rides in ``res.manifest_paths``; else untouched."""
+    progress) and the path rides in ``res.manifest_paths``; else untouched.
+    The log is opened HERE, at call time (before the caller's stage ``try``):
+    an unwritable ``out_dir`` degrades to an unlogged run (in-memory sink + a
+    note in ``res.errors``), never to "route crashed" with no stage run.
+    Capture is ``sys.stdout``-level only; a stage that shells out must
+    capture its child itself."""
     if not quiet:
-        yield
-        return
+        return contextlib.nullcontext()
     log_p = os.path.join(out_dir, "route.log")
+    try:
+        fh = open(log_p, "w", buffering=1, encoding="utf-8", errors="backslashreplace")
+    except OSError as e:
+        res.errors.append(f"route.log not writable ({type(e).__name__}: {e}); "
+                          "stage output not logged")
+        return _redirect_stdout_into(io.StringIO())
     res.manifest_paths["route.log"] = log_p
-    with open(log_p, "w", buffering=1) as fh, contextlib.redirect_stdout(fh):
+    return _redirect_stdout_into(fh)
+
+
+@contextlib.contextmanager
+def _redirect_stdout_into(fh):
+    with fh, contextlib.redirect_stdout(fh):
         yield
 
 
@@ -1491,8 +1506,9 @@ def route(inputs: Dict[str, Any], output: str, **opts: Any) -> RouteResult:
     res.route = cell.route
     res.caveats.extend(cell.caveats)
 
+    capture = _stage_stdout(res, out_dir, quiet=bool(opts.get("quiet")))   # opens route.log now
     try:
-        with _stage_stdout(res, out_dir, quiet=bool(opts.get("quiet"))):
+        with capture:
             impl(res, inputs, out_dir, opts)
     except _StepFailed:
         res.ok = False

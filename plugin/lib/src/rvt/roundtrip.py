@@ -25,7 +25,7 @@ import os
 import struct
 import sys
 import time
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, NamedTuple, Optional, Tuple
 
 import olefile
 
@@ -194,9 +194,25 @@ def roundtrip(in_path: str, out_path: str) -> Tuple[CfbLayout, float, float]:
 
 # --- verification ---------------------------------------------------------------
 
-def verify_pair(orig_path: str, new_path: str) -> List[str]:
-    """Assert stream-level equality of two CFB files. Returns a list of
-    human-readable mismatch descriptions (empty list == identical content).
+class VerifyResult(NamedTuple):
+    """What :func:`verify_pair` found. ``problems`` are real mismatches or
+    reader rejections (empty == identical content); ``notes`` are purely
+    informational (e.g. the optional second reader is not installed) and never
+    indicate a difference. Unpacks as ``problems, notes = verify_pair(a, b)``;
+    truthiness follows ``problems`` alone, so ``if verify_pair(a, b):`` still
+    means "the copy differs" — but ``verify_pair(a, b) == []`` is now always
+    False: compare ``.problems`` instead."""
+    problems: List[str]
+    notes: List[str]
+
+    def __bool__(self) -> bool:
+        return bool(self.problems)
+
+
+def verify_pair(orig_path: str, new_path: str) -> VerifyResult:
+    """Assert stream-level equality of two CFB files. Returns a
+    :class:`VerifyResult` of human-readable mismatch descriptions plus
+    informational notes (``result.problems == []`` == identical content).
 
     Checks: identical ordered set of paths/types, identical size + sha256 for
     every stream, identical CLSIDs, state bits and creation/modified FILETIMEs
@@ -204,6 +220,7 @@ def verify_pair(orig_path: str, new_path: str) -> List[str]:
     the strict DEFECT_INCORRECT level.
     """
     problems: List[str] = []
+    notes: List[str] = []
 
     # strict re-parse of the output first
     try:
@@ -212,7 +229,7 @@ def verify_pair(orig_path: str, new_path: str) -> List[str]:
                 problems.append(f"olefile parsing issue in output: {d}")
     except Exception as exc:  # pragma: no cover - reported, not raised
         problems.append(f"olefile could not parse output at DEFECT_INCORRECT: {exc!r}")
-        return problems
+        return VerifyResult(problems, notes)
 
     a = catalog(orig_path)
     b = catalog(new_path)
@@ -252,12 +269,15 @@ def verify_pair(orig_path: str, new_path: str) -> List[str]:
         if ra["mtime"] != rb["mtime"]:
             problems.append(f"{who}: mtime {ra['mtime']} vs {rb['mtime']}")
 
-    # cross-check with the independent 'compoundfiles' reader if available
+    # cross-check with the independent 'compoundfiles' reader if available:
+    # its absence is a note; its refusing our output is a problem
     try:
         problems.extend(_verify_with_compoundfiles(a, new_path))
-    except Exception as exc:                                   # reader missing etc.
-        problems.append(f"(compoundfiles cross-check skipped: {exc!r})")
-    return problems
+    except ImportError as exc:
+        notes.append(f"(compoundfiles cross-check skipped: {exc!r})")
+    except Exception as exc:
+        problems.append(f"compoundfiles could not read output: {exc!r}")
+    return VerifyResult(problems, notes)
 
 
 def _verify_with_compoundfiles(orig_catalog: Dict[str, object], new_path: str) -> List[str]:
@@ -500,15 +520,18 @@ def main(argv: Optional[List[str]] = None) -> int:
           f"mini stream {layout.mini_stream_size:,} B")
     rc = 0
     if a.verify:
-        problems = verify_pair(a.input, a.output)
+        problems, notes = verify_pair(a.input, a.output)
         if problems:
             print("VERIFY: FAILED")
             for p in problems:
                 print("  - " + p)
             rc = 1
         else:
+            second = "" if notes else " + compoundfiles cross-check"
             print("VERIFY: OK (identical paths, stream bytes, CLSIDs, state bits, timestamps; "
-                  "olefile strict + compoundfiles cross-check clean)")
+                  f"olefile strict{second} clean)")
+        for n in notes:
+            print("  note: " + n)
     if a.byte_report:
         print_byte_report(byte_diff_report(a.input, a.output))
     return rc
