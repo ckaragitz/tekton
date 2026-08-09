@@ -249,8 +249,6 @@ def test_workflows_only_create_labels_the_vocabulary_owns():
 def test_merge_gate_ignores_exactly_the_bots_own_jobs():
     """A bot job's check run on a PR head (cancelled board render, coord pr-check, …) is not CI (#64).
     Both sides carry the same ignore-list; every job of every non-CI workflow must be on it."""
-    import yaml   # PyYAML ships with the CI image? no — parse job ids/names without it
-    del yaml
     for path in glob.glob(os.path.join(WF, "*.yml")):
         name = os.path.basename(path)
         if name == "ci.yml":
