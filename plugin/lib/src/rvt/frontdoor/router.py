@@ -30,7 +30,6 @@ CLI: ``tools/route.py``.  Territory: perm-matrix stream (new module).
 """
 from __future__ import annotations
 
-import contextlib
 import importlib.util
 import json
 import os
@@ -760,87 +759,90 @@ def _r_ifc_normalize(res, inputs, out_dir, opts):
                   "outside the resolved intent does not survive)")
 
 
-def _native_only_fallback(vb: Dict[str, Any], target: int, native: int, reason: str) -> None:
-    """Rewrite a resolved ``match`` block into the honest FALLBACK shape when
-    the emit itself cannot run at the target release (deliver native + line)."""
-    vb.update({"status": "fallback", "output_release": native, "pending": reason,
-               "line": (f"target {target} requested: {reason}; this file targets "
-                        f"{native} -- your Revit {target} cannot open it; the IFC "
-                        "alongside is version-agnostic (links into Revit 2019+)")})
-
-
-@contextlib.contextmanager
-def _rfa_target_scope(res: RouteResult, opts: Dict[str, Any], out_dir: str, *,
-                      model=None, source_ifc: Optional[str] = None,
-                      native_only: Optional[str] = None):
-    """``--target-version`` on the standalone FAMILY routes (issue #171).
+def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
+                    emit: Callable[[], Any], *, model=None,
+                    source_ifc: Optional[str] = None) -> Any:
+    """Run a standalone FAMILY emit at the ``--target-version`` release
+    (issue #171) and return its result.
 
     The recipient's Revit year is resolved by the front door's ONE resolver
-    (``rvt.frontdoor._resolve_base_and_version`` -- the same block the rvt
-    routes carry) and the family emit inside this scope runs in the release
-    build context of the resolved base (``release_ctx.release_build_
-    context``: framing ordinals, codec singletons, the carried-schema pin and
-    the port layer bound to that release), so a certified target yields
-    Revit-N ``.rfa``.  An uncertified / unknown year keeps today's native
-    emit and SAYS so: the resolver's one clear line rides as a caveat after
-    delivery (+ the version-agnostic IFC addition, as on the rvt path).  No
-    ``--target-version`` -> the native path byte-for-byte, only reported.
-    ``native_only`` = a reason the emit inside cannot be ported yet: a
-    non-native target then degrades the same honest way instead of failing."""
-    from . import AuthorRequest, _emit_ifc_addition, _resolve_base_and_version
+    (``rvt.frontdoor._resolve_base_and_version`` -- the very block the rvt
+    routes carry) and, for a certified non-native target, ``emit`` runs
+    inside ``release_ctx.release_build_context`` of that year's base
+    (framing ordinals, codec singletons, the carried-schema pin and the port
+    layer bound to that release), so the ``.rfa`` ARE Revit N.  If the emit
+    cannot run at that release (no port layer, a class the older schema
+    lacks), or the year is uncertified / unknown, or a wrong-release
+    ``--base`` was refused AS A BASE, the families are still DELIVERED (rule
+    1) by the native emit, and the block says so: ``status='fallback'`` /
+    ``'refused'`` + THE one clear line as a caveat after delivery + the
+    version-agnostic IFC addition (as on the rvt path).  No
+    ``--target-version`` -> today's native emit untouched, only reported."""
     from . import release_ctx as RC
-    target = opts.get("target_version")
-    req = AuthorRequest(prompt="(family route)", base=opts.get("base"),
-                        target_version=(int(target) if target is not None else None))
-    base, vb, errors = _resolve_base_and_version(req)
-    res.target_version = vb
-    if target is None:
-        yield vb                                   # today's path, untouched
-        return
-    target = int(target)
-    res.errors.extend(errors)
+    from . import target_status as TS
     native = RC.native_release()
-    guard = contextlib.nullcontext(None)
-    if vb.get("status") == "match" and base is not None:
+    target = opts.get("target_version")
+    if target is None:
+        res.target_version = {
+            "requested": None, "status": "unspecified", "output_release": native,
+            "note": (f"no --target-version given: the families target the certified "
+                     f"default release (Revit {native}); Revit cannot open a newer file "
+                     "-- ask the recipient's Revit year first")}
+        return emit()
+    from . import AuthorRequest, _emit_ifc_addition, _resolve_base_and_version
+    target = int(target)
+    base, vb, errors = _resolve_base_and_version(
+        AuthorRequest(prompt="(family route)", base=opts.get("base"), target_version=target))
+    res.target_version = vb
+    res.errors.extend(errors)
+    if vb.get("status") == "match" and base is not None and target != native:
+        n_err = len(res.errors)
         try:
-            if native_only and RC.needs_release_context(base.path):
-                raise RC.ReleaseContextError(native_only)
-            guard = RC.release_build_context(base.path)
-        except RC.ReleaseContextError as e:
-            # certified + pinned but the emit cannot run at that release here
-            # (no port layer / a native-only archetype): deliver native + line
-            _native_only_fallback(vb, target, native, str(e))
+            with RC.release_build_context(base.path) as info:
+                res.steps.append({"stage": "release-context", "ok": True, "seconds": 0.0,
+                                  "impl": "rvt.frontdoor.release_ctx:release_build_context",
+                                  "release": info["release"], "native": info["native"],
+                                  "port_layer": info["port_layer"]})
+                return emit()
+        except RouteError:
+            raise
+        except Exception as e:                                       # noqa: BLE001
+            # certified + pinned, but THIS emit cannot run at that release
+            # (missing port layer / a class the older schema lacks): degrade
+            # to the native emit + the line, never a failure (rule 1)
+            reason = "; ".join(res.errors[n_err:]) or f"{type(e).__name__}: {e}"
+            del res.errors[n_err:]
+            vb.update({"status": "fallback", "output_release": native, "pending": reason,
+                       "line": (f"target {target} requested: this family emit cannot run "
+                                f"at Revit {target} yet ({reason}); this file targets "
+                                f"{native} -- your Revit {target} cannot open it; the "
+                                "IFC alongside is version-agnostic (links into Revit "
+                                "2019+)")})
     elif vb.get("status") == "refused":
-        # a wrong-release --base is refused as a BASE; the families themselves
-        # are still delivered (rule 1) at the native release, and told so
-        vb["output_release"] = native
-        vb["line"] = (f"{vb.get('note')}; the family .rfa are delivered at Revit "
-                      f"{native} (they open in Revit {native} and newer, never older)")
+        # interim shim: a wrong-release --base is refused AS A BASE by the
+        # resolver; a family emit needs no base, so deliver native + say so
+        vb.update({"output_release": native,
+                   "line": (f"{vb.get('note')}; the family .rfa are delivered at "
+                            f"Revit {native} (open in {TS.opens_in(native)})")})
     if vb.get("line"):
         res.caveats.append(str(vb["line"]))
     _emit_ifc_addition(vb, res, out_dir, _slug(opts.get("stem") or "prompt_intent"),
                        model=model, source_ifc=source_ifc, errors=res.errors)
-    with guard as info:
-        if info:
-            res.steps.append({"stage": "release-context", "impl":
-                              "rvt.frontdoor.release_ctx:release_build_context",
-                              "release": info["release"], "native": info["native"],
-                              "port_layer": info["port_layer"], "ok": True,
-                              "seconds": 0.0})
-        yield vb
+    return emit()
 
 
-def _families_from_model(res: RouteResult, model, out_dir: str,
-                         opts: Optional[Dict[str, Any]] = None, *,
-                         source_ifc: Optional[str] = None) -> Dict[str, Any]:
+def _families_from_model(res: RouteResult, model, out_dir: str, opts: Dict[str, Any],
+                         *, source_ifc: Optional[str] = None) -> Dict[str, Any]:
     """stage_families (tools/ifc_intent.py, reused as-is) -> families/*.rfa,
     at the ``--target-version`` release when one is given (issue #171)."""
     from . import build as B
     steps = _Steps(res)
     R = B.load_ifc_room_module()
-    with _rfa_target_scope(res, opts or {}, out_dir, model=model, source_ifc=source_ifc):
-        frec = steps.run("intent->rfa", "tools/ifc_intent.py:stage_families",
-                         lambda: R.stage_families(model, out_dir))
+    frec = _emit_at_target(
+        res, opts, out_dir,
+        lambda: steps.run("intent->rfa", "tools/ifc_intent.py:stage_families",
+                          lambda: R.stage_families(model, out_dir)),
+        model=model, source_ifc=source_ifc)
     def _ab(p: str) -> str:
         return p if os.path.isabs(p) else os.path.join(repo_root(), p)
 
@@ -901,12 +903,9 @@ def _r_ifc_to_rfa(res, inputs, out_dir, opts):
     res.caveats.append("no buildable room-equipment family plan in this IFC -- "
                        "took the PRODUCT-IFC path (measured facts -> the "
                        "downlight archetype)")
-    with _rfa_target_scope(res, opts, out_dir, source_ifc=inputs["ifc"],
-                           native_only=("the PRODUCT-IFC downlight archetype is emitted "
-                                        "at the native release only today (its arc "
-                                        "geometry classes are not yet ported to older "
-                                        "schemas)")):
-        _product_rfa(res, inputs["ifc"], out_dir, opts)
+    _emit_at_target(res, opts, out_dir,
+                    lambda: _product_rfa(res, inputs["ifc"], out_dir, opts),
+                    source_ifc=inputs["ifc"])
 
 
 def _product_rfa(res: RouteResult, ifc_path: str, out_dir: str,
@@ -1355,15 +1354,13 @@ def _write_route_manifest(res: RouteResult, inputs: Dict[str, Any],
     c = res.cell or {}
     lines.append(f"* matrix cell: status **{c.get('status')}**, route "
                  f"`{res.route}`, stages: {' -> '.join(c.get('stages') or [])}")
-    tv = res.target_version or {}
+    tv = res.target_version
     if tv:
         req = tv.get("requested")
-        lines.append(f"* target version: requested "
-                     f"{('Revit ' + str(req)) if req is not None else '(not stated)'}"
-                     f" -> output Revit {tv.get('output_release')} "
-                     f"(**{tv.get('status')}**)"
-                     + (f": {tv['line']}" if tv.get("line") else
-                        (f" -- {tv['note']}" if tv.get("note") else "")))
+        asked = f"Revit {req}" if req is not None else "(not stated)"
+        tail = f": {tv['line']}" if tv.get("line") else f" -- {tv.get('note') or ''}"
+        lines.append(f"* target version: requested {asked} -> output Revit "
+                     f"{tv.get('output_release')} (**{tv.get('status')}**){tail}")
     if res.files:
         lines.append("* delivered:")
         for k, v in res.files.items():
