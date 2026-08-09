@@ -162,8 +162,12 @@ def built(tmp_path_factory):
     from rvt.mutate import Document
     assert r.ok, (r.status, r.errors)
     combined = r.manifest["build"]["files"]["combined"]["path"]
-    load_only = os.path.join(os.path.dirname(combined), "_stages", "stage_L1_pp1.rvt")
-    assert os.path.isfile(combined) and os.path.isfile(load_only)
+    # the load-only stage file is whatever the L stage record names as its
+    # final output (one file for all families since #124; repo-relative when
+    # under the repo, absolute otherwise)
+    final = r.manifest["build"]["load"]["final"]
+    load_only = final if os.path.isabs(final) else os.path.join(ROOT, final)
+    assert os.path.isfile(combined) and os.path.isfile(load_only), load_only
     instances = {k: sorted(Document.from_file(p).ids_of_class("FamilyInstance"))
                  for k, p in (("load_only", load_only), ("combined", combined))}
     return {"dir": out, "combined": combined, "load_only": load_only,
