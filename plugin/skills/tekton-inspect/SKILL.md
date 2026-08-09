@@ -10,8 +10,11 @@ tekton's QA surface: every tool here READS and REPORTS; nothing writes a
 model. `<plugin>` below means this plugin's root (the folder containing
 `.claude-plugin/`); this file is `<plugin>/skills/tekton-inspect/SKILL.md`.
 Reading any `.rvt` is version-agnostic by design (the file carries its own
-schema and we decode against it). The habit this skill teaches: **a file
-that OPENS is not a file that RENDERS — check both, report both.**
+schema and we decode against it); the file's Revit release is auto-detected
+and worth stating with every verdict ("this is a Revit N file — it opens in
+N and newer, never older"): use `go` instead of `run` below and it rides in
+the ONE JSON as `go.inputs[].revit_release`. The habit this skill teaches:
+**a file that OPENS is not a file that RENDERS — check both, report both.**
 
 ## Step 1 — readiness (ONE command, <2 s)
 

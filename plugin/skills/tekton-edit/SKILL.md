@@ -9,10 +9,21 @@ description: Edit an existing Revit .rvt file when the user asks to change, move
 Opens a real Revit project, edits existing elements in place, re-emits a
 file that still validates, and reports exactly what changed. `<plugin>`
 below means this plugin's root (the folder containing `.claude-plugin/`);
-this file is `<plugin>/skills/tekton-edit/SKILL.md`. Editing an existing
-file is version-agnostic by design: the output keeps its INPUT's Revit
-version (we never up- or down-grade), so ask the user's Revit version only
-to confirm the input file itself is one they can open.
+this file is `<plugin>/skills/tekton-edit/SKILL.md`.
+
+## Step 0 — the Revit release is DETECTED, not asked (state it every time)
+
+An edit keeps its INPUT's release — we never up- or down-grade — so there
+is no year to choose: every `go` call below auto-detects the release of
+each `.rvt`/`.rfa` you pass and returns it as `go.inputs[].revit_release`
+(+ `opens_in`). Say it with the delivery: **"your file is Revit N; the
+edited file stays Revit N and opens in N and newer, never older."** Only if
+the user mentions an OLDER Revit than N is there a problem — say plainly it
+cannot open either file, and offer the create route at their year
+(**tekton-author**, `--target-version`). Honest limit today: the edit
+engine opens Revit **2026** project files; a 2025/2024 input is detected
+and reported, but the edit stops with one clear line — relay it, promise
+nothing else.
 
 ## THE DELIVERABLE RULE (non-negotiable)
 
@@ -26,28 +37,27 @@ line naming the single blocker — with the dependents list when that is the
 blocker, so the user decides. Never substitute another format for the
 requested file.
 
-## Step 1 — readiness (ONE command, <2 s)
+## Step 1 — the edit: ONE command per job (`go` = readiness + job + one JSON)
+
+Every command runs through the same launcher — no pip install, no venv,
+no `eval`, no separate preflight, no exploratory shell; never read, probe,
+or list any Autodesk installation directory for any reason. `go` prints
+ONE JSON: `go.ready` / `go.preflight_line` (relay verbatim if NOT READY —
+it names the one thing wrong), `go.inputs` (the detected release),
+`go.exit_code`, and the script's own report (`result`, or `go.stdout` for
+text reports). `run` instead of `go` prints the bare text report. Every
+write goes to a NEW `-o` path (the input is never overwritten):
 
 ```bash
-python <plugin>/skills/tekton-edit/scripts/_bootstrap.py
-```
+# what's inside (ids + names every other command needs) + its Revit release — run this first
+python <plugin>/skills/tekton-edit/scripts/_bootstrap.py go rvt_edit.py their.rvt info
 
-`tekton: READY | …` → proceed. `NOT READY` → relay the line verbatim (it
-names the one thing wrong). No pip install, no venv, no `eval`, no task
-lists, no exploratory shell. Never read, probe, or list any Autodesk
-installation directory for any reason.
+# edits by NAME in one sentence (the front door; result.release states the kept release):
+python <plugin>/skills/tekton-edit/scripts/_bootstrap.py go author \
+    --rvt their.rvt --edit "delete DP-1 with cascade; move LP-2 to 3,4" --out out/job1
 
-## Step 2 — the edit (ONE command; its output IS your report)
-
-Every command runs through the same launcher; every write goes to a NEW
-`-o` path (the input is never overwritten):
-
-```bash
-# what's inside (ids + names every other command needs) — run this first
-python <plugin>/skills/tekton-edit/scripts/_bootstrap.py run rvt_edit.py their.rvt info
-
-# the proven single edits
-python <plugin>/skills/tekton-edit/scripts/_bootstrap.py run rvt_edit.py \
+# the proven single edits by id
+python <plugin>/skills/tekton-edit/scripts/_bootstrap.py go rvt_edit.py \
     their.rvt rename-panel --id 742670 --name "HG4" -o out/renamed.rvt
 #   … set-mark --id N --mark "P-14" | set-level --id N --elevation-ft 12.0
 #   … move --id N --to 10 4 0 --rotation-deg 90   (units: FEET; metres x 3.28084)
@@ -56,7 +66,7 @@ python <plugin>/skills/tekton-edit/scripts/_bootstrap.py run rvt_edit.py \
 #   … delete --id N [--cascade]
 
 # several edits in ONE consistent commit, set-param, or add-instance/add-circuit:
-python <plugin>/skills/tekton-edit/scripts/_bootstrap.py run rvt_job.py \
+python <plugin>/skills/tekton-edit/scripts/_bootstrap.py go rvt_job.py \
     edit their.rvt --ops out/ops.json -o out/edited.rvt
 # ops.json: {"ops":[{"op":"rename","id":581483,"name":"HG4"},
 #   {"op":"set-param","id":581483,"param_id":1234,"value":"480Y/277 V"},
@@ -67,8 +77,8 @@ python <plugin>/skills/tekton-edit/scripts/_bootstrap.py run rvt_job.py \
 # any unplannable op ABORTS the whole run (a partial edit is worse than none);
 # the runner writes out/edited.rvt.manifest.json with the gates + honest status.
 
-# the mandatory gate on every written file (exit 0 = ZERO errors):
-python <plugin>/skills/tekton-edit/scripts/_bootstrap.py run rvt_validate.py out/edited.rvt
+# the mandatory gate on every written file (exit 0 = ZERO errors; rvt_job / go author already ran it):
+python <plugin>/skills/tekton-edit/scripts/_bootstrap.py go rvt_validate.py out/edited.rvt
 ```
 
 Confirm ids with the user (from `info`) before writing. Relay the command's
@@ -94,8 +104,10 @@ which gate stopped it in one line.
 
 ## Reporting rules
 
-1. Two tiers, in order: "self-checks and validator PASS (0 errors)" first;
-   "accepted by Autodesk" only after the user opens the file and confirms.
+1. The release line first ("Revit N in, Revit N out; opens in N and newer"
+   from `go.inputs` / `result.release`), then two tiers, in order:
+   "self-checks and validator PASS (0 errors)"; "accepted by Autodesk" only
+   after the user opens the file and confirms.
 2. Known non-blocking warnings (say them, don't hide them): undecodable
    Extensible-Storage entity blobs; the reader-tolerated block-counter
    warning on creation blocks. Elements carrying ES blobs are deletable but
@@ -110,7 +122,7 @@ which gate stopped it in one line.
 
 | Path (under `skills/tekton-edit/`) | What |
 |---|---|
-| `scripts/_bootstrap.py` | readiness line · `run <script> …` launcher · `doctor` |
+| `scripts/_bootstrap.py` | `go <script|author> …` one-call dispatch (readiness + job + JSON incl. detected release) · `run <script> …` · `doctor` |
 | `scripts/rvt_edit.py` | info · deps · delete [--cascade] · rename-panel · set-mark · set-level · move · retype |
 | `scripts/rvt_job.py` | the ops/batch door (`edit in.rvt --ops ops.json -o out.rvt`) with gates + manifest |
 | `scripts/rvt_validate.py` | the mandatory 3-layer validation gate |
