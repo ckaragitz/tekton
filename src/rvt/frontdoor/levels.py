@@ -19,12 +19,14 @@ their equipment binds to the top built datum at the storey's own elevation.
 The stage runs right after stage P (base -> ``_stages/stage_D_levels.rvt``)
 so walls (W) and instances (E) grow on the re-elevated datums:
 :func:`level_map` hands them ``{intent level id: (base Level id, datum z
-ft)}`` -- ``rvt.mutate.add_wall`` reads the wall's base z from the datum,
+ft)}`` plus the ``""`` entry every unmapped item falls back to --
+``rvt.mutate.add_wall`` reads the wall's base z from the datum,
 ``stage_equipment`` adds the datum z to the item's level-relative z and sets
 ``m_assocLevelId``.  When nothing differs -- every job whose prompt / IFC
-says nothing about levels (one DEFAULTED storey, which asserts no name), or
-an intent that already matches -- no file is written, the caller keeps its
-input, and the output stays byte-identical to a build without this stage.
+says nothing about levels (no level, or one DEFAULTED storey, asserts no
+name), or an intent that already matches -- no file is written, the caller
+keeps its input, and the output stays byte-identical to a build without this
+stage.
 
 Territory: ``src/rvt/frontdoor/`` (front-door stream).
 """
@@ -32,14 +34,20 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-__all__ = ["FT_PER_M", "ELEV_TOL_FT", "bind_levels", "level_map", "stage_levels"]
+from ..ifc.intent import FT_PER_M
 
-FT_PER_M = 3.280839895013123
+__all__ = ["ELEV_TOL_FT", "story_levels", "bind_levels", "level_map", "resolve",
+           "stage_levels"]
+
 #: elevations closer than this (ft) are 'the same datum' -- no re-elevation
 ELEV_TOL_FT = 1e-6
 
+#: intent level id -> (base Level element id, datum z in ft); key ``""`` =
+#: the datum an item with no / an unknown level lands on (the first storey)
+LevelMap = Dict[str, Tuple[int, float]]
 
-def _story_levels(doc) -> List[dict]:
+
+def story_levels(doc) -> List[dict]:
     """The base's building-story datums, lowest first (every level when the
     base flags none -- a foreign base)."""
     levels = doc.levels()                                   # sorted by elevation
@@ -53,15 +61,14 @@ def bind_levels(doc, intent_levels: Sequence[dict]) -> Tuple[List[dict], List[di
     "elevation_ft", "base_id", "base_name", "base_elevation_ft", "rename",
     "move"}``; ``not_built[j]`` = an intent level with no datum left:
     ``{"id", "name", "elevation_ft", "base_id" (the top bound datum),
-    "reason"}``.  A level the intent merely DEFAULTED (``"default": True``
-    -- a prompt / IFC that said nothing about levels) asserts no name: it
-    binds to its datum and keeps the datum's own name.  An empty intent
-    binds the first storey as 'Level 1' @ 0."""
-    stories = _story_levels(doc)
+    "reason"}``.  An intent that asserts nothing about levels -- no level at
+    all, or one flagged ``"default": True`` (a prompt / IFC silent about
+    levels) -- binds the first storey and keeps the datum's own name."""
+    stories = story_levels(doc)
     if not stories:
         raise ValueError("the base carries no Level datum to bind the intent's levels to")
-    want = sorted((dict(lv) for lv in (intent_levels or [{"id": "L1", "name": "Level 1",
-                                                          "elevation": 0.0}])),
+    want = sorted((dict(lv) for lv in intent_levels or [{"id": "L1", "elevation": 0.0,
+                                                          "default": True}]),
                   key=lambda lv: float(lv.get("elevation") or 0.0))
     bound: List[dict] = []
     not_built: List[dict] = []
@@ -71,13 +78,14 @@ def bind_levels(doc, intent_levels: Sequence[dict]) -> Tuple[List[dict], List[di
         lid = str(lv.get("id") or f"L{i + 1}")
         if i < len(stories):
             st = stories[i]
+            base_elev = float(st.get("elevation_ft") or 0.0)
             if lv.get("default"):
                 name = st.get("name") or name
             bound.append({"id": lid, "name": name, "elevation_ft": elev_ft,
                           "base_id": int(st["id"]), "base_name": st.get("name"),
-                          "base_elevation_ft": float(st.get("elevation_ft") or 0.0),
+                          "base_elevation_ft": base_elev,
                           "rename": name != (st.get("name") or ""),
-                          "move": abs(elev_ft - float(st.get("elevation_ft") or 0.0)) > ELEV_TOL_FT})
+                          "move": abs(elev_ft - base_elev) > ELEV_TOL_FT})
         else:
             top = bound[-1]
             not_built.append({
@@ -91,15 +99,29 @@ def bind_levels(doc, intent_levels: Sequence[dict]) -> Tuple[List[dict], List[di
     return bound, not_built
 
 
-def level_map(bound: Sequence[dict], not_built: Sequence[dict] = ()) -> Dict[str, Tuple[int, float]]:
-    """``{intent level id: (base Level id, datum z in ft)}`` for stages W / E.
-    A not-built storey maps to the top bound datum at the storey's OWN z."""
-    out = {b["id"]: (int(b["base_id"]), float(b["elevation_ft"])) for b in bound}
+def level_map(bound: Sequence[dict], not_built: Sequence[dict] = (), *,
+              landed: bool = True) -> LevelMap:
+    """The :data:`LevelMap` for stages W / E.  ``landed=False`` (the edit did
+    not land) speaks the base's own elevations; a not-built storey maps to
+    the top bound datum at the storey's OWN z; ``""`` = the first storey."""
+    z = "elevation_ft" if landed else "base_elevation_ft"
+    out: LevelMap = {b["id"]: (int(b["base_id"]), float(b[z])) for b in bound}
     out.update({nb["id"]: (int(nb["base_id"]), float(nb["elevation_ft"])) for nb in not_built})
+    if bound:
+        out.setdefault("", out[bound[0]["id"]])
     return out
 
 
-def stage_levels(src_rvt: str, out_path: str, intent_levels: Sequence[dict]) -> Dict[str, Any]:
+def resolve(levels: Optional[LevelMap], level: Optional[str],
+            default: Tuple[Optional[int], float] = (None, 0.0)) -> Tuple[Optional[int], float]:
+    """``(Level id, datum z ft)`` for an intent ``level`` id: its own entry,
+    else the map's ``""`` fallback, else ``default`` (no map at all)."""
+    levels = levels or {}
+    return levels.get(level or "", levels.get("", default))
+
+
+def stage_levels(src_rvt: str, out_path: str, intent_levels: Sequence[dict], *,
+                 room_level: Optional[str] = None) -> Dict[str, Any]:
     """Stage D: bind ``intent_levels`` to ``src_rvt``'s story datums and
     write the renamed / re-elevated datums -> ``out_path``.
 
@@ -109,21 +131,21 @@ def stage_levels(src_rvt: str, out_path: str, intent_levels: Sequence[dict]) -> 
     re-opened and its levels decoded again, proving every name and elevation
     landed and nothing else moved (replaced records == the edited datums,
     ElemTable count unchanged).  ``rec["written"]`` is False when no datum
-    differed (no file; the caller keeps ``src_rvt``).  ``ok`` False +
-    ``blocker`` on any failure -- the caller degrades to the unedited datums
-    (``level_map`` then carries the base's own elevations), never withholds."""
+    differed (no file; the caller keeps ``src_rvt``).  ``rec["level_map"]``
+    feeds stages W / E and ``rec["room_level_id"]`` is the datum the room's
+    walls stand on (``room_level`` = the intent's ``RoomShell.level``).
+    ``ok`` False + ``blocker`` on any failure -- the caller degrades to the
+    unedited datums (the map then carries the base's own elevations), never
+    withholds."""
     from .. import manipulate as M
     from ..mutate import Document
 
     rec: Dict[str, Any] = {"stage": "D", "in": src_rvt, "out": out_path, "ok": False,
-                           "written": False, "levels": [], "not_built": [], "level_map": {}}
+                           "written": False, "levels": [], "not_built": [], "edited_ids": []}
     try:
         doc = Document.from_file(src_rvt)
         bound, not_built = bind_levels(doc, intent_levels)
         rec["levels"], rec["not_built"] = bound, not_built
-        # until the edit lands, the map speaks the base's own elevations
-        rec["level_map"] = level_map([dict(b, elevation_ft=b["base_elevation_ft"]) for b in bound],
-                                     not_built)
         plans = []
         for b in bound:
             if b["move"]:
@@ -136,32 +158,31 @@ def stage_levels(src_rvt: str, out_path: str, intent_levels: Sequence[dict]) -> 
         rec["edited_ids"] = edited
         if not plans:
             rec["ok"] = True
-            rec["level_map"] = level_map(bound, not_built)
-            return rec
-        crep = M.commit_plans(src_rvt, out_path, plans)
-        rec["written"] = True
-        rec["commit"] = {"replaced": [list(r) for r in crep.replaced],
-                         "removed_ids": list(crep.removed_ids),
-                         "elemtable_count_before": crep.elemtable_count_before,
-                         "elemtable_count_after": crep.elemtable_count_after,
-                         "watermark": crep.watermark}
-        after = {int(lv["id"]): lv for lv in Document.from_file(out_path).levels()}
-        rec["mismatch"] = {}
-        for b in bound:
-            got = after.get(b["base_id"]) or {}
-            if got.get("name") != b["name"] or abs(float(got.get("elevation_ft") or 0.0)
-                                                   - b["elevation_ft"]) > ELEV_TOL_FT:
-                rec["mismatch"][b["id"]] = {"wanted": [b["name"], b["elevation_ft"]],
-                                           "got": [got.get("name"), got.get("elevation_ft")]}
-        rec["ok"] = bool(sorted(e for _s, e in crep.replaced) == edited
-                         and all(s == 102 for s, _e in crep.replaced)
-                         and not crep.removed_ids
-                         and crep.elemtable_count_before == crep.elemtable_count_after
-                         and not rec["mismatch"])
-        if rec["ok"]:
-            rec["level_map"] = level_map(bound, not_built)
         else:
-            rec["blocker"] = "level edit did not land cleanly (see commit / mismatch)"
+            crep = M.commit_plans(src_rvt, out_path, plans)
+            rec["written"] = True
+            rec["commit"] = {"replaced": [list(r) for r in crep.replaced],
+                             "removed_ids": list(crep.removed_ids),
+                             "elemtable_count_before": crep.elemtable_count_before,
+                             "elemtable_count_after": crep.elemtable_count_after,
+                             "watermark": crep.watermark}
+            after = {int(lv["id"]): lv for lv in Document.from_file(out_path).levels()}
+            rec["mismatch"] = {}
+            for b in bound:
+                got = after.get(b["base_id"]) or {}
+                if got.get("name") != b["name"] or abs(float(got.get("elevation_ft") or 0.0)
+                                                       - b["elevation_ft"]) > ELEV_TOL_FT:
+                    rec["mismatch"][b["id"]] = {"wanted": [b["name"], b["elevation_ft"]],
+                                               "got": [got.get("name"), got.get("elevation_ft")]}
+            rec["ok"] = bool(sorted(e for _s, e in crep.replaced) == edited
+                             and all(s == 102 for s, _e in crep.replaced)
+                             and not crep.removed_ids
+                             and crep.elemtable_count_before == crep.elemtable_count_after
+                             and not rec["mismatch"])
+            if not rec["ok"]:
+                rec["blocker"] = "level edit did not land cleanly (see commit / mismatch)"
     except Exception as e:                                               # noqa: BLE001
         rec["blocker"] = f"{type(e).__name__}: {e}"
+    rec["level_map"] = level_map(rec["levels"], rec["not_built"], landed=rec["ok"])
+    rec["room_level_id"] = resolve(rec["level_map"], room_level)[0]
     return rec

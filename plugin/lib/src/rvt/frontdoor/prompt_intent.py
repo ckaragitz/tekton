@@ -81,7 +81,7 @@ class PromptError(ValueError):
 
 #: number words
 _NUM_WORDS = {
-    "a": 1, "an": 1, "one": 1, "single": 1, "two": 2, "pair": 2, "three": 3,
+    "a": 1, "an": 1, "one": 1, "single": 1, "two": 2, "pair": 2, "double": 2, "three": 3,
     "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
     "eleven": 11, "twelve": 12, "dozen": 12, "no": 0, "zero": 0,
 }
@@ -203,7 +203,9 @@ _RE_LEVEL_REF = re.compile(
     + _LEVEL_NOUN + r"\s+(?P<n>\d{1,2}|one|two|three|four|five|six|ground)\b"
     r"|(?P<o>ground|first|second|third|fourth|fifth|sixth|top|upper|\d{1,2}(?:st|nd|rd|th))[\s-]+"
     + _LEVEL_NOUN + r"\b(?![\s-]*to[\s-]*floor)"
-    r"|(?<=\bon )l(?P<l>\d{1,2})\b|(?<=\bat )l(?P<l2>\d{1,2})\b)", re.I)
+    r"|(?<=\bon |\bat )l(?P<l>\d{1,2})\b)", re.I)
+#: ordinal floor words -> storey number (US convention: first floor = ground
+#: = Level 1); 'top' / 'upper' resolve to the highest storey
 _ORDINAL_LEVEL = {"ground": 1, "first": 1, "second": 2, "third": 3, "fourth": 4,
                   "fifth": 5, "sixth": 6}
 #: and the FLOOR-TO-FLOOR height ('floor to floor 14 ft', '4.2 m storey
@@ -394,6 +396,11 @@ def _clean_num(s: str) -> float:
     return float(s.replace(",", ""))
 
 
+def _in_any(a: int, b: int, spans: Sequence[Tuple[int, int]]) -> bool:
+    """Does the half-open span ``[a, b)`` overlap any of ``spans``?"""
+    return any(a < y and x < b for x, y in spans)
+
+
 def _voltage_system_from(text: str) -> Optional[str]:
     """First voltage system in ``text`` -> canonical '480Y/277' / '208Y/120'
     / '480' / '277' (the tagging-contract label, no unit)."""
@@ -471,37 +478,37 @@ feeders feeder feeding fed feed circuit circuits circuited off out
 """.split())
 
 
-def _resolve_levels(room: Optional[PromptRoom], items: List[PromptItem],
-                    storey_count: Optional[int], level_refs: List[Dict[str, Any]],
-                    f2f_m: Optional[float], cov: PromptCoverage) -> List[dict]:
-    """The level datums the prompt implies + every item's storey number.
+def _resolve_levels(room: Optional[PromptRoom], items: List[PromptItem], n_levels: int,
+                    level_refs: List[Dict[str, Any]], f2f_m: Optional[float],
+                    cov: PromptCoverage, *, defaulted: bool) -> List[dict]:
+    """The level datums the prompt implies; sets the room's and every item's
+    storey number on the way.
 
-    Storeys = max(the storey count, every referenced level).  A level
-    reference bound to no equipment clause scopes the ROOM (its walls and
-    every unreferenced item); items default to the room's storey.  Datums sit
-    a floor-to-floor height apart (stated clause, else the room height +
+    A level reference bound to no equipment clause scopes the ROOM (its walls
+    and every unreferenced item); items default to the room's storey.  Datums
+    sit a floor-to-floor height apart (stated clause, else the room height +
     :data:`DEFAULT_FLOOR_ALLOWANCE_M`, recorded as a default).  Storeys past
     :data:`BUILT_STOREYS` stay in the intent and are recorded ``not_built``.
+    ``defaulted`` (the prompt said nothing about levels) yields ONE storey
+    flagged ``default`` -- it asserts nothing about the base's datum.
     """
-    room_refs = [r for r in level_refs if "tags" not in r]
-    numeric = [r["n"] for r in level_refs if r["n"] != "top"]
-    n_levels = max([storey_count or 1, 1] + numeric)
-    for r in level_refs:                              # 'top floor' = the highest storey
-        if r["n"] == "top":
-            r["n"] = n_levels
-    room_level = 1
-    if room_refs:
-        room_level = int(room_refs[0]["n"])
-        if len({int(r["n"]) for r in room_refs}) > 1:
-            cov.warnings.append("several room-level references (" + ", ".join(
-                repr(r["text"]) for r in room_refs) + f"): the room is placed on Level {room_level}")
+    room_refs = [r for r in level_refs if not r["tags"]]
+    room_level = room_refs[0]["n"] if room_refs else 1
+    if len({r["n"] for r in room_refs}) > 1:
+        cov.warnings.append("several room-level references (" + ", ".join(
+            repr(r["text"]) for r in room_refs) + f"): the room is placed on Level {room_level}")
     if room is not None:
         room.level = room_level
+    on_room_level = [it.tag for it in items if it.level is None]
     for it in items:
-        it.level = room_level if it.level is None else (n_levels if it.level == "top" else int(it.level))
+        if it.level is None:
+            it.level = room_level
     for r in level_refs:
-        cov.understood.append({"clause": r["text"], "as": ("equipment level" if "tags" in r else "room level"),
-                               "level": f"L{r['n']}", **({"tags": r["tags"]} if "tags" in r else {})})
+        cov.understood.append({"clause": r["text"], "level": f"L{r['n']}",
+                               **({"as": "equipment level", "tags": r["tags"]} if r["tags"]
+                                  else {"as": "room level"})})
+    if defaulted:
+        return [{"id": "L1", "name": "Level 1", "elevation": 0.0, "default": True}]
     h = room.height_m if room and room.height_m else DEFAULT_ROOM_HEIGHT_M
     step = f2f_m if f2f_m is not None else round(h + DEFAULT_FLOOR_ALLOWANCE_M, 4)
     if n_levels > 1:
@@ -509,15 +516,10 @@ def _resolve_levels(room: Optional[PromptRoom], items: List[PromptItem],
             cov.defaults_applied.append(
                 f"floor-to-floor height: {step} m = room height {h} m + {DEFAULT_FLOOR_ALLOWANCE_M} m "
                 "(2 ft) of structure -- say 'floor to floor N ft' to set it")
-        on_room_level = [it.tag for it in items if not any(it.tag in r.get("tags", ()) for r in level_refs)]
         if on_room_level:
             cov.defaults_applied.append(
                 f"{', '.join(on_room_level)}: placed on Level {room_level} (the room's level; say "
                 "'<equipment> on level N' to place an item elsewhere)")
-    if storey_count is None and not level_refs:
-        # the prompt said nothing about levels: ONE defaulted storey that
-        # asserts nothing about the base's datum (the build leaves it as is)
-        return [{"id": "L1", "name": "Level 1", "elevation": 0.0, "default": True}]
     if n_levels > BUILT_STOREYS:
         beyond = ", ".join(f"Level {i}" for i in range(BUILT_STOREYS + 1, n_levels + 1))
         cov.not_built.append({
@@ -566,9 +568,8 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     f2f_m: Optional[float] = None
     if m_f2f:
         mark(m_f2f.span())
-        fv, fu = ((m_f2f.group("f"), m_f2f.group("u")) if m_f2f.group("f")
-                  else (m_f2f.group("f2"), m_f2f.group("u2")))
-        f2f_m = round(_to_metres(_clean_num(fv), fu), 4)
+        f2f_m = round(_to_metres(_clean_num(m_f2f.group("f") or m_f2f.group("f2")),
+                                 m_f2f.group("u") or m_f2f.group("u2")), 4)
         cov.understood.append({"clause": m_f2f.group(0), "as": "floor-to-floor height",
                                "height_m": f2f_m})
     if m_room or m_dims:
@@ -603,7 +604,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                 "(30 x 20 ft) DEFAULT room shell -- the room was named with no "
                 "dimensions; say 'W by D ft' to size it")
         m_h = next((m for m in _RE_HEIGHT.finditer(text)
-                    if not (m_f2f and m.start() < m_f2f.end() and m_f2f.start() < m.end())), None)
+                    if not (m_f2f and _in_any(m.start(), m.end(), [m_f2f.span()]))), None)
         room.floor_to_floor_m = f2f_m
         if m_h:
             mark(m_h.span())
@@ -700,31 +701,31 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     storey_count: Optional[int] = None
     storey_spans: List[Tuple[int, int]] = []
     for sm in _RE_STOREYS.finditer(text):
-        raw = sm.group("n").lower()
-        n = {"single": 1, "double": 2}.get(raw) or _num_word(raw) or 0
+        n = _num_word(sm.group("n")) or 0
         if n <= 0:
             continue
         mark(sm.span())
         storey_spans.append(sm.span())
         storey_count = max(storey_count or 0, n)
         cov.understood.append({"clause": sm.group(0), "as": "storeys", "count": n})
-    level_refs: List[Dict[str, Any]] = []            # {"span", "text", "n" (int | 'top')}
+    #: {"span", "text", "n" (storey number), "tags" (the equipment bound to
+    #: it in section 2; empty = a ROOM-scope reference)}
+    level_refs: List[Dict[str, Any]] = []
     not_a_ref = storey_spans + ([m_f2f.span()] if m_f2f else [])   # 'floor 14' in 'floor to floor 14 ft'
     for lm in _RE_LEVEL_REF.finditer(text):
-        if any(a < lm.end() and lm.start() < b for a, b in not_a_ref):
+        if _in_any(lm.start(), lm.end(), not_a_ref):
             continue
-        if lm.group("n"):
-            raw = lm.group("n").lower()
-            n: Any = 1 if raw == "ground" else (_num_word(raw) or int(raw))
-        elif lm.group("o"):
-            raw = lm.group("o").lower()
-            n = (_ORDINAL_LEVEL.get(raw) or ("top" if raw in ("top", "upper") else int(raw[:-2])))
-        else:
-            n = int(lm.group("l") or lm.group("l2"))
-        if n != "top" and n <= 0:
+        raw = (lm.group("n") or lm.group("o") or lm.group("l")).lower()
+        n = (0 if raw in ("top", "upper")                 # the highest storey, resolved below
+             else _ORDINAL_LEVEL.get(raw) or _num_word(raw[:-2] if raw[:-2].isdigit() else raw) or 0)
+        if n <= 0 and raw not in ("top", "upper"):
             continue
         mark(lm.span())
-        level_refs.append({"span": lm.span(), "text": lm.group(0).strip(), "n": n})
+        level_refs.append({"span": lm.span(), "text": lm.group(0).strip(), "n": n, "tags": []})
+    # storeys = max(the count, every referenced level); 'top floor' = that
+    n_levels = max([storey_count or 1] + [r["n"] for r in level_refs])
+    for r in level_refs:
+        r["n"] = r["n"] or n_levels
     room_taken += storey_spans + [r["span"] for r in level_refs]
 
     # ------------------------------------------------------------------
@@ -902,10 +903,10 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             it.spaces = int(spaces.group(1)) if spaces else None
             it.mounting = mounting
             it.sections = int(sections.group(1)) if sections else None
-            it.level = item_level            # int | 'top' | None (resolved in section 4)
+            it.level = item_level            # None -> the room's level (section 4)
             items.append(it)
         if item_ref is not None:
-            item_ref.setdefault("tags", []).extend(x.tag for x in items[-cnt:])
+            item_ref["tags"] += [x.tag for x in items[-cnt:]]
         taken.append((km.start(), km.end()))
         mark((km.start(), km.end()))
         if tag_span is not None:
@@ -966,7 +967,8 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # ------------------------------------------------------------------
     # 4. levels
     # ------------------------------------------------------------------
-    levels = _resolve_levels(room, items, storey_count, level_refs, f2f_m, cov)
+    levels = _resolve_levels(room, items, n_levels, level_refs, f2f_m, cov,
+                             defaulted=storey_count is None and not level_refs)
 
     # ------------------------------------------------------------------
     # 5. feeders / circuits
@@ -1202,59 +1204,64 @@ def layout_room(parsed: ParsedPrompt) -> None:
     W, D, T = room.width_m, room.depth_m, room.wall_thickness_m
     hw_in = W / 2.0 - T / 2.0          # interior face x extent
     hd_in = D / 2.0 - T / 2.0          # interior face y extent
-
     # the same rule runs once PER STOREY (each level's lineup / panel rows
     # start afresh; z stays relative to the item's own level)
     for lvl in sorted({it.level for it in items}):
-        floor_here = [it for it in floor_items if it.level == lvl]
-        wall_here = [it for it in wall_items if it.level == lvl]
-        # ---- floor lineup along the north wall interior ------------------
-        if floor_here:
-            back_gap = 0.10
-            gap = 0.30
-            total = sum(float(it.dims_m.get("w", 1.0)) for it in floor_here) \
-                + gap * (len(floor_here) - 1)
-            avail = 2 * hw_in - 0.6
-            if total > avail:
-                cov.warnings.append(f"floor lineup ({total:.2f} m, Level {lvl}) is wider than the "
-                                    f"north wall interior ({avail:.2f} m): items overrun -- widen "
-                                    "the room")
-            x = -total / 2.0
-            for it in floor_here:
-                w = float(it.dims_m.get("w", 1.0))
-                d = float(it.dims_m.get("d", 0.6))
-                it.insertion_m = [round(x + w / 2.0, 4),
-                                  round(hd_in - back_gap - d / 2.0, 4),
-                                  DEFAULT_PAD_M]
-                it.front = [0.0, -1.0, 0.0]                 # facing south, into the room
-                it.frame_kind, it.mount_kind, it.yaw_deg = "yaw", "floor", 0.0
-                x += w + gap
-        # ---- wall panels on the west / east interior faces -----------------
-        if wall_here:
-            pitch = 0.30
-            west: List[PromptItem] = []
-            east: List[PromptItem] = []
-            # distribution panels first, then lighting, receptacle, generic
-            order = {"distribution_panelboard": 0, "panelboard": 1,
-                     "lighting_panelboard": 2, "receptacle_panelboard": 3}
-            wall_sorted = sorted(wall_here, key=lambda it: (order.get(it.kind, 9), it.count_index))
-            for k, it in enumerate(wall_sorted):
-                (west if k % 2 == 0 else east).append(it)
-            for side, group, x_face, front in (("W-W", west, -hw_in, [1.0, 0.0, 0.0]),
-                                              ("W-E", east, +hw_in, [-1.0, 0.0, 0.0])):
-                y = hd_in - 0.60                              # start near the north end
-                for it in group:
-                    w = float(it.dims_m.get("w", 0.508))
-                    y -= w / 2.0
-                    it.insertion_m = [round(x_face, 4), round(y, 4), DEFAULT_PANEL_MOUNT_CENTER_M]
-                    it.front = list(front)
-                    it.frame_kind, it.mount_kind, it.yaw_deg = "upright", "surface", 0.0
-                    it.wall_id = side
-                    y -= w / 2.0 + pitch
-                    if y < -hd_in + 0.3:
-                        cov.warnings.append(f"the {side} wall is full on Level {lvl}: {it.tag} "
-                                            "overruns the south corner -- widen/deepen the room "
-                                            "or reduce the panel count")
+        _layout_storey([it for it in floor_items if it.level == lvl],
+                       [it for it in wall_items if it.level == lvl], hw_in, hd_in, lvl, cov)
+
+
+def _layout_storey(floor_items: List[PromptItem], wall_items: List[PromptItem],
+                   hw_in: float, hd_in: float, lvl: int, cov: PromptCoverage) -> None:
+    """One storey of :func:`layout_room`: the floor lineup along the north
+    wall interior + the wall panels on the west / east interior faces."""
+    # ---- floor lineup along the north wall interior ----------------------
+    if floor_items:
+        back_gap = 0.10
+        gap = 0.30
+        total = sum(float(it.dims_m.get("w", 1.0)) for it in floor_items) \
+            + gap * (len(floor_items) - 1)
+        avail = 2 * hw_in - 0.6
+        if total > avail:
+            cov.warnings.append(f"floor lineup ({total:.2f} m, Level {lvl}) is wider than the "
+                                f"north wall interior ({avail:.2f} m): items overrun -- widen "
+                                "the room")
+        x = -total / 2.0
+        for it in floor_items:
+            w = float(it.dims_m.get("w", 1.0))
+            d = float(it.dims_m.get("d", 0.6))
+            it.insertion_m = [round(x + w / 2.0, 4),
+                              round(hd_in - back_gap - d / 2.0, 4),
+                              DEFAULT_PAD_M]
+            it.front = [0.0, -1.0, 0.0]                 # facing south, into the room
+            it.frame_kind, it.mount_kind, it.yaw_deg = "yaw", "floor", 0.0
+            x += w + gap
+    # ---- wall panels on the west / east interior faces ---------------------
+    if wall_items:
+        pitch = 0.30
+        west: List[PromptItem] = []
+        east: List[PromptItem] = []
+        # distribution panels first, then lighting, receptacle, generic
+        order = {"distribution_panelboard": 0, "panelboard": 1,
+                 "lighting_panelboard": 2, "receptacle_panelboard": 3}
+        wall_sorted = sorted(wall_items, key=lambda it: (order.get(it.kind, 9), it.count_index))
+        for k, it in enumerate(wall_sorted):
+            (west if k % 2 == 0 else east).append(it)
+        for side, group, x_face, front in (("W-W", west, -hw_in, [1.0, 0.0, 0.0]),
+                                          ("W-E", east, +hw_in, [-1.0, 0.0, 0.0])):
+            y = hd_in - 0.60                              # start near the north end
+            for it in group:
+                w = float(it.dims_m.get("w", 0.508))
+                y -= w / 2.0
+                it.insertion_m = [round(x_face, 4), round(y, 4), DEFAULT_PANEL_MOUNT_CENTER_M]
+                it.front = list(front)
+                it.frame_kind, it.mount_kind, it.yaw_deg = "upright", "surface", 0.0
+                it.wall_id = side
+                y -= w / 2.0 + pitch
+                if y < -hd_in + 0.3:
+                    cov.warnings.append(f"the {side} wall is full on Level {lvl}: {it.tag} "
+                                        "overruns the south corner -- widen/deepen the room "
+                                        "or reduce the panel count")
 
 
 def _default_dims(item: PromptItem) -> Tuple[Dict[str, float], str]:
@@ -1577,10 +1584,10 @@ def scene_brief(prompt: str, *, parsed: Optional[ParsedPrompt] = None,
         model, parsed = prompt_to_intent(prompt)
     slug = project_slug or re.sub(r"[^a-z0-9]+", "-", parsed.project_name.lower()).strip("-") or "prompt-job"
     room = parsed.room
-    storeys = [{"name": lv.get("name") or f"Level {i + 1}",
-                "elevation": float(lv.get("elevation") or 0.0)}
-               for i, lv in enumerate(model.levels or [])] or [{"name": "Level 1", "elevation": 0.0}]
-    storey_of = {str(lv.get("id") or f"L{i + 1}"): storeys[i] for i, lv in enumerate(model.levels or [])}
+    storey_of = {str(lv.get("id") or f"L{i + 1}"): {"name": lv.get("name") or f"Level {i + 1}",
+                                                    "elevation": float(lv.get("elevation") or 0.0)}
+                 for i, lv in enumerate(model.levels or [])}
+    storeys = list(storey_of.values()) or [{"name": "Level 1", "elevation": 0.0}]
     fed_by = {ed.target: ed.source for ed in model.feeders if ed.kind != "service"}
 
     products = []

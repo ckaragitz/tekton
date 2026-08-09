@@ -85,3 +85,208 @@ Windows fresh-clone portability, all reproduced on clean main:
 - Staged vs shipped: no viewer round needed (`ready` issue, no
   certification claim). Outputs are PROOF-ONLY per the standing gates.
 - Follow-ups: the three Windows findings above → new issues, not this PR.
+
+---
+
+# prompt levels honoured — every level clause parsed, stage D binds them to the base's story datums, gear placed per level (issue #147)
+
+Stream: eng #147 · branch `cam/147-prompt-levels` · PR #293 · 2026-08-09 ·
+Territory: `src/rvt/frontdoor/prompt_intent.py`, `src/rvt/ifc/intent.py`
+(`Equipment.level`, `RoomShell.level`, defaulted level flag),
+`src/rvt/frontdoor/levels.py` (NEW, stage D), `src/rvt/frontdoor/build.py`,
+`src/rvt/frontdoor/manifest.py`, `tools/ifc_intent.py` (`stage_equipment`
+level selection only), `tests/test_prompt_intent.py`, `tests/test_frontdoor.py`.
+No hot file, no `manipulate.py` / `mutate.py` edit (#186's territory — the
+certified `set_level_elevation` / `modify_element` / `commit_plans` are called,
+not changed).
+
+## What was built
+
+1. **Parser (`parse_prompt`).** The single `_RE_LEVEL.search` became three
+   clause kinds, each consumed on EVERY occurrence: a storey COUNT
+   (`_RE_STOREYS`: 'two storey', '3-story', 'two floors', 'single storey'), a
+   level REFERENCE (`_RE_LEVEL_REF`: 'on level 2', 'the second floor',
+   'ground floor', 'at L2', 'top floor'), and the FLOOR-TO-FLOOR height
+   (`_RE_F2F`: 'floor to floor 14 ft', '4.2 m floor to floor', 'storey height
+   of …') — found before the room-height grammar so 'floor 14' / 'height of
+   14 ft' inside it are never a level reference or a clear height. A
+   reference binds to the equipment clause it sits in (the clause window,
+   extended past a tag list that ran across 'and'); one bound to no clause
+   scopes the ROOM (its walls and every unreferenced item). Storeys =
+   max(count, every reference); datums sit a floor-to-floor height apart
+   (stated clause, else room height + `DEFAULT_FLOOR_ALLOWANCE_M` = 2 ft,
+   recorded in `defaults_applied`); an item on the room's level by default is
+   STATED when the prompt has more than one storey. Storeys past
+   `BUILT_STOREYS = 2` stay in `intent.levels` and land in
+   `coverage.not_built` ("storeys beyond 2 (base carries two story levels):
+   Level 3 recorded in the intent, NOT created …") — the old clamp to 3 and
+   the blanket warning "all equipment is placed on Level 1" are gone. Level
+   words are scrubbed from the count head ('level 2 lighting panels' ≠ two
+   panels). A prompt silent about levels yields ONE storey flagged
+   `default: True` (asserts nothing about the base's datum). `layout_room`
+   runs the same rule once per storey (each level's lineup / panel rows start
+   afresh; z stays level-relative). `Equipment.level = 'L<n>'`,
+   `RoomShell.level`, and the scene brief's per-product `storey` follow.
+2. **Stage D (`rvt.frontdoor.levels`, wired in `build._run` right after
+   stage P).** `bind_levels` pairs intent levels (lowest first) with the
+   base's `is_building_story` datums; `stage_levels` renames (`Level.m_text`
+   via `manipulate.modify_element`) and re-elevates
+   (`manipulate.set_level_elevation` — both datum-plane origins, exactly the
+   M3-certified shape) each datum that differs, ONE `commit_plans`, then
+   re-opens the file and proves names/elevations landed with `replaced ==
+   the edited datums`, ElemTable count unchanged. Intent levels with no datum
+   left come back `not_built` (→ `build.degradations` + MANIFEST.md "level
+   NOT created") and map to the top datum at their OWN z. `level_map` =
+   `{intent id: (Level id, datum z ft)}` feeds W (walls on the room's datum
+   via the existing `level_id=`) and E (`stage_equipment(level_ids=…)`: per
+   item `m_assocLevelId` = its storey's datum, z = datum z + level-relative
+   z; recorded per instance as `level` / `level_id` / `z_above_level_ft`).
+   Nothing to change (defaulted or already-matching levels) → no file, the
+   caller keeps its input, output byte-identical to a build without the
+   stage. A failed edit degrades to the base's datums (map carries the base's
+   elevations) — never withholds.
+3. **Manifest.** `build.levels` (the stage record: bound levels with
+   before/after name + elevation, `not_built`, `level_map`, commit summary),
+   per-instance level facts in `elements_created`, a "levels (…)" line and
+   "level NOT created" lines in MANIFEST.md.
+
+Walls: ONE ring on the room's level (v1, as chartered) — `RoomShell.level`
+makes "an electrical room on level 2 with 4 panels" put walls AND panels on
+Level 2; per-storey rings are named in follow-up #295.
+
+## Evidence (numbers)
+
+DONE prompt `"a two storey electrical building 40 by 30 ft, floor to floor 14
+ft, with a main switchboard and four lighting panels on level 2"`, fresh cloud
+clone, bundled pinned bases, `tools/frontdoor.py author --prompt … [--target-version Y]`:
+
+| target | exit | manifest `intent.levels` | output story datums (`Document.levels()`) | LP-1..4 `m_assocLevelId` / z ft | MSB | stage D s | `rvt_validate.py` |
+|---|---|---|---|---|---|---|---|
+| 2026 (before, `main` a5dd53b) | 0 | L1 0 / L2 3.9576 (thrown away) | 311 'L1 - Ground Floor' @0, 245423 'L2 - Second Floor' @12 | **311** / 4.659 | 311 / 0.328 | — | 0 err |
+| 2026 | 0 | L1 0.0 / L2 4.2672 | 311 **'Level 1' @0**, 245423 **'Level 2' @14.0** | **245423 / 18.659** (=14+4.659) | 311 / 0.328 | 0.11 | 0 err / 0 warn |
+| 2025 | 0 | same | 311 'Level 1' @0, 245423 'Level 2' @14.0 | 245423 / 18.659 | 311 / 0.328 | 0.12 | 0 err / 0 warn |
+| 2024 | 0 | same | 311 'Level 1' @0, 245423 'Level 2' @14.0 | 245423 / 18.659 | 311 / 0.328 | 0.11 | 0 err / 0 warn |
+
+- Stage D commit (2026): `replaced [[102,311],[102,245423]]`, `removed []`,
+  ElemTable 3102 → 3102 (2025: 3316 → 3316), every other level datum
+  (7 'GEN …') and every other record untouched (`reduce_law.element_diff`:
+  `modified == {311:[102], 245423:[102]}`, added/removed empty — pinned in
+  the test on all three bases); `verify_manipulated`: stamps ok, 0 CRC / ECC /
+  walker errors, edited records decode clean as `Level`.
+- `coverage.warnings == []` (was `['2 levels created; all equipment is placed
+  on Level 1 …']`); `ignored_words == []` (before: 'floor to floor 14 ft' was
+  silently swallowed by stopwords); `understood` gains `floor-to-floor
+  height`, `storeys 'two storey'`, `equipment level 'on level 2' → L2
+  [LP-1..LP-4]`; `defaults_applied` states "MSB: placed on Level 1 (the
+  room's level …)".
+- 3-storey prompt ("… two distribution panels on level 2 and four lighting
+  panels on level 3"): exit 0, file delivered, `intent.levels` L1/L2/L3 @
+  0 / 4.2672 / 8.5344, `prompt_coverage.not_built[0].reason` starts "storeys
+  beyond 2 (base carries two story levels): Level 3 …", `build.degradations`
+  carries "Level 3 (28 ft) NOT created: …", DP-1/2 on 245423 @ 18.659 ft,
+  LP-1..4 on 245423 @ 32.659 ft (28 + 4.659), validator 0 errors.
+- 1-storey prompt ("an electrical room with 6 panels"): stage D `written:
+  false` (defaulted level, 0.03 s), datums untouched ('L1 - Ground Floor' /
+  'L2 - Second Floor' @ 0 / 12), `Document.levels()` equal to main's output;
+  `reduce_law.element_diff(main, branch)` differs in exactly the six loaded-
+  family records in which two runs of MAIN differ from each other (pre-existing
+  run-to-run nondeterminism, not this change) — the build path is unchanged
+  for every level-silent job; validator 0 errors.
+- Wall time (same venv, bundled 2026 base, after merging main incl. #292's
+  schema memoization; alternating runs): DONE two-storey prompt main 3.75 /
+  3.20 / 3.11 s vs branch 3.31 / 3.29 / 3.31 s wall (build 3.4/3.0/2.9 vs
+  3.1/3.1/3.1); the per-stage clock puts stage D at **0.11–0.12 s** when it
+  writes (one `Document.from_file` + one `commit_plans` + read-back) and
+  **0.03 s** when it does not (level-silent jobs) — i.e. ≤ +0.12 s (≈3.5 %) on
+  a job that names levels, ≈ +0.03 s otherwise. (First measurements before the
+  main merge: 0.27–0.29 s of an 8.3 s job — the memoization shrank both.)
+
+## Tests
+
+- `tests/test_prompt_intent.py`: 10 → 16 (two-storey levels + per-item
+  levels + both clauses consumed; 3 storeys recorded not clamped; room-level
+  reference scopes room + gear; ordinal floors + tag list across 'and' + f2f
+  sizes clear height; single-storey unchanged + level digit never a count;
+  intent model carries levels). 16 passed.
+- `tests/test_frontdoor.py`: +5 (stage D on 2026/2025/2024: binds to the two
+  story datums only, L3 not built, record diff == the two datums,
+  `verify_manipulated` clean, deterministic bytes; no-op when datums already
+  match / level defaulted; e2e two-storey job: manifest levels, output datums
+  'Level 1'/'Level 2' @ 0/14, LPs `m_assocLevelId` = L2 id at 14 + AFF, MSB +
+  walls on L1, validator 0 errors, MANIFEST.md lines). Whole file 55 passed /
+  4 skipped (sample-gated) after merging main (#186's rename/set-mark e2e kept
+  on its own 1-panel fixture).
+- Neighbours: `test_frontdoor_wallsolid.py`, `test_target2025.py`,
+  `test_coldstart.py`, `test_bootstrap.py`, `test_plugin_sync.py`,
+  `test_lazy_ifc_import.py`, `test_convert_combo.py` green (RVT_SKIP_LARGE=1).
+
+## Findings (filed, not fixed here)
+
+1. **#294 (P1, engine)** — a final partial page of 64,388–64,895 bytes
+   encodes to a block exactly `PAGE_STRIDE` long (CRCIO's own geometry), and
+   `verify_written` / `verify_manipulated` / `unframe_stream` mistake it for a
+   full page → 1 false `ecc_mismatches` → stage W/E declare
+   `structurally_valid: False` and drop content on ~0.8 % of writes. The
+   validator (syndrome-based) and reopen accept the file. Found because the
+   walls-only dummy-rep test build landed in the band once a second modify
+   pass existed; P-then-P reproduces it without this stream's code. This PR
+   does not touch the codec; the defaulted-level no-op keeps every
+   level-silent job byte-identical to main.
+2. **#295 (P2)** — create storeys beyond two (`new_level` + `new_plan_view`
+   through the create path) and optional per-storey wall rings.
+3. Not changed, noted: `set_level_elevation` moves the two datum-plane
+   origins only (the certified M3 shape); the level's `m_freeEnd` /
+   `m_bubbleEnd` / `m_refPointsForNewViews` z stay at the old elevation, as in
+   the certified `M3_modify.rvt`. If desktop Revit draws the datum line at the
+   stale z, that is a `manipulate.py` follow-up for its holder, not a
+   front-door workaround.
+4. `/simplify` (4 reviewers) — applied: ordinals / 'top floor' resolved to ints
+   at scan time (no string sentinel through `PromptItem.level`), level refs
+   always carry `tags` (bound ⇔ non-empty), one `_in_any` span-overlap helper,
+   `double` in `_NUM_WORDS`, one lookbehind branch for 'on/at L2',
+   `_layout_storey` extracted (layout body not re-indented), `FT_PER_M`
+   imported not redefined, `story_levels` shared with `_pick_level`,
+   `level_map(…, landed=)` assigned once + a `""` fallback entry, `resolve()`
+   + `room_level_id` so build.py only threads values, empty intent ≡ defaulted
+   (one outcome for "asserts nothing"). Declined with reason: skipping stage D
+   entirely for defaulted levels (measured 0.03 s — not worth a special case);
+   sharing the commit-summary / read-back scaffold with stage P and folding P+D
+   into ONE modify pass (touches `project_info.py`, #281's module — worth a
+   follow-up, see open questions); dropping `stage_equipment(level_id=)`
+   (`rvt.convert.add_to_project` passes it); moving `BUILT_STOREYS` out of
+   the parser (the DONE requires the `not_built` entry in prompt coverage,
+   which is computed before any base is opened; the constant is documented as
+   mirroring the pinned bases and stage D reports the base's real count).
+
+## Open questions
+
+- The IFC route leaves `Equipment.level = None` (world z, first storey) while
+  stage D now renames / re-elevates the datums from named `IfcBuildingStorey`s:
+  a multi-storey IFC would get its L2 datum right but its L2 gear associated
+  to Level 1 at the correct absolute z. Today's IFC inputs are single-storey
+  rooms; making the IFC resolver assign the storey and rebase z (one contract
+  for `insertion_m[2]`) is its own before/after on the certified IFC lane.
+- Stages P and D are two open → commit → reopen passes over the same base;
+  one shared "base edits" pass (one `Document.from_file`, one `commit_plans`)
+  would save ≈ 0.1 s and one intermediate file.
+
+## BRANCH STATE
+
+- Files written: `src/rvt/frontdoor/prompt_intent.py`, `src/rvt/ifc/intent.py`,
+  `src/rvt/frontdoor/levels.py` (new), `src/rvt/frontdoor/build.py`,
+  `src/rvt/frontdoor/manifest.py`, `tools/ifc_intent.py`,
+  `tests/test_prompt_intent.py`, `tests/test_frontdoor.py`, this record; sync
+  mirrors `plugin/lib/src/rvt/frontdoor/{prompt_intent,levels,build,manifest}.py`,
+  `plugin/lib/src/rvt/ifc/intent.py`, `plugin/lib/tools/ifc_intent.py`,
+  `plugin/skills/tekton-author/scripts/ifc_intent.py` (regenerated by
+  `tools/sync_plugin.py`, never hand-edited).
+- Gates: stream-local tests above; `tools/sync_plugin.py` run + `--check`
+  clean; `plugin/scripts/validate_plugin.py` PASS; `check_portable_paths.py`
+  ok; `tools/rvt_validate.py` 0 errors on all five cited outputs (2026 / 2025
+  / 2024 two-storey, 3-storey, 1-storey); `/simplify` and `/verify` (front
+  door per release + bare-unzip `go author`) before the final commit — results
+  in the PR body.
+- Staged vs shipped: no viewer batch (level rename / re-elevate is the
+  certified M3 shape; placed instances remain the open cell and are stamped
+  as before). No certification claim.
+- Follow-ups: #294, #295.

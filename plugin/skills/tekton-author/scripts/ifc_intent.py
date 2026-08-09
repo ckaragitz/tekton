@@ -535,9 +535,8 @@ WALL_REP_NOTE = {
 
 
 def _pick_level(doc, want_elev_ft: float = 0.0) -> int:
-    lv = doc.levels()
-    stories = [l for l in lv if l.get("is_building_story")] or lv
-    best = min(stories, key=lambda l: abs(float(l.get("elevation_ft", 0.0)) - want_elev_ft))
+    from rvt.frontdoor.levels import story_levels
+    best = min(story_levels(doc), key=lambda l: abs(float(l.get("elevation_ft", 0.0)) - want_elev_ft))
     return int(best["id"])
 
 
@@ -812,13 +811,15 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
                     level_ids: Optional[Dict[str, Tuple[int, float]]] = None,
                     ) -> Tuple[Dict[str, Any], Optional[str]]:
     """Place one instance of each loaded family at the intent's insertion /
-    frame -> ``out_path``.  ``level_ids`` (``{intent level id: (Level elem
-    id, datum z ft)}``, from ``rvt.frontdoor.levels``) places each item on
-    ITS level: ``m_assocLevelId`` = that datum, z = datum z + the item's
-    level-relative z; items with no / an unmapped level, and callers passing
-    none, use ``level_id`` (else the story datum nearest 0) at world z."""
+    frame -> ``out_path``.  ``level_ids`` (``rvt.frontdoor.levels.LevelMap``:
+    ``{intent level id: (Level elem id, datum z ft)}`` + its ``""`` fallback)
+    places each item on ITS level: ``m_assocLevelId`` = that datum, z =
+    datum z + the item's level-relative z; without a map (research probes,
+    add_to_project) every item lands on ``level_id`` (else the story datum
+    nearest 0) at world z."""
     from rvt.mutate import Document
     from rvt.commit import commit_new_elements, verify_written
+    from rvt.frontdoor.levels import resolve as resolve_level
     rec: Dict[str, Any] = {"stage": "E", "in": _relp(src_rvt), "out": _relp(out_path),
                            "instances": [], "ok": False}
     t0 = time.time()
@@ -827,7 +828,6 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
         rec["specimens"] = specimens.inject_into(doc)
         lvl = level_id if level_id is not None else _pick_level(doc, 0.0)
         rec["level"] = lvl
-        level_ids = dict(level_ids or {})
         tpl = specimens.instance_id
         if tpl is None:
             rec["blocker"] = ("no free-standing FamilyInstance specimen (family-free base + "
@@ -848,7 +848,7 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
             fam = info.get("family_id")
             prod = info.get("product")
             ins = eq.insertion_m
-            eq_lvl, z0_ft = level_ids.get(getattr(eq, "level", None) or "", (lvl, 0.0))
+            eq_lvl, z0_ft = resolve_level(level_ids, eq.level, (lvl, 0.0))
             pos_ft = (ins[0] * FT_PER_M, ins[1] * FT_PER_M, z0_ft + ins[2] * FT_PER_M)
             yaw = math.radians(float(eq.yaw_deg))
             el = doc.add_family_instance(sym, eq_lvl, position=pos_ft, rotation=yaw,
@@ -870,7 +870,7 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
                 "tag": eq.tag, "kind": eq.kind, "elem_id": el.elem_id, "symbol": sym,
                 "family": fam, "position_ft": [round(x, 3) for x in pos_ft],
                 "position_m": [round(x, 4) for x in ins],
-                "level": getattr(eq, "level", None), "level_id": eq_lvl,
+                "level": eq.level, "level_id": eq_lvl,
                 "z_above_level_ft": round(ins[2] * FT_PER_M, 3),
                 "yaw_deg": eq.yaw_deg, "frame_kind": eq.frame_kind,
                 "frame3x3": eq.frame3x3, "connector_slots_panel": n_slots,

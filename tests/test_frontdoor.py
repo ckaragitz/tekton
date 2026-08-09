@@ -872,7 +872,12 @@ def test_stage_d_binds_levels_to_the_story_datums_only(tmp_path, release):
         assert [nb["id"] for nb in rec["not_built"]] == ["L3"]
         assert "NOT created" in rec["not_built"][0]["reason"]
         assert rec["level_map"] == {"L1": (l1["base_id"], 0.0), "L2": (l2["base_id"], 14.0),
-                                    "L3": (l2["base_id"], 28.0)}
+                                    "L3": (l2["base_id"], 28.0), "": (l1["base_id"], 0.0)}
+        assert rec["room_level_id"] == l1["base_id"]                    # no room level given
+        assert LV.resolve(rec["level_map"], "L2") == (l2["base_id"], 14.0)
+        assert LV.resolve(rec["level_map"], "L9") == LV.resolve(rec["level_map"], None) \
+            == (l1["base_id"], 0.0)
+        assert LV.resolve({}, "L2", (7, 1.5)) == (7, 1.5)               # no map: the caller's datum
         assert rec["commit"]["replaced"] == [[102, l1["base_id"]], [102, l2["base_id"]]]
         assert rec["commit"]["elemtable_count_before"] == rec["commit"]["elemtable_count_after"]
         # read back: the two story datums say what the intent says, every other level untouched
@@ -906,22 +911,25 @@ def test_stage_d_writes_nothing_when_the_datums_already_match(tmp_path):
     from rvt.mutate import Document
     base = PINNED[2026]
     stories = [lv for lv in Document.from_file(base).levels() if lv["is_building_story"]]
-    same = [{"id": f"L{i + 1}", "name": st["name"], "elevation": st["elevation_ft"] / LV.FT_PER_M}
+    same = [{"id": f"L{i + 1}", "name": st["name"], "elevation": st["elevation_ft"] / PP.FT_PER_M}
             for i, st in enumerate(stories)]
-    rec = LV.stage_levels(base, str(tmp_path / "noop.rvt"), same)
+    rec = LV.stage_levels(base, str(tmp_path / "noop.rvt"), same, room_level="L2")
     assert rec["ok"] is True and rec["written"] is False and not rec["edited_ids"]
     assert not os.path.exists(str(tmp_path / "noop.rvt"))
-    assert rec["level_map"] == {"L1": (stories[0]["id"], 0.0), "L2": (stories[1]["id"], 12.0)}
-    # a DEFAULTED level (a prompt / IFC silent about levels) asserts no name: it
-    # binds to the first storey and keeps the datum's own name -> nothing to write
+    assert rec["level_map"] == {"L1": (stories[0]["id"], 0.0), "L2": (stories[1]["id"], 12.0),
+                                "": (stories[0]["id"], 0.0)}
+    assert rec["room_level_id"] == stories[1]["id"]
+    # an intent that asserts NOTHING about levels -- a DEFAULTED level (a prompt /
+    # IFC silent about levels) or no level at all -- binds the first storey and
+    # keeps the datum's own name -> nothing to write
     dflt = [{"id": "L1", "name": "Level 1", "elevation": 0.0, "default": True}]
     assert PP.parse_prompt("an electrical room 30 by 20 ft").levels == dflt
-    rec = LV.stage_levels(base, str(tmp_path / "dflt.rvt"), dflt)
-    assert rec["ok"] and not rec["written"] and rec["levels"][0]["name"] == stories[0]["name"]
-    # an empty intent binds the first storey as 'Level 1' @ 0 (rename only)
-    bound, not_built = LV.bind_levels(Document.from_file(base), [])
-    assert [(b["name"], b["elevation_ft"], b["move"]) for b in bound] == [("Level 1", 0.0, False)]
-    assert not not_built
+    for silent in (dflt, []):
+        rec = LV.stage_levels(base, str(tmp_path / "dflt.rvt"), silent)
+        assert rec["ok"] and not rec["written"], rec
+        assert [(b["name"], b["base_id"], b["rename"], b["move"]) for b in rec["levels"]] == \
+               [(stories[0]["name"], stories[0]["id"], False, False)]
+        assert not rec["not_built"] and rec["room_level_id"] == stories[0]["id"]
 
 
 @pytest.fixture(scope="module")

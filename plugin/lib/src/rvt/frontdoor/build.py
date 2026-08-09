@@ -490,10 +490,12 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     # ------------------------------------------------------------------
     d_out = os.path.join(stages_dir, "stage_D_levels.rvt")
     with _timed_stage(res):
-        drec = LV.stage_levels(src_base, d_out, model.levels or [])
+        drec = LV.stage_levels(src_base, d_out, model.levels or [],
+                               room_level=model.room.level if model.room else None)
         res.stages.append(_slim_stage(drec))
     res.levels = {**drec, "in": _relp(src_base), "out": _relp(d_out) if drec["written"] else None}
     level_ids = drec["level_map"]                     # intent level id -> (base Level id, z ft)
+    room_level = drec["room_level_id"]                # the datum the room's walls stand on
     if drec["ok"] and drec["written"]:
         src_base = d_out
     elif not drec["ok"]:
@@ -503,8 +505,6 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                                   "(equipment still associates to its storey's datum)")
     for nb in drec["not_built"]:
         res.degradations.append(nb["reason"])
-    first = next(iter(level_ids.values()), (None, 0.0))
-    room_level = level_ids.get(getattr(model.room, "level", None) or "", first)[0]
 
     # ------------------------------------------------------------------
     # F. our generated FAMILIES (.rfa) -- standalone deliverables too
