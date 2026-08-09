@@ -128,4 +128,79 @@ see BRANCH STATE for whether that has happened at the head you are reading.
   name as a constant, so a per-schema table is a small follow-up if a real
   IFC4X3 input shows up.
 
+## /simplify (4 angles) — applied vs kept
+
+Applied: the `_transcribed_ancestor` helper is gone (the AttributeError now
+lists the attribute names that ARE served — more actionable, one tree walk
+fewer); `__getattr__` flattened (`attr in attrs`); `_full_attrs` memoised
+with `functools.lru_cache` instead of a hand cache; `_TYPED_CAMEL` folded
+into `_CAMEL`; `by_guid` asks `is_a("IfcRoot")` instead of probing the
+attribute prefix; the "beyond IFC4" allowances live next to the rows as
+`_BEYOND_IFC4` data (read by the cross-check) instead of three test
+literals; the generator takes `--schema` and derives the module name (the
+seam #159 would otherwise have to cut); test boilerplate de-duplicated
+(`_run_bare`, `_assert_element_utils_equivalent`, `_assert_attrs_equivalent`
+now owns the raises-not-differs rule; a tautological assert fixed; the
+PredefinedType table moved into the fixture module).  Efficiency was
+measured, not guessed: steplite import +1.0 ms warm / ~+2.5 ms first run and
++250 KiB on the IFC-only path (never on prompt jobs), `is_a` / attribute
+access equal or faster, uncached `by_type('IfcProduct')` 7 → 24 µs once per
+(file, name) against a 165 ms parse — negligible; the optional trim
+(emitting pre-keyed tables from the generator) was not taken.
+
+Kept deliberately (design fork, noted for the tech lead rather than filed):
+generating the FULL attribute table for all 776 entities and deleting the
+hand rows.  It would remove the two-table seam and the ancestor-prefix
+rule, at ~+30 KB shipped; it also changes the module's stated character
+("hand-transcribed subset, verified") and rewrites ~200 rows two other
+streams touched this week, and the issue's contract names the parent-map +
+explicit-rows design.  The always-on test keeps the two tables coherent in
+the meantime; if foreign inputs keep needing leaf attributes, that is the
+next step and the generator is one `decl.attributes()` loop away from it.
+
 ## BRANCH STATE
+
+* Branch `cam/155-steplite-parity` from `origin/main@950d4b6`; PR `Closes #155`.
+* Files: `src/rvt/ifc/steplite.py`, `src/rvt/ifc/ifc4_parents.py` (new,
+  generated), `tools/dev/gen_ifc4_parents.py` (new, dev-only),
+  `tests/fixtures_ifc_foreign.py` (new), `tests/test_steplite.py` (+7 tests,
+  helpers consolidated), `docs/writer/dependency-audit.md`,
+  `docs/inbox/steplite-parity.md` (this), and the `tools/sync_plugin.py`
+  mirrors `plugin/lib/src/rvt/ifc/steplite.py`,
+  `plugin/lib/src/rvt/ifc/ifc4_parents.py` (new).  `pyproject.toml`
+  untouched (no new runtime dependency).
+* Gates on the final diff — WITH ifcopenshell 0.8.5 (`.venv`):
+  `tests/test_steplite.py tests/test_ifc_intent.py tests/test_ifc_read_fallback.py
+  tests/test_frontdoor.py tests/test_plugin_sync.py tests/test_bootstrap.py
+  tests/test_coldstart.py` → **145 passed / 4 skipped** (the 4 = samples-gated
+  frontdoor cases); `tests/test_surface_perf.py` 5 skipped (no bare python3
+  with numpy on this host — pre-existing).  WITHOUT ifcopenshell (fresh
+  `uv venv` + `.[test]` only = CI shape): `tests/test_steplite.py
+  tests/test_ifc_read_fallback.py tests/test_frontdoor.py` → **77 passed /
+  16 skipped**; `tests/test_ifc_intent.py` alone → 1 skipped (module skips
+  by design without the wheel; #320 tracks its collection-order issue).
+  `tools/sync_plugin.py` synced the 2 mirrors, `--check` in sync;
+  `plugin/scripts/validate_plugin.py` PASS (25 assertions);
+  `tools/dev/check_portable_paths.py` ok; `tools/dev/gen_ifc4_parents.py
+  --check` ok.
+* /verify (runtime): the front-door table above on the final head (18 = 18,
+  intent.json byte-identical, both `.rvt` validate 0 errors, exit 0, stamped
+  PROOF-ONLY and delivered); plus the PRODUCT path — `tekton-plugin.zip`
+  rebuilt, unzipped to a temp dir, `env -i … python skills/tekton-author/scripts/_bootstrap.py
+  go author --ifc generated.ifc --out out/j1 --json` with a numpy-only
+  interpreter (no ifcopenshell → the SHIPPED steplite + ifc4_parents):
+  `tekton: READY … 0.026s`, exit 0, `equipment (18)` incl. the door,
+  `created: 0 walls, 9 equipment instances, 9 loaded families`, delivered
+  `in.rvt` → `rvt_validate` ok / 0 errors.  (With `python3 -S` = no numpy the
+  same job exits 3 `FAILED (numpy is required here …)` with the manifest still
+  written — the documented numpy floor of the intent route, unchanged.)
+* Pending at this head: the `d_wall_opening_door` xfail flip + re-pin waits
+  for #324 to merge (previewed in a scratch worktree: with this steplite over
+  #324's head, exactly that fixture moves — door `D-1` appears as recorded
+  `proxy` equipment + one `family_plans` entry — its parity leg XPASSes
+  strictly, every other fixture stays on its pin, #159's xfail stays).  After
+  the merge: rebase, drop the `parity_xfail` + the #155 note in
+  `tools/dev/make_ifc_fixtures.py`, `--update-expected`, re-run
+  `tests/test_ifc_conformance.py`, push, report the new head.
+* Staged vs shipped: nothing staged for the viewer (no certification claim);
+  the reader change ships in the plugin mirrors.

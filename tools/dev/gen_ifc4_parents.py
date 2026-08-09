@@ -16,6 +16,7 @@ module imports nothing and steplite stays stdlib-only at runtime.
 
     .venv/bin/python tools/dev/gen_ifc4_parents.py            # rewrite the module
     .venv/bin/python tools/dev/gen_ifc4_parents.py --check    # exit 1 on drift
+    .venv/bin/python tools/dev/gen_ifc4_parents.py --schema IFC2X3   # -> ifc2x3_parents.py
 """
 from __future__ import annotations
 
@@ -25,11 +26,14 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-OUT = os.path.join(ROOT, "src", "rvt", "ifc", "ifc4_parents.py")
-SCHEMA = "IFC4"
+
+
+def out_path(schema: str) -> str:
+    return os.path.join(ROOT, "src", "rvt", "ifc", f"{schema.lower()}_parents.py")
+
 
 HEADER = '''\
-"""rvt.ifc.ifc4_parents -- the IFC4 entity hierarchy as a plain
+"""rvt.ifc.{module} -- the {schema} entity hierarchy as a plain
 class-name -> supertype-name table (issue #155).
 
 GENERATED TEXT, OUR OWN: written by ``tools/dev/gen_ifc4_parents.py`` from
@@ -58,43 +62,45 @@ SCHEMA = "{schema}"
 PARENT: Dict[str, Optional[str]] = {{
 '''
 
-FOOTER = "}\n"
 
-
-def render() -> str:
+def render(schema_name: str) -> str:
     import ifcopenshell
     import ifcopenshell.ifcopenshell_wrapper as W
 
-    schema = W.schema_by_name(SCHEMA)
+    schema = W.schema_by_name(schema_name)
     rows = []
     for decl in schema.declarations():
         if not isinstance(decl, W.entity):
             continue
         sup = decl.supertype()
         rows.append((decl.name(), sup.name() if sup is not None else None))
-    body = "".join(f"    {name!r}: {parent!r},\n" for name, parent in rows)
-    head = HEADER.format(schema=SCHEMA, version=ifcopenshell.version, count=len(rows))
-    return head + body + FOOTER
+    module = os.path.splitext(os.path.basename(out_path(schema_name)))[0]
+    head = HEADER.format(module=module, schema=schema_name,
+                         version=ifcopenshell.version, count=len(rows))
+    return head + "".join(f"    {name!r}: {parent!r},\n" for name, parent in rows) + "}\n"
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("--schema", default="IFC4",
+                    help="ifcopenshell schema name (default IFC4; steplite reads ifc4_parents)")
     ap.add_argument("--check", action="store_true",
                     help="do not write; exit 1 if the module on disk differs")
     args = ap.parse_args(argv)
-    text = render()
+    out = out_path(args.schema)
+    text = render(args.schema)
     if args.check:
-        with open(OUT, encoding="utf-8") as fh:
+        with open(out, encoding="utf-8") as fh:
             disk = fh.read()
         if disk == text:
-            print(f"ok: {os.path.relpath(OUT, ROOT)} matches the {SCHEMA} declarations")
+            print(f"ok: {os.path.relpath(out, ROOT)} matches the {args.schema} declarations")
             return 0
         sys.stdout.writelines(difflib.unified_diff(
             disk.splitlines(True), text.splitlines(True), "on-disk", "generated", n=1))
         return 1
-    with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
+    with open(out, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
-    print(f"wrote {os.path.relpath(OUT, ROOT)} ({text.count(chr(10))} lines)")
+    print(f"wrote {os.path.relpath(out, ROOT)} ({text.count(chr(10))} lines)")
     return 0
 
 

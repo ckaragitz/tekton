@@ -84,15 +84,22 @@ def _canon(x):
 
 def _assert_attrs_equivalent(fr, fs) -> int:
     """Every entity of the real-library file ``fr``: same class and every
-    named attribute equal (canonicalised) in the steplite file ``fs``.
-    Returns the number of attributes compared."""
+    named attribute equal (canonicalised) in the steplite file ``fs``; the
+    unserved leaf attributes of a class steplite does not transcribe (#155)
+    must RAISE, never silently differ.  Returns the number compared."""
     assert fs.schema == fr.schema
     n = 0
     for er in fr:
         es = fs.by_id(er.id())
         assert es.is_a() == er.is_a(), er.id()
+        uname = er.is_a().upper()
+        served = SL._full_attrs(uname)
         for k, v in er.get_info(recursive=False).items():
             if k in ("id", "type"):
+                continue
+            if uname not in SL._SCHEMA and k not in served:
+                with pytest.raises(AttributeError, match="attribute subset"):
+                    getattr(es, k)
                 continue
             assert _canon(getattr(es, k)) == _canon(v), (er.id(), er.is_a(), k)
             n += 1
@@ -103,6 +110,34 @@ def _assert_by_type_equivalent(fr, fs, classes) -> None:
     """by_type subtype closure AND ordering match for every class name."""
     for cls in classes:
         assert [e.id() for e in fr.by_type(cls)] == [e.id() for e in fs.by_type(cls)], cls
+
+
+def _assert_element_utils_equivalent(fr, fs, placement=True) -> None:
+    """Per IfcElement: inverse ContainedInStructure order, get_psets,
+    get_type and (optionally) the resolved local placement all match."""
+    for er in fr.by_type("IfcElement"):
+        es = fs.by_id(er.id())
+        assert [r.id() for r in er.ContainedInStructure] == \
+               [r.id() for r in es.ContainedInStructure], er.id()
+        assert _ue.get_psets(er) == SL.get_psets(es), er.id()
+        tr, ts = _ue.get_type(er), SL.get_type(es)
+        assert (tr.id() if tr else None) == (ts.id() if ts else None), er.id()
+        if placement:
+            assert _up.get_local_placement(er.ObjectPlacement).tolist() == \
+                   SL.get_local_placement(es.ObjectPlacement), er.id()
+
+
+def _run_bare(code: str, *, isolated=True, timeout=120) -> str:
+    """Run ``code`` in a child interpreter with PYTHONPATH / RVT_STEPLITE_FORCE
+    scrubbed (``-S`` = no site-packages when ``isolated``); assert exit 0 and
+    return stdout."""
+    argv = [sys.executable] + (["-S"] if isolated else []) + ["-c", code]
+    env = {k: v for k, v in os.environ.items()
+           if k not in ("PYTHONPATH", "RVT_STEPLITE_FORCE")}
+    proc = subprocess.run(argv, cwd=ROOT, capture_output=True, text=True,
+                          timeout=timeout, env=env)
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    return proc.stdout
 
 
 @needs_ifcos
@@ -135,19 +170,11 @@ def test_psets_unit_scale_placement_inverse_match():
             es = fs.by_id(er.id())
             assert _ue.get_psets(er) == SL.get_psets(es), er.id()
         assert _uu.calculate_unit_scale(fr) == SL.calculate_unit_scale(fs)
-        for er in fr.by_type("IfcElement"):
-            es = fs.by_id(er.id())
-            assert _up.get_local_placement(er.ObjectPlacement).tolist() == \
-                   SL.get_local_placement(es.ObjectPlacement), er.id()
+        _assert_element_utils_equivalent(fr, fs)
         for er in fr.by_type("IfcTriangulatedFaceSet")[:8]:
             es = fs.by_id(er.id())
             assert sorted(x.id() for x in fr.get_inverse(er)) == \
                    [x.id() for x in fs.get_inverse(es)], er.id()
-        # get_type on every typed occurrence
-        for er in fr.by_type("IfcElectricDistributionBoard"):
-            tr = _ue.get_type(er)
-            ts = SL.get_type(fs.by_id(er.id()))
-            assert (tr.id() if tr else None) == (ts.id() if ts else None)
 
 
 # ===========================================================================
@@ -228,12 +255,7 @@ def test_steplite_runs_without_numpy_or_ifcopenshell():
         "assert not bad, bad\n"
         "print('OK stdlib-only')\n"
     )
-    proc = subprocess.run([sys.executable, "-S", "-c", code], cwd=ROOT,
-                          capture_output=True, text=True, timeout=120,
-                          env={k: v for k, v in os.environ.items()
-                               if k not in ("PYTHONPATH", "RVT_STEPLITE_FORCE")})
-    assert proc.returncode == 0, proc.stderr[-2000:]
-    assert "OK stdlib-only" in proc.stdout
+    assert "OK stdlib-only" in _run_bare(code)
 
 
 @needs_corpus
@@ -311,12 +333,7 @@ def test_shim_stands_down_to_real_ifcopenshell():
         "import ifcopenshell.util.element  # real submodules resolve\n"
         "print('OK stand-down', ifcopenshell.version)\n"
     )
-    env = {k: v for k, v in os.environ.items()
-           if k not in ("PYTHONPATH", "RVT_STEPLITE_FORCE")}
-    proc = subprocess.run([sys.executable, "-c", code], cwd=ROOT,
-                          capture_output=True, text=True, timeout=120, env=env)
-    assert proc.returncode == 0, proc.stderr[-2000:]
-    assert "OK stand-down" in proc.stdout
+    assert "OK stand-down" in _run_bare(code, isolated=False)
 
 
 def test_ensure_engine_appends_shim_only_when_real_absent():
@@ -342,12 +359,7 @@ def test_ensure_engine_appends_shim_only_when_real_absent():
         "assert facts.counts['meshes'] == 29\n"
         "print('OK ensure_engine fallback')\n"
     )
-    env = {k: v for k, v in os.environ.items()
-           if k not in ("PYTHONPATH", "RVT_STEPLITE_FORCE")}
-    proc = subprocess.run([sys.executable, "-S", "-c", code], cwd=ROOT,
-                          capture_output=True, text=True, timeout=120, env=env)
-    assert proc.returncode == 0, proc.stderr[-2000:]
-    assert "OK ensure_engine fallback" in proc.stdout
+    assert "OK ensure_engine fallback" in _run_bare(code)
 
 
 # ===========================================================================
@@ -456,13 +468,7 @@ def test_extrusion_fixture_matches_ifcopenshell(extrusion_path):
     for er in fr.by_type("IfcExtrudedAreaSolid"):
         es = fs.by_id(er.id())
         assert sorted(x.id() for x in fr.get_inverse(er)) == [x.id() for x in fs.get_inverse(es)]
-    for er in fr.by_type("IfcElement"):
-        es = fs.by_id(er.id())
-        assert _up.get_local_placement(er.ObjectPlacement).tolist() == \
-               SL.get_local_placement(es.ObjectPlacement), er.id()
-        assert _ue.get_psets(er) == SL.get_psets(es), er.id()
-        tr, ts = _ue.get_type(er), SL.get_type(es)
-        assert (tr.id() if tr else None) == (ts.id() if ts else None), er.id()
+    _assert_element_utils_equivalent(fr, fs)
 
 
 # ===========================================================================
@@ -502,11 +508,11 @@ def test_foreign_classes_land_in_product_and_element_closures(foreign_path):
         assert camel.upper() not in SL._SCHEMA
         assert e.is_a() == camel and e.is_a("IfcElement") and e.is_a("IfcProduct")
         assert e.is_a("IfcRoot") and not e.is_a("IfcSpatialElement")
-        assert (e.Name, e.Tag) == (e.Name, e.Name) and len(e.GlobalId) == 22
+        assert e.Tag == e.Name and len(e.GlobalId) == 22
         assert e.ObjectPlacement.id() == 8 and e.Representation is None
         assert [r.id() for r in e.ContainedInStructure] == [98]
         assert f.by_guid(e.GlobalId) is e
-        with pytest.raises(AttributeError, match="outside the read-path attribute subset"):
+        with pytest.raises(AttributeError, match=r"attribute subset \(served: GlobalId, .* Tag\)"):
             e.PredefinedType                       # noqa: B018
     sensor = f.by_id(64)
     assert sensor.is_a("IfcDistributionControlElement") and sensor.is_a("IfcDistributionElement")
@@ -515,7 +521,7 @@ def test_foreign_classes_land_in_product_and_element_closures(foreign_path):
     # a class in NO table still parses, matches its exact name only, raises
     ghost = SL.Entity(f, 999999, "IFCNOTINANYSCHEMA", ("x",))
     assert ghost.is_a() == "IfcNotinanyschema" and not ghost.is_a("IfcRoot")
-    with pytest.raises(AttributeError, match="no attribute table"):
+    with pytest.raises(AttributeError, match=r"served: nothing"):
         ghost.Name                                 # noqa: B018
 
 
@@ -527,14 +533,7 @@ def test_transcribed_foreign_rows_serve_their_own_attributes(foreign_path):
             door.OperationType, door.UserDefinedOperationType) == \
         (2.134, 0.914, "DOOR", "SINGLE_SWING_LEFT", None)
     assert (window.OverallWidth, window.PartitioningType) == (0.9, "SINGLE_PANEL")
-    for sid, camel, ptype in ((30, "IfcColumn", "COLUMN"), (22, "IfcBeam", "BEAM"),
-                             (31, "IfcCurtainWall", "NOTDEFINED"),
-                             (52, "IfcOutlet", "POWEROUTLET"), (61, "IfcJunctionBox", "POWER"),
-                             (53, "IfcProtectiveDevice", "CIRCUITBREAKER"),
-                             (62, "IfcElectricAppliance", "HANDDRYER"),
-                             (54, "IfcCableCarrierFitting", "BEND"),
-                             (63, "IfcElectricFlowStorageDevice", "UPS"),
-                             (55, "IfcElectricGenerator", "STANDALONE")):
+    for sid, (camel, ptype) in FF.PREDEFINED_TYPES.items():
         e = f.by_id(sid)
         assert (e.is_a(), e.PredefinedType, e.Tag) == (camel, ptype, e.Name), sid
     assert f.by_id(50).is_a() == "IfcFurnishingElement" and f.by_id(50).Tag == "DESK"
@@ -583,12 +582,7 @@ def test_foreign_fixture_reads_on_a_bare_interpreter(foreign_path):
         "assert not bad, bad\n"
         "print('OK foreign stdlib-only')\n"
     )
-    proc = subprocess.run([sys.executable, "-S", "-c", code], cwd=ROOT,
-                          capture_output=True, text=True, timeout=120,
-                          env={k: v for k, v in os.environ.items()
-                               if k not in ("PYTHONPATH", "RVT_STEPLITE_FORCE")})
-    assert proc.returncode == 0, proc.stderr[-2000:]
-    assert "OK foreign stdlib-only" in proc.stdout
+    assert "OK foreign stdlib-only" in _run_bare(code)
 
 
 def test_schema_rows_agree_with_the_generated_ifc4_table():
@@ -599,52 +593,38 @@ def test_schema_rows_agree_with_the_generated_ifc4_table():
 
     assert SCHEMA == "IFC4" and len(PARENT) > 700 and PARENT["IfcRoot"] is None
     assert all(p is None or p in PARENT for p in PARENT.values())
-    beyond_ifc4 = {"IfcTriangulatedIrregularNetwork"}          # IFC4x1 addition, kept
     for uname, (camel, parent, _own) in SL._SCHEMA.items():
         assert uname == camel.upper(), camel
-        if camel in beyond_ifc4:
-            assert camel not in PARENT
+        if uname in SL._BEYOND_IFC4 and SL._BEYOND_IFC4[uname] is None:
+            assert camel not in PARENT, camel                 # whole class beyond IFC4
             continue
-        ours = SL._SCHEMA[parent][0] if parent else None
-        assert ours == PARENT[camel], (camel, ours, PARENT[camel])
+        assert (SL._camel_of(parent) if parent else None) == PARENT[camel], (camel, parent)
     # spot checks of the closure machinery itself
-    assert SL._transcribed_ancestor("IFCSENSOR") == "IFCDISTRIBUTIONELEMENT"
-    assert SL._transcribed_ancestor("IFCCHIMNEY") == "IFCBUILDINGELEMENT"
-    assert SL._transcribed_ancestor("IFCROOT") is None
-    assert SL._full_attrs("IFCSENSOR") == SL._full_attrs("IFCELEMENT")
+    assert SL._full_attrs("IFCSENSOR") == SL._full_attrs("IFCELEMENT")   # ancestor prefix
+    assert SL._full_attrs("IFCNOTINANYSCHEMA") == ()
     assert SL._camel_of("IFCCARTESIANTRANSFORMATIONOPERATOR2DNONUNIFORM") == \
         "IfcCartesianTransformationOperator2DnonUniform"
 
 
 @needs_ifcos
 def test_schema_rows_match_ifc4_declarations():
-    """The programmatic cross-check: every transcribed row's supertype and
-    FULL positional attribute list equal ifcopenshell's IFC4 declaration.
-    Two rows deliberately carry IFC4x1's trailing OPTIONAL ``TagList`` (reads
-    None on IFC4 files); one row is an IFC4x1 class."""
+    """The programmatic cross-check: every transcribed row's FULL positional
+    attribute list equals ifcopenshell's IFC4 declaration (modulo the
+    documented ``_BEYOND_IFC4`` extensions), and the sibling order by_type
+    walks equals ``entity.subtypes()`` order for every parent."""
     import ifcopenshell.ifcopenshell_wrapper as W
 
     schema = W.schema_by_name("IFC4")
-    trailing_ext = {"IfcCartesianPointList2D": ("TagList",),
-                    "IfcCartesianPointList3D": ("TagList",)}
-    checked = 0
-    for uname, (camel, parent, _own) in SL._SCHEMA.items():
-        if camel == "IfcTriangulatedIrregularNetwork":
-            continue
-        decl = schema.declaration_by_name(camel)
-        truth = tuple(a.name() for a in decl.all_attributes())
-        sup = decl.supertype().name() if decl.supertype() else None
-        assert (SL._SCHEMA[parent][0] if parent else None) == sup, camel
-        assert SL._full_attrs(uname) == truth + trailing_ext.get(camel, ()), camel
-        checked += 1
-    assert checked == len(SL._SCHEMA) - 1
-    # and the subtype order by_type walks == the declaration order
+    for uname, (camel, _parent, _own) in SL._SCHEMA.items():
+        extra = SL._BEYOND_IFC4.get(uname, ())
+        if extra is None:
+            continue                                          # whole class beyond IFC4
+        truth = tuple(a.name() for a in schema.declaration_by_name(camel).all_attributes())
+        assert SL._full_attrs(uname) == truth + extra, camel
     for uname, kids in SL._CHILDREN.items():
-        try:
-            decl = schema.declaration_by_name(SL._camel_of(uname))
-        except Exception:                                   # IFC4x1-only parent
+        if SL._BEYOND_IFC4.get(uname, ()) is None:
             continue
-        truth = [d.name().upper() for d in decl.subtypes()]
+        truth = [d.name().upper() for d in schema.declaration_by_name(SL._camel_of(uname)).subtypes()]
         assert [k for k in kids if k in truth] == truth, uname
 
 
@@ -671,25 +651,5 @@ def test_foreign_fixture_matches_ifcopenshell(foreign_path):
         "IfcRelAssigns", "IfcRelDefines", "IfcNamedUnit", "IfcDoor", "IfcSensor",
         "IfcRepresentationItem", "IfcPlacement"))
     assert [e.id() for e in fr.by_type("IfcProduct")] == FF.EXPECTED_PRODUCT_IDS
-    n = raised = 0
-    for er in fr:
-        es = fs.by_id(er.id())
-        assert es.is_a() == er.is_a(), er.id()
-        served = SL._full_attrs(er.is_a().upper())
-        for k, v in er.get_info(recursive=False).items():
-            if k in ("id", "type"):
-                continue
-            if er.is_a().upper() in SL._SCHEMA or k in served:
-                assert _canon(getattr(es, k)) == _canon(v), (er.id(), er.is_a(), k)
-                n += 1
-            else:
-                with pytest.raises(AttributeError):
-                    getattr(es, k)
-                raised += 1
-    assert n > 300 and raised == len(FF.UNTRANSCRIBED)      # one PredefinedType each
-    for er in fr.by_type("IfcElement"):
-        es = fs.by_id(er.id())
-        assert [r.id() for r in er.ContainedInStructure] == [r.id() for r in es.ContainedInStructure]
-        assert _ue.get_psets(er) == SL.get_psets(es)
-        tr, ts = _ue.get_type(er), SL.get_type(es)
-        assert (tr.id() if tr else None) == (ts.id() if ts else None), er.id()
+    assert _assert_attrs_equivalent(fr, fs) > 300     # raises-not-differs for the 4 untranscribed
+    _assert_element_utils_equivalent(fr, fs, placement=HAVE_NUMPY)

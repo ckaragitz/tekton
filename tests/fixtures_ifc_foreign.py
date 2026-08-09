@@ -117,6 +117,17 @@ EXPECTED_ELEMENT_IDS = EXPECTED_PRODUCT_IDS[:20]
 UNTRANSCRIBED = {"IfcChimney": 32, "IfcRamp": 23, "IfcSanitaryTerminal": 51,
                  "IfcSensor": 64}
 
+#: transcribed rows added for #155 whose own leaf attribute here is
+#: PredefinedType: step id -> (class, PredefinedType); Tag == Name for each.
+PREDEFINED_TYPES = {
+    30: ("IfcColumn", "COLUMN"), 22: ("IfcBeam", "BEAM"),
+    31: ("IfcCurtainWall", "NOTDEFINED"), 52: ("IfcOutlet", "POWEROUTLET"),
+    61: ("IfcJunctionBox", "POWER"), 53: ("IfcProtectiveDevice", "CIRCUITBREAKER"),
+    62: ("IfcElectricAppliance", "HANDDRYER"), 54: ("IfcCableCarrierFitting", "BEND"),
+    63: ("IfcElectricFlowStorageDevice", "UPS"), 55: ("IfcElectricGenerator", "STANDALONE"),
+    60: ("IfcElectricDistributionBoard", "DISTRIBUTIONBOARD"),
+}
+
 
 def write_fixture(dirpath: str, name: str = "foreign-classes-fixture.ifc") -> str:
     path = os.path.join(dirpath, name)

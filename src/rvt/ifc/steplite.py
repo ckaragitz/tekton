@@ -67,6 +67,7 @@ TERRITORY (perf-deps stream): this module, ``rvt/ifc/ifc4_parents.py``,
 """
 from __future__ import annotations
 
+import functools
 import os
 import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple
@@ -480,6 +481,16 @@ _TYPED_CAMEL = {n.upper(): n for n in (
     "IfcLineIndex", "IfcArcIndex", "IfcPositiveInteger",
 )}
 
+#: Rows above that deliberately go BEYOND IFC4 -- IFC4x1 additions the
+#: reference writer emits: class -> its trailing attribute names absent from
+#: IFC4 (they read None on IFC4 files), or None when the whole class is
+#: absent from IFC4.  The declaration cross-check in the tests reads this.
+_BEYOND_IFC4: Dict[str, Optional[Tuple[str, ...]]] = {
+    "IFCCARTESIANPOINTLIST2D": ("TagList",),
+    "IFCCARTESIANPOINTLIST3D": ("TagList",),
+    "IFCTRIANGULATEDIRREGULARNETWORK": None,
+}
+
 # derived lookups -----------------------------------------------------------
 # The class tree is the UNION of the transcribed rows and the full IFC4
 # hierarchy (ifc4_parents): _SCHEMA rows keep their own parent link (each one
@@ -487,11 +498,11 @@ _TYPED_CAMEL = {n.upper(): n for n in (
 # the generated table says.  UPPERCASE keys throughout (STEP tokens).
 _CAMEL: Dict[str, str] = {c.upper(): c for c in _IFC4_PARENT}
 _CAMEL.update({u: row[0] for u, row in _SCHEMA.items()})
+_CAMEL.update(_TYPED_CAMEL)
 _PARENT: Dict[str, Optional[str]] = {
     c.upper(): (p.upper() if p else None) for c, p in _IFC4_PARENT.items()}
 _PARENT.update({u: row[1] for u, row in _SCHEMA.items()})
 
-_ATTRS_CACHE: Dict[str, Tuple[str, ...]] = {}
 _CHILDREN: Dict[str, List[str]] = {}
 for _u, _p in _PARENT.items():
     if _p is not None:
@@ -500,37 +511,23 @@ for _k in _CHILDREN:            # ifcopenshell walks subtypes() in CASE-SENSITIV
     _CHILDREN[_k].sort(key=_CAMEL.__getitem__)   # CamelCase order (IfcCShape < IfcCircle)
 
 
+@functools.lru_cache(maxsize=None)
 def _full_attrs(uname: str) -> Tuple[str, ...]:
     """Positional attribute names steplite can serve for ``uname``: the full
     root..leaf list for a transcribed class; for any other IFC4 class the
     list of its nearest transcribed ancestor (a true prefix of its STEP
     arguments); ``()`` for a class in neither table."""
-    got = _ATTRS_CACHE.get(uname)
-    if got is None:
-        row = _SCHEMA.get(uname)
-        if row is not None:
-            got = (_full_attrs(row[1]) if row[1] else ()) + tuple(row[2])
-        else:
-            parent = _PARENT.get(uname)
-            got = _full_attrs(parent) if parent else ()
-        _ATTRS_CACHE[uname] = got
-    return got
-
-
-def _transcribed_ancestor(uname: str) -> Optional[str]:
-    """Nearest strict ancestor of ``uname`` that has a ``_SCHEMA`` row."""
-    cur = _PARENT.get(uname)
-    while cur is not None and cur not in _SCHEMA:
-        cur = _PARENT.get(cur)
-    return cur
+    row = _SCHEMA.get(uname)
+    if row is not None:
+        return (_full_attrs(row[1]) if row[1] else ()) + tuple(row[2])
+    parent = _PARENT.get(uname)
+    return _full_attrs(parent) if parent else ()
 
 
 def _camel_of(uname: str) -> str:
-    camel = _CAMEL.get(uname) or _TYPED_CAMEL.get(uname)
-    if camel:
-        return camel
     # best effort for a class in no table: Ifc + Titlecased remainder
-    return "Ifc" + uname[3:].title() if uname.startswith("IFC") else uname
+    return _CAMEL.get(uname) or (
+        "Ifc" + uname[3:].title() if uname.startswith("IFC") else uname)
 
 
 # ===========================================================================
@@ -730,13 +727,9 @@ class Entity:
         if attr.startswith("_"):
             raise AttributeError(attr)
         attrs = _full_attrs(self._uname)
-        try:
+        if attr in attrs:
             idx = attrs.index(attr)
-        except ValueError:
-            idx = -1
-        if idx >= 0:
-            raw = self._args[idx] if idx < len(self._args) else None
-            return self._f._resolve(raw)
+            return self._f._resolve(self._args[idx] if idx < len(self._args) else None)
         if attr == "ContainedInStructure":
             return self._f._inverse_rel("IFCRELCONTAINEDINSPATIALSTRUCTURE",
                                         "RelatedElements", self._sid)
@@ -747,13 +740,10 @@ class Entity:
             return self._f._inverse_rel("IFCRELDEFINESBYTYPE",
                                         "RelatedObjects", self._sid)
         if self._uname not in _SCHEMA:
-            anc = _transcribed_ancestor(self._uname)
-            served = (f"only its {_camel_of(anc)} attributes are served" if anc
-                      else "no attribute table")
             raise AttributeError(
                 f"steplite: entity class {_camel_of(self._uname)} is outside the "
-                f"read-path attribute subset ({served}); cannot read .{attr} of "
-                f"#{self._sid}")
+                f"read-path attribute subset (served: {', '.join(attrs) or 'nothing'}); "
+                f"cannot read .{attr} of #{self._sid}")
         raise AttributeError(
             f"steplite: {_camel_of(self._uname)} has no attribute {attr!r}")
 
@@ -894,8 +884,7 @@ class File:
         if self._guid_index is None:
             idx: Dict[str, int] = {}
             for sid, ent in self._by_id.items():
-                if _full_attrs(ent._uname)[:1] == ("GlobalId",) and ent._args and \
-                        isinstance(ent._args[0], str):
+                if ent.is_a("IfcRoot") and ent._args and isinstance(ent._args[0], str):
                     idx[ent._args[0]] = sid
             self._guid_index = idx
         sid = self._guid_index.get(guid)
