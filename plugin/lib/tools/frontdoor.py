@@ -83,15 +83,15 @@ def build_parser() -> argparse.ArgumentParser:
                       help="output directory (default: experiments/frontdoor/<name>-<stamp>)")
     outg.add_argument("--stem", default=None, help="output file stem (default: from the input name)")
     pol = pa.add_argument_group("build policy")
-    pol.add_argument("--target-version", type=int, choices=(2026, 2025, 2024), default=None,
-                     metavar="{2026,2025,2024}",
+    pol.add_argument("--target-version", type=int, default=None, metavar="YEAR",
                      help="the Revit release the RECIPIENT runs (ASK the user first -- Revit "
-                          "cannot open a newer file). 2026 = the certified base (default). "
-                          "2025 / 2024 = resolve that release's genesis base when its "
-                          "campaign certifies; until then the build DELIVERS the 2026 file "
-                          "plus one clear line ('target N requested: ...') and a version-"
-                          "agnostic IFC addition -- never a silent 2026 file presented as "
-                          "the target")
+                          "cannot open a newer file). 2026 / 2025 / 2024 = build natively on "
+                          "that release's certified genesis base. Any other year (older or "
+                          "unknown) still DELIVERS: the default-release build plus one clear "
+                          "line ('target N requested: ... your Revit N cannot open it') and a "
+                          "version-agnostic IFC addition -- never a silent substitute "
+                          "presented as the target. Omitted = the default release, and the "
+                          "result says to ask.")
     pol.add_argument("--strict", action="store_true",
                      help="the walls+families OPEN BUG -> emit TWO coordinated files "
                           "(shell + equipment) instead of one stamped combined file")

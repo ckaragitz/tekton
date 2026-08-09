@@ -124,11 +124,19 @@ class AuthorResult:
     seconds: float = 0.0
 
     def as_json(self) -> Dict[str, Any]:
-        return {"route": self.route, "ok": self.ok, "status": self.status,
-                "out_dir": self.out_dir, "files": self.files,
-                "intent_json": self.intent_json, "handoff": self.handoff,
-                "manifest": {k: v for k, v in self.manifest_paths.items()},
-                "errors": self.errors, "seconds": self.seconds}
+        out = {"route": self.route, "ok": self.ok, "status": self.status,
+               "out_dir": self.out_dir, "files": self.files,
+               "intent_json": self.intent_json, "handoff": self.handoff,
+               "manifest": {k: v for k, v in self.manifest_paths.items()},
+               "errors": self.errors, "seconds": self.seconds}
+        # issue #24: the ONE --json result must carry the honest release story
+        # and the stamps itself, so an AI surface never re-reads manifest.json
+        if self.manifest:
+            from . import target_status as _ts
+            out["release"] = _ts.release_view(self.manifest, files=self.files)
+            out["stamps"] = list(((self.manifest.get("honesty") or {})
+                                  .get("proof_only_stamps")) or [])
+        return out
 
 
 # ============================================================================
@@ -252,6 +260,27 @@ def _resolve_base_and_version(req: AuthorRequest):
             return None, {"requested": target, "status": "refused",
                           "output_release": None, "note": str(e)}, errors
         pending_msg = str(e)
+        # Our own default base arrived via a path (plugin bundle / legacy
+        # `--env` exports): that is not a user override, so the target's OWN
+        # certified slot (bundled beside it, sha-pinned) must win before any
+        # degrade -- otherwise a 2025 recipient gets a 2026 file plus a false
+        # "pending certification" line while G_ABPD_2025 sits in the bundle
+        # (issue #24).  Only the pinned-slot resolution runs here.
+        saved_env = os.environ.pop("RVT_GENESIS_BASE", None)
+        try:
+            base = resolve_base(None, target_release=target)
+            vb = {"requested": target, "status": "match", "output_release": target,
+                  "note": (f"Revit {target} target: certified Revit {target} genesis "
+                           "base resolved (the default base named by --base / "
+                           "$RVT_GENESIS_BASE is ours; its release slot was used)")}
+            return base, vb, errors
+        except (BaseNotCertified, BaseError) as e2:
+            pending_msg = str(e2)
+        except Exception as e2:                                      # noqa: BLE001
+            pending_msg = f"{pending_msg}; slot resolution: {e2}"
+        finally:
+            if saved_env is not None:
+                os.environ["RVT_GENESIS_BASE"] = saved_env
     # ---- the honest FALLBACK: deliver the certified default + THE LINE -----
     try:
         base = resolve_base(req.base)
@@ -264,12 +293,34 @@ def _resolve_base_and_version(req: AuthorRequest):
             produced = int(_V.detect_release(base.path) or default_release)
         except Exception:
             produced = default_release
-    line = (_V.creation_fallback_line(target, produced) if _V is not None else
-            f"target {target} requested: the {target} base is pending certification; "
-            f"this file targets {produced} -- your Revit {target} cannot open it; "
-            f"the IFC alongside is version-agnostic")
+    from . import target_status as _ts
+    support = _ts.support_status(target)
+    supported = _ts.supported_targets()
+    nearest: Optional[int] = None
+    if support == "certified-base" or _V is None:
+        # a certified slot that could not be resolved on THIS machine (bundle
+        # incomplete): the version model's uniform "pending" wording stands
+        line = (_V.creation_fallback_line(target, produced) if _V is not None else
+                f"target {target} requested: the {target} base is pending certification; "
+                f"this file targets {produced} -- your Revit {target} cannot open it; "
+                f"the IFC alongside is version-agnostic")
+    else:
+        # a release we do not create for (older / unknown year): say THAT, name
+        # what is supported and the nearest target, never call it "pending"
+        nearest = _ts.nearest_supported(target)
+        parts = [f"target {target} requested: tekton has no certified Revit {target} "
+                 f"creation base (supported: {', '.join(map(str, supported))})"]
+        if nearest is not None and nearest > target:
+            parts.append(f"the nearest supported target is Revit {nearest}, which "
+                         f"Revit {target} cannot open either")
+        parts.append(f"this file targets {produced} -- your Revit {target} cannot open it")
+        parts.append("the IFC alongside is version-agnostic (links into Revit 2019+)")
+        line = "; ".join(parts)
     vb = {"requested": target, "status": "fallback", "output_release": produced,
           "line": line,
+          "target_support": support,
+          "nearest_supported": nearest,
+          "supported_targets": supported,
           "base_status": release_status(target),
           "pending": pending_msg,
           "note": ("DELIVERABLE RULE: the buildable file is delivered (it targets Revit "
@@ -531,9 +582,11 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
     base_note = ("the --rvt route edits the user's own file in place-copy (never an Autodesk "
                  "sample base test: the input is whatever the user supplies; deliverability of "
                  "the result is ledgered against that input by the job runner's P0 gate)")
-    version_block: Optional[Dict[str, Any]] = None
-    if req.target_version is not None:
-        version_block = _rvt_route_version_block(rvt_path, int(req.target_version))
+    # the input's release is auto-detected and stated EVERY time (issue #24):
+    # an edit keeps its input's release, so the recipient question is only
+    # "can you open the input" -- answered here without a follow-up call
+    version_block = _rvt_route_version_block(
+        rvt_path, int(req.target_version) if req.target_version is not None else None)
     manifest = MF.edit_manifest(
         inputs=inputs, base_note=base_note, out_dir=out_dir,
         edit_spec=(spec.as_json() if spec is not None else {"error": errors[:1]}),
@@ -551,18 +604,24 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
 # helpers
 # ============================================================================
 
-def _rvt_route_version_block(rvt_path: str, target: int) -> Dict[str, Any]:
+def _rvt_route_version_block(rvt_path: str, target: Optional[int]) -> Dict[str, Any]:
     """The honest version story for an EDIT: the output preserves the input
-    file's release (an edit cannot transmute a 2026 file into a 2025 one)."""
+    file's release (an edit cannot transmute a 2026 file into a 2025 one).
+    ``target=None`` = the recipient's year was not stated: the detected input
+    release is still reported (status ``detected``)."""
     in_rel: Optional[int] = None
     try:
         from .. import versions as _V
         in_rel = _V.detect_release(rvt_path)
     except Exception:                                                # pragma: no cover
         _V = None
-    vb: Dict[str, Any] = {"requested": int(target), "input_release": in_rel,
-                          "output_release": in_rel}
-    if in_rel is None:
+    vb: Dict[str, Any] = {"requested": (int(target) if target is not None else None),
+                          "input_release": in_rel, "output_release": in_rel}
+    if in_rel is not None and target is None:
+        vb["status"] = "detected"
+        vb["note"] = (f"the input file is Revit {in_rel}; the edited output stays Revit "
+                      f"{in_rel} (opens in Revit {in_rel} and newer, never older)")
+    elif in_rel is None:
         vb["status"] = "unknown-input-release"
         vb["note"] = ("could not determine the input file's Revit release; the edit "
                       "preserves whatever it is -- the output opens wherever the input did")
