@@ -17,13 +17,14 @@ from __future__ import annotations
 
 import os
 import struct
-import zlib
 
 import pytest
 
 from rvt import manipulate as M
 from rvt import partitions as P
 from rvt import versions as V
+from rvt.encode import record_stamp
+from rvt.objects import iter_records
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GEN = os.path.join(ROOT, "plugin", "assets", "genesis")
@@ -44,12 +45,20 @@ def _constants_restored():
     assert {k: getattr(P, k) for k in latest} == latest
 
 
-def _reframe_102(record: bytes, body: bytes) -> bytes:
-    """Re-frame a seq-102 record around a new object ``body`` (u16 class +
-    object bytes) with a CORRECT stamp -- structurally impeccable."""
-    eid = struct.unpack_from("<q", record, 0)[0]
-    return (struct.pack("<qII", eid, zlib.adler32(body) & 0xFFFFFFFF, len(body))
-            + body + struct.pack("<I", len(body)))
+def _tamper_102(*, extra: bytes = b"", stamp_delta: int = 0):
+    """A plan tamper: re-frame the plan's seq-102 replacement with ``extra``
+    stray bytes after the object and/or the stamp off by ``stamp_delta``.
+    The framing itself stays valid (64-bit-id era: 2024+ bases only)."""
+    def tamper(plan):
+        for e in plan.record_edits:
+            if e.seq == 102:
+                r = next(iter_records(e.new_record, 102))
+                payload = r.payload + extra
+                stamp = (record_stamp(r.class_id, payload) + stamp_delta) & 0xFFFFFFFF
+                ps = 2 + len(payload)
+                e.new_record = (struct.pack("<qIIH", r.elem_id, stamp, ps, r.class_id)
+                                + payload + struct.pack("<I", ps))
+    return tamper
 
 
 def _edit(year: int, out_dir, *, tamper=None) -> tuple:
@@ -60,7 +69,7 @@ def _edit(year: int, out_dir, *, tamper=None) -> tuple:
     from rvt.frontdoor.release_ctx import release_build_context
     from rvt.mutate import Document
     base = BASES[year]
-    out = str(out_dir / f"level_{year}{'_x' if tamper else ''}.rvt")
+    out = str(out_dir / f"level_{year}.rvt")
     with release_build_context(base):
         doc = Document.from_file(base)
         lvl = doc.levels()[0]["id"]
@@ -116,14 +125,7 @@ def test_corrupted_edit_is_caught_by_the_own_schema_decode(tmp_path):
     (8 stray bytes after the object, stamp recomputed) passes every framing
     check and is caught ONLY by the decode against the file's own schema --
     the probe that used to read ``clean: False`` for the honest edit too."""
-    def tamper(plan):
-        for e in plan.record_edits:
-            if e.seq == 102:
-                size = struct.unpack_from("<I", e.new_record, 12)[0]
-                body = e.new_record[16:16 + size] + b"\0" * 8
-                e.new_record = _reframe_102(e.new_record, body)
-
-    out, lvl = _edit(2025, tmp_path, tamper=tamper)
+    out, lvl = _edit(2025, tmp_path, tamper=_tamper_102(extra=b"\0" * 8))
     v = M.verify_manipulated(out, edited_ids=[lvl])
     _healthy(v)                                     # framing, stamps: all fine
     assert v["fallbacks"] == []
@@ -133,15 +135,7 @@ def test_corrupted_edit_is_caught_by_the_own_schema_decode(tmp_path):
 
 def test_bad_stamp_is_caught(tmp_path):
     """The width-independent stamp check still fires on a wrong stamp."""
-    def tamper(plan):
-        for e in plan.record_edits:
-            if e.seq == 102:
-                rec = bytearray(e.new_record)
-                struct.pack_into("<I", rec, 8, (struct.unpack_from("<I", rec, 8)[0] + 1)
-                                 & 0xFFFFFFFF)
-                e.new_record = bytes(rec)
-
-    out, lvl = _edit(2025, tmp_path, tamper=tamper)
+    out, lvl = _edit(2025, tmp_path, tamper=_tamper_102(stamp_delta=1))
     v = M.verify_manipulated(out, edited_ids=[lvl])
     assert v["stamps_ok"] is False
     assert v["walker_errors"] == 0 and v["crc_failures"] == 0

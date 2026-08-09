@@ -71,7 +71,7 @@ from . import ecc
 from .cfb_writer import write_cfb
 from .commit import PART_HDR_COUNT_OFF
 from .container import open_rvt
-from .encode import ObjectEncoder
+from .encode import ObjectEncoder, record_stamp
 from .objects import Record, iter_records
 from .partitions import BLOCK_TAG, TRAILER_TAG, StreamWalker, record_header_len
 from .roundtrip import read_entries
@@ -1513,14 +1513,12 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
     record; deleted ids absent from unit 0 (all seqs) and from the
     ElemTable; edited ids present, decoding cleanly, in all their seqs.
 
-    The file is judged under its OWN release, whoever calls this and from
-    whatever context: its own framing ordinals (+ id width) are put in
-    force for the duration (:func:`rvt.validate.enter_own_release`; nest-
-    safe inside a caller's ``rvt.versions.reading``, restored on exit) and
-    the edited records are decoded against the schema the file itself
-    carries in ``Formats/Latest`` -- never the built-in latest-release one.
-    ``rep["fallbacks"]`` is empty when both came from the file; otherwise it
-    names each rung that was used instead and why (a label, never a raise).
+    The file is judged under its OWN release framing and OWN schema
+    (:func:`rvt.validate.enter_own_release` -- nest-safe, restored on exit;
+    :func:`rvt.versions.schema_of`), whoever calls this and from whatever
+    context.  ``rep["fallbacks"]`` is empty when both came from the file;
+    otherwise it names each rung used instead and why (a label, never a
+    raise).
     """
     from contextlib import ExitStack
 
@@ -1586,13 +1584,9 @@ def verify_manipulated(path: str, *, deleted_ids: Sequence[int] = (),
                     rep["edited"].setdefault(str(r.elem_id), {})[str(seq)] = {
                         "class": (o.class_name if o else None),
                         "clean": (bool(o.clean or o.stub) if o else None)}
-                if seq != 101 and r.elem_id >= 0 and r.body_size >= 2:
-                    # stamp = adler32(u16 class + object bytes); rebuilt from
-                    # the parsed record so no header width is baked in
-                    stamp = zlib.adler32(r.payload,
-                                         zlib.adler32(struct.pack("<H", r.class_id)))
-                    if (stamp & 0xFFFFFFFF) != r.stamp:
-                        rep["stamps_ok"] = False
+                if (seq != 101 and r.elem_id >= 0 and r.body_size >= 2
+                        and record_stamp(r.class_id, r.payload) != r.stamp):
+                    rep["stamps_ok"] = False
             if seq == 102:
                 u0_102_ids = ids_here
         if u0_102_ids is not None:
