@@ -180,6 +180,11 @@ was already cheap and is unchanged within noise (the control behaves).
   "Gates run" from the actual run.
 * Shipped vs staged: engine change ships via the plugin mirror; no viewer claim, nothing staged;
   no `.rvt` committed (all outputs in the session scratchpad).
-* Follow-ups filed as issues (numbers in the PR): build-phase profile of the prompt job;
-  `surface_bench` BLOCKED-vs-FAIL for missing-numpy `author-ifc`; stdlib import weight
-  (`xml.sax.saxutils`, `urllib.request`) on the prompt path.
+* Follow-ups: **#139** (new, `area:perf`+`area:famgen`, `auto`) — drop the
+  `xml.sax.saxutils` import in `famgen/skeleton.py:1597` that pulls `urllib.request`/`http.client`/
+  `ssl` into every prompt job (18 ms repo / ~30 ms bare). Existing issues fed with this session's
+  numbers instead of duplicates: **#124** (the prompt job is build-dominated: 20.8–22 s wall vs a
+  ~200 ms import bill — profile the build stages next) and **#127** (bare `author-ifc` without
+  numpy; `surface_bench` should call that BLOCKED, not FAIL). Not filed (no user-visible value on
+  its own, noted for whoever next touches `rvt._lazyimp`): a generic `available(proxy) -> bool`
+  would let `_load_ifcos()` collapse to one line.
