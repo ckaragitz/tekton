@@ -24,7 +24,8 @@ L1 STRUCTURE  (``structure``)
       CRC32/ISIZE trailer.
     * ``Partitions/<N>`` block walker: zero framing errors, per-block gzip
       CRC ok, the ISIZE identity ``ISIZE == hdr_len(seq)*A + C + adj(flags)``
-      holds, the 6-byte 0x0f21 block trailer mirrors B, seq in {101,102,103}.
+      holds, the 6-byte block trailer (``TRAILER_TAG`` of the file's release)
+      mirrors B, seq in {101,102,103}.
     * record layer per save unit per seq: the record walk covers the whole
       segment, every record's trailing ``u32 psize`` repeat matches, the
       sentinel (id -1, psize 0) is the LAST record of every unit's per-seq
@@ -97,6 +98,11 @@ Public API::
     print(rep.format_text())
     json.dump(rep.to_json(), fh)
 
+:func:`validate_file` reads every file under its OWN release (framing
+ordinals resolved by name from the file's own schema -- any release, pinned
+in ``rvt.versions.KNOWN_RELEASES`` or not) -- see its docstring; callers
+need no ``reading`` wrap.
+
 CLI: ``tools/rvt_validate.py FILE.rvt [--json out.json] [--strict]``
 (exit 0 = no errors).
 """
@@ -106,6 +112,7 @@ import struct
 import time
 import zlib
 from collections import Counter, defaultdict
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, Tuple
 
@@ -118,7 +125,7 @@ np = lazy_import("numpy", globals(), "np", hint="ECC page syndrome math")
 
 import olefile
 
-from . import ecc
+from . import ecc, partitions
 from .partitions import StreamWalker, record_header_len
 
 # ---------------------------------------------------------------------------
@@ -154,10 +161,6 @@ GLOBAL_PREFIX_VALUE = {
     "Global/DocumentIncrementTable": 1, "Global/History": 1,
     "Global/ElemTable": 0, "Global/PartitionTable": 0,
 }
-
-#: the canonical Revit-2026 schema (Formats/Latest inflated)
-SCHEMA_2026_SIZE = 496_597
-SCHEMA_2026_SHA256 = "6459a9a93ebde32c26e4190de2756bf7a4592e63a0d142feca43c392ecdf8ac2"
 
 #: proven-accepted auto-repair envelope: one damaged byte = 8 single-bit
 #: corrections (V9: one flipped trailer byte translated successfully)
@@ -768,15 +771,20 @@ class Validator:
                 rep.error(L_STRUCTURE, "Formats/Latest", "schema does not inflate")
             else:
                 import hashlib
-                if len(sch) == SCHEMA_2026_SIZE and \
-                        hashlib.sha256(sch).hexdigest() == SCHEMA_2026_SHA256:
+                from .versions import KNOWN_RELEASES
+                digest = hashlib.sha256(sch).hexdigest()
+                year = next((y for y, r in KNOWN_RELEASES.items()
+                             if r.schema_sha256 == digest), None)
+                if year is not None:
                     rep.info(L_STRUCTURE, "Formats/Latest",
-                             "canonical Revit 2026 archive schema (byte-identical)")
+                             f"canonical Revit {year} archive schema (byte-identical)")
                 else:
+                    known = "/".join(str(y) for y in sorted(KNOWN_RELEASES))
                     rep.warn(L_STRUCTURE, "Formats/Latest",
-                             f"schema is {len(sch):,} bytes, not the canonical Revit "
-                             f"2026 schema ({SCHEMA_2026_SIZE:,}); the semantic layer "
-                             f"runs against the file's own schema")
+                             f"schema is {len(sch):,} bytes and matches none of the "
+                             f"pinned Revit {known} schemas (another point release, "
+                             f"or an edited/foreign schema); the semantic layer runs "
+                             f"against the file's own schema")
 
         # -- partitions: block framing, gzip CRC, ISIZE identity, records --------
         n_blocks = 0
@@ -831,8 +839,9 @@ class Validator:
                  "proven by the accepted V20-V29 — but a writer counter defect; "
                  f"{'ERROR under strict' if self.strict else 'strict makes it an error'})")
         if trl_bad:
-            rep.error(L_STRUCTURE, pname, f"{trl_bad} block(s) whose 6-byte 0x0f21 trailer "
-                      "does not mirror B / is displaced")
+            rep.error(L_STRUCTURE, pname, f"{trl_bad} block(s) whose 6-byte "
+                      f"0x{partitions.TRAILER_TAG:04x} trailer (the tag in force for "
+                      "this file's release) does not mirror B / is displaced")
         if seq_bad:
             rep.warn(L_STRUCTURE, pname, f"{seq_bad} block(s) with a seq id outside "
                      "101/102/103")
@@ -1617,6 +1626,34 @@ def check_circuits(circuits: Iterable[Tuple[int, dict]],
 # public API
 # ---------------------------------------------------------------------------
 
+def enter_own_release(stack: ExitStack, path: str) -> Optional[str]:
+    """Put ``path``'s OWN release framing in force on ``stack`` (restored when
+    the stack closes; nest-safe inside an outer ``rvt.versions.reading``).
+
+    Ladder: the file's own schema, by name (``reading32`` -- plus the 32-bit
+    id layer for <= 2023 files)  ->  the pinned framing table of the release
+    its ``BasicFileInfo`` declares (a file whose schema stream is damaged is
+    still judged as what it is)  ->  nothing (the built-in latest-release
+    constants).  Returns None when the schema resolved it, else one sentence
+    naming the rung used and why -- callers report it, never raise.
+    """
+    from .versions import detect_release, reading
+    from .versions.records32 import reading32
+    try:
+        stack.enter_context(reading32(path))
+        return None
+    except Exception as e:                           # corrupt / schema-less input
+        cause = f"{type(e).__name__}: {e}"
+    try:
+        year = detect_release(path)
+        stack.enter_context(reading(year=year))      # UnknownRelease if None/unpinned
+    except Exception:                                # noqa: BLE001
+        return (f"own-release framing not resolved ({cause}); checked against "
+                f"the built-in latest-release constants")
+    return (f"own schema unreadable ({cause}); checked against the pinned "
+            f"Revit {year} framing table (the release BasicFileInfo declares)")
+
+
 def validate_file(path: str, layers: Iterable[str] = ALL_LAYERS,
                   decode_limit: Optional[int] = None, strict: bool = False,
                   family: bool = False) -> Report:
@@ -1627,14 +1664,23 @@ def validate_file(path: str, layers: Iterable[str] = ALL_LAYERS,
     errors.  ``family=True`` applies the TWO family-shape adjustments
     (PartAtom unframed; ProjectInformation not required) for ``.rfa``/
     ``.rft`` streams sets.  Everything else is identical in all modes.
+
+    The file is judged under its OWN release (:func:`enter_own_release`:
+    framing ordinals + id width from its own schema, else the detected
+    release's pinned table, restored on exit); whichever fallback was taken
+    is an INFO finding at ``release``, never an exception.
     """
     v = Validator(path, layers=layers, decode_limit=decode_limit, strict=strict,
                   family=family)
-    try:
-        return v.run()
-    except _Abort:
-        v.rep.timings.setdefault("total", 0.0)
-        return v.rep
+    with ExitStack() as stack:
+        fallback = enter_own_release(stack, path)
+        if fallback:
+            v.rep.info(L_STRUCTURE, "release", fallback)
+        try:
+            v.run()
+        except _Abort:
+            v.rep.timings.setdefault("total", 0.0)
+    return v.rep
 
 
 def main(argv=None) -> int:

@@ -18,6 +18,12 @@ one document, in one command and one JSON --
 * provenance    -- for our-authored files: the famgen provenance scan
                    (zero-donor-bytes checks) when ``--provenance`` is given.
 
+census, validation and provenance read the file under its OWN release
+(framing ordinals from its own ``Formats/Latest`` -- any release, not only
+the latest -- else the pinned table of the release ``BasicFileInfo``
+declares); whenever the schema could not settle it the report says which
+fallback was taken under ``framing``.
+
 Usage::
 
     python tools/rvt_analyze.py FILE.rvt [--json out.json] [--top 25]
@@ -33,6 +39,7 @@ import hashlib
 import json
 import os
 import sys
+from contextlib import ExitStack
 from typing import Any, Dict
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -104,6 +111,24 @@ def _validate(path: str, kind: str) -> Dict[str, Any]:
             "pages_checked": rep.stats.get("pages_checked")}
 
 
+def _census(path: str, top: int) -> Dict[str, Any]:
+    from rvt.census import census
+    c = census(path)
+    classes = c.get("classes") or {}
+    return {
+        "host_records": c.get("host_records"),
+        "n_classes": c.get("n_classes"),
+        "top_classes": dict(list(classes.items())[:top]),
+        "units": c.get("units"),
+        "families": {k: v for k, v in (c.get("families") or {}).items()
+                     if not k.startswith("names_")},
+        "family_names_with_document":
+            (c.get("families") or {}).get("names_with_document"),
+        "coherence": c.get("coherence"),
+        "elemtable_rows": c.get("elemtable_rows"),
+    }
+
+
 def analyze(path: str, *, top: int = 25, with_census: bool = True,
             with_validate: bool = True, with_provenance: bool = False
             ) -> Dict[str, Any]:
@@ -118,36 +143,30 @@ def analyze(path: str, *, top: int = 25, with_census: bool = True,
             rep[name] = fn()
         except Exception as ex:                               # noqa: BLE001
             rep[name] = {"error": repr(ex)}
-    if with_census:
+    with ExitStack() as stack:                  # the file's OWN release framing
         try:
-            from rvt.census import census
-            c = census(path)
-            classes = c.get("classes") or {}
-            rep["census"] = {
-                "host_records": c.get("host_records"),
-                "n_classes": c.get("n_classes"),
-                "top_classes": dict(list(classes.items())[:top]),
-                "units": c.get("units"),
-                "families": {k: v for k, v in (c.get("families") or {}).items()
-                             if not k.startswith("names_")},
-                "family_names_with_document":
-                    (c.get("families") or {}).get("names_with_document"),
-                "coherence": c.get("coherence"),
-                "elemtable_rows": c.get("elemtable_rows"),
-            }
+            from rvt.validate import enter_own_release
+            fallback = enter_own_release(stack, path)
         except Exception as ex:                               # noqa: BLE001
-            rep["census"] = {"error": repr(ex)}
-    if with_validate:
-        try:
-            rep["validation"] = _validate(path, kind)
-        except Exception as ex:                               # noqa: BLE001
-            rep["validation"] = {"error": repr(ex)}
-    if with_provenance and kind == "family":
-        try:
-            from rvt.famgen import factory as F
-            rep["provenance"] = F.provenance_scan(path)
-        except Exception as ex:                               # noqa: BLE001
-            rep["provenance"] = {"error": repr(ex)}
+            fallback = f"own-release framing not resolved ({ex!r})"
+        if fallback:
+            rep["framing"] = {"fallback": fallback}
+        if with_census:
+            try:
+                rep["census"] = _census(path, top)
+            except Exception as ex:                           # noqa: BLE001
+                rep["census"] = {"error": repr(ex)}
+        if with_validate:
+            try:
+                rep["validation"] = _validate(path, kind)
+            except Exception as ex:                           # noqa: BLE001
+                rep["validation"] = {"error": repr(ex)}
+        if with_provenance and kind == "family":
+            try:
+                from rvt.famgen import factory as F
+                rep["provenance"] = F.provenance_scan(path)
+            except Exception as ex:                           # noqa: BLE001
+                rep["provenance"] = {"error": repr(ex)}
     return rep
 
 
@@ -170,8 +189,12 @@ def _print_text(rep: Dict[str, Any]) -> None:
     cont = rep.get("container") or {}
     print(f"container      : {cont.get('n_streams')} streams, "
           f"{len(cont.get('partition_streams') or [])} partition stream(s)")
+    if "framing" in rep:
+        print(f"framing        : {rep['framing'].get('fallback')}")
     cen = rep.get("census") or {}
-    if cen and "error" not in cen:
+    if cen.get("error"):
+        print(f"census         : ERROR {cen['error']}")
+    elif cen:
         u = cen.get("units") or {}
         fams = cen.get("families") or {}
         print(f"census         : {cen.get('host_records')} host records in "
