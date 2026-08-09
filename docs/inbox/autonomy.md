@@ -191,3 +191,20 @@ and AUTONOMY §7/§10/§13 say so. `needs-human` is left for a merge GitHub itse
 planner had already filed this as #62 from the steer and opened #63 for the STEERING row — the
 loop closing on itself. Tests: 35 passed (2 new tripwires); actionlint clean; gates clean.
 This PR (#62 + #64) is itself a workflow-file PR: merged by the authoring session once CI is green.
+
+## Single-owner fixing (steer #67 → issue #69), same session
+
+Question from ck: do the sessions' PR subscriptions duplicate the repo bots, given review/CI
+latency and sessions that vanish? Audit: review, merge, claims, board/planning are single-owner;
+**fixing was not** — `ci-autofix` (on red CI) and the review job's inline fix pass started within
+minutes of a push while the subscribed authoring session did the same. Change: the review job only
+reviews; a new dispatch-only `fix` job (mode=fix) handles red CI + 🛑 findings for the *current*
+head; `automerge` dispatches it once per (sha, attempt) only when `now − max(head commit, red-CI
+completion, 🛑 verdict comment, last attempt marker) ≥ pipeline.fix_grace_minutes` (15), from the
+default branch (so branches with an older reviewer copy still work; review re-requests too). The
+fix job re-fetches before pushing and yields to a newer head. Effect: a live session always goes
+first; an abandoned PR is picked up within ≈ grace + one sweep; no double-fixing; and one
+immediate 60-turn fix pass per 🛑 is no longer spent when the author fixes it two minutes later.
+Tests: 36 passed (new tripwire: dispatch string, `mode` input, no inline fix, no `workflow_run`).
+First engineer PR of the fan-out went through the untouched pipeline end-to-end meanwhile: #68
+(issue #9) — CI green, ✅ review, automerge, issue closed, zero human involvement.

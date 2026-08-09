@@ -56,7 +56,7 @@ DEFAULTS = {
     "planner": {"enabled": True, "ready_floor": 4, "ready_ceiling": 12, "max_new_issues_per_run": 5, "max_turns": 60},
     "worker": {"enabled": True, "eligible": "auto", "wip_limit": 2, "max_runs_per_day": 4,
                "allow_hot_file": False, "max_turns": 120, "branch_prefix": "bot/"},
-    "pipeline": {"quiet_minutes": 90, "max_fix_attempts": 3, "review_wait_minutes": 20, "review_stuck_minutes": 240,
+    "pipeline": {"quiet_minutes": 90, "max_fix_attempts": 3, "fix_grace_minutes": 15, "review_wait_minutes": 20, "review_stuck_minutes": 240,
                  "stale_draft_days": 5, "close_stale_days": 14, "requeue_stuck_after_hours": 24, "worker_lease_hours": 3},
     "pause_label": "bots-paused",
 }
@@ -99,7 +99,7 @@ REVIEWER_WORKFLOW = ".github/workflows/claude-review.yml"
 # for CI by the merge gate or the board. automerge.yml carries the same list (IGNORED_CHECKS there);
 # tests/test_techlead.py fails when a bot workflow gains a job that neither list knows.
 BOT_CHECK_NAMES = frozenset({
-    "automerge", "claude-review", "ci-autofix", "claude",          # merge machine, reviewer, mention bot
+    "automerge", "claude-review", "fix", "ci-autofix", "claude",   # merge machine, reviewer + dispatched fix pass, mention bot
     "render",                                                      # board.yml
     "claim", "single-holder", "issue-intake", "pr-check", "sweep",  # coord.yml
     "gate", "plan",                                                # techlead.yml
@@ -475,7 +475,9 @@ def pr_status(pr: dict, cfg: dict) -> tuple:
     mx = int(cfg["pipeline"]["max_fix_attempts"])
     quiet_min = int(cfg["pipeline"]["quiet_minutes"])
     note = " · ⚠️ no linked issue (`Closes #N`)" if "needs-issue" in L else ""
-    fix = f"auto-fix {min(rv['attempts'], mx)}/{mx}" + (" → **bot-stuck**, issue re-queued after a quiet day" if is_stuck(pr) else "")
+    grace = int(cfg["pipeline"]["fix_grace_minutes"])
+    fix = (f"your session first, bot fix pass after {grace} quiet min · attempts {min(rv['attempts'], mx)}/{mx}"
+           + (" → **bot-stuck**, issue re-queued after a quiet day" if is_stuck(pr) else ""))
     if "do-not-merge" in L:
         return "⏸ held by `do-not-merge`" + note, "held"
     if "session-merge" in L:
