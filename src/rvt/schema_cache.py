@@ -17,7 +17,10 @@ the stream bytes.  This module moves that parse to PLUGIN BUILD time:
     bytes into the cache directory and reconstructs the parsed
     :class:`rvt.schema.Schema` from the cache; ONLY on a miss does it fall
     back to the real parser.  The key IS the content hash, so the cache can
-    never serve a schema for bytes it was not built from.
+    never serve a schema for bytes it was not built from.  Within a process
+    both arms share ``rvt.schema``'s sha256-keyed memo (issue #183), so a
+    job pays at most ONE cache load per distinct schema, not one per
+    decoder construction.
 
 FORMAT: ``TKSC`` magic + one marshal(version 2) payload of plain tuples /
 dicts (no code objects, no pickle -- loading a hostile file cannot execute
@@ -71,14 +74,17 @@ def _class_to_tuple(c) -> tuple:
 
 
 def schema_to_payload(s) -> Dict[str, Any]:
-    """A marshal-able, deterministic dict carrying the WHOLE parsed schema."""
+    """A marshal-able, deterministic dict carrying the WHOLE parsed schema --
+    a function of the stream bytes alone: ``Schema.source`` (which caller
+    materialised the object) is per-process provenance, never content, so
+    the payload carries a constant in its place."""
     return {
         "format": FORMAT,
         "sha256": s.sha256,
         "total_size": s.total_size,
         "consumed": s.consumed,
         "trailing_pad": s.trailing_pad,
-        "source": s.source,
+        "source": "",
         "classes": tuple(_class_to_tuple(c) for c in s.classes),
         "top_level_ids": tuple(c.type_id for c in s.top_level),
         "desc_hist": tuple(sorted((k, n) for k, n in s.desc_hist.items())),
@@ -183,18 +189,28 @@ def cache_dirs(extra: Optional[Iterable[str]] = None) -> List[str]:
     return out
 
 
-def load_cached(sha256_hex: str, dirs: Optional[Iterable[str]] = None,
-                source: str = ""):
-    """Schema for the stream whose sha256 is ``sha256_hex``, from the first
-    cache dir that has it; ``None`` on miss."""
-    name = sha256_hex.lower() + CACHE_EXT
+def _load_cached_from_disk(digest: str, dirs: Optional[Iterable[str]],
+                           source: str):
+    name = digest + CACHE_EXT
     for d in cache_dirs(dirs):
         p = os.path.join(d, name)
         if os.path.isfile(p):
             got = load_cache_file(p, source=source)
-            if got is not None and got.sha256.lower() == sha256_hex.lower():
+            if got is not None and got.sha256.lower() == digest:
                 return got
     return None
+
+
+def load_cached(sha256_hex: str, dirs: Optional[Iterable[str]] = None,
+                source: str = ""):
+    """Schema for the stream whose sha256 is ``sha256_hex``, from the first
+    cache dir that has it; ``None`` on miss.  Shares ``rvt.schema``'s
+    in-process memo (issue #183): a digest already materialised in this
+    process -- by the parser or by an earlier cache load -- is returned as
+    the same object without touching the disk again."""
+    from .schema import memoized
+    digest = sha256_hex.lower()
+    return memoized(digest, lambda: _load_cached_from_disk(digest, dirs, source))
 
 
 # ---------------------------------------------------------------------------
@@ -204,7 +220,9 @@ def load_cached(sha256_hex: str, dirs: Optional[Iterable[str]] = None,
 def install(dirs: Optional[Iterable[str]] = None) -> Dict[str, Any]:
     """Wrap ``rvt.schema.parse`` with a sha256-keyed cache lookup (miss ->
     the original parser).  ``load_schema`` picks the wrapper up through its
-    module-global call.  Idempotent; returns a small report."""
+    module-global call.  Idempotent; returns a small report.  Both arms go
+    through ``rvt.schema``'s in-process memo, so per process each distinct
+    stream costs at most ONE cache-file load (or one real parse)."""
     from . import schema as S
     if getattr(S, "_schema_cache_installed", False):
         return {"installed": "(already)", "dirs": cache_dirs(dirs)}
@@ -213,10 +231,10 @@ def install(dirs: Optional[Iterable[str]] = None) -> Dict[str, Any]:
 
     def parse_cached(data: bytes, source: str = ""):
         digest = hashlib.sha256(data).hexdigest()
-        got = load_cached(digest, fixed_dirs, source=source)
+        got = load_cached(digest, fixed_dirs, source=source)   # memo -> disk
         if got is not None:
             return got
-        return orig_parse(data, source=source)
+        return orig_parse(data, source=source)                  # memoizes itself
 
     parse_cached._schema_cache_orig = orig_parse            # type: ignore[attr-defined]
     S.parse = parse_cached
@@ -279,7 +297,9 @@ def build_cache(plugin_root: str, out_dir: Optional[str] = None) -> Dict[str, An
         if os.path.isdir(os.path.join(vend, "olefile")) and vend not in sys.path:
             sys.path.append(vend)
     from .container import open_rvt
-    from .schema import parse as _parse
+    # a real parse, never a memo hit: the cache is always (re)built from the
+    # byte-level parser, not re-serialised from an earlier cache load
+    from .schema import parse_uncached as _parse
     out_dir = out_dir or os.path.join(plugin_root, ASSETS_REL)
     entries: Dict[str, Dict[str, Any]] = {}
     for src in _iter_bundled_sources(plugin_root):
@@ -292,7 +312,7 @@ def build_cache(plugin_root: str, out_dir: Optional[str] = None) -> Dict[str, An
         if digest in entries:
             entries[digest]["sources"].append(rel_src)
             continue
-        schema = _parse(blob, source="")                    # source stays "" -> deterministic
+        schema = _parse(blob)
         dump_cache(schema, os.path.join(out_dir, digest + CACHE_EXT))
         entries[digest] = {
             "schema_sha256": digest,
