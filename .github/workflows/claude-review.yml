@@ -66,7 +66,13 @@ env:
 
 jobs:
   claude-review:
-    if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'fix')
+    # Metered minutes (#300): a push to a DRAFT is not reviewed on the spot — the draft is reviewed when it is
+    # marked ready, or once per quiet head when automerge re-requests it — so a WIP branch costs one
+    # review per settled head instead of one 4-13 min run per push.
+    if: >-
+      (github.event_name == 'pull_request' &&
+       !(github.event.action == 'synchronize' && github.event.pull_request.draft)) ||
+      (github.event_name == 'workflow_dispatch' && inputs.mode != 'fix')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:

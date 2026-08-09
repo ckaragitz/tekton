@@ -487,7 +487,7 @@ you to do unless the bot asks for a human."
    itself (label `wip` holds a draft). It deletes the branch and **closes the linked
    issues itself** (bot merges do not reliably fire GitHub's `Closes #N` linker —
    #50 stayed open after #51). It refuses (and comments why) on red checks or a
-   missing verdict and re-checks on every new commit and every 30 minutes; zero
+   missing verdict and re-checks after every review run and hourly; zero
    checks → it dispatches CI; missing verdict → it re-requests the review;
    conflicts → it dispatches the worker's rebase mode. **Duplicate rule:** if two
    open PRs close the same issue, the older PR wins and the newer gets

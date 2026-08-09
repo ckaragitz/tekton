@@ -83,7 +83,7 @@ flowchart TD
 Timings (CI ≈ 1–2 min, AI review ≈ 5–15 min per push): **fixing is single-owner** — on red CI or
 a 🛑 verdict the authoring session (subscribed to its PR) has `fix_grace_minutes` (15) after the
 last signal to push; only then does `automerge` dispatch one bot fix pass for the current head
-(the same path carries a PR whose session or laptop went away; worst case ≈ grace + one 30-min
+(the same path carries a PR whose session or laptop went away; worst case ≈ grace + one hourly
 sweep). A missing review verdict is re-requested after 20 min and parked `bot-stuck` after 4 h;
 a stuck PR's issue is re-queued after 24 quiet hours; an untouched draft is nudged at 5 days and
 closed (branch kept, issue re-queued) at 14; a dead worker lease is freed after 3 h; an abandoned
@@ -150,7 +150,7 @@ session, not left for a human to notice.
 | `board.yml` | every 20 min; issues/PRs opening, closing, becoming ready; dispatched by automerge/planner/worker after they change state | built-in | hygiene sweep (re-queue stuck, free dead leases, nudge/close stale drafts) then re-render + pin the board |
 | `CI` (`ci.yml`) | every PR push, `main`, dispatch | built-in | portable paths, plugin drift, plugin structure, fast test shard (py3.11 + 3.12) |
 | `claude-review.yml` | every PR push; dispatch `mode=review` (re-request) / `mode=fix` (from automerge, after the grace) | Claude | review → verdict marker per head SHA (rescue pass if missing); job `fix` = the bounded fix pass for red CI + 🛑 findings at the current head (budget 3, reset-aware; yields if the branch moved); exhaustion → `bot-stuck` |
-| `automerge.yml` | CI/review finishing, labels, every 30 min | built-in (+ optional `AUTOMERGE_TOKEN`) | zero-check CI dispatch; review re-request; quiet-draft auto-ready; conflict → rebase dispatch; squash-merge; close linked issues; duplicate parking; `session-merge` labelling for what only a session may merge |
+| `automerge.yml` | a review run finishing, labels, ready-for-review, hourly | built-in (+ optional `AUTOMERGE_TOKEN`) | zero-check CI dispatch; review re-request; quiet-draft auto-ready; conflict → rebase dispatch; squash-merge; close linked issues; duplicate parking; `session-merge` labelling for what only a session may merge |
 | `techlead.yml` | every 6 h, on `steer`/`intake` labels, dispatch | Claude | the tech-lead pass (§4 of the charter): triage, groom, replenish, `auto` marking, planning note; ≤ 5 new issues/run; may open one docs PR |
 | `worker.yml` | every 2 h, dispatch (also `mode=rebase` from automerge) | Claude | pick (deterministic) → lease → implement per `CLAUDE.md` → PR `Closes #n`; WIP ≤ 2 bot PRs, ≤ 4 runs/day |
 | `requirements.yml` | push to `main` under `docs/requirements/` | built-in | legacy drop-box: one issue per requirement file |
@@ -253,6 +253,28 @@ at that moment by one central authority (`coord`, server-side) — never by N la
 | session side | `TEKTON_SESSION=<tag>`; `techlead.py claim <n>` = claim-and-verify (exit 4 + holder if not yours); `techlead.py mine` = the resume rule: 🟢 this session's / ⛔ active elsewhere (hands off) / 🟡 idle ≥ 2 h (resumable) |
 | unlock | `/release` (posts `<!-- unlock by=… -->`), the 72 h reaper, the stuck-PR re-queue, or the merge closing the issue |
 | viewer batch numbers (#285) | the same pattern for the one campaign-global counter sessions used to race on: `/batches <k>` on any issue/PR → coord (one repo-wide concurrency group) reserves `N..N+k-1` above everything on the default branch, every earlier reservation (a marker on the one `batch-registry` issue) and every `batch_<n>.json` any open PR adds, and replies with `probe_batch.py stage --batch N` / `RVT_BATCH_FLOOR=N` (honoured by `probe_batch.next_batch_number()`, so every stager sees it); `coord.py batchjudge` runs when a PR opens / is edited and hourly in `sweep`: a PR adding a number reserved for another issue, or one an OLDER open PR also adds, gets `batch-clash` + the exact renumber range (automerge holds it; the label clears itself); the worker's rebase mode never hand-merges an add/add batch manifest |
+
+## 12c. Runner minutes are metered (#300)
+
+This is a private repository on a personal account: GitHub-hosted runner time is drawn from the
+account's included Actions minutes and, past that, from its Actions spending limit. On 2026-08-09 the
+pipeline consumed ≈2,000 billed minutes in ~14 hours (2,952 workflow runs; every executed job bills at
+least one whole minute, so 337 seven-second `coord` jobs cost ≈336 minutes) and at 14:04 UTC every job
+started dying instantly with `runner_id 0` — the quota, not the code. What keeps consumption down, and
+must stay that way when workflows change:
+
+| Rule | Where |
+|---|---|
+| Per PR push only the py3.11 CI leg installs and runs the shard; py3.12 keeps its check name but runs in full only on `push: main` / dispatch | `ci.yml` step `if:`s |
+| No AI review for a push to a **draft**; a draft is reviewed when marked ready, or once per quiet head via automerge's re-request | `claude-review.yml` job `if:` |
+| `automerge` wakes on a *review* run finishing (success/failure only), labels, ready-for-review and an hourly cron — not on every CI completion, not on skipped/cancelled runs, not every 30 min | `automerge.yml` `on:` + job `if:` |
+| The board debounces with a non-cancelling concurrency group (one pending render, superseded for free) — never with a `sleep` on a runner | `board.yml` |
+| `coord`'s sweep is hourly only (no extra run per merge); comment/label events whose job `if:` is false are skipped, which costs nothing | `coord.yml` |
+| Anything new that runs per push, per comment or per label states its expected runs/day × billed minutes in the PR | PR template "Gates run" |
+
+The owner-side half (only a human can): keep a payment method and a non-zero Actions spending limit
+on the account, or register a self-hosted runner; the board's Health line is where an exhausted quota
+shows first (every bot row red within minutes of each other).
 
 ## 13. Failure modes and how each heals
 

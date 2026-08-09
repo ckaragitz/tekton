@@ -3,6 +3,12 @@ name: CI
 # CI v1 (issue #2). Three humans' sessions need one shared definition of green.
 # Deliberately does NOT run the full ~1,700-test suite (~25 min) — see
 # docs/inbox/SUITE-COORDINATION.md. The per-PR shard lives in tests/ci_shard.txt.
+#
+# Runner minutes are metered on this private repo (#300: the included quota ran out in a day and
+# every job died with runner_id 0). Per PR push only the py3.11 leg installs and runs the shard;
+# the py3.12 leg keeps its check name (merge gate / required checks unchanged) but does the cheap
+# static checks only, and runs in full on `push: main` and manual dispatch — every merge still
+# gets both interpreters.
 
 on:
   pull_request:
@@ -35,22 +41,25 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Portable paths
+        run: python tools/dev/check_portable_paths.py
+
+      - name: Plugin structure
+        run: python plugin/scripts/validate_plugin.py
+
       - name: Install package and test deps
+        if: matrix.python-version == '3.11' || github.event_name != 'pull_request'
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
           python -m pip install pytest numpy
 
-      - name: Portable paths
-        run: python tools/dev/check_portable_paths.py
-
       - name: Plugin drift guard
+        if: matrix.python-version == '3.11' || github.event_name != 'pull_request'
         run: python tools/sync_plugin.py --check
 
-      - name: Plugin structure
-        run: python plugin/scripts/validate_plugin.py
-
       - name: Fast test shard
+        if: matrix.python-version == '3.11' || github.event_name != 'pull_request'
         run: |
           mapfile -t SHARD < <(grep -vE '^\s*(#|$)' tests/ci_shard.txt)
           printf 'shard: %s\n' "${SHARD[@]}"

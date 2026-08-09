@@ -20,7 +20,7 @@ on:
   pull_request_target:
     types: [opened, closed, reopened, ready_for_review, converted_to_draft]
   schedule:
-    - cron: "*/20 * * * *"
+    - cron: "*/20 * * * *"       # cheap: the render exits in seconds when the body is unchanged
   workflow_dispatch: {}
 
 permissions:
@@ -32,7 +32,11 @@ permissions:
 
 concurrency:
   group: board
-  cancel-in-progress: true     # two events close together collapse into one render
+  # Debounce without paying for it (#300): while one render runs, later events collapse into ONE
+  # pending run (GitHub supersedes older pending runs before they start — zero runner minutes),
+  # which then renders the settled state. cancel-in-progress used to kill renders that had already
+  # been billed a minute while sitting in a `sleep`.
+  cancel-in-progress: false
 
 jobs:
   render:
@@ -41,8 +45,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - name: Let paired events settle (e.g. PR closed + issue closed)
-        run: sleep 20
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.repository.default_branch || 'main' }}

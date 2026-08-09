@@ -40,17 +40,17 @@ name: automerge
 # on main can never halt merging. tools/dev/techlead.py `pr_status()` mirrors this decision order
 # for the board and tests/test_techlead.py pins the shared vocabulary (labels, markers, the
 # closing-keyword grammar, the config defaults) — change both sides together.
-# Knobs: .github/autonomy.json on the default branch. Sweeps on: review/CI workflows finishing,
-# labels, ready-for-review, every 30 min, manual.
+# Knobs: .github/autonomy.json on the default branch. Sweeps on: a review run finishing (success or
+# failure), labels, ready-for-review, hourly, manual — runner minutes are metered here (#300).
 
 on:
   pull_request_target:
     types: [labeled, ready_for_review]
   workflow_run:
-    workflows: ["CI", "claude-review"]
+    workflows: ["claude-review"]      # the review is the later signal; CI-only completions are caught by the cron
     types: [completed]
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "17 * * * *"              # hourly backstop (was every 30 min): every executed run bills >= 1 metered minute (#300)
   workflow_dispatch: {}
 
 permissions:
@@ -66,6 +66,8 @@ concurrency:
 
 jobs:
   automerge:
+    # A review run that was skipped or cancelled changed nothing: do not spend a runner minute on it (#300).
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

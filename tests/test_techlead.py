@@ -463,6 +463,29 @@ def test_automerge_grep_captures_survive_no_match():
     assert not bad, "grep captures without a no-match guard:\n" + "\n".join(bad)
 
 
+def test_runner_minutes_stay_bounded():
+    """#300: runner minutes are metered on this private repo — the pipeline burned ~2,000 billed minutes in
+    14 h and every job died with runner_id 0. Pin the structural cuts so a workflow edit cannot quietly
+    bring back a full py3.12 leg per PR push, a review per draft push, an automerge wake per CI run,
+    a paid `sleep` debounce on the board, or a coord sweep per merge."""
+    ci = _wf("ci.yml")
+    assert ci.count("if: matrix.python-version == '3.11' || github.event_name != 'pull_request'") >= 3   # install, drift guard, shard
+    assert 'python-version: ["3.11", "3.12"]' in ci                       # both legs still exist (check names / merge gate unchanged)
+    cr = _wf("claude-review.yml")
+    assert "github.event.action == 'synchronize' && github.event.pull_request.draft" in cr
+    am = _wf("automerge.yml")
+    on_block = am.split("\non:\n", 1)[1].split("\npermissions:", 1)[0]
+    assert 'workflows: ["claude-review"]' in on_block and '"CI"' not in on_block
+    assert "*/30" not in on_block and "cron:" in on_block
+    assert "github.event.workflow_run.conclusion == 'success'" in am
+    bd = _wf("board.yml")
+    assert "cancel-in-progress: false" in bd and "sleep" not in bd.split("\njobs:\n", 1)[1]
+    cy = _wf("coord.yml")
+    pr_types = cy.split("  pull_request:\n", 1)[1].split("\n", 1)[0]
+    assert "closed" not in pr_types.split("#", 1)[0]
+    assert "if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'" in cy
+
+
 def test_board_triggers_stay_bounded():
     """#64: no workflow_run fan-out and no label/assignment triggers on the board (30 runs in 3 min on day one)."""
     on_block = _wf("board.yml").split("\non:\n", 1)[1].split("\npermissions:", 1)[0]

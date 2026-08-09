@@ -524,7 +524,7 @@ def pr_status(pr: dict, cfg: dict) -> tuple:
         return f"🟢 CI · {approved} · changes `.github/workflows/**` → `session-merge`: **the next coding session squash-merges it** (or `AUTOMERGE_TOKEN` makes it automatic)" + note, "session"
     if pr["mergeable_state"] == "dirty" or pr.get("mergeable") is False:
         return f"🟢 CI · {approved} · ⚠️ conflicts with main → rebase job dispatched (`needs-rebase`)" + note, "conflict"
-    return f"🟢 CI · {approved} → merges on the next automerge sweep (≤ 30 min)" + note, "merging"
+    return f"🟢 CI · {approved} → merges on the next automerge sweep (≤ 1 h; sooner when a review run finishes)" + note, "merging"
 
 
 def classify(snap: dict, cfg: dict, now=None) -> dict:

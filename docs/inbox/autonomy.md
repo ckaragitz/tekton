@@ -328,3 +328,28 @@ clean on every touched step; `sync_plugin.py --check` clean (probe_batch mirrors
 validate_plugin PASS; portable paths ok. First live proof is necessarily post-merge (`pull_request` /
 `issue_comment` runs use `main`'s helper; the bootstrap guard skips until then): this session posts the
 first `/batches` and records the reply on #285.
+
+## Runner minutes are the binding constraint (#300), same session, 2026-08-09
+
+**Outage:** from 14:04:17 UTC every job died in ≤ 10 s with `runner_id 0`, no steps, logs 404 — CI,
+claude-review, automerge, board, coord alike; githubstatus green. Analysis of the run history (3,044
+runs since 2026-08-08 00:01Z; 2,952 today): ≈905 wall-minutes today, ≈1,990 *billed* minutes by the
+per-job round-up rule (calibrated on 12 sampled runs' job durations — the usage API returns 0 billable
+ms), crossing ≈2,000 between 13:00 and 14:04 UTC. Inference (only the billing page can confirm): the
+personal account's included Actions minutes ran out with a $0 spending limit. Shares of billed minutes:
+CI ≈30 % (two identical legs per PR push; the shard grew from 18 s to 4 m 45 s during the day as PRs
+added tests), claude-review ≈21 %, coord ≈17 % (337 seven-second jobs → 336 billed minutes: the
+one-minute minimum), automerge ≈11 % (204 `workflow_run` wake-ups), board ≈14 % counting 155 renders
+cancelled while sitting in `sleep 20` (billed anyway), worker 5 %, techlead 2 %.
+
+**Cuts in this PR (est. −40 % of a day like today, no pipeline semantics changed):** py3.12 CI leg is
+static-checks-only on PR pushes (full on `push: main`/dispatch; check name kept so the merge gate and
+any required-check setting are untouched); no review run for a push to a draft (reviewed when marked
+ready, or once per quiet head via automerge's re-request); automerge wakes on review completion
+(success/failure) + labels + ready + hourly cron, not on CI completion, not on skipped/cancelled runs,
+not every 30 min; the board debounces with a non-cancelling concurrency group (one superseded pending
+run costs nothing) instead of a paid `sleep`; coord's sweep is hourly only. `tests/test_techlead.py::
+test_runner_minutes_stay_bounded` pins all five; AUTONOMY §12c states the rules and the owner-side half
+(payment method / spending limit / self-hosted runner). Even so a day like today is ≈1,200 billed
+minutes: a free quota cannot carry this pipeline; the owner needs a metered budget (~$0.008/min Linux)
+or a self-hosted runner — said plainly on #300.

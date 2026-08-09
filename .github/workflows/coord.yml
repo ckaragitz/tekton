@@ -39,7 +39,8 @@ name: coord
 #                 viewer `batch_<n>.json` this PR adds that is reserved for another issue or also
 #                 added by an OLDER open PR -> `batch-clash` (held by automerge) + the exact
 #                 renumber command on whichever PR must move (tools/dev/coord.py batchjudge).
-#   sweep         hourly + after every merge GitHub tells us about: (a) PRs stacked on a merged
+#   sweep         hourly (the extra run after every merge was dropped for metered minutes, #300):
+#                 (a) PRs stacked on a merged
 #                 PR's branch are retargeted, and ones GitHub already closed because that branch
 #                 was deleted are reopened + retargeted (unless their commits ride in an open PR);
 #                 (b) any branch pushed >20 min ago, ahead of the default branch, with no PR in
@@ -64,7 +65,7 @@ on:
   issues:
     types: [opened, assigned]
   pull_request:
-    types: [opened, edited, reopened, closed]
+    types: [opened, edited, reopened]      # `closed` only fed the post-merge sweep; hourly is enough (#300)
   schedule:
     - cron: "40 * * * *"
   workflow_dispatch: {}
@@ -99,8 +100,8 @@ env:
         stacked)     color=fbca04 desc="base is another PR's branch, not the default branch";;
         tracking)    color=5319e7;;
         intake)      color=0e8a16 desc="Free-form issue filed by a human; triaged by the tech leads like a steer";;
-        batch-clash) color=d93f0b desc="adds a viewer batch_<n>.json that main, a reservation, or an older open PR already owns";;
-        batch-registry) color=5319e7 desc="The one issue where coord records /batches reservations (do not edit)";;
+        batch-clash) color=d93f0b;;      # wording: tools/dev/techlead.py LABELS (synced by the board's ensure_labels)
+        batch-registry) color=5319e7;;
       esac
       gh label create "$name" --repo "$REPO" --color "$color" --description "$desc" >/dev/null 2>&1 || true
       gh api -X POST "repos/$REPO/issues/$n/labels" -f "labels[]=$name" >/dev/null 2>&1 || true
@@ -525,9 +526,7 @@ jobs:
           batch_judge_apply
 
   sweep:
-    if: >-
-      github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
@@ -586,7 +585,6 @@ jobs:
                           '.[]|select(.mergedAt==null and .closedAt > $c and .baseRefName != $d)|"\(.number) \(.baseRefName) \(.closedAt) \(.headRefOid)"')
           say "stack rescue done"
       - name: Surface pushed branches nobody can see
-        if: github.event_name != 'pull_request'
         env:
           MIN_AGE_S: "1200"
         shell: bash
@@ -630,7 +628,6 @@ jobs:
           done < <(gh api "repos/$REPO/branches?per_page=100" --paginate --jq '.[].name')
           say "orphan sweep done: $opened draft PR(s) opened"
       - name: Release stale claims back to the queue
-        if: github.event_name != 'pull_request'
         env:
           STALE_H: "72"
         shell: bash
@@ -666,7 +663,6 @@ jobs:
         # check in pr-check is repeated here hourly (one PR listing + the local tree + the registry's
         # comments) rather than starting a runner on every push of every PR. Same helper, same
         # comment keys: the two never disagree or double-post.
-        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
