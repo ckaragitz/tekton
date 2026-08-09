@@ -133,10 +133,14 @@ def test_cli_flag_parses():
     ap = cli.build_parser()
     a = ap.parse_args(["author", "--prompt", "x", "--target-version", "2025"])
     assert a.target_version == 2025
-    # 2024 became a valid (guarded) choice when the target-2024 stream landed
-    # its registry slot; the CLI still refuses a year with no slot at all.
+    # Any year parses (issue #24, hard rule 1): a year with no certified slot
+    # is not argparse-refused but reaches the engine's guard, which DELIVERS
+    # the default build + the honest line + the IFC addition
+    # (tests/test_target_version_first.py pins that); non-integers still exit 2.
+    assert ap.parse_args(["author", "--prompt", "x", "--target-version",
+                          "2023"]).target_version == 2023
     with pytest.raises(SystemExit):
-        ap.parse_args(["author", "--prompt", "x", "--target-version", "2023"])
+        ap.parse_args(["author", "--prompt", "x", "--target-version", "R25"])
 
 
 # ===========================================================================

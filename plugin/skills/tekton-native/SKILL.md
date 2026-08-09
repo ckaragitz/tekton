@@ -29,14 +29,15 @@ line naming the single missing input. Never substitute IFC for a requested
 
 ## Version reality — ask FIRST on any creation request
 
-**"What Revit version will open this?"** — ask before any new `.rvt` is
-made. Revit cannot open a file saved by a newer release; our creation base
-and characterised schema are Revit **2026**. An EDITED file keeps its
-input's version (we edit in place, never up-/down-grade) — so edits are
-safe for whatever the user already opens. If their Revit is older than the
-creation base, the one missing input is a version-N base/donor from their
-side; deliver what can be built today and offer the IFC handoff as an
-addition.
+**"Which Revit year will open this — 2026, 2025, 2024, or older?"** — ask
+before any new `.rvt` is made (Revit cannot open a file saved by a newer
+release) and pass the answer as `--target-version YEAR` to the
+**tekton-author** front door: 2026 / 2025 / 2024 build natively on that
+year's certified base (opens in that year and newer); an older year still
+DELIVERS the default build plus one clear line and a version-agnostic IFC
+addition — never a silent substitute. An EDITED or inspected file keeps
+its input's release (never up-/down-graded); `go` auto-detects it
+(`go.inputs[].revit_release`) — state it with every result.
 
 ## Step 1 — readiness (ONE command, <2 s)
 
