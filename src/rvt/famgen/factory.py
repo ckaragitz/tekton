@@ -848,18 +848,51 @@ def add_connector(doc: SK.FamilyDoc, *, host: G.FormBundle, face: str,
 # ---------------------------------------------------------------------------
 
 @dataclass
+class TypeRow:
+    """One family TYPE of a product: its name, the fact sheet it was resolved
+    from, and the engineering values written to its type-table row as
+    ``(parameter caption, SPEC key, value)`` -- the same facts a Revit type
+    catalog row carries (lengths in inches, ratings raw)."""
+    name: str
+    facts: FactSheet
+    catalog: List[Tuple[str, str, Any]] = dc_field(default_factory=list)
+
+    def as_json(self) -> dict:
+        return {"name": self.name, "subject": self.facts.subject,
+                "variant": self.facts.variant,
+                "assumed_fields": self.facts.assumed(),
+                "unverified_fields": self.facts.unverified(),
+                "values": {cap: val for cap, _s, val in self.catalog}}
+
+
+@dataclass
 class FamilyProduct:
-    """A generated family: the finalized document + its fact sheet."""
+    """A generated family: the finalized document + its fact sheet(s).
+
+    ``facts`` = the PRIMARY type's sheet (the type whose dimensions the one
+    authored solid is built at); ``types`` = one :class:`TypeRow` per
+    family type in type-table order (a single entry unless ``types=`` named
+    several catalog selections)."""
     kind: str                              # 'panelboard' | 'transformer' | 'luminaire'
     doc: SK.FamilyDoc
     facts: FactSheet
     forms: List[G.FormBundle] = dc_field(default_factory=list)
     file_stem: str = "family"
     notes: List[str] = dc_field(default_factory=list)
+    types: List[TypeRow] = dc_field(default_factory=list)
 
     @property
     def name(self) -> str:
         return self.doc.name
+
+    def assumed(self) -> List[str]:
+        """Assumed fields of ANY type (nothing unverified hides in a row)."""
+        sheets = [t.facts for t in self.types] or [self.facts]
+        return sorted({k for s in sheets for k in s.assumed()})
+
+    def unverified(self) -> List[str]:
+        sheets = [t.facts for t in self.types] or [self.facts]
+        return sorted({k for s in sheets for k in s.unverified()})
 
     def summary(self) -> Dict[str, Any]:
         pes = self.doc.params
@@ -875,10 +908,22 @@ class FamilyProduct:
                                                    "base_z_ft", "rep")}}
                       for f in self.forms],
             "connectors": len(self.doc.connectors),
-            "assumed_fields": self.facts.assumed(),
-            "unverified_fields": self.facts.unverified(),
+            "assumed_fields": self.assumed(),
+            "unverified_fields": self.unverified(),
+            "type_facts": [t.as_json() for t in self.types],
             "notes": list(self.notes),
         }
+
+    def write_type_catalog(self, path: Optional[str] = None, *,
+                           rfa_path: Optional[str] = None) -> Dict[str, Any]:
+        """Write OUR Revit type-catalog ``.txt`` (one row per type, from the
+        same facts as the type table) at ``path`` (default: beside
+        ``rfa_path`` with the ``.txt`` suffix Revit pairs by file name)."""
+        if path is None:
+            if not rfa_path:
+                raise FactoryError("write_type_catalog needs a path or the .rfa path")
+            path = os.path.splitext(rfa_path)[0] + ".txt"
+        return write_type_catalog(self, path)
 
     def write(self, path: str, *, validate: bool = True, provenance: bool = True,
               timestamp: Optional[int] = 0, report_path: Optional[str] = None
@@ -911,6 +956,147 @@ def _clean_name(*parts: Any) -> str:
 
 
 # ---------------------------------------------------------------------------
+# TYPES -- one family, N catalog selections (type-table rows)
+# ---------------------------------------------------------------------------
+
+def _number(v: Any) -> float:
+    """'225' / '225A' / '45 kVA' / 38 -> the leading number."""
+    if isinstance(v, (int, float)):
+        return float(v)
+    m = re.match(r"^\s*(\d+(?:\.\d+)?)", str(v))
+    if not m:
+        raise FactoryError(f"type selector {v!r} is not a number (e.g. 225, '400A', '75kVA')")
+    return float(m.group(1))
+
+
+def _type_jobs(types: Optional[Sequence[Any]], primary: Dict[str, Any], *,
+               scalar_key: str) -> List[Dict[str, Any]]:
+    """Normalise ``types=`` into one job dict per family TYPE.
+
+    ``types`` is a list of CATALOG SELECTORS: a bare number / '225A'-style
+    string selects along the product's rating axis (``scalar_key``: mains
+    amps, kVA, watts); a dict overrides any of ``primary``'s per-type keys
+    (e.g. ``{'mains_a': 225, 'mcb': False}``) and may name the row
+    explicitly (``'type_name'``).  ``None`` / empty = the one type
+    ``primary`` describes (the historical single-type family, row for row).
+    The FIRST job is the primary type: the one authored solid is built at
+    its dimensions.
+    """
+    if not types:
+        return [dict(primary)]
+    jobs: List[Dict[str, Any]] = []
+    for sel in types:
+        job = dict(primary)
+        if isinstance(sel, dict):
+            unknown = sorted(set(sel) - set(primary) - {"type_name"})
+            if unknown:
+                raise FactoryError(f"type selector keys {unknown} are not per-type "
+                                   f"fields of this product (per-type: {sorted(primary)})")
+            job.update(sel)
+        else:
+            job[scalar_key] = _number(sel)
+        jobs.append(job)
+    return jobs
+
+
+def _joined(values: Sequence[Any], suffix: str = "") -> str:
+    """'400A' for one distinct value, '225-400-600A' for several (order kept)."""
+    seen: List[str] = []
+    for v in values:
+        s = f"{v:g}" if isinstance(v, float) else str(v)
+        if s not in seen:
+            seen.append(s)
+    return ("-".join(seen) + suffix) if seen else ""
+
+
+def _common(values: Sequence[Any]) -> str:
+    """The value every type shares, else '' (dropped from the family NAME)."""
+    vals = {str(v) for v in values}
+    return str(values[0]) if len(vals) == 1 else ""
+
+
+def _add_type_row(doc: SK.FamilyDoc, rows: List[TypeRow], name: str,
+                  values: Dict[Any, Any], facts: FactSheet,
+                  catalog: List[Tuple[str, str, Any]]) -> TypeRow:
+    if any(r.name == name for r in rows):
+        raise FactoryError(f"two type selections resolve to the same type name {name!r}: "
+                           "make the selectors distinct (rating / configuration)")
+    doc.add_type(name, values)
+    row = TypeRow(name=name, facts=facts, catalog=list(catalog))
+    rows.append(row)
+    return row
+
+
+#: Revit type-catalog column declarations ``<param>##<SPEC>##<UNITS>`` per
+#: factory SPEC key (the documented catalog vocabulary; lengths are written
+#: in inches, electrical ratings in their engineering units, text/counts as
+#: OTHER).  The catalog is OURS: one row per type from the same facts the
+#: type table carries -- never a copied manufacturer catalog file.
+TYPE_CATALOG_COLUMNS = {
+    "length": ("LENGTH", "INCHES"),
+    "voltage": ("ELECTRICAL_POTENTIAL", "VOLTS"),
+    "current": ("ELECTRICAL_CURRENT", "AMPERES"),
+    "apparent_power": ("ELECTRICAL_APPARENT_POWER", "VOLT_AMPERES"),
+    "wattage": ("ELECTRICAL_WATTAGE", "WATTS"),
+    "luminous_flux": ("ELECTRICAL_LUMINOUS_FLUX", "LUMENS"),
+    "cct": ("COLOR_TEMPERATURE", "KELVIN"),
+    "number": ("OTHER", ""),
+    "integer": ("OTHER", ""),
+    "text": ("OTHER", ""),
+}
+
+
+def _catalog_cell(v: Any) -> str:
+    if v is None:
+        return ""
+    if isinstance(v, bool):
+        return "1" if v else "0"
+    if isinstance(v, float):
+        s = f"{v:.6f}".rstrip("0").rstrip(".")
+        return s or "0"
+    s = str(v)
+    if any(c in s for c in ',"\n'):
+        s = '"' + s.replace('"', '""') + '"'
+    return s
+
+
+def type_catalog_text(product: "FamilyProduct") -> str:
+    """OUR Revit type catalog for ``product``: the header row
+    ``,<param>##<SPEC>##<UNITS>,...`` then one ``<type name>,<values>`` row
+    per type, columns = the union of the types' catalog entries in first-seen
+    order.  Pure ASCII/UTF-8 text authored from the fact sheets."""
+    rows = list(product.types)
+    if not rows:
+        raise FactoryError("product carries no type rows to catalogue")
+    cols: List[Tuple[str, str]] = []
+    for r in rows:
+        for cap, spec, _v in r.catalog:
+            if (cap, spec) not in cols:
+                cols.append((cap, spec))
+    head = [""]
+    for cap, spec in cols:
+        kind, units = TYPE_CATALOG_COLUMNS.get(spec, ("OTHER", ""))
+        head.append(f"{cap}##{kind}##{units}")
+    lines = [",".join(head)]
+    for r in rows:
+        vals = {(cap, spec): v for cap, spec, v in r.catalog}
+        lines.append(",".join([_catalog_cell(r.name)]
+                              + [_catalog_cell(vals.get(c)) for c in cols]))
+    return "\r\n".join(lines) + "\r\n"
+
+
+def write_type_catalog(product: "FamilyProduct", path: str) -> Dict[str, Any]:
+    """Write :func:`type_catalog_text` to ``path``; returns a small report."""
+    text = type_catalog_text(product)
+    os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        fh.write(text)
+    return {"path": path, "types": [t.name for t in product.types],
+            "columns": text.split("\r\n", 1)[0].split(",")[1:],
+            "bytes": len(text.encode("utf-8"))}
+
+
+# ---------------------------------------------------------------------------
 # PRODUCT 1 -- PANELBOARD
 # ---------------------------------------------------------------------------
 
@@ -921,7 +1107,8 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                     sccr_ka: Optional[float] = None,
                     neutral_rating: str = "100%",
                     solid: bool = True, name: Optional[str] = None,
-                    start_id: int = 1000) -> FamilyProduct:
+                    start_id: int = 1000,
+                    types: Optional[Sequence[Any]] = None) -> FamilyProduct:
     """Compose a PANELBOARD family from catalog facts.
 
     Geometry: the enclosure box at TRUE catalog dimensions (width x height
@@ -936,20 +1123,36 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     ShortCircuitRatingkA, Mounting, NumberOfCircuits, NeutralRating) plus
     Width / Height / Depth and the identity built-ins (Manufacturer, Model,
     Description) -- the manufacturer FACTS as parameter values.
+
+    ``types`` = catalog selectors for a MULTI-TYPE family (one product line,
+    a type per rating): mains ratings (``[225, 400, 600]`` / ``'225A'``) or
+    dicts over the per-type fields ``mains_a, spaces, mcb, sccr_ka,
+    neutral_rating``.  Each selection resolves its own fact sheet and
+    becomes one type-table row carrying ITS dims / ratings / Model; the
+    first is the primary type (the solid is built at its box).  ``None`` =
+    the single type ``mains_a``/``spaces``/``mcb`` describe.
     """
-    facts = resolve_panelboard_facts(vendor, line, mains_a=mains_a, spaces=spaces,
-                                     voltage=voltage, mcb=mcb, mounting=mounting,
-                                     sccr_ka=sccr_ka, panel_name=panel_name,
-                                     neutral_rating=neutral_rating)
+    jobs = _type_jobs(types, {"mains_a": mains_a, "spaces": spaces, "mcb": mcb,
+                              "sccr_ka": sccr_ka, "neutral_rating": neutral_rating},
+                      scalar_key="mains_a")
+    sheets = [resolve_panelboard_facts(vendor, line, mains_a=float(j["mains_a"]),
+                                       spaces=int(j["spaces"]), voltage=voltage,
+                                       mcb=bool(j["mcb"]), mounting=mounting,
+                                       sccr_ka=j["sccr_ka"], panel_name=panel_name,
+                                       neutral_rating=j["neutral_rating"])
+              for j in jobs]
+    facts = sheets[0]                                   # the primary type
+    mains_a, spaces, mcb = float(jobs[0]["mains_a"]), int(jobs[0]["spaces"]), bool(jobs[0]["mcb"])
     W = inches(facts.get("width_in"))
     H = inches(facts.get("height_in"))
     D = inches(facts.get("depth_in"))
     vll = float(facts.get("voltage_ll_v"))
-    mains_type = facts.get("mains_type")
     mount = str(facts.get("mounting")).lower()
     fam_name = name or _clean_name(
         "Panelboard", facts.get("voltage_system"),
-        f"{int(mains_a)}A", mains_type, f"{int(spaces)}ckt", mount.title())
+        _common([f"{int(j['mains_a'])}A" for j in jobs]),
+        _common([s.get("mains_type") for s in sheets]),
+        _common([f"{int(j['spaces'])}ckt" for j in jobs]), mount.title())
     doc = SK.new_family_document("electrical_equipment", fam_name,
                                  part_type=SK.PART_TYPE["panelboard"],
                                  work_plane_based=True, start_id=start_id,
@@ -964,32 +1167,52 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     contract: Dict[str, SK.SkelElement] = {}
     for pname, spec_k, group_k in PANEL_CONTRACT_PARAMS:
         contract[pname] = doc.add_family_parameter(pname, SPEC[spec_k], GROUP[group_k])
-    # -- the type: facts as parameter VALUES -------------------------------
-    type_name = _clean_name(f"{int(mains_a)}A", mains_type, f"{int(spaces)}ckt")
-    sccr = facts.get("sccr_ka")
-    values: Dict[Any, Any] = {
-        pW.elem_id: W, pH.elem_id: H, pD.elem_id: D,
-        contract["PanelName"].elem_id: str(facts.get("panel_name")),
-        contract["Voltage"].elem_id: SK.volts(vll),
-        contract["Phases"].elem_id: int(facts.get("phases")),
-        contract["Wires"].elem_id: int(facts.get("wires")),
-        contract["BusRating"].elem_id: float(facts.get("bus_rating_a")),
-        contract["MainsType"].elem_id: str(mains_type),
-        contract["MainsRating"].elem_id: float(facts.get("mains_rating_a")),
-        contract["ShortCircuitRatingkA"].elem_id: float(sccr) if sccr is not None else 0.0,
-        contract["Mounting"].elem_id: str(mount),
-        contract["NumberOfCircuits"].elem_id: int(spaces),
-        contract["NeutralRating"].elem_id: str(facts.get("neutral_rating")),
-        "manufacturer": str(facts.get("manufacturer")),
-        "model": str(facts.get("model")),
-        "description": (f"{facts.get('voltage_system')} V, {int(facts.get('phases'))}-phase "
-                        f"{int(facts.get('wires'))}-wire, {int(mains_a)} A "
-                        f"{'main-breaker' if mcb else 'main-lugs-only'} panelboard, "
-                        f"{int(spaces)} circuits, {mount} mounted "
-                        f"(box {facts.get('width_in'):g} W x {facts.get('height_in'):g} H x "
-                        f"{facts.get('depth_in'):g} D in; generated from catalog facts)"),
-    }
-    doc.add_type(type_name, values)
+    # -- the type(s): facts as parameter VALUES ------------------------------
+    rows: List[TypeRow] = []
+    for job, fx in zip(jobs, sheets):
+        j_mains, j_spaces, j_mcb = float(job["mains_a"]), int(job["spaces"]), bool(job["mcb"])
+        mains_type = fx.get("mains_type")
+        type_name = job.get("type_name") or _clean_name(
+            f"{int(j_mains)}A", mains_type, f"{j_spaces}ckt")
+        sccr = fx.get("sccr_ka")
+        values: Dict[Any, Any] = {
+            pW.elem_id: inches(fx.get("width_in")), pH.elem_id: inches(fx.get("height_in")),
+            pD.elem_id: inches(fx.get("depth_in")),
+            contract["PanelName"].elem_id: str(fx.get("panel_name")),
+            contract["Voltage"].elem_id: SK.volts(vll),
+            contract["Phases"].elem_id: int(fx.get("phases")),
+            contract["Wires"].elem_id: int(fx.get("wires")),
+            contract["BusRating"].elem_id: float(fx.get("bus_rating_a")),
+            contract["MainsType"].elem_id: str(mains_type),
+            contract["MainsRating"].elem_id: float(fx.get("mains_rating_a")),
+            contract["ShortCircuitRatingkA"].elem_id: float(sccr) if sccr is not None else 0.0,
+            contract["Mounting"].elem_id: str(mount),
+            contract["NumberOfCircuits"].elem_id: j_spaces,
+            contract["NeutralRating"].elem_id: str(fx.get("neutral_rating")),
+            "manufacturer": str(fx.get("manufacturer")),
+            "model": str(fx.get("model")),
+            "description": (f"{fx.get('voltage_system')} V, {int(fx.get('phases'))}-phase "
+                            f"{int(fx.get('wires'))}-wire, {int(j_mains)} A "
+                            f"{'main-breaker' if j_mcb else 'main-lugs-only'} panelboard, "
+                            f"{j_spaces} circuits, {mount} mounted "
+                            f"(box {fx.get('width_in'):g} W x {fx.get('height_in'):g} H x "
+                            f"{fx.get('depth_in'):g} D in; generated from catalog facts)"),
+        }
+        catalog = [
+            ("Width", "length", fx.get("width_in")), ("Height", "length", fx.get("height_in")),
+            ("Depth", "length", fx.get("depth_in")),
+            ("Voltage", "voltage", vll), ("Phases", "integer", int(fx.get("phases"))),
+            ("Wires", "integer", int(fx.get("wires"))),
+            ("BusRating", "current", float(fx.get("bus_rating_a"))),
+            ("MainsType", "text", str(mains_type)),
+            ("MainsRating", "current", float(fx.get("mains_rating_a"))),
+            ("ShortCircuitRatingkA", "number", float(sccr) if sccr is not None else 0.0),
+            ("Mounting", "text", str(mount)), ("NumberOfCircuits", "integer", j_spaces),
+            ("NeutralRating", "text", str(fx.get("neutral_rating"))),
+            ("Manufacturer", "text", str(fx.get("manufacturer"))),
+            ("Model", "text", str(fx.get("model"))),
+        ]
+        _add_type_row(doc, rows, type_name, values, fx, catalog)
     # -- geometry: the enclosure box -------------------------------------
     # profile W (x) x H (y) in the family plane (the wall face); depth along
     # +Z for surface mounting, recessed (-Z) for flush.
@@ -1012,15 +1235,33 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                   power_factor=1.0, bind_voltage_param="Voltage",
                   load_class="Power", description="Panel Feed")
     doc.finalize()
-    prod = FamilyProduct("panelboard", doc, facts, forms=[fb],
-                         file_stem=_slug(f"{vendor}_{facts.variant}_{int(mains_a)}A_"
-                                         f"{int(spaces)}sp_{facts.get('voltage_system')}"))
+    prod = FamilyProduct("panelboard", doc, facts, forms=[fb], types=rows,
+                         file_stem=_slug(f"{vendor}_{facts.variant}_"
+                                         f"{_joined([int(j['mains_a']) for j in jobs], 'A')}_"
+                                         f"{_joined([int(j['spaces']) for j in jobs], 'sp')}_"
+                                         f"{facts.get('voltage_system')}"))
     prod.notes.append("connector hosted on the enclosure's top face (face-referenced, "
                       "edge-loop tags of the solid) -- resolves the S0e datum-host gap")
-    if facts.assumed():
-        prod.notes.append("UNVERIFIED (assumed) values surfaced: "
-                          + ", ".join(facts.assumed()))
+    _multi_type_notes(prod)
     return prod
+
+
+def _multi_type_notes(prod: FamilyProduct) -> None:
+    """Surface the assumed fields (of every type) and, for a multi-type
+    family, say out loud that the ONE solid sits at the primary type's
+    dimensions while the other rows carry theirs as parameter VALUES."""
+    assumed = prod.assumed()
+    if assumed:
+        label = ("UNVERIFIED (assumed) values surfaced: " if prod.kind == "panelboard"
+                 else "UNVERIFIED (assumed): ")
+        prod.notes.append(label + ", ".join(assumed))
+    if len(prod.types) > 1:
+        prod.notes.append(
+            f"{len(prod.types)} types {[t.name for t in prod.types]}: ONE family, one "
+            f"type-table row per catalog selection (per-type dims / ratings / Model as "
+            f"parameter VALUES); the enclosure solid and connector are authored ONCE at "
+            f"the primary type's ({prod.types[0].name}) dimensions -- geometry is not "
+            f"label-driven yet (asset-factory honest limit #4)")
 
 
 # ---------------------------------------------------------------------------
@@ -1030,21 +1271,30 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
 def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                      primary_v: Any = 480, secondary_v: Any = "208Y/120",
                      solid: bool = True, name: Optional[str] = None,
-                     start_id: int = 1000) -> FamilyProduct:
+                     start_id: int = 1000,
+                     types: Optional[Sequence[Any]] = None) -> FamilyProduct:
     """Compose a DRY-TYPE TRANSFORMER family from catalog facts: the
     enclosure box at the catalog W x D footprint x H tall standing on the
     Reference Level (free-standing, floor-mounted), with TWO 3-pole power
     connectors on the top face: PRIMARY (480 V) and SECONDARY (208 V), the
     secondary being what feeds a downstream panel (KNOWLEDGE: transformer
-    secondary -> panel circuit membership)."""
-    facts = resolve_transformer_facts(kva, vendor=vendor, primary_v=primary_v,
-                                      secondary_v=secondary_v)
+    secondary -> panel circuit membership).
+
+    ``types`` = kVA points (``[30, 45, 75]`` / ``'45kVA'`` / ``{'kva': 45}``)
+    for a MULTI-TYPE family: one row per rating with its own frame / dims /
+    weight / Model; the first is the primary type (the solid is its box)."""
+    jobs = _type_jobs(types, {"kva": kva}, scalar_key="kva")
+    sheets = [resolve_transformer_facts(float(j["kva"]), vendor=vendor, primary_v=primary_v,
+                                        secondary_v=secondary_v) for j in jobs]
+    facts = sheets[0]                                   # the primary type
+    kva = jobs[0]["kva"]
     W = inches(facts.get("width_in"))
     Hh = inches(facts.get("height_in"))
     D = inches(facts.get("depth_in"))
     vp, _p_ph, _p_w = _voltage_number(primary_v)
     vs, _s_ph, _s_w = _voltage_number(secondary_v)
-    fam_name = name or _clean_name("Dry Type Transformer", f"{kva:g}kVA",
+    fam_name = name or _clean_name("Dry Type Transformer",
+                                   _common([f"{float(j['kva']):g}kVA" for j in jobs]),
                                    f"{int(vp)}-{secondary_v}")
     doc = SK.new_family_document("electrical_equipment", fam_name,
                                  part_type=SK.PART_TYPE["electrical_equipment"],
@@ -1060,32 +1310,52 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
     pSec = _num(doc, "Secondary Voltage", "voltage", "electrical")
     pPh = _num(doc, "Phases", "integer", "electrical")
     pTemp = _num(doc, "Temperature Rise", "number", "electrical")
-    pWt = _num(doc, "Weight", "number", "identity") if facts.get("weight_lb") else None
+    pWt = (_num(doc, "Weight", "number", "identity")
+           if any(fx.get("weight_lb") for fx in sheets) else None)
     pFrame = _text(doc, "Frame")
     pEnc = _text(doc, "Enclosure")
-    type_name = _clean_name(f"{kva:g} kVA", f"{int(vp)}-{secondary_v}")
-    values: Dict[Any, Any] = {
-        pW.elem_id: W, pH.elem_id: Hh, pD.elem_id: D,
-        pK.elem_id: SK.voltamps(float(kva) * 1000.0),
-        pPri.elem_id: SK.volts(vp), pSec.elem_id: SK.volts(vs),
-        pPh.elem_id: int(facts.get("phases") or 3),
-        pTemp.elem_id: float(facts.get("temp_rise_c") or 0.0),
-        pFrame.elem_id: str(facts.get("frame") or ""),
-        pEnc.elem_id: str(facts.get("enclosure") or ""),
-        "manufacturer": str(facts.get("manufacturer")),
-        "model": str(facts.get("model")),
-        "description": (f"{kva:g} kVA, {int(facts.get('phases') or 3)}-phase, "
-                        f"{primary_v} - {secondary_v} V dry-type transformer, "
-                        f"{facts.get('temp_rise_c') or '?'} C rise, "
-                        f"{facts.get('windings') or 'aluminum'} windings, "
-                        f"frame {facts.get('frame') or '?'} "
-                        f"({facts.get('width_in'):g} W x {facts.get('height_in'):g} H x "
-                        f"{facts.get('depth_in'):g} D in, {facts.get('weight_lb') or '?'} lb; "
-                        f"generated from catalog facts)"),
-    }
-    if pWt is not None:
-        values[pWt.elem_id] = float(facts.get("weight_lb"))
-    doc.add_type(type_name, values)
+    rows: List[TypeRow] = []
+    for job, fx in zip(jobs, sheets):
+        j_kva = float(job["kva"])
+        type_name = job.get("type_name") or _clean_name(f"{j_kva:g} kVA",
+                                                        f"{int(vp)}-{secondary_v}")
+        values: Dict[Any, Any] = {
+            pW.elem_id: inches(fx.get("width_in")), pH.elem_id: inches(fx.get("height_in")),
+            pD.elem_id: inches(fx.get("depth_in")),
+            pK.elem_id: SK.voltamps(j_kva * 1000.0),
+            pPri.elem_id: SK.volts(vp), pSec.elem_id: SK.volts(vs),
+            pPh.elem_id: int(fx.get("phases") or 3),
+            pTemp.elem_id: float(fx.get("temp_rise_c") or 0.0),
+            pFrame.elem_id: str(fx.get("frame") or ""),
+            pEnc.elem_id: str(fx.get("enclosure") or ""),
+            "manufacturer": str(fx.get("manufacturer")),
+            "model": str(fx.get("model")),
+            "description": (f"{j_kva:g} kVA, {int(fx.get('phases') or 3)}-phase, "
+                            f"{primary_v} - {secondary_v} V dry-type transformer, "
+                            f"{fx.get('temp_rise_c') or '?'} C rise, "
+                            f"{fx.get('windings') or 'aluminum'} windings, "
+                            f"frame {fx.get('frame') or '?'} "
+                            f"({fx.get('width_in'):g} W x {fx.get('height_in'):g} H x "
+                            f"{fx.get('depth_in'):g} D in, {fx.get('weight_lb') or '?'} lb; "
+                            f"generated from catalog facts)"),
+        }
+        if pWt is not None:
+            values[pWt.elem_id] = float(fx.get("weight_lb") or 0.0)
+        catalog = [
+            ("Width", "length", fx.get("width_in")), ("Height", "length", fx.get("height_in")),
+            ("Depth", "length", fx.get("depth_in")),
+            ("kVA Rating", "apparent_power", j_kva * 1000.0),
+            ("Primary Voltage", "voltage", vp), ("Secondary Voltage", "voltage", vs),
+            ("Phases", "integer", int(fx.get("phases") or 3)),
+            ("Temperature Rise", "number", float(fx.get("temp_rise_c") or 0.0)),
+            ("Frame", "text", str(fx.get("frame") or "")),
+            ("Enclosure", "text", str(fx.get("enclosure") or "")),
+            ("Manufacturer", "text", str(fx.get("manufacturer"))),
+            ("Model", "text", str(fx.get("model"))),
+        ]
+        if pWt is not None:
+            catalog.insert(8, ("Weight", "number", float(fx.get("weight_lb") or 0.0)))
+        _add_type_row(doc, rows, type_name, values, fx, catalog)
     # geometry: W (x) x D (y) footprint, H tall from the floor
     fb = add_box_form(doc, W, D, Hh, base_z_ft=0.0, center=(0.0, 0.0),
                       rep=G.REP_SOLID if solid else G.REP_DUMMY)
@@ -1106,12 +1376,12 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                   bind_load_param="kVA Rating",
                   load_class="Power", description="Secondary")
     doc.finalize()
-    prod = FamilyProduct("transformer", doc, facts, forms=[fb],
-                         file_stem=_slug(f"xfmr_{kva:g}kVA_{int(vp)}-{secondary_v}"))
+    prod = FamilyProduct("transformer", doc, facts, forms=[fb], types=rows,
+                         file_stem=_slug(f"xfmr_{_joined([float(j['kva']) for j in jobs], 'kVA')}"
+                                         f"_{int(vp)}-{secondary_v}"))
     prod.notes.append("two connectors (primary / secondary) on the top face; the "
                       "secondary is bound to the kVA rating (the load it can serve)")
-    if facts.assumed():
-        prod.notes.append("UNVERIFIED (assumed): " + ", ".join(facts.assumed()))
+    _multi_type_notes(prod)
     return prod
 
 
@@ -1124,23 +1394,38 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                    cct: Optional[float] = None, voltage: Any = "120-277",
                    aperture_in: Optional[float] = None,
                    solid: bool = True, name: Optional[str] = None,
-                   start_id: int = 1000) -> FamilyProduct:
+                   start_id: int = 1000,
+                   types: Optional[Sequence[Any]] = None) -> FamilyProduct:
     """Compose a LUMINAIRE family: a recessed TROFFER (rectangular housing at
     the catalog dimensions) or a recessed DOWNLIGHT (OUR parametric can --
     the flagship record's housing dims are not sourced).  One single-phase
     power connector on the housing top, load = the wattage (associated to
     the Wattage parameter); photometry = parameters + an IES URL reference
     (no bundled .ies).  No ImposterLight light-source element yet (honest
-    limit -- the skeleton exposes no constructor)."""
-    facts = resolve_luminaire_facts(kind, size=size, wattage=wattage, lumens=lumens,
-                                    cct=cct, voltage=voltage, aperture_in=aperture_in)
+    limit -- the skeleton exposes no constructor).
+
+    ``types`` = wattage / lumen packages for a MULTI-TYPE family: watts
+    (``[30, 38, 48]`` / ``'38W'``) or dicts over ``wattage, lumens, cct,
+    size, aperture_in``; one row per package, the first = the primary type
+    (the housing solid is built at its dimensions)."""
+    jobs = _type_jobs(types, {"wattage": wattage, "lumens": lumens, "cct": cct,
+                              "size": size, "aperture_in": aperture_in},
+                      scalar_key="wattage")
+    sheets = [resolve_luminaire_facts(kind, size=j["size"], wattage=j["wattage"],
+                                      lumens=j["lumens"], cct=j["cct"], voltage=voltage,
+                                      aperture_in=j["aperture_in"]) for j in jobs]
+    facts = sheets[0]                                   # the primary type
+    size = jobs[0]["size"]
     shape = facts.get("shape")
     volt = float(facts.get("voltage_v") or 120.0)
     watt = facts.get("wattage_w")
-    fam_name = name or (_clean_name("Recessed Troffer", size, f"{watt:g}W" if watt else "")
+    watts_all = [fx.get("wattage_w") for fx in sheets]
+    fam_name = name or (_clean_name("Recessed Troffer", _common([j["size"] for j in jobs]),
+                                    _common([f"{w:g}W" if w else "" for w in watts_all]))
                         if shape == "box" else
                         _clean_name("Recessed Downlight",
-                                    f"{facts.get('aperture_in'):g}in aperture"))
+                                    _common([f"{fx.get('aperture_in'):g}in aperture"
+                                             for fx in sheets])))
     doc = SK.new_family_document("lighting_fixture", fam_name,
                                  part_type=SK.PART_TYPE["normal"],
                                  work_plane_based=True, start_id=start_id,
@@ -1167,37 +1452,56 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
         dims["Height"] = _num(doc, "Height", "length", "dimensions")
         L = inches(facts.get("can_diameter_in")); Wd = L
         Hh = inches(facts.get("height_in"))
-    type_name = _clean_name(size if shape == "box" else f"{facts.get('aperture_in'):g}in",
-                            f"{watt:g}W" if watt else "",
-                            f"{int(facts.get('cct_k'))}K" if facts.get("cct_k") else "")
-    values: Dict[Any, Any] = {
-        pWatt.elem_id: SK.watts(watt) if watt else 0.0,
-        pLm.elem_id: float(facts.get("lumens_lm") or 0.0),
-        pCct.elem_id: float(facts.get("cct_k") or 0.0),
-        pV.elem_id: SK.volts(volt),
-        pIes.elem_id: str(facts.get("photometry_url") or ""),
-        "manufacturer": str(facts.get("manufacturer")),
-        "model": str(facts.get("model")),
-        "description": (
-            (f"Recessed LED troffer {size}, {watt:g} W, {facts.get('lumens_lm'):g} lm, "
-             f"{int(facts.get('cct_k'))} K, {voltage} V "
-             f"({facts.get('length_in'):g} L x {facts.get('width_in'):g} W x "
-             f"{facts.get('height_in'):g} H in; generated from catalog facts)")
-            if shape == "box" else
-            (f"Recessed downlight, {facts.get('aperture_in'):g} in aperture, "
-             f"{facts.get('lumens_lm') or '?'} lm, {facts.get('cct_k') or '?'} K, "
-             f"{voltage} V; OUR parametric housing (manufacturer housing dims not "
-             f"sourced); IES referenced by URL")),
-    }
-    if shape == "box":
-        values[dims["Length"].elem_id] = L
-        values[dims["Width"].elem_id] = Wd
-        values[dims["Height"].elem_id] = Hh
-    else:
-        values[dims["Aperture Diameter"].elem_id] = inches(facts.get("aperture_in"))
-        values[dims["Housing Diameter"].elem_id] = L
-        values[dims["Height"].elem_id] = Hh
-    doc.add_type(type_name, values)
+    rows: List[TypeRow] = []
+    for job, fx in zip(jobs, sheets):
+        j_size, j_watt = job["size"], fx.get("wattage_w")
+        if fx.get("shape") != shape:                       # pragma: no cover
+            raise FactoryError("every type of one luminaire family shares its housing shape")
+        type_name = job.get("type_name") or _clean_name(
+            j_size if shape == "box" else f"{fx.get('aperture_in'):g}in",
+            f"{j_watt:g}W" if j_watt else "",
+            f"{int(fx.get('cct_k'))}K" if fx.get("cct_k") else "")
+        values: Dict[Any, Any] = {
+            pWatt.elem_id: SK.watts(j_watt) if j_watt else 0.0,
+            pLm.elem_id: float(fx.get("lumens_lm") or 0.0),
+            pCct.elem_id: float(fx.get("cct_k") or 0.0),
+            pV.elem_id: SK.volts(volt),
+            pIes.elem_id: str(fx.get("photometry_url") or ""),
+            "manufacturer": str(fx.get("manufacturer")),
+            "model": str(fx.get("model")),
+            "description": (
+                (f"Recessed LED troffer {j_size}, {j_watt:g} W, {fx.get('lumens_lm'):g} lm, "
+                 f"{int(fx.get('cct_k'))} K, {voltage} V "
+                 f"({fx.get('length_in'):g} L x {fx.get('width_in'):g} W x "
+                 f"{fx.get('height_in'):g} H in; generated from catalog facts)")
+                if shape == "box" else
+                (f"Recessed downlight, {fx.get('aperture_in'):g} in aperture, "
+                 f"{fx.get('lumens_lm') or '?'} lm, {fx.get('cct_k') or '?'} K, "
+                 f"{voltage} V; OUR parametric housing (manufacturer housing dims not "
+                 f"sourced); IES referenced by URL")),
+        }
+        catalog: List[Tuple[str, str, Any]] = []
+        if shape == "box":
+            values[dims["Length"].elem_id] = inches(fx.get("length_in"))
+            values[dims["Width"].elem_id] = inches(fx.get("width_in"))
+            values[dims["Height"].elem_id] = inches(fx.get("height_in"))
+            catalog += [("Length", "length", fx.get("length_in")),
+                        ("Width", "length", fx.get("width_in")),
+                        ("Height", "length", fx.get("height_in"))]
+        else:
+            values[dims["Aperture Diameter"].elem_id] = inches(fx.get("aperture_in"))
+            values[dims["Housing Diameter"].elem_id] = inches(fx.get("can_diameter_in"))
+            values[dims["Height"].elem_id] = inches(fx.get("height_in"))
+            catalog += [("Aperture Diameter", "length", fx.get("aperture_in")),
+                        ("Housing Diameter", "length", fx.get("can_diameter_in")),
+                        ("Height", "length", fx.get("height_in"))]
+        catalog += [("Wattage", "wattage", float(j_watt) if j_watt else 0.0),
+                    ("Lumens", "luminous_flux", float(fx.get("lumens_lm") or 0.0)),
+                    ("Color Temperature", "cct", float(fx.get("cct_k") or 0.0)),
+                    ("Voltage", "voltage", volt),
+                    ("Manufacturer", "text", str(fx.get("manufacturer"))),
+                    ("Model", "text", str(fx.get("model")))]
+        _add_type_row(doc, rows, type_name, values, fx, catalog)
     # geometry: the housing above the ceiling face (z 0..H)
     if shape == "box":
         fb = add_box_form(doc, L, Wd, Hh, base_z_ft=0.0, center=(0.0, 0.0),
@@ -1229,11 +1533,12 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
     doc.finalize()
     stem = ("troffer_" + _slug(size) + "_recessed") if shape == "box" \
         else _slug(f"downlight_{facts.get('aperture_in'):g}in")
-    prod = FamilyProduct("luminaire", doc, facts, forms=[fb], file_stem=stem)
+    if len(rows) > 1:
+        stem += "_" + _slug(_joined([w for w in watts_all if w], "W") or f"{len(rows)}types")
+    prod = FamilyProduct("luminaire", doc, facts, forms=[fb], file_stem=stem, types=rows)
     prod.notes.append("apparent load = the input wattage (power factor 0.95 booked "
                       "on the connector); bound to the Wattage parameter")
-    if facts.assumed():
-        prod.notes.append("UNVERIFIED (assumed): " + ", ".join(facts.assumed()))
+    _multi_type_notes(prod)
     if shape != "box":
         prod.notes.append("housing = OUR polygonal can (manufacturer housing dims not "
                           "sourced); the true curved profile is phase 2")
