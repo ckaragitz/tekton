@@ -61,11 +61,13 @@ DEFAULT_ZIP = os.path.join(ROOT, "tekton-plugin.zip")
 PLUGIN_TREE = os.path.join(ROOT, "plugin")
 
 PANEL_PROMPT = "create an eaton panel for me with 6 switches"
+#: the flagship demo prompt: SIX generated families loaded + placed (issue #124)
+ROOM6_PROMPT = "an electrical room with 6 panels"
 IFC_EXAMPLE_REL = os.path.join("skills", "tekton-author", "examples",
                                "electrical-room-2500a.ifc")
 
-JOB_ORDER = ("preflight", "author-prompt", "go-author-prompt", "author-ifc",
-             "edit-roundtrip", "validate")
+JOB_ORDER = ("preflight", "author-prompt", "go-author-prompt", "go-author-6panels",
+             "author-ifc", "edit-roundtrip", "validate")
 SURFACE_ORDER = ("cowork", "codeexec", "local")
 
 # what each surface is, one line, for the table header
@@ -177,6 +179,9 @@ class JobResult:
         self.status = "PASS"
         self.reason = ""
         self.invocations: list[Invocation] = []
+        # where an author job's time goes INSIDE the process (issue #124):
+        # {"job_seconds", "build_seconds", "stages": [{"stage", "seconds", ...}]}
+        self.breakdown: dict = {}
 
     @property
     def seconds(self) -> float:
@@ -203,10 +208,13 @@ class JobResult:
         return self
 
     def as_dict(self) -> dict:
-        return {"job": self.name, "status": self.status, "reason": self.reason,
-                "shell_calls": self.calls, "seconds": round(self.seconds, 3),
-                "extract_seconds": round(self.extract_seconds, 3),
-                "invocations": [i.as_dict() for i in self.invocations]}
+        d = {"job": self.name, "status": self.status, "reason": self.reason,
+             "shell_calls": self.calls, "seconds": round(self.seconds, 3),
+             "extract_seconds": round(self.extract_seconds, 3),
+             "invocations": [i.as_dict() for i in self.invocations]}
+        if self.breakdown:
+            d["breakdown"] = self.breakdown
+        return d
 
 
 # ---------------------------------------------------------------------------
@@ -327,6 +335,52 @@ def _tail(inv: Invocation) -> str:
     return msg[-1][:200] if msg else f"exit {inv.exit_code}"
 
 
+def stage_breakdown(result: dict, envelope: dict | None = None) -> dict:
+    """Where an author job's time went INSIDE the process: the manifest's
+    ``build.stages[*].seconds`` (F families / L load / specimens / W walls /
+    E equipment / C circuits / V gates -- issue #124) + ``build.seconds`` +
+    the `go` envelope's ``job_seconds`` when there is one.  ``result`` is the
+    front door's JSON result (its ``manifest.json`` path is read from disk)."""
+    bd: dict = {}
+    if envelope and isinstance(envelope.get("go"), dict):
+        bd["job_seconds"] = envelope["go"].get("job_seconds")
+        bd["preflight_seconds"] = envelope["go"].get("preflight_seconds")
+    man = result.get("manifest")
+    man_path = man.get("json") if isinstance(man, dict) else man
+    try:
+        with open(man_path, "r", encoding="utf-8") as fh:
+            build = (json.load(fh) or {}).get("build") or {}
+    except (OSError, ValueError, TypeError):
+        return bd
+    bd["build_seconds"] = build.get("seconds")
+    stages = []
+    for st in build.get("stages") or []:
+        row = {"stage": st.get("stage"), "seconds": st.get("seconds")}
+        for k in ("mode", "host_passes", "n_loaded", "n_planned", "gates"):
+            if st.get(k) is not None:
+                row[k] = st[k]
+        stages.append(row)
+    bd["stages"] = stages
+    return bd
+
+
+def _fmt_breakdown(bd: dict) -> str:
+    """'F 4.1s · L 1.5s (1 pass, 6/6) · W 0.3s · E 0.2s · V 1.6s' for the table notes."""
+    parts = []
+    for st in bd.get("stages") or []:
+        if st.get("seconds") is None or st.get("stage") in ("release-context",):
+            continue
+        s = f"{st['stage']} {st['seconds']:.1f}s"
+        if st.get("stage") == "L" and st.get("host_passes") is not None:
+            s += f" ({st['host_passes']} pass{'es' if st['host_passes'] != 1 else ''}, " \
+                 f"{st.get('n_loaded')}/{st.get('n_planned')})"
+        parts.append(s)
+    inner = " · ".join(parts) if parts else "no stage timings in the manifest"
+    if bd.get("job_seconds") is not None:
+        inner = f"job {bd['job_seconds']:.1f}s = " + inner
+    return inner
+
+
 def job_preflight(s: Surface, state: dict) -> JobResult:
     job = JobResult("preflight")
     inv = s.run("preflight --json", lambda s: [s.bootstrap("tekton-author"), "--json"])
@@ -353,6 +407,7 @@ def job_author_prompt(s: Surface, state: dict) -> JobResult:
     combined = (res.get("files") or {}).get("combined")
     if not combined or not os.path.isfile(combined):
         return job.fail("no combined .rvt in the result")
+    job.breakdown = stage_breakdown(res)
     state["authored_rvt"] = s.keep_artifact(combined, "prompt_room.rvt")
     return job
 
@@ -361,11 +416,22 @@ def job_go_author_prompt(s: Surface, state: dict) -> JobResult:
     """The ONE-CALL flow (`_bootstrap.py go author ...`): inline preflight +
     the job + one combined JSON -- a whole session in a single shell call.
     SKIPPED (not failed) on plugin builds that predate the `go` dispatch."""
-    job = JobResult("go-author-prompt")
+    return _job_go_author(s, state, "go-author-prompt", PANEL_PROMPT, "panel")
+
+
+def job_go_author_6panels(s: Surface, state: dict) -> JobResult:
+    """The flagship demo prompt through the one-call flow: six generated
+    families loaded (ONE host pass since #124) + walls + six placed
+    instances.  The job whose per-stage breakdown the latency epic tracks."""
+    return _job_go_author(s, state, "go-author-6panels", ROOM6_PROMPT, "6 panels")
+
+
+def _job_go_author(s: Surface, state: dict, name: str, prompt: str, short: str) -> JobResult:
+    job = JobResult(name)
     out_tag = f"out-go-{s.call_no + 1}"
-    inv = s.run("go author --prompt (panel)", lambda s: [
+    inv = s.run(f"go author --prompt ({short})", lambda s: [
         s.bootstrap("tekton-author"), "go", "author",
-        "--prompt", PANEL_PROMPT, "--json", "--out", os.path.join(s.workdir, out_tag)])
+        "--prompt", prompt, "--json", "--out", os.path.join(s.workdir, out_tag)])
     job.invocations.append(inv)
     res = _json_or_none(inv.stdout)
     if res is None and ((inv.stdout or "").lstrip().startswith("tekton:")
@@ -381,6 +447,7 @@ def job_go_author_prompt(s: Surface, state: dict) -> JobResult:
     inner = res.get("result", res)
     if not inner.get("ok"):
         return job.fail(f"go author reported not-ok: {_tail(inv)}")
+    job.breakdown = stage_breakdown(inner, envelope=res)
     combined = (inner.get("files") or {}).get("combined")
     if combined and os.path.isfile(combined):
         state.setdefault("authored_rvt", s.keep_artifact(combined, "prompt_room.rvt"))
@@ -462,6 +529,7 @@ JOBS = {
     "preflight": job_preflight,
     "author-prompt": job_author_prompt,
     "go-author-prompt": job_go_author_prompt,
+    "go-author-6panels": job_go_author_6panels,
     "author-ifc": job_author_ifc,
     "edit-roundtrip": job_edit_roundtrip,
     "validate": job_validate,
@@ -544,6 +612,12 @@ def markdown_table(report: dict) -> str:
         setup = f"; session setup (one unzip) {r['session_setup_seconds']:.1f}s" \
             if r["session_setup_seconds"] else ""
         notes.append(f"- **{sn}** -- {r['model']}; python {pv}; extras: {exs}{setup}")
+    # where the author jobs' time goes inside the process (manifest build.stages)
+    for sn in surfaces:
+        for jd in by[sn]["jobs"]:
+            bd = jd.get("breakdown")
+            if bd and bd.get("stages"):
+                notes.append(f"- {sn} / {jd['job']} stages: {_fmt_breakdown(bd)}")
     reasons = []
     for sn in surfaces:
         for jd in by[sn]["jobs"]:

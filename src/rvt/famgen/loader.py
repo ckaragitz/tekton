@@ -75,7 +75,7 @@ import math
 import os
 import struct
 import uuid
-from dataclasses import dataclass, field as dc_field
+from dataclasses import dataclass, field as dc_field, replace
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 _ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -1345,12 +1345,6 @@ class LoadResult:
         }
 
 
-def _framed_records(el, encode_record) -> Dict[int, bytes]:
-    ne = el.as_new_element()
-    return ({seq: encode_record(seq, ne.elem_id, None, cid, obj)
-             for seq, cid, obj in ne.records()}, ne)
-
-
 def _roundtrip_gate(elements) -> Dict[str, Any]:
     """Every authored record must encode and decode back byte-exact
     (schema-validity + reversibility) before anything is written."""
@@ -1369,6 +1363,123 @@ def _type_rows(product) -> List[dict]:
         return _dc(list(rows))
     fp = ((sf.obj.get("m_familyParams") or {}).get("value") or {})
     return _dc(list(fp.get("m_params") or []))
+
+
+def _plan_host_ids(plan: LoadPlan) -> List[int]:
+    """Every host id a load allocates (Family, surrogates, symbol, instance
+    if placed, the ParamElem twins) -- the one canonical list."""
+    ids = [x for x in (plan.host_family_id, plan.surrogate_id, plan.symbol_id,
+                       plan.symbol_surrogate_id, plan.instance_id) if x != INVALID]
+    return ids + list(plan.twin_of.values())
+
+
+@dataclass
+class _AuthoredLoad:
+    """Everything ONE family contributes to a load, authored and gated in
+    memory (no host stream touched yet): the plan, the host elements (L4),
+    our embedded ADocument (L3) and our save unit (L2)."""
+    plan: LoadPlan
+    elements: List[Any]                   # SkelElements, id-sorted
+    adocument: dict                       # factory.author_embedded_adocument(...)
+    unit: dict                            # factory.build_family_save_unit(...)
+    proofs: Dict[str, Any]
+    elements_json: List[dict]
+
+    @property
+    def max_host_id(self) -> int:
+        """The highest id this load allocates == the host watermark after it
+        (what a chained next load would survey)."""
+        return max(_plan_host_ids(self.plan))
+
+    def result(self, ok: bool, out_path: Optional[str], *,
+               verify: Optional[Dict[str, Any]] = None, stop_reason: str = "") -> "LoadResult":
+        proofs = dict(self.proofs)
+        if verify is not None:
+            proofs["verify_written"] = verify
+        return LoadResult(ok=ok, out_path=out_path, plan=self.plan, proofs=proofs,
+                          acceptance=list(ACCEPTANCE_LEDGER), elements=self.elements_json,
+                          stop_reason=stop_reason)
+
+
+def _author_load(product, host: HostContext, *, place: bool, symbol_solid: bool,
+                 circuit_slots: int) -> _AuthoredLoad:
+    """Plan + author + gate ONE family against ``host`` (whose ``watermark``
+    is the id floor): the shared front half of the single and the batched
+    loader.  Raises :class:`LoaderError` on any gate failure."""
+    from . import factory as F
+    doc = product.doc
+    if not doc.finalized:
+        doc.finalize()
+    plan = plan_load(product, host, place=place)
+    proofs: Dict[str, Any] = {}
+    proofs["plan"] = {
+        "content_guid": plan.guid, "fam_doc_guid": plan.fam_doc_guid,
+        "host_watermark": host.watermark,
+        "our_doc_ids": [min(e.elem_id for e in doc.elements),
+                        max(e.elem_id for e in doc.elements)],
+        "host_ids": {"family": plan.host_family_id, "surrogate": plan.surrogate_id,
+                     "symbol": plan.symbol_id, "symbol_surrogate": plan.symbol_surrogate_id,
+                     "instance": plan.instance_id, "twins": len(plan.twin_of)},
+        "resolved": {"category_gstyle": host.category_gstyle,
+                     "load_classification": {"name": plan.load_class_name,
+                                             "host_id": plan.load_class_host},
+                     "core_ids": plan.core_ids,
+                     "template_instance": host.template_instance,
+                     "template_host": host.template_host},
+        "notes": host.notes + plan.notes,
+    }
+
+    # ---------------- author the host elements -----------------------------
+    els = []
+    els.extend(author_param_twins(product, plan))
+    els.append(author_family_surrogate(plan, host.category))
+    els.append(author_host_family(product, plan, host))
+    hsym, geo = author_family_symbol(product, plan, host, _type_rows(product),
+                                     solid=symbol_solid)
+    els.append(hsym)
+    els.append(author_famsym_surrogate(plan, host.category))
+    if place:
+        els.append(author_family_instance(product, plan, host,
+                                          circuit_slots=circuit_slots))
+    els.sort(key=lambda e: e.elem_id)
+
+    # roundtrip gate: every record encodes + decodes back byte-exact
+    gate = _roundtrip_gate(els)
+    proofs["roundtrip_gate"] = gate
+    if gate.get("failed", 1) != 0 or gate.get("roundtrip_ok", 0) != gate.get("records", -1):
+        raise LoaderError("a host record failed the encode/decode round trip: "
+                          f"{gate.get('failures', [])[:6]}")
+
+    # ---------------- L3: our embedded ADocument + L2: our save unit --------
+    ad = F.author_embedded_adocument(doc, episode=plan.episode,
+                                     document_guid=plan.guid)
+    proofs["embedded_adocument"] = dict(ad["self_check"])
+    unit = F.build_family_save_unit(doc)
+    if str(unit["guid"]) != plan.guid:
+        raise LoaderError(f"save unit GUID {unit['guid']} != content GUID {plan.guid}")
+    proofs["save_unit"] = {"guid": unit["guid"], "records": unit["record_count"],
+                           "bytes": len(unit["bytes"]), "segments": unit["segments"]}
+    if geo is not None:
+        proofs["symbol_geometry"] = geo["history"]
+    elements_json = [{"elem_id": e.elem_id, "class": e.class_name,
+                      "kind": e.kind, "owner_id": e.owner_id,
+                      "rep": ("GElement" if e.rep is not None else "SerializedDummy"),
+                      "notes": list(e.notes)} for e in els]
+    return _AuthoredLoad(plan=plan, elements=els, adocument=ad, unit=unit,
+                         proofs=proofs, elements_json=elements_json)
+
+
+def _framed_load_records(loads: Sequence[_AuthoredLoad], encode_record):
+    """PASS-1 input for :func:`rvt.commit.commit_new_elements`: every host
+    element of every load (ascending id == load order), framed per seq."""
+    recs, elemrecs = [], []
+    for a in loads:
+        for e in a.elements:
+            ne = e.as_new_element(creation_ep=a.plan.episode)
+            recs.append({seq: encode_record(seq, ne.elem_id, None, cid, obj)
+                         for seq, cid, obj in ne.records()})
+            elemrecs.append(ne.elemrec)
+    return recs, elemrecs
 
 
 def load_family_into_project(host_rvt: str = DEFAULT_HOST,
@@ -1409,18 +1520,6 @@ def _load_family_into_project(host_rvt: str, out_path: Optional[str],
                               circuit_slots: int, report_path: Optional[str],
                               validate: bool) -> LoadResult:
     from . import factory as F
-    from ..encode import encode_record
-    from ..commit import commit_new_elements
-    from ..container import open_rvt
-    from ..adocument import decode_latest, encode_latest
-    from ..roundtrip import read_entries
-    from ..cfb_writer import write_cfb
-    from ..stream_encoders import wrap_global_stream
-    from .. import ecc
-    import dataclasses
-
-    proofs: Dict[str, Any] = {}
-    acceptance: List[str] = []
     host = survey_host(host_rvt)
     if product is None:
         product = F.make_panelboard(vendor="eaton", line="pow-r-line",
@@ -1428,70 +1527,203 @@ def _load_family_into_project(host_rvt: str, out_path: Optional[str],
                                    mcb=True, mounting="surface",
                                    solid=True, start_id=host.watermark + 1)
     else:
-        # the caller must have allocated ids above the host watermark
-        lo = min(e.elem_id for e in product.doc.elements)
-        if lo <= host.watermark:
-            raise LoaderError(f"product ids start at {lo} <= host watermark "
-                              f"{host.watermark}: rebuild with start_id={host.watermark + 1}")
-    doc = product.doc
-    if not doc.finalized:
-        doc.finalize()
-    plan = plan_load(product, host, place=place)
-    proofs["plan"] = {
-        "content_guid": plan.guid, "fam_doc_guid": plan.fam_doc_guid,
-        "host_watermark": host.watermark,
-        "our_doc_ids": [min(e.elem_id for e in doc.elements),
-                        max(e.elem_id for e in doc.elements)],
-        "host_ids": {"family": plan.host_family_id, "surrogate": plan.surrogate_id,
-                     "symbol": plan.symbol_id, "symbol_surrogate": plan.symbol_surrogate_id,
-                     "instance": plan.instance_id, "twins": len(plan.twin_of)},
-        "resolved": {"category_gstyle": host.category_gstyle,
-                     "load_classification": {"name": plan.load_class_name,
-                                             "host_id": plan.load_class_host},
-                     "core_ids": plan.core_ids,
-                     "template_instance": host.template_instance,
-                     "template_host": host.template_host},
-        "notes": host.notes + plan.notes,
-    }
+        _require_ids_above(product, host.watermark)
+    authored = _author_load(product, host, place=place, symbol_solid=symbol_solid,
+                            circuit_slots=circuit_slots)
+    plan, proofs = authored.plan, authored.proofs
 
-    # ---------------- author the host elements -----------------------------
-    els = []
-    twins = author_param_twins(product, plan)
-    els.extend(twins)
-    fsur = author_family_surrogate(plan, host.category)
-    els.append(fsur)
-    hfam = author_host_family(product, plan, host)
-    els.append(hfam)
-    type_rows = _type_rows(product)
-    hsym, geo = author_family_symbol(product, plan, host, type_rows, solid=symbol_solid)
-    els.append(hsym)
-    hssur = author_famsym_surrogate(plan, host.category)
-    els.append(hssur)
-    finst = None
-    if place:
-        finst = author_family_instance(product, plan, host,
-                                       circuit_slots=circuit_slots)
-        els.append(finst)
-    els.sort(key=lambda e: e.elem_id)
+    # L5 (host ADocument) + L1 (ContentDocuments), in memory
+    new_latest, cd_new, edit_proofs = _edit_host_registries(host_rvt, host, [authored])
+    proofs.update(edit_proofs)
+    proofs["adocument_registrations"] = edit_proofs["adocument_registrations"][0]
 
-    # roundtrip gate: every record encodes + decodes back byte-exact
-    gate = _roundtrip_gate(els)
-    proofs["roundtrip_gate"] = gate
-    if gate.get("failed", 1) != 0 or gate.get("roundtrip_ok", 0) != gate.get("records", -1):
-        raise LoaderError("a host record failed the encode/decode round trip: "
-                          f"{gate.get('failures', [])[:6]}")
+    if out_path is None:
+        # dry run: everything authored + gated, no file
+        res = authored.result(False, None, stop_reason="dry run (out_path=None): no file emitted")
+        res.acceptance = []
+        return res
 
-    # ---------------- L3: our embedded ADocument + L2: our save unit --------
-    ad = F.author_embedded_adocument(doc, episode=plan.episode,
-                                     document_guid=plan.guid)
-    proofs["embedded_adocument"] = dict(ad["self_check"])
-    unit = F.build_family_save_unit(doc)
-    if str(unit["guid"]) != plan.guid:
-        raise LoaderError(f"save unit GUID {unit['guid']} != content GUID {plan.guid}")
-    proofs["save_unit"] = {"guid": unit["guid"], "records": unit["record_count"],
-                           "bytes": len(unit["bytes"]), "segments": unit["segments"]}
+    # PASS 1 (host elements -> unit 0 + ElemTable) + PASS 2 (unit splice,
+    # ContentDocuments, Latest) -> ONE container write
+    write_proofs = _commit_and_write(host_rvt, out_path, host, [authored], new_latest, cd_new)
+    proofs["pass1_commit"] = write_proofs["pass1_commit"]
+    proofs["pass2_partition_splice"] = write_proofs["pass2_partition_splice"][0]
 
-    # ---------------- L5: edit the host ADocument -----------------------------
+    # ---------------- verify the written file --------------------------------
+    ver = verify_loaded_project(out_path, plan, validate=validate)
+    ok = bool(ver.get("ok"))
+    res = authored.result(ok, out_path, verify=ver,
+                          stop_reason=("" if ok else "verify_written reported failures"))
+    if report_path:
+        _write_report(report_path, res.as_json())
+        res.report_path = report_path
+    return res
+
+
+#: what only the Revit / viewer gate can answer about a loaded family
+ACCEPTANCE_LEDGER = (
+    "H1: the family editor / project accepts a family document whose "
+    "embedded ADocument carries an all-null AppInfoManager (the L3 open "
+    "question, unchanged)",
+    "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + "
+    "GeomTable + the seq-103 solid's flat id space) inferred from ONE "
+    "specimen -- the symbol_solid=False variant leaves the symbol geometry "
+    "to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
+    "H3: the host Family's core-id / big2small completeness for a family "
+    "document that carries no category / object-style copies (our doc has "
+    "none; the specimen twins 45 style rows)",
+    "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry "
+    "-1) and the shared creator GUID; the FamilyMgr entry is single-GUID "
+    "(47/159 are)",
+    "H5: the placed instance uses symbol == masterSymbol on a face host "
+    "(the specimen panelboards use a per-host slave geometry symbol); its "
+    "connector manager is rebuilt for our connectors",
+    "H6: the ContentTable record's author string is ours (rvt-writer), the "
+    "load episode reuses the host's current episode (no new History row)",
+)
+
+
+def _write_report(path: str, payload: dict) -> None:
+    os.makedirs(os.path.dirname(os.path.abspath(path)) or ".", exist_ok=True)
+    with open(path, "w") as fh:
+        json.dump(payload, fh, indent=1, default=str)
+
+
+def _require_ids_above(product, watermark: int) -> None:
+    """The caller must have allocated the product's ids above the host
+    watermark (the loader plans host ids above the product's own)."""
+    lo = min(e.elem_id for e in product.doc.elements)
+    if lo <= watermark:
+        raise LoaderError(f"product ids start at {lo} <= host watermark "
+                          f"{watermark}: rebuild with start_id={watermark + 1}")
+
+
+# ---------------------------------------------------------------------------
+# the BATCHED loader: N families, ONE host pass (issue #124)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class BatchLoadResult:
+    """N families loaded in one host pass.  ``loads[i]`` is the per-family
+    :class:`LoadResult` (same ``plan`` / ``proofs`` / ``elements`` shape as
+    the single loader; ``proofs['verify_written']`` = that family's slice of
+    the one verification); ``shared`` = the proofs of the single host edit
+    (ADocument re-encode, ContentDocuments, pass-1 commit, partition splices,
+    the file-level verification ``verify_written``)."""
+    ok: bool                              # file written, verifies, every family ok
+    out_path: Optional[str]               # None when nothing could be written
+    loads: List[LoadResult]               # attempted families, in order
+    shared: Dict[str, Any]
+    stop_reason: str = ""                 # first failure (names the family)
+
+    @property
+    def n_loaded(self) -> int:
+        return sum(1 for r in self.loads if r.ok)
+
+    @property
+    def first_failure(self) -> Optional[int]:
+        """Index of the first family that is not ok (None when all are)."""
+        return next((i for i, r in enumerate(self.loads) if not r.ok), None)
+
+    def as_json(self) -> dict:
+        return {"ok": self.ok, "out_path": self.out_path, "stop_reason": self.stop_reason,
+                "shared": self.shared, "loads": [r.as_json() for r in self.loads]}
+
+
+def load_families_into_project(host_rvt: str, out_path: str, products: Sequence[Any], *,
+                               symbol_solid: bool = True,
+                               report_path: Optional[str] = None,
+                               validate: bool = True) -> BatchLoadResult:
+    """LOAD ``products`` (N :class:`rvt.famgen.factory.FamilyProduct`, or
+    callables ``f(start_id) -> FamilyProduct`` so each family is regenerated
+    above the ids the previous one allocated) into a copy of ``host_rvt`` in
+    ONE host pass: survey once, author + gate every family in memory, edit
+    ``Global/Latest`` / ``Global/ContentDocuments`` once, one
+    ``commit_new_elements`` (all host elements into save-unit 0 + ElemTable),
+    splice the N save units, write ``out_path`` once, verify once.
+
+    Byte-for-byte the same streams as chaining :func:`load_family_into_project`
+    N times (family i+1 onto family i's output) with the same GUIDs -- ids
+    ladder identically, units append in load order, ContentDocuments /
+    ContentTable stay GUID-sorted, FamilyMgr entries keep load order -- minus
+    N-1 container rewrites, N-1 host surveys and N-1 verifications.  Families
+    load UNPLACED (placement is the caller's: ``rvt.mutate.add_family_instance``
+    onto the returned symbols).
+
+    Honest, single pass: a family whose authoring gates fail stops the batch
+    THERE (the id ladder needs every earlier family) and the families before
+    it are written; the written file is verified once and each family gets its
+    verdict -- ``ok`` only if the file verifies and every family does.  What
+    to do with a partial result (keep the good prefix, retry without a family)
+    is the CALLER's degrade policy (``rvt.frontdoor.build.stage_load_batched``).
+
+    Runs under the HOST's own release like the single loader.
+    """
+    from ..frontdoor.release_ctx import host_release_context
+    with host_release_context(host_rvt):
+        return _load_families_into_project(host_rvt, out_path, list(products),
+                                           symbol_solid=symbol_solid,
+                                           report_path=report_path, validate=validate)
+
+
+def _load_families_into_project(host_rvt: str, out_path: str, products: List[Any], *,
+                                symbol_solid: bool, report_path: Optional[str],
+                                validate: bool) -> BatchLoadResult:
+    host = survey_host(host_rvt)
+    shared: Dict[str, Any] = {"host_watermark": host.watermark, "n_products": len(products)}
+    authored: List[_AuthoredLoad] = []
+    auth_failure = ""                    # why the first un-authorable family failed
+    cursor = int(host.watermark)
+    for i, item in enumerate(products):
+        try:
+            product = item(cursor + 1) if callable(item) else item
+            _require_ids_above(product, cursor)
+            a = _author_load(product, replace(host, watermark=cursor),
+                             place=False, symbol_solid=symbol_solid, circuit_slots=0)
+        except Exception as exc:                                  # noqa: BLE001
+            auth_failure = f"family {i + 1}/{len(products)}: {type(exc).__name__}: {exc}"
+            break                        # the id ladder needs every earlier family
+        authored.append(a)
+        cursor = a.max_host_id
+    loads: List[LoadResult] = []
+    stop_reason = ""
+    file_ok = False
+    if authored:
+        new_latest, cd_new, edit_proofs = _edit_host_registries(host_rvt, host, authored)
+        shared.update(edit_proofs)
+        shared.update(_commit_and_write(host_rvt, out_path, host, authored, new_latest, cd_new))
+        ver = verify_loaded_projects(out_path, [a.plan for a in authored], validate=validate)
+        shared["verify_written"] = {k: v for k, v in ver.items() if k != "per_plan"}
+        file_ok = bool(ver["file_ok"])
+        for k, (a, pv) in enumerate(zip(authored, ver["per_plan"])):
+            loads.append(a.result(bool(pv["ok"]), out_path, verify=pv,
+                                  stop_reason="" if pv["ok"] else "verify_written reported failures"))
+            if not pv["ok"] and not stop_reason:
+                stop_reason = f"family {k + 1}/{len(products)}: verify_written reported failures"
+        if not file_ok:
+            stop_reason = "file-level verification failed: " + "; ".join(ver["file_errors"])[:300]
+    if auth_failure:
+        loads.append(LoadResult(ok=False, out_path=None, plan=None, proofs={}, acceptance=[],
+                                elements=[], stop_reason=auth_failure))
+        stop_reason = stop_reason or auth_failure
+    res = BatchLoadResult(ok=file_ok and not auth_failure and all(r.ok for r in loads),
+                          out_path=out_path if authored else None,
+                          loads=loads, shared=shared, stop_reason=stop_reason)
+    if report_path:
+        _write_report(report_path, res.as_json())
+    return res
+
+
+def _edit_host_registries(host_rvt: str, host: HostContext,
+                          authored: Sequence[_AuthoredLoad]) -> Tuple[bytes, bytes, Dict[str, Any]]:
+    """L5 + L1 for every family, in memory: decode the host ``Global/Latest``
+    once, register each family (ContentTable / FamilyMgr / tracking data),
+    re-encode once and prove it re-decodes clean; insert every family's
+    ``Global/ContentDocuments`` entry (GUID-sorted).  Returns
+    ``(new_latest_payload, new_content_documents_payload, proofs)``."""
+    from . import factory as F
+    from ..container import open_rvt
+    from ..adocument import decode_latest, encode_latest
     with open_rvt(host_rvt) as f:
         latest_payload = f.inflate("Global/Latest")
         cd_payload = b"".join(f.inflate_all("Global/ContentDocuments"))
@@ -1499,146 +1731,116 @@ def _load_family_into_project(host_rvt: str, out_path: Optional[str],
     if not lat.clean:
         raise LoaderError("host Global/Latest does not decode clean")
     lv = _dc(lat.value)
-    reg = register_in_host_adocument(lv, plan, category=host.category,
-                                     unit_records=int(unit["record_count"]))
-    proofs["adocument_registrations"] = reg
+    regs = [register_in_host_adocument(lv, a.plan, category=host.category,
+                                       unit_records=int(a.unit["record_count"]))
+            for a in authored]
     new_latest = encode_latest(lv, trailer=lat.trailer)
     back = decode_latest(new_latest)
-    proofs["adocument_reencode"] = {"clean": bool(back.clean),
-                                    "bytes_before": len(latest_payload),
-                                    "bytes_after": len(new_latest)}
     if not back.clean:
         raise LoaderError("edited host ADocument does not re-decode clean")
-
-    # ---------------- L1: ContentDocuments entry ------------------------------
-    cd_new = F.insert_content_document(cd_payload, plan.guid, ad["payload"])
-    ents_before, tail_before = F.parse_content_documents(cd_payload)
+    ents_before, tail = F.parse_content_documents(cd_payload)
+    have = {g for g, _a in ents_before}
+    dup = next((a.plan.guid for a in authored if a.plan.guid in have), None)
+    if dup is not None:
+        raise LoaderError(f"content document {dup} already present in the host")
+    cd_new = F.assemble_content_documents(
+        ents_before + [(a.plan.guid, bytes(a.adocument["payload"])) for a in authored],
+        tail=tail or F.CD_END_RECORD)
     ents_after, tail_after = F.parse_content_documents(cd_new)
-    ours_present = any(g == plan.guid for g, _a in ents_after)
-    proofs["content_documents"] = {"entries_before": len(ents_before),
-                                   "entries_after": len(ents_after),
-                                   "ours_present": ours_present,
-                                   "end_record_intact": tail_after == tail_before,
-                                   "delta_bytes": len(cd_new) - len(cd_payload)}
+    have = {g for g, _a in ents_after}
+    ours_present = all(a.plan.guid in have for a in authored)
     if not ours_present:
         raise LoaderError("our ContentDocuments entry did not insert")
+    return new_latest, cd_new, {
+        "adocument_registrations": regs,
+        "adocument_reencode": {"clean": bool(back.clean),
+                               "bytes_before": len(latest_payload),
+                               "bytes_after": len(new_latest)},
+        "content_documents": {"entries_before": len(ents_before),
+                              "entries_after": len(ents_after),
+                              "ours_present": ours_present,
+                              "end_record_intact": tail_after == tail,
+                              "delta_bytes": len(cd_new) - len(cd_payload)}}
 
-    elements_json = []
-    for e in els:
-        elements_json.append({"elem_id": e.elem_id, "class": e.class_name,
-                              "kind": e.kind, "owner_id": e.owner_id,
-                              "rep": ("GElement" if e.rep is not None else "SerializedDummy"),
-                              "notes": list(e.notes)})
-    if geo is not None:
-        proofs["symbol_geometry"] = geo["history"]
 
-    if out_path is None:
-        # dry run: everything authored + gated, no file
-        return LoadResult(ok=False, out_path=None, plan=plan, proofs=proofs,
-                          acceptance=acceptance, elements=elements_json,
-                          stop_reason="dry run (out_path=None): no file emitted")
-
-    # ---------------- PASS 1: host elements into save unit 0 -----------------
-    recs = []
-    new_els = []
-    for e in els:
-        ne = e.as_new_element(creation_ep=plan.episode)
-        recs.append({seq: encode_record(seq, ne.elem_id, None, cid, obj)
-                     for seq, cid, obj in ne.records()})
-        new_els.append(ne)
+def _commit_and_write(host_rvt: str, out_path: str, host: HostContext,
+                      authored: Sequence[_AuthoredLoad],
+                      new_latest: bytes, cd_new: bytes) -> Dict[str, Any]:
+    """The ONE container rewrite: pass 1 = every family's host elements into
+    save-unit 0 + ElemTable (``rvt.commit.commit_new_elements``, via a temp
+    file); pass 2 = splice every save unit before the partition end record
+    (load order), swap in the edited ContentDocuments / Latest, write
+    ``out_path``.  Returns the pass-1 / pass-2 proofs."""
+    from . import factory as F
+    from ..encode import encode_record
+    from ..commit import commit_new_elements
+    from ..container import open_rvt
+    from ..roundtrip import read_entries
+    from ..cfb_writer import write_cfb
+    from ..stream_encoders import wrap_global_stream
+    from .. import ecc
+    recs, elemrecs = _framed_load_records(authored, encode_record)
     tmp1 = out_path + ".pass1.tmp"
-    crep = commit_new_elements(host_rvt, tmp1, recs,
-                               [ne.elemrec for ne in new_els],
-                               creation_ep=plan.episode,
+    crep = commit_new_elements(host_rvt, tmp1, recs, elemrecs,
+                               creation_ep=authored[0].plan.episode,
                                identity={"username": ""})
-    proofs["pass1_commit"] = {
+    rep: Dict[str, Any] = {"pass1_commit": {
         "new_element_ids": list(crep.new_element_ids),
         "elemtable_count_before": crep.elemtable_count_before,
         "elemtable_count_after": crep.elemtable_count_after,
         "watermark_after": crep.watermark_after,
         "per_seq_bytes_added": dict(crep.per_seq_bytes_added),
-    }
-
-    # ---------------- PASS 2: unit splice + ContentDocuments + Latest --------
+    }, "pass2_partition_splice": []}
     with open_rvt(tmp1) as f2:
         part_logical = f2.logical(host.partition_name)
-    sp = F.splice_save_unit(part_logical, unit["bytes"])
-    w = sp["walker"]
-    proofs["pass2_partition_splice"] = {
-        "units_before": w["units_before"], "units_after": w["units_after"],
-        "walker_errors": w["errors"],
-        "our_unit_guid": w["our_unit_guid"],
-        "our_unit_records": w["our_unit_records"],
-        "id_sets_identical": w["id_sets_identical"],
-    }
-    if w["errors"] or w["units_after"] != w["units_before"] + 1:
-        raise LoaderError(f"partition splice failed: {w['errors'][:3]}")
+    for a in authored:
+        sp = F.splice_save_unit(part_logical, a.unit["bytes"])
+        w = sp["walker"]
+        rep["pass2_partition_splice"].append({
+            "units_before": w["units_before"], "units_after": w["units_after"],
+            "walker_errors": w["errors"],
+            "our_unit_guid": w["our_unit_guid"],
+            "our_unit_records": w["our_unit_records"],
+            "id_sets_identical": w["id_sets_identical"],
+        })
+        if (w["errors"] or w["units_after"] != w["units_before"] + 1
+                or w["our_unit_guid"] != a.plan.guid):
+            raise LoaderError(f"partition splice failed: {w['errors'][:3]} "
+                              f"(unit guid {w['our_unit_guid']}, want {a.plan.guid})")
+        part_logical = sp["logical"]
     new_streams = {
-        host.partition_name: ecc.frame_stream(sp["logical"]),
+        host.partition_name: ecc.frame_stream(part_logical),
         "Global/ContentDocuments": ecc.frame_stream(
             wrap_global_stream("Global/ContentDocuments", cd_new, level=3)),
         "Global/Latest": ecc.frame_stream(
             wrap_global_stream("Global/Latest", new_latest, level=3)),
     }
-    entries = read_entries(tmp1)
-    out_entries = [dataclasses.replace(e, data=new_streams[e.path])
+    out_entries = [replace(e, data=new_streams[e.path])
                    if (e.entry_type == "stream" and e.path in new_streams) else e
-                   for e in entries]
+                   for e in read_entries(tmp1)]
     write_cfb(out_path, out_entries)
     try:
         os.remove(tmp1)
     except OSError:
         pass
-
-    # ---------------- verify the written file --------------------------------
-    ver = verify_loaded_project(out_path, plan, validate=validate)
-    proofs["verify_written"] = ver
-    ok = bool(ver.get("ok"))
-
-    # acceptance ledger (what only the Revit / viewer gate can answer)
-    acceptance.extend([
-        "H1: the family editor / project accepts a family document whose "
-        "embedded ADocument carries an all-null AppInfoManager (the L3 open "
-        "question, unchanged)",
-        "H2: symbol geometry bookkeeping (BaseFamilySymbolGStep history tables + "
-        "GeomTable + the seq-103 solid's flat id space) inferred from ONE "
-        "specimen -- the symbol_solid=False variant leaves the symbol geometry "
-        "to Revit's own regeneration (the F4a/F4b triage of the geometry stream)",
-        "H3: the host Family's core-id / big2small completeness for a family "
-        "document that carries no category / object-style copies (our doc has "
-        "none; the specimen twins 45 style rows)",
-        "H4: FamilySurrogate.m_previewElemId = -1 (56/159 host surrogates carry "
-        "-1) and the shared creator GUID; the FamilyMgr entry is single-GUID "
-        "(47/159 are)",
-        "H5: the placed instance uses symbol == masterSymbol on a face host "
-        "(the specimen panelboards use a per-host slave geometry symbol); its "
-        "connector manager is rebuilt for our connectors",
-        "H6: the ContentTable record's author string is ours (rvt-writer), the "
-        "load episode reuses the host's current episode (no new History row)",
-    ])
-    res = LoadResult(ok=ok, out_path=out_path, plan=plan, proofs=proofs,
-                     acceptance=acceptance, elements=elements_json,
-                     stop_reason=("" if ok else "verify_written reported failures"))
-    if report_path:
-        os.makedirs(os.path.dirname(os.path.abspath(report_path)) or ".", exist_ok=True)
-        with open(report_path, "w") as fh:
-            json.dump(res.as_json(), fh, indent=1, default=str)
-        res.report_path = report_path
-    return res
+    return rep
 
 
 # ---------------------------------------------------------------------------
 # verification of the written project
 # ---------------------------------------------------------------------------
 
-def verify_loaded_project(path: str, plan: LoadPlan, *, validate: bool = True) -> Dict[str, Any]:
-    """Read the loaded project back and prove: container/ECC health, the
-    partition walker is clean and OUR unit is present with our GUID, our
-    family shows up as a host Family whose content GUID is ours with our
-    symbol(s), the host ADocument decodes clean and carries our three
-    registrations, our host ids are in the ElemTable, the instance (if any)
-    references our symbol, and (optionally) ``rvt.validate`` reports 0
-    errors."""
+def verify_loaded_projects(path: str, plans: Sequence[LoadPlan], *,
+                           validate: bool = True) -> Dict[str, Any]:
+    """Read a loaded project back ONCE and prove, for the file: container/ECC
+    health (the validator's structure layer is authoritative), the partition
+    walker is clean, the host ADocument decodes clean and (optionally)
+    ``rvt.validate`` reports 0 errors; and PER PLAN (``per_plan[i]``): our
+    unit is present with our GUID, our host ids are in the ElemTable, the
+    ADocument carries our three registrations, our family shows up as a host
+    Family whose content GUID is ours with our symbol(s), the instance (if
+    any) references our symbol, and the provenance of what the load added is
+    ours.  ``ok`` = the file checks AND every plan's checks."""
     from ..container import open_rvt
     from ..families import FamilyIndex, family_documents
     from ..elemtable import parse_elemtable
@@ -1646,10 +1848,7 @@ def verify_loaded_project(path: str, plan: LoadPlan, *, validate: bool = True) -
     from ..adocument import decode_latest
     from ..commit import verify_written
     rep: Dict[str, Any] = {"path": path}
-    ids = [x for x in (plan.host_family_id, plan.surrogate_id, plan.symbol_id,
-                       plan.symbol_surrogate_id, plan.instance_id) if x != INVALID]
-    ids += list(plan.twin_of.values())
-    vw = verify_written(path, ids)
+    vw = verify_written(path, {i for plan in plans for i in _plan_host_ids(plan)})
     rep["container"] = {"crc_failures": vw.get("crc_failures"),
                         "ecc_mismatches_heuristic": vw.get("ecc_mismatches"),
                         "walker_errors": vw.get("walker_errors"),
@@ -1680,61 +1879,66 @@ def verify_loaded_project(path: str, plan: LoadPlan, *, validate: bool = True) -
         pn = f.partition_streams()[0]
         w = StreamWalker(f.logical(pn), inflate=False, keep_data=False)
         rep["partition"] = {"units": len(w.units), "walker_errors": list(w.errors[:5])}
-        ourunit = None
-        for u in w.units:
-            if u.guid and str(uuid.UUID(bytes_le=u.guid)) == plan.guid:
-                ourunit = u.index
-        rep["partition"]["our_unit_index"] = ourunit
+        unit_of = {str(uuid.UUID(bytes_le=u.guid)): u.index for u in w.units if u.guid}
         et = parse_elemtable(f.inflate("Global/ElemTable", 0))
-        by = {r.id for r in et.records}
+        et_ids = {r.id for r in et.records}
         rep["elemtable"] = {"records": len(et.records),
-                            "watermark": et.footer.last_id if et.footer else None,
-                            "our_host_ids_present": all(i in by for i in ids)}
+                            "watermark": et.footer.last_id if et.footer else None}
         lat = decode_latest(f.inflate("Global/Latest"))
         lv = lat.value
-        ct = (((lv.get("m_oContentTable") or {}).get("value") or {}).get("m_ContentRecSet") or [])
-        ct_ok = any((r.get("m_ContentKey") or {}).get("m_guidKey") == plan.guid for r in ct)
-        fm = _appinfo_slot(lv, "FamilyMgr") or {}
-        fm_ok = any(plan.guid in (e.get("m_familyDocGUIDs") or [])
-                    for e in (fm.get("m_arrLoadedFamilyInfo") or []))
-        etd = _appinfo_slot(lv, "ElementTrackingData") or {}
-        sym_ok = any(plan.symbol_id in (r.get("m_elemIdSet") or [])
-                     for r in (etd.get("m_symbols") or []))
-        rep["adocument"] = {"clean": bool(lat.clean),
-                            "content_table_record": ct_ok,
-                            "family_mgr_entry": fm_ok,
-                            "symbol_tracked": sym_ok}
-    # family inventory: our family is loaded, keyed by our GUID
+        rep["adocument"] = {"clean": bool(lat.clean)}
+    ct = (((lv.get("m_oContentTable") or {}).get("value") or {}).get("m_ContentRecSet") or [])
+    ct_guids = {(r.get("m_ContentKey") or {}).get("m_guidKey") for r in ct}
+    fm = _appinfo_slot(lv, "FamilyMgr") or {}
+    fm_guids = {g for e in (fm.get("m_arrLoadedFamilyInfo") or [])
+                for g in (e.get("m_familyDocGUIDs") or [])}
+    etd = _appinfo_slot(lv, "ElementTrackingData") or {}
+    tracked = {i for r in (etd.get("m_symbols") or []) for i in (r.get("m_elemIdSet") or [])}
+    # family inventory: each of our families is loaded, keyed by our GUID
     fidx = FamilyIndex.open(path)
     docs = family_documents(fidx)
-    mine = [d for d in docs if d.get("content_doc_guid") == plan.guid]
-    rep["family_documents"] = {
-        "total_host_families": len(docs),
-        "ours": [{"family_id": d["family_id"], "family_name": d["family_name"],
-                  "category": d["category"], "unit": d["unit"],
-                  "n_records": d.get("n_records"),
-                  "n_types": d["n_types"], "symbols": d["symbols"],
-                  "big2small_count": d["big2small_count"],
-                  "n_connectors": d.get("n_connectors"),
-                  "n_family_params": d.get("n_family_params")} for d in mine],
-    }
-    fam_ok = (len(mine) == 1 and mine[0]["family_id"] == plan.host_family_id
-              and mine[0]["unit"] is not None
-              and any(s.get("symbol_id") == plan.symbol_id for s in mine[0]["symbols"]))
-    rep["family_documents"]["ok"] = fam_ok
-    # instance -> symbol
-    inst_ok = True
-    if plan.instance_id != INVALID:
-        v = fidx.value(0, plan.instance_id) or {}
-        ii = ((v.get("m_pInstanceInfo") or {}).get("value") or {})
-        inst_ok = (ii.get("m_symbolId") == plan.symbol_id
-                   and v.get("m_masterSymbolId") == plan.symbol_id)
-        rep["instance"] = {"symbol_id": ii.get("m_symbolId"),
-                           "master_symbol_id": v.get("m_masterSymbolId"),
-                           "host_id": v.get("m_hostId"), "ok": inst_ok}
-    # provenance of what the load added (our unit + our host elements)
-    prov = provenance_ours(path, plan)
-    rep["provenance_ours"] = prov
+    rep["family_documents"] = {"total_host_families": len(docs)}
+    per_plan: List[Dict[str, Any]] = []
+    for plan in plans:
+        pr: Dict[str, Any] = {"content_guid": plan.guid}
+        pr["partition"] = {"our_unit_index": unit_of.get(plan.guid)}
+        pr["elemtable"] = {"our_host_ids_present": all(i in et_ids for i in _plan_host_ids(plan))}
+        pr["adocument"] = {"content_table_record": plan.guid in ct_guids,
+                           "family_mgr_entry": plan.guid in fm_guids,
+                           "symbol_tracked": plan.symbol_id in tracked}
+        mine = [d for d in docs if d.get("content_doc_guid") == plan.guid]
+        pr["family_documents"] = {
+            "ours": [{"family_id": d["family_id"], "family_name": d["family_name"],
+                      "category": d["category"], "unit": d["unit"],
+                      "n_records": d.get("n_records"),
+                      "n_types": d["n_types"], "symbols": d["symbols"],
+                      "big2small_count": d["big2small_count"],
+                      "n_connectors": d.get("n_connectors"),
+                      "n_family_params": d.get("n_family_params")} for d in mine]}
+        fam_ok = (len(mine) == 1 and mine[0]["family_id"] == plan.host_family_id
+                  and mine[0]["unit"] is not None
+                  and any(s.get("symbol_id") == plan.symbol_id for s in mine[0]["symbols"]))
+        pr["family_documents"]["ok"] = fam_ok
+        # instance -> symbol
+        inst_ok = True
+        if plan.instance_id != INVALID:
+            v = fidx.value(0, plan.instance_id) or {}
+            ii = ((v.get("m_pInstanceInfo") or {}).get("value") or {})
+            inst_ok = (ii.get("m_symbolId") == plan.symbol_id
+                       and v.get("m_masterSymbolId") == plan.symbol_id)
+            pr["instance"] = {"symbol_id": ii.get("m_symbolId"),
+                              "master_symbol_id": v.get("m_masterSymbolId"),
+                              "host_id": v.get("m_hostId"), "ok": inst_ok}
+        # provenance of what the load added (our unit + our host elements)
+        prov = provenance_ours(path, plan, fidx=fidx)
+        pr["provenance_ours"] = prov
+        pr["ok"] = bool(pr["partition"]["our_unit_index"] is not None
+                        and pr["elemtable"]["our_host_ids_present"]
+                        and pr["adocument"]["content_table_record"]
+                        and pr["adocument"]["family_mgr_entry"]
+                        and fam_ok and inst_ok and bool(prov.get("ok")))
+        per_plan.append(pr)
+    rep["per_plan"] = per_plan
     # validation
     val_ok = True
     if validate:
@@ -1753,18 +1957,42 @@ def verify_loaded_project(path: str, plan: LoadPlan, *, validate: bool = True) -
         except Exception as exc:                       # pragma: no cover
             rep["validate"] = {"error": f"{type(exc).__name__}: {exc}"}
             val_ok = False
-    rep["ok"] = bool(
-        (rep["container"]["crc_failures"] == 0)
-        and (rep["structure_layer"].get("n_errors") == 0)
-        and (rep["container"]["walker_errors"] == 0)
-        and not rep["partition"]["walker_errors"]
-        and rep["partition"]["our_unit_index"] is not None
-        and rep["elemtable"]["our_host_ids_present"]
-        and rep["adocument"]["clean"]
-        and rep["adocument"]["content_table_record"]
-        and rep["adocument"]["family_mgr_entry"]
-        and fam_ok and inst_ok and val_ok
-        and bool(prov.get("ok")))
+    file_errors = []
+    if rep["container"]["crc_failures"] != 0:
+        file_errors.append("gzip CRC failures")
+    if rep["structure_layer"].get("n_errors") != 0:
+        file_errors.append("structure layer: " + "; ".join(rep["structure_layer"].get("errors") or []))
+    if rep["container"]["walker_errors"] != 0 or rep["partition"]["walker_errors"]:
+        file_errors.append("partition walker errors")
+    if not rep["adocument"]["clean"]:
+        file_errors.append("host ADocument does not decode clean")
+    if not val_ok:
+        file_errors.append("rvt.validate: " + "; ".join((rep.get("validate") or {}).get("errors")
+                                                          or [str((rep.get("validate") or {}).get("error"))]))
+    rep["file_errors"] = file_errors
+    rep["file_ok"] = not file_errors
+    rep["ok"] = bool(rep["file_ok"] and per_plan and all(pr["ok"] for pr in per_plan))
+    return rep
+
+
+def verify_loaded_project(path: str, plan: LoadPlan, *, validate: bool = True) -> Dict[str, Any]:
+    """Read the loaded project back and prove: container/ECC health, the
+    partition walker is clean and OUR unit is present with our GUID, our
+    family shows up as a host Family whose content GUID is ours with our
+    symbol(s), the host ADocument decodes clean and carries our three
+    registrations, our host ids are in the ElemTable, the instance (if any)
+    references our symbol, and (optionally) ``rvt.validate`` reports 0
+    errors.  (The one-plan view of :func:`verify_loaded_projects`: the plan's
+    slice merged into the file-level report -- the historical shape.)"""
+    rep = verify_loaded_projects(path, [plan], validate=validate)
+    for k, v in rep.pop("per_plan")[0].items():
+        if k in ("ok", "content_guid"):
+            continue
+        if isinstance(v, dict) and isinstance(rep.get(k), dict):
+            rep[k].update(v)
+        else:
+            rep[k] = v
+    del rep["file_ok"], rep["file_errors"]
     return rep
 
 
@@ -1772,7 +2000,7 @@ def verify_loaded_project(path: str, plan: LoadPlan, *, validate: bool = True) -
 # targeted provenance: OUR unit + OUR host elements (the host is the sample)
 # ---------------------------------------------------------------------------
 
-def provenance_ours(path: str, plan: LoadPlan) -> Dict[str, Any]:
+def provenance_ours(path: str, plan: LoadPlan, *, fidx=None) -> Dict[str, Any]:
     """Provenance of what the LOAD added -- the embedded family document
     (our unit) and the host elements we authored -- never the host project
     (which is the sample by design).  Uses the factory's suspect / Forge
@@ -1783,7 +2011,8 @@ def provenance_ours(path: str, plan: LoadPlan) -> Dict[str, Any]:
     from ..families import FamilyIndex
     from .factory import _collect, _suspects, forge_vocabulary
     rep: Dict[str, Any] = {}
-    fidx = FamilyIndex.open(path)
+    if fidx is None:
+        fidx = FamilyIndex.open(path)
     unit = fidx.unit_by_guid.get(plan.guid)
     strings: List[str] = []
     n_el = 0
@@ -1798,9 +2027,7 @@ def provenance_ours(path: str, plan: LoadPlan) -> Dict[str, Any]:
                        "n_distinct_strings": len(set(strings))}
     sus_unit = _suspects(strings)
     hstrings: List[str] = []
-    ids = [x for x in (plan.host_family_id, plan.surrogate_id, plan.symbol_id,
-                       plan.symbol_surrogate_id, plan.instance_id) if x != INVALID]
-    ids += list(plan.twin_of.values())
+    ids = _plan_host_ids(plan)
     for eid in ids:
         d = fidx.decode(0, eid, 102)
         if d is not None:
