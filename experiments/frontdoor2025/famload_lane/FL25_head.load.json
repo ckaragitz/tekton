@@ -1,0 +1,426 @@
+{
+ "ok": true,
+ "out_path": "experiments/frontdoor2025/famload_lane/FL25_head.rvt",
+ "plans": [
+  {
+   "key": "section_head_open",
+   "guid": "e7188c7a-2fc5-4792-ad89-a79c217f88c7",
+   "fam_doc_guid": "9217c2d7-4f3d-4694-8bfc-adae78076c81",
+   "session_guid_hex": "daa0e408f2be4a99a0e3924316e53b3c",
+   "family_name": "RW Section Head - Open",
+   "category": -2000400,
+   "part_type": -1,
+   "type_names": [
+    "Section Head - Open"
+   ],
+   "host_family_id": 1472468,
+   "surrogate_id": 1472470,
+   "symbol_ids": [
+    1472472
+   ],
+   "symbol_surrogate_ids": [
+    1472471
+   ],
+   "twin_of": {
+    "1472467": 1472469
+   },
+   "abs_index": {
+    "1472450": 0,
+    "1472451": 1,
+    "1472454": 2,
+    "1472455": 3,
+    "1472456": 4,
+    "1472453": 5,
+    "1472457": 6,
+    "1472459": 7,
+    "1472460": 8,
+    "1472461": 9,
+    "1472462": 10,
+    "1472463": 11,
+    "1472464": 12,
+    "1472458": 13,
+    "1472452": 14,
+    "1472465": 15,
+    "1472466": 16,
+    "1472467": 17
+   },
+   "core_ids": [
+    176
+   ],
+   "doc_id_range": [
+    1472449,
+    1472467
+   ],
+   "unit_records": 19,
+   "episode": 1014,
+   "notes": [],
+   "host_ids": [
+    1472468,
+    1472469,
+    1472470,
+    1472471,
+    1472472
+   ]
+  }
+ ],
+ "proofs": {
+  "host": {
+   "path": "experiments/genesis/subst_k4_2025/compose/G_ABPD_2025.rvt",
+   "watermark": 1472448,
+   "episode": 1014,
+   "partition": "Partitions/20",
+   "elements": 3316,
+   "category_gstyles": {
+    "-2000400": 176
+   },
+   "usage_referrers": {
+    "LevelAttributes": [
+     305
+    ],
+    "GridAttributes": [
+     341
+    ],
+    "CalloutTag": [
+     49508,
+     49583,
+     49601,
+     49619,
+     49637,
+     49655,
+     49673,
+     49691,
+     49709
+    ],
+    "ViewportAttributes": [
+     324
+    ],
+    "SectionAttributes": [
+     26029,
+     29088,
+     49579,
+     49597,
+     49615,
+     49633,
+     49651,
+     49669,
+     49687,
+     49705
+    ],
+    "InteriorElevAttributes": [
+     357,
+     49589,
+     49607,
+     49625,
+     49643,
+     49661,
+     49679,
+     49697,
+     49715
+    ],
+    "StructSettingsElem": [
+     54663
+    ]
+   },
+   "registries_before": {
+    "save_units": 1,
+    "contentdocs_entries": 0,
+    "contenttable_records": 0,
+    "familymgr_entries": 9,
+    "coherent": true
+   },
+   "notes": []
+  },
+  "plans": [
+   {
+    "key": "section_head_open",
+    "guid": "e7188c7a-2fc5-4792-ad89-a79c217f88c7",
+    "fam_doc_guid": "9217c2d7-4f3d-4694-8bfc-adae78076c81",
+    "session_guid_hex": "daa0e408f2be4a99a0e3924316e53b3c",
+    "family_name": "RW Section Head - Open",
+    "category": -2000400,
+    "part_type": -1,
+    "type_names": [
+     "Section Head - Open"
+    ],
+    "host_family_id": 1472468,
+    "surrogate_id": 1472470,
+    "symbol_ids": [
+     1472472
+    ],
+    "symbol_surrogate_ids": [
+     1472471
+    ],
+    "twin_of": {
+     "1472467": 1472469
+    },
+    "abs_index": {
+     "1472450": 0,
+     "1472451": 1,
+     "1472454": 2,
+     "1472455": 3,
+     "1472456": 4,
+     "1472453": 5,
+     "1472457": 6,
+     "1472459": 7,
+     "1472460": 8,
+     "1472461": 9,
+     "1472462": 10,
+     "1472463": 11,
+     "1472464": 12,
+     "1472458": 13,
+     "1472452": 14,
+     "1472465": 15,
+     "1472466": 16,
+     "1472467": 17
+    },
+    "core_ids": [
+     176
+    ],
+    "doc_id_range": [
+     1472449,
+     1472467
+    ],
+    "unit_records": 19,
+    "episode": 1014,
+    "notes": [],
+    "host_ids": [
+     1472468,
+     1472469,
+     1472470,
+     1472471,
+     1472472
+    ]
+   }
+  ],
+  "host_elements": {
+   "count": 5,
+   "by_family": {
+    "section_head_open": [
+     {
+      "elem_id": 1472468,
+      "class": "Family",
+      "kind": "host_family",
+      "owner_id": -1,
+      "notes": [
+       "host Family = our self-Family transformed (annotation flavour)"
+      ]
+     },
+     {
+      "elem_id": 1472469,
+      "class": "ParamElemFamily",
+      "kind": "param_twin",
+      "owner_id": 1472468,
+      "notes": [
+       "twin of embedded param 1472467 (Radius)"
+      ]
+     },
+     {
+      "elem_id": 1472470,
+      "class": "FamilySurrogate",
+      "kind": "family_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472471,
+      "class": "FamSymSurrogate",
+      "kind": "famsym_surrogate",
+      "owner_id": -1,
+      "notes": []
+     },
+     {
+      "elem_id": 1472472,
+      "class": "FamilySymbol",
+      "kind": "family_symbol",
+      "owner_id": -1,
+      "notes": [
+       "annotation symbol: SerializedDummy rep (graphics regenerate from the family document); geometry bookkeeping empty [H]"
+      ]
+     }
+    ]
+   }
+  },
+  "roundtrip_gate": {
+   "records": 15,
+   "roundtrip_ok": 15,
+   "failed": 0,
+   "encoded_bytes": 3141,
+   "failures": []
+  },
+  "embedded": {
+   "section_head_open": {
+    "adocument_self_check": {
+     "decodes_clean": true,
+     "roundtrip_equal": true,
+     "bytes": 2161,
+     "elem_recs": 19,
+     "appinfo_slots_null": 239,
+     "open_question": "AppInfoManager carries all-null registries (specimen: 110 populated) -- acceptance UNKNOWN"
+    },
+    "save_unit": {
+     "guid": "e7188c7a-2fc5-4792-ad89-a79c217f88c7",
+     "records": 19,
+     "bytes": 3768,
+     "segments": {
+      "101": 3029,
+      "102": 14409,
+      "103": 438
+     }
+    }
+   }
+  },
+  "pass1_commit": {
+   "new_element_ids": [
+    1472468,
+    1472469,
+    1472470,
+    1472471,
+    1472472
+   ],
+   "elemtable_count_before": 3316,
+   "elemtable_count_after": 3321,
+   "watermark_after": 1472472,
+   "per_seq_bytes_added": {
+    "101": 813,
+    "102": 2528,
+    "103": 110
+   }
+  },
+  "pass2_partition_splices": {
+   "section_head_open": {
+    "units_before": 1,
+    "units_after": 2,
+    "walker_errors": [],
+    "our_unit_guid": "e7188c7a-2fc5-4792-ad89-a79c217f88c7",
+    "our_unit_records": {
+     "101": 20,
+     "102": 20,
+     "103": 20
+    },
+    "id_sets_identical": true
+   }
+  },
+  "pass2_content_documents": {
+   "entries_before": 0,
+   "entries_after": 1,
+   "ours_all_present": true,
+   "end_record_intact": true,
+   "delta_bytes": 2197
+  },
+  "pass2_adocument_registrations": {
+   "content_table_records": 1,
+   "family_mgr_entries": 10,
+   "element_tracking": {
+    "-2000400": "no host row (skipped)"
+   }
+  },
+  "pass2_adocument_reencode": {
+   "clean": true,
+   "bytes_before": 1363338,
+   "bytes_after": 1363442
+  },
+  "verify_written": {
+   "path": "experiments/frontdoor2025/famload_lane/FL25_head.rvt",
+   "container": {
+    "crc_failures": 0,
+    "ecc_mismatches": 0,
+    "walker_errors": 0,
+    "stamps_ok": true,
+    "host_records_missing": [],
+    "host_records_unclean": []
+   },
+   "registries": {
+    "save_units": 2,
+    "contentdocs_entries": 1,
+    "contenttable_records": 1,
+    "familymgr_entries": 10,
+    "coherent": true,
+    "coherent_counts": true,
+    "coherent_guids": true,
+    "units_missing_from_contentdocs": [],
+    "units_missing_from_contenttable": [],
+    "units_missing_from_familymgr": [],
+    "contenttable_dangling": [],
+    "familymgr_dangling": [],
+    "before": {
+     "save_units": 1,
+     "contentdocs_entries": 0,
+     "contenttable_records": 0,
+     "familymgr_entries": 9,
+     "coherent": true
+    },
+    "units_added": 1,
+    "units_added_ok": true,
+    "ours_in_all_four": true
+   },
+   "elemtable": {
+    "records": 3321,
+    "watermark": 1472472,
+    "our_host_ids_present": true,
+    "watermark_covers_documents": true
+   },
+   "host_linkage": {
+    "ok": true,
+    "families": [
+     {
+      "key": "section_head_open",
+      "family": 1472468,
+      "checks": {
+       "family_content_guid": true,
+       "family_name": true,
+       "family_surrogate": true,
+       "surrogate_points_at_family": true,
+       "symbol_1472472": true,
+       "symsurrogate_1472471": true,
+       "twin_1472469": true
+      },
+      "ok": true
+     }
+    ]
+   },
+   "family_inventory": {
+    "total_host_families": 9,
+    "ours": [
+     {
+      "key": "section_head_open",
+      "found": 1,
+      "family_id": 1472468,
+      "family_name": "RW Section Head - Open",
+      "category": -2000400,
+      "unit": 1,
+      "n_records": 19,
+      "n_types": 1,
+      "symbols": [
+       {
+        "symbol_id": 1472472,
+        "name": "Section Head - Open"
+       }
+      ],
+      "big2small_count": 1,
+      "n_family_params": 1,
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "validate": {
+    "verdict": "VALID",
+    "n_errors": 0,
+    "n_warnings": 0,
+    "errors": [],
+    "warnings": []
+   },
+   "ok": true
+  }
+ },
+ "acceptance": [
+  "H1: an EMBEDDED family ADocument with an all-null 239-slot AppInfoManager (the specimen carries ~110 populated family-editor registries) -- the factory's L3 open question, unchanged",
+  "H2: an annotation FamilySymbol whose seq-103 rep is a SerializedDummy and whose geometry bookkeeping (m_geomSteps / m_pGeomTable / m_refFaces / m_tagNoteData) is EMPTY -- Revit must regenerate the symbol graphics from the family document",
+  "H3: our family documents carry the S0 skeleton (self-Family, Ref. Level, origin planes, units, one plan view, parameters, one type) and NO detail geometry / label -- the head SHAPE is absent",
+  "H4: host Family.m_coreIds bind only the host's category GStyle rows (none when the host lacks that category); big2small maps only the parameter twins (our documents reference no host catalog rows)",
+  "H5: the ContentTable record's author is 'rvt-writer'; the load reuses the host's current episode (no new History row / DIT record)",
+  "H6: the host FamilyTypeTable = one blank ' ' row and the type lives as the FamilySymbol (the annotation flavour); OUR embedded document carries its single named type too (the specimen embedded head document's type table is empty)"
+ ],
+ "stop_reason": "",
+ "seconds": 3.0
+}
