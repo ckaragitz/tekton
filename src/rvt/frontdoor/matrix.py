@@ -195,6 +195,22 @@ STAGES: Dict[str, Stage] = {s.id: s for s in [
           ("test:tests/test_convert.py",
            "worked:experiments/convert/extract-family/DP1_reextracted.reloaded.rvt.load.json",
            "certified:experiments/ifc_room/stage_L8_lp4.rvt")),
+    # ---- issue #99: the standalone-born .rfa lane (T2a product-wired) ----
+    Stage("rfa-classify", "rvt.convert.rfa_load:is_standalone_born",
+          "the id law that picks the .rfa lane: family id floor vs host "
+          "ElemTable watermark (above -> verbatim reload; at/below -> "
+          "standalone-born id-remap load); two ElemTable reads, no partition walk",
+          ("test:tests/test_rfa_load.py",)),
+    Stage("rfa-born-load", "rvt.convert.rfa_load:load_rfa_into_project",
+          "any STANDALONE-BORN .rfa (our own start_id=1000 deliverables, a "
+          "Revit-saved family) -> RfaSource (owners from Global/ElemTable, the "
+          "file's own schema + release) -> schema-TYPED decode-time id remap "
+          "into the free block above the host watermark -> rvt.famload "
+          "four-registry load; the mechanism viewer-certified as T2a, this "
+          "lane's own artifacts pending a batch (needs-viewer)",
+          ("test:tests/test_rfa_load.py",
+           "certified:experiments/rftprobe/T2a.rvt",
+           "record:docs/inbox/rfa-load-product.md")),
     Stage("add-into-rvt", "rvt.convert.add_to_project:add_to_project",
           "the prompt's intent RETARGETED INTO the user's file -- its release "
           "(preserved: the output is a splice of the input), its own schema, "
@@ -306,16 +322,21 @@ _RFA_INPUT = ("rfa INPUT CONTRACT: (a) a famspec JSON ({'kind': 'downlight', "
               "(b) a .rfa PATH that tekton EXTRACTED from a loaded project "
               "(rvt->rfa) -- reloaded as-is through the component loader "
               "(rvt.famgen.loader; full cycle proven, project validator 0 "
-              "errors) into a host whose id watermark sits BELOW the family's "
-              "ids (the pinned genesis base always qualifies; a project that "
-              "has already grown past those ids refuses by name); "
-              "(c) a STANDALONE-BORN .rfa (any Revit-saved family, "
-              "and our own start_id=1000 .rfa deliverables) needs the "
-              "schema-typed id-remap lane, which is viewer-CERTIFIED in the "
-              "research lane (T2a: a Revit-born 1,992-element .rfa famloaded "
-              "onto our composed base with a placed instance PASSES) but not "
-              "product-wired yet -- answered with one clear line, never a "
-              "traceback")
+              "errors) when its ids sit ABOVE the host's id watermark (the "
+              "pinned genesis base always qualifies); "
+              "(c) a STANDALONE-BORN .rfa (our own start_id=1000 .rfa "
+              "deliverables, any Revit-saved 2024-2026 family whose ElemTable "
+              "our codec parses, or an extracted .rfa going into a host that has "
+              "grown past its ids) LOADS through rvt.convert.rfa_load: the "
+              "schema-typed decode-time id remap into the free block above the "
+              "watermark + the four-registry famload (project validator 0 "
+              "errors, census coherent). That MECHANISM is viewer-CERTIFIED "
+              "(T2a: a Revit-born 1,992-element .rfa famloaded onto our composed "
+              "base with a placed instance PASSES); this lane's own artifacts are "
+              "pending their viewer batch (needs-viewer) -- delivered + labelled, "
+              "never claimed 'loads in Revit'. Refused by name, one clear line: a "
+              "GraveyardRec ElemTable footer (codec gap #13), nested family "
+              "documents, seq-103 classes beyond GElement/SerializedDummy")
 _RFA_HOST = ("default host = the pinned certified genesis base (G_ABPD, "
              "hash-verified, bundled with the plugin); pass rvt to load into "
              "YOUR project. Load depth certified by the ledger: our families "
@@ -428,7 +449,7 @@ _CELL_LIST: List[Cell] = [
          hint="then reload it: route --output rvt --rfa <extracted.rfa> [--rvt host.rvt]"),
     # ---------------- singles: rfa ----------------
     Cell(("rfa",), "rvt", STATUS_WORKS, "rfa_load",
-         ("facts->rfa", "rfa-load", "rfa-reload"),
+         ("facts->rfa", "rfa-load", "rfa-classify", "rfa-reload", "rfa-born-load"),
          ("certified:experiments/families/ifc/L_downlight_loaded.rvt",
           "certified:experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
           "certified:experiments/ifc_room/stage_L8_lp4.rvt",
@@ -437,12 +458,13 @@ _CELL_LIST: List[Cell] = [
           "worked:experiments/rftprobe/probes.json",
           "worked:experiments/convert/extract-family/DP1_reextracted.reloaded.rvt.load.json",
           "test:tests/test_ifc_family.py", "test:tests/test_famload.py",
-          "test:tests/test_convert.py", "test:tests/test_router.py"),
+          "test:tests/test_convert.py", "test:tests/test_router.py",
+          "test:tests/test_rfa_load.py", "record:docs/inbox/rfa-load-product.md"),
          (_RFA_INPUT,
           "kind='downlight' is the wired famspec archetype; catalog kinds "
           "(panelboard/transformer/luminaire) GENERATE via prompt->rfa / "
-          "spec->rfa and load through the room pipeline (prompt/ifc -> rvt) "
-          "or the extract->reload cycle, not as a standalone famspec yet",
+          "spec->rfa and their .rfa then LOAD through this cell (form c), the "
+          "room pipeline (prompt/ifc -> rvt) or the extract->reload cycle",
           _RFA_HOST, _RFA_FAMSPEC_ENV, _PROOF_ONLY)),
     Cell(("rfa",), "ifc", STATUS_MISSING, None, (),
          (), (),
@@ -565,7 +587,7 @@ _CELL_LIST: List[Cell] = [
           _PROOF_ONLY),
          hint="a famspec is not editable -- generate it first (prompt->rfa), then edit the .rfa"),
     Cell(("rfa", "rvt"), "rvt", STATUS_WORKS, "rfa_load",
-         ("facts->rfa", "rfa-load", "rfa-reload"),
+         ("facts->rfa", "rfa-load", "rfa-classify", "rfa-reload", "rfa-born-load"),
          ("certified:experiments/families/ifc/L_downlight_loaded.rvt",
           "certified:experiments/genesis/loader/L1a_rstbasic_loaded_levelhead.rvt",
           "certified:experiments/ifc_room/stage_L8_lp4.rvt",
@@ -573,11 +595,12 @@ _CELL_LIST: List[Cell] = [
           "certified:experiments/species/TB0g.rvt",
           "worked:experiments/convert/extract-family/DP1_reextracted.reloaded.rvt.load.json",
           "test:tests/test_famload.py", "test:tests/test_convert.py",
-          "test:tests/test_router.py"),
-         ("LOAD the family into YOUR project (the rvt): the famspec lane "
-          "through the certified four-registry loader (rvt.famload), the "
-          "extracted-.rfa lane through the component loader "
-          "(rvt.famgen.loader); no instance is placed by this cell (place "
+          "test:tests/test_router.py", "test:tests/test_rfa_load.py",
+          "record:docs/inbox/rfa-load-product.md"),
+         ("LOAD the family into YOUR project (the rvt): the famspec lane and "
+          "the standalone-born .rfa lane through the certified four-registry "
+          "loader (rvt.famload), the extracted-.rfa lane through the component "
+          "loader (rvt.famgen.loader); no instance is placed by this cell (place "
           "with prompt+rvt: 'add ...', or edit ops add-instance)",
           _RFA_INPUT, _RFA_HOST,
           "on YOUR host the same mechanisms + census/validator gates run; "
