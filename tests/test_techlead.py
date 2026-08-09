@@ -6,22 +6,36 @@ log and the review-state parsing all run unattended on GITHUB_TOKEN from
 testable functions of a snapshot. The fixture mirrors the repo on 2026-08-09: the
 first logged steer (#54), the queue seeded on the first night, a stuck bot PR, a
 green-but-draft PR, a workflow-touching PR only the owner can merge, a conflict.
+
+The second half pins the vocabulary this file SHARES with the bash merge machine
+(.github/workflows/automerge.yml, claude-review.yml): labels, comment markers, the
+closing-keyword grammar and the config fallbacks. automerge is bash-with-no-checkout
+on purpose (a broken techlead.py on main must never halt merging), so the two can
+only be kept in step by tests like these.
 """
 import datetime as dt
+import glob
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PATH = os.path.join(ROOT, "tools", "dev", "techlead.py")
+WF = os.path.join(ROOT, ".github", "workflows")
 _spec = importlib.util.spec_from_file_location("techlead", PATH)
 tl = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(tl)
 
 NOW = dt.datetime(2026, 8, 9, 6, 0, tzinfo=dt.timezone.utc)
 CFG = tl.load_config(text="{}")
+
+
+def _wf(name):
+    with open(os.path.join(WF, name), encoding="utf-8") as fh:
+        return fh.read()
 
 
 def I(n, title, labels, assignees=(), user="cam-karagitz", created="2026-08-07T23:23:40Z", updated=None, body="## DONE\n- x"):
@@ -38,14 +52,15 @@ RED = [{"name": "py3.11", "status": "completed", "conclusion": "failure"},
        {"name": "py3.12", "status": "completed", "conclusion": "success"}]
 
 
-def PR(n, title, user, draft, labels, sha, head_ref, head_date, checks, comments, body, mergeable_state="clean", touches=False):
+def PR(n, title, user, draft, labels, sha, head_ref, head_date, checks, comments, body,
+       mergeable_state="clean", touches=False, touches_reviewer=False):
     r = tl.coord.refs(body)
     return {"number": n, "title": title, "user": user, "draft": draft, "labels": labels, "body": body,
-            "head_sha": sha, "head_ref": head_ref, "base_ref": "main", "created_at": head_date,
-            "updated_at": head_date, "head_date": head_date, "mergeable": mergeable_state == "clean",
-            "mergeable_state": mergeable_state, "checks": tl.summarize_checks(checks),
-            "review": tl.parse_review_state(comments, sha), "comment_bodies": comments,
-            "closing": r["closing"], "refs": r["refs"], "touches_workflows": touches, "html_url": ""}
+            "head_sha": sha, "head_ref": head_ref, "created_at": head_date, "head_date": head_date,
+            "mergeable": mergeable_state == "clean", "mergeable_state": mergeable_state,
+            "checks": tl.summarize_checks(checks), "review": tl.parse_review_state(comments, sha),
+            "comment_bodies": comments, "closing": r["closing"], "refs": r["refs"],
+            "touches_workflows": touches or touches_reviewer, "touches_reviewer": touches_reviewer}
 
 
 def snapshot(extra_issues=(), prs=None, board_labels=("board", "tracking")):
@@ -74,7 +89,7 @@ def snapshot(extra_issues=(), prs=None, board_labels=("board", "tracking")):
             PR(40, "stdlib zip build", "Ckaragitz12", True, ["stacked"], "4833d767d6c6", "ckaragitz12/29-utf8", "2026-08-08T00:40:00Z", GREEN,
                ["✅ Approve\n<!-- claude-review: approve sha=4833d767d6c6 -->"], "Closes #37\nRefs #29"),
             PR(57, "Autonomy OS", "cam-karagitz", False, [], "abc1234", "claude/team-status", "2026-08-09T05:50:00Z", GREEN,
-               ["🟡 Nits only\n<!-- claude-review: nits sha=abc1234 -->"], "Closes #55\nRefs #54", touches=True),
+               [], "Closes #55\nRefs #54", touches_reviewer=True),
             PR(58, "bot: uuid5", "claude[bot]", False, ["bot-stuck"], "def5678", "bot/9-famgen-determinism", "2026-08-08T01:00:00Z", RED,
                ["a\n<!-- claude-autofix attempt=0 -->", "b\n<!-- claude-autofix attempt=1 -->", "c\n<!-- claude-autofix attempt=2 -->",
                 "stuck <!-- claude-autofix exhausted sha=def5678 -->"], "Closes #9"),
@@ -98,21 +113,36 @@ def test_config_defaults_fill_gaps_and_doc_key_is_ignored():
     assert tl.load_config(text="{not json") == tl.load_config(text="{}")                   # malformed = defaults, never a crash
 
 
-def test_repo_config_file_parses_and_matches_documented_defaults():
+def test_autonomy_json_is_complete_and_the_fallbacks_agree_with_it():
+    """The JSON is authoritative; DEFAULTS and the workflows' `jq // N` literals are only fallbacks
+    for a missing file, so they must carry the same keys and numbers (docs/process/AUTONOMY.md §11)."""
     with open(os.path.join(ROOT, ".github", "autonomy.json"), encoding="utf-8") as fh:
         on_disk = json.load(fh)
     on_disk.pop("_doc")
-    merged = tl.deep_merge(tl.DEFAULTS, on_disk)
-    for section in ("planner", "worker", "pipeline"):
-        assert merged[section] == tl.DEFAULTS[section], f"{section}: autonomy.json and DEFAULTS disagree — change both or neither"
+
+    def walk(d, prefix=""):
+        for k, v in d.items():
+            yield from walk(v, f"{prefix}{k}.") if isinstance(v, dict) else [(f"{prefix}{k}", v)]
+    defaults, disk = dict(walk(tl.DEFAULTS)), dict(walk(on_disk))
+    assert set(defaults) == set(disk), f"keys differ: {set(defaults) ^ set(disk)}"
+    assert defaults == disk, {k: (defaults[k], disk[k]) for k in defaults if defaults[k] != disk[k]}
+    # every `.section.key // literal` in a workflow reads a real key and falls back to the same value
+    seen = 0
+    for path in glob.glob(os.path.join(WF, "*.yml")):
+        for key, lit in re.findall(r"'\.([a-z_]+\.[a-z_]+) // ([0-9]+)'", _wf(os.path.basename(path))):
+            assert key in disk, f"{os.path.basename(path)} reads unknown knob {key}"
+            assert int(lit) == disk[key], f"{os.path.basename(path)}: {key} // {lit} but autonomy.json says {disk[key]}"
+            seen += 1
+    assert seen >= 4      # quiet_minutes, review_wait/stuck (automerge), max_fix_attempts (claude-review)
 
 
-def test_slugify_and_age_txt():
+def test_slugify_age_and_stamps():
     assert tl.slugify("Validator: promote the 0x0f3f unit-footer-blob presence law to a rule (ERROR when …)") == "validator-promote-the-0x0f3f-unit-footer"
     assert tl.slugify("!!!") == "work"
-    assert tl.age_txt(NOW - dt.timedelta(minutes=50), NOW) == "<1 h"
+    assert tl.age_txt(NOW - dt.timedelta(minutes=50), NOW) == "50 min"
     assert tl.age_txt(NOW - dt.timedelta(hours=5), NOW) == "5 h"
     assert tl.age_txt(NOW - dt.timedelta(days=3), NOW) == "3 d"
+    assert tl.at("2026-08-09T05:11:00Z") == "08-09 05:11" and tl.at(None) == "?"
 
 
 # ───────────────────────── review state / checks ─────────────────────────
@@ -133,9 +163,10 @@ def test_review_state_reads_the_verdict_for_this_sha_and_counts_attempts_since_r
 
 def test_ci_gate_matches_automerge_ignoring_its_own_and_claude_checks():
     s = tl.summarize_checks(GREEN)
-    assert s == {"total": 2, "pending": [], "bad": [], "ok": 2}
+    assert s == {"total": 2, "pending": [], "bad": [], "ok": 2, "green": True}
     s = tl.summarize_checks(RED + [{"name": "py3.13", "status": "in_progress", "conclusion": None}])
-    assert s["bad"] == ["py3.11"] and s["pending"] == ["py3.13"] and s["total"] == 3
+    assert s["bad"] == ["py3.11"] and s["pending"] == ["py3.13"] and s["total"] == 3 and s["green"] is False
+    assert tl.summarize_checks([])["green"] is False
 
 
 # ───────────────────────── PR status = the exact merge blocker ─────────────────────────
@@ -146,28 +177,72 @@ def _pr(**kw):
                 body="Closes #3")
     base.update(kw)
     return PR(base["n"], base["title"], base["user"], base["draft"], base["labels"], base["sha"], base["head_ref"],
-              base["head_date"], base["checks"], base["comments"], base["body"], kw.get("mergeable_state", "clean"), kw.get("touches", False))
+              base["head_date"], base["checks"], base["comments"], base["body"], kw.get("mergeable_state", "clean"),
+              kw.get("touches", False), kw.get("touches_reviewer", False))
 
 
 def test_pr_status_lanes_mirror_automerge_order():
-    lane = lambda **kw: tl.pr_status(_pr(**kw), CFG, NOW)[1]   # noqa: E731
+    lane = lambda **kw: tl.pr_status(_pr(**kw), CFG)[1]   # noqa: E731
+    text = lambda **kw: tl.pr_status(_pr(**kw), CFG)[0]   # noqa: E731
     assert lane(labels=["do-not-merge"]) == "held"
     assert lane(labels=["needs-human"], touches=True) == "human"
-    assert lane(labels=["needs-issue"]) == "blocked"
+    assert lane(labels=["duplicate-pr"]) == "human"
+    assert lane(labels=["needs-issue"]) == "merging" and "no linked issue" in text(labels=["needs-issue"])   # a note, not a blocker (automerge does not check it)
     assert lane(checks=[]) == "ci"
     assert lane(checks=[{"name": "py3.11", "status": "queued", "conclusion": None}]) == "ci"
     assert lane(checks=RED) == "red"
     assert lane(comments=[]) == "review"
+    assert lane(comments=[], touches_reviewer=True) == "human"                        # the reviewer cannot review its own edit
+    assert lane(comments=[], labels=["merge-when-green"]) == "merging"                # human approval substitutes for the verdict
     assert lane(comments=["🛑\n<!-- claude-review: changes sha=1234567 -->"]) == "changes"
     assert lane(touches=True) == "human"                       # green + approved + workflows -> owner
     assert lane(mergeable_state="dirty") == "conflict"
     assert lane() == "merging"
-    text, l = tl.pr_status(_pr(draft=True, head_date="2026-08-09T05:00:00Z"), CFG, NOW)   # quiet 60 of 90 min
-    assert l == "draft" and "≤ 30 more quiet min" in text
-    text, _ = tl.pr_status(_pr(draft=True, head_date="2026-08-09T03:00:00Z"), CFG, NOW)   # quiet 180 min
-    assert "next sweep" in text
-    text, _ = tl.pr_status(_pr(checks=RED, comments=["<!-- claude-autofix attempt=0 -->"] * 3 + ["<!-- claude-autofix exhausted sha=1234567 -->"]), CFG, NOW)
-    assert "auto-fix 3/3" in text and "bot-stuck" in text
+    t, l = tl.pr_status(_pr(draft=True, head_date="2026-08-09T05:00:00Z"), CFG)
+    assert l == "draft" and "auto-marked ready ≈ 08-09 06:30 UTC" in t                # last push 05:00 + 90 quiet min, absolute
+    assert lane(draft=True, labels=["wip"]) == "held"
+    t, _ = tl.pr_status(_pr(checks=RED, comments=["<!-- claude-autofix attempt=0 -->"] * 3 + ["<!-- claude-autofix exhausted sha=1234567 -->"]), CFG)
+    assert "auto-fix 3/3" in t and "bot-stuck" in t
+
+
+def test_board_and_automerge_share_one_vocabulary():
+    """Every label automerge/claude-review act on is one the board knows how to explain, and the
+    comment markers both sides parse are spelled identically."""
+    am, cr = _wf("automerge.yml"), _wf("claude-review.yml")
+    acted_on = set(re.findall(r"(?:has_label|add_label|drop_label) ([a-z][a-z-]+)", am))
+    assert {"do-not-merge", "needs-human", "duplicate-pr", "merge-when-green", "wip", "needs-rebase", "bot-stuck"} <= acted_on
+    src = open(PATH, encoding="utf-8").read()
+    for label in acted_on:
+        assert label in tl.LABELS, f"automerge acts on `{label}` but LABELS does not define it"
+        assert f'"{label}"' in src, f"automerge acts on `{label}` but techlead.py never mentions it"
+    # markers: written by claude-review.yml / automerge.yml, read by parse_review_state
+    assert "<!-- claude-review: (approve|nits|changes) sha=$SHA -->" in cr and 'sha=$sha -->' in am
+    assert tl.VERDICT_RE.search("<!-- claude-review: nits sha=abcdef1 -->")
+    assert "<!-- claude-autofix attempt=" in cr and tl.ATTEMPT_RE.search("<!-- claude-autofix attempt=2 -->")
+    assert tl.RESET_MARK in cr and tl.RESET_MARK in src
+    assert "<!-- claude-autofix exhausted sha=$2 -->" in cr and tl.EXHAUSTED_RE.search("<!-- claude-autofix exhausted sha=abcdef1 -->")
+    assert tl.REVIEWER_WORKFLOW == ".github/workflows/claude-review.yml" and '".github/workflows/claude-review.yml"' in am
+
+
+def test_automerge_closing_keyword_grammar_is_coords():
+    """automerge has no checkout, so it carries coord.py's CLOSING grammar as an inline python
+    snippet (CLOSES_PY). Run that snippet and coord.refs() over the same bodies."""
+    m = re.search(r"CLOSES_PY: \|\n((?:            .*\n)+)", _wf("automerge.yml"))
+    assert m, "CLOSES_PY block not found in automerge.yml"
+    snippet = "\n".join(line[12:] for line in m.group(1).splitlines())
+    bodies = ["Closes #12\nRefs #3", "closes: #7 and FIXES #8, resolved  #9", "<!-- Closes #99 -->\nRefs #1",
+              "does not close #5 (GitHub closes it anyway)", "pre-closes #4 nothing", "Fixed #10.\nfix #11"]
+    for body in bodies:
+        out = subprocess.run([sys.executable, "-c", snippet], input=body, capture_output=True, text=True, timeout=30)
+        assert out.returncode == 0, out.stderr
+        got = [int(x) for x in out.stdout.split()]
+        assert got == tl.coord.refs(body)["closing"], (body, got)
+
+
+def test_workflows_only_create_labels_the_vocabulary_owns():
+    for name in ("automerge.yml", "claude-review.yml", "coord.yml", "worker.yml", "techlead.yml", "board.yml"):
+        for label in re.findall(r"gh label create ([a-z][a-z:-]+)", _wf(name)):
+            assert label in tl.LABELS, f"{name} creates label `{label}` that tools/dev/techlead.py LABELS does not own"
 
 
 # ───────────────────────── classify + board ─────────────────────────
@@ -176,13 +251,13 @@ def test_classify_sections():
     m = tl.classify(snapshot(), CFG, NOW)
     assert [s["number"] for s in m["steers"]] == [54] and m["steers"][0]["triaged"] is False
     assert [e["number"] for e in m["progress"]] == [55, 6, 60]                     # assigned or worker-held; board/tracking excluded
-    assert [e["number"] for e in m["next_up"]] == [5, 3, 7, 11, 24]                # P0 first, then P1 by age; #14 in review, #37 in review, #9 stuck-in-review, #60 leased
+    assert [e["number"] for e in m["next_up"]] == [5, 3, 7, 11, 24]                # P0 first, then P1 by age; #14/#37/#9 in review, #60 leased
     assert {e["number"] for e in m["waiting"]} == {16, 22}                          # gated; #23 is tracking -> not listed
     assert [e["number"] for e in m["others"]] == [52]                               # not ready, not gated: backlog remainder
-    assert [r["number"] for r in m["waiting_prs"]] == [57]                          # workflow-touching PR needs the owner
+    assert [r["number"] for r in m["waiting_prs"]] == [57]                          # reviewer-touching PR needs the owner
     h = m["health"]
     assert (h["ready_unassigned"], h["in_review"], h["steers_untriaged"], h["stuck_prs"], h["bot_prs_open"]) == (5, 4, 1, 1, 1)
-    assert h["paused"] is False
+    assert h["paused"] is False and h["board_issue"] == 56
     assert any("untriaged steer" in w for w in h["warnings"]) and any("fix budget" in w for w in h["warnings"])
     assert not any("below floor" in w for w in h["warnings"])                       # 5 >= floor 4
 
@@ -195,26 +270,26 @@ def test_classify_flags_pause_and_thin_queue():
     assert any("below floor" in w for w in h["warnings"]) and any("bots-paused" in w for w in h["warnings"])
 
 
-def test_board_render_is_complete_marked_and_stable():
+def test_board_render_is_complete_marked_and_stable_across_renders():
     m = tl.classify(snapshot(), CFG, NOW)
     body = tl.render_board(m, CFG, "ckaragitz/tekton")
     assert body.startswith(tl.BOARD_BEGIN) and body.rstrip().endswith(tl.BOARD_END)
     for heading in ("## 🧭 Steers from humans", "## 🔨 In progress", "## 🔍 In review", "## ⏭️ Next up", "## 🧑 Waiting on a human", "## ✅ Done in the last 7 days", "## 🩺 Health"):
         assert heading in body, heading
-    assert "| #54 |" in body and "owner squash-merges by hand" in body and "rebase job dispatched" in body
+    assert "| #54 |" in body and "refuses to run modified" in body and "rebase job dispatched" in body
     assert "#10-what-still-needs-a-human-and-why" in body                           # anchor exists in docs/process/AUTONOMY.md
     with open(os.path.join(ROOT, "docs", "process", "AUTONOMY.md"), encoding="utf-8") as fh:
         assert "## 10. What still needs a human, and why" in fh.read()
-    # Re-rendering the same state a minute later must not count as a change (no edit-history spam).
-    later = tl.classify(snapshot(), CFG, NOW + dt.timedelta(seconds=50))
-    later["now"] = tl.iso(NOW + dt.timedelta(seconds=50))
+    # The board re-renders on every event: an unchanged repo an hour later must produce the same
+    # body modulo the stamp line, or every render becomes an issue edit.
+    later = tl.classify(snapshot(), CFG, NOW + dt.timedelta(hours=1))
     assert tl.strip_stamp(tl.render_board(later, CFG, "ckaragitz/tekton")) == tl.strip_stamp(body)
     assert "|" not in tl.md_escape("a|b\nc").replace("\\|", "")
 
 
 def test_brief_lists_untriaged_steer_text_and_hygiene_findings():
     m = tl.classify(snapshot(), CFG, NOW)
-    brief = tl.render_brief(m, CFG, "ckaragitz/tekton", root=ROOT)
+    brief = tl.render_brief(m, CFG, "ckaragitz/tekton")
     assert "### #54 — Steer: coding sessions are the tech leads" in brief and "> Hi ..." in brief
     assert "#52 has no priority label" in brief and "#6 has no area:* label" not in brief   # #6 has area:perf
     assert "at most 5 new issues" in brief
@@ -224,31 +299,36 @@ def test_brief_lists_untriaged_steer_text_and_hygiene_findings():
 
 def test_pick_prefers_retry_then_queue_head_with_auto_and_skips_hot_files():
     snap = snapshot()
-    job = tl.pick(snap, CFG, NOW, runs_today=0)
-    assert job["go"] and job["issue"] == 7 and job["mode"] == "implement"           # #5 (P0) is hot-file, #3 lacks auto
+    job = tl.pick(snap, CFG, runs_today=0)
+    assert job["go"] and job["issue"] == 7 and job["mode"] == "implement" and job["max_turns"] == 120   # #5 (P0) is hot-file, #3 lacks auto
     assert job["branch"] == "bot/7-validator-0x0f3f-footer-blob-rule"
     # a re-queued issue whose stuck PR is still open: continue on that PR's branch, ahead of everything
     snap["issues"] = [dict(i, labels=i["labels"] + [{"name": "retry"}]) if i["number"] == 9 else i for i in snap["issues"]]
-    job = tl.pick(snap, CFG, NOW, runs_today=0)
+    job = tl.pick(snap, CFG, runs_today=0)
     assert (job["issue"], job["mode"], job["branch"], job["pr"]) == (9, "continue", "bot/9-famgen-determinism", 58)
+    # a re-queued issue whose PR was closed: the sweep recorded the branch in the body
+    body = "## DONE\n- x\n\n<!-- retry-branch: Ckaragitz12/61-thing -->\n"
+    snap2 = snapshot(extra_issues=[I(61, "re-queued human work", ["P0", "ready", "retry", "area:engine"], body=body)])
+    job = tl.pick(snap2, CFG, runs_today=0)
+    assert (job["issue"], job["mode"], job["branch"], job["pr"]) == (61, "continue", "Ckaragitz12/61-thing", 0)
 
 
 def test_pick_respects_pause_cap_wip_config_and_dispatch():
-    assert tl.pick(snapshot(board_labels=("board", "bots-paused")), CFG, NOW)["reason"].startswith("`bots-paused`")
-    assert "daily cap" in tl.pick(snapshot(), CFG, NOW, runs_today=4)["reason"]
+    assert tl.pick(snapshot(board_labels=("board", "bots-paused")), CFG)["reason"].startswith("`bots-paused`")
+    assert "daily cap" in tl.pick(snapshot(), CFG, runs_today=4)["reason"]
     two_bots = snapshot()["prs"] + [_pr(n=80, user="claude[bot]", head_ref="bot/3-x", body="Closes #3"),
                                     _pr(n=81, user="claude[bot]", head_ref="bot/24-y", body="Closes #24")]
-    assert "WIP limit" in tl.pick(snapshot(prs=two_bots), CFG, NOW)["reason"]     # stuck #58 does not count, 80+81 do
+    assert "WIP limit" in tl.pick(snapshot(prs=two_bots), CFG)["reason"]           # stuck #58 does not count, 80+81 do
     off = tl.deep_merge(CFG, {"worker": {"enabled": False}})
-    assert "disabled" in tl.pick(snapshot(), off, NOW)["reason"]
+    assert "disabled" in tl.pick(snapshot(), off)["reason"]
     anyready = tl.deep_merge(CFG, {"worker": {"eligible": "any-ready", "allow_hot_file": True}})
-    assert tl.pick(snapshot(), anyready, NOW)["issue"] == 5                          # now the P0 hot-file head is fair game
-    forced = tl.pick(snapshot(), CFG, NOW, runs_today=9, forced_issue=3)
+    assert tl.pick(snapshot(), anyready)["issue"] == 5                              # now the P0 hot-file head is fair game
+    forced = tl.pick(snapshot(), CFG, runs_today=9, forced_issue=3)
     assert forced["go"] and forced["issue"] == 3 and forced["reason"] == "dispatched for this issue"
-    assert tl.pick(snapshot(), CFG, NOW, forced_issue=999)["go"] is False
+    assert tl.pick(snapshot(), CFG, forced_issue=999)["go"] is False
     no_auto = snapshot()
     no_auto["issues"] = [dict(i, labels=[l for l in i["labels"] if l["name"] != "auto"]) for i in no_auto["issues"]]
-    r = tl.pick(no_auto, CFG, NOW)
+    r = tl.pick(no_auto, CFG)
     assert r["go"] is False and "nothing eligible" in r["reason"]
 
 
@@ -261,21 +341,19 @@ def test_sweep_requeues_stuck_after_a_quiet_day_frees_dead_leases_and_ages_out_d
     assert ("release-lease", 60) in ops              # bot-working, no PR, untouched 4.5 h >= 3 h
     assert not any(a["op"] in ("nudge-stale", "close-stale") for a in acts)   # draft #40 is only ~29 h old
     rq = next(a for a in acts if a["op"] == "requeue")
-    assert rq["branch"] == "bot/9-famgen-determinism" and rq["key"] == "requeue-58-def5678"
-    # not yet a day quiet -> leave the stuck PR to the auto-fix ladder / its session
+    assert rq["branch"] == "bot/9-famgen-determinism" and rq["key"] == "requeue-58-def5678" and rq["pr_comments"]
     fresh = snapshot()
-    fresh["prs"][2]["head_date"] = "2026-08-09T02:00:00Z"
+    fresh["prs"][2]["head_date"] = "2026-08-09T02:00:00Z"          # not yet a day quiet -> leave it to the ladder
     assert not any(a["op"] == "requeue" for a in tl.plan_sweep(fresh, CFG, NOW))
-    # drafts: nudge at 5 days, close at 14 (green+approved drafts are automerge's to promote, not ours to nudge)
     old = snapshot()
-    old["prs"][0]["head_date"] = "2026-08-03T00:00:00Z"          # 6 days, but green + approved -> no nudge
+    old["prs"][0]["head_date"] = "2026-08-03T00:00:00Z"            # 6 days, but green + approved -> automerge's, no nudge
     assert not any(a["op"] == "nudge-stale" for a in tl.plan_sweep(old, CFG, NOW))
     old["prs"][0]["review"]["verdict"] = "changes"
     assert any(a["op"] == "nudge-stale" and a["pr"] == 40 for a in tl.plan_sweep(old, CFG, NOW))
-    old["prs"][0]["head_date"] = "2026-07-20T00:00:00Z"          # 20 days -> close, issue #37 back to the queue
+    old["prs"][0]["head_date"] = "2026-07-20T00:00:00Z"            # 20 days -> close, issue #37 back to the queue
     close = [a for a in tl.plan_sweep(old, CFG, NOW) if a["op"] == "close-stale"]
     assert close and close[0]["closing"] == [37]
-    old["prs"][0]["labels"] = ["wip"]                              # wip exempts a draft
+    old["prs"][0]["labels"] = ["wip"]                                # wip exempts a draft
     assert not any(a["op"] == "close-stale" for a in tl.plan_sweep(old, CFG, NOW))
 
 
@@ -283,7 +361,7 @@ def test_sweep_requeues_stuck_after_a_quiet_day_frees_dead_leases_and_ages_out_d
 
 def test_steer_issue_is_verbatim_attributed_and_titled_by_first_sentence():
     spec = tl.steer_issue("Windows matters more than new features this month. Also stop touching 2023.\nThanks",
-                          by="Ckaragitz12", source="comment on #40", logged_by="github-actions", when=NOW)
+                          by="@Ckaragitz12", source="comment on #40", logged_by="github-actions", when=NOW)
     assert spec["title"] == "Steer: Windows matters more than new features this month."
     assert spec["labels"] == ["steer"]
     assert "> Windows matters more than new features this month. Also stop touching 2023.\n> Thanks" in spec["body"]
@@ -322,24 +400,28 @@ class FakeGH(tl.GH):
         return resp if not callable(resp) else resp(url, body)
 
 
-def test_client_pages_unwraps_envelopes_and_comments_once():
+def test_client_builds_repo_relative_urls_pages_and_comments_once():
     gh = FakeGH({
-        ("GET", "/issues?state=open"): (200, [{"number": 1}], '<https://api.github.com/repos/o/r/issues?state=open&page=2>; rel="next"'),
-        ("GET", "/issues?state=open&page=2"): (200, [{"number": 2}], ""),
-        ("GET", "/check-runs"): (200, {"total_count": 1, "check_runs": [{"name": "py3.11"}]}, ""),
-        ("GET", "/issues/5/comments"): (200, [{"body": "hello <!-- techlead:k1 -->"}], ""),
-        ("POST", "/issues/5/comments"): (201, {"id": 9}, ""),
+        ("GET", "/repos/o/r/issues?state=open"): (200, [{"number": 1}], '<https://api.github.com/repos/o/r/issues?state=open&page=2>; rel="next"'),
+        ("GET", "/repos/o/r/issues?state=open&page=2"): (200, [{"number": 2}], ""),
+        ("GET", "/repos/o/r/issues/5/comments"): (200, [{"body": "hello <!-- techlead:k1 -->"}], ""),
+        ("POST", "/repos/o/r/issues/5/comments"): (201, {"id": 9}, ""),
         ("DELETE", "/labels/"): (404, {"message": "Label does not exist"}, ""),
+        ("DELETE", "/repos/o/r/issues/5/assignees"): (200, {}, ""),
     })
-    assert [i["number"] for i in gh.paged("{r}/issues", state="open")] == [1, 2]
-    assert gh.paged("{r}/commits/abc/check-runs") == [{"name": "py3.11"}]
+    assert [i["number"] for i in gh.paged("issues", state="open")] == [1, 2]
     assert gh.comment_once(5, "k1", "again") is False                       # marker present -> no second comment
     assert gh.comment_once(5, "k2", "new") is True
+    assert gh.comment_once(5, "k1", "known", existing=["x <!-- techlead:k1 -->"]) is False   # pre-fetched bodies, no GET
     posted = [b for m, u, b in gh.sent if m == "POST"]
     assert posted and posted[-1]["body"].endswith("<!-- techlead:k2 -->")
-    assert gh.remove_label(5, "nope") is None or True                        # 404 on label removal is fine
+    gh.remove_label(5, "nope")                                                # 404 on label removal is fine
+    gh.unassign(5, ["a", "b"])
+    assert gh.sent[-1] == ("DELETE", "https://api.github.com/repos/o/r/issues/5/assignees", {"assignees": ["a", "b"]})
+    gh.unassign(5, [])                                                        # nothing to do -> no call
+    assert gh.sent[-1][0] == "DELETE" and gh.sent[-1][1].endswith("/assignees")
     try:
-        gh.get("{r}/nothing/here")
+        gh.get("nothing/here")
     except tl.GitHubError as e:
         assert e.status == 404
     else:
@@ -347,21 +429,20 @@ def test_client_pages_unwraps_envelopes_and_comments_once():
 
 
 def test_upsert_board_creates_when_missing_and_skips_identical_rerender():
-    log = []
-    created = {}
+    log, created = [], {}
 
     def create(url, body):
         created.update(body)
         return 201, {"number": 77, "node_id": "N77", "body": body["body"]}, ""
     gh = FakeGH({("POST", "/repos/o/r/issues"): create, ("POST", "/graphql"): (200, {"data": {"repository": {"pinnedIssues": {"nodes": []}}}}, "")})
-    n = tl.upsert_board(gh, {"issues": []}, CFG, "BODY v1\n", log=log.append)
+    n = tl.upsert_board(gh, [], CFG, "BODY v1\n", log=log.append)
     assert n == 77 and created["labels"] == ["board", "tracking"] and any("created #77" in l for l in log)
-    # identical content except the render stamp -> no PATCH
+    assert any(u.endswith("/graphql") and b and "pinIssue" in b["query"] for _, u, b in gh.sent)     # pinned after creation
     gh2 = FakeGH({("POST", "/graphql"): (200, {"data": {"repository": {"pinnedIssues": {"nodes": [{"issue": {"number": 77}}]}}}}, "")})
-    body_a = "_Rendered 2026-08-09 06:00 UTC by `board` …_\nrest\n"
-    body_b = "_Rendered 2026-08-09 07:00 UTC by `board` …_\nrest\n"
+    body_a = "_Rendered 08-09 06:00 UTC by `board` …_\nrest\n"
+    body_b = "_Rendered 08-09 07:00 UTC by `board` …_\nrest\n"
     log2 = []
-    tl.upsert_board(gh2, {"issues": [{"number": 77, "labels": [{"name": "board"}], "body": body_a, "node_id": "N77"}]}, CFG, body_b, log=log2.append)
+    tl.upsert_board(gh2, [{"number": 77, "labels": [{"name": "board"}], "body": body_a, "node_id": "N77"}], CFG, body_b, log=log2.append)
     assert not any(m == "PATCH" for m, _, _ in gh2.sent) and any("unchanged" in l for l in log2)
 
 
@@ -371,11 +452,13 @@ def test_cli_hello_is_offline_safe_and_fast():
     env = {k: v for k, v in os.environ.items() if k not in ("GH_TOKEN", "GITHUB_TOKEN")}
     env["PATH"] = "/nonexistent"                                            # no gh CLI either
     r = subprocess.run([sys.executable, PATH, "--repo", "o/r", "hello"], capture_output=True, text=True, env=env, timeout=30)
-    assert r.returncode == 0 and "TECH LEAD" in r.stdout and "offline" in r.stdout
+    assert r.returncode == 0 and "TECH LEAD" in r.stdout and "you build" in r.stdout and "offline" in r.stdout
 
 
-def test_cli_steer_dry_run_prints_the_issue_spec():
+def test_cli_steer_dry_run_and_config():
     r = subprocess.run([sys.executable, PATH, "--repo", "o/r", "steer", "Ship the Windows fix first.", "--by", "ck", "--dry-run"],
                        capture_output=True, text=True, timeout=30)
     spec = json.loads(r.stdout)
     assert r.returncode == 0 and spec["title"] == "Steer: Ship the Windows fix first." and spec["labels"] == ["steer"]
+    r = subprocess.run([sys.executable, PATH, "config", "worker.max_turns"], capture_output=True, text=True, timeout=30)
+    assert r.returncode == 0 and r.stdout.strip() == "120"

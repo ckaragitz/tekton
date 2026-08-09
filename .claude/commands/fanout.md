@@ -1,0 +1,17 @@
+---
+description: Delegate independent ready issues to engineer sessions (extra cloud/CCR sessions) or subagents while you keep tech-leading and building — steer #58
+argument-hint: "[N issues | #a #b #c]  (default: up to 3 from the head of the queue)"
+---
+
+You are the tech lead AND an engineer here (CLAUDE.md §4, standing steer S-2026-08-09-c): keep building your own issue, and fan the rest of the workable queue out to hands you coordinate. Target: $ARGUMENTS
+
+1. **Pick the issues** — `python3 tools/dev/techlead.py brief` (or the board #56 via MCP `issue_read`): take up to N `ready`, unassigned, non-gated issues that are **independent** of each other and of your own work (different territories; no shared hot file). Skip anything `hot-file` unless it is the only thing you delegate. Never exceed 3 engineer sessions at once unless your human asked for more.
+
+2. **Choose the hands** for each issue:
+   - **Engineer session (preferred for a whole issue):** if the `mcp__Claude_Code_Remote__create_session` tool is available, create one session per issue on this repository (title `eng: #<n> <issue title>`), with a prompt that says exactly:
+     *"You are an engineer session on ckaragitz/tekton started by a tech-lead session. CLAUDE.md auto-loads and binds you. Your one job: issue #<n>. First claim it by commenting `/claim` on #<n> (stop and report back if the coord bot answers ⛔). Then follow CLAUDE.md §4 exactly: branch `<you>/<n>-<slug>` from main, implement inside the Territory, run the gates, push early, open a PR with `Closes #<n>` (ready, not draft, when the gates pass), write the record. Log any steer a human gives you with /steer. Report back to the session that started you (send_message) with the PR number, or with the precise blocker. Do not take any other issue."*
+     Keep the returned session ids; check on them with `list_events` / talk with `send_message`; archive each once its PR is open and green or it has reported a blocker (the repo's bots carry PRs from there).
+   - **Subagents (for hands inside this session):** when the pieces are sub-tasks of YOUR issue rather than separate issues (parallel exploration, mechanical edits across files, drafting tests, a review pass), use the Agent tool with `isolation: "worktree"` for anything that writes files, one clear deliverable each; you integrate their output into your one branch and PR. Subagents never claim issues or open PRs of their own.
+   - No CCR tool and the work is a separate issue? Leave it in the queue (`/next` for the next session, or the scheduled worker if it is `auto`) — say so rather than half-delegating.
+
+3. **Stay accountable:** delegation does not move state into sessions — every engineer's progress must show up as a claim, a branch, a PR, comments on its issue. If an engineer session goes quiet, its claim self-heals (72 h reaper) and its pushed branch is surfaced by `coord`; you may also `/release` it on the issue and re-delegate. Summarise for your human in ≤ 6 lines: which issues went to which session (ids), which you kept, and what you are building yourself next.

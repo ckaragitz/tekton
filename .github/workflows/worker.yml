@@ -51,8 +51,8 @@ jobs:
       issue: ${{ steps.decide.outputs.issue }}
       pr: ${{ steps.decide.outputs.pr }}
       branch: ${{ steps.decide.outputs.branch }}
-      title: ${{ steps.decide.outputs.title }}
       reason: ${{ steps.decide.outputs.reason }}
+      max_turns: ${{ steps.decide.outputs.max_turns }}
     steps:
       - name: Credential present?
         id: tok
@@ -88,14 +88,14 @@ jobs:
             {
               echo "go=yes"; echo "mode=rebase"; echo "pr=$IN_PR"; echo "issue=0"
               echo "branch=$(jq -r .headRefName <<<"$j")"
-              echo "title=$(jq -r .title <<<"$j" | tr -d '\r\n' | cut -c1-120)"
+              echo "max_turns=$(python3 tools/dev/techlead.py config worker.max_turns)"
               echo "reason=dispatched rebase"
             } >> "$GITHUB_OUTPUT"
             exit 0
           fi
           [[ -z "$IN_ISSUE" || "$IN_ISSUE" =~ ^[0-9]+$ ]] || { echo "::error::issue input must be a number"; exit 1; }
           set +e
-          python3 tools/dev/techlead.py pick --issue "${IN_ISSUE:-0}" --github-output "$GITHUB_OUTPUT" > pick.json
+          python3 tools/dev/techlead.py pick --issue "${IN_ISSUE:-0}" > pick.json    # also writes go/issue/branch/mode/pr/reason/max_turns to $GITHUB_OUTPUT
           rc=$?
           set -e
           cat pick.json
@@ -140,7 +140,6 @@ jobs:
             gh issue comment "$ISSUE" --repo "$REPO" --body "🤖 The unattended worker took this ($MODE on \`$BRANCH\`) — [run]($RUN_URL). It opens a PR with \`Closes #$ISSUE\` when the gates pass; if it cannot finish it says why here and releases the issue. A human may take over any time with \`/claim\` (the worker yields)." >/dev/null
           fi
           bash scripts/cloud-setup.sh || echo "::warning::cloud-setup.sh failed; the worker runs without a prepared venv"
-          echo "max_turns=$(jq -r '.worker.max_turns // 120' .github/autonomy.json 2>/dev/null || echo 120)" >> "$GITHUB_OUTPUT"
 
       - name: Do the work
         id: work
@@ -159,9 +158,12 @@ jobs:
             section for MODE exactly. The Python env is prepared (.venv/bin/python). You are on BRANCH.
             When you stop, GitHub must show the outcome: a pushed branch + an open PR, or a comment on the
             issue saying precisely what blocked you. Never leave work only in this runner.
+          # Tool surface = what a human-started session implementing the same issue uses (stream
+          # tests, repo tools, bare-unzip product check). Inputs are this private repo's files and
+          # collaborator-written issues; the run holds no secret beyond its GitHub/Claude tokens.
           claude_args: |
-            --max-turns ${{ steps.prep.outputs.max_turns }}
-            --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr ready:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh api:*),Bash(.venv/bin/python:*),Bash(python3:*),Bash(python:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*),Bash(grep:*),Bash(xargs:*),Bash(find:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(unzip:*),Bash(diff:*)"
+            --max-turns ${{ needs.pick.outputs.max_turns }}
+            --allowedTools "Edit,Write,Read,Glob,Grep,Bash(git:*),Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh pr view:*),Bash(gh pr list:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr ready:*),Bash(gh issue view:*),Bash(gh issue comment:*),Bash(gh issue edit:*),Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh api:*),Bash(.venv/bin/python:*),Bash(python3:*),Bash(bash scripts/cloud-setup.sh),Bash(ls:*),Bash(cat:*),Bash(grep:*),Bash(xargs:*),Bash(find:*),Bash(mkdir:*),Bash(cp:*),Bash(mv:*),Bash(unzip:*),Bash(diff:*)"
 
       - name: Settle the lease
         if: always()

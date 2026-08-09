@@ -1,5 +1,5 @@
 {
-  "_doc": "Knobs for the autonomy system (docs/process/AUTONOMY.md §11). Read at run time from the DEFAULT branch by board.yml / techlead.yml / worker.yml / automerge.yml / claude-review.yml and by tools/dev/techlead.py; missing keys fall back to the DEFAULTS in that file. Change via a normal PR (bots may merge it). Emergency pause without a PR: put the label `bots-paused` on the board issue (planner + worker stop; reviews and merges continue).",
+  "_doc": "Knobs for the autonomy system (docs/process/AUTONOMY.md §11). THIS FILE IS AUTHORITATIVE and complete: every key the bots read is here. Read at run time from the DEFAULT branch by board.yml / techlead.yml / worker.yml (via tools/dev/techlead.py) and by automerge.yml / claude-review.yml (via jq, whose fallback literals tests/test_techlead.py keeps equal to techlead.py DEFAULTS). Change via a normal PR (bots may merge it). Emergency pause without a PR: put the label `bots-paused` on the board issue (planner + worker stop; reviews and merges continue).",
   "planner": {
     "enabled": true,
     "ready_floor": 4,
@@ -19,6 +19,8 @@
   "pipeline": {
     "quiet_minutes": 90,
     "max_fix_attempts": 3,
+    "review_wait_minutes": 20,
+    "review_stuck_minutes": 240,
     "stale_draft_days": 5,
     "close_stale_days": 14,
     "requeue_stuck_after_hours": 24,
@@ -27,7 +29,8 @@
   "board": {
     "label": "board",
     "recent_days": 7,
-    "next_up": 10
+    "next_up": 10,
+    "title": "📋 Board — what the tech leads are doing, reviewing, planning, and waiting on (auto-updated)"
   },
   "pause_label": "bots-paused"
 }

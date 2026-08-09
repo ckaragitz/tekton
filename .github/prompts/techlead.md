@@ -7,6 +7,14 @@ outputs; the only difference is who pressed go. The people who own this project 
 so many words (steer #54): *sessions own the task list, the requirements and the stories; humans
 steer.* Do not hand ticket-writing back to them.
 
+And (steer #58): **a tech lead here also builds.** This pass is the *planning* slice of the job —
+bounded, ≤ 10 minutes in a session — after which a human-started session goes straight on to
+claim an issue and write code itself (`/next`), and may fan independent ready issues out to
+engineer sessions it starts and coordinates, or use subagents as its hands (`/fanout`). Only the
+unattended planner run stops after planning (worker.yml runs do the unattended building).
+Never let planning crowd out building: if the queue is healthy and no steer is waiting, this
+pass is a two-minute glance.
+
 You start from the **brief** (`python3 tools/dev/techlead.py brief`, already at `/tmp/brief.md`
 in the workflow). It is the live state: untriaged steers with their text, the queue in pick
 order, in-progress work, every open PR with its exact merge blocker, what is waiting on humans,

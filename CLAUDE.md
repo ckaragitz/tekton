@@ -121,7 +121,7 @@ environment's **Setup script** at `bash scripts/cloud-setup.sh` (creates
 `.venv`, installs the engine + test extras, sets `pull.rebase`, checks plugin
 drift + portable paths). This file, its two `@` imports, and `.claude/`
 (a SessionStart banner with live queue counts, and the project commands
-`/steer`, `/techlead`, `/board`) load automatically. Cloud sessions have no
+`/steer`, `/techlead`, `/board`, `/fanout`) load automatically. Cloud sessions have no
 `gh`: use the GitHub MCP tools for the same moves (§4). Work on a branch,
 push, and open the PR from the session UI (or `gh pr create --draft`) exactly
 as in section 4 — and if the session ends before the PR is finished, the
@@ -197,7 +197,8 @@ directly under `plugin/`.
 end-user session:** the repo intentionally has **no `.claude/skills/`** (the
 product skills aren't auto-loaded into the session that is editing them —
 `.claude/` holds only the *process* pieces: the SessionStart banner and the
-`/steer` `/techlead` `/board` commands, none of which are product skills),
+`/steer` `/techlead` `/board` `/fanout` commands, none of which are product
+skills),
 and interactive dogfooding of the skills is best done in a *separate*
 scratch session with the built plugin loaded (`claude --plugin-dir
 /path/to/tekton/plugin` or the installed zip) — so "the skill I'm editing"
@@ -238,7 +239,11 @@ and the scheduled `techlead` planner, all following one charter
 (`.github/prompts/techlead.md`) — own the backlog: you log what the humans
 say, turn it into requirements and task issues, keep the `ready` queue
 stocked and ordered from `docs/PROGRAM.md`, retire what is obsolete, and
-decide what the unattended `worker` may take. Humans never have to write a
+decide what the unattended `worker` may take — **and you build**: a tech lead
+here sets direction *and* writes code in the same session (steer #58,
+S-2026-08-09-c), and may delegate — subagents as hands inside the session,
+or extra cloud (CCR) engineer sessions it starts and coordinates, one issue
+each under this same protocol (`/fanout`). Humans never have to write a
 ticket, assign, review, merge or close anything, and you never tell them to.
 **Any time your human volunteers a requirement, an opinion, a priority call
 or a correction, log it FIRST — `/steer <their words>`** (project command;
@@ -249,9 +254,10 @@ guidance ("always/never/prefer") additionally gets a row in
 `Refs #<steer>` + `from-steer`. Everything you decide lives on GitHub, never
 only in the conversation: this session may end mid-sentence and a stranger's
 session must be able to continue. The always-current picture is the pinned
-**📋 board** issue ([label `board`](https://github.com/ckaragitz/tekton/issues?q=label%3Aboard),
-re-rendered hourly and on every event): in progress, in review with the
-exact merge blocker per PR, next up, waiting on a human, untriaged steers.
+**📋 board** issue ([#56](https://github.com/ckaragitz/tekton/issues/56),
+label `board`, re-rendered hourly and on every event): in progress, in
+review with the exact merge blocker per PR, next up, waiting on a human,
+untriaged steers.
 
 **The queue is GitHub Issues.** One issue per task/stream, labelled by
 priority (`P0`/`P1`/`P2`), area (`area:engine`, `area:frontdoor`,
@@ -319,6 +325,7 @@ gh pr list --author @me --state open           # 1. service your own PRs first (
 gh issue list --assignee @me --state open      # 4. resume yours, or take the head of the queue:
 gh issue comment <any> -b /next                #    (or claim by hand: gh issue edit <n> --add-assignee @me)
 git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR, always from main
+#  5. more independent ready issues than you can hold? -> /fanout (engineer sessions / subagents), keep building yours
 ```
 Cloud sessions (no `gh` CLI) do the same through the GitHub MCP tools:
 `issue_read` on the board issue for the picture, `issue_write` with label

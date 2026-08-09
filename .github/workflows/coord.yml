@@ -133,7 +133,7 @@ jobs:
                 react "confused"; reply "🧭 @$WHO — \`/steer\` needs the steer itself after it, e.g. \`/steer prioritise the Windows fixes over new features this week\`."
                 exit 0
               fi
-              gh label create steer --repo "$REPO" --color 0e8a16 --description "A human steer, logged verbatim; the tech leads triage it into work" >/dev/null 2>&1 || true
+              gh label create steer --repo "$REPO" --color 0e8a16 >/dev/null 2>&1 || true   # vocabulary owned by tools/dev/techlead.py LABELS
               url=$(python3 tools/dev/techlead.py steer "$text" --by "$WHO" --source "comment on #$N ($COMMENT_URL)")
               # Issues this token files trigger no workflows, so wake the planner explicitly.
               gh workflow run techlead.yml --repo "$REPO" -f reason="steer via comment on #$N" >/dev/null 2>&1 || true

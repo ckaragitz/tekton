@@ -14,8 +14,8 @@ on:
     types: [opened, closed, reopened, labeled, unlabeled, assigned, unassigned]
   pull_request_target:
     types: [opened, closed, reopened, ready_for_review, converted_to_draft, labeled, unlabeled]
-  workflow_run:
-    workflows: ["CI", "claude-review", "automerge", "techlead", "worker"]
+  workflow_run:                # state-changing bot runs only (automerge's 30-min sweep is covered by the cron)
+    workflows: ["CI", "claude-review", "techlead", "worker"]
     types: [completed]
   schedule:
     - cron: "20 * * * *"
@@ -25,6 +25,8 @@ permissions:
   contents: read
   issues: write
   pull-requests: write
+  checks: read                 # CI state per PR head
+  actions: read                # bot health line
 
 concurrency:
   group: board
@@ -38,7 +40,7 @@ jobs:
     timeout-minutes: 8
     steps:
       - name: Let a burst of events settle
-        run: sleep 15
+        run: sleep 45
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.repository.default_branch || 'main' }}

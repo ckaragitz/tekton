@@ -34,7 +34,26 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CFG_PATH: .github/autonomy.json
+  # Shared bash for both jobs, loaded with:  eval "$REVIEW_LIB"   (needs GH_TOKEN, REPO, and $comments
+  # = the PR's comments as JSON). The markers are the contract with automerge.yml and
+  # tools/dev/techlead.py (tests/test_techlead.py pins them): verdict, attempt, reset, exhausted.
+  REVIEW_LIB: |
+    cfg_max_fix() {   # pipeline.max_fix_attempts from the DEFAULT branch's .github/autonomy.json
+      local d; d=$(gh api "repos/$REPO" --jq .default_branch)
+      gh api "repos/$REPO/contents/.github/autonomy.json?ref=$d" --jq .content 2>/dev/null | base64 -d 2>/dev/null | jq -r '.pipeline.max_fix_attempts // 3' 2>/dev/null || echo 3
+    }
+    # attempts = auto-fix attempt markers since the last budget reset marker (posted when an
+    # issue is re-queued to a fresh holder), in comment order.
+    attempts_since_reset() {
+      jq -r '[.[].body] | reduce .[] as $b (0; if ($b|contains("<!-- claude-autofix reset -->")) then 0 elif ($b|test("<!-- claude-autofix attempt=[0-9]+ -->")) then .+1 else . end)' <<<"$comments"
+    }
+    park_stuck() {    # $1=pr $2=sha $3=why — label bot-stuck + one explanatory comment per sha (never needs-human)
+      gh label create bot-stuck --repo "$REPO" --color b60205 >/dev/null 2>&1 || true
+      gh pr edit "$1" --repo "$REPO" --add-label bot-stuck >/dev/null
+      if ! jq -r '.[].body' <<<"$comments" | grep -qF "<!-- claude-autofix exhausted sha=$2 -->"; then
+        gh pr comment "$1" --repo "$REPO" --body "🤖 **Out of automatic fix attempts** and $3. Labelled \`bot-stuck\` — this is not a dead end: if nothing moves for a day, the board's sweep re-queues the linked issue (\`ready\` + \`retry\`) so a fresh session or the unattended worker continues **on this branch** with a new budget. Anyone may act sooner: push a fix, comment \`@claude <specific instruction>\`, or \`/claim\` the issue. <!-- claude-autofix exhausted sha=$2 -->" >/dev/null
+      fi
+    }
 
 jobs:
   claude-review:
@@ -72,14 +91,14 @@ jobs:
           [[ "$pr" =~ ^[0-9]+$ ]] || { echo "::error::pr input must be a number, got '$pr'"; exit 1; }
           j=$(gh pr view "$pr" --repo "$REPO" --json number,headRefOid,headRefName,isDraft,state)
           [ "$(jq -r .state <<<"$j")" = "OPEN" ] || { echo "::error::PR #$pr is not open"; exit 1; }
+          eval "$REVIEW_LIB"
           {
             echo "pr=$pr"
             echo "sha=$(jq -r .headRefOid <<<"$j")"
             echo "ref=$(jq -r .headRefName <<<"$j")"
             echo "draft=$(jq -r .isDraft <<<"$j")"
+            echo "max_fix=$(cfg_max_fix)"
           } >> "$GITHUB_OUTPUT"
-          cfg=$(gh api "repos/$REPO/contents/$CFG_PATH" --jq .content 2>/dev/null | base64 -d 2>/dev/null || echo '{}')
-          echo "max_fix=$(jq -r '.pipeline.max_fix_attempts // 3' <<<"$cfg")" >> "$GITHUB_OUTPUT"
           echo "reviewing #$pr at $(jq -r .headRefOid <<<"$j") ($EVENT)"
 
       - uses: actions/checkout@v6
@@ -190,24 +209,17 @@ jobs:
           MAX_FIX_ATTEMPTS: ${{ steps.ctx.outputs.max_fix }}
         run: |
           set -euo pipefail
+          eval "$REVIEW_LIB"
           comments=$(gh api "repos/$REPO/issues/$PR/comments" --paginate)
           verdict=$(jq -r '.[].body' <<<"$comments" | grep -oE "<!-- claude-review: (approve|nits|changes) sha=$SHA -->" | tail -1 | sed -E 's/.*: (approve|nits|changes) .*/\1/' || true)
-          # attempts = auto-fix attempt markers since the last budget reset marker (posted when an
-          # issue is re-queued to a fresh holder), in comment order.
-          attempts=$(jq -r '[.[].body] | reduce .[] as $b (0; if ($b|contains("<!-- claude-autofix reset -->")) then 0 elif ($b|test("<!-- claude-autofix attempt=[0-9]+ -->")) then .+1 else . end)' <<<"$comments")
-          [ -z "$verdict" ] && { echo "::error::no verdict marker for $SHA even after the rescue pass — automerge will re-request this review once, then park the PR as bot-stuck"; exit 1; }
+          attempts=$(attempts_since_reset)
+          [ -z "$verdict" ] && { echo "::error::no verdict marker for $SHA even after the rescue pass — automerge re-requests this review once, then parks the PR as bot-stuck (a PR that edits this very workflow can never be bot-reviewed: the action refuses modified copies; the owner reviews it)"; exit 1; }
           echo "verdict=$verdict"   >> "$GITHUB_OUTPUT"
           echo "attempts=$attempts" >> "$GITHUB_OUTPUT"
           fix=no
           if [ "$verdict" = "changes" ]; then
             if [ "$attempts" -lt "$MAX_FIX_ATTEMPTS" ]; then fix=yes
-            else
-              gh label create bot-stuck --repo "$REPO" --color b60205 --description "Bots exhausted their fix budget on this PR; its issue is re-queued with context" --force >/dev/null 2>&1 || true
-              gh pr edit "$PR" --repo "$REPO" --add-label bot-stuck >/dev/null
-              if ! jq -r '.[].body' <<<"$comments" | grep -qF "<!-- claude-autofix exhausted sha=$SHA -->"; then
-                gh pr comment "$PR" --repo "$REPO" --body "🤖 **Out of automatic fix attempts** ($attempts since the last budget reset) and the review still requests changes. Labelled \`bot-stuck\` — this is not a dead end: if nothing moves for a day, the board's sweep re-queues the linked issue (\`ready\` + \`retry\`) so a fresh session or the unattended worker continues **on this branch** with a new budget. Anyone may act sooner: push a fix, comment \`@claude <specific instruction>\`, or \`/claim\` the issue. <!-- claude-autofix exhausted sha=$SHA -->" >/dev/null
-              fi
-            fi
+            else park_stuck "$PR" "$SHA" "the review still requests changes after $attempts attempt(s) since the last budget reset"; fi
           fi
           echo "fix=$fix" >> "$GITHUB_OUTPUT"
           echo "verdict=$verdict attempts=$attempts/$MAX_FIX_ATTEMPTS fix=$fix"
@@ -285,20 +297,17 @@ jobs:
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
+          eval "$REVIEW_LIB"
           pr=$(gh pr list --repo "$REPO" --state open --head "$BRANCH" --json number,headRefOid --jq '.[]|select(.headRefOid=="'"$SHA"'")|.number' | head -1)
           if [ -z "$pr" ]; then echo "no open PR whose head is $SHA on $BRANCH (superseded by a newer push, or a main run) — nothing to fix"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0; fi
-          cfg=$(gh api "repos/$REPO/contents/$CFG_PATH" --jq .content 2>/dev/null | base64 -d 2>/dev/null || echo '{}')
-          max=$(jq -r '.pipeline.max_fix_attempts // 3' <<<"$cfg")
+          max=$(cfg_max_fix)
+          # shellcheck disable=SC2034   # read by attempts_since_reset / park_stuck from REVIEW_LIB
           comments=$(gh api "repos/$REPO/issues/$pr/comments" --paginate)
-          attempts=$(jq -r '[.[].body] | reduce .[] as $b (0; if ($b|contains("<!-- claude-autofix reset -->")) then 0 elif ($b|test("<!-- claude-autofix attempt=[0-9]+ -->")) then .+1 else . end)' <<<"$comments")
+          attempts=$(attempts_since_reset)
           gh run view "$RUN_ID" --repo "$REPO" --log-failed 2>/dev/null | tail -300 > /tmp/ci-failed.log || true
           { echo "pr=$pr"; echo "attempts=$attempts"; echo "max=$max"; } >> "$GITHUB_OUTPUT"
           if [ "$attempts" -ge "$max" ]; then
-            gh label create bot-stuck --repo "$REPO" --color b60205 --force >/dev/null 2>&1 || true
-            gh pr edit "$pr" --repo "$REPO" --add-label bot-stuck >/dev/null
-            if ! jq -r '.[].body' <<<"$comments" | grep -qF "<!-- claude-autofix exhausted sha=$SHA -->"; then
-              gh pr comment "$pr" --repo "$REPO" --body "🤖 **Out of automatic fix attempts** ($attempts) and CI is still red (run $RUN_ID). Labelled \`bot-stuck\`; after a quiet day the linked issue is re-queued (\`ready\` + \`retry\`) for a fresh session or the unattended worker to continue on this branch with a new budget. Sooner: push a fix, \`@claude <instruction>\`, or \`/claim\` the issue. <!-- claude-autofix exhausted sha=$SHA -->" >/dev/null
-            fi
+            park_stuck "$pr" "$SHA" "CI is still red (run $RUN_ID) after $attempts attempt(s)"
             echo "go=no" >> "$GITHUB_OUTPUT"
           else
             echo "go=yes" >> "$GITHUB_OUTPUT"

@@ -165,6 +165,8 @@ def reqfile(text: str, path: str = "") -> dict:
 GATED = ("blocked", "needs-viewer", "needs-revit-desktop", "owner-machine", "needs-decision", "needs-human")
 # Labels that mean "not a unit of work at all".
 NOT_WORK = ("tracking", "board", "steer", "intake", "epic", "duplicate")
+# Held without an assignee: the unattended worker's lease (GitHub cannot assign a bot).
+HELD = ("bot-working",)
 PRIORITY = {"P0": 0, "P1": 1, "P2": 2}
 TASK_SHAPE = re.compile(r"(?im)^[\s>*_#-]*(?:\*\*|__)?\s*done\b(?:\*\*|__)?\s*(?:[=:(—-]|$)|^#{1,4}\s+.*\bdone\b")
 

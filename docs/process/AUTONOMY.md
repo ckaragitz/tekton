@@ -35,8 +35,9 @@ stories … we can steer you."*
 | Role | Who | Does | Never has to |
 |---|---|---|---|
 | **Steerer** | any human on the repo (owner, Chase, …) | says what they want, in plain words, wherever convenient; answers `needs-decision` questions; does the few physical things in §10 | write tickets, groom, assign, review, merge, close, keep a session alive |
-| **Tech lead** | every coding session — yours, anyone's, and the scheduled `techlead` planner — following one charter (`.github/prompts/techlead.md`) | logs steers, triages them into requirements, keeps the queue stocked and ordered from `docs/PROGRAM.md`, retires the obsolete, decides what the unattended worker may take, leaves planning notes | wait for permission to plan |
-| **Engineer** | every coding session, and the scheduled `worker` (`.github/prompts/worker.md`) | claims one issue, branches, implements per `CLAUDE.md`, opens the PR | shepherd the PR afterwards — the bots do |
+| **Tech lead** | every coding session — yours, anyone's, and the scheduled `techlead` planner — following one charter (`.github/prompts/techlead.md`) | logs steers, triages them into requirements, keeps the queue stocked and ordered from `docs/PROGRAM.md`, retires the obsolete, decides what the unattended worker may take, leaves planning notes — **and then builds** (below): tech lead and engineer are the same session (steer #58) | wait for permission to plan; stop at planning |
+| **Engineer** | every coding session (the same one that just tech-led), the scheduled `worker` (`.github/prompts/worker.md`), and any *engineer sessions* a tech-lead session starts | claims one issue, branches, implements per `CLAUDE.md`, opens the PR | shepherd the PR afterwards — the bots do |
+| **Hands** | subagents inside a session; extra cloud (CCR) sessions a tech-lead session starts and talks to (`/fanout`) | subagents: sub-tasks of the session's own issue, integrated into its one PR; engineer sessions: one whole issue each, claimed with `/claim`, same protocol as anyone | hold state — everything they do surfaces as claims, branches, PRs, comments |
 | **Pipeline bots** | `coord`, `CI`, `claude-review`, `automerge`, `board` (GitHub Actions) | claim enforcement, intake, review + bounded auto-fix, auto-ready, merge, issue closing, re-queueing, the board | — |
 | **Orchestrator (legacy name)** | was a rotating human; now = the tech-lead loop above | the only orchestration left to humans is listed in §10 | — |
 
@@ -107,8 +108,11 @@ Every session, in this order, before writing code: (1) `git fetch` / start from 
 gave you (`/steer`); (4) if there are untriaged steers, or `ready & unassigned` is below the
 floor, run a tech-lead pass (`/techlead`, ≤ 10 min, bounded by the charter); (5) resume your
 assigned issue or take the head of the queue (`/next`); claim → branch from `main` → push early →
-draft PR with `Closes #n`. When you stop — for an hour or forever — push, and make the PR body or
-the record say where things stand. The bots take the PR the rest of the way: review, bounded
+draft PR with `Closes #n` — the tech lead builds, in the same session; (6) more independent
+ready issues than one session can hold? `/fanout`: start engineer sessions (cloud/CCR, one issue
+each, they `/claim` and follow this same protocol; you check on and message them) or use
+subagents as hands for pieces of your own issue — while you keep building yours. When you stop
+— for an hour or forever — push, and make the PR body or the record say where things stand. The bots take the PR the rest of the way: review, bounded
 fixes, auto-ready after 90 quiet minutes if green and approved, squash-merge, issue closed, board
 updated. If it cannot be finished automatically it is re-queued with your notes for the next
 session, not left for a human to notice.
@@ -164,6 +168,14 @@ edit `.github/workflows/**` in unattended runs; strip a gate label to make work 
 a human; act on a steer that breaks a hard rule; run the full test suite; touch anything under
 the git-ignored third-party dirs; certify a file as loading in Revit (only the ledger does).
 
+Trust model of the model-backed runs: their inputs are this private repository's files and
+issues/comments written by its collaborators; the worker's tool surface is deliberately the same
+a human-started session has (it must run the stream's tests and tools), the planner's is
+issue/label/docs-only, the reviewer's is read + comment. None holds a secret beyond its own
+GitHub/Claude token, and everything they push still passes CI + review + the merge gate. Actions
+are referenced by major-version tag (`@v1`, `@v6`), the convention this repo already ran on;
+pinning them to commit SHAs is a filed hardening task, not a blocker.
+
 ## 10. What still needs a human, and why
 
 This is the complete list. Everything on it shows up in the board's *Waiting on a human* section
@@ -173,6 +185,7 @@ system (file it, `area:process`).
 | Needs a person | Why it cannot be automated | How it is surfaced | Optional way to remove it |
 |---|---|---|---|
 | Merging a PR that changes `.github/workflows/**` | GitHub forbids the Actions token from merging workflow changes (platform rule) | PR labelled `needs-human` + comment; board | add a fine-grained PAT of the owner (contents + pull requests + workflows: write, this repo only) as secret `AUTOMERGE_TOKEN` — automerge then merges these too. Logic lives in `tools/dev/*.py` + prompts + `autonomy.json` precisely so workflow files rarely change. |
+| Reviewing a PR that changes `claude-review.yml` itself | the review action refuses to run a copy of its workflow that differs from `main`'s, so no AI verdict can exist for such a PR (observed on #57) | `automerge` labels it `needs-human` immediately with the reason; board | none — keep reviewer edits in tiny dedicated PRs the owner reads by eye; every other workflow file is reviewed normally |
 | `needs-decision` issues | money, legal/counsel (C1/C4/C5, trademark), going public, product direction calls the steerers reserved | issue label; board; planning note | answer in a comment (it is a steer); the tech leads proceed |
 | Viewer certification uploads (`needs-viewer`) | Autodesk's viewer needs an interactive login; rule 4 makes it the arbiter | sessions STAGE batches (`probe_batch.py stage`) and stop at READY; board lists them | none by design (no APS — rule 7) |
 | Desktop-Revit checks (`needs-revit-desktop`) | needs a licensed desktop install a bot may not touch (rule 2) | label; board | none by design |
@@ -182,10 +195,14 @@ system (file it, `area:process`).
 
 ## 11. Knobs, budgets, and the pause switch
 
-`.github/autonomy.json` (read from the default branch at run time; defaults in
-`tools/dev/techlead.py`):
+`.github/autonomy.json` is **authoritative and complete** (every key the bots read is in it) and
+is read from the default branch at run time. `tools/dev/techlead.py` carries the same values as
+`DEFAULTS` only to survive a missing/garbled file, and the two token-only workflows carry them as
+`jq` fallbacks for the same reason; `tests/test_techlead.py` fails if any of the three disagree,
+so a knob change is one edit to the JSON (plus the test telling you if a fallback needs the same
+number). Values at the time of writing:
 
-| Key | Default | Effect |
+| Key | Value | Effect |
 |---|---|---|
 | `planner.ready_floor` / `ready_ceiling` | 4 / 12 | replenish below the floor; never file past the ceiling |
 | `planner.max_new_issues_per_run` · `max_turns` | 5 · 60 | per-pass caps |
@@ -193,6 +210,7 @@ system (file it, `area:process`).
 | `worker.wip_limit` · `max_runs_per_day` · `allow_hot_file` · `max_turns` | 2 · 4 · false · 120 | unattended throughput and blast radius |
 | `pipeline.quiet_minutes` | 90 | green + approved draft with no commits this long → auto-ready → merge |
 | `pipeline.max_fix_attempts` | 3 | auto-fix passes per PR since the last budget reset |
+| `pipeline.review_wait_minutes` · `review_stuck_minutes` | 20 · 240 | how long automerge waits for a running review before re-requesting it · before parking the PR `bot-stuck` |
 | `pipeline.requeue_stuck_after_hours` · `stale_draft_days` · `close_stale_days` · `worker_lease_hours` | 24 · 5 · 14 · 3 | hygiene timings |
 | `pause_label` | `bots-paused` | label on the board issue pauses planner + worker |
 
@@ -224,6 +242,8 @@ owner's plan feels it; set `worker.enabled=false` to keep planning but stop unat
 | Session dies with a red / 🛑 PR | auto-fix passes (≤ 3); then `bot-stuck` → after 24 h the issue is `ready`+`retry`, unassigned, pointing at the branch; `/next` or the worker continues it with a fresh budget |
 | Claim abandoned without a PR | 72 h reaper unassigns; issue back in the queue |
 | Review run ends without a verdict (turn cap, crash) | rescue pass in the same run; else `automerge` re-requests the review; after 4 h `bot-stuck` |
+| PR edits `claude-review.yml` (the reviewer refuses modified copies of itself) | `automerge` labels it `needs-human` at once with the reason; the owner reviews + merges that one by eye |
+| PR branch carries an older copy of `claude-review.yml` than `main` (dispatched review refuses to run) | the re-request comment says so; merging `main` into the branch (any session, or the worker's rebase mode) re-arms the review on the new head |
 | Bot merge did not close the linked issue | `automerge` closes linked issues itself after every merge |
 | PR conflicts with `main` | `automerge` dispatches the worker's rebase mode; result re-reviewed and merged |
 | Two PRs for one issue | newer gets `duplicate-pr`; planner closes the worse one; `coord` warned at open time |
