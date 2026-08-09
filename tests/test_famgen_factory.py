@@ -20,35 +20,45 @@ Evidence tiers:
    partition stream walker-clean; our embedded ADocument authors and
    round-trips through the codec.
 
-Corpus-dependent tests skip when the samples / schema are absent.
+Composition and delivery need only a class schema, which a fresh clone / CI
+has (``rvt.schema.load_schema()`` falls back to the bundled genesis base's
+own ``Formats/Latest``); the loader-mechanism tests that read the sample
+projects skip when ``samples/`` is absent.
 """
 from __future__ import annotations
 
 import os
 import struct
+from functools import partial
 
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RFA = os.path.join(ROOT, "vendor", "phi-ag-rvt", "examples", "Autodesk",
-                   "racbasicsamplefamily-2026.rfa")
 RME = os.path.join(ROOT, "samples", "rmebasicsampleproject.rvt")
 RST = os.path.join(ROOT, "samples", "rstbasicsampleproject.rvt")
-HAVE_RFA = os.path.exists(RFA)
 HAVE_RME = os.path.exists(RME)
 HAVE_RST = os.path.exists(RST)
-HAVE_SCHEMA = os.path.exists(os.path.join(
-    ROOT, "extracted", "racbasicsampleproject", "Formats__Latest.gz", "000.bin")) \
-    or HAVE_RFA
 
 from rvt.famgen import factory as F                            # noqa: E402
 from rvt.famgen import skeleton as SK                           # noqa: E402
 from rvt.famgen import geometry as G                            # noqa: E402
 
-needs_rfa = pytest.mark.skipif(not (HAVE_RFA and HAVE_SCHEMA),
-                               reason="sample .rfa / schema absent")
+
+def _have_schema() -> bool:
+    """A class schema loads: the extracted corpus blob or, on a fresh clone /
+    CI, the sha-pinned bundled base's embedded copy (load_schema's fallback)."""
+    try:
+        from rvt.schema import load_schema
+        load_schema()
+        return True
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+HAVE_SCHEMA = _have_schema()
 needs_rme = pytest.mark.skipif(not HAVE_RME, reason="rme sample absent")
-needs_schema = pytest.mark.skipif(not HAVE_SCHEMA, reason="schema absent")
+needs_schema = pytest.mark.skipif(
+    not HAVE_SCHEMA, reason="no class schema (extracted corpus and bundled base both absent)")
 
 
 # ---------------------------------------------------------------------------
@@ -296,7 +306,7 @@ def test_composition_roundtrips_and_forms_a_closed_graph():
 # 3. delivery + provenance
 # ---------------------------------------------------------------------------
 
-@needs_rfa
+@needs_schema
 def test_panelboard_rfa_verifies_validates_and_is_provenance_clean(tmp_path):
     prod = F.make_panelboard(vendor="eaton", line="pow-r-line", mains_a=400,
                               spaces=42, voltage="480Y/277", mcb=True)
@@ -323,6 +333,46 @@ def test_panelboard_rfa_verifies_validates_and_is_provenance_clean(tmp_path):
     assert prov["checks"]["formats_latest_is_format_constant"]
     assert rep["container_mode"] == "bundled-base"
     assert os.path.exists(rep["report_path"])
+
+
+#: every product kind the ``make_family`` CLI advertises, with its defaults
+ALL_KINDS = {
+    "panelboard": F.make_panelboard,
+    "transformer": F.make_transformer,
+    "troffer": partial(F.make_luminaire, kind="recessed-troffer"),
+    "downlight": partial(F.make_luminaire, kind="downlight"),
+}
+
+
+@needs_schema
+@pytest.mark.parametrize("kind", sorted(ALL_KINDS))
+def test_every_kind_writes_a_family_mode_valid_provenance_clean_rfa(tmp_path, kind):
+    """Each advertised kind composes AND writes from the bundled base:
+    read-back clean, family-mode VALID (0 errors), provenance ledger all
+    green.  (Validator green is necessary, not certification -- rule 4.)"""
+    prod = ALL_KINDS[kind]()
+    assert prod.doc.finalized and len(prod.doc.connectors) >= 1
+    rep = prod.write(str(tmp_path / f"{kind}.rfa"), validate=True, provenance=True)
+    assert rep["ok"], rep.get("caveats")
+    assert rep["verify"]["ok"], rep["verify"]
+    fam = rep["validate"]["family_mode"]
+    assert fam["verdict"] == "VALID" and fam["n_errors"] == 0, fam.get("errors")
+    prov = rep["provenance"]
+    assert prov["ok"] and prov["suspects"] == [], prov.get("suspects")
+    assert os.path.getsize(rep["path"]) > 100_000
+
+
+@needs_schema
+def test_connector_refuses_a_host_that_is_not_a_4_curve_prism():
+    """add_connector speaks box_face's _box_tags(4): a true two-arc cylinder
+    host is refused, not silently mis-tagged."""
+    doc = SK.new_family_document("lighting_fixture", "Guard", work_plane_based=True)
+    ctx = F.geometry_context(doc)
+    cyl = G.cylinder(0.25, 0.5, ctx, doc.ids)
+    doc.add(*cyl.elements)
+    with pytest.raises(F.FactoryError, match="4-curve prism"):
+        F.add_connector(doc, host=cyl, face="top", location=(0, 0, 0.5),
+                        direction=(1, 0, 0), u_axis=(0, 0, -1), voltage_v=120, poles=1)
 
 
 def test_provenance_scan_whitelists_forge_vocabulary_only():

@@ -31,8 +31,25 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RFA_2026 = G.SAMPLE_RFA
 RME = os.path.join(ROOT, "samples", "rmebasicsampleproject.rvt")
 
+
+def _have_schema() -> bool:
+    """A class schema loads: the extracted corpus blob or, on a fresh clone /
+    CI, the sha-pinned bundled base's embedded copy (load_schema's fallback)."""
+    try:
+        from rvt.schema import load_schema
+        load_schema()
+        return True
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+HAVE_SCHEMA = _have_schema()
 needs_rfa = pytest.mark.skipif(not os.path.exists(RFA_2026), reason="rfa sample missing")
 needs_rme = pytest.mark.skipif(not os.path.exists(RME), reason="rme sample missing")
+# element bundles round-trip against the schema alone; ``ctx`` falls back to
+# the from-scratch FamilyDocContext defaults when the sample .rfa is absent
+needs_schema = pytest.mark.skipif(
+    not HAVE_SCHEMA, reason="no class schema (extracted corpus and bundled base both absent)")
 
 
 class _Ids:
@@ -179,7 +196,7 @@ def test_specimen_box_topology_reproduced_from_dimensions(eid, strict):
 # element bundles
 # ---------------------------------------------------------------------------
 
-@needs_rfa
+@needs_schema
 @pytest.mark.parametrize("rep", [G.REP_SOLID, G.REP_DUMMY])
 def test_box_bundle_schema_roundtrip(ctx, rep):
     fb = G.box(G.mm(500), G.mm(300), G.mm(700), ctx, _Ids(), rep=rep)
@@ -211,7 +228,7 @@ def test_box_bundle_schema_roundtrip(ctx, rep):
     assert sp.obj["m_oPlaneRef"]["value"]["m_datumPlaneId"] == ctx.level_id
 
 
-@needs_rfa
+@needs_schema
 def test_plate_and_polygonal_cylinder_roundtrip(ctx):
     for fb in (G.plate(G.mm(400), G.mm(600), G.mm(3), ctx, _Ids()),
                G.polygon_cylinder(G.mm(75), G.mm(150), ctx, _Ids())):
@@ -237,7 +254,7 @@ def test_circle_loop_tags_and_gstep():
     assert eh[(2, 1, 0, -1)] == 8 and eh[(2, 0, 1, -1)] == 9  # V1 lateral / closing
 
 
-@needs_rfa
+@needs_schema
 def test_solid_cylinder_brep_structure(ctx):
     c = G.circle_profile((1.0, 2.0), 0.25)
     s = G.solid_cylinder_brep([c], 0.0, 1.5, element_id=99, geometry_style_id=4087)
@@ -335,7 +352,7 @@ def test_specimen_cylinders_reproduced_from_dimensions():
     assert r["ok"]
 
 
-@needs_rfa
+@needs_schema
 @pytest.mark.parametrize("rep", [G.REP_SOLID, G.REP_DUMMY])
 def test_cylinder_bundle_schema_roundtrip(ctx, rep):
     fb = G.cylinder(G.inches(3), G.mm(190), ctx, _Ids(), center=(1.0, 1.0), rep=rep)

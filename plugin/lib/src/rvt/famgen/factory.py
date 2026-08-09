@@ -807,6 +807,12 @@ def add_connector(doc: SK.FamilyDoc, *, host: G.FormBundle, face: str,
     ext = host.by_class("ExtrusionElem")
     if not ext:
         raise FactoryError("host form has no ExtrusionElem")
+    if len(host.params.get("vertices") or ()) != 4:
+        # box_face() speaks _box_tags(4): a straight 4-curve prism_form bundle
+        # (box / plate / polygon_cylinder).  A two-arc G.cylinder has another
+        # cap/edge tag map -- refuse it loudly rather than mis-tag the connector.
+        raise FactoryError(f"host form {host.kind!r} is not a 4-curve prism; "
+                           "box_face tags would not address its faces")
     fx = box_face(face)
     lc = next((l for l in doc.load_classes
                if l.obj.get("m_name") == load_class or
@@ -1200,9 +1206,14 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                           "dims_in": [facts.get("length_in"), facts.get("width_in"),
                                       facts.get("height_in")]})
     else:
+        # the inscribed 4-gon prism (G.polygon_cylinder), NOT the true two-arc
+        # G.cylinder: it shares the box topology template, so box_face('top') /
+        # add_connector address its top cap exactly as they do a box's; the
+        # curved CylSurf can is phase 2 (its cap/edge tags differ)
         ctx = geometry_context(doc)
-        fb = G.cylinder(L / 2.0, Hh, ctx, doc.ids, base_z_ft=0.0, center=(0.0, 0.0),
-                        rep=G.REP_SOLID if solid else G.REP_DUMMY, segments=4)
+        fb = G.polygon_cylinder(L / 2.0, Hh, ctx, doc.ids, base_z_ft=0.0,
+                                center=(0.0, 0.0),
+                                rep=G.REP_SOLID if solid else G.REP_DUMMY)
         doc.add(*fb.elements)
         fb.params.update({"role": "downlight housing can (polygonal approximation)",
                           "dims_in": [facts.get("can_diameter_in"),

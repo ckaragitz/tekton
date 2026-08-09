@@ -37,9 +37,24 @@ HAVE_TOOL = os.path.exists(GA_TOOL)
 
 from rvt.famgen import famdoc_adoc as FA                    # noqa: E402
 
+
+def _have_schema() -> bool:
+    """A class schema loads: the extracted corpus blob or, on a fresh clone /
+    CI, the sha-pinned bundled base's embedded copy (load_schema's fallback)."""
+    try:
+        from rvt.schema import load_schema
+        load_schema()
+        return True
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+HAVE_SCHEMA = _have_schema()
 needs_rfa = pytest.mark.skipif(not HAVE_RFA, reason="archetype .rfa absent")
 needs_stack = pytest.mark.skipif(not (HAVE_RFA and HAVE_TOOL),
                                  reason="archetype .rfa or genesis-2 assembler absent")
+needs_schema = pytest.mark.skipif(
+    not HAVE_SCHEMA, reason="no class schema (extracted corpus and bundled base both absent)")
 
 
 # ---------------------------------------------------------------------------
@@ -160,7 +175,7 @@ def test_template_is_the_family_shape():
     assert tree["m_pPartitionTable"] is None           # no worksets in a family
 
 
-@needs_stack
+@needs_schema                       # our own document only: no archetype read
 def test_inventory_of_our_document(s0e_doc):
     inv = FA.derive_family_inventory(s0e_doc)
     assert inv.self_family_id == s0e_doc.self_family.elem_id
