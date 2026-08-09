@@ -22,6 +22,12 @@ downstream file (loaded chain, walls, equipment, shell/combined) inherits
 the identity from one edit, and the P0 provenance gate still ledgers the
 output against the untouched pinned base.
 
+Scope is the ELEMENT.  The container's second identity sink -- the
+``ProjectInformation`` CFB stream (a PartAtom zip Revit shows in file
+properties) -- is base-level residue owned by the identity-scrub work
+(issue #19, ``tools/genesis_assemble.our_project_information_zip``);
+:meth:`ProjectIdentity.as_json` already speaks that regenerator's keys.
+
 Determinism: the stage is a pure function of (base bytes, identity); the
 only day-varying input is the issue date, which honours
 ``SOURCE_DATE_EPOCH`` (the reproducible-builds convention) when set.
@@ -44,24 +50,25 @@ __all__ = ["PROJECT_STATUS_PROOF_ONLY", "FIELD_PARAMS", "ProjectIdentity",
 
 #: Project Status while the P0 deliverability gates (G2 identity / G3
 #: counsel / G4 content, TRACKER.md) are open -- the same word the manifest
-#: stamps on every output today.  The day ``status_gate`` reports
-#: ``deliverable`` this default must follow it (build.py records both).
+#: stamps on every output today.  ``status_gate`` runs at the END of the
+#: build on the deepest output, the identity is written at the START, so the
+#: word is a constant here and build.py flags any divergence after the gate.
 PROJECT_STATUS_PROOF_ONLY = "PROOF-ONLY"
 
-#: identity field -> (BuiltInParameter id on ProjectInfo, Revit's UI label).
-#: The ten AString parameters :func:`rvt.genesis.skeleton.new_project_info`
-#: authors, keyed by the constructor's own keyword names.
-FIELD_PARAMS: Dict[str, tuple] = {
-    "project_name": (GSK.BIP_PROJECT_NAME, "Project Name"),
-    "project_number": (GSK.BIP_PROJECT_NUMBER, "Project Number"),
-    "address": (GSK.BIP_PROJECT_ADDRESS, "Project Address"),
-    "client_name": (GSK.BIP_CLIENT_NAME, "Client Name"),
-    "project_status": (GSK.BIP_PROJECT_STATUS, "Project Status"),
-    "issue_date": (GSK.BIP_PROJECT_ISSUE_DATE, "Project Issue Date"),
-    "organization_name": (GSK.BIP_PROJECT_ORG_NAME, "Organization Name"),
-    "organization_description": (GSK.BIP_PROJECT_ORG_DESCRIPTION, "Organization Description"),
-    "building_name": (GSK.BIP_PROJECT_BUILDING_NAME, "Building Name"),
-    "author": (GSK.BIP_PROJECT_AUTHOR, "Author"),
+#: identity field -> BuiltInParameter id on ProjectInfo: the ten AString
+#: parameters :func:`rvt.genesis.skeleton.new_project_info` authors, keyed
+#: by the constructor's own keyword names (== ``house_standard.PROJECT_INFO``).
+FIELD_PARAMS: Dict[str, int] = {
+    "project_name": GSK.BIP_PROJECT_NAME,
+    "project_number": GSK.BIP_PROJECT_NUMBER,
+    "address": GSK.BIP_PROJECT_ADDRESS,
+    "client_name": GSK.BIP_CLIENT_NAME,
+    "project_status": GSK.BIP_PROJECT_STATUS,
+    "issue_date": GSK.BIP_PROJECT_ISSUE_DATE,
+    "organization_name": GSK.BIP_PROJECT_ORG_NAME,
+    "organization_description": GSK.BIP_PROJECT_ORG_DESCRIPTION,
+    "building_name": GSK.BIP_PROJECT_BUILDING_NAME,
+    "author": GSK.BIP_PROJECT_AUTHOR,
 }
 
 
@@ -69,7 +76,10 @@ FIELD_PARAMS: Dict[str, tuple] = {
 class ProjectIdentity:
     """The ten Project Information strings a job writes.  Empty means
     'not known for this job' (Revit shows a blank field) -- never a base
-    placeholder carried over."""
+    placeholder carried over.  Number / client / building / address /
+    organisation stay blank until the intent model carries them (the spec's
+    ``project`` block and ``IfcProject.LongName/Phase`` are not threaded
+    through ``rvt.ifc.intent`` yet); status and author are the product's."""
     project_name: str
     project_number: str = ""
     address: str = ""
@@ -83,7 +93,7 @@ class ProjectIdentity:
 
     def params(self) -> Dict[int, str]:
         """``{BuiltInParameter id: value}`` for :func:`rvt.manipulate.set_param`."""
-        return {FIELD_PARAMS[f.name][0]: str(getattr(self, f.name)) for f in fields(self)}
+        return {FIELD_PARAMS[f.name]: str(getattr(self, f.name)) for f in fields(self)}
 
     def as_json(self) -> Dict[str, str]:
         return asdict(self)
@@ -99,24 +109,12 @@ def build_date(now: Optional[float] = None) -> str:
     return time.strftime("%Y-%m-%d", time.gmtime(now))
 
 
-def identity_from_intent(model: Any, *, issue_date: Optional[str] = None,
-                         **known: str) -> ProjectIdentity:
-    """Resolve a job's :class:`ProjectIdentity` from its intent model.
-
-    The intent (``rvt.ifc.intent.IntentModel``, spec v2) carries the project
-    NAME on every route (prompt: the room's name; IFC: ``IfcProject.Name``);
-    number / client / building / address / organisation ride in ``known``
-    when a caller has them (empty otherwise -- the spec's ``project`` block
-    and ``IfcProject.LongName/Phase`` are not threaded through the intent
-    model yet).  Status and author are the product's, not the caller's."""
-    unknown = set(known) - set(FIELD_PARAMS)
-    if unknown:
-        raise ValueError(f"unknown ProjectInfo field(s): {sorted(unknown)} "
-                         f"(known: {sorted(FIELD_PARAMS)})")
-    name = str(getattr(model, "project_name", "") or "").strip()
-    return ProjectIdentity(project_name=name,
-                           issue_date=issue_date or build_date(),
-                           **{k: str(v) for k, v in known.items()})
+def identity_from_intent(model: Any, *, issue_date: Optional[str] = None) -> ProjectIdentity:
+    """A job's :class:`ProjectIdentity` from its intent model
+    (``rvt.ifc.intent.IntentModel``): the project NAME on every route
+    (prompt: the room's name; IFC: ``IfcProject.Name``) + the build date."""
+    return ProjectIdentity(project_name=str(model.project_name or "").strip(),
+                           issue_date=issue_date or build_date())
 
 
 def read_project_info(doc: Any) -> Dict[str, Any]:
@@ -129,7 +127,7 @@ def read_project_info(doc: Any) -> Dict[str, Any]:
     pset = (((doc.value(eid).get("m_pParamValueSetAString") or {}).get("value") or {})
             .get("m_paramSet") or [])
     params = {int(p["m_paramId"]): p.get("m_value") for p in pset if isinstance(p, dict)}
-    by_pid = {pid: name for name, (pid, _label) in FIELD_PARAMS.items()}
+    by_pid = {pid: name for name, pid in FIELD_PARAMS.items()}
     return {"elem_id": eid, "params": params,
             "fields": {by_pid[pid]: v for pid, v in params.items() if pid in by_pid}}
 
@@ -151,10 +149,8 @@ def stage_project_info(src_rvt: str, out_path: str, ident: ProjectIdentity) -> D
     from .. import manipulate as M
     from ..mutate import Document
 
-    rec: Dict[str, Any] = {"stage": "P", "what": "job identity -> ProjectInfo",
-                           "in": src_rvt, "out": out_path, "ok": False,
+    rec: Dict[str, Any] = {"stage": "P", "in": src_rvt, "out": out_path, "ok": False,
                            "identity": ident.as_json()}
-    t0 = time.perf_counter()
     try:
         doc = Document.from_file(src_rvt)
         before = read_project_info(doc)
@@ -171,14 +167,12 @@ def stage_project_info(src_rvt: str, out_path: str, ident: ProjectIdentity) -> D
         after = read_project_info(Document.from_file(out_path))
         rec["after"] = after["fields"]
         rec["mismatch"] = {k: {"wanted": v, "got": after["fields"].get(k)}
-                           for k, v in ident.as_json().items() if after["fields"].get(k) != v}
+                           for k, v in rec["identity"].items() if after["fields"].get(k) != v}
         rec["ok"] = bool(list(crep.replaced) == [(102, eid)] and not crep.removed_ids
                          and crep.elemtable_count_before == crep.elemtable_count_after
                          and after["elem_id"] == eid and not rec["mismatch"])
         if not rec["ok"]:
             rec["blocker"] = "ProjectInfo edit did not land cleanly (see commit / mismatch)"
     except Exception as e:                                               # noqa: BLE001
-        rec["error"] = f"{type(e).__name__}: {e}"
-        rec["blocker"] = rec["error"]
-    rec["elapsed_s"] = round(time.perf_counter() - t0, 2)
+        rec["blocker"] = f"{type(e).__name__}: {e}"
     return rec

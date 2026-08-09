@@ -38,10 +38,11 @@ Decoded from `plugin/assets/genesis/G_ABPD.rvt` (element **49504**, class
   base placeholder), `FIELD_PARAMS` (field → BuiltInParameter id + Revit UI
   label, the ten ids `genesis.skeleton.new_project_info` authors),
   `build_date()` (ISO UTC; honours `SOURCE_DATE_EPOCH`),
-  `identity_from_intent(model, issue_date=None, **known)` (name from the
-  intent on every route — prompt: the room's name; IFC: `IfcProject.Name`;
-  number/client/building/address/organisation via `known` when a caller has
-  them), `read_project_info(doc)` (decode the singleton), and
+  `identity_from_intent(model, issue_date=None)` (name from the intent on
+  every route — prompt: the room's name; IFC: `IfcProject.Name` — plus the
+  build date; number/client/building/address/organisation stay blank until
+  the intent model carries them), `read_project_info(doc)` (decode the
+  singleton), and
   **`stage_project_info(src, out, ident)`** = the certified MODIFY shape
   (matrix M3): ten `rvt.manipulate.set_param` edits on ONE existing element,
   ONE `commit_plans` (unit 0 re-emitted, everything else copied), then a
@@ -55,15 +56,17 @@ Decoded from `plugin/assets/genesis/G_ABPD.rvt` (element **49504**, class
   inherits the identity from one edit. `BuildResult.project_info` carries
   the stage record; a failed stage degrades (named degradation, build
   continues on the pinned base — hard rule 1: a missing identity never
-  costs the user the file).
+  costs the user the file). After the V gates, an executable coupling: if
+  the P0 gate ever reports `deliverable` while the written Project Status is
+  still `PROOF-ONLY`, a degradation names the stale default.
 * **`src/rvt/frontdoor/manifest.py`** — `build.project_info` (identity,
-  elem_id, before/after fields, commit report, mismatch, elapsed) in
+  elem_id, before/after fields, commit report, mismatch) in
   `manifest.json`; one `project information (ProjectInfo 49504): …` line in
   `MANIFEST.md`.
 * **Tests (`tests/test_frontdoor.py` §8, in the CI shard, no `samples/`):**
-  `test_project_identity_maps_the_ten_builtin_params` (BIP mapping,
-  defaults, hard-rule-6 author, unknown field → `ValueError`,
-  `SOURCE_DATE_EPOCH`), `test_stage_p_edits_only_projectinfo_and_is_deterministic[2026|2025|2024]`
+  `test_project_identity_maps_the_ten_builtin_params` (BIP mapping ==
+  the ten `house_standard.PROJECT_INFO` fields, defaults, hard-rule-6
+  author, `SOURCE_DATE_EPOCH`), `test_stage_p_edits_only_projectinfo_and_is_deterministic[2026|2025|2024]`
   (on each pinned base under its own release context: values land incl.
   number/client/building; `verify_manipulated` clean; **`reduce_law.element_diff(base, out)`:
   removed = added = ∅, modified == {49504: [102]}** — the ProjectInfo record
@@ -103,7 +106,8 @@ Decoded from `plugin/assets/genesis/G_ABPD.rvt` (element **49504**, class
 | bare unzip of `tekton-plugin.zip`, system `python3`, `_bootstrap.py go author --prompt …` | ✔ (`go.ready` true) | 0.41* | VALID · 0 errors | 6.9 wall |
 
 `*` measured before the stage's whole-file `verify_manipulated` sweep was
-dropped (see §4); the lean stage is 0.25 s on every base.
+dropped (see §4); the lean stage is 0.24–0.25 s on every base (re-checked
+on the final code: `out/pi3`, P 0.24 s, VALID 0 errors).
 `tools/rvt_validate.py` on all four outputs: `{'error': 0}` each.
 
 **Latency (S-2026-08-09-g), same prompt, `--no-handoff`, 3 runs each,
@@ -144,9 +148,20 @@ test_surface_perf.py` 26 passed / 4 skipped; `check_portable_paths.py` ok
    (`spec/building.schema.json` `project.{number,buildingName,client,
    organisation,address,issueDate}`), `IfcProject.LongName/Phase` (steplite
    already serves them) and a prompt clause ("… for the Riverside Clinic
-   project") are the natural sources. `identity_from_intent(**known)` is the
-   seam; threading those sources is a follow-up outside this issue's
-   territory (filed below).
+   project") are the natural sources. `ProjectIdentity` already has the
+   fields (tested on the right BIPs); threading those sources through the
+   intent model is a follow-up outside this issue's territory (filed below).
+6. **`/simplify` pass (4 reviewers):** applied — `FIELD_PARAMS` as a plain
+   field→BIP map, no unused `**known` seam, one clock (`_timed_stage`), the
+   stage row via `_slim_stage`, the executable status coupling, honest
+   wording about the second identity sink. Skipped with reasons — gating P
+   on `opts.stages` (the hot-file CLI hard-codes `--stages FLWECV`, so a `P`
+   letter would silently disable the feature; research probes go through
+   `tools/ifc_intent.build_room`, which never runs P), literal BIP ints /
+   lazy imports (+25 ms import only for non-building importers of
+   `rvt.frontdoor.build`), a single-record re-read (~60 ms, more code), one
+   `modify_element` instead of ten `set_param` (1 ms; `set-param` is the
+   issue-mandated verb).
 4. **Out of scope, recorded:** the pinned bases' `ProjectInformation` CFB
    *stream* (the PartAtom zip Revit shows in file properties, not the
    element) still carries the rst sample's residue — title

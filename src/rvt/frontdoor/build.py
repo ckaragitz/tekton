@@ -443,23 +443,18 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
          want_walls: bool, want_fams: bool, stages_dir: str) -> None:
     out_dir = opts.out_dir
     base_path = opts.base.path        # the pinned base: the P0 gate's reference
-    src_base = base_path              # what L / W grow on (base + the job identity)
 
     # ------------------------------------------------------------------
     # P. the job's identity -> the base's ProjectInfo (one modify, first,
     #    so every downstream file inherits it; issue #148)
     # ------------------------------------------------------------------
+    p_out = os.path.join(stages_dir, "stage_P_identity.rvt")
     with _timed_stage(res):
-        ident = PI.identity_from_intent(model)
-        p_out = os.path.join(stages_dir, "stage_P_identity.rvt")
-        prec = PI.stage_project_info(base_path, p_out, ident)
-        res.project_info = {k: (_relp(v) if k in ("in", "out") else v)
-                            for k, v in prec.items()}
-        res.stages.append({"stage": "P", "ok": prec.get("ok"), "elem_id": prec.get("elem_id"),
-                           "blocker": prec.get("blocker")})
-    if prec.get("ok"):
-        src_base = p_out
-    else:
+        prec = PI.stage_project_info(base_path, p_out, PI.identity_from_intent(model))
+        res.stages.append(_slim_stage(prec))
+    res.project_info = {**prec, "in": _relp(base_path), "out": _relp(p_out)}
+    src_base = p_out if prec["ok"] else base_path     # what L / W grow on
+    if not prec["ok"]:
         res.degradations.append("job identity NOT written into ProjectInfo: "
                                 + str(prec.get("blocker"))
                                 + " -> the output keeps the base's placeholder Project "
@@ -698,6 +693,13 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                 except Exception as e:                                   # noqa: BLE001
                     res.status_gate = {"status": f"PROOF-ONLY, NOT-DELIVERABLE (gate crashed: "
                                                  f"{type(e).__name__}: {e})", "deliverable": False}
+                # the Project Status written in stage P mirrors this gate's stamp;
+                # the day the gate says deliverable, that constant must follow it
+                written = (res.project_info.get("after") or {}).get("project_status")
+                if res.status_gate.get("deliverable") and written == PI.PROJECT_STATUS_PROOF_ONLY:
+                    res.degradations.append(
+                        f"ProjectInfo Project Status reads '{written}' but the P0 gate now says "
+                        "DELIVERABLE -- rvt.frontdoor.project_info's default is stale")
             res.stages.append({"stage": "V", "files": sorted(res.validation),
                                "gates": gate_seconds})
     elif not opts.validate:

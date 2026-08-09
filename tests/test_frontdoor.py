@@ -707,19 +707,20 @@ class _FakeIntent:
 
 
 def test_project_identity_maps_the_ten_builtin_params(monkeypatch):
-    ident = PI.identity_from_intent(_FakeIntent(), issue_date="2026-08-09",
-                                    project_number="RC-01", client_name="Riverside Health")
+    from dataclasses import replace
+    from rvt.genesis import house_standard as HS
+    ident = PI.identity_from_intent(_FakeIntent(), issue_date="2026-08-09")
     assert ident.project_name == "Riverside Clinic"
     assert ident.project_status == PI.PROJECT_STATUS_PROOF_ONLY == "PROOF-ONLY"
     assert ident.author == PRODUCT_AUTHOR_PLACEHOLDER          # hard rule 6
-    params = ident.params()
-    assert set(params) == {pid for pid, _ in PI.FIELD_PARAMS.values()} and len(params) == 10
+    # the same ten fields the genesis constructor authors, one BIP each
+    assert set(PI.FIELD_PARAMS) == set(HS.PROJECT_INFO) and len(set(PI.FIELD_PARAMS.values())) == 10
+    params = replace(ident, project_number="RC-01", client_name="Riverside Health").params()
+    assert set(params) == set(PI.FIELD_PARAMS.values())
     assert params[-1006317] == "Riverside Clinic" and params[-1006316] == "RC-01"
     assert params[-1006319] == "Riverside Health" and params[-1006320] == "PROOF-ONLY"
     assert params[-1006321] == "2026-08-09" and params[-1019008] == PRODUCT_AUTHOR_PLACEHOLDER
     assert params[-1019005] == "" and params[-1019007] == ""   # unknown -> blank, never a placeholder
-    with pytest.raises(ValueError):
-        PI.identity_from_intent(_FakeIntent(), phase="New Construction")
     # the issue date is the build date: SOURCE_DATE_EPOCH pins it, else today (UTC)
     monkeypatch.setenv("SOURCE_DATE_EPOCH", "1780000000")      # 2026-05-28T..Z
     assert PI.build_date() == "2026-05-28"
@@ -740,9 +741,9 @@ def test_stage_p_edits_only_projectinfo_and_is_deterministic(tmp_path, release):
     from rvt import reduce_law as RL
     from rvt.frontdoor import release_ctx as RC
     base = PINNED[release]
-    ident = PI.identity_from_intent(_FakeIntent(), issue_date="2026-08-09",
-                                    project_number="RC-01", client_name="Riverside Health",
-                                    building_name="Clinic Block A")
+    ident = PI.ProjectIdentity(project_name="Riverside Clinic", issue_date="2026-08-09",
+                               project_number="RC-01", client_name="Riverside Health",
+                               building_name="Clinic Block A")
     out1, out2 = str(tmp_path / "p1.rvt"), str(tmp_path / "p2.rvt")
     with RC.release_build_context(base):
         rec = PI.stage_project_info(base, out1, ident)

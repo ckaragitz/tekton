@@ -502,7 +502,7 @@ def _render_md(m: Dict[str, Any]) -> str:
         ident = pi.get("after") or {}
         ap(f"- project information (ProjectInfo {pi.get('elem_id')}): "
            + ", ".join(f"{k}='{v}'" for k, v in ident.items() if v)
-           + " (every other field blank)")
+           + " (the element's other fields blank)")
     for role, g in (build.get("validation") or {}).items():
         val = (g or {}).get("validate") or {}
         idg = (g or {}).get("identity") or {}
