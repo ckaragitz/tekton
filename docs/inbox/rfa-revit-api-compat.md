@@ -331,3 +331,40 @@ Gates: required_settings+famgen_skeleton+famgen_factory+selfcontained →
 79 passed / 17 skipped; sync_plugin run (zip rebuilt) + validate_plugin
 PASS; probe M validator VALID 0 errors + provenance ok.  Awaiting the
 owner's desktop verdict on probe M (File > Open + canvas click).
+
+## Iteration 7 — viewer law CONVICTED; the DIMENSION-STYLE LAW (rounds 14-15)
+
+**Round 14 void:** probe M was an instrument error (plain `prod.write()` →
+252-byte host-ADocument stub → `Failed to load elemStream#0` on both open
+paths).  Voided; corrected pair M2 (law) / M0 (control) built via
+`standalone_family_write`, both host ADocument 65,249 B.
+
+**Round 15 verdicts (journals 0024/0025) — the cleanest pair yet:**
+* **M0 (control):** BoundedSpace + safeSqrt warnings present; middle-mouse
+  pan → 0xc0000005 in ViewManipEditor (same as L1/L2).
+* **M2 (viewer law):** ZERO BoundedSpace/safeSqrt warnings — first time in
+  the campaign; zoom + first click fine; **the viewer law is convicted and
+  fixed** (PR #336 now carries desktop evidence).  New, LATER failure:
+  selecting the panel body → `DBG_WARN: Where is the DimensionStyle?
+  (LinearDimStringState.cpp:106)` then `LinearDimString.cpp:331` assert,
+  0xe06d7363 — temporary dimensions can't resolve a default style.
+
+**The dimension-style law (measured on the donor's EMBEDDED famdoc, unit 1
+ids 2642-2652 + its inline ADocument):** the default linear DimensionStyle
+is registered in `SymbolIdMgr.m_defElementTypeMap` under key 10; the style's
+constellation is DimensionStyle + LeaderStyle ("Diagonal" arrowhead) + 4
+anonymous CategoryElems (parent -2000059, type 4; leader/text/tick/
+centerline) each owning ONE GStyleElem line style + FontElem (Arial 3/32").
+Our M2 file's map had 0 entries and no style elements — the literal state
+of the warning.  (This is also the first authored slice of the in-document
+style subsystem — the standing GStyleElem lead.)
+
+**Landed:** `new_dimension_style_constellation` in `famgen/skeleton.py`
+(11 schema-built elements, donor-measured constants only) + famdoc_adoc
+step 4c registering key 10.  **Probe N** (`probe_n_dimstyle.rfa`, = M2 +
+this law) with the owner; validator VALID 0 errors; famgen suites 87
+passed / 28 skipped.  Donor structure note for the record: the donor .rfa
+is TWO units (unit 0 = the 2,054-element host/editor doc, unit 1 = the
+224-element embedded famdoc — the true minimal family inventory) + a
+ContentDocuments inline ADocument; our flat single-unit shape has no
+ContentDocuments row (accepted by load-into-project so far).

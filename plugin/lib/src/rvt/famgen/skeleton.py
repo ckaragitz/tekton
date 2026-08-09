@@ -477,6 +477,170 @@ def new_required_settings(ids, self_family_id: int) -> List[SkelElement]:
     return out
 
 
+def _dim_format_options(unit: str = "autodesk.unit.unit:meters-1.0.0", *,
+                        symbol: str = "", accuracy: float = 1.0,
+                        use_default: bool = True) -> dict:
+    return {"m_symbolTypeId": {"m_typeId": symbol},
+            "m_unitTypeId": {"m_typeId": unit},
+            "m_accuracy": float(accuracy), "m_roundingMethod": 0,
+            "m_bSuppressLeadingZeros": False, "m_bSuppressSpaces": False,
+            "m_bSuppressTrailingZeros": False, "m_bUseDefault": bool(use_default),
+            "m_bUseGrouping": False, "m_bUsePlusPrefix": False}
+
+
+def new_dimension_style_constellation(ids, self_family_id: int) -> Tuple[int, List[SkelElement]]:
+    """The DIMENSION-STYLE LAW (issue #333, desktop round 15): selecting any
+    element in the family editor spawns temporary dimensions, and the lookup
+    behind them dies without a registered default linear ``DimensionStyle``
+    (journal: ``Where is the DimensionStyle?  LinearDimStringState.cpp:106``
+    then the ``LinearDimString.cpp:331`` assert).
+
+    Returns ``(dim_style_id, elements)``: the donor-measured 11-element
+    constellation of the default style -- ``LeaderStyle`` ("Diagonal"
+    arrowhead) + ``DimensionStyle`` ("Diagonal" linear), each ``CategoryElem``
+    they reference (leader / text / tick / centerline; anonymous categories,
+    parent -2000059, type 4) carrying ONE ``GStyleElem`` line style, plus the
+    text ``FontElem`` (Arial 3/32").  Every scalar was measured on the owner's
+    Revit-2026-born donor famdoc (unit-1 ids 2642-2652); nothing is copied --
+    all schema-built.  ``famdoc_adoc`` registers the style as the document
+    default in ``SymbolIdMgr.m_defElementTypeMap`` (key 10, the donor's
+    linear-dimension slot).
+    """
+    from ..genesis.types import blank_object as _blank
+    fam = int(self_family_id)
+
+    def _base(cls: str, eid: int, **fields) -> dict:
+        o = _blank(cls)
+        o.update({"m_id": int(eid), "m_famId": fam,
+                  "m_docAccess": {"m_pDoc": _weak(1)},
+                  "m_assocLevelId": -1, "m_unplacedOwnerId": -1,
+                  "m_ownerDBViewId": -1, "m_createdPhaseId": -1,
+                  "m_demolishedPhaseId": -1, "m_designOptionId": -4})
+        o.update(fields)
+        return o
+
+    def _el(cls, eid, o, deletion, *, flags, kind):
+        hdr = element_header(cls, category=-1, deletion=deletion, flags=flags,
+                             visible_view_flags=-32768)
+        return SkelElement(int(eid), cls, hdr, o, None, kind=kind)
+
+    def _category_elem(eid: int, owner_id: int, gstyle_id: int) -> SkelElement:
+        o = _base("CategoryElem", eid, m_ownerId=int(owner_id),
+                  m_pCategory={"ptr_class": "Category", "pid": -1, "value": {
+                      "m_name": "", "m_parentCategoryId": -2000059,
+                      "m_categoryType": 4, "m_flags": 7}},
+                  m_gstyleIds=[int(gstyle_id)])
+        return _el("CategoryElem", eid, o, [fam, int(owner_id), eid, int(gstyle_id)],
+                   flags=8202, kind="dim-style-category")
+
+    def _gstyle_elem(eid: int, category_id: int, *, pen: int, color: int,
+                     line_pattern: int) -> SkelElement:
+        o = _base("GStyleElem", eid, m_categoryId=int(category_id), m_gstyleType=1,
+                  m_pGStyle={"ptr_class": "GStyle", "pid": -1, "value": {
+                      "m_linePatternId": int(line_pattern), "m_materialElemId": -1,
+                      "m_penNumber": int(pen), "m_color": int(color),
+                      "m_isScreenSized": False}})
+        return _el("GStyleElem", eid, o, [fam, int(category_id), eid],
+                   flags=8202, kind="dim-style-gstyle")
+
+    leader_id = _alloc(ids); leader_cat = _alloc(ids); leader_g = _alloc(ids)
+    dim_id = _alloc(ids); text_cat = _alloc(ids); text_g = _alloc(ids)
+    font_id = _alloc(ids); tick_cat = _alloc(ids); tick_g = _alloc(ids)
+    center_cat = _alloc(ids); center_g = _alloc(ids)
+
+    lo = _base("LeaderStyle", leader_id, m_categoryId=leader_cat,
+               m_tickType=0, m_arrowFilled=0,
+               m_symbolInfo={"ptr_class": "SymbolInfo", "pid": -1,
+                             "value": {"m_name": "Diagonal"}},
+               m_pParamValueSetDouble={"ptr_class": "ParamValueSetDouble", "pid": -1,
+                                       "value": {"m_paramSet": [
+                                           {"m_value": 0.5235987755982984, "m_paramId": -1006426},
+                                           {"m_value": 0.010416666666666666, "m_paramId": -1006424}]}})
+    leader = _el("LeaderStyle", leader_id, lo, [fam, leader_id, leader_cat],
+                 flags=14, kind="dim-style-leader")
+
+    do = _base("DimensionStyle", dim_id,
+               m_designOptionId=-1,
+               m_symbolInfo={"ptr_class": "SymbolInfo", "pid": -1,
+                             "value": {"m_name": "Diagonal"}},
+               m_pParamValueSetDouble={"ptr_class": "ParamValueSetDouble", "pid": -1,
+                                       "value": {"m_paramSet": [
+                                           {"m_value": 0.010416666666666666, "m_paramId": -1006465},
+                                           {"m_value": 0.0078125, "m_paramId": -1006433},
+                                           {"m_value": 0.0, "m_paramId": -1006431},
+                                           {"m_value": 0.010416666666666666, "m_paramId": -1006407},
+                                           {"m_value": 0.005208333333333333, "m_paramId": -1006405},
+                                           {"m_value": 0.0078125, "m_paramId": -1006404},
+                                           {"m_value": 0.005208333333333333, "m_paramId": -1006401},
+                                           {"m_value": 1.0, "m_paramId": -1006327}]}},
+               m_pParamValueSetElementId={"ptr_class": "ParamValueSetElementId", "pid": -1,
+                                          "value": {"m_paramSet": [
+                                              {"m_paramId": -1006430, "m_value": -1}]}},
+               m_alternateUnitsPrefix="", m_alternateUnitsSuffix="",
+               m_equalityFormattingArr=[{"m_labelType": 3, "m_leadingSpaces": 0,
+                                         "m_bLeadingParam": True, "m_prefix": "",
+                                         "m_suffix": "",
+                                         "m_formatOptions": _dim_format_options()}],
+               m_equalityText="EQ", m_radiusDiameterPrefixText="",
+               m_prefix="", m_suffix="",
+               m_oLinFormatOptions={"ptr_class": "FormatOptions", "pid": -1,
+                                    "value": _dim_format_options()},
+               m_oLinFormatOptionsAlternate={"ptr_class": "FormatOptions", "pid": -1,
+                                             "value": _dim_format_options(
+                                                 "autodesk.unit.unit:millimeters-1.0.1",
+                                                 use_default=False)},
+               m_oAngFormatOptions={"ptr_class": "FormatOptions", "pid": -1,
+                                    "value": _dim_format_options()},
+               m_oAngFormatOptionsAlternate={"ptr_class": "FormatOptions", "pid": -1,
+                                             "value": _dim_format_options(
+                                                 "autodesk.unit.unit:degrees-1.0.1",
+                                                 symbol="autodesk.unit.symbol:degree-1.0.1",
+                                                 accuracy=0.01, use_default=False)},
+               m_pLineAndTextAttr={"ptr_class": "LineAndTextAttr", "pid": -1,
+                                   "value": {"m_fontId": font_id,
+                                             "m_categoryId": text_cat,
+                                             "m_background": 0, "m_bBold": False,
+                                             "m_bItalic": False, "m_bUnderline": False}},
+               m_dimLineSnapDist=0.0, m_leaderShoulderLength=0.0,
+               m_tickCategoryId=tick_cat, m_heavyEndCatId=-1,
+               m_centerlinePatternCatId=center_cat, m_centerlineTickMarkStyleId=-2,
+               m_arrowHeadStyleId=leader_id, m_interiorTickMarkStyleId=leader_id,
+               m_leaderTickMarkStyleId=-1, m_witnessLineTickMarkStyleId=-1,
+               m_leaderDisplayCondition=1, m_leaderType=1, m_leaderTextLocation=0,
+               m_textAlignment=1, m_linearTickType=0, m_radialTickType=8,
+               m_dimensionStyleType=0, m_textLoc=0,
+               m_radiusDiameterSymbolLocation=0, m_equalityWitnessDisplay=0,
+               m_alternateUnits=0, m_interiorTickMarkDisplay=0, m_linearDimType=1,
+               m_arcCenterMark=True, m_radiusPrefix=False,
+               m_txtBackgroundTransparent=False, m_dimWitnCntrlExtBelow=False,
+               m_showOpeningHt=False, m_linearFilledTick=False,
+               m_radialFilledTick=False, m_suppressSpaces=False)
+    dim = _el("DimensionStyle", dim_id, do,
+              [fam, leader_id, dim_id, text_cat, font_id, tick_cat, center_cat],
+              flags=14, kind="dim-style")
+
+    fo = _base("FontElem", font_id, m_ownerId=dim_id,
+               m_pFont={"ptr_class": "Font", "pid": -1, "value": {
+                   "m_name": "Arial", "m_size": 0.0078125, "m_color": 16777216}})
+    font = _el("FontElem", font_id, fo, [fam, dim_id, font_id],
+               flags=8202, kind="dim-style-font")
+
+    els = [
+        leader,
+        _category_elem(leader_cat, leader_id, leader_g),
+        _gstyle_elem(leader_g, leader_cat, pen=5, color=4294967295, line_pattern=-1),
+        dim,
+        _category_elem(text_cat, dim_id, text_g),
+        _gstyle_elem(text_g, text_cat, pen=1, color=0, line_pattern=-3000010),
+        font,
+        _category_elem(tick_cat, dim_id, tick_g),
+        _gstyle_elem(tick_g, tick_cat, pen=5, color=0, line_pattern=-1),
+        _category_elem(center_cat, dim_id, center_g),
+        _gstyle_elem(center_g, center_cat, pen=1, color=0, line_pattern=-3000010),
+    ]
+    return dim_id, els
+
+
 def new_center_reference_planes(ids, self_family_id: int, *, gen_view_id: int = -1,
                                 length_ft: float = 10.0, height_ft: float = 10.0
                                 ) -> List[SkelElement]:
@@ -1138,6 +1302,7 @@ class FamilyDoc:
     views: List[SkelElement] = dc_field(default_factory=list)
     view_ids: Dict[str, int] = dc_field(default_factory=dict)
     plan_view_id: int = -1
+    dim_style_id: int = -1
     part_type: int = 0
     work_plane_based: bool = False
     finalized: bool = False
@@ -1545,6 +1710,12 @@ def new_family_document(category, name: str, *, host: str = "none",
     # demands these of every family document) -----------------------------
     for se in new_required_settings(ids, fam.elem_id):
         doc.add(se)
+    # -- the default dimension-style constellation (issue #333: temporary
+    # dimensions on selection need a registered default linear style) ------
+    dim_style_id, dim_els = new_dimension_style_constellation(ids, fam.elem_id)
+    for se in dim_els:
+        doc.add(se)
+    doc.dim_style_id = dim_style_id
     doc.types = []
     return doc
 
