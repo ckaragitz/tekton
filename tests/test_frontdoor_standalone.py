@@ -241,8 +241,9 @@ def test_constructed_templates_encode_decode_clean():
     d = Document.from_file(SA.bundled_base_path())
     rep = cs.inject_into(d)
     assert rep["constructed"] is True
-    assert set(rep["injected_ids"]) == {cs.wall_id, cs.instance_id}
-    for eid in (cs.wall_id, cs.instance_id):
+    assert cs.circuit_id and rep["circuit_specimen"] == cs.circuit_id
+    assert set(rep["injected_ids"]) == {cs.wall_id, cs.instance_id, cs.circuit_id}
+    for eid in (cs.wall_id, cs.instance_id, cs.circuit_id):
         for seq in (101, 102):
             o = d.decode(eid, seq)
             assert o is not None and o.clean, (eid, seq, o and o.errors[:2])

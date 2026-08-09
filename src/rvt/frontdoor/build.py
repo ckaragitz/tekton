@@ -687,20 +687,21 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                 _harvest_loaded_families(res, loaded)
 
     # ------------------------------------------------------------------
-    # C. circuits (rvt.mep territory; a NAMED BLOCKER on this base today)
+    # C. circuits: wired in stage E's commit; read back + verified here
     # ------------------------------------------------------------------
     deepest = res.deepest
     if "C" in opts.stages and deepest and model.feeders:
         with _timed_stage(res):
             crec = R.stage_circuits(model, deepest)
-            res.circuits = {k: v for k, v in crec.items() if k != "template_circuit"}
-            res.stages.append({"stage": "C", "planned": len(crec.get("circuits_planned") or []),
+            res.circuits = crec
+            res.stages.append({"stage": "C", "ok": crec.get("ok"),
+                               "planned": len(crec.get("circuits_planned") or []),
+                               "built": crec.get("circuits_built"),
+                               "links_ok": crec.get("links_ok"),
                                "blocker": crec.get("blocker")})
         if crec.get("blocker"):
-            res.degradations.append("feeder CIRCUITS not authored: " + str(crec.get("blocker"))
-                                    + " -- the resolved circuit PLAN rides in the manifest "
-                                      "(rvt.mep add_circuit / a Revit-side add-in build them "
-                                      "from it)")
+            res.degradations.append("feeder CIRCUITS incomplete: " + str(crec.get("blocker"))
+                                    + " -- the resolved circuit PLAN rides in the manifest")
 
     # ------------------------------------------------------------------
     # V. gates per emitted file
@@ -781,6 +782,17 @@ def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str) -> None:
                                 "frame_kind": i.get("frame_kind"),
                                 "connector_slots_panel": i.get("connector_slots_panel"),
                                 "file_role": rec.get("stage")})
+        for c in rec.get("circuits") or []:
+            res.created.append({"kind": "circuit", "tag": f"{c.get('panel')}>{c.get('load')}",
+                                "elem_id": c.get("elem_id"),
+                                "panel": c.get("panel"), "panel_id": c.get("panel_id"),
+                                "panel_slot": c.get("panel_slot"),
+                                "load": c.get("load"), "load_id": c.get("load_id"),
+                                "load_conn": c.get("load_conn"),
+                                "number": c.get("number"), "start_slot": c.get("start_slot"),
+                                "poles": c.get("poles"), "rating_a": c.get("rating_a"),
+                                "voltage": c.get("voltage"), "edge_kind": c.get("edge_kind"),
+                                "file_role": rec.get("stage")})
 
 
 def _harvest_loaded_families(res: BuildResult, loaded: Dict[str, Any]) -> None:
@@ -813,4 +825,11 @@ def _slim_stage(rec: Dict[str, Any]) -> Dict[str, Any]:
                              "symbol": i.get("symbol"), "family": i.get("family"),
                              "position_ft": i.get("position_ft"), "frame_kind": i.get("frame_kind"),
                              "n_dangling": i.get("n_dangling")} for i in rec["instances"]]
+    if "circuits" in rec:
+        out["circuits"] = [{"elem_id": c.get("elem_id"), "panel": c.get("panel"),
+                            "panel_slot": c.get("panel_slot"), "load": c.get("load"),
+                            "load_conn": c.get("load_conn"), "number": c.get("number"),
+                            "n_dangling": c.get("n_dangling")} for c in rec["circuits"]]
+        out["circuits_skipped"] = rec.get("circuits_skipped") or []
+        out["circuits_blocker"] = rec.get("circuits_blocker")
     return out
