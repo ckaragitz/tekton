@@ -130,3 +130,42 @@ def test_cli(tmp_path):
     out = subprocess.run([sys.executable, COORD, "rivals", "--issue", "37", "--self", "50", "--prs", str(prs)],
                          capture_output=True, text=True, check=True).stdout
     assert out == "40 x\n"
+
+
+def test_reqfile_front_matter_wins_and_labels_split():
+    text = ("---\n"
+            "title: famgen: blank-named host symbol pairs never emitted\n"
+            "labels: area:famgen, P1 , good-first-pick\n"
+            "auto: Claude\n"
+            "---\n"
+            "# A heading that must NOT become the title\n\nBody text.\n")
+    r = coord.reqfile(text, "docs/requirements/famgen-hostsym.md")
+    assert r["title"] == "famgen: blank-named host symbol pairs never emitted"
+    assert r["labels"] == ["area:famgen", "P1", "good-first-pick"]
+    assert r["auto"] == "claude"
+    assert r["body"].startswith("# A heading")
+
+
+def test_reqfile_falls_back_to_heading_then_filename():
+    r = coord.reqfile("# The checkable DONE\n\ndetails\n", "docs/requirements/x.md")
+    assert (r["title"], r["labels"], r["auto"]) == ("The checkable DONE", [], "")
+    r = coord.reqfile("no heading at all\n", "docs/requirements/route-ifc-out-gap.md")
+    assert r["title"] == "Route ifc out gap"
+
+
+def test_reqfile_malformed_front_matter_is_body_not_error():
+    text = "---\nthis line is prose, not key: value pairs precede it? no\n---\n# T\n"
+    r = coord.reqfile(text, "docs/requirements/y.md")
+    assert r["title"] == "T"                       # heading still found
+    assert r["body"].startswith("---")             # the pseudo-front-matter stayed in the body
+    # a --- horizontal rule mid-document never eats the text above it
+    r2 = coord.reqfile("# T2\n\nintro\n\n---\n\nafter the rule\n", "docs/requirements/z.md")
+    assert r2["title"] == "T2" and "after the rule" in r2["body"]
+
+
+def test_reqfile_cli(tmp_path):
+    f = tmp_path / "req.md"
+    f.write_text("---\nlabels: P2\n---\n# From CLI\nbody\n", encoding="utf-8")
+    out = subprocess.run([sys.executable, COORD, "reqfile", "--path", str(f)],
+                         capture_output=True, text=True, check=True).stdout
+    assert json.loads(out) == {"title": "From CLI", "labels": ["P2"], "auto": "", "body": "# From CLI\nbody"}

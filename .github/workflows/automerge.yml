@@ -26,7 +26,7 @@ permissions:
   pull-requests: write
   issues: write
   checks: read
-  actions: read
+  actions: write   # dispatch CI on PR heads that have zero check runs
 
 concurrency:
   group: automerge
@@ -67,7 +67,7 @@ jobs:
 
           for pr in $prs; do
             echo "── PR #$pr"
-            j=$(gh pr view "$pr" --repo "$REPO" --json title,author,isDraft,mergeable,headRefOid,labels,body,files)
+            j=$(gh pr view "$pr" --repo "$REPO" --json title,author,isDraft,mergeable,headRefOid,headRefName,labels,body,files)
             title=$(jq -r .title <<<"$j"); author=$(jq -r .author.login <<<"$j"); sha=$(jq -r .headRefOid <<<"$j")
             draft=$(jq -r .isDraft <<<"$j"); mergeable=$(jq -r .mergeable <<<"$j")
             labels=",$(jq -r '[.labels[].name]|join(",")' <<<"$j"),"
@@ -102,7 +102,22 @@ jobs:
               say "#$pr is a draft"; continue
             fi
 
-            if [ "$total" = "0" ]; then comment_once "$pr" "no-checks-$sha" "🟥 No CI checks exist for \`${sha:0:7}\` — refusing to merge unverified commits. Push a commit (or re-run **CI**) and I'll continue automatically."; say "#$pr zero checks"; continue; fi
+            # Zero checks on the head (pushes via API/app tokens don't always trigger CI):
+            # dispatch CI on the branch ourselves, once per head SHA, instead of stalling.
+            if [ "$total" = "0" ]; then
+              branch=$(jq -r .headRefName <<<"$j")
+              if gh api "repos/$REPO/issues/$pr/comments" --paginate --jq '.[].body' | grep -qF "<!-- automerge:ci-dispatch-$sha -->"; then
+                say "#$pr: CI already dispatched for ${sha:0:7}; waiting for its checks"
+              elif [ "$(gh api "repos/$REPO/branches/$branch" --jq .commit.sha 2>/dev/null)" = "$sha" ] \
+                   && gh workflow run CI --repo "$REPO" --ref "$branch" >/dev/null 2>&1; then
+                comment_once "$pr" "ci-dispatch-$sha" "🚀 No CI checks existed for \`${sha:0:7}\`, so I dispatched **CI** on \`$branch\`. Once it's green (and the review verdict is in) I merge automatically."
+                say "#$pr: dispatched CI on $branch"
+              else
+                comment_once "$pr" "no-checks-$sha" "🟥 No CI checks exist for \`${sha:0:7}\` and I could not dispatch **CI** for it (branch moved, or Actions may not run workflows here). Push a commit (or re-run **CI**) and I'll continue automatically."
+                say "#$pr zero checks, dispatch failed"
+              fi
+              continue
+            fi
             if [ "$pending" != "0" ]; then say "#$pr: $pending check(s) running"; continue; fi
             if [ -n "$bad" ]; then comment_once "$pr" "red-$sha" "🟥 CI is red on \`${sha:0:7}\` (failed: $bad). The review bot will usually push a fix; otherwise ask your session to fix and push — I re-check every new commit."; say "#$pr red"; continue; fi
             if [ "$ok" = "0" ]; then say "#$pr: no successful checks"; continue; fi

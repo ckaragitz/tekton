@@ -241,7 +241,21 @@ territory + record path) and assign yourself in the same call.
 it explains the labels and how to choose. Rule of thumb: if you are not
 on the owner's machine, pick `ready` issues (doable from a fresh clone —
 no `samples/`, no viewer login), `P0` before `P1`, and `good-first-pick`
-for your first PR here.
+for your first PR here. Or skip choosing entirely: comment **`/next`** on
+any issue and the `coord` bot assigns you the highest-priority, oldest,
+unassigned `ready` issue and tells you where to start.
+
+**Where new work comes from — the requirements drop-box.** New requirements
+enter as one markdown file each under `docs/requirements/` (see its README
+and TEMPLATE; front matter carries labels, `auto: claude` makes the bot
+implement it end-to-end). When the file merges to `main`, the
+`requirements` workflow files a `ready` + `from-requirement` issue for it,
+deduped forever by a body marker — writing the file is the only human step
+between "we need X" and an issue a session can `/claim`. Discussion after
+filing lives on the issue, not in the file. Claims also self-heal: the
+hourly sweep unassigns any issue held 72 h+ with no open PR closing it and
+no activity (hardware-gated labels exempt), so an abandoned claim returns
+to the queue without anyone noticing it first.
 
 **Session start protocol (every session, every time):**
 ```bash
@@ -370,7 +384,9 @@ you to do unless the bot asks for a human."
    SHA **and** the review verdict for that SHA is Approve/Nits. It deletes the
    branch; `Closes #N` closes the issue. It refuses (and comments why) on zero/red
    checks, conflicts, or a missing verdict, and re-checks on every new commit and
-   every 30 minutes. **Duplicate rule:** if two open PRs close the same issue, the
+   every 30 minutes. A head with **zero** checks (API/app pushes don't always
+   trigger CI) isn't a dead end: automerge dispatches CI on the branch itself,
+   once per head SHA, and continues when it finishes. **Duplicate rule:** if two open PRs close the same issue, the
    older PR wins and the newer gets `needs-human` — so *`/claim` the issue before
    you start*; `coord` will already have flagged the pair with `overlap` when the
    second PR opened.

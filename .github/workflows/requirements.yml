@@ -1,0 +1,88 @@
+name: requirements
+
+# The requirements drop-box -> the issue queue, with no human routing step.
+# Anyone (or any session) lands a markdown file under docs/requirements/ via the normal
+# PR flow; the moment it merges to the default branch this workflow files ONE issue per
+# file — labelled `ready` + `from-requirement` + whatever the file's front matter names —
+# deduped forever by a body marker carrying the file path. Engineers' sessions then pull
+# work with `/claim` or `/next` (coord.yml); nobody hands out assignments.
+#
+# File format (docs/requirements/README.md is the user-facing description):
+#   ---                      optional front matter, simple `key: value` lines only
+#   title: ...               else the first `# ` heading, else the filename
+#   labels: area:engine, P1  extra labels, comma-separated (created if missing)
+#   auto: claude             optional: mention @claude in the issue so claude.yml
+#   ---                      implements it end-to-end (needs the repo's Anthropic secret)
+#   requirement text...
+#
+# Token-free: runs on the built-in GITHUB_TOKEN. Editing a requirement file after its
+# issue exists does NOT re-file or edit the issue — discussion lives on the issue.
+
+on:
+  push:
+    branches: [main]
+    paths: ["docs/requirements/**"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: requirements-intake
+  cancel-in-progress: false
+
+jobs:
+  file-issues:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: |
+            docs/requirements
+            tools/dev
+      - name: File one issue per new requirement file
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          say() { echo "::notice::$*"; }
+          shopt -s nullglob
+          # Every issue this workflow ever filed, keyed by the path marker in its body.
+          gh issue list --repo "$REPO" --state all --label from-requirement --limit 1000 \
+            --json number,body > filed.json 2>/dev/null || echo '[]' > filed.json
+          filed=0
+          for f in docs/requirements/*.md; do
+            base=$(basename "$f")
+            case "$base" in README.md|TEMPLATE.md) continue;; esac
+            marker="<!-- requirement-file: $f -->"
+            if jq -e --arg m "$marker" '[.[]|select(.body|contains($m))]|length > 0' filed.json >/dev/null; then
+              say "$f: already filed"; continue
+            fi
+            python3 tools/dev/coord.py reqfile --path "$f" > req.json
+            title=$(jq -r .title req.json)
+            [ -z "$title" ] && { echo "::warning::$f: no title derivable — skipped"; continue; }
+            {
+              jq -r .body req.json
+              echo
+              if [ "$(jq -r .auto req.json)" = "claude" ]; then
+                echo "@claude — implement this issue per CLAUDE.md section 4: assign yourself, branch from the default branch, open a PR with \`Closes #<this issue>\`, and drive it through review to merge."
+                echo
+              fi
+              echo "---"
+              echo "_Filed automatically by \`requirements\` from \`$f\`. Discussion and scope changes live here, not in the file. Claim with \`/claim\` (or \`/next\` on any issue to be handed the top of the queue)._"
+              echo
+              echo "$marker"
+            } > body.md
+            args=(--repo "$REPO" --title "$title" --body-file body.md)
+            for lbl in ready from-requirement $(jq -r '.labels[]' req.json); do
+              gh label create "$lbl" --repo "$REPO" --color cfd3d7 >/dev/null 2>&1 || true
+              args+=(--label "$lbl")
+            done
+            url=$(gh issue create "${args[@]}")
+            filed=$((filed+1)); say "$f -> $url"
+          done
+          say "intake done: $filed issue(s) filed"
