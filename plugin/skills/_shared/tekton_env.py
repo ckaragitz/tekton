@@ -189,20 +189,18 @@ def ensure_engine(root: str | None = None) -> str:
     import rvt  # noqa: F401  -- raises ImportError with the real reason if broken
     _install_lazy_schema()
     _install_schema_cache()
-    # IFC read fallback: when the real ifcopenshell is ABSENT, append the
-    # bundled pure-python steplite shim package (rvt/ifc/_ifcos_shim) so
-    # `import ifcopenshell` inside the read paths resolves to it -- try
-    # ifcopenshell, else steplite, by ordinary import order (APPEND, so a
-    # real install always wins; the shim additionally stands down by itself
-    # if a real distribution appears ahead of it on a child's path).
-    import importlib.util as _ilu
-    if _ilu.find_spec("ifcopenshell") is None:
-        shim = os.path.join(os.path.dirname(os.path.abspath(rvt.__file__)),
-                            "ifc", "_ifcos_shim")
-        if os.path.isdir(os.path.join(shim, "ifcopenshell")):
-            if shim not in sys.path:
-                sys.path.append(shim)
-            _append_env_path("PYTHONPATH", shim)
+    # IFC read fallback: the ENGINE selects it -- importing rvt.ifc appends
+    # the bundled pure-python steplite shim (rvt/ifc/_ifcos_shim) to sys.path
+    # when the real ifcopenshell is absent (rvt.ifc._fallback, #130; a real
+    # install always wins).  Done here, before any read module loads, so the
+    # doctor reports the true backend; the bootstrap's own job is only to
+    # export the dir for a skill session's child processes.
+    try:
+        from rvt.ifc._fallback import SHIM_DIR as shim   # import == selection
+    except ImportError:                                  # engine older than #130
+        shim = None
+    if shim and shim in sys.path:
+        _append_env_path("PYTHONPATH", shim)
     src = os.path.dirname(os.path.abspath(getattr(rvt, "__file__", "") or ""))
     if bundled and src.startswith(os.path.abspath(lib_src)):
         return f"bundled source: {lib_src}"

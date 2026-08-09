@@ -1,11 +1,12 @@
 """ifcopenshell -- tekton's stdlib-only FALLBACK package (steplite backend).
 
-This package directory is appended to ``sys.path`` by
-``tekton_env.ensure_engine`` ONLY when the real ifcopenshell distribution is
-absent, so ``import ifcopenshell`` inside the read paths (``rvt.ifc.intent``,
-``rvt.ifc.product_facts``) resolves here as an ordinary import fallback --
-try ifcopenshell, else steplite -- with no monkeypatching and no edits to
-the consumer modules.
+This package directory is appended to ``sys.path`` by the engine when
+``rvt.ifc`` is imported (``rvt.ifc._fallback``, issue #130 -- and by
+``tekton_env.ensure_engine``, which delegates to it) ONLY when the real
+ifcopenshell distribution is absent, so ``import ifcopenshell`` inside the
+read paths (``rvt.ifc.intent``, ``rvt.ifc.product_facts``) resolves here as
+an ordinary import fallback -- try ifcopenshell, else steplite -- with no
+monkeypatching and no edits to the consumer modules.
 
 STAND-DOWN GUARANTEE: even if this directory ends up on ``sys.path`` (or a
 child's ``PYTHONPATH``) while a REAL ifcopenshell is also installed, this

@@ -27,11 +27,18 @@ Sub-modules (added by separate workstreams; each names its own territory):
   a placement-true, family-mapped INTENT for the project side (composed
   placement chains, geometry-recovered insertion points, the
   tagging-contract mapping).
+* :mod:`rvt.ifc.steplite` + ``rvt/ifc/_ifcos_shim`` -- (perf-deps stream)
+  the stdlib-only IFC reader served as an ``ifcopenshell`` look-alike, and
+  :mod:`rvt.ifc._fallback` -- (issue #130) the ENGINE-level selection of
+  that fallback: real ifcopenshell when installed, else steplite.
 """
 
-__all__ = ["product_facts", "famfrom_ifc", "intent"]
+__all__ = ["product_facts", "famfrom_ifc", "intent", "steplite", "ensure_ifc_reader"]
 
-# NOTE: kept import-free on purpose -- sibling workstreams add modules
-# under rvt.ifc (nothing is imported eagerly here; ifcopenshell / numpy are
-# needed only by the modules that read IFC geometry, and the family
-# composer can run from a JSON facts record without them).
+# Kept free of HEAVY imports on purpose (ifcopenshell / numpy are needed only
+# by the modules that read IFC geometry; the family composer runs from a JSON
+# facts record without them).  The one eager step is backend SELECTION
+# (stdlib, ~0.1 ms): see rvt.ifc._fallback for the law (#130).
+from ._fallback import ensure_ifc_reader
+
+ensure_ifc_reader()

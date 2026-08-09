@@ -38,11 +38,13 @@ and raise a clear ``AttributeError`` on named-attribute access).
 
 SELECTION.  Callers never import this directly for the fallback to work:
 ``rvt/ifc/_ifcos_shim/ifcopenshell`` is a package with this exact module as
-its backend, appended to ``sys.path`` by ``tekton_env.ensure_engine`` ONLY
-when the real ifcopenshell is absent -- try ifcopenshell, else steplite,
-selected by ordinary import resolution (no monkeypatching, no edits to the
-consumer modules).  ``RVT_STEPLITE_FORCE=1`` forces the shim backend even
-when the real library is installed (used by the equivalence tests).
+its backend, appended to ``sys.path`` by the ENGINE itself when ``rvt.ifc``
+is imported (:mod:`rvt.ifc._fallback`, issue #130; ``tekton_env.ensure_engine``
+delegates to it) ONLY when the real ifcopenshell is absent -- try
+ifcopenshell, else steplite, selected by ordinary import resolution (no
+monkeypatching, no edits to the consumer modules).  ``RVT_STEPLITE_FORCE=1``
+forces the shim backend even when the real library is installed (the engine
+then puts the shim FIRST; used by the equivalence tests and backend A/B).
 
 TERRITORY (perf-deps stream): this module, ``rvt/ifc/_ifcos_shim/**``,
 ``tests/test_steplite.py``, ``docs/writer/dependency-audit.md``,
