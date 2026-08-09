@@ -32,8 +32,9 @@ PREFLIGHT_CEILING = 2.0
 AUTHOR_CEILING = 20.0
 EDIT_CEILING = 20.0
 
-# the canonical flow's call budget: preflight 1 + author 1 + edit 3
-SESSION_CALL_BUDGET = 5
+# the canonical flow's call budget: preflight 1 + author 1 + edit 1 (`go edit`,
+# issue #111; the pre-#111 edit flow alone was 3: info -> edit -> gate)
+SESSION_CALL_BUDGET = 3
 
 
 def _load_bench():
@@ -67,7 +68,7 @@ def bench_report():
     bench = _load_bench()
     report = bench.run_bench(
         surfaces=["cowork"],
-        jobs=["preflight", "author-prompt", "edit-roundtrip"],
+        jobs=["preflight", "author-prompt", "go-edit"],
         source=os.path.join(ROOT, "plugin"),      # the working tree, always current
         python_bare=_bare_python(),
         timeout=120.0,
@@ -99,13 +100,17 @@ def test_bare_author_prompt_under_20s(bench_report):
         "cold-start compute regressed (pip? eager imports? schema re-parse?)")
 
 
-def test_bare_edit_roundtrip_works_and_bounded(bench_report):
-    """Guards the 2026-08-04 fix: the edit path's no-arg ObjectDecoder used
-    to die on the research-corpus schema path on EVERY bare machine (and the
-    plugin-engine local path).  It must keep working from the plugin alone."""
-    jd = _job(bench_report, "edit-roundtrip")
-    assert jd["status"] == "PASS", f"edit round-trip broken on a bare surface: {jd['reason']}"
-    assert jd["shell_calls"] == 3, "the edit flow is info -> edit -> gate (3 calls)"
+def test_bare_go_edit_is_one_call_and_bounded(bench_report):
+    """The tekton-edit flow is ONE `go edit` call (readiness + edit + self-check
+    + the mandatory validation gate; issue #111) -- fewer than the pre-#111
+    info -> edit -> gate choreography -- and it keeps working from the plugin
+    alone (guards the 2026-08-04 bare-machine ObjectDecoder fix too: the edit
+    opens, re-emits and validates a real project with only the bundled engine)."""
+    jd = _job(bench_report, "go-edit")
+    assert jd["status"] == "PASS", f"`go edit` broken on a bare surface: {jd['reason']}"
+    assert jd["shell_calls"] == 1, "the edit flow is ONE `go edit` call (was 3 before #111)"
+    assert "validation PASS" in (jd.get("breakdown") or {}).get("gates", ""), (
+        "the mandatory gate must run INSIDE the one call and pass on the bundled base")
     assert jd["seconds"] < EDIT_CEILING
 
 
