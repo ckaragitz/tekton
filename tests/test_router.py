@@ -959,6 +959,92 @@ def test_route_manifest_shape(tmp_path):
 
 
 # ===========================================================================
+# 4b. build degradations ride into the route's caveats (issue #347): a
+#     `route run ... --json` consumer sees WHY a build degraded (the IFC
+#     census line, 'W-1 NOT built', 'validation SKIPPED', ...) without opening
+#     MANIFEST.md.  Labels after delivery: ok / status / exit code untouched.
+# ===========================================================================
+
+CENSUS_IFC = os.path.join(ROOT, "tests", "ifc_conformance", "j_census_space_unreadable_body.ifc")
+
+
+def _fake_author(monkeypatch, degradations):
+    """Swap rvt.frontdoor.author for a stand-in: no genesis build, just an
+    AuthorResult whose manifest carries the given build.degradations."""
+    import rvt.frontdoor as FD
+
+    def fake(*, out, **_kw):
+        os.makedirs(out, exist_ok=True)
+        return FD.AuthorResult(
+            route="prompt", ok=True, status="PROOF-ONLY (fake)", out_dir=out,
+            manifest={"build": {"degradations": list(degradations)},
+                      "target_version": {"requested": None, "status": "default",
+                                         "output_release": 2026, "line": ""}},
+            manifest_paths={"json": os.path.join(out, "manifest.json"),
+                            "md": os.path.join(out, "MANIFEST.md")})
+    monkeypatch.setattr(FD, "author", fake)
+
+
+def test_build_degradations_become_prefixed_caveats(tmp_path, monkeypatch):
+    lines = ["W-1 (wall): NOT built -- family plan unmapped",
+             "IFC census: 1 of 7 products dropped (IfcSpace×1); delivery unchanged",
+             "W-1 (wall): NOT built -- family plan unmapped"]           # a duplicate
+    _fake_author(monkeypatch, lines)
+    res = R.route({"prompt": SMALL_ROOM_PROMPT}, "rvt", out=str(tmp_path / "o"), quiet=True)
+    assert res.ok and res.status == "PROOF-ONLY (fake)"                # labels, not refusals
+    build = [c for c in res.caveats if c.startswith(R.BUILD_CAVEAT_PREFIX)]
+    assert build == [R.BUILD_CAVEAT_PREFIX + lines[0], R.BUILD_CAVEAT_PREFIX + lines[1]]
+    cell_caveats = list(MX.cell_for(["prompt"], "rvt").caveats)
+    assert res.caveats[:len(cell_caveats)] == cell_caveats                # order: cell first
+    man = json.load(open(res.manifest_paths["route.json"]))
+    assert man["caveats"] == res.caveats and man["ok"] is True
+    md = open(res.manifest_paths["ROUTE.md"]).read()
+    assert all(b in md for b in build)
+    assert res.as_json()["caveats"] == res.caveats
+
+
+def test_many_build_degradations_are_capped_with_a_pointer(tmp_path, monkeypatch):
+    lines = [f"LP-{i} (panelboard): NOT built -- reason {i}" for i in range(R.BUILD_CAVEAT_CAP + 4)]
+    _fake_author(monkeypatch, lines)
+    res = R.route({"prompt": SMALL_ROOM_PROMPT}, "rvt", out=str(tmp_path / "o"), quiet=True)
+    build = [c for c in res.caveats if c.startswith(R.BUILD_CAVEAT_PREFIX)]
+    assert len(build) == R.BUILD_CAVEAT_CAP + 1
+    assert build[:-1] == [R.BUILD_CAVEAT_PREFIX + s for s in lines[:R.BUILD_CAVEAT_CAP]]
+    assert "+4 more" in build[-1] and "MANIFEST.md" in build[-1]
+
+
+def test_no_degradation_means_no_build_caveat(tmp_path, monkeypatch):
+    _fake_author(monkeypatch, [])
+    res = R.route({"prompt": SMALL_ROOM_PROMPT}, "rvt", out=str(tmp_path / "o"), quiet=True)
+    assert res.caveats == list(MX.cell_for(["prompt"], "rvt").caveats)
+
+
+@needs_pin
+@needs_catalog
+def test_e2e_build_degradations_ride_the_route_caveats(tmp_path):
+    """ONE real build that degrades deterministically on a fresh clone: the
+    #153 census fixture (an IfcSpace dropped, one body unreadable) routed with
+    --no-validate -> both the 'IFC census:' line and 'validation SKIPPED' sit
+    in build.degradations and must reach res.caveats / route.json / ROUTE.md."""
+    if not os.path.exists(CENSUS_IFC):
+        pytest.skip("census IFC fixture absent")
+    res = R.route({"ifc": CENSUS_IFC}, "rvt", out=str(tmp_path / "o"),
+                  no_validate=True, no_handoff=True, quiet=True)
+    assert res.ok, res.errors
+    degr = json.load(open(res.manifest_paths["author:json"]))["build"]["degradations"]
+    assert any("validation SKIPPED" in d for d in degr), degr
+    for d in degr:
+        assert R.BUILD_CAVEAT_PREFIX + d in res.caveats
+    census = [c for c in res.caveats if c.startswith(R.BUILD_CAVEAT_PREFIX + "IFC census:")]
+    assert len(census) == 1, res.caveats
+    assert "IfcSpace" in census[0]
+    man = json.load(open(res.manifest_paths["route.json"]))
+    assert man["caveats"] == res.caveats
+    md = open(res.manifest_paths["ROUTE.md"]).read()
+    assert "IFC census:" in md
+
+
+# ===========================================================================
 # 5. the CLI
 # ===========================================================================
 
