@@ -84,11 +84,18 @@ needs_pin = pytest.mark.skipif(PINNED_BASE is None, reason="pinned genesis base 
 
 
 def _has_ifcopenshell() -> bool:
+    """A REAL ifcopenshell wheel is importable -- spec->ifc AUTHORS through
+    ``ifcopenshell.api``.  The bundled steplite shim only reads, and
+    ``import rvt.ifc`` appends it to ``sys.path`` in every process, so a bare
+    ``import ifcopenshell`` also succeeds on a fresh clone once any earlier
+    module in the run has touched ``rvt.ifc`` (shard order) -- not evidence
+    of the wheel (same test as tests/test_router_release.py)."""
     try:
-        import ifcopenshell  # noqa: F401
-        return True
+        import ifcopenshell
     except Exception:
         return False
+    return (not getattr(ifcopenshell, "IS_STEPLITE", False)
+            and "_ifcos_shim" not in (getattr(ifcopenshell, "__file__", "") or ""))
 
 
 def _catalog_ok() -> bool:
@@ -102,7 +109,8 @@ def _catalog_ok() -> bool:
         return False
 
 
-needs_ifc = pytest.mark.skipif(not _has_ifcopenshell(), reason="ifcopenshell absent")
+needs_ifc = pytest.mark.skipif(not _has_ifcopenshell(),
+                               reason="ifcopenshell wheel absent (steplite shim only reads)")
 needs_catalog = pytest.mark.skipif(not _catalog_ok(), reason="famgen catalog absent")
 
 
@@ -601,7 +609,6 @@ def test_e2e_prompt_to_rfa(tmp_path):
     assert man["evidence"], "route manifest must cite the matrix evidence"
 
 
-@needs_ifc
 @needs_catalog
 def test_e2e_prompt_to_ifc_round_trips(tmp_path):
     res = R.route({"prompt": ROOM_PROMPT}, "ifc", out=str(tmp_path / "o"))
@@ -616,6 +623,7 @@ def test_e2e_prompt_to_ifc_round_trips(tmp_path):
     assert model.room and len(model.room.walls) == 4
 
 
+@needs_ifc
 @pytest.mark.skipif(not os.path.exists(TINY_SPEC), reason="spec example absent")
 def test_e2e_spec_to_ifc(tmp_path):
     res = R.route({"spec": TINY_SPEC}, "ifc", out=str(tmp_path / "o"))
@@ -625,7 +633,6 @@ def test_e2e_spec_to_ifc(tmp_path):
     assert head.startswith(b"ISO-10303-21")
 
 
-@needs_ifc
 def test_e2e_ifc_normalize(tmp_path):
     if not os.path.exists(ROOM_IFC):
         pytest.skip("worked room IFC absent")
@@ -672,7 +679,6 @@ needs_famcontainer = pytest.mark.skipif(not _famcontainer_present(),
                                         reason="family container archetype absent (owner machine)")
 
 
-@needs_ifc
 @needs_catalog
 @needs_famcontainer
 @needs_pin
@@ -689,7 +695,6 @@ def test_e2e_famspec_downlight_loaded(tmp_path):
     assert rep["validate_project_mode"]["verdict"] == "VALID"
 
 
-@needs_ifc
 @needs_catalog
 @needs_genesis
 @skip_large
@@ -705,7 +710,6 @@ def test_e2e_prompt_via_ifc_to_rvt_chain(tmp_path):
         "the open-cell stamp must ride the combined file (instances placed on the composed base)"
 
 
-@needs_ifc
 @needs_catalog
 @needs_genesis
 @skip_large
@@ -764,7 +768,6 @@ def test_e2e_rvt_to_ifc_delivers_on_the_bare_base(tmp_path):
     assert os.path.isfile(res.manifest_paths["route.json"])
 
 
-@needs_ifc
 def test_e2e_rvt_to_ifc_round_trips_a_built_room(built_room, tmp_path):
     """THE ACCEPTANCE of rvt -> ifc: everything the build put in the .rvt
     (walls, equipment, positions) survives into the IFC and back through
@@ -907,7 +910,6 @@ def test_e2e_add_into_project(built_room, tmp_path):
     assert any(k.startswith("rfa:") for k in res.files)          # the .rfa rides along
 
 
-@needs_ifc
 def test_e2e_merge_ifc_into_project(built_room, tmp_path):
     """ifc+rvt: an IFC of a second small room MERGED into the built room at
     the auto-disjoint offset -- delivered, VALID 0 errors, release preserved,
@@ -945,6 +947,7 @@ def test_e2e_edit_shaped_prompt_still_edits(built_room, tmp_path):
 # 4. the route manifest contract
 # ===========================================================================
 
+@needs_ifc
 @pytest.mark.skipif(not os.path.exists(TINY_SPEC), reason="spec example absent")
 def test_route_manifest_shape(tmp_path):
     res = R.route({"spec": TINY_SPEC}, "ifc", out=str(tmp_path / "o"))
