@@ -1,0 +1,28 @@
+tests/ci_shard.d/ -- drop-in additions to the CI test shard (#328)
+
+To put a test file into the per-PR fast shard, do NOT edit tests/ci_shard.txt
+(every PR appending to the same spot of that file conflicted with every other).
+Add ONE new file here instead, named after your issue:
+
+    tests/ci_shard.d/<issue>-<slug>.txt        e.g.  328-shard-list.txt
+
+containing one test path per line:
+
+    # why these files are fresh-clone safe (optional comment)
+    tests/test_my_feature.py
+
+Rules -- enforced by tools/dev/shard_list.py, which tools/dev/session_ci.sh
+(the session-hosted CI) and the reference .github/workflows/ci.yml both use:
+  * one path per line; blank lines and whole-line `#` comments are ignored;
+  * entries must be plain test files: tests/[A-Za-z0-9_./-]+.py, no `..`,
+    no pytest flags -- one bad entry refuses the whole shard (CI fails loudly);
+  * file names: [A-Za-z0-9][A-Za-z0-9_.-]*.txt (portable; this README is ignored);
+  * the shard = tests/ci_shard.txt in its own order (tests/test_schema_gate.py
+    stays first), then every *.txt here sorted by file name; a path listed
+    twice anywhere runs once (first occurrence wins);
+  * only list files that are green in a FRESH CLONE (no samples/, extracted/,
+    vendor/, viewer login, ifcopenshell) -- see the header of tests/ci_shard.txt.
+
+See the merged list:   python3 tools/dev/shard_list.py --print
+Run it like CI does:   .venv/bin/python -m pytest -q -- $(python3 tools/dev/shard_list.py --print)
+tests/test_shard_list.py pins these rules and that every listed path exists.
