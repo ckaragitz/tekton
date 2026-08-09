@@ -5,7 +5,8 @@ The rvt build path already emitted Revit-N families for a certified
 ``--target-version N``; the three family cells (prompt->rfa, ifc->rfa,
 spec->rfa) ignored the flag and handed a Revit 2024/2025 recipient silent
 Revit-2026 ``.rfa``.  Proven here, on a FRESH CLONE (no samples/, no
-ifcopenshell -- the room IFC is read by the stdlib steplite shim; the
+ifcopenshell -- the room IFC is then read by the stdlib steplite shim,
+appended to sys.path below by the same rule the plugin bootstrap uses; the
 spec->rfa cell needs ifcopenshell to author its IFC and is covered by
 tests/test_router.py on machines that have it):
 
@@ -36,7 +37,16 @@ import sys
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(ROOT, "src"))
+SRC = os.path.join(ROOT, "src")
+SHIM = os.path.join(SRC, "rvt", "ifc", "_ifcos_shim")
+sys.path.insert(0, SRC)
+# the IFC read fallback, selected exactly as the plugin bootstrap does
+# (tekton_env.ensure_engine): real ifcopenshell absent -> APPEND the bundled
+# stdlib steplite shim so `import ifcopenshell` in the read paths resolves to
+# it (a real install always wins; the shim stands down by itself otherwise)
+import importlib.util as _ilu                     # noqa: E402
+if _ilu.find_spec("ifcopenshell") is None and SHIM not in sys.path:
+    sys.path.append(SHIM)
 
 from rvt import versions as V                     # noqa: E402
 from rvt.frontdoor import router as R             # noqa: E402
@@ -44,6 +54,8 @@ from rvt.frontdoor import release_ctx as RC       # noqa: E402
 
 PY = sys.executable
 ROOM_IFC = os.path.join(ROOT, "inputs", "ifc", "electrical-room-2500a.ifc")
+ROOM_SPEC = os.path.join(ROOT, "usecases", "chicago-plenum-electrical-room", "room-spec.json")
+BASE_2025 = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2025.rvt")
 PROMPT = "an electrical room with 2 panels"
 SUPPORTED = sorted(V.SUPPORTED_CREATION_RELEASES)
 
@@ -75,6 +87,15 @@ def _has_numpy() -> bool:
         return False
 
 
+def _has_real_ifcopenshell() -> bool:
+    """spec->ifc AUTHORS an IFC (ifcopenshell.api) -- the steplite shim reads only."""
+    try:
+        import ifcopenshell
+        return not getattr(ifcopenshell, "IS_STEPLITE", False)
+    except Exception:
+        return False
+
+
 pytestmark = [
     pytest.mark.skipif(not _bases_present(), reason="pinned per-release genesis bases absent"),
     pytest.mark.skipif(not _catalog_ok(), reason="famgen catalog absent"),
@@ -82,6 +103,9 @@ pytestmark = [
 needs_room_ifc = pytest.mark.skipif(
     not (os.path.isfile(ROOM_IFC) and _has_numpy()),
     reason="room IFC input or numpy absent")
+needs_spec_authoring = pytest.mark.skipif(
+    not (os.path.isfile(ROOM_SPEC) and _has_numpy() and _has_real_ifcopenshell()),
+    reason="spec->ifc authoring needs the real ifcopenshell (optional `ifc` extra)")
 
 
 def _rfas(res):
@@ -187,6 +211,44 @@ def test_room_ifc_fallback_copies_the_input_ifc_beside(tmp_path):
     assert ifc and os.path.dirname(os.path.abspath(ifc)) == os.path.abspath(str(tmp_path / "o"))
     with open(ifc, "rb") as a, open(ROOM_IFC, "rb") as b:
         assert a.read() == b.read(), "the input IFC is copied verbatim (already version-agnostic)"
+
+
+@needs_spec_authoring
+@pytest.mark.parametrize("year", [min(SUPPORTED), 2023])
+def test_spec_to_rfa_honours_the_target_too(tmp_path, year):
+    """The third family cell shares `_families_from_model`; prove it end to end
+    where the spec's IFC can be authored (its generated IFC is the fallback
+    addition)."""
+    res = R.route({"spec": ROOM_SPEC}, "rfa", out=str(tmp_path / "o"), target_version=year)
+    assert res.ok, res.errors
+    assert res.route == "spec_to_rfa"
+    tv = res.target_version or {}
+    if year in SUPPORTED:
+        assert tv.get("status") == "match", tv
+        _assert_release(_rfas(res), year)
+    else:
+        assert tv.get("status") == "fallback" and tv.get("line") in res.caveats, tv
+        _assert_release(_rfas(res), RC.native_release())
+        ifc = res.files.get("ifc")
+        assert ifc and os.path.isfile(ifc), "the spec's generated IFC rides beside the families"
+
+
+def test_wrong_release_base_is_refused_as_base_but_families_still_delivered(tmp_path):
+    """An explicit --base of another release is refused AS A BASE (the resolver's
+    verdict, relayed) -- the families need no base, so they are delivered at the
+    native release and the line says so (rule 1: never withheld)."""
+    if not os.path.isfile(BASE_2025) or RC.native_release() == 2025:
+        pytest.skip("bundled 2025 base absent (or 2025 is the native release)")
+    native = RC.native_release()
+    res = R.route({"prompt": PROMPT}, "rfa", out=str(tmp_path / "o"),
+                  target_version=min(SUPPORTED), base=BASE_2025)
+    assert res.ok, res.errors
+    _assert_release(_rfas(res), native)
+    tv = res.target_version or {}
+    assert tv.get("status") == "refused" and tv.get("output_release") == native, tv
+    line = str(tv.get("line") or "")
+    assert "--base" in line and f"delivered at Revit {native}" in line
+    assert line in res.caveats
 
 
 # ---------------------------------------------------------------------------

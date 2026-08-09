@@ -121,16 +121,34 @@ clone, ledger entries check out); `route run --output rvt --prompt … --target-
 `target_version` block on the rvt path too (`status=fallback, requested=2019,
 output=2026`, `release.nearest_supported=2024`, the line in caveats).
 
-`spec → rfa` shares `_families_from_model` (same code path; its generated IFC
-is the fallback addition) but needs ifcopenshell to author the IFC, so it is
-exercised by `tests/test_router.py::test_e2e_spec_to_rfa_chain` on machines
-that have it, not on this clone.
+`spec → rfa` shares `_families_from_model` (same call, same `opts`); its
+generated IFC is the fallback addition. Authoring that IFC needs the real
+ifcopenshell (optional `ifc` extra), so its per-release cases in
+`tests/test_router_release.py::test_spec_to_rfa_honours_the_target_too`
+self-skip on the CI shard and ran here (this venv has ifcopenshell 0.8.5):
+`usecases/chicago-plenum-electrical-room/room-spec.json` at 2024 → 9/9
+families release 2024, schema `0bfb947b…` pin_match True (11.1 s); at 2023 →
+`fallback`, 9/9 native + `room-spec.ifc` beside + the line (11.5 s).
+
+Correction after the first CI run (py3.11/py3.12 red on head 1ce5475): this
+venv turned out to carry the real ifcopenshell, so the "steplite-readable"
+room-IFC cases had never actually run through steplite; on CI (no
+ifcopenshell) they failed with `IntentError: ifcopenshell is required to read
+IFC` because only the plugin bootstrap (`tekton_env.ensure_engine`) appends the
+`rvt/ifc/_ifcos_shim` fallback to `sys.path`. The test module now applies the
+bootstrap's exact rule (real lib absent → append the shim); re-proven in a
+scratch venv **without** ifcopenshell: 11 passed (58.8 s), IFC cases through
+steplite. (The repo CLIs `tools/route.py` / `tools/frontdoor.py` themselves
+still need ifcopenshell or a manual shim path for `--ifc` on a bare repo clone
+— the plugin surface does not; that is #133's fresh-clone territory, not new.)
 
 ## Gates run
 
-* `tests/test_router_release.py` (new, fresh-clone: prompt + steplite room IFC;
-  self-skips without the bundled bases / catalog / numpy): **11 passed** in 52 s
-  — listed in `tests/ci_shard.txt`.
+* `tests/test_router_release.py` (new, fresh-clone: prompt + steplite room IFC
+  + refused-base; the two spec cases self-skip without the real ifcopenshell;
+  the module self-skips without the bundled bases / catalog): CI-shaped venv
+  without ifcopenshell → **12 passed, 2 skipped** (57 s); dev venv with
+  ifcopenshell → **14 passed** — listed in `tests/ci_shard.txt`.
 * `tests/test_router.py`: **65 passed, 11 skipped** (skips = ifcopenshell /
   owner-machine inputs), incl. the PERMUTATION-MATRIX doc-agreement test.
 * `tests/test_frontdoor.py tests/test_target_version_first.py
