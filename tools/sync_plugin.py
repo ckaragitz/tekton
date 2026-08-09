@@ -514,28 +514,30 @@ def report_identity(zip_path: str | None, table: bool) -> bool:
 # ---------------------------------------------------------------------------
 # zip + validate
 # ---------------------------------------------------------------------------
-ZIP_SKIP_DIRS = {"node_modules", "__pycache__"}   # pruned at any depth, with their contents
-ZIP_DATE_TIME = (1980, 1, 1, 0, 0, 0)              # every entry's stamp: the format's epoch
-ZIP_FILE_ATTR = 0o100644 << 16                     # -rw-r--r--, whatever the checkout's umask/OS
-ZIP_DIR_ATTR = (0o40755 << 16) | 0x10              # drwxr-xr-x + the MS-DOS directory bit
+ZIP_RVT_PREFIX = "assets/"                 # the only subtree whose .rvt ship (the certified bases)
+ZIP_DATE_TIME = (1980, 1, 1, 0, 0, 0)      # every entry's stamp: the format's epoch
+ZIP_FILE_ATTR = 0o100644 << 16             # -rw-r--r--, whatever the checkout's umask/OS
+ZIP_DIR_ATTR = (0o40755 << 16) | 0x10      # drwxr-xr-x + the MS-DOS directory bit
 
 
 def zip_entries(root: str = PLUGIN) -> list[tuple[str, str | None]]:
     """``[(archive name, absolute path | None)]``, sorted; ``None`` marks a
     directory entry. The tree sits at the archive ROOT: every directory gets
-    an entry, ``node_modules``/``__pycache__`` are pruned wholesale,
-    ``.DS_Store`` is dropped everywhere, and ``.rvt`` files are dropped
-    everywhere EXCEPT under ``assets/`` -- example/proof outputs are large
-    research proofs, the certified genesis bases are the product."""
+    an entry, SKIP_DIR_NAMES junk is pruned at any depth (the same prune
+    _shipped_files() audits with, so nothing ships unaudited), and ``.rvt``
+    files are dropped everywhere EXCEPT under ``assets/`` -- example/proof
+    outputs are large research proofs, the certified genesis bases are the
+    product."""
     out: list[tuple[str, str | None]] = []
     for base, dirs, files in os.walk(root):
-        dirs[:] = [d for d in dirs if d not in ZIP_SKIP_DIRS]
+        dirs[:] = [d for d in dirs if d not in SKIP_DIR_NAMES]
         rel = os.path.relpath(base, root).replace(os.sep, "/")
         prefix = "" if rel == "." else rel + "/"
         if prefix:
             out.append((prefix, None))
         for f in files:
-            if f == ".DS_Store" or (f.lower().endswith(".rvt") and not prefix.startswith("assets/")):
+            if f in SKIP_DIR_NAMES or (f.lower().endswith(".rvt")
+                                       and not prefix.startswith(ZIP_RVT_PREFIX)):
                 continue
             out.append((prefix + f, os.path.join(base, f)))
     return sorted(out)
@@ -544,7 +546,8 @@ def zip_entries(root: str = PLUGIN) -> list[tuple[str, str | None]]:
 def write_zip(zip_path: str, root: str = PLUGIN) -> int:
     """Write ``root`` to ``zip_path`` per zip_entries(), deterministically:
     sorted entries, one fixed timestamp, fixed unix modes, deflate for files.
-    Two builds of the same tree are byte-identical on any OS. -> size."""
+    Two builds of the same tree with the same zlib are byte-identical, on any
+    OS. -> size."""
     with zipfile.ZipFile(zip_path, "w") as zf:
         for arc, path in zip_entries(root):
             zi = zipfile.ZipInfo(arc, ZIP_DATE_TIME)
@@ -562,9 +565,8 @@ def write_zip(zip_path: str, root: str = PLUGIN) -> int:
 
 def rebuild_zip() -> int:
     """Rebuild tekton-plugin.zip with the stdlib -- no `zip` CLI, which a stock
-    Windows box lacks (the shell-out died AFTER plugin/ was rewritten, #37)."""
-    if os.path.exists(ZIP):
-        os.remove(ZIP)
+    Windows box lacks (the shell-out died AFTER plugin/ was rewritten, #37).
+    Mode "w" truncates, so a stale archive is replaced, never appended to."""
     return write_zip(ZIP, PLUGIN)
 
 
