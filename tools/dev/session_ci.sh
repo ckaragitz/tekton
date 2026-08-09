@@ -58,7 +58,7 @@ mapfile -t SHARD < <(grep -vE '^\s*(#|$)' "$BOX/tests/ci_shard.txt")
 # The shard list is PR-controlled: accept only test paths (no smuggled pytest flags such as -k/--co/--rootdir
 # that could fake a green run), refuse an empty list (bare `pytest` would collect the whole suite), and end
 # option parsing with `--` before the paths.
-BADSHARD=""; for f in "${SHARD[@]}"; do [[ "$f" =~ ^tests/[A-Za-z0-9_./-]+\.py(::[A-Za-z0-9_.\[\]-]+)*$ ]] || BADSHARD="$BADSHARD $f"; done
+BADSHARD=""; for f in "${SHARD[@]}"; do { [[ "$f" =~ ^tests/[A-Za-z0-9_./-]+\.py$ ]] && [[ "$f" != *..* ]]; } || BADSHARD="$BADSHARD $f"; done   # files under tests/ only, no `..`
 if [ -n "$BADSHARD" ] || [ "${#SHARD[@]}" = "0" ]; then
   echo "=== shard REFUSED: ${#SHARD[@]} entries, invalid:${BADSHARD:- (empty list)}" >> "$LOG"; RC=3; TAIL="shard list refused (invalid or empty entries:${BADSHARD:- none})"
 else
