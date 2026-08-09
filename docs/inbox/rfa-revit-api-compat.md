@@ -455,3 +455,39 @@ skipped.
 Ladder: viewer (r15) -> dim-style (r16) -> units table (r16) ->
 param-spec/units coherence (r17) -> order-cell dedup (r18).  Five real
 famdoc laws, each crash strictly later than the last.
+
+## Iteration 11 — the STORAGE-CLASS LAW (rounds 22-24; the owner's specimen)
+
+**Rounds 22-23:** spec-version hypothesis falsified (probe W: -2.0.0 also
+crashed; Revit API docs confirm ForgeTypeId comparison ignores version).
+Probes Y/Z: text-only AND integer-only both crash; probe U: all
+double-valued params fine.  Probe AA (ints re-specced as number doubles)
+OPENED the dialog — the crash axis is the VALUE STORAGE CLASS.
+
+**Round 24 — the owner supplied the missing specimen** (`Test.rfa`: blank
+Generic Model + one Text + one Integer param, made in Revit 2026), and it
+ended the guessing in one measurement:
+
+* A TEXT family parameter's def is a **`ParamDefString`** — carrying NO
+  `m_specTypeId`, NO `m_restriction`, NO `m_boundless`.
+* An INTEGER param's def is a **`ParamDefInt`** — same three fields absent,
+  plus `m_lowBound=-2147483648`, `m_upBound=2147483647` (int32 bounds).
+* Only measurable (double-valued) specs use `ParamDefValue` (+spec id +
+  restriction 1 + boundless False) — the ONLY shape we knew, verified on
+  all-double specimens, and wrongly stamped onto every param.  The dialog
+  read our text/int params as measurable and formatted their values through
+  the units path -> 0xe06d7363 at doModal.
+* Value entries (m_familyParams / type rows) keep the SAME FamilyParamValue
+  union shape for all storage classes.
+
+**Landed:** `new_family_parameter` branches on storage class (SPEC_TEXT ->
+ParamDefString, new SPEC_INTEGER sentinel -> ParamDefInt with int32 bounds,
+else ParamDefValue); factory's "integer" spec now the sentinel (was the
+INFERRED spec.int64 id, whose comment even claimed "a wrong spec id only
+affects units display" — false: it crashed the dialog).  **Probe AB** (full
+panelboard, every param in its native def class) with the owner; validator
+VALID 0 errors; suites 97 passed / 28 skipped.
+
+Remaining open threads: the recoverable "serious error" the owner hit while
+EDITING values in probe AA (may vanish with the real law — AB tests it);
+`Sketch Grid Appearance` (UET slot 40) follow-up singleton.

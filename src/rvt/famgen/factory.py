@@ -115,7 +115,7 @@ SPEC = {
     "length": SK.SPEC_LENGTH,                                    # V
     "text": SK.SPEC_TEXT,                                        # published id
     "number": SK.SPEC_NUMBER,                                    # number-1.0.0 (Revit-2026 registry + donor units table; #333 round 17)
-    "integer": "autodesk.spec:spec.int64-1.0.0",                  # INFERRED
+    "integer": SK.SPEC_INTEGER,      # sentinel: selects ParamDefInt (storage-class law, #333 r24)
     "voltage": SK.SPEC_VOLTAGE,                                  # V
     "current": "autodesk.spec.aec.electrical:current-1.0.0",     # corpus
     "apparent_power": SK.SPEC_APPARENT_POWER,                    # corpus

@@ -150,6 +150,16 @@ PGROUP_PHOTOMETRICS = "autodesk.parameter.group:photometrics-1.0.0"
 SPEC_LENGTH = "autodesk.spec.aec:length-1.0.0"
 SPEC_NUMBER = "autodesk.spec.aec:number-1.0.0"
 SPEC_TEXT = "autodesk.spec:spec.string-1.0.0"
+SPEC_INTEGER = "autodesk.spec:spec.int64-1.0.0"
+#: text/integer are NON-measurable specs: their family-parameter definition
+#: is a ParamDefString / ParamDefInt (no m_specTypeId), NOT a measurable
+#: ParamDefValue -- issue #333 round 24, byte-measured on a Revit-2026-born
+#: specimen (a blank Generic Model + one Text + one Integer param).  Authoring
+#: them as ParamDefValue with a spec id crashed the Family Types dialog
+#: (0xe06d7363 at doModal: the dialog read a measurable def and formatted a
+#: string/int value through the units path).
+PGROUP_TEXT = "autodesk.parameter.group:text-1.0.0"
+_INT32_LOW, _INT32_HIGH = -2147483648, 2147483647
 SPEC_VOLTAGE = "autodesk.spec.aec.electrical:potential-1.0.0"
 SPEC_APPARENT_POWER = "autodesk.spec.aec.electrical:apparentPower-1.0.0"
 SPEC_WATTAGE = "autodesk.spec.aec.electrical:wattage-1.0.0"
@@ -708,12 +718,18 @@ def new_family_parameter(elem_id: int, self_family_id: int, name: str, *,
     ``group_type_id`` = the properties-palette group; ``family_guid`` seeds
     the ``revit.local.family`` identity (default: a fresh uuid4).
     ``restriction`` 1 [VERIFIED on all specimen params; meaning UNKNOWN].
+
+    STORAGE-CLASS LAW (issue #333 round 24, measured on a Revit-2026-born
+    Text + Integer specimen): :data:`SPEC_TEXT` selects a ``ParamDefString``
+    and :data:`SPEC_INTEGER` a ``ParamDefInt`` with int32 bounds -- both
+    WITHOUT ``m_specTypeId`` / ``m_restriction`` / ``m_boundless``; only
+    measurable (double-valued) specs use ``ParamDefValue``.
     """
     fam_guid = family_guid or str(uuid.uuid4())
     o = element_base(elem_id, cell_list=False, design_option=FAMILY_DESIGN_OPTION)
     o["m_famId"] = int(self_family_id)
     o["m_description"] = str(description)
-    o["m_pParamDef"] = _ptr("ParamDefValue", {
+    base_def = {
         "m_dynamicGroupName": "",
         "m_groupTypeId": {"m_typeId": str(group_type_id)},
         "m_caption": str(name),
@@ -722,10 +738,18 @@ def new_family_parameter(elem_id: int, self_family_id: int, name: str, *,
         "m_allowVaryBetweenGroups": False,
         "m_readOnly": bool(read_only),
         "m_userVisible": bool(user_visible),
-        "m_specTypeId": {"m_typeId": str(spec_type_id)},
-        "m_restriction": int(restriction),
-        "m_boundless": False,
-    })
+    }
+    if spec_type_id == SPEC_TEXT:
+        o["m_pParamDef"] = _ptr("ParamDefString", base_def)
+    elif spec_type_id == SPEC_INTEGER:
+        o["m_pParamDef"] = _ptr("ParamDefInt", dict(
+            base_def, m_lowBound=_INT32_LOW, m_upBound=_INT32_HIGH))
+    else:
+        o["m_pParamDef"] = _ptr("ParamDefValue", dict(
+            base_def,
+            m_specTypeId={"m_typeId": str(spec_type_id)},
+            m_restriction=int(restriction),
+            m_boundless=False))
     o["m_instanceParam"] = bool(is_instance)
     hdr = element_header("ParamElemFamily", category=-1,
                          deletion=[self_family_id, elem_id],
