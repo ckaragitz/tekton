@@ -1200,9 +1200,15 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                           "dims_in": [facts.get("length_in"), facts.get("width_in"),
                                       facts.get("height_in")]})
     else:
+        # the inscribed 4-gon prism (G.polygon_cylinder), NOT the true two-arc
+        # G.cylinder: it shares the box topology template, so box_face('top') /
+        # add_connector address its top cap exactly as they do a box's; the
+        # curved CylSurf can is phase 2 (its cap/edge tags differ)
         ctx = geometry_context(doc)
-        fb = G.cylinder(L / 2.0, Hh, ctx, doc.ids, base_z_ft=0.0, center=(0.0, 0.0),
-                        rep=G.REP_SOLID if solid else G.REP_DUMMY, segments=4)
+        fb = G.polygon_cylinder(L / 2.0, Hh, ctx, doc.ids, base_z_ft=0.0,
+                                center=(0.0, 0.0),
+                                rep=G.REP_SOLID if solid else G.REP_DUMMY,
+                                segments=4)
         doc.add(*fb.elements)
         fb.params.update({"role": "downlight housing can (polygonal approximation)",
                           "dims_in": [facts.get("can_diameter_in"),
