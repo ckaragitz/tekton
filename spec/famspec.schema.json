@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tekton.local/spec/famspec.schema.json",
+  "title": "tekton famspec -- a structured request to GENERATE one family (.rfa)",
+  "description": "A famspec is the `rfa` INPUT of the permutation router (tools/route.py run --rfa FAMSPEC.json | '{...inline...}'): a request to generate ONE Revit family from catalog facts with tekton's own constructors (rvt.famgen.factory.make_panelboard / make_transformer / make_luminaire; rvt.ifc.famfrom_ifc.make_downlight), never a copied family. `kind` selects the constructor; every other field mirrors that constructor's keyword arguments and is optional (the constructor's default applies). `--output rfa` delivers the standalone .rfa (family-mode validator + provenance scan in the manifest); `--output rvt` additionally LOADS it into a host project (default: the pinned certified genesis base; `--rvt yours.rvt` for your own) through the four-registry loader. Facts the catalog does not carry are refused BY NAME in one clear line, never invented. Every output is stamped PROOF-ONLY until the deliverability gates clear -- delivered regardless.",
+  "type": "object",
+  "required": ["kind"],
+  "properties": {
+    "kind": {"enum": ["panelboard", "transformer", "luminaire", "downlight"]}
+  },
+  "oneOf": [
+    {"$ref": "#/definitions/panelboard"},
+    {"$ref": "#/definitions/transformer"},
+    {"$ref": "#/definitions/luminaire"},
+    {"$ref": "#/definitions/downlight"}
+  ],
+  "definitions": {
+    "common": {
+      "description": "Fields every kind accepts (documentation only; each kind lists them explicitly because draft-07 additionalProperties does not see through $ref).",
+      "type": "object",
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "description": "Family name override (default: composed from the facts, e.g. 'Panelboard 480Y/277 400A MCB 42ckt Surface')."},
+        "solid": {"type": "boolean", "description": "true (default) = author the enclosure/housing solid at the catalog dimensions; false = the parametric skeleton without the solid (a diagnostic sibling)."},
+        "target_version": {"type": "integer", "minimum": 2019, "maximum": 2099, "description": "The recipient's Revit year. Same meaning as route.py --target-version (the CLI flag wins when both are given): 2026/2025/2024 emit the .rfa AS that release; an uncertified or unknown year is delivered at the default release with THE one line saying which Revit opens it. Revit cannot open a newer file -- ask the recipient's year."},
+        "shared_params": {"type": "string", "minLength": 1, "description": "Path to OUR shared-parameter TXT (or the word 'default' = usecases/eaton-panelboard/panelboard-shared-parameters.txt): every parameter it names is authored SHARED at that file's GUID so schedules/tags bind by GUID; omitted = every parameter local."}
+      }
+    },
+    "typeSelector": {
+      "description": "One family TYPE (type-table row): a rating along the product's axis (mains A / kVA / W) as a number or a '225A' / '45kVA' / '38W' string, or an object over the kind's per-type fields plus an optional explicit 'type_name'.",
+      "anyOf": [
+        {"type": "number", "exclusiveMinimum": 0},
+        {"type": "string", "minLength": 1},
+        {"type": "object", "properties": {"type_name": {"type": "string", "minLength": 1}}}
+      ]
+    },
+    "types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/definitions/typeSelector"},
+      "description": "MULTI-TYPE family: one type-table row per selector; the first is the primary type (the one authored solid is built at its dimensions). Omitted = the single type the scalar fields describe."
+    },
+    "voltage": {
+      "description": "A system voltage: '480Y/277', '208Y/120', '120-277', or a bare line voltage number (480).",
+      "anyOf": [{"type": "string", "minLength": 1}, {"type": "number", "exclusiveMinimum": 0}]
+    },
+    "panelboard": {
+      "title": "kind = panelboard -> rvt.famgen.factory.make_panelboard(**fields)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"const": "panelboard"},
+        "vendor": {"type": "string", "minLength": 1, "description": "Catalog vendor key (facts on file today: 'eaton', 'square-d'); anything else is refused by name."},
+        "line": {"type": "string", "minLength": 1, "description": "Product line key ('pow-r-line' / 'prl' for eaton; 'nq' / 'nf' for square-d)."},
+        "mains_a": {"type": "number", "exclusiveMinimum": 0, "description": "Mains rating in amperes (default 400); must sit on the member's tabulated sizing rows."},
+        "spaces": {"type": "integer", "minimum": 1, "description": "Branch-circuit spaces (default 42)."},
+        "voltage": {"$ref": "#/definitions/voltage"},
+        "mcb": {"type": "boolean", "description": "true = main circuit breaker (default), false = main lugs only."},
+        "mounting": {"enum": ["surface", "flush"]},
+        "panel_name": {"type": "string", "minLength": 1, "description": "PanelName parameter value (the schedule tag, e.g. 'DP-7'); default 'PANEL'."},
+        "sccr_ka": {"type": "number", "exclusiveMinimum": 0, "description": "Short-circuit current rating in kA; omitted = the low end of the member's fully-rated range for the voltage (a fact), flagged as such."},
+        "neutral_rating": {"type": "string", "minLength": 1, "description": "'100%' (default) or '200%'."},
+        "types": {"$ref": "#/definitions/types"},
+        "name": {"$ref": "#/definitions/common/properties/name"},
+        "solid": {"$ref": "#/definitions/common/properties/solid"},
+        "target_version": {"$ref": "#/definitions/common/properties/target_version"},
+        "shared_params": {"$ref": "#/definitions/common/properties/shared_params"}
+      }
+    },
+    "transformer": {
+      "title": "kind = transformer -> rvt.famgen.factory.make_transformer(**fields)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"const": "transformer"},
+        "kva": {"type": "number", "exclusiveMinimum": 0, "description": "Rating in kVA (default 75); a rating whose dimensions the catalog does not publish is refused by name."},
+        "vendor": {"type": "string", "minLength": 1, "description": "Catalog vendor key (facts on file today: 'eaton', 'hps')."},
+        "primary_v": {"$ref": "#/definitions/voltage"},
+        "secondary_v": {"$ref": "#/definitions/voltage"},
+        "types": {"$ref": "#/definitions/types"},
+        "name": {"$ref": "#/definitions/common/properties/name"},
+        "solid": {"$ref": "#/definitions/common/properties/solid"},
+        "target_version": {"$ref": "#/definitions/common/properties/target_version"},
+        "shared_params": {"$ref": "#/definitions/common/properties/shared_params"}
+      }
+    },
+    "luminaire": {
+      "title": "kind = luminaire -> rvt.famgen.factory.make_luminaire(kind=fixture, **fields)",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"const": "luminaire"},
+        "fixture": {"type": "string", "minLength": 1, "description": "The luminaire archetype = make_luminaire's own `kind` argument, renamed here because `kind` selects the constructor: 'recessed-troffer' (default) / 'troffer', or 'recessed-downlight' / 'downlight' (OUR parametric can)."},
+        "size": {"type": "string", "minLength": 1, "description": "Troffer module: '2x4' (default) or '2x2'."},
+        "wattage": {"type": "number", "exclusiveMinimum": 0},
+        "lumens": {"type": "number", "exclusiveMinimum": 0},
+        "cct": {"type": "number", "exclusiveMinimum": 0, "description": "Colour temperature in kelvin."},
+        "voltage": {"$ref": "#/definitions/voltage"},
+        "aperture_in": {"type": "number", "exclusiveMinimum": 0, "description": "Downlight aperture in inches (OUR parametric value, flagged 'given')."},
+        "types": {"$ref": "#/definitions/types"},
+        "name": {"$ref": "#/definitions/common/properties/name"},
+        "solid": {"$ref": "#/definitions/common/properties/solid"},
+        "target_version": {"$ref": "#/definitions/common/properties/target_version"},
+        "shared_params": {"$ref": "#/definitions/common/properties/shared_params"}
+      }
+    },
+    "downlight": {
+      "title": "kind = downlight -> rvt.ifc.famfrom_ifc.make_downlight(**fields): the MEASURED product archetype (facts read from a product IFC)",
+      "description": "This lane emits on the family container archetype, which lives in the git-ignored research corpus: it runs on the owner machine only until famfrom_ifc emits on the bundled base (a fresh clone answers with one clear line). The three catalog kinds run anywhere.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"const": "downlight"},
+        "ifc_path": {"type": "string", "minLength": 1, "description": "The product IFC to measure (default: inputs/ifc/chicago-plenum-downlight.ifc)."},
+        "voltage": {"type": "number", "exclusiveMinimum": 0},
+        "wattage": {"type": "number", "exclusiveMinimum": 0},
+        "lumens": {"type": "number", "exclusiveMinimum": 0},
+        "cct": {"type": "number", "exclusiveMinimum": 0},
+        "photometric_web": {"type": "string", "minLength": 1, "description": "IES reference (a URL/file NAME parameter value; no photometric file is bundled)."},
+        "detail": {"enum": ["standard", "envelope"], "description": "'standard' = can + trim + lens + frame + boxes + hangers; 'envelope' = can + trim ring only."},
+        "name": {"$ref": "#/definitions/common/properties/name"},
+        "solid": {"$ref": "#/definitions/common/properties/solid"},
+        "target_version": {"$ref": "#/definitions/common/properties/target_version"}
+      }
+    }
+  }
+}

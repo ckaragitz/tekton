@@ -339,11 +339,208 @@ def test_famspec_is_not_an_editable_file(tmp_path):
     assert "prompt -> rfa" in res.line and res.files == {}
 
 
-def test_unwired_famspec_kind_names_the_room_pipeline(tmp_path):
-    res = R.route({"rfa": {"kind": "panelboard"}}, "rvt", out=str(tmp_path / "o"))
+@pytest.mark.parametrize("output", ["rvt", "rfa"])
+def test_unknown_famspec_kind_is_one_clear_line(output, tmp_path):
+    res = R.route({"rfa": {"kind": "switchboard"}}, output, out=str(tmp_path / "o"))
     assert res.ok is False
-    assert "UNSUPPORTED-FAMSPEC-KIND" in res.status
-    assert "room pipeline" in res.line
+    assert "UNSUPPORTED-FAMSPEC-KIND (switchboard)" in res.status
+    assert "spec/famspec.schema.json" in res.line and "panelboard" in res.line
+    assert res.files == {} and not any("Traceback" in e for e in res.errors)
+
+
+# ===========================================================================
+# 2b. the famspec INPUT CONTRACT (issue #162): spec/famspec.schema.json +
+#     spec/examples/famspec-*.json, validated stdlib-only (no jsonschema),
+#     every catalog kind through rfa -> rfa and rfa -> rvt on a FRESH CLONE
+# ===========================================================================
+
+from rvt.frontdoor import famspec as FS     # noqa: E402  (stdlib-light: json/os/re)
+
+FAMSPEC_SCHEMA = os.path.join(ROOT, "spec", "famspec.schema.json")
+FAMSPEC_EXAMPLES = {k: os.path.join(ROOT, "spec", "examples", f"famspec-{k}.json")
+                    for k in FS.CATALOG_KINDS}
+
+
+def _famspec_schema():
+    with open(FAMSPEC_SCHEMA, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def test_famspec_schema_is_draft07_and_covers_every_kind():
+    sch = _famspec_schema()
+    assert sch["$schema"].startswith("http://json-schema.org/draft-07/schema")
+    assert sch["properties"]["kind"]["enum"] == list(FS.KINDS)
+    assert set(sch["definitions"]) >= set(FS.KINDS)
+    # the DONE names router._FAMSPEC_KINDS: it IS the contract's kind list
+    assert R._FAMSPEC_KINDS is FS.KINDS == ("panelboard", "transformer", "luminaire", "downlight")
+    assert os.path.samefile(FS.schema_path(), FAMSPEC_SCHEMA)
+
+
+@pytest.mark.parametrize("kind", ["panelboard", "transformer", "luminaire"])
+def test_famspec_schema_mirrors_the_constructor_kwargs(kind):
+    """Per-kind fields == make_<kind>'s keyword arguments (minus start_id,
+    plus the route field target_version; luminaire's own `kind` is `fixture`)."""
+    import inspect
+    from rvt.famgen import factory as F
+    sch = _famspec_schema()
+    fields = set(sch["definitions"][kind]["properties"]) - {"kind", "target_version"}
+    if kind == "luminaire":
+        fields = (fields - {"fixture"}) | {"kind"}
+    params = set(inspect.signature(getattr(F, f"make_{kind}")).parameters) - {"start_id"}
+    assert fields == params, (fields ^ params)
+
+
+@pytest.mark.parametrize("kind", sorted(FAMSPEC_EXAMPLES))
+def test_famspec_examples_validate_against_the_schema(kind):
+    spec = json.load(open(FAMSPEC_EXAMPLES[kind], encoding="utf-8"))
+    assert spec["kind"] == kind
+    assert FS.validate(spec) == []
+    k, kw, ropts = FS.normalise(spec)
+    assert k == kind and ropts == {}
+    # luminaire's `fixture` becomes make_luminaire's own `kind`; no other kwarg is `kind`
+    assert ("kind" in kw) is (kind == "luminaire")
+
+
+@pytest.mark.parametrize("bad,needle,status", [
+    ({"kind": "panelboard", "mains": 225}, "unknown field 'mains'", "INVALID-FAMSPEC"),
+    ({"kind": "panelboard", "mains_a": "big"}, "expected number", "INVALID-FAMSPEC"),
+    ({"kind": "transformer", "kva": -5}, "must be > 0", "INVALID-FAMSPEC"),
+    ({"kind": "panelboard", "mounting": "ceiling"}, "not one of ['surface', 'flush']", "INVALID-FAMSPEC"),
+    ({"kind": "panelboard", "target_version": "2025"}, "integer Revit year", "INVALID-FAMSPEC"),
+    ({"kind": "luminaire", "types": []}, "fewer than 1 items", "INVALID-FAMSPEC"),
+    ({"kind": "downlight", "detail": "sketchy"}, "not one of ['standard', 'envelope']", "INVALID-FAMSPEC"),
+    ({"kinds": "panelboard"}, "is not one of", "UNSUPPORTED-FAMSPEC-KIND (unset)"),
+])
+def test_invalid_famspec_is_named_by_the_stdlib_validator(bad, needle, status, tmp_path):
+    """No jsonschema dependency: rvt.frontdoor.famspec.check_schema covers the
+    draft-07 subset the contract uses, and the router turns a violation into
+    INVALID-FAMSPEC + THE clear line naming the field -- never a TypeError
+    out of the constructor."""
+    probs = FS.validate(bad)
+    assert probs and any(needle in p for p in probs), probs
+    res = R.route({"rfa": bad}, "rfa", out=str(tmp_path / "o"))
+    assert res.ok is False and res.files == {} and res.status == status
+    assert needle in res.line and "spec/famspec.schema.json" in res.line
+
+
+def test_famspec_validator_accepts_the_rich_shapes():
+    rich = {"kind": "panelboard", "vendor": "eaton", "mains_a": 225, "voltage": "208Y/120",
+            "types": [225, "400A", {"mains_a": 600, "type_name": "600A"}],
+            "target_version": 2025, "shared_params": "default", "solid": True}
+    assert FS.validate(rich) == []
+    kind, kw, ropts = FS.normalise(rich)
+    assert ropts == {"target_version": 2025} and "target_version" not in kw
+    assert os.path.isfile(kw["shared_params"])                  # 'default' -> OUR file
+    assert FS.validate({"kind": "transformer", "primary_v": 480, "secondary_v": "208Y/120"}) == []
+
+
+def test_rfa_path_alone_with_rfa_output_is_the_clear_line(tmp_path):
+    p = tmp_path / "some.rfa"
+    p.write_bytes(b"x")
+    res = R.route({"rfa": str(p)}, "rfa", out=str(tmp_path / "o"))
+    assert res.ok is False and res.files == {}
+    assert "UNSUPPORTED-INPUT-FORM" in res.status
+    assert "prompt+rfa -> rfa" in res.line and "rfa -> rvt" in res.line
+
+
+@needs_catalog
+@pytest.mark.parametrize("kind", sorted(FAMSPEC_EXAMPLES))
+def test_e2e_famspec_to_rfa_every_catalog_kind(kind, tmp_path):
+    """THE DONE of issue #162, cell rfa -> rfa: each worked famspec delivers a
+    family-mode-VALID (0 errors), provenance-clean .rfa + report + route
+    manifest, stamped PROOF-ONLY (rule 1: a label, delivered regardless)."""
+    from rvt.validate import validate_file
+    from rvt.famgen import factory as F
+    res = R.route({"rfa": FAMSPEC_EXAMPLES[kind]}, "rfa", out=str(tmp_path / "o"))
+    assert res.ok, res.errors + [res.status, res.line]
+    assert res.route == "rfa_generate" and res.status.startswith("OK"), res.status
+    assert [s["stage"] for s in res.steps] == ["famspec->rfa", "rfa-emit"]
+    rfa = res.files["rfa"]
+    assert os.path.isfile(rfa) and rfa.endswith(".rfa")
+    rep = json.load(open(res.files["rfa_report"]))
+    assert rep["validate"]["family_mode"]["verdict"] == "VALID"
+    assert rep["validate"]["family_mode"]["n_errors"] == 0
+    assert rep["provenance"]["ok"] is True
+    assert rep["family"]["kind"] == kind and rep["family"]["elements"] >= 30
+    # the independent gates the DONE names: rvt_validate --family, make_family provenance
+    assert len(validate_file(rfa, family=True).errors) == 0
+    assert F.provenance_scan(rfa)["ok"] is True
+    assert any(s.startswith("PROOF-ONLY") for s in res.stamps)
+    assert "VALID 0 errors" in res.status and "provenance ok=True" in res.status
+    man = json.load(open(res.manifest_paths["route.json"]))
+    assert man["cell"]["status"] == "works" and man["files"]["rfa"]
+    assert res.target_version["status"] == "unspecified" and res.releases["rfa"] == 2026
+
+
+@needs_catalog
+@needs_pin
+@pytest.mark.parametrize("kind", sorted(FAMSPEC_EXAMPLES))
+def test_e2e_famspec_loaded_onto_the_pinned_base_every_catalog_kind(kind, tmp_path):
+    """Cell rfa -> rvt, famspec lane: the family is generated (the .rfa rides
+    along) and LOADED four-registry onto the pinned certified base -- project
+    validator 0 errors, census coherent, no instance placed, PROOF-ONLY
+    stamped and no 'loads in Revit' claim anywhere in the status."""
+    res = R.route({"rfa": FAMSPEC_EXAMPLES[kind]}, "rvt", out=str(tmp_path / "o"))
+    assert res.ok, res.errors + [res.status, res.line]
+    assert res.route == "rfa_load"
+    assert [s["stage"] for s in res.steps] == ["famspec->rfa", "rfa-emit", "rfa-load"]
+    assert os.path.isfile(res.files["rfa"]) and os.path.isfile(res.files["loaded_rvt"])
+    rep = json.load(open(res.files["load_report"]))
+    assert rep["ok"] is True
+    assert rep["validate_project_mode"]["verdict"] == "VALID"
+    assert rep["validate_project_mode"]["n_errors"] == 0
+    reg = (rep.get("verify") or {}).get("registries") or {}
+    assert reg.get("coherent") is True and reg.get("ours_in_all_four") is True
+    assert _validator_errors(res.files["loaded_rvt"]) == 0
+    assert "project validates 0 errors" in res.status and "Revit" not in res.status
+    assert any(s.startswith("PROOF-ONLY") for s in res.stamps)
+    assert any("no instance is placed" in c for c in res.caveats)
+
+
+@needs_catalog
+def test_famspec_catalog_refusal_is_by_name_not_a_traceback(tmp_path):
+    res = R.route({"rfa": {"kind": "panelboard", "mains_a": 5000}}, "rfa", out=str(tmp_path / "o"))
+    assert res.ok is False and res.files == {}
+    assert res.status.startswith("FAILED (famspec->rfa")
+    assert "REFUSED BY NAME" in res.line and "5000" in res.line
+    assert not any("Traceback" in e for e in res.errors)
+
+
+@needs_catalog
+def test_famspec_target_version_field_and_flag(tmp_path):
+    """'target_version' in the famspec == --target-version (the flag wins):
+    2025 emits AS 2025; an uncertified year delivers native + THE line, and
+    the line does not promise an IFC a family request cannot have."""
+    r25 = R.route({"rfa": {"kind": "transformer", "kva": 45, "target_version": 2025}}, "rfa",
+                  out=str(tmp_path / "a"))
+    assert r25.ok, r25.errors + [r25.status]
+    assert r25.releases["rfa"] == 2025 and r25.target_version["status"] == "match"
+    assert any("taken from the famspec" in c for c in r25.caveats)
+    flag = R.route({"rfa": {"kind": "transformer", "kva": 45, "target_version": 2025}}, "rfa",
+                   out=str(tmp_path / "b"), target_version=2026)
+    assert flag.ok and flag.releases["rfa"] == 2026
+    r23 = R.route({"rfa": FAMSPEC_EXAMPLES["luminaire"]}, "rfa", out=str(tmp_path / "c"),
+                  target_version=2023)
+    assert r23.ok and os.path.isfile(r23.files["rfa"])            # rule 1: delivered
+    assert r23.target_version["status"] == "fallback" and r23.releases["rfa"] == 2026
+    line = r23.target_version["line"]
+    assert "cannot open it" in line and "IFC alongside" not in line and "no IFC rides" in line
+
+
+@needs_catalog
+def test_cli_run_json_famspec_is_one_document(tmp_path, capsys):
+    """#313/#188's contract holds on the new cell: `route.py run --rfa FAMSPEC
+    --output rfa --json` prints exactly ONE JSON document."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_route_cli2", os.path.join(ROOT, "tools", "route.py"))
+    cli = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli)
+    rc = cli.main(["run", "--output", "rfa", "--rfa", FAMSPEC_EXAMPLES["panelboard"],
+                   "--out", str(tmp_path / "o"), "--json"])
+    out = capsys.readouterr().out
+    doc = json.loads(out)
+    assert rc == 0 and doc["ok"] and doc["route"] == "rfa_generate", out[-1500:]
+    assert os.path.isfile(doc["files"]["rfa"]) and "route.log" in doc["manifest"]
 
 
 def test_bad_arguments_raise_route_error(tmp_path):
@@ -852,10 +1049,21 @@ def test_cli_unsupported_exit_code(tmp_path):
 
 def test_cli_explain_missing_cell():
     p = subprocess.run([PY, os.path.join(ROOT, "tools", "route.py"), "explain",
-                        "--output", "rfa", "--inputs", "rfa"],
+                        "--output", "ifc", "--inputs", "rfa"],
                        capture_output=True, text=True, cwd=ROOT)
     assert p.returncode == 4
-    assert "MISSING" in p.stdout and "prompt+rfa" in p.stdout
+    assert "MISSING" in p.stdout and "prompt -> ifc" in p.stdout
+
+
+def test_cli_explain_famspec_cell_is_zero():
+    """rfa -> rfa flipped to WORKS (issue #162): explain names the route and
+    the written contract."""
+    p = subprocess.run([PY, os.path.join(ROOT, "tools", "route.py"), "explain",
+                        "--output", "rfa", "--inputs", "rfa"],
+                       capture_output=True, text=True, cwd=ROOT)
+    assert p.returncode == 0, p.stdout
+    assert "works via rfa_generate (famspec->rfa)" in p.stdout
+    assert "spec/famspec.schema.json" in p.stdout
 
 
 def test_cli_explain_flipped_cell_is_zero():

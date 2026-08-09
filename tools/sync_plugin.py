@@ -25,6 +25,7 @@ silently fall behind the framework:
                                       against the front door's pin)
     inputs/ifc/*.ifc               -> plugin/skills/tekton-author/examples/
     spec/building.schema.json      -> plugin/skills/tekton-native/examples/
+    spec/famspec.schema.json + spec/examples/famspec-*.json -> plugin/skills/tekton-native/examples/
     usecases/<job>/*  (non-binary) -> plugin/examples/<job>/*
 
 Guards enforced on every run (and by tests/test_plugin_sync.py):
@@ -183,9 +184,15 @@ def mappings():
         # RVT_PLUGIN_ROOT is set (its documented plugin lookup path):
         (_tool("rvt_job.py"), "skills/tekton-native/scripts/rvt_job.py"),
         (os.path.join(ROOT, "spec", "building.schema.json"), "skills/tekton-native/examples/building.schema.json"),
+        # the famspec INPUT CONTRACT of the router's rfa cells (issue #162):
+        # rvt.frontdoor.famspec finds this mirrored copy inside the bundle
+        (os.path.join(ROOT, "spec", "famspec.schema.json"), "skills/tekton-native/examples/famspec.schema.json"),
         (os.path.join(ROOT, "usecases", "chicago-plenum-electrical-room", "room-spec.json"),
          "skills/tekton-native/examples/room-spec.json"),
     ]
+    for k in ("panelboard", "transformer", "luminaire"):       # the worked famspecs
+        files.append((os.path.join(ROOT, "spec", "examples", f"famspec-{k}.json"),
+                      f"skills/tekton-native/examples/famspec-{k}.json"))
     # --- tekton skills: colocate the engine scripts beside each skill --------
     for s in AUTHOR_SCRIPTS:
         files.append((_tool(s), f"skills/tekton-author/scripts/{s}"))

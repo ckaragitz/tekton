@@ -1,0 +1,7 @@
+{
+  "kind": "transformer",
+  "kva": 45,
+  "vendor": "eaton",
+  "primary_v": 480,
+  "secondary_v": "208Y/120"
+}

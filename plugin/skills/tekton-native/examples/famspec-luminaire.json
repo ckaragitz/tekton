@@ -1,0 +1,7 @@
+{
+  "kind": "luminaire",
+  "fixture": "recessed-troffer",
+  "size": "2x4",
+  "cct": 4000,
+  "voltage": "120-277"
+}
