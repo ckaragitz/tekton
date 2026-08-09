@@ -1248,3 +1248,129 @@ def test_add_to_project_lifts_prompt_gear_onto_the_target_level_once(tmp_path, l
     if level is None:
         assert any("'level 2' matched the target's building story 2" in n for n in plc["notes"])
     assert not any("NOT used" in d for d in rec.get("degradations", []))
+
+
+# ===========================================================================
+# feeder circuits authored natively (issue #146): the constructed
+# RbsElectricalSystem specimen, stages E + C in one commit, readback
+# ===========================================================================
+
+CIRCUIT_PROMPT = ("electrical room 30x20 ft with a 2000A main switchboard, two 400A "
+                  "distribution panels and four lighting panels")
+#: the DONE prompt's feeder tree: MSB feeds DP-1/DP-2, each DP feeds two LPs
+CIRCUIT_EDGES = {("MSB", "DP-1"), ("MSB", "DP-2"), ("DP-1", "LP-1"), ("DP-2", "LP-2"),
+                 ("DP-1", "LP-3"), ("DP-2", "LP-4")}
+
+
+@pytest.fixture(scope="module")
+def circuit_jobs(tmp_path_factory):
+    """The DONE prompt of #146 built once per certified release."""
+    if not all(os.path.isfile(p) for p in PINNED.values()):
+        pytest.skip("bundled genesis bases missing")
+    if not _catalog_ok():
+        pytest.skip("famgen catalog absent (no equipment to place)")
+    jobs = {}
+    for year in (2026, 2025, 2024):
+        out = str(tmp_path_factory.mktemp(f"circ{year}") / "job")
+        kw = {} if year == 2026 else {"target_version": year}
+        jobs[year] = FD.author(prompt=CIRCUIT_PROMPT, out=out, no_handoff=True, **kw)
+    return jobs
+
+
+@pytest.mark.parametrize("year", [2026, 2025, 2024])
+def test_e2e_feeder_circuits_are_authored_per_release(circuit_jobs, year):
+    """The manifest lists one 'circuit' per non-service feeder edge (panel /
+    load tags, the panel's 50000-series slot, the load's supply connector),
+    stage C reads them back green, no circuit degradation, and the combined
+    file validates with 0 errors INCLUDING the CIRCUITS semantic rule."""
+    r = circuit_jobs[year]
+    assert r.ok, (r.status, r.errors)
+    build = r.manifest["build"]
+    circuits = [c for c in build["elements_created"] if c["kind"] == "circuit"]
+    assert {(c["panel"], c["load"]) for c in circuits} == CIRCUIT_EDGES, circuits
+    for c in circuits:
+        assert c["elem_id"] > 0 and c["panel_id"] > 0 and c["load_id"] > 0
+        assert c["panel_slot"] >= 50000, c            # a per-circuit panel SLOT
+        assert c["load_conn"] == 1, c                 # the load's own supply connector
+        assert c["poles"] == 3 and c["rating_a"] in (400.0, 100.0)
+        assert c["number"] == ",".join(str(c["start_slot"] + 2 * k) for k in range(3))
+    # slots are never shared on one panel; numbers pack two columns per panel
+    for panel in {c["panel"] for c in circuits}:
+        mine = [c for c in circuits if c["panel"] == panel]
+        assert len({c["panel_slot"] for c in mine}) == len(mine)
+        assert sorted(c["number"] for c in mine) == ["1,3,5", "2,4,6"][:len(mine)]
+    stage_c = [s for s in build["stages"] if s["stage"] == "C"][0]
+    assert stage_c == {**stage_c, "ok": True, "planned": 6, "built": 6, "links_ok": True,
+                       "blocker": None}
+    assert not any("CIRCUIT" in d.upper() for d in build["degradations"]), build["degradations"]
+    val = build["validation"]["combined"]["validate"]
+    assert val["verdict"] == "VALID" and val["n_errors"] == 0, val["errors"]
+    assert val["stats"]["circuits"] == 6
+    assert (r.manifest.get("target_version") or {}).get("output_release", 2026) == year
+
+
+@pytest.mark.parametrize("year", [2026, 2025, 2024])
+def test_e2e_circuits_read_back_with_both_side_links(circuit_jobs, year):
+    """READBACK of the written bytes under the file's own release:
+    ids_of_class('RbsElectricalSystem') == the non-service edges; every
+    circuit's base connector is {self, LAST}; conn[LAST] -> a panel slot that
+    points back {circuit, LAST}; conn[0] -> the load's supply connector that
+    points back {circuit, 0} (connType 4 both ways, member ref connType 1)."""
+    from contextlib import ExitStack
+    from rvt.mutate import Document
+    from rvt.validate import enter_own_release
+    R = FD.build.load_ifc_room_module()
+    r = circuit_jobs[year]
+    combined = r.manifest["build"]["files"]["combined"]["path"]
+    with ExitStack() as stack:
+        enter_own_release(stack, combined)
+        doc = Document.from_file(combined)
+        assert len(doc.ids_of_class("RbsElectricalSystem")) == len(CIRCUIT_EDGES)
+        rb = R.read_back_circuits(combined)
+    assert rb["n"] == len(CIRCUIT_EDGES) and rb["links_ok"], rb
+    for c in rb["circuits"]:
+        assert c["ok"] and c["base_ok"], c
+        assert c["connectors"] == [0, 1]
+        assert c["panel"]["back_link"] and c["panel"]["conn_type"] == 4 and c["panel"]["slot"] >= 50000
+        assert len(c["loads"]) == 1 and c["loads"][0]["back_link"]
+        assert c["loads"][0]["conn_type"] == 1 and c["loads"][0]["conn"] == 1
+
+
+def test_circuit_specimen_is_constructed_not_cloned():
+    """The circuit template is BUILT from the base's own schema: it decodes
+    clean, satisfies the validator's CIRCUITS invariant on itself, carries no
+    connections, no ids but its own, and the dependency table says so."""
+    from rvt.frontdoor import standalone as SA
+    from rvt.validate import check_circuits, _connector_map
+    if not os.path.isfile(PINNED[2026]):
+        pytest.skip("bundled genesis base missing")
+    cs = SA.ConstructedSpecimens()
+    assert cs.circuit_id == SA.ConstructedSpecimens.CIRCUIT_TID
+    dec = SA._SCHEMA_STATE["decoder"]
+    rec = cs._records[cs.circuit_id]
+    hdr = dec.decode_record(rec[101].class_id, rec[101].payload)
+    obj = dec.decode_record(rec[102].class_id, rec[102].payload)
+    assert hdr.clean and obj.clean
+    v, h = obj.value, hdr.value
+    assert h["m_classDef"]["m_ref"]["classref"] == "RbsElectricalSystem"
+    assert h["m_categroryId"] == -2008037 and h["m_pBBox"] is None
+    conns = _connector_map(v)
+    assert sorted(conns) == [0, 1] and all(not refs for refs in conns.values())
+    assert check_circuits([(cs.circuit_id, v)], {cs.circuit_id: conns}) == []
+    mgr = v["m_pConnectorMgr"]
+    assert mgr["ptr_class"] == "RbsSystemConnectorManager" and mgr["pid"] == 3
+    pids = [c["pid"] for c in mgr["value"]["m_connPtrArray"]]
+    assert pids == [4, 5]
+    assert [c["value"]["m_modifiers"][0]["value"]["m_pConnector"]["weakref"]
+            for c in mgr["value"]["m_connPtrArray"]] == pids
+    assert mgr["value"]["m_modifiers"][0]["value"]["m_pConnectorManager"] == {"weakref": 3}
+    assert v["m_typeId"] == -1 and v["m_cableType"] == -1 and v["m_cableSizeElementId"] == -1
+    assert v["m_pathNodes"] == [] and v["m_dApparentLoad"] == 0.0
+    # the only positive ids anywhere in the template are its own
+    from rvt.mutate import _collect_ids
+    ids = []
+    _collect_ids(v, ids)
+    _collect_ids(h, ids)
+    assert {i for _p, i in ids} <= {cs.circuit_id}, ids
+    row = [r for r in SA.dependency_table() if r["feature"].startswith("feeder circuit")]
+    assert row and "CONSTRUCTED" in row[0]["now"] and "PROOF-ONLY" in row[0]["now"]
