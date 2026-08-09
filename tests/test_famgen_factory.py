@@ -643,7 +643,193 @@ def test_make_family_cli_exposes_types(capsys):
         with pytest.raises(SystemExit):
             mod.main([sub, "--help"])
         out = capsys.readouterr().out
-        assert "--types" in out and "--type-catalog" in out
+        assert "--types" in out and "--type-catalog" in out and "--shared-params" in out
+
+
+# ---------------------------------------------------------------------------
+# 3c. SHARED parameters -- OUR file's GUIDs verbatim (issue #165)
+# ---------------------------------------------------------------------------
+
+#: OUR tracked shared-parameter file and its eleven rows (the tagging contract)
+SHARED_FILE = F.DEFAULT_SHARED_PARAMS
+CONTRACT_GUIDS = {
+    "PanelName": "d2cce9ee-8e62-44ff-b5ab-12ead03922b8",
+    "Voltage": "002b1533-731c-41b3-b1a5-20f6b1ee035a",
+    "Phases": "1816cd3d-3644-40b9-8188-9f9bee361411",
+    "Wires": "c3611f34-2603-40b9-8dc6-08a736656a6f",
+    "BusRating": "ea6b58a3-d06a-43c6-82f2-83e88a5348e0",
+    "MainsType": "65863827-d986-49c3-b257-4fcc1d7e8337",
+    "MainsRating": "32a6688e-cda7-4884-b635-10e1ad2da190",
+    "ShortCircuitRatingkA": "95713ca1-2c46-40a7-9e6e-ea3a59ca834f",
+    "Mounting": "ea7d916a-5caf-4069-a3f1-5a5f6df75fba",
+    "NumberOfCircuits": "9aeb45cc-a05e-4cd2-9f5d-fc101a841b3c",
+    "NeutralRating": "0c2e8d22-6ff6-4049-b265-f93fae7afc64",
+}
+GEN_BASE = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
+needs_base = pytest.mark.skipif(not os.path.isfile(GEN_BASE), reason="bundled genesis base absent")
+
+
+def test_shared_parameter_file_parses_our_tracked_txt():
+    """The documented tab-separated *PARAM grammar of OUR file: eleven rows,
+    GUIDs verbatim, datatypes mapped to the factory's spec keys, group name
+    resolved through the GROUP table -- exactly the panelboard contract."""
+    assert os.path.isfile(SHARED_FILE)
+    rows = F.read_shared_parameter_file(SHARED_FILE)
+    assert {n: r.guid for n, r in rows.items()} == CONTRACT_GUIDS
+    assert [n for n in rows] == [p[0] for p in F.PANEL_CONTRACT_PARAMS]      # file order = contract
+    assert {n: r.spec_key for n, r in rows.items()} == {n: s for n, s, _g in F.PANEL_CONTRACT_PARAMS}
+    assert all(r.group == "Panelboard" and r.visible for r in rows.values())
+    assert rows["PanelName"].description == "Panel schedule name"
+
+
+def test_shared_parameter_file_grammar_edges(tmp_path):
+    """UTF-16 (Revit's own encoding) parses; a bad GUID / duplicate name /
+    headerless row is a FactoryError, never a silent skip."""
+    txt = ("# This is a Revit shared parameter file.\r\n*META\tVERSION\tMINVERSION\r\nMETA\t2\t1\r\n"
+           "*GROUP\tID\tNAME\r\nGROUP\t7\tOurs\r\n"
+           "*PARAM\tGUID\tNAME\tDATATYPE\tDATACATEGORY\tGROUP\tVISIBLE\r\n"
+           "PARAM\t0c2e8d22-6ff6-4049-b265-f93fae7afc64\tNeutralRating\tTEXT\t\t7\t1\r\n")
+    p16 = tmp_path / "u16.txt"
+    p16.write_bytes(txt.encode("utf-16"))                       # BOM + UTF-16 LE
+    rows = F.read_shared_parameter_file(str(p16))
+    assert rows["NeutralRating"].guid == CONTRACT_GUIDS["NeutralRating"]
+    assert rows["NeutralRating"].group == "Ours" and rows["NeutralRating"].description == ""
+    bad = tmp_path / "bad.txt"
+    bad.write_text(txt.replace("0c2e8d22-6ff6-4049-b265-f93fae7afc64", "not-a-guid"), encoding="utf-8")
+    with pytest.raises(F.FactoryError, match="GUID"):
+        F.read_shared_parameter_file(str(bad))
+    dup = tmp_path / "dup.txt"
+    dup.write_text(txt + txt.splitlines()[-1] + "\r\n", encoding="utf-8")
+    with pytest.raises(F.FactoryError, match="duplicate"):
+        F.read_shared_parameter_file(str(dup))
+    nohdr = tmp_path / "nohdr.txt"
+    nohdr.write_text("PARAM\tx\ty\n", encoding="utf-8")
+    with pytest.raises(F.FactoryError, match="header"):
+        F.read_shared_parameter_file(str(nohdr))
+
+
+@needs_schema
+def test_shared_params_flag_makes_the_eleven_contract_params_shared_rest_local():
+    prod = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True,
+                              shared_params=SHARED_FILE)
+    assert prod.shared_parameters() == CONTRACT_GUIDS == prod.summary()["shared_parameters"]
+    classes = {n: pe.class_name for n, pe in prod.doc.params.items()}
+    assert {n for n, c in classes.items() if c == "ParamElemExternal"} == set(CONTRACT_GUIDS)
+    assert {n for n, c in classes.items() if c == "ParamElemFamily"} == {"Width", "Height", "Depth"}
+    for name, guid in CONTRACT_GUIDS.items():
+        o = prod.doc.params[name].obj
+        assert o["m_externalParamKey"]["m_guidValue"] == guid
+        assert o["m_pParamDef"]["value"]["m_typeId"]["m_typeId"] == SK.shared_param_type_id(guid)
+    # type-table values still keyed by the (shared) element ids
+    row = {e["m_paramId"]: e for e in
+           prod.doc.self_family.obj["m_pFamilyTypes"]["value"]["m_pairs"][0]["params"]["m_params"]}
+    assert row[prod.doc.params["PanelName"].elem_id]["m_str"] == "PANEL"
+    assert row[prod.doc.params["NumberOfCircuits"].elem_id]["m_int"] == 42
+    assert row[prod.doc.params["Voltage"].elem_id]["m_value"] == pytest.approx(SK.volts(480.0))
+    assert any("11 SHARED parameters" in n and "no loads claim" in n for n in prod.notes)
+    assert prod.doc.roundtrip()["failed"] == 0
+    # parsed rows are accepted too; other products share only what matches by caption + datatype
+    rows = F.read_shared_parameter_file(SHARED_FILE)
+    assert F.make_transformer(kva=75, shared_params=rows).shared_parameters() == \
+        {"Phases": CONTRACT_GUIDS["Phases"]}
+    assert F.make_luminaire(wattage=38, lumens=4600, cct=4000, shared_params=rows).shared_parameters() \
+        == {"Voltage": CONTRACT_GUIDS["Voltage"]}
+    # a datatype disagreement is refused, never papered over with a second GUID
+    clash = dict(rows, Width=F.SharedParamDef(guid=CONTRACT_GUIDS["PanelName"], name="Width",
+                                              datatype="TEXT"))
+    with pytest.raises(F.FactoryError, match="DATATYPE"):
+        F.make_panelboard(shared_params=clash)
+
+
+@needs_schema
+def test_default_build_has_no_shared_params_and_deterministic_local_identities():
+    """No flag == the historical shape: every parameter a ParamElemFamily,
+    same ids / classes / order as before; and two default builds now agree
+    on every parameter identity (uuid5, not a per-build uuid4)."""
+    a = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True)
+    b = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True)
+    assert a.shared_parameters() == {} and not any("SHARED" in n for n in a.notes)
+    assert all(pe.class_name == "ParamElemFamily" for pe in a.doc.params.values())
+    assert [(e.elem_id, e.class_name) for e in a.doc.elements] == \
+        [(e.elem_id, e.class_name) for e in b.doc.elements]
+    tids = lambda p: [pe.obj["m_pParamDef"]["value"]["m_typeId"]["m_typeId"]  # noqa: E731
+                      for pe in p.doc.params.values()]
+    assert tids(a) == tids(b)
+    assert tids(a)[0] == SK.param_type_id(SK.local_param_guid(a.name, "Width"),
+                                          a.doc.params["Width"].elem_id)
+
+
+@needs_schema
+def test_shared_panelboard_rfa_is_valid_clean_and_decodes_the_file_guids(tmp_path):
+    """ON THE FILE, fresh-clone: the --shared-params panelboard writes from
+    the bundled base, family-mode VALID 0 errors, provenance ledger all green
+    ('revit.local.shared' is whitelisted format vocabulary), and the eleven
+    ParamElemExternal records decode back GUID-for-GUID to OUR file."""
+    from rvt.families import FamilyIndex
+    prod = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True,
+                              shared_params=SHARED_FILE)
+    rep = prod.write(str(tmp_path / "panel_shared.rfa"), validate=True, provenance=True)
+    assert rep["ok"], rep.get("caveats")
+    fam = rep["validate"]["family_mode"]
+    assert fam["verdict"] == "VALID" and fam["n_errors"] == 0, fam.get("errors")
+    prov = rep["provenance"]
+    assert prov["ok"] and prov["suspects"] == [], prov.get("suspects")
+    assert rep["family"]["shared_parameters"] == CONTRACT_GUIDS
+    idx = FamilyIndex(rep["path"])
+    ext = [idx.value(0, eid) for eid in sorted(idx.ids_of_class(0, "ParamElemExternal"))]
+    decoded = {v["m_pParamDef"]["value"]["m_caption"]: v["m_externalParamKey"]["m_guidValue"]
+               for v in ext}
+    assert decoded == CONTRACT_GUIDS
+    assert all(v["m_pParamDef"]["value"]["m_typeId"]["m_typeId"]
+               == SK.shared_param_type_id(v["m_externalParamKey"]["m_guidValue"]) for v in ext)
+    assert len(idx.ids_of_class(0, "ParamElemFamily")) == 3           # Width / Height / Depth
+    assert F._suspects(["revit.local.shared:d2cce9ee8e6244ffb5ab12ead03922b8-1.0.0"]) == []
+
+
+@needs_base
+def test_loader_twins_keep_the_shared_identity_verbatim():
+    """Both loaders twin a ParamElemExternal as itself: id / owner rewritten
+    like any twin, but the revit.local.shared typeId and the GUID key are the
+    shared parameter's identity and are NOT re-minted (a local twin still
+    takes the host session form)."""
+    from rvt.frontdoor import standalone as SA
+    from rvt.famgen import loader as L
+    import rvt.famload as FL
+    SA.install_schema(GEN_BASE)
+    host = L.survey_host(GEN_BASE)
+    prod = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True,
+                              shared_params=SHARED_FILE, start_id=host.watermark + 1)
+    plan = L.plan_load(prod, host, place=False)
+    twins = L.author_param_twins(prod, plan)
+    _assert_twins(twins, plan, prod.doc)
+    # famload (the document loader) -- same law
+    fhost = FL.survey_host(GEN_BASE)
+    prod2 = F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True,
+                               shared_params=SHARED_FILE, start_id=fhost.watermark + 1)
+    fplan, _next = FL._plan_family(FL.FamilyLoad(key="p", doc=prod2.doc), prod2.doc, fhost,
+                                   fhost.watermark + 1)
+    _assert_twins(FL.author_param_twins(prod2.doc, fplan), fplan, prod2.doc)
+
+
+def _assert_twins(twins, plan, doc):
+    assert len(twins) == len(doc.params) == 14 and len(plan.twin_of) == 14
+    by_id = {t.elem_id: t for t in twins}
+    n_shared = 0
+    for name, pe in doc.params.items():
+        t = by_id[plan.twin_of[pe.elem_id]]
+        pd = t.obj["m_pParamDef"]["value"]
+        assert t.class_name == pe.class_name == t.header["m_classDef"]["m_ref"]["classref"]
+        assert t.obj["m_id"] == pd["m_paramElemId"] == t.elem_id
+        assert t.obj["m_famId"] == t.header["m_familyId"] == plan.host_family_id
+        if pe.class_name == "ParamElemExternal":
+            n_shared += 1
+            guid = CONTRACT_GUIDS[name]
+            assert t.obj["m_externalParamKey"]["m_guidValue"] == guid
+            assert pd["m_typeId"]["m_typeId"] == SK.shared_param_type_id(guid)
+        else:
+            assert pd["m_typeId"]["m_typeId"] == \
+                f"revit.local.family:{plan.session_guid_hex}{t.elem_id:08x}-1.0.0"
+    assert n_shared == 11
 
 
 # ---------------------------------------------------------------------------
