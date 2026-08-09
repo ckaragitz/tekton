@@ -43,10 +43,14 @@ HARD GATES (any failure => non-zero exit, the .rvt is NOT a product):
 STATUS GATE (recorded honestly, not an exit failure unless
 --require-deliverable):
   * base_provenance — the P0 genesis gate G1 (rvt.provenance) ledgering the
-    OUTPUT against the BASE it descends from.  Today every base is an
-    Autodesk sample project, so the honest status is
-    "PROOF-ONLY, NOT-DELIVERABLE" and the manifest says so.  Only a base
-    that passes the genesis provenance check flips the status to DELIVERABLE.
+    OUTPUT against the BASE it descends from.  On OUR pinned composed
+    genesis base the ledger uses the base's authorship census
+    (rvt.frontdoor.census, #143): only its residue is Autodesk-derived, and
+    the reason names the open TRACKER gates G2/G3 + the residue; on an
+    Autodesk sample everything inherited is the sample's.  Either way the
+    honest status today is "PROOF-ONLY, NOT-DELIVERABLE" -- a LABEL, the
+    file is always delivered.  Only a base + build that pass the genesis
+    provenance check flip the status to DELIVERABLE.
 
 Exit codes: 0 = all hard gates passed (status may still be PROOF-ONLY);
 2 = planning / seed / spec failure; 3 = structural; 4 = validation;
@@ -375,19 +379,77 @@ def validation_gate(path: str, out_json: str, *, layers: Optional[List[str]] = N
 # ===========================================================================
 # base provenance / genesis status gate (P0 G1)
 # ===========================================================================
+def _base_census(base_path: Optional[str]):
+    """The authorship census iff ``base_path`` IS a pinned composed genesis
+    base (exact sha256; rvt.frontdoor.census, #143) -- else None."""
+    if not base_path or is_autodesk_sample(base_path):
+        return None
+    try:
+        from rvt.frontdoor import census as C
+        return C.for_file(base_path)
+    except Exception:                                                 # noqa: BLE001
+        return None
+
+
+#: why a build on OUR certified base is still PROOF-ONLY (TRACKER.md P0)
+PINNED_BASE_OPEN_GATES = (
+    "G2 identity block (#19: our BasicFileInfo, no inherited build strings / paths / GUIDs)",
+    "G3 counsel (#23: C1 author string, C4 the two shipped schema corpora, C5 footer token)",
+    "the element residue (#21: base slots still byte-identical to the Autodesk ancestor)",
+)
+
+
+def _gate_reason(gate: Dict[str, Any], g1: Dict[str, Any]) -> str:
+    """The manifest sentence for a failing G1 -- worded by what the base IS."""
+    kind = gate.get("base_kind")
+    if kind == "pinned-composed-genesis":
+        res = gate.get("residue") or {}
+        return (f"P0 gates still open on the certified composed genesis base "
+                f"{res.get('base_id')} (Revit {res.get('revit_release')}): "
+                + "; ".join(PINNED_BASE_OPEN_GATES)
+                + f". G1 element ledger against that residue: {g1.get('verdict')} "
+                f"(the base's own {res.get('ours_by_composition'):,} composed elements and this "
+                f"build's created content are ours). PROOF-ONLY is a label: the file is delivered.")
+    if gate.get("base_is_autodesk_sample"):
+        return (f"P0 genesis gate G1 fails (the base is an Autodesk sample project): "
+                f"{g1.get('verdict')}. Nothing built on a sample base is a "
+                "product; ship only from a certified genesis base.")
+    return (f"P0 genesis gate G1 fails (a user-supplied base with no authorship census; "
+            f"everything inherited from it is ledgered as the base's): {g1.get('verdict')}. "
+            "Deliverability needs a certified genesis base plus TRACKER gates G2 (#19) / G3 (#23).")
+
+
 def provenance_gate(out_path: str, base_path: Optional[str], *,
                     skip: bool = False) -> dict:
     """Ledger the OUTPUT against the BASE it descends from and evaluate G1.
 
-    G1 PASSES only when NO Autodesk-derived expression remains — impossible
-    for any file grown from an Autodesk sample project, which is every base
-    we have today.  So the honest status of every current output is
-    PROOF-ONLY / NOT-DELIVERABLE, and this gate exists to say exactly that in
-    the manifest (and to flip automatically the day a genesis base passes).
+    Three kinds of base, ledgered honestly (``base_kind``):
+
+    * ``pinned-composed-genesis`` -- OUR certified composed base (exact sha256
+      of a ``genesis_base.json`` pin).  Its authorship census
+      (``rvt.frontdoor.census``) says which of its slots still carry the
+      Autodesk ancestor's bytes; ONLY those are Autodesk-derived, every other
+      inherited element is ours by composition, and created content is
+      ``transitive-cloned`` only through lineage into that residue.  Still
+      PROOF-ONLY today: TRACKER gates G2 (#19) / G3 (#23) and the residue
+      (#21) are open -- said in those words, never as "sample base".
+    * ``autodesk-sample`` -- a sample project: everything inherited is
+      Autodesk's (v1 wording, unchanged).
+    * ``user-base`` -- an explicit ``--base`` with no census: ledgered like a
+      sample (nothing can be presumed ours), worded as unattributed.
+
+    G1 PASSES only when NO Autodesk-derived expression remains; the status is
+    a LABEL in the manifest -- the file is always delivered (hard rule 1).
     """
+    census = _base_census(base_path)
     gate: Dict[str, Any] = {"status": "UNKNOWN", "deliverable": False,
                             "base": _abs(base_path),
-                            "base_is_autodesk_sample": is_autodesk_sample(base_path)}
+                            "base_is_autodesk_sample": is_autodesk_sample(base_path),
+                            "base_kind": ("pinned-composed-genesis" if census is not None
+                                          else "autodesk-sample" if is_autodesk_sample(base_path)
+                                          else "user-base" if base_path else None)}
+    if census is not None:
+        gate["residue"] = census.summary()
     if skip:
         gate["status"] = "SKIPPED (--no-provenance) => treated as NOT-DELIVERABLE"
         gate["reason"] = "provenance ledger not run; deliverability unproven"
@@ -406,7 +468,9 @@ def provenance_gate(out_path: str, base_path: Optional[str], *,
         t0 = time.time()
         cand = Document.from_file(out_path)
         base = Document.from_file(base_path)
-        rep = P.provenance(cand, base, examples=0, with_units=True)
+        rep = P.provenance(cand, base, examples=0, with_units=True,
+                           composed_residue_ids=(census.residue_ids
+                                                 if census is not None else None))
         g1 = P.gate_G1(rep)
         gate["elapsed_s"] = round(time.time() - t0, 1)
         gate["g1"] = {"passes": bool(g1.get("passes")), "verdict": g1.get("verdict"),
@@ -419,11 +483,7 @@ def provenance_gate(out_path: str, base_path: Optional[str], *,
             gate["deliverable"] = True
         else:
             gate["status"] = "PROOF-ONLY, NOT-DELIVERABLE"
-            why = "the base is an Autodesk sample project" if gate["base_is_autodesk_sample"] \
-                else "the base carries derived expression that G1 blocks"
-            gate["reason"] = (f"P0 genesis gate G1 fails ({why}): "
-                              f"{g1.get('verdict')}. Nothing built on a sample base is a "
-                              "product; ship only from a certified genesis base.")
+            gate["reason"] = _gate_reason(gate, g1)
     except Exception as e:                                            # noqa: BLE001
         gate["status"] = "DEGRADED — provenance run failed => NOT-DELIVERABLE"
         gate["reason"] = f"{type(e).__name__}: {e}"

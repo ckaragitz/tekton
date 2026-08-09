@@ -44,3 +44,4 @@ tests/test_readers_own_release.py
 tests/test_famload_batch.py
 tests/test_probe_batch.py
 tests/test_go_edit.py
+tests/test_status_gate.py

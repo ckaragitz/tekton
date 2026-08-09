@@ -394,3 +394,18 @@ and its `--strict` split should adopt the shell = walls + loaded families shape.
 * Shipped vs staged: code + docs shipped in the PR; **no viewer claim** — the
   three CLI outputs above are validator-clean local artifacts (`out/`, ignored),
   not STAGED; nothing in `docs/coverage/viewer-certified.json` changes.
+
+## 2026-08-09 — stream `eng143` (issue #143): the status gate baselines against the pinned base's true residue
+
+Pointer only; the record is `docs/inbox/g1-gate-baseline.md`. `tools/rvt_job.provenance_gate`
+(→ `ifc_intent.status_gate` → `manifest.json build.status_gate`) now looks the base up in the
+new authorship census (`rvt.frontdoor.census`, asset `src/rvt/frontdoor/assets/genesis_census.json`
+derived from tracked rung evidence by `tools/genesis_census.py`) and hands the residue ids to
+`rvt.provenance.provenance(..., composed_residue_ids=)`: on `G_ABPD` a prompt job's G1 ledger
+reads 395 blockers (the 422-element residue) instead of 3,058, our 2,680 composed slots read
+`ours-composed`, our walls / instances / loaded famgen families read `ours-created` (0
+`transitive-cloned`), `base_kind = pinned-composed-genesis`, and the PROOF-ONLY reason cites
+G2 #19 / G3 #23 / residue #21 with no "sample base" wording (unchanged when the base IS a
+sample). `MANIFEST.md` gains one "base authorship (issue #143 census)" line. Same shape on
+2025/2024 (925/923 residue), where the gate now truthfully shows 10 created elements with lineage
+into an un-ported wall type / load classification (g1-gate-baseline F2, follow-up #274).

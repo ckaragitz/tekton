@@ -41,6 +41,14 @@ C descends from):
                         mismatch at the same id -> wrong baseline / renumbered;
                         never passes a gate.
 * ``unbaselined``       no baseline supplied — nothing can be attributed.
+* ``ours-composed``     (only when B is OUR pinned composed genesis base and
+                        the caller passes its authorship census,
+                        ``composed_residue_ids`` — issue #143) id present in B
+                        at a slot our constructors re-authored in place: ours
+                        by composition, identical or edited.  B's RESIDUE ids
+                        (still byte-identical to the Autodesk ancestor) keep
+                        the ``autodesk-sample`` / ``ours-modified`` verdicts,
+                        and only THEY seed clone lineage for created elements.
 
 Embedded family DOCUMENTS (partition save units 1..k) are ledgered as units:
 a unit whose separator GUID exists in the baseline is an ``autodesk-sample``
@@ -90,8 +98,15 @@ P_CREATED = "ours-created"
 P_CLONED = "transitive-cloned"
 P_UNMATCHED = "unmatched"
 P_UNBASELINED = "unbaselined"
+#: inherited (identical or edited) from OUR pinned composed genesis base at a
+#: slot our constructors re-authored in place -- ours by composition, NOT
+#: Autodesk-derived.  Only ever assigned when the caller supplies the base's
+#: authorship census (``composed_residue_ids``, rvt.frontdoor.census, #143);
+#: the residue ids of that census keep the sample verdicts below.
+P_COMPOSED = "ours-composed"
 
-PROVENANCES = (P_SAMPLE, P_MODIFIED, P_CREATED, P_CLONED, P_UNMATCHED, P_UNBASELINED)
+PROVENANCES = (P_SAMPLE, P_MODIFIED, P_CREATED, P_CLONED, P_COMPOSED,
+               P_UNMATCHED, P_UNBASELINED)
 
 #: verdicts that carry Autodesk-derived expression (block the G1 gate when
 #: they occur in an expression-bearing category)
@@ -532,10 +547,14 @@ def _reference_ids(doc, eid: int) -> List[Tuple[str, int]]:
 
 
 class _CloneIndex:
-    """Per-class shingle index over BASELINE payloads, built lazily."""
+    """Per-class shingle index over BASELINE payloads, built lazily.
+    ``only_ids`` restricts the specimens to the baseline's sample-authored
+    ids (a composed base's residue) so OUR composed objects never make a
+    created element ``transitive-cloned``."""
 
-    def __init__(self, baseline):
+    def __init__(self, baseline, only_ids: Optional[Set[int]] = None):
         self.base = baseline
+        self.only_ids = only_ids
         self._by_class: Dict[str, Dict[bytes, Set[int]]] = {}
 
     def _index(self, cls: str) -> Dict[bytes, Set[int]]:
@@ -545,6 +564,8 @@ class _CloneIndex:
             if cd is not None:
                 for eid, rec in self.base.idx[102].items():
                     if rec.class_id != cd.type_id or eid not in self.base.et_by_id:
+                        continue
+                    if self.only_ids is not None and eid not in self.only_ids:
                         continue
                     for sh in _shingles(rec.payload):
                         idx[sh].add(eid)
@@ -616,18 +637,29 @@ def _same_records(cand, base, eid: int) -> Tuple[bool, str]:
     return (not diffs), ("differs in " + "+".join(diffs)) if diffs else "byte-identical to sample"
 
 
-def classify_elements(doc, baseline=None, *, clone_index: Optional[_CloneIndex] = None
+def classify_elements(doc, baseline=None, *, clone_index: Optional[_CloneIndex] = None,
+                      composed_residue_ids: Optional[Set[int]] = None
                       ) -> Dict[int, ElementVerdict]:
     """Classify EVERY host-document element of ``doc`` (candidate).
 
     ``baseline`` is the reference Autodesk sample ``Document`` the candidate
     descends from (or None -> everything is ``unbaselined``).
+
+    ``composed_residue_ids`` (issue #143): pass it iff ``baseline`` is OUR
+    pinned composed genesis base -- the set of ITS ids still byte-identical
+    to the Autodesk ancestor (rvt.frontdoor.census).  Every other baseline id
+    is then ours by composition (``ours-composed``, inherited or edited) and
+    seeds no clone lineage; the residue ids are ledgered exactly as sample
+    elements are.  ``None`` = the baseline is a sample: v1 behaviour.
     """
     verdicts: Dict[int, ElementVerdict] = {}
     host_ids = sorted(doc.et_by_id)
     base_ids: Set[int] = set(baseline.et_by_id) if baseline is not None else set()
     wm = watermark(baseline) if baseline is not None else -1
-    cindex = clone_index or (_CloneIndex(baseline) if baseline is not None else None)
+    residue: Optional[Set[int]] = (set(composed_residue_ids)
+                                   if composed_residue_ids is not None else None)
+    cindex = clone_index or (_CloneIndex(baseline, only_ids=residue)
+                             if baseline is not None else None)
 
     created: List[int] = []
     for eid in host_ids:
@@ -645,6 +677,12 @@ def classify_elements(doc, baseline=None, *, clone_index: Optional[_CloneIndex] 
                     f"id exists in baseline as a different class ({bcls}) — renumbered / wrong baseline")
                 continue
             same, why = _same_records(doc, baseline, eid)
+            if residue is not None and eid not in residue:
+                verdicts[eid] = ElementVerdict(
+                    eid, cls, cat, P_COMPOSED,
+                    "our composed base's own object (slot re-authored in place), "
+                    + ("inherited unchanged" if same else "edited by this build: " + why))
+                continue
             verdicts[eid] = ElementVerdict(eid, cls, cat,
                                            P_SAMPLE if same else P_MODIFIED, why)
         elif eid > wm:
@@ -817,13 +855,20 @@ def provenance(doc, baseline=None, *, examples: int = 3,
                baselines: Optional[List] = None,
                streams: bool = False, strings: bool = False,
                identity: bool = False, corpus: Optional["BaselineCorpus"] = None,
-               cache_dir: Optional[str] = None, verbose: bool = False) -> dict:
+               cache_dir: Optional[str] = None, verbose: bool = False,
+               composed_residue_ids: Optional[Set[int]] = None) -> dict:
     """Build the provenance ledger for ``doc`` against ``baseline``(s).
 
     ``doc`` / ``baseline`` are ``rvt.mutate.Document`` objects (use
     ``Document.from_file``).  Returns a JSON-serialisable dict:
     per-category counts by provenance, per-class breakdown with example
     ids+names, embedded family-document units, totals, and the G1 gate verdict.
+
+    ``composed_residue_ids`` (single baseline only, issue #143): the baseline
+    is OUR pinned composed genesis base and these are its residue ids (see
+    :func:`classify_elements`); the report then says ``baseline_kind =
+    'pinned-composed-genesis'`` and counts the inherited ``ours-composed``
+    elements apart from the Autodesk-derived residue.
 
     v2 layers (opt-in, all ON in the CLI):
       ``baselines=[Document,...]`` — MULTI-BASELINE union: an element is
@@ -849,8 +894,10 @@ def provenance(doc, baseline=None, *, examples: int = 3,
         baselines = [baseline] if baseline is not None else []
     if len(baselines) > 1:
         verdicts = classify_elements_multi(doc, baselines)
+        composed_residue_ids = None          # multi-baseline = the samples themselves
     else:
-        verdicts = classify_elements(doc, baseline)
+        verdicts = classify_elements(doc, baseline,
+                                     composed_residue_ids=composed_residue_ids)
         if baseline is not None:
             lab = baseline_label(baseline)
             for v in verdicts.values():
@@ -920,6 +967,16 @@ def provenance(doc, baseline=None, *, examples: int = 3,
         "baselines": [os.path.abspath(getattr(b, "source_path", "") or b.project)
                       for b in baselines] if baselines else [],
         "multi_baseline": len(baselines) > 1,
+        "baseline_kind": (None if baseline is None else
+                          "pinned-composed-genesis" if composed_residue_ids is not None
+                          else "autodesk-sample"),
+        "composed": ({
+            "baseline_residue_ids": len(composed_residue_ids),
+            "inherited_ours_composed": prov_tot.get(P_COMPOSED, 0),
+            "note": ("baseline = OUR pinned composed genesis base: ids outside its residue "
+                     "are ours by composition (not Autodesk-derived); the residue ids are "
+                     "ledgered as sample elements and alone seed clone lineage"),
+        } if composed_residue_ids is not None else None),
         "baseline_watermark": watermark(baseline) if baseline is not None else None,
         "candidate_watermark": watermark(doc),
         "host_elements": len(doc.et_by_id),
@@ -1207,7 +1264,8 @@ def gate_G1(report: dict, strict: bool = False) -> dict:
 # text rendering
 # ---------------------------------------------------------------------------
 _PROV_SHORT = {P_SAMPLE: "sample", P_MODIFIED: "modified", P_CREATED: "created",
-               P_CLONED: "cloned", P_UNMATCHED: "unmatched", P_UNBASELINED: "unbaselined"}
+               P_CLONED: "cloned", P_COMPOSED: "composed",
+               P_UNMATCHED: "unmatched", P_UNBASELINED: "unbaselined"}
 
 
 def format_report(report: dict, *, show_examples: bool = True, max_classes: int = 8) -> str:
@@ -1225,6 +1283,11 @@ def format_report(report: dict, *, show_examples: bool = True, max_classes: int 
         lines.append(f"baseline: {os.path.basename(b) if b else '(none)'}"
                      f"   watermark: {report.get('baseline_watermark')}"
                      f"   overlap: {report.get('baseline_id_overlap')}")
+    comp = report.get("composed")
+    if comp:
+        lines.append(f"baseline kind: {report.get('baseline_kind')} — "
+                     f"{comp['inherited_ours_composed']:,} inherited elements ours by composition; "
+                     f"residue of the base = {comp['baseline_residue_ids']:,} ids")
     lines.append(f"layers ledgered: {' + '.join(report.get('layers') or ['elements'])}")
     lines.append(f"host elements: {report['host_elements']:,}   "
                  f"embedded family documents: {report['embedded_family_documents']['count']:,}"
@@ -2215,7 +2278,7 @@ __all__ = [
     "provenance", "classify_elements", "classify_units", "legal_category",
     "category_for_class", "gate_G1", "format_report", "watermark",
     "embedded_units", "CATEGORIES", "CATEGORY_ORDER", "PROVENANCES",
-    "P_SAMPLE", "P_MODIFIED", "P_CREATED", "P_CLONED", "P_UNMATCHED",
+    "P_SAMPLE", "P_MODIFIED", "P_CREATED", "P_CLONED", "P_COMPOSED", "P_UNMATCHED",
     "P_UNBASELINED", "ElementVerdict",
     # v2 stream-aware / multi-baseline / string / identity ledger
     "ContentUnit", "content_units", "BaselineCorpus", "build_baseline_corpus",
