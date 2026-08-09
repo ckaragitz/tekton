@@ -10,7 +10,7 @@ is Autodesk's.  For a build on OUR pinned composed genesis base
 re-authored IN PLACE by our constructors, rung by certified rung, and only a
 measured residue still carries the Autodesk ancestor's bytes.  Baselining the
 output against the base then reports every one of OUR ~2,700 composed
-elements as "autodesk-sample" (3,058 blockers on a prompt job today).
+elements as "autodesk-sample" (3,058 blockers on a prompt job before #143).
 
 What this tool writes (``src/rvt/frontdoor/assets/genesis_census.json``,
 mirrored into the plugin by ``tools/sync_plugin.py``): for each pinned base,
@@ -21,13 +21,13 @@ evidence, reproducible on a fresh clone:
 * the base's own ElemTable ids + classes (the pinned ``.rvt`` is in-repo);
 * its composition chain, walked from the compose manifest
   (``experiments/genesis/**/G_ABPD*.manifest.json``): every in-place rung's
-  certified report (``landed_slots`` = slots our constructor emitted an object
-  at; ``byte_delta.records_changed_ids`` / ``changed_ids`` = slots whose
-  bytes then differed from the rung's parent), recursively through each
-  report's ``parent`` down to the ancestor (the reduced sample ``K4``, which
-  no rung report produces);
-* for the 2026 base, the byte-ground-truth census
-  ``experiments/genesis/subst_k4/residue_c/census.json`` (seq-102 compare vs
+  certified report (``kind: inplace``; ``landed_slots`` = slots our
+  constructor emitted an object at; ``byte_delta.records_changed_ids`` /
+  ``changed_ids`` = slots whose bytes then differed from the rung's parent),
+  recursively through each report's ``parent`` down to the ancestor (the
+  reduced sample ``K4``, which no in-place rung produces);
+* any byte-ground-truth census a stream recorded for a pinned base
+  (``rvt.genesis.residue_c`` wrote one for the 2026 base: seq-102 compare vs
   K4, per id, with dispositions) — used to CROSS-CHECK the chain method and
   to annotate dispositions (machinery / coincident / genuine Autodesk values).
 
@@ -53,9 +53,10 @@ import argparse
 import glob
 import json
 import os
+import re
 import sys
 from collections import Counter
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
@@ -63,53 +64,69 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 from rvt.frontdoor import base as B                                   # noqa: E402
 from rvt.frontdoor.census import CENSUS_PATH, SCHEMA                 # noqa: E402
 
-EXPERIMENTS = os.path.join(ROOT, "experiments", "genesis")
-#: the 2026 byte-ground-truth census (docs/inbox/genesis-12.md §1.1)
-RESIDUE_C_CENSUS = os.path.join(EXPERIMENTS, "subst_k4", "residue_c", "census.json")
+EXPERIMENTS = os.path.join(ROOT, "experiments")
+#: substrings a JSON must contain to be worth parsing (558 files / 42 MB
+#: under experiments/; only the report-shaped ~250 matter here)
+_REPORT_MARKERS = (b'"out"', b'"alias_of"', b'"landed_slots"', b'"autodesk_serialization_identical"')
 
 
 def _rel(p: str) -> str:
-    ap = os.path.abspath(os.path.join(ROOT, p) if not os.path.isabs(p) else p)
+    ap = os.path.abspath(p if os.path.isabs(p) else os.path.join(ROOT, p))
     return os.path.relpath(ap, ROOT).replace(os.sep, "/")
-
-
-def _load(p: str) -> Optional[dict]:
-    try:
-        with open(os.path.join(ROOT, p) if not os.path.isabs(p) else p) as fh:
-            d = json.load(fh)
-    except (OSError, ValueError):
-        return None
-    return d if isinstance(d, dict) else None
 
 
 # ---------------------------------------------------------------------------
 # the report index: which tracked JSON produced which .rvt
 # ---------------------------------------------------------------------------
 class ReportIndex:
-    """``out`` relpath -> report relpath over every tracked experiment JSON."""
+    """Every report-shaped tracked JSON under ``experiments/``, parsed once:
+    ``docs`` (relpath -> dict), ``by_out`` (the ``.rvt`` a report produced ->
+    report relpath; an alias report describes ``<its own stem>.rvt``), and
+    ``truth`` (subject ``.rvt`` -> a byte-ground-truth census of it)."""
 
     def __init__(self, root: str = EXPERIMENTS):
+        self.docs: Dict[str, dict] = {}
         self.by_out: Dict[str, str] = {}
+        self.truth: Dict[str, str] = {}
+        weight: Dict[str, int] = {}
         for p in sorted(glob.glob(os.path.join(root, "**", "*.json"), recursive=True)):
-            d = _load(p)
-            if d is None:
+            try:
+                with open(p, "rb") as fh:
+                    blob = fh.read()
+            except OSError:
+                continue
+            if not any(m in blob for m in _REPORT_MARKERS):
+                continue
+            try:
+                d = json.loads(blob)
+            except ValueError:
+                continue
+            if not isinstance(d, dict):
+                continue
+            rp = _rel(p)
+            self.docs[rp] = d
+            if "autodesk_serialization_identical" in d and d.get("subject"):
+                self.truth[_rel(d["subject"])] = rp
                 continue
             out = d.get("out")
             if isinstance(out, dict):
                 out = out.get("file")
-            if isinstance(out, str) and out.endswith(".rvt"):
-                # a compose manifest and a summary may both name one out:
-                # prefer the document that carries the evidence
-                key = _rel(out)
-                have = self.by_out.get(key)
-                if have is None or self._weight(d) > self._weight(_load(have) or {}):
-                    self.by_out[key] = _rel(p)
+            if not (isinstance(out, str) and out.endswith(".rvt")):
+                # an alias / out-less rung report describes <own stem>.rvt
+                out = rp[:-5] + ".rvt" if (d.get("alias_of") or d.get("kind") == "inplace") else None
+            if out is None:
+                continue
+            key, w = _rel(out), self._weight(d)
+            # a compose manifest and a summary may both name one out: prefer
+            # the document that carries the evidence
+            if key not in self.by_out or w > weight[key]:
+                self.by_out[key], weight[key] = rp, w
 
     @staticmethod
     def _weight(d: dict) -> int:
         if d.get("op") == "compose":
             return 3
-        if d.get("landed_slots"):
+        if d.get("kind") == "inplace":
             return 2
         return 1 if d.get("alias_of") else 0
 
@@ -123,32 +140,25 @@ class ReportIndex:
 class Chain:
     """Accumulates, over every certified rung report reachable from a compose
     manifest: the slots our constructors LANDED, the ids whose bytes a rung
-    CHANGED, the reports read, and the ancestor file(s) the walk bottomed
-    out at (no report produces them = the reduced Autodesk sample)."""
+    CHANGED, the rung / compose names read, and the ancestor file(s) the walk
+    bottomed out at (no in-place rung produces them = the reduced sample)."""
 
     def __init__(self, index: ReportIndex):
         self.index = index
-        self.landed: Dict[int, str] = {}
-        self.changed: Dict[int, str] = {}
-        self.reports: List[dict] = []
+        self.landed: Set[int] = set()
+        self.changed: Set[int] = set()
+        self.rungs: List[str] = []
+        self.composes: List[str] = []
         self.ancestors: List[str] = []
         self.no_byte_evidence: List[str] = []
         self._seen: Set[str] = set()
 
-    # -- entry ---------------------------------------------------------------
     def walk_file(self, rvt_relpath: str) -> None:
         rep = self.index.producer(rvt_relpath)
         if rep is None:
-            # an alias file (RB_2025.rvt) carries no 'out' but has its report
-            # beside it under the same name
-            beside = _rel(rvt_relpath)[:-4] + ".json"
-            d = _load(beside)
-            if d is not None and (d.get("alias_of") or isinstance(d.get("landed_slots"), list)):
-                rep = beside
-        if rep is None:
             self._ancestor(rvt_relpath)
-            return
-        self.walk_report(rep)
+        else:
+            self.walk_report(rep)
 
     def _ancestor(self, rvt_relpath: str) -> None:
         r = _rel(rvt_relpath)
@@ -160,69 +170,42 @@ class Chain:
         if rp in self._seen:
             return
         self._seen.add(rp)
-        d = _load(rp)
+        d = self.index.docs.get(rp)
         if d is None:
-            self.reports.append({"report": rp, "kind": "MISSING"})
-            return
+            raise FileNotFoundError(f"rung report missing from the tracked tree: {rp}")
         if d.get("alias_of"):
             # md5-identical alias (Z_RA_2025 -> RA_2025 ...): the evidence is
             # the real report's, and ITS parent chain
-            self.reports.append({"report": rp, "kind": "alias", "alias_of": d["alias_of"]})
             self.walk_report(os.path.join(os.path.dirname(rp), f"{d['alias_of']}.json"))
-            return
-        if d.get("op") == "compose":
-            self._walk_compose(rp, d)
-            return
-        if isinstance(d.get("landed_slots"), list):
-            self._walk_rung(rp, d)
-            return
-        # a reduction / triage report (K4 <- K3 <- R9 ...): the in-place
-        # ladder starts ABOVE this file, so it is the byte ancestor -- the
-        # reduced Autodesk sample every rung's byte_delta is measured from.
-        # Nothing of ours lands below it; the walk stops here.
-        out = d.get("out")
-        out = out.get("file") if isinstance(out, dict) else out
-        self.reports.append({"report": rp, "kind": str(d.get("kind") or d.get("op") or "other")[:40],
-                             "ancestor": True})
-        self._ancestor(str(out or rp))
+        elif d.get("op") == "compose":
+            self.composes.append(rp)
+            for r in ((d.get("phase_1_inplace") or {}).get("merge") or {}).get("rungs") or []:
+                if r.get("report_file"):
+                    self.walk_report(r["report_file"])
+            if (d.get("base") or {}).get("file"):
+                self.walk_file(d["base"]["file"])
+        elif d.get("kind") == "inplace":
+            self._rung(rp, d)
+        else:
+            # a reduction / triage report (K4 <- K3 <- R9 ...): the in-place
+            # ladder starts ABOVE this file, so it is the byte ancestor -- the
+            # reduced Autodesk sample every rung's byte_delta is measured
+            # from.  Nothing of ours lands below it; the walk stops here.
+            out = d.get("out")
+            self._ancestor(str((out.get("file") if isinstance(out, dict) else out) or rp))
 
-    # -- node kinds ------------------------------------------------------------
-    def _walk_compose(self, rp: str, d: dict) -> None:
-        merge = ((d.get("phase_1_inplace") or {}).get("merge") or {})
-        rungs = merge.get("rungs") or []
-        base_file = (d.get("base") or {}).get("file")
-        self.reports.append({"report": rp, "kind": "compose", "base": base_file,
-                             "rungs": [r.get("name") for r in rungs],
-                             "merged_slots": merge.get("merged_slots"),
-                             "deleted": (d.get("phase_2_deletions") or {}).get("total_deleted")})
-        for r in rungs:
-            rf = r.get("report_file")
-            if rf:
-                self.walk_report(rf)
-        if base_file:
-            self.walk_file(base_file)
-
-    def _walk_rung(self, rp: str, d: dict) -> None:
+    def _rung(self, rp: str, d: dict) -> None:
         name = str(d.get("rung") or os.path.basename(rp)[:-5])
-        slots = {int(row["slot"]) for row in d["landed_slots"] if "slot" in row}
+        self.rungs.append(name)
+        self.landed.update(int(row["slot"]) for row in d.get("landed_slots") or [] if "slot" in row)
         bd = d.get("byte_delta") or {}
-        changed_raw = bd.get("records_changed_ids", bd.get("changed_ids"))
-        changed: Optional[Set[int]] = None
-        if isinstance(changed_raw, list):
-            changed = {int(x) for x in changed_raw}
-        for s in slots:
-            self.landed.setdefault(s, name)
-        if changed is None:
+        changed = bd.get("records_changed_ids", bd.get("changed_ids"))
+        if isinstance(changed, list):
+            self.changed.update(int(x) for x in changed)
+        else:
             # no per-id byte evidence in this report: by the byte law NONE of
             # its slots may be presumed changed (conservative; recorded)
             self.no_byte_evidence.append(name)
-        else:
-            for s in changed:
-                self.changed.setdefault(s, name)
-        self.reports.append({"report": rp, "kind": "rung", "rung": name,
-                             "parent": d.get("parent"), "landed": len(slots),
-                             "changed": None if changed is None else len(changed),
-                             "verdict": d.get("verdict")})
         if d.get("parent"):
             self.walk_file(d["parent"])
 
@@ -230,37 +213,30 @@ class Chain:
 # ---------------------------------------------------------------------------
 # one base
 # ---------------------------------------------------------------------------
-def _base_file(slot: dict) -> Optional[str]:
-    for cand in B.PIN.candidate_paths(relpath=str(slot.get("relpath"))):
-        if os.path.isfile(cand) and B.sha256_of(cand) == slot.get("sha256"):
-            return cand
-    return None
-
-
 def _elemtable(path: str) -> Dict[int, str]:
-    """{host element id: class name} of a project file."""
+    """{host element id: class name} of a project file of any release."""
     from rvt.mutate import Document
     from rvt.versions import reading
-    with reading(path):                       # 2025/2024 framing ordinals by name
+    with reading(path):
         doc = Document.from_file(path)
         return {int(e): (doc.class_of(int(e)) or "?") for e in doc.et_by_id}
 
 
-def census_one(year: int, slot: dict, index: ReportIndex) -> dict:
-    path = _base_file(slot)
-    if path is None:
-        raise FileNotFoundError(f"pinned base for {year} ({slot.get('id')}) not found / sha mismatch")
-    ids = _elemtable(path)
+def census_one(year: int, index: ReportIndex) -> dict:
+    rb = B.resolve_base(target_release=int(year))        # sha-verified against the pin
+    if not rb.pinned:
+        raise B.BaseError(f"Revit {year}: $RVT_GENESIS_BASE / --base override in force; "
+                          "the census is of the PINNED base only")
+    st = B.release_status(int(year))
+    ids = _elemtable(rb.path)
     chain = Chain(index)
-    chain.walk_file(str(slot["relpath"]))
-    changed = {e for e in chain.changed if e in ids}
-    landed = {e for e in chain.landed if e in ids}
-    identical = sorted(e for e in ids if e not in changed)
-    never_authored = sorted(e for e in ids if e not in changed and e not in landed)
-    by_class = Counter(ids[e] for e in identical)
+    chain.walk_file(str(st["relpath"]))
+    changed = chain.changed & ids.keys()
+    identical = sorted(ids.keys() - changed)
+    never_authored = [e for e in identical if e not in chain.landed]
     out = {
-        "id": slot.get("id"), "revit_release": int(year), "sha256": slot.get("sha256"),
-        "relpath": slot.get("relpath"), "host_elements": len(ids),
+        "id": st["id"], "revit_release": int(year), "sha256": rb.sha256,
+        "relpath": st["relpath"], "host_elements": len(ids),
         "ancestor": chain.ancestors,
         "ours_by_composition": len(ids) - len(identical),
         "identical_to_ancestor": {
@@ -270,41 +246,36 @@ def census_one(year: int, slot: dict, index: ReportIndex) -> dict:
                         "(= 'autodesk-sample' under rvt.provenance's byte law). Includes slots "
                         "our constructors landed but re-emitted byte-identically (content-free "
                         "machinery / coincident designation facts) -- reported, not argued away."),
-            "landed_but_identical": sum(1 for e in identical if e in landed),
+            "landed_but_identical": len(identical) - len(never_authored),
             "never_authored": len(never_authored),
-            "by_class": dict(by_class.most_common()),
+            "by_class": dict(Counter(ids[e] for e in identical).most_common()),
             "ids": identical,
         },
         "never_authored_ids": never_authored,
         "chain": {
-            "reports": len(chain.reports),
-            "rungs": [r["rung"] for r in chain.reports if r.get("kind") == "rung"],
-            "composes": [r["report"] for r in chain.reports if r.get("kind") == "compose"],
+            "rungs": chain.rungs, "composes": chain.composes,
             "rungs_without_byte_evidence": chain.no_byte_evidence,
-            "landed_slots": len(landed), "changed_ids": len(changed),
+            "landed_slots": len(chain.landed & ids.keys()), "changed_ids": len(changed),
         },
     }
-    if int(year) == 2026:
-        out["cross_check"] = _cross_check_2026(identical, ids)
+    truth = index.truth.get(_rel(str(st["relpath"])))
+    if truth:
+        out["cross_check"] = _cross_check(index.docs[truth], truth, set(identical))
     return out
 
 
-def _cross_check_2026(identical: List[int], ids: Dict[int, str]) -> dict:
-    """The chain method vs the byte-ground-truth census of G_ABPD
-    (residue_c/census.json: seq-102 payload compare against K4 per id)."""
-    d = _load(RESIDUE_C_CENSUS)
-    if d is None:
-        return {"available": False}
-    truth = {int(e["id"]): e for e in d.get("elements") or []}
-    mine = set(identical)
-    disp = Counter(truth[e].get("disposition") for e in mine if e in truth)
+def _cross_check(d: dict, source: str, mine: Set[int]) -> dict:
+    """The chain method vs a byte-ground-truth census of the same base
+    (e.g. residue_c/census.json: seq-102 payload compare vs K4 per id)."""
+    truth = {int(e["id"]): e.get("disposition") for e in d.get("elements") or []}
+    agree = mine == truth.keys()
     return {
-        "available": True, "source": _rel(RESIDUE_C_CENSUS),
-        "truth_identical": len(truth), "chain_identical": len(mine),
-        "agree": sorted(mine) == sorted(truth),
-        "only_in_truth": sorted(set(truth) - mine)[:20],
-        "only_in_chain": sorted(mine - set(truth))[:20],
-        "by_disposition": dict(disp.most_common()),
+        "source": source, "truth_identical": len(truth), "chain_identical": len(mine),
+        "agree": agree,
+        "only_in_truth": sorted(truth.keys() - mine)[:20],
+        "only_in_chain": sorted(mine - truth.keys())[:20],
+        "by_disposition": (dict(d.get("by_disposition") or {}) if agree else
+                           dict(Counter(truth[e] for e in mine & truth.keys()).most_common())),
         "dispositions": d.get("dispositions"),
     }
 
@@ -316,10 +287,9 @@ def build_census() -> dict:
     index = ReportIndex()
     bases: Dict[str, dict] = {}
     for year in B.PIN.release_years():
-        slot = B.PIN.release_slot(year)
-        if not slot or str(slot.get("status")) != "certified" or not slot.get("sha256"):
-            continue
-        bases[str(slot["sha256"])] = census_one(year, slot, index)
+        if B.release_status(year)["certified"]:
+            b = census_one(year, index)
+            bases[b["sha256"]] = b
     return {
         "schema": SCHEMA,
         "purpose": ("Per pinned composed genesis base (keyed by sha256): which host element ids "
@@ -336,33 +306,14 @@ def build_census() -> dict:
     }
 
 
-def _dumps(c: dict) -> str:
-    """indent=1 JSON with the long id lists kept on ONE line each (the asset
-    ships in the plugin; a line per id would triple its size for nothing)."""
-    stash: Dict[str, list] = {}
-
-    def _fold(o):
-        if isinstance(o, dict):
-            out = {}
-            for k, v in o.items():
-                if k in ("ids", "never_authored_ids") and isinstance(v, list):
-                    key = f"@@IDS{len(stash)}@@"
-                    stash[key] = v
-                    out[k] = key
-                else:
-                    out[k] = _fold(v)
-            return out
-        if isinstance(o, list):
-            return [_fold(v) for v in o]
-        return o
-
-    text = json.dumps(_fold(c), indent=1)
-    for key, ids in stash.items():
-        text = text.replace(f'"{key}"', json.dumps(ids, separators=(",", ":")))
-    return text + "\n"
+def dumps(c: dict) -> str:
+    """indent=1 JSON with every all-integer array folded onto ONE line (the
+    asset ships in the plugin; a line per id would triple its size)."""
+    return re.sub(r"\[[\d,\s]+\]", lambda m: re.sub(r"\s+", "", m.group(0)),
+                  json.dumps(c, indent=1)) + "\n"
 
 
-def _summary(c: dict) -> List[str]:
+def _summary(c: dict) -> str:
     lines = []
     for sha, b in (c.get("bases") or {}).items():
         it = b["identical_to_ancestor"]
@@ -372,14 +323,14 @@ def _summary(c: dict) -> List[str]:
                      f"({it['landed_but_identical']} landed-but-identical, {it['never_authored']} never authored)")
         lines.append(f"   ancestor: {', '.join(b['ancestor']) or '?'}; rungs: {len(b['chain']['rungs'])}; "
                      f"no byte evidence: {b['chain']['rungs_without_byte_evidence'] or 'none'}")
-        top = list(it["by_class"].items())[:8]
-        lines.append("   top identical classes: " + ", ".join(f"{k} {v}" for k, v in top))
+        lines.append("   top identical classes: "
+                     + ", ".join(f"{k} {v}" for k, v in list(it["by_class"].items())[:8]))
         cc = b.get("cross_check")
-        if cc and cc.get("available"):
+        if cc:
             lines.append(f"   cross-check vs {cc['source']}: agree={cc['agree']} "
                          f"(truth {cc['truth_identical']} / chain {cc['chain_identical']}); "
                          f"dispositions {cc['by_disposition']}")
-    return lines
+    return "\n".join(lines)
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -389,29 +340,25 @@ def main(argv: Optional[List[str]] = None) -> int:
     a = ap.parse_args(argv)
     try:
         c = build_census()
-    except FileNotFoundError as e:
+    except (B.BaseError, FileNotFoundError) as e:
         print(f"genesis_census: {e}", file=sys.stderr)
         return 2
-    text = _dumps(c)
-    if a.verb == "show":
-        print("\n".join(_summary(c)))
-        return 0
+    rel = os.path.relpath(a.out, ROOT)
     if a.verb == "check":
         have = None
         if os.path.exists(a.out):
             with open(a.out) as fh:
                 have = fh.read()
-        if have != text:
-            print(f"genesis_census: {os.path.relpath(a.out, ROOT)} is STALE — run tools/genesis_census.py build")
+        if have != dumps(c):
+            print(f"genesis_census: {rel} is STALE — run tools/genesis_census.py build")
             return 1
-        print(f"genesis_census: {os.path.relpath(a.out, ROOT)} current")
-        print("\n".join(_summary(c)))
-        return 0
-    os.makedirs(os.path.dirname(a.out), exist_ok=True)
-    with open(a.out, "w", newline="\n") as fh:
-        fh.write(text)
-    print(f"genesis_census: wrote {os.path.relpath(a.out, ROOT)}")
-    print("\n".join(_summary(c)))
+        print(f"genesis_census: {rel} current")
+    elif a.verb == "build":
+        os.makedirs(os.path.dirname(a.out), exist_ok=True)
+        with open(a.out, "w", newline="\n") as fh:
+            fh.write(dumps(c))
+        print(f"genesis_census: wrote {rel}")
+    print(_summary(c))
     return 0
 
 

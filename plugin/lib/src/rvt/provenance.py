@@ -85,7 +85,7 @@ import re
 import uuid
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, Iterable, List, Optional, Set, Tuple
+from typing import AbstractSet, Dict, Iterable, List, Optional, Set, Tuple
 
 from . import inventory as inv
 
@@ -552,7 +552,7 @@ class _CloneIndex:
     ids (a composed base's residue) so OUR composed objects never make a
     created element ``transitive-cloned``."""
 
-    def __init__(self, baseline, only_ids: Optional[Set[int]] = None):
+    def __init__(self, baseline, only_ids: Optional[AbstractSet[int]] = None):
         self.base = baseline
         self.only_ids = only_ids
         self._by_class: Dict[str, Dict[bytes, Set[int]]] = {}
@@ -605,10 +605,13 @@ class ElementVerdict:
     clone_similarity: float = 0.0
     attribution: Optional[str] = None                  # multi-baseline: which sample explains it
     baselines: Dict[str, str] = field(default_factory=dict)  # label -> verdict brief
+    edited: bool = False                               # ours-composed only: this build changed it
 
     def to_json(self) -> dict:
         d = {"id": self.eid, "class": self.cls, "category": self.category,
              "provenance": self.provenance}
+        if self.edited:
+            d["edited"] = True
         if self.reason:
             d["reason"] = self.reason
         if self.lineage:
@@ -638,7 +641,7 @@ def _same_records(cand, base, eid: int) -> Tuple[bool, str]:
 
 
 def classify_elements(doc, baseline=None, *, clone_index: Optional[_CloneIndex] = None,
-                      composed_residue_ids: Optional[Set[int]] = None
+                      composed_residue_ids: Optional[AbstractSet[int]] = None
                       ) -> Dict[int, ElementVerdict]:
     """Classify EVERY host-document element of ``doc`` (candidate).
 
@@ -656,8 +659,7 @@ def classify_elements(doc, baseline=None, *, clone_index: Optional[_CloneIndex] 
     host_ids = sorted(doc.et_by_id)
     base_ids: Set[int] = set(baseline.et_by_id) if baseline is not None else set()
     wm = watermark(baseline) if baseline is not None else -1
-    residue: Optional[Set[int]] = (set(composed_residue_ids)
-                                   if composed_residue_ids is not None else None)
+    residue = composed_residue_ids
     cindex = clone_index or (_CloneIndex(baseline, only_ids=residue)
                              if baseline is not None else None)
 
@@ -681,7 +683,8 @@ def classify_elements(doc, baseline=None, *, clone_index: Optional[_CloneIndex] 
                 verdicts[eid] = ElementVerdict(
                     eid, cls, cat, P_COMPOSED,
                     "our composed base's own object (slot re-authored in place), "
-                    + ("inherited unchanged" if same else "edited by this build: " + why))
+                    + ("inherited unchanged" if same else "edited by this build: " + why),
+                    edited=not same)
                 continue
             verdicts[eid] = ElementVerdict(eid, cls, cat,
                                            P_SAMPLE if same else P_MODIFIED, why)
@@ -856,7 +859,7 @@ def provenance(doc, baseline=None, *, examples: int = 3,
                streams: bool = False, strings: bool = False,
                identity: bool = False, corpus: Optional["BaselineCorpus"] = None,
                cache_dir: Optional[str] = None, verbose: bool = False,
-               composed_residue_ids: Optional[Set[int]] = None) -> dict:
+               composed_residue_ids: Optional[AbstractSet[int]] = None) -> dict:
     """Build the provenance ledger for ``doc`` against ``baseline``(s).
 
     ``doc`` / ``baseline`` are ``rvt.mutate.Document`` objects (use
@@ -894,10 +897,10 @@ def provenance(doc, baseline=None, *, examples: int = 3,
         baselines = [baseline] if baseline is not None else []
     if len(baselines) > 1:
         verdicts = classify_elements_multi(doc, baselines)
-        composed_residue_ids = None          # multi-baseline = the samples themselves
+        residue = None                       # multi-baseline = the samples themselves
     else:
-        verdicts = classify_elements(doc, baseline,
-                                     composed_residue_ids=composed_residue_ids)
+        residue = composed_residue_ids
+        verdicts = classify_elements(doc, baseline, composed_residue_ids=residue)
         if baseline is not None:
             lab = baseline_label(baseline)
             for v in verdicts.values():
@@ -968,15 +971,15 @@ def provenance(doc, baseline=None, *, examples: int = 3,
                       for b in baselines] if baselines else [],
         "multi_baseline": len(baselines) > 1,
         "baseline_kind": (None if baseline is None else
-                          "pinned-composed-genesis" if composed_residue_ids is not None
+                          "pinned-composed-genesis" if residue is not None
                           else "autodesk-sample"),
         "composed": ({
-            "baseline_residue_ids": len(composed_residue_ids),
+            "baseline_residue_ids": len(residue),
             "inherited_ours_composed": prov_tot.get(P_COMPOSED, 0),
             "note": ("baseline = OUR pinned composed genesis base: ids outside its residue "
                      "are ours by composition (not Autodesk-derived); the residue ids are "
                      "ledgered as sample elements and alone seed clone lineage"),
-        } if composed_residue_ids is not None else None),
+        } if residue is not None else None),
         "baseline_watermark": watermark(baseline) if baseline is not None else None,
         "candidate_watermark": watermark(doc),
         "host_elements": len(doc.et_by_id),
@@ -991,7 +994,7 @@ def provenance(doc, baseline=None, *, examples: int = 3,
         "created_elements": [verdicts[e].to_json() for e in sorted(verdicts)
                              if verdicts[e].provenance in (P_CREATED, P_CLONED)],
         "modified_elements": [verdicts[e].to_json() for e in sorted(verdicts)
-                              if verdicts[e].provenance == P_MODIFIED][:200],
+                              if verdicts[e].provenance == P_MODIFIED or verdicts[e].edited][:200],
     }
     if len(baselines) > 1:
         # per-baseline table + union attribution (audit §B3)

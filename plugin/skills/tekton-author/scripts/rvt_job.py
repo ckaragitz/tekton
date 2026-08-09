@@ -379,43 +379,61 @@ def validation_gate(path: str, out_json: str, *, layers: Optional[List[str]] = N
 # ===========================================================================
 # base provenance / genesis status gate (P0 G1)
 # ===========================================================================
-def _base_census(base_path: Optional[str]):
-    """The authorship census iff ``base_path`` IS a pinned composed genesis
-    base (exact sha256; rvt.frontdoor.census, #143) -- else None."""
-    if not base_path or is_autodesk_sample(base_path):
-        return None
-    try:
+def _census_mod():
+    def _l():
         from rvt.frontdoor import census as C
-        return C.for_file(base_path)
-    except Exception:                                                 # noqa: BLE001
-        return None
+        return C
+    return OPT.get("rvt.frontdoor.census", _l)
 
 
-#: why a build on OUR certified base is still PROOF-ONLY (TRACKER.md P0)
-PINNED_BASE_OPEN_GATES = (
-    "G2 identity block (#19: our BasicFileInfo, no inherited build strings / paths / GUIDs)",
-    "G3 counsel (#23: C1 author string, C4 the two shipped schema corpora, C5 footer token)",
-    "the element residue (#21: base slots still byte-identical to the Autodesk ancestor)",
-)
+def classify_base(base_path: Optional[str]) -> Tuple[Optional[str], Optional[str], Any]:
+    """(base_kind, pinned base id, census) -- what the base IS, decided once
+    and BYTES FIRST (#143): an exact sha256 of a certified pin makes it
+    ``pinned-composed-genesis`` whatever its file name (its authorship census
+    comes with it, or None when the asset is stale); otherwise a sample by
+    name / the samples dir is ``autodesk-sample``; anything else supplied is
+    ``user-base``; no base is None."""
+    if not base_path:
+        return None, None, None
+    C = _census_mod()
+    pinned, census = C.lookup(base_path) if C is not None else (None, None)
+    if pinned:
+        return "pinned-composed-genesis", pinned, census
+    return ("autodesk-sample" if is_autodesk_sample(base_path) else "user-base"), None, None
 
 
-def _gate_reason(gate: Dict[str, Any], g1: Dict[str, Any]) -> str:
-    """The manifest sentence for a failing G1 -- worded by what the base IS."""
-    kind = gate.get("base_kind")
-    if kind == "pinned-composed-genesis":
-        res = gate.get("residue") or {}
-        return (f"P0 gates still open on the certified composed genesis base "
-                f"{res.get('base_id')} (Revit {res.get('revit_release')}): "
-                + "; ".join(PINNED_BASE_OPEN_GATES)
-                + f". G1 element ledger against that residue: {g1.get('verdict')} "
-                f"(the base's own {res.get('ours_by_composition'):,} composed elements and this "
-                f"build's created content are ours). PROOF-ONLY is a label: the file is delivered.")
-    if gate.get("base_is_autodesk_sample"):
+#: TRACKER.md P0 gate G3 is a HUMAN gate (counsel) no instrument can read
+G3_COUNSEL = "G3 counsel (#23: C1 author string, C4 the two shipped schema corpora, C5 footer token) is a human gate, open"
+
+
+def _pinned_reason(pinned_id: str, residue: Dict[str, Any], g1: Dict[str, Any]) -> str:
+    """The manifest sentence on OUR pinned base: every clause MEASURED by this
+    run (identity layer -> G2, census -> residue, element ledger -> G1) except
+    G3, which is counsel's and said to be."""
+    ident = [b for b in g1.get("blocking") or [] if b.get("layer") == "identity"]
+    g2 = (f"G2 identity (#19): {len(ident)} inherited lineage identifier(s) still aboard "
+          f"({', '.join(str(b.get('category', '')).split(':', 1)[-1] for b in ident)})"
+          if ident else "G2 identity (#19): ours on this file")
+    if residue:
+        res = (f"element residue (#21): {residue['identical_to_ancestor']:,} of the base's "
+               f"{residue['host_elements']:,} slots still byte-identical to the Autodesk ancestor, "
+               f"the other {residue['ours_by_composition']:,} ours by composition")
+    else:
+        res = ("element residue (#21): census asset STALE for this pin (run tools/genesis_census.py "
+               "build) -- ledgered conservatively as if every inherited element were the ancestor's")
+    return (f"P0 gates on the certified composed genesis base {pinned_id}: {g2}; {G3_COUNSEL}; {res}. "
+            f"G1 ledger: {g1.get('verdict')} (this build's created content is ours unless listed as "
+            "transitive-cloned). PROOF-ONLY is a label: the file is delivered.")
+
+
+def _gate_reason(kind: Optional[str], verdict: Optional[str]) -> str:
+    """The manifest sentence for a failing G1 on a base that is NOT ours."""
+    if kind == "autodesk-sample":
         return (f"P0 genesis gate G1 fails (the base is an Autodesk sample project): "
-                f"{g1.get('verdict')}. Nothing built on a sample base is a "
+                f"{verdict}. Nothing built on a sample base is a "
                 "product; ship only from a certified genesis base.")
     return (f"P0 genesis gate G1 fails (a user-supplied base with no authorship census; "
-            f"everything inherited from it is ledgered as the base's): {g1.get('verdict')}. "
+            f"everything inherited from it is ledgered as the base's): {verdict}. "
             "Deliverability needs a certified genesis base plus TRACKER gates G2 (#19) / G3 (#23).")
 
 
@@ -426,30 +444,33 @@ def provenance_gate(out_path: str, base_path: Optional[str], *,
     Three kinds of base, ledgered honestly (``base_kind``):
 
     * ``pinned-composed-genesis`` -- OUR certified composed base (exact sha256
-      of a ``genesis_base.json`` pin).  Its authorship census
-      (``rvt.frontdoor.census``) says which of its slots still carry the
-      Autodesk ancestor's bytes; ONLY those are Autodesk-derived, every other
-      inherited element is ours by composition, and created content is
-      ``transitive-cloned`` only through lineage into that residue.  Still
-      PROOF-ONLY today: TRACKER gates G2 (#19) / G3 (#23) and the residue
-      (#21) are open -- said in those words, never as "sample base".
+      of a ``genesis_base.json`` pin, whatever the file is named).  Its
+      authorship census (``rvt.frontdoor.census``) says which of its slots
+      still carry the Autodesk ancestor's bytes; ONLY those are
+      Autodesk-derived, every other inherited element is ours by composition,
+      and created content is ``transitive-cloned`` only through lineage into
+      that residue.  Still PROOF-ONLY today, and the reason MEASURES why: the
+      identity layer (G2, #19), the residue (#21), the element ledger (G1);
+      G3 counsel (#23) is cited as the human gate it is.  Never "sample base".
     * ``autodesk-sample`` -- a sample project: everything inherited is
       Autodesk's (v1 wording, unchanged).
-    * ``user-base`` -- an explicit ``--base`` with no census: ledgered like a
-      sample (nothing can be presumed ours), worded as unattributed.
+    * ``user-base`` -- an explicit ``--base`` that is not a pin: ledgered like
+      a sample (nothing can be presumed ours), worded as unattributed.
 
     G1 PASSES only when NO Autodesk-derived expression remains; the status is
     a LABEL in the manifest -- the file is always delivered (hard rule 1).
     """
-    census = _base_census(base_path)
+    kind, pinned_id, census = classify_base(base_path)
     gate: Dict[str, Any] = {"status": "UNKNOWN", "deliverable": False,
                             "base": _abs(base_path),
-                            "base_is_autodesk_sample": is_autodesk_sample(base_path),
-                            "base_kind": ("pinned-composed-genesis" if census is not None
-                                          else "autodesk-sample" if is_autodesk_sample(base_path)
-                                          else "user-base" if base_path else None)}
+                            "base_is_autodesk_sample": kind == "autodesk-sample",
+                            "base_kind": kind}
     if census is not None:
         gate["residue"] = census.summary()
+    elif pinned_id:
+        gate["census"] = (OPT.errors.get("rvt.frontdoor.census")
+                          or f"STALE: no census entry for the pinned {pinned_id} bytes -- "
+                             "run tools/genesis_census.py build")
     if skip:
         gate["status"] = "SKIPPED (--no-provenance) => treated as NOT-DELIVERABLE"
         gate["reason"] = "provenance ledger not run; deliverability unproven"
@@ -468,13 +489,16 @@ def provenance_gate(out_path: str, base_path: Optional[str], *,
         t0 = time.time()
         cand = Document.from_file(out_path)
         base = Document.from_file(base_path)
-        rep = P.provenance(cand, base, examples=0, with_units=True,
+        # on OUR pinned base the identity layer runs too (cheap, no corpus:
+        # the base's own BasicFileInfo), so G2 is read off the file, not narrated
+        rep = P.provenance(cand, base, examples=0, with_units=True, identity=bool(pinned_id),
                            composed_residue_ids=(census.residue_ids
                                                  if census is not None else None))
         g1 = P.gate_G1(rep)
         gate["elapsed_s"] = round(time.time() - t0, 1)
         gate["g1"] = {"passes": bool(g1.get("passes")), "verdict": g1.get("verdict"),
-                      "blocking": g1.get("blocking", [])[:12]}
+                      "layers": g1.get("layers"),
+                      "blocking": g1.get("blocking", [])[:16]}
         gate["provenance_totals"] = rep.get("provenance_totals")
         gate["created_elements"] = rep.get("created_elements")
         gate["modified_elements"] = rep.get("modified_elements")
@@ -483,7 +507,8 @@ def provenance_gate(out_path: str, base_path: Optional[str], *,
             gate["deliverable"] = True
         else:
             gate["status"] = "PROOF-ONLY, NOT-DELIVERABLE"
-            gate["reason"] = _gate_reason(gate, g1)
+            gate["reason"] = (_pinned_reason(pinned_id, gate.get("residue") or {}, g1) if pinned_id
+                              else _gate_reason(kind, g1.get("verdict")))
     except Exception as e:                                            # noqa: BLE001
         gate["status"] = "DEGRADED — provenance run failed => NOT-DELIVERABLE"
         gate["reason"] = f"{type(e).__name__}: {e}"
