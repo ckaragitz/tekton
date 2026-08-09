@@ -45,6 +45,7 @@ Public API::
     prod = F.make_transformer(kva=75, primary_v=480, secondary_v='208Y/120')
     prod = F.make_luminaire(kind='recessed-troffer', size='2x4', wattage=38,
                             lumens=4600, cct=4000, voltage='120-277')
+    prod = F.make_device('duplex-receptacle', mounting_height_in=18, voltage=120, va=180)
     F.provenance_scan(path)                   # standalone provenance report
 
     # the project-side LOADER (proven mechanisms + spec; no project file yet)
@@ -723,6 +724,116 @@ def resolve_luminaire_facts(kind: str = "recessed-troffer", *,
 
 
 # ---------------------------------------------------------------------------
+# FACTS RESOLUTION -- wiring device (Electrical Fixtures)
+# ---------------------------------------------------------------------------
+
+#: device kinds -> the ``generic/devices-and-mounting`` variant + our labels
+_DEVICE_LINE = ("generic", "devices-and-mounting")
+DEVICE_KINDS = {
+    "duplex-receptacle": {"model": "duplex-receptacle-5-15R", "label": "Duplex Receptacle",
+                          "type": "NEMA 5-15R"},
+    "duplex-receptacle-20a": {"model": "duplex-receptacle-5-20R", "label": "Duplex Receptacle",
+                              "type": "NEMA 5-20R"},
+    "switch": {"model": "toggle-switch-single-pole", "label": "Single Pole Switch",
+               "type": "Single Pole"},
+    "junction-box": {"model": "box-4in-square", "label": "Junction Box",
+                     "type": "4in Square"},
+}
+_DEVICE_ALIASES = {"receptacle": "duplex-receptacle", "duplex": "duplex-receptacle",
+                   "outlet": "duplex-receptacle", "5-15r": "duplex-receptacle",
+                   "5-20r": "duplex-receptacle-20a", "toggle-switch": "switch",
+                   "light-switch": "switch", "jbox": "junction-box", "j-box": "junction-box",
+                   "box": "junction-box"}
+
+
+def device_kind(kind: str) -> str:
+    """Normalise a device kind / alias to a :data:`DEVICE_KINDS` key."""
+    k = _DEVICE_ALIASES.get(str(kind).lower().strip(), str(kind).lower().strip())
+    if k not in DEVICE_KINDS:
+        raise FactoryError(f"unknown device kind {kind!r}; known: {sorted(DEVICE_KINDS)}")
+    return k
+
+
+def resolve_device_facts(kind: str = "duplex-receptacle", *,
+                         mounting_height_in: Optional[float] = None,
+                         voltage: Any = 120, va: float = 180) -> FactSheet:
+    """Resolve a WIRING DEVICE (duplex receptacle / single-pole switch /
+    4 in square junction box) from ``generic/devices-and-mounting``: the
+    device-box envelope (``dims_in``), OUR faceplate envelope
+    (``options.plate_in``), the mounting height above the floor (given, else
+    the record's typical convention -- 18 in receptacles / 48 in switches,
+    'assumed', inside the ADA 15..48 in reach envelope which is the sourced
+    FACT), the connector's system ``voltage`` and booked load ``va`` (job
+    values, 'given'; 180 VA = the NEC 220.14(I) receptacle unit load).
+    Every envelope figure is 'assumed' on the record and surfaces as such."""
+    k = device_kind(kind)
+    spec = DEVICE_KINDS[k]
+    cv, cl = _DEVICE_LINE
+    doc = C.load_line(cv, cl)
+    lf = doc.get("line_facts") or {}
+    try:
+        variant = C.get_variant(cv, cl, model=spec["model"])
+    except C.CatalogError as e:
+        raise FactoryError(str(e))
+    sheet = FactSheet(subject=f"{cv}/{cl} {k}", catalog=f"{cv}/{cl}",
+                      variant=variant.get("model", spec["model"]))
+    # the device box behind the wall face (w x h opening, d deep)
+    _fp(sheet, variant, "dims_in.w", "box_width_in")
+    _fp(sheet, variant, "dims_in.h", "box_height_in")
+    _fp(sheet, variant, "dims_in.d", "box_depth_in")
+    # OUR faceplate envelope (a leaf dict flagged as one field)
+    plate = C.require(variant, "options.plate_in")
+    pkind = C.field_provenance(variant, "options.plate_in") or "assumed"
+    for key, sub in (("plate_width_in", "w"), ("plate_height_in", "h"),
+                     ("plate_thickness_in", "t")):
+        sheet.set(key, float(plate[sub]), kind=pkind, source=sheet.variant,
+                  note="OUR faceplate modelling envelope")
+    # mounting height above the finished floor -> the MountingHeight parameter
+    mh = (variant.get("options") or {}).get("mounting_height_aff_in") or {}
+    if mounting_height_in is not None:
+        sheet.set("mounting_height_in", float(mounting_height_in), kind="given")
+    else:
+        sheet.set("mounting_height_in", float(mh.get("typical", 18)),
+                  kind=C.field_provenance(variant, "options.mounting_height_aff_in") or "assumed",
+                  source=sheet.variant,
+                  note=str(mh.get("note") or "typical design convention (editable)")[:160])
+    lo = (lf.get("ada_forward_reach_low_min_in") or {})
+    hi = (lf.get("ada_forward_reach_high_max_in") or {})
+    if lo.get("value") is not None and hi.get("value") is not None:
+        sheet.set("ada_reach_range_in", [lo["value"], hi["value"]],
+                  kind=lo.get("provenance", "fact"), source=str(lo.get("source", "")),
+                  note="ADA 308.2.1 unobstructed forward reach 15..48 in to the operable part")
+    # ratings: the device's own rating (record) vs the connector's system values (job)
+    r = variant.get("ratings") or {}
+    if r.get("voltage_v") is not None:
+        sheet.set("device_rating_v", float(r["voltage_v"]),
+                  kind=C.field_provenance(variant, "ratings.voltage_v") or "assumed",
+                  source=sheet.variant)
+    if r.get("current_a") is not None:
+        sheet.set("device_rating_a", float(r["current_a"]),
+                  kind=C.field_provenance(variant, "ratings.current_a") or "assumed",
+                  source=sheet.variant)
+    vll, _ph, _w = _voltage_number(voltage)
+    sheet.set("voltage_v", vll, kind="given", note="connector system voltage (1-pole)")
+    unit = (variant.get("options") or {}).get("unit_load_va") or {}
+    sheet.set("load_va", float(va), kind="given",
+              note=(f"booked connector load; {unit.get('code', 'NEC 220.14(I)')} unit load "
+                    f"= {unit.get('value', 180)} VA per receptacle strap" if unit
+                    else "booked connector load (a switch / junction box carries no code "
+                         "unit load; NEC 220.14(I)'s 180 VA is a RECEPTACLE figure)"))
+    sheet.set("configuration", spec["type"], kind="ours",
+              note=str(r.get("nema_config") or variant.get("role") or ""))
+    sheet.set("manufacturer", "generic", kind="ours", note="vendor-neutral device facts")
+    sheet.set("model", sheet.variant, kind="fact", source=cl,
+              note="catalog member as the Model parameter VALUE")
+    sheet.notes.append("Device box + faceplate are OUR modelling envelopes ('assumed' on the "
+                       "record); the sourced FACTS are the ADA reach envelope and the 4 in "
+                       "square box identity. No face-hosting: work-plane family like the "
+                       "panelboard.")
+    return sheet
+
+
+# ---------------------------------------------------------------------------
 # GEOMETRY composition (skeleton doc <- form bundle <- connector)
 # ---------------------------------------------------------------------------
 
@@ -898,7 +1009,7 @@ class FamilyProduct:
     authored solid is built at); ``types`` = one :class:`TypeRow` per
     family type in type-table order (a single entry unless ``types=`` named
     several catalog selections)."""
-    kind: str                              # 'panelboard' | 'transformer' | 'luminaire'
+    kind: str                              # 'panelboard' | 'transformer' | 'luminaire' | 'device'
     doc: SK.FamilyDoc
     facts: FactSheet
     forms: List[G.FormBundle] = dc_field(default_factory=list)
@@ -1547,6 +1658,84 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
     if shape != "box":
         prod.notes.append("housing = OUR polygonal can (manufacturer housing dims not "
                           "sourced); the true curved profile is phase 2")
+    return prod
+
+
+# ---------------------------------------------------------------------------
+# PRODUCT 4 -- WIRING DEVICE (Electrical Fixtures: receptacle / switch / box)
+# ---------------------------------------------------------------------------
+
+def make_device(kind: str = "duplex-receptacle", *,
+                mounting_height_in: Optional[float] = None,
+                voltage: Any = 120, va: float = 180,
+                solid: bool = True, name: Optional[str] = None,
+                start_id: int = 1000,
+                shared_params: SK.SharedParamsArg = None) -> FamilyProduct:
+    """Compose a WIRING DEVICE family (``OST_ElectricalFixtures``): a duplex
+    receptacle (NEMA 5-15R / 5-20R), a single-pole switch or a 4 in square
+    junction box from ``generic/devices-and-mounting`` -- the faceplate
+    ``plate`` proud of the family XY plane (the wall face of a
+    work-plane-based family, the panelboard's law; NO face-hosting claim) and
+    the device ``box`` recessed behind it, both at the record's envelope
+    dimensions ('assumed', surfaced).  ONE 1-pole power connector on the back
+    of the box, primary, voltage / load bound to the ``Voltage`` / ``Load``
+    parameters (the receptacle specimen's own bindings); ``MountingHeight`` =
+    the height above the floor the placement law uses (given, else the
+    18 in / 48 in convention inside the ADA 15..48 in reach FACT)."""
+    facts = resolve_device_facts(kind, mounting_height_in=mounting_height_in,
+                                 voltage=voltage, va=va)
+    k = device_kind(kind)
+    spec = DEVICE_KINDS[k]
+    volt = float(facts.get("voltage_v"))
+    load = float(facts.get("load_va"))
+    fam_name = name or _clean_name(spec["label"], spec["type"], f"{volt:g}V")
+    doc = SK.new_family_document("electrical_fixture", fam_name,
+                                 part_type=SK.PART_TYPE["normal"],
+                                 work_plane_based=True, start_id=start_id,
+                                 plane_length_ft=2.0, shared_params=shared_params)
+    doc.notes.append("device: work-plane-based (the family XY = the wall face, the "
+                     "panelboard's law); not a face-/wall-HOSTED family")
+    _num(doc, "Voltage", "voltage", "electrical")
+    _num(doc, "Load", "apparent_power", "electrical_loads")
+    _num(doc, "MountingHeight", "length", "constraints")
+    rows: List[TypeRow] = []
+    _add_type_row(doc, rows, _clean_name(spec["type"], f"{volt:g}V"), facts, [
+        ("Voltage", "voltage", volt), ("Load", "apparent_power", load),
+        ("MountingHeight", "length", facts.get("mounting_height_in")),
+    ], description=(
+        f"{spec['label']} ({facts.get('configuration')}), {volt:g} V 1-pole, "
+        f"{load:g} VA booked, mounted {facts.get('mounting_height_in'):g} in AFF "
+        f"(box {facts.get('box_width_in'):g} W x {facts.get('box_height_in'):g} H x "
+        f"{facts.get('box_depth_in'):g} D in, plate {facts.get('plate_width_in'):g} x "
+        f"{facts.get('plate_height_in'):g} in; generated from generic device facts)"))
+    # geometry: faceplate proud of the wall face (z 0..t), box recessed (z -d..0)
+    rep = G.REP_SOLID if solid else G.REP_DUMMY
+    pw, ph, pt = (inches(facts.get(k_)) for k_ in
+                  ("plate_width_in", "plate_height_in", "plate_thickness_in"))
+    bw, bh, bd = (inches(facts.get(k_)) for k_ in
+                  ("box_width_in", "box_height_in", "box_depth_in"))
+    plate = G.plate(pw, ph, pt, geometry_context(doc), doc.ids, base_z_ft=0.0, rep=rep)
+    doc.add(*plate.elements)
+    plate.params.update({"role": "faceplate", "dims_in": [facts.get("plate_width_in"),
+                                                          facts.get("plate_height_in"),
+                                                          facts.get("plate_thickness_in")]})
+    box = add_box_form(doc, bw, bh, bd, base_z_ft=-bd, rep=rep)
+    box.params.update({"role": "device box", "dims_in": [facts.get("box_width_in"),
+                                                         facts.get("box_height_in"),
+                                                         facts.get("box_depth_in")]})
+    # connector: 1-pole feed on the back of the box (where the branch wiring enters)
+    add_connector(doc, host=box, face="bottom", location=(0.0, 0.0, -bd),
+                  direction=(0.0, 0.0, -1.0), u_axis=(1.0, 0.0, 0.0),
+                  voltage_v=volt, poles=1, apparent_load_va=load, power_factor=1.0,
+                  bind_voltage_param="Voltage", bind_load_param="Load",
+                  load_class="Receptacle" if "receptacle" in k else "Power",
+                  description="Power Connection", primary=True)
+    doc.finalize()
+    prod = FamilyProduct("device", doc, facts, forms=[plate, box], types=rows,
+                         file_stem=_slug(f"{k}_{volt:g}v"))
+    prod.notes.append("one 1-pole primary connector on the back of the device box, voltage "
+                      "-> Voltage, load -> Load (Power-Unbalanced, load on phase 1)")
+    _multi_type_notes(prod)
     return prod
 
 
