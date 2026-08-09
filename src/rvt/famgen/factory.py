@@ -71,7 +71,7 @@ import os
 import re
 import uuid
 from dataclasses import dataclass, field as dc_field
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from . import catalog as C
 from . import skeleton as SK
@@ -789,7 +789,8 @@ def box_face(face: str) -> Dict[str, Any]:
 def add_connector(doc: SK.FamilyDoc, *, host: G.FormBundle, face: str,
                   location: Sequence[float], direction: Sequence[float],
                   u_axis: Sequence[float], voltage_v: float, poles: int,
-                  apparent_load_va: Any = 0.0, power_factor: float = 1.0,
+                  apparent_load_va: Union[float, Sequence[float]] = 0.0,
+                  power_factor: float = 1.0,
                   bind_voltage_param: Optional[str] = None,
                   bind_load_param: Optional[str] = None,
                   load_class: str = "Power",
@@ -804,21 +805,17 @@ def add_connector(doc: SK.FamilyDoc, *, host: G.FormBundle, face: str,
     ``bind_voltage_param`` / ``bind_load_param`` = captions of the doc's
     family parameters to ASSOCIATE with the connector's voltage / apparent
     load (the type value drives the connector) [V mechanism].
-    ``apparent_load_va`` = the connector's whole load (split equally over
-    the poles) or a per-phase list (:func:`rvt.famgen.skeleton.electrical_domain`).
-    ``primary``: "a single connector of each discipline is allowed to be
-    primary in each family" -- ``None`` = primary iff it is the document's
-    first connector; asking for a second primary raises.
+    ``apparent_load_va`` (a total split over the poles, or a per-phase list)
+    and ``primary`` (``None`` = only the family's first connector is; a
+    second primary raises): laws in ``SK.electrical_domain`` /
+    ``SK.FamilyDoc.resolve_primary``.
     """
     if doc.finalized:
         raise FactoryError("document is finalized; add connectors before finalize")
-    have_primary = any(c.obj["m_pDomain"]["value"]["m_bIsConnectorPrimary"]
-                       for c in doc.connectors)
-    if primary is None:
-        primary = not have_primary
-    elif primary and have_primary:
-        raise FactoryError("the family already has a primary connector (one primary "
-                           "connector per discipline per family)")
+    try:
+        primary = doc.resolve_primary(primary)
+    except ValueError as e:
+        raise FactoryError(str(e)) from None
     ext = host.by_class("ExtrusionElem")
     if not ext:
         raise FactoryError("host form has no ExtrusionElem")
@@ -849,7 +846,7 @@ def add_connector(doc: SK.FamilyDoc, *, host: G.FormBundle, face: str,
         voltage_v=float(voltage_v), poles=int(poles),
         load_class_id=lc.elem_id, apparent_load_va=apparent_load_va,
         power_factor=float(power_factor), description=str(description),
-        primary=bool(primary),
+        primary=primary,
         edge_loop_tags=list(fx["edges"]), param_bindings=bindings,
         index=len(doc.connectors) + 1)
     con.notes.append(f"hosted on the enclosure's {face} face (tag {fx['tag']}, "

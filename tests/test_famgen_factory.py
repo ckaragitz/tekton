@@ -253,8 +253,8 @@ def test_transformer_family_composition():
     # the primary WINDING is the family's one primary connector; the secondary
     # books 75 kVA balanced over its 3 poles = 25 kVA per phase
     pri, sec = (c.obj["m_pDomain"]["value"] for c in doc.connectors)
-    assert (pri["m_strConnectorDescription"], sec["m_strConnectorDescription"]) == ("Primary", "Secondary")
-    assert (pri["m_bIsConnectorPrimary"], sec["m_bIsConnectorPrimary"]) == (True, False)
+    assert [(d["m_strConnectorDescription"], d["m_bIsConnectorPrimary"]) for d in (pri, sec)] == \
+        [("Primary", True), ("Secondary", False)]
     assert [sec[f"m_dApparentLoadPhase{i}"] for i in (1, 2, 3)] == \
         pytest.approx([SK.voltamps(25000.0)] * 3)
     assert sec["m_dApparentLoad"] == 0.0 and sec["m_systemType"] == SK.ELECTRICAL_SYSTEM_POWER_UNBALANCED
@@ -264,57 +264,29 @@ def _rfa_connector_domains(path):
     """[(m_index, ConnectorElemDomainElectrical dict)] decoded from an .rfa FILE."""
     from rvt.families import FamilyIndex
     idx = FamilyIndex(path)
-    recs = idx.unit_records(0)[102]
-    out = []
-    for eid, r in sorted(recs.items()):
-        if idx.class_name(r.class_id) == "ConnectorElem":
-            v = idx.decode(0, eid, 102).value
-            assert v["m_pDomain"]["ptr_class"] == "ConnectorElemDomainElectrical"
-            out.append((v["m_index"], v["m_pDomain"]["value"]))
-    return out
+    vals = [idx.value(0, eid) for eid in sorted(idx.ids_of_class(0, "ConnectorElem"))]
+    assert all(v["m_pDomain"]["ptr_class"] == "ConnectorElemDomainElectrical" for v in vals)
+    return [(v["m_index"], v["m_pDomain"]["value"]) for v in vals]
 
 
 @needs_schema
 def test_emitted_transformer_rfa_decodes_three_equal_phase_loads_and_one_primary(tmp_path):
     """Fresh-clone law check ON THE FILE: the written 75 kVA transformer .rfa
     decodes back to a secondary with three equal per-phase loads (internal
-    units = VA / 0.3048**2) and exactly one primary connector in the family;
-    family-mode VALID, provenance clean (validator green != certification)."""
+    units = VA / 0.3048**2) and exactly one primary connector -- the primary
+    winding.  (Family-mode VALID + provenance of this same default build:
+    test_every_kind_writes_a_family_mode_valid_provenance_clean_rfa.)"""
     prod = F.make_transformer(kva=75, primary_v=480, secondary_v="208Y/120")
-    rep = prod.write(str(tmp_path / "xfmr.rfa"), validate=True, provenance=True)
-    assert rep["ok"], rep.get("caveats")
-    fam = rep["validate"]["family_mode"]
-    assert fam["verdict"] == "VALID" and fam["n_errors"] == 0, fam.get("errors")
-    assert rep["provenance"]["ok"] and rep["provenance"]["suspects"] == []
+    rep = prod.write(str(tmp_path / "xfmr.rfa"), validate=False, provenance=False)
     doms = _rfa_connector_domains(rep["path"])
-    assert [i for i, _d in doms] == [1, 2]
-    assert sum(d["m_bIsConnectorPrimary"] for _i, d in doms) == 1
-    pri, sec = (d for _i, d in doms)
-    assert pri["m_bIsConnectorPrimary"] and round(pri["m_dVoltage"] * 0.3048 ** 2) == 480
-    assert round(sec["m_dVoltage"] * 0.3048 ** 2) == 208 and sec["m_nNumberOfPoles"] == 3
+    assert [(i, d["m_bIsConnectorPrimary"], round(d["m_dVoltage"] * 0.3048 ** 2))
+            for i, d in doms] == [(1, True, 480), (2, False, 208)]
+    sec = doms[1][1]
+    assert sec["m_nNumberOfPoles"] == 3 and sec["m_systemType"] == 31     # Power-Unbalanced
     per_phase = 75000.0 / 3 / 0.3048 ** 2                       # 269097.76 internal
+    assert per_phase == pytest.approx(SK.voltamps(25000.0))
     assert [sec[f"m_dApparentLoadPhase{i}"] for i in (1, 2, 3)] == pytest.approx([per_phase] * 3)
-    assert sec[f"m_dApparentLoadPhase1"] == pytest.approx(SK.voltamps(25000.0))
     assert sec["m_dApparentLoad"] == 0.0
-    assert pri["m_systemType"] == sec["m_systemType"] == 31           # Power-Unbalanced
-
-
-@needs_schema
-@pytest.mark.parametrize("kind", ["panelboard", "luminaire"])
-def test_single_connector_families_keep_their_domain_and_one_primary(tmp_path, kind):
-    """Panelboard / luminaire: one connector, so it is the primary one; the
-    domain values are the pre-#164 ones (0 VA 3-pole feed / 38 W on phase 1)."""
-    prod = (F.make_panelboard(mains_a=400, spaces=42, voltage="480Y/277", mcb=True)
-            if kind == "panelboard" else
-            F.make_luminaire(kind="recessed-troffer", size="2x4", wattage=38,
-                             lumens=4600, cct=4000, voltage="120-277"))
-    rep = prod.write(str(tmp_path / f"{kind}.rfa"), validate=False, provenance=False)
-    (idx1, dom), = _rfa_connector_domains(rep["path"])
-    assert idx1 == 1 and dom["m_bIsConnectorPrimary"] is True and dom["m_systemType"] == 31
-    assert dom["m_dApparentLoad"] == 0.0
-    want_p1 = 0.0 if kind == "panelboard" else SK.voltamps(38.0)
-    assert dom["m_dApparentLoadPhase1"] == pytest.approx(want_p1)
-    assert dom["m_dApparentLoadPhase2"] == dom["m_dApparentLoadPhase3"] == 0.0
 
 
 @needs_schema
@@ -429,6 +401,11 @@ def test_every_kind_writes_a_family_mode_valid_provenance_clean_rfa(tmp_path, ki
     prov = rep["provenance"]
     assert prov["ok"] and prov["suspects"] == [], prov.get("suspects")
     assert os.path.getsize(rep["path"]) > 100_000
+    # on the FILE: exactly one primary connector per family, every connector
+    # Power-Unbalanced (31) with its load per phase and m_dApparentLoad 0 (#164)
+    doms = [d for _i, d in _rfa_connector_domains(rep["path"])]
+    assert sum(d["m_bIsConnectorPrimary"] for d in doms) == 1 and doms[0]["m_bIsConnectorPrimary"]
+    assert all(d["m_systemType"] == 31 and d["m_dApparentLoad"] == 0.0 for d in doms)
 
 
 @needs_schema

@@ -383,10 +383,9 @@ def test_electrical_domain_load_and_primary_laws():
     """Power-Unbalanced (31, the specimens' type): load on Phase1..poles,
     m_dApparentLoad 0; Power-Balanced (30): m_dApparentLoad = the total,
     phases its equal split; the primary flag is the caller's to set."""
-    assert (fs.ELECTRICAL_SYSTEM_POWER_UNBALANCED, fs.ELECTRICAL_SYSTEM_POWER_BALANCED) == (31, 30)
-    assert fs.ELECTRICAL_SYSTEM_POWER == 31                              # the specimens' code
     d = fs.electrical_domain(voltage_v=208.0, poles=3, apparent_load_va=75000.0)
-    assert d["m_systemType"] == 31 and d["m_nNumberOfPoles"] == 3
+    assert d["m_systemType"] == fs.ELECTRICAL_SYSTEM_POWER_UNBALANCED == 31   # the specimens' code
+    assert d["m_nNumberOfPoles"] == 3
     third = fs.voltamps(25000.0)
     assert [d["m_dApparentLoadPhase1"], d["m_dApparentLoadPhase2"],
             d["m_dApparentLoadPhase3"]] == pytest.approx([third] * 3)
@@ -405,25 +404,32 @@ def test_electrical_domain_load_and_primary_laws():
     # balanced system type: the total in m_dApparentLoad, consistent with the phase sum
     b = fs.electrical_domain(voltage_v=480.0, poles=3, apparent_load_va=45000.0,
                              system_type="power_balanced")
-    assert b["m_systemType"] == 30
+    assert b["m_systemType"] == fs.ELECTRICAL_SYSTEM_POWER_BALANCED == 30
     assert b["m_dApparentLoad"] == pytest.approx(fs.voltamps(45000.0))
     assert b["m_dApparentLoad"] == pytest.approx(b["m_dApparentLoadPhase1"] + b["m_dApparentLoadPhase2"]
                                                  + b["m_dApparentLoadPhase3"])
+    assert fs.electrical_domain(voltage_v=480.0, poles=3, apparent_load_va=45000.0,
+                                system_type=30) == b                  # name or code
     with pytest.raises(ValueError):
         fs.electrical_domain(voltage_v=480.0, poles=3, apparent_load_va=[1.0, 2.0, 3.0],
                              system_type="power_balanced")            # a list is unbalanced
-    with pytest.raises(ValueError):
-        fs.electrical_domain(voltage_v=480.0, system_type="power_circuit")
+    for bad in ("power_circuit", 6):                                  # 6 = a CIRCUIT's type
+        with pytest.raises(ValueError):
+            fs.electrical_domain(voltage_v=480.0, system_type=bad)
 
 
 @needs_schema
 def test_only_the_first_s0e_connector_is_primary():
-    """One primary connector per family: a second add_electrical_connector
-    on the S0e document is written non-primary."""
+    """One primary connector per family (FamilyDoc.resolve_primary): a
+    second add_electrical_connector is written non-primary, and asking for a
+    second primary raises."""
     doc = fs.new_family_document("electrical_equipment", "Two Connectors",
                                  part_type=fs.PART_TYPE["panelboard"], work_plane_based=True)
+    assert not doc.has_primary_connector()
     doc.add_electrical_connector(voltage=208.0, poles=3, apparent_load_va=0.0)
     doc.add_electrical_connector(voltage=120.0, poles=1, apparent_load_va=100.0)
+    with pytest.raises(ValueError):
+        doc.add_electrical_connector(voltage=120.0, poles=1, primary=True)
     doc.finalize()
     flags = [c.obj["m_pDomain"]["value"]["m_bIsConnectorPrimary"] for c in doc.connectors]
     assert flags == [True, False]

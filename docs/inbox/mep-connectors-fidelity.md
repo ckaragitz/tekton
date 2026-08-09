@@ -41,9 +41,9 @@ the fixture/receptacle specimens carry their load on `Phase1` with `m_dApparentL
 ## 2. The law as built (`src/rvt/famgen/skeleton.py`)
 
 * `ELECTRICAL_SYSTEM_POWER_BALANCED = 30`, `ELECTRICAL_SYSTEM_POWER_UNBALANCED = 31`
-  (`ELECTRICAL_SYSTEM_POWER` kept = 31, the specimens' code), `ELECTRICAL_SYSTEM_TYPES
-  = {"power_balanced": 30, "power_unbalanced": 31}`, `POWER_FACTOR_LAGGING = 1 /
-  LEADING = 0` (S1, S7).
+  (the old caller-less `ELECTRICAL_SYSTEM_POWER = 31` name is replaced by these),
+  `ELECTRICAL_SYSTEM_TYPES = {"power_balanced": 30, "power_unbalanced": 31}` —
+  `system_type` takes the name or the code —, `POWER_FACTOR_LAGGING = 1` (S1, S7).
 * `phase_loads_va(apparent_load_va, poles) -> [p1, p2, p3]` (VA): a **number** is the
   connector's whole balanced load → equal split over phases 1..poles (S3: the phases
   sum to the total; balanced ≡ equal per pole); a **sequence** is the explicit
@@ -63,14 +63,16 @@ the fixture/receptacle specimens carry their load on `Phase1` with `m_dApparentL
   - `m_bIsConnectorPrimary = primary`; `m_powerFactorState = POWER_FACTOR_LAGGING`.
   - The `[INFERRED]` tags on system type and power-factor state are gone (replaced by
     S1/S7); the removed `balanced_load` kwarg had no callers.
-* `new_electrical_connector(..., system_type=, primary=)` passes through;
-  `FamilyDoc.add_electrical_connector` marks only the document's first connector
-  primary (`primary=not self.connectors`) — the S0e path obeys the same law (S4).
+* `new_electrical_connector(..., system_type=, primary=)` passes through. The
+  one-primary law has **one** spelling, on the document that owns the connectors:
+  `FamilyDoc.has_primary_connector()` / `FamilyDoc.resolve_primary(primary)` — `None`
+  → primary iff the doc has none yet; an explicit second primary → `ValueError` (S4/S5).
+  `FamilyDoc.add_electrical_connector(..., primary=None)` (the S0e path) and the
+  factory both go through it.
 
 `src/rvt/famgen/factory.py`:
-* `add_connector(..., primary: Optional[bool] = None)`: `None` → primary iff the doc has
-  no primary connector yet; explicit `True` when one exists → `FactoryError` (S4/S5:
-  one per discipline per family); `apparent_load_va` may be a number or a per-phase list.
+* `add_connector(..., primary: Optional[bool] = None)` → `doc.resolve_primary`
+  (re-raised as `FactoryError`); `apparent_load_va` may be a number or a per-phase list.
 * `make_transformer`: primary winding `primary=True`, secondary `primary=False`; the
   secondary's `kva*1000` is now split 25/25/25 kVA by the skeleton. `make_panelboard` /
   `make_luminaire`: untouched — one connector each, primary by default, identical bytes.
@@ -109,21 +111,27 @@ pre-existing per-build non-determinism (tracked as #9), not this change.
 
 | gate | result |
 |---|---|
-| `pytest tests/test_famgen_skeleton.py tests/test_famgen_factory.py -q -rs` | see BRANCH STATE (sample-gated byte-exact tests skip here as designed) |
-| `pytest tests/test_famgen_geometry.py tests/test_famgen_adoc.py -q -rs` | see BRANCH STATE |
-| `pytest tests/test_famgen_catalog.py tests/test_bare_family_validate.py tests/test_mep_devices.py tests/test_electrical.py -q` | see BRANCH STATE |
-| `tools/sync_plugin.py` then `--check` | see BRANCH STATE |
-| `plugin/scripts/validate_plugin.py` | see BRANCH STATE |
-| `tools/dev/check_portable_paths.py` | see BRANCH STATE |
-| `tools/make_family.py transformer/panelboard/luminaire` + `tools/rvt_validate.py --family` + `make_family.py provenance` | see BRANCH STATE |
+| `pytest tests/test_famgen_skeleton.py tests/test_famgen_factory.py tests/test_famgen_geometry.py tests/test_famgen_adoc.py tests/test_famgen_catalog.py tests/test_bare_family_validate.py tests/test_mep_devices.py tests/test_electrical.py -q` | **173 passed, 50 skipped** (every skip = `samples/` / `vendor/` absent, as designed), 6.2 s |
+| `pytest tests/test_plugin_sync.py -q` | **9 passed** |
+| `tools/sync_plugin.py` then `--check` | synced 2 files (`plugin/lib/src/rvt/famgen/{skeleton,factory}.py`), deny-audit clean, √ Validation passed, zip rebuilt (not committed); `--check`: **plugin in sync with source** |
+| `plugin/scripts/validate_plugin.py` | **PASS** (25 assertions) |
+| `tools/dev/check_portable_paths.py` | **ok: 2774 tracked paths are portable** |
+| `/verify` (families surface): `tools/make_family.py transformer --kva 75 --primary 480 --secondary 208Y/120`, `… panelboard`, `… luminaire --kind recessed-troffer`, each `--json` | all three `ok=True`, `family_mode=VALID errors=0 warnings=0`, `provenance_ok=True suspects=[]`, connectors 2 / 1 / 1 |
+| `tools/rvt_validate.py --family` on each | `ok=True counts={error 0, warning 0, info 2}` ×3 |
+| `tools/make_family.py provenance` on each | `"ok": true` ×3 |
+| decode of the CLI-built files | xfmr: con 1041 'Primary' 31/3-pole/480 V, 0/0/0/0, **primary True**; con 1042 'Secondary' 31/3-pole/208 V, AL 0, **P1=P2=P3=25 000 VA (269 097.7604 internal)**, **primary False**; panel: 31/3-pole/480 V, 0s, primary True; troffer: 31/1-pole/120 V, P1 38 VA (409.0286), primary True; `m_powerFactorState` 1 everywhere |
+| probe: second explicit primary | `FactoryError: the family already has a primary connector (one primary connector per discipline per family)` |
+| `/simplify` (4 review angles) | applied: one spelling of the primary law (`FamilyDoc.resolve_primary`), caller-less alias/constant dropped, `system_type` name-or-code, docstrings de-duplicated, tests reuse `FamilyIndex.ids_of_class/value` and stop re-validating an identical build; skipped with reason: keep the `power_balanced` path (DONE requires it), keep explicit `primary=True/False` in `make_transformer` (DONE wording), leave the pre-existing `add_connector`/`add_electrical_connector` overlap (wider refactor) |
 
 New / changed tests: `test_phase_loads_split_a_balanced_load_equally_over_the_poles`,
-`test_electrical_domain_load_and_primary_laws` (no schema needed),
+`test_electrical_domain_load_and_primary_laws` (no schema needed — run in any clone),
 `test_only_the_first_s0e_connector_is_primary`,
 `test_emitted_transformer_rfa_decodes_three_equal_phase_loads_and_one_primary`
-(decodes the **file**), `test_single_connector_families_keep_their_domain_and_one_primary[panelboard|luminaire]`,
-`test_add_connector_allows_one_primary_per_family`, and the transformer composition
-test's new phase/primary asserts. The sample-gated
+(decodes the **file**), `test_add_connector_allows_one_primary_per_family`, the
+transformer composition test's phase/primary asserts, and an on-file "exactly one
+primary, all type 31, `m_dApparentLoad` 0" check folded into
+`test_every_kind_writes_a_family_mode_valid_provenance_clean_rfa[*]` (all four CLI
+kinds; `test_famgen_factory.py` is in the CI shard). The sample-gated
 `test_electrical_connectors_byte_exact` now reconstructs each specimen from its
 per-phase list + its own primary flag and asserts type 31 / `m_dApparentLoad` 0.0 —
 it self-skips without `samples/`; **an owner-machine run of it is the one gate this
@@ -145,15 +153,31 @@ session could not execute** (expected byte-exact: every specimen is 1-pole-loade
    connector at 0 VA, "the family's electrical data that displays in a schedule" (S4)
    is 0 VA @ 480 V. Not changed here (DONE: outputs unchanged except the two laws).
 
-## 6. Follow-ups filed (searched first)
+## 6. Follow-ups filed (searched `connector balanced / transformer connector / primary connector` first — none existed)
 
-* Decode one Revit-born **Power-Balanced (type 30)** connector on an owner machine to
-  pin the on-disk value of its inactive phase fields (turn §2's UNOBSERVED into [V]) —
-  `owner-machine`, Refs #164.
-* Transformer connector topology vs Revit-born transformers (one primary-side connector
-  + secondary distribution system; what load the upstream schedule should see) —
-  `needs-decision`-shaped research task, Refs #164.
+* **#321** — decode one Revit-born **Power-Balanced (type 30)** connector on an owner
+  machine to pin the on-disk value of its inactive phase fields (turns §2's UNOBSERVED
+  into [V]) — `P2 owner-machine area:famgen`, Refs #164.
+* **#322** — decide the generated transformer's connector topology (two connectors with
+  the primary winding primary at 0 VA, vs Revit-born one primary-side connector +
+  secondary distribution system; what load an upstream schedule should see) —
+  `P2 ready area:famgen`, Refs #164 (§5 finding 3).
 
 ## BRANCH STATE
 
-(filled at push time — see the PR body for the exact head)
+* Branch `cam/164-connector-phase-loads` from `main` @ c8b3aec (PR #316's schema gate
+  already in); PR closes #164; engineer session `eng164`, pipeline session-hosted per
+  steer #302 (GitHub checks on the PR are runner-less and meaningless; the tech-lead
+  session runs the shard on the exact head and merges via the API).
+* Files written: `src/rvt/famgen/skeleton.py` (constants, `phase_loads_va`,
+  `electrical_domain(system_type=, primary=)`, `new_electrical_connector` passthrough,
+  `FamilyDoc.has_primary_connector` / `resolve_primary`, `add_electrical_connector(primary=)`),
+  `src/rvt/famgen/factory.py` (`add_connector(primary=, per-phase loads)`,
+  `make_transformer` primary True/False + note), `plugin/lib/src/rvt/famgen/{skeleton,factory}.py`
+  (regenerated by `tools/sync_plugin.py`, not hand-edited), `tests/test_famgen_skeleton.py`,
+  `tests/test_famgen_factory.py`, `docs/writer/family-skeleton.md` §7 (law table with
+  URLs + quotes), this record.
+* Gates: §4, all green locally; the one gate not runnable here is the sample-gated
+  byte-exact specimen test (owner machine).
+* Nothing staged for the viewer; no `.rvt`/`.rfa` committed; no ledger change; no hot
+  file touched; `tekton-plugin.zip` regenerated locally, not committed.
