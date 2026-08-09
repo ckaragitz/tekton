@@ -142,8 +142,10 @@ jobs:
           }
           # first_lock <issue>: "by session token" of the earliest STANDING lock (tools/dev/coord.py locks).
           first_lock() {
-            gh api "repos/$REPO/issues/$1/comments?per_page=100" --paginate > "lc-$1.json"
-            python3 tools/dev/coord.py locks --comments "lc-$1.json" --assignees "$(holders "$1")" | jq -r '.[0] // empty | "\(.by) \(.session) \(.token) \(.created_at)"'
+            local f; f=$(mktemp)      # never write scratch into the checkout (a stray lc-5.json got committed once)
+            gh api "repos/$REPO/issues/$1/comments?per_page=100" --paginate > "$f"
+            python3 tools/dev/coord.py locks --comments "$f" --assignees "$(holders "$1")" | jq -r '.[0] // empty | "\(.by) \(.session) \(.token) \(.created_at)"'
+            rm -f "$f"
           }
           # Live state, not the event payload: two /claim comments seconds apart are serialized by
           # the concurrency group, so the second one sees the first one's assignment.
