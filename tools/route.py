@@ -109,7 +109,9 @@ def build_parser() -> argparse.ArgumentParser:
                            "(0 0 = the IFC's own world frame; default: disjoint east)")
     conv.add_argument("--no-roundtrip", action="store_true",
                       help="rvt->ifc: skip the resolve_intent round-trip check")
-    pr.add_argument("--json", action="store_true", help="print the result JSON")
+    pr.add_argument("--json", action="store_true",
+                    help="print the result as ONE JSON document on stdout "
+                         "(stage progress goes to <out>/route.log)")
 
     pm = sub.add_parser("matrix", help="print the live permutation truth table")
     pm.add_argument("--json", action="store_true")
@@ -133,6 +135,8 @@ def cmd_run(a) -> int:
         v = getattr(a, k, None)
         if v not in (None, False):
             opts[k] = v
+    if a.json:
+        opts["quiet"] = True    # stdout is exactly ONE JSON document (issue #188)
     try:
         res = R.route(inputs, a.output, **opts)
     except R.RouteError as e:
