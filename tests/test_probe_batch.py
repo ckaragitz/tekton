@@ -14,10 +14,15 @@ Tiers: (1) the gate refusals, hermetic (tmp ledger + tmp manifests);
 (2) staging + the CTRL_ copy; (3) read_batch_verdicts branches; (4) the retro
 replay of the recorded history (K1 lineage VOID, KD1/K4 SURVIVE, one round in
 fourteen carried a deliberate control); (5) base resolution against the real
-corpus manifests (skipped when the corpus is absent).
+corpus manifests (skipped when the corpus is absent); (6) the fresh-clone
+rules of #131, hermetic (tmp ledger + tmp pinned file + tmp front-door
+manifest.json): certification by sha256 alias, the pinned per-release control
+fallback, the front door's manifest.json as the base declaration -- plus the
+same rules against the repo's real ledger + plugin/assets/genesis pins.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -444,3 +449,258 @@ def test_real_control_generation_is_byte_identical(tmp_path):
     e = PB.make_control(ledger, 42, str(tmp_path), source=src)
     assert os.path.basename(e.file).startswith("CTRL_") and e.file.endswith("_b42.rvt")
     assert e.md5 == PB.md5_of(os.path.join(ROOT, src))                 # byte-identical
+
+
+# ---------------------------------------------------------------------------
+# tier 6: the fresh-clone rules (#131) -- sha256 alias, pinned control
+# fallback, the front-door manifest.json as the declaration.  Hermetic: a tmp
+# ledger, tmp "pinned" files standing in for plugin/assets/genesis/*.rvt, and
+# explicit PinnedBase slots instead of the shipped rvt.frontdoor.base pins.
+# ---------------------------------------------------------------------------
+BYTES_26 = b"composed-genesis-2026-" + bytes(range(64))
+BYTES_25 = b"composed-genesis-2025-" + bytes(range(64, 128))
+
+
+def _sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+@pytest.fixture
+def clone(tmp_path):
+    """A fresh clone in miniature: the ledger certifies two experiments/-style
+    paths (LEDGER_26 without a recorded sha256, like the real G_ABPD entry;
+    LEDGER_25 with one) that do NOT exist on disk; byte-identical 'pinned'
+    copies live elsewhere (assets/); one pin per release names the certified
+    relpath, the digest and the candidate copies."""
+    d = tmp_path
+    (d / "assets").mkdir()
+    (d / "ghost").mkdir()                                            # the absent experiments/ tree
+    ledger_26 = str(d / "ghost" / "G_ABPD.rvt")                      # certified paths, never written
+    ledger_25 = str(d / "ghost" / "G_ABPD_2025.rvt")
+    pinned_26 = _write(str(d / "assets" / "G_ABPD.rvt"), BYTES_26)   # the bundled copies
+    pinned_25 = _write(str(d / "assets" / "G_ABPD_2025.rvt"), BYTES_25)
+    doc = {"certified": [{"file": PB.rel(ledger_26), "proves": "2026 composed base loads"},
+                         {"file": PB.rel(ledger_25), "proves": "2025 composed base loads",
+                          "sha256": _sha(BYTES_25)}],
+           "failed": []}
+    lpath = str(d / "viewer-certified.json")
+    with open(lpath, "w") as fh:
+        json.dump(doc, fh, indent=1)
+    pins = [PB.PinnedBase(2026, ledger_26, _sha(BYTES_26), [ledger_26, pinned_26]),
+            PB.PinnedBase(2025, ledger_25, _sha(BYTES_25), [ledger_25, pinned_25])]
+    ledger = PB.Ledger.load(lpath, pins=pins)
+    return {"ledger": ledger, "pins": pins, "lpath": lpath,
+            "ledger_26": ledger_26, "ledger_25": ledger_25,
+            "pinned_26": pinned_26, "pinned_25": pinned_25}
+
+
+def _frontdoor_manifest(path, *, out_rvt, base_path, base_sha, pin_relpath, pin_sha,
+                        source="pinned-bundled", release=2026):
+    """The keys of rvt.frontdoor.manifest.build_manifest's output the gate
+    reads: tool, base{path, source, sha256, pin{relpath, sha256}},
+    target_version.output_release, build.files (the engine's own file_facts)."""
+    from rvt.frontdoor.manifest import TOOL, file_facts
+    man = {"tool": TOOL, "route": "prompt",
+           "target_version": {"requested": None, "output_release": release},
+           "base": {"path": base_path, "source": source, "sha256": base_sha,
+                    "pin": {"relpath": PB.rel(pin_relpath), "sha256": pin_sha}},
+           "build": {"files": {"combined": file_facts(out_rvt)}}}
+    with open(path, "w") as fh:
+        json.dump(man, fh, indent=1)
+    return path
+
+
+def test_alias_hit_via_pin_certifies_the_bundled_copy(clone):
+    """The 2026 ledger entry records no sha256; the PIN supplies the digest,
+    the LEDGER supplies the certification of the pinned relpath."""
+    st, entry = clone["ledger"].status(clone["pinned_26"])
+    assert st == "certified"
+    assert entry["file"] == PB.rel(clone["ledger_26"])              # re-keyed to the certified path
+    assert entry["aliased_from"] == PB.rel(clone["pinned_26"])
+    assert entry["alias_sha256"] == _sha(BYTES_26)
+    assert entry["proves"] == "2026 composed base loads"
+
+
+def test_alias_hit_via_the_ledger_entrys_own_sha256(clone, tmp_path):
+    """No pin needed when the certified entry records its sha256: ANY path
+    holding those bytes is that entry."""
+    ledger = PB.Ledger.load(clone["lpath"], pins=[])                # pins off: ledger digest only
+    anywhere = _write(str(tmp_path / "renamed_copy_of_2025.rvt"), BYTES_25)
+    st, entry = ledger.status(anywhere)
+    assert st == "certified" and entry["file"] == PB.rel(clone["ledger_25"])
+    # ... and the 2026 copy, whose entry has no digest and now no pin, is unknown
+    assert ledger.status(clone["pinned_26"])[0] == "unknown"
+
+
+def test_alias_miss_when_the_pinned_relpath_is_not_itself_certified(clone, tmp_path):
+    """A pin is not a certification: a digest that matches a pin whose
+    relpath the ledger has never certified stays 'unknown'."""
+    rogue_bytes = b"pinned-but-never-viewer-certified"
+    rogue = _write(str(tmp_path / "assets" / "G_NEXT.rvt"), rogue_bytes)
+    pins = clone["pins"] + [PB.PinnedBase(2027, str(tmp_path / "ghost" / "G_NEXT.rvt"),
+                                          _sha(rogue_bytes), [rogue])]
+    ledger = PB.Ledger.load(clone["lpath"], pins=pins)
+    assert ledger.status(rogue) == ("unknown", None)
+    assert ledger.pinned_certified_on_disk(2027) is None
+
+
+def test_tampered_copy_with_a_certified_basename_is_refused(clone, tmp_path):
+    """Exact digest equality only: one flipped byte under the certified NAME
+    is not the certified file."""
+    (tmp_path / "elsewhere").mkdir()
+    tampered = _write(str(tmp_path / "elsewhere" / "G_ABPD.rvt"), BYTES_26[:-1] + b"X")
+    assert clone["ledger"].status(tampered) == ("unknown", None)
+    same_name_25 = _write(str(tmp_path / "elsewhere" / "G_ABPD_2025.rvt"), b"not those bytes")
+    assert clone["ledger"].status(same_name_25) == ("unknown", None)
+    # and a pin candidate that fails its own digest is not 'on disk'
+    bad_pin = PB.PinnedBase(2026, clone["ledger_26"], _sha(BYTES_26), [tampered])
+    assert PB.Ledger.load(clone["lpath"], pins=[bad_pin]).pinned_certified_on_disk() is None
+
+
+def test_a_failed_path_stays_failed_whatever_its_bytes(clone, tmp_path):
+    """The ledger PATH decides first: certified bytes sitting at a path the
+    ledger records as FAILED do not launder that path."""
+    failed_path = _write(str(tmp_path / "K1.rvt"), BYTES_26)         # certified bytes ...
+    with open(clone["lpath"]) as fh:
+        doc = json.load(fh)
+    doc["failed"].append({"file": PB.rel(failed_path), "verdict": "PROCESSING FAILED"})
+    with open(clone["lpath"], "w") as fh:
+        json.dump(doc, fh)
+    ledger = PB.Ledger.load(clone["lpath"], pins=clone["pins"])
+    assert ledger.status(failed_path)[0] == "failed"                # ... at a failed path: failed
+
+
+def test_frontdoor_manifest_declares_the_pinned_base(clone, tmp_path):
+    out = tmp_path / "out" / "pb"
+    out.mkdir(parents=True)
+    probe = _write(str(out / "prompt_room.rvt"), b"base-2026-plus-four-walls")
+    _frontdoor_manifest(str(out / "manifest.json"), out_rvt=probe,
+                        base_path=clone["pinned_26"], base_sha=_sha(BYTES_26),
+                        pin_relpath=clone["ledger_26"], pin_sha=_sha(BYTES_26))
+    br = PB.resolve_base(probe, pins=clone["pins"])                 # found in the probe's own dir
+    assert br.base == PB.rel(clone["ledger_26"])                     # the CERTIFIED relpath, not assets/
+    assert br.manifest == PB.rel(str(out / "manifest.json"))
+    assert "front-door manifest" in br.source and "2026 genesis pin" in br.source
+    assert br.release == 2026 and br.digest_matched is True
+    ents, viol = PB.check_batch([probe], clone["ledger"])
+    assert viol == [] and ents[0].base_status == "certified"
+    assert PB.batch_release(ents, clone["ledger"]) == 2026
+    # --manifest may name the front-door manifest explicitly, too
+    ents2, viol2 = PB.check_batch([probe], clone["ledger"],
+                                  manifest_override=str(out / "manifest.json"))
+    assert viol2 == [] and ents2[0].base.base == PB.rel(clone["ledger_26"])
+
+
+def test_frontdoor_manifest_2025_run_matches_the_release_slot_not_base_pin(clone, tmp_path):
+    """A --target-version 2025 manifest embeds the DEFAULT (2026) pin under
+    base.pin while base.sha256 is the 2025 base's: the digest is matched
+    against every release slot."""
+    out = tmp_path / "out" / "pb25"
+    out.mkdir(parents=True)
+    probe = _write(str(out / "prompt_room.rvt"), b"base-2025-plus-four-walls")
+    _frontdoor_manifest(str(out / "manifest.json"), out_rvt=probe,
+                        base_path=clone["pinned_25"], base_sha=_sha(BYTES_25),
+                        pin_relpath=clone["ledger_26"], pin_sha=_sha(BYTES_26), release=2025)
+    ents, viol = PB.check_batch([probe], clone["ledger"])
+    assert viol == []
+    assert ents[0].base.base == PB.rel(clone["ledger_25"])
+    assert PB.batch_release(ents, clone["ledger"]) == 2025
+
+
+def test_frontdoor_manifest_describes_only_the_files_it_built(clone, tmp_path):
+    """A stray .rvt next to a front-door manifest is NOT declared by it."""
+    out = tmp_path / "out" / "pb"
+    out.mkdir(parents=True)
+    probe = _write(str(out / "prompt_room.rvt"), b"built")
+    stray = _write(str(out / "hand_edited.rvt"), b"not built by the front door")
+    _frontdoor_manifest(str(out / "manifest.json"), out_rvt=probe,
+                        base_path=clone["pinned_26"], base_sha=_sha(BYTES_26),
+                        pin_relpath=clone["ledger_26"], pin_sha=_sha(BYTES_26))
+    ents, viol = PB.check_batch([stray], clone["ledger"],
+                                manifest_override=str(out / "manifest.json"))
+    assert len(viol) == 1 and "NO DECLARED BASE" in viol[0]
+
+
+def test_frontdoor_manifest_with_an_explicit_unpinned_base_is_judged_by_the_ledger(clone, tmp_path):
+    """--base PATH (no pin match): the declaration is the base file itself and
+    the ledger judges it -- unknown bytes refused, certified bytes admitted."""
+    out = tmp_path / "out" / "firm"
+    out.mkdir(parents=True)
+    firm_base = _write(str(tmp_path / "firm_template.rvt"), b"a firm's own uncertified base")
+    probe = _write(str(out / "prompt_room.rvt"), b"firm base plus walls")
+    _frontdoor_manifest(str(out / "manifest.json"), out_rvt=probe, base_path=firm_base,
+                        base_sha=_sha(b"a firm's own uncertified base"), source="explicit",
+                        pin_relpath=clone["ledger_26"], pin_sha=_sha(BYTES_26))
+    ents, viol = PB.check_batch([probe], clone["ledger"])
+    assert ents[0].base.base == PB.rel(firm_base) and ents[0].base.digest_matched is False
+    assert ents[0].base.release == 2026                              # from target_version.output_release
+    assert len(viol) == 1 and "NOT in docs/coverage/viewer-certified.json" in viol[0]
+    # the same shape whose explicit base happens to BE certified bytes is admitted by alias
+    copy_base = _write(str(tmp_path / "my_copy_of_G_ABPD.rvt"), BYTES_26)
+    _frontdoor_manifest(str(out / "manifest.json"), out_rvt=probe, base_path=copy_base,
+                        base_sha="", source="explicit",              # no digest recorded at all
+                        pin_relpath=clone["ledger_26"], pin_sha=_sha(BYTES_26))
+    ents2, viol2 = PB.check_batch([probe], clone["ledger"])
+    assert viol2 == [] and ents2[0].base_status == "certified"
+    assert ents2[0].base_entry["aliased_from"] == PB.rel(copy_base)
+    assert ents2[0].to_json()["base_certified_as"] == PB.rel(clone["ledger_26"])
+
+
+def test_control_falls_back_to_the_pinned_base_of_the_batchs_release(clone, tmp_path):
+    """No certified experiments/ file on disk: the control is cut from the
+    pinned bundled base of the batch's release, still CTRL_<stem>_b<n>, still
+    byte-identical, and the manifest law text is unchanged."""
+    assert clone["ledger"].newest_certified_on_disk() is None       # the fresh-clone condition
+    assert clone["ledger"].control_source(2025) == PB.rel(clone["pinned_25"])
+    assert clone["ledger"].control_source(None) == PB.rel(clone["pinned_26"])   # newest release first
+    out = tmp_path / "out" / "pb25"
+    out.mkdir(parents=True)
+    probe = _write(str(out / "prompt_room.rvt"), b"base-2025-plus-four-walls")
+    _frontdoor_manifest(str(out / "manifest.json"), out_rvt=probe,
+                        base_path=clone["pinned_25"], base_sha=_sha(BYTES_25),
+                        pin_relpath=clone["ledger_26"], pin_sha=_sha(BYTES_26), release=2025)
+    acc = tmp_path / "acc"
+    man = PB.stage_batch([probe], out_dir=str(acc), ledger=clone["ledger"], batch_n=77)
+    ctrl = man["entries"][0]
+    assert ctrl["kind"] == "control" and ctrl["order"] == 0
+    assert os.path.basename(ctrl["file"]) == "CTRL_G_ABPD_2025_b77.rvt"   # naming law unchanged
+    assert ctrl["control_source"] == PB.rel(clone["pinned_25"])
+    assert ctrl["control_certified_as"] == PB.rel(clone["ledger_25"])
+    assert ctrl["md5"] == PB.md5_of(clone["pinned_25"])                # byte-identical
+    with open(str(acc / "CTRL_G_ABPD_2025_b77.rvt"), "rb") as fh:
+        assert fh.read() == BYTES_25
+    assert man["control_count"] == 1
+    assert man["law"].startswith("every entry's declared base is ITSELF in viewer-certified.json")
+    assert "byte-identical copy of a certified file" in man["law"]
+    probe_e = man["entries"][1]
+    assert probe_e["base"] == PB.rel(clone["ledger_25"]) and probe_e["base_status"] == "certified"
+    # and the round still reads in the only safe order
+    res = PB.read_batch_verdicts(man, {"CTRL_G_ABPD_2025_b77.rvt": "PASS", "prompt_room.rvt": "PASS"},
+                                 ledger=clone["ledger"])
+    assert res["status"] == "INTERPRETED"
+
+
+def test_no_control_source_at_all_is_still_a_refusal(clone, tmp_path):
+    ledger = PB.Ledger.load(clone["lpath"], pins=[])                # no pins, nothing certified on disk
+    assert ledger.control_source() is None
+    with pytest.raises(PB.GateRefusal) as ei:
+        PB.make_control(ledger, 1, str(tmp_path / "acc"))
+    assert "no certified file exists on disk" in str(ei.value)
+
+
+def test_the_shipped_pins_alias_the_bundled_bases_against_the_real_ledger():
+    """Not hermetic but fresh-clone runnable: plugin/assets/genesis/*.rvt are
+    tracked, the ledger is tracked, the pin registry is tracked."""
+    _need("docs/coverage/viewer-certified.json"); _need("plugin/assets/genesis/G_ABPD.rvt")
+    ledger = PB.Ledger.load()
+    assert {p.release for p in ledger.pins} >= {2024, 2025, 2026}
+    st, entry = ledger.status("plugin/assets/genesis/G_ABPD.rvt")
+    assert st == "certified"
+    assert entry["file"] == "experiments/genesis/subst_k4/compose/G_ABPD.rvt"
+    assert entry["aliased_from"] == "plugin/assets/genesis/G_ABPD.rvt"
+    for year, name in ((2025, "G_ABPD_2025.rvt"), (2024, "G_ABPD_2024.rvt")):
+        _need(f"plugin/assets/genesis/{name}")
+        src = ledger.pinned_certified_on_disk(year)
+        assert src and src.endswith(name)
+        assert ledger.status(src)[0] == "certified"
+    assert ledger.control_source(2026) is not None                  # a control is ALWAYS available now

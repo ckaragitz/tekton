@@ -1,181 +1,170 @@
 # tekton
 
-**tekton is a pure-Python interoperability library for the Autodesk® Revit®
-`.rvt` / `.rfa` file formats.** It AUTHORS our own project content —
-settings, styles, category catalog, palette, datum, views, families and
-elements — as valid Revit files that a licensed engineer opens in Autodesk's
-own software for coordination and QA. `.rvt` is the AEC industry's mandated
-deliverable format; tekton is the layer that lets an AI-driven workflow
-produce that deliverable directly.
+**tekton is a pure-Python interoperability engine plus a Claude plugin that
+reads, creates, edits, validates and converts Autodesk® Revit® `.rvt` /
+`.rfa` files — without a Revit install, an Autodesk seat, or any cloud
+conversion service in the loop.** A prompt, an IFC, or an existing Revit
+file goes in; a `.rvt` / `.rfa` (or IFC) that a licensed engineer opens in
+their own Revit release for QA comes out. Revit is the last-mile
+*deliverable* format; the content inside a tekton file is ours
+(constructor-built from our own data and the user's inputs).
 
-The content that goes into a tekton file is ours (constructor-built, from
-our own data and the customer's inputs). Questions about the *format
-posture* — writing a proprietary format for interoperability, and the
-handful of format-signature tokens every valid file must carry — sit with
-counsel, and every output is proof-only until they clear (§ Honest scope).
+**The product is the plugin** — the skills, commands and agents under
+[`plugin/`](plugin/README.md), shipped as `tekton-plugin.zip` and backed by
+the engine in `src/rvt/`. If you want to *use* tekton, read
+[`plugin/README.md`](plugin/README.md) (install on Claude Code / Cowork /
+claude.ai, the 5-minute quickstart, the honest status). This file is the map
+of the *repository* for the people and coding sessions that build it.
 
-> **Naming.** The product's display name is *tekton*. Code paths, the
-> Python package (`rvt`) and this directory (`tekton/`) keep their old
-> names until a single scripted rename after trademark clearance — see
-> `RENAME.md`. "tekton for use with Autodesk Revit"; Autodesk and Revit are
-> trademarks of Autodesk, Inc.
+> **Naming and posture.** The display name is *tekton*; the Python package
+> stays `rvt` (it names the file format it handles) and nothing else is
+> renamed piecemeal — see [`RENAME.md`](RENAME.md). "tekton, for use with
+> Autodesk® Revit®" is referential use; Autodesk and Revit are registered
+> trademarks of Autodesk, Inc. This is a **private evaluation build**: every
+> output is stamped `PROOF-ONLY` until the deliverability gates clear
+> (§ Honest scope), and the repository itself stays private
+> ([`CLAUDE.md`](CLAUDE.md) §1 rule 6).
 
 ---
 
-## Drive it from anything, with any of three inputs
+## Start here — which document answers what
 
-The product requirement: tekton is drivable from ANY AI surface (Claude
-Design / Chat / Cowork / Code, ChatGPT Work, Gemini …) with any of three
-inputs — a **prompt**, an **IFC** file, or an existing **Revit file** — and
-all three land in the same gated pipeline: build → structural
-verification → the Autodesk-free validator (0 errors required) → identity
-→ provenance status → a deliverable manifest next to the output.
+| You want to… | Read |
+|---|---|
+| work in this repo (human or coding session) — rules, setup, commands, process | [`CLAUDE.md`](CLAUDE.md) — **the working guide and the law**; if anything here disagrees with it, `CLAUDE.md` wins |
+| install and use the product | [`plugin/README.md`](plugin/README.md) |
+| know exactly what works, per input → output, with evidence | `.venv/bin/python tools/route.py matrix` (machine truth) / [`docs/product/PERMUTATION-MATRIX.md`](docs/product/PERMUTATION-MATRIX.md) |
+| know what Autodesk's reader has actually accepted | [`docs/coverage/viewer-certified.json`](docs/coverage/viewer-certified.json) (the certification ledger) + [`docs/inbox/genesis-audit.md`](docs/inbox/genesis-audit.md) (verdict log) |
+| see the goals and the requirement map | [`docs/PROGRAM.md`](docs/PROGRAM.md), [`docs/product/REQUIREMENTS.md`](docs/product/REQUIREMENTS.md), [`TRACKER.md`](TRACKER.md) (curated roadmap) |
+| understand how work is planned, claimed, reviewed and merged | [`CLAUDE.md`](CLAUDE.md) §4, [`docs/process/AUTONOMY.md`](docs/process/AUTONOMY.md), the pinned 📋 board issue [#56](https://github.com/ckaragitz/tekton/issues/56) |
+| understand *why* things are the way they are (format laws, dead ends, verdicts) | [`KNOWLEDGE.md`](KNOWLEDGE.md) |
+| see the counsel posture (author string, corpora, footer token, trademark) | [`docs/product/COUNSEL-BRIEF.md`](docs/product/COUNSEL-BRIEF.md) |
 
-**The unified front door is `tools/frontdoor.py`** (landed 2026-08-04;
-its stream is still active — the record in `docs/inbox/` closes it):
-ONE entrypoint, one intent model, three inputs — exactly one of
-`--prompt` / `--ifc` / `--rvt`. Output lands in
-`experiments/frontdoor/<name>-<stamp>/` with a deliverable manifest. Always
-`.venv/bin/python`, from the repo root:
+---
+
+## Setup and a first run (fresh clone, no samples needed)
+
+Python 3.11+; the only declared runtime dependency is `olefile`. Always run
+from the repo root with `.venv/bin/python`.
 
 ```bash
-# (1) PROMPT   — primary: hands a scene brief + instructions to the AI surface
-#                (the user's own prompt -> Three.js <three-d-stage> -> IFC4 flow);
-#                fallback: a built-in deterministic parser (no API key)
-.venv/bin/python tools/frontdoor.py author --prompt "2500 A electrical room, 480Y/277, one 150 kVA transformer, ..." [-o DIR]
-.venv/bin/python tools/frontdoor.py author --prompt "..." --handoff-only     # emit the surface handoff only
-
-# (2) IFC      — the resolved-placement / Pset-join-key route (tagging-contract Psets)
-.venv/bin/python tools/frontdoor.py author --ifc inputs/ifc/electrical-room-2500a.ifc
-
-# (3) EXISTING REVIT FILE + an edit — a sentence, an ops.json, or inline JSON ops
-.venv/bin/python tools/frontdoor.py author --rvt in.rvt --edit "delete DP-1 with cascade; move LP-2 to 3,4"
-
-# honesty switches
-#   --strict   the walls+families OPEN BUG -> TWO coordinated files (shell + equipment)
-#              instead of one combined file that would be stamped over the bug
-#   --base     author on a supplied base instead of the pinned, hash-verified genesis base
-#              (an Autodesk SAMPLE project is REFUSED as a base)
-#   --json / --verbose   machine-readable result / streamed build log
+bash scripts/cloud-setup.sh                     # = python3 -m venv .venv && .venv/bin/pip install -e ".[test]", plus drift/portability checks; ends "cloud-setup: READY"
+# (uv users: uv venv .venv && uv pip install --python .venv/bin/python -e ".[test]")
+.venv/bin/python -m pytest tests/test_versions.py tests/test_frontdoor.py -q    # fresh-clone-safe files (~1 s); the per-PR shard is tests/ci_shard.txt
+.venv/bin/python tools/sync_plugin.py --check   # plugin mirror drift guard: "plugin in sync with source"
 ```
 
-Under the front door the tested engines are unchanged and still directly
-usable: `tools/rvt_job.py` (`create` / `from-ifc` / `edit` — the gated,
-manifest-writing runner), `tools/ifc_intent.py` (IFC → intent → families →
-room), `tools/rvt_edit.py` (element-level manipulate), and — on every output,
-always — `tools/rvt_validate.py out.rvt --json out.validation.json` (0 errors
-or it does not ship).
+Extras in `pyproject.toml`: `test` (pytest + numpy — what the suite needs),
+`geometry` (numpy), `ifc` (ifcopenshell — **optional**, IFC *authoring* only;
+IFC *reading* uses the stdlib reader `rvt.ifc.steplite`), `dev`, `all`. The
+full suite is ~1,700 tests / ~25 min and is coordinated — run your
+stream-local files, not `tests/` ([`CLAUDE.md`](CLAUDE.md) §2).
 
-Working inputs on disk: `inputs/ifc/electrical-room-2500a.ifc` (a full 2500 A
-electrical room whose `IfcElectricDistributionBoard` Psets follow our tagging
-contract `PanelName / Voltage / Phases / Wires / BusRating / MainsType /
-FedFrom`) and `inputs/ifc/chicago-plenum-downlight.ifc` (a fixture) — both
-authored by the user's own Claude-Design flow.
+**The front door** — one entrypoint, exactly one of `--prompt` / `--ifc` /
+`--rvt --edit`, `--target-version {2026,2025,2024}` as a first-class input
+(Revit cannot open a file saved by a newer Revit, so the recipient's year is
+always asked). Each writes the file, a manifest and one JSON result:
 
-**Packaging rule:** everything ships INSIDE the plugin (`plugin/`) as skills
-with instructions + reference docs — `skills/tekton-native` (native `.rvt`
-read/edit/validate/create) and `skills/tekton-ifc` (IFC author/validate/
-harden), kept in sync from source by `tools/sync_plugin.py` (`--check` is
-the drift guard; a DENY list keeps quarantined third-party data out). A
-hosted MCP server is the DOCUMENTED FUTURE path for surfaces that cannot
-run the bundled scripts — `docs/product/MCP-PATH.md` — and is not built now.
+```bash
+.venv/bin/python tools/frontdoor.py author --prompt "an electrical room with 6 panels" --out out/demo --json
+#   -> out/demo/prompt_room.rvt + families/ + manifest.json, ~10 s, "ok": true, release.output 2026,
+#      status "PROOF-ONLY (self-checks PASS; …)", this_file "validated-not-certified (… VALID 0 errors …)"
+.venv/bin/python tools/frontdoor.py author --ifc inputs/ifc/electrical-room-2500a.ifc --target-version 2024 --out out/r24 --json
+#   -> out/r24/electrical-room-2500a.rvt as a native Revit 2024 file, ~12 s
+.venv/bin/python tools/frontdoor.py author --rvt out/demo/prompt_room.rvt --edit "move PP-2 to 3,1,4.66" --out out/e --json
+#   -> out/e/prompt_room.edited.rvt, ~2 s; the file keeps its own release
+.venv/bin/python tools/rvt_validate.py out/demo/prompt_room.rvt --json out/demo.validation.json
+#   -> 0 errors required on everything we produce (necessary, never sufficient — see below)
+.venv/bin/python tools/route.py matrix          # the honest capability table: any of {prompt, ifc, rvt, rfa, spec} -> {rvt, rfa, ifc}
+```
 
----
+**The product path, exactly as a skill session runs it** — bare unzip,
+system Python, no repo on the path:
 
-## The milestone just reached: GENESIS LOADS
+```bash
+.venv/bin/python tools/sync_plugin.py           # mirror src/ + skills into plugin/, deny-audit, validate, rebuild tekton-plugin.zip
+cd "$(mktemp -d)" && unzip -q /path/to/tekton/tekton-plugin.zip
+python3 skills/tekton-author/scripts/_bootstrap.py go author --prompt "an electrical room with 6 panels" --target-version 2025 --out out/j1 --json
+#   -> {"go": {"ready": true, "preflight_line": "tekton: READY | python 3.11 | engine bundled | genesis verified …", …},
+#       "result": {"ok": true, "files": {"combined": "…/out/j1/prompt_room.rvt", …}, "release": {"output": 2025, "opens_in": "Revit 2025 and newer -- never an older Revit"}, …}}   (~8 s)
+```
 
-`experiments/genesis/subst_k4/compose/G_ABPD.rvt` — a Revit project base
-whose settings, style catalog, palette, datum (levels / phases / grids),
-view constellations and residue layers are **ALL our constructors' output,
-composed with NO Autodesk-authored base content** (2,840 landed slots +
-240 lawful deletions, composed by `tools/genesis_compose.py`, byte-exact-
-anchored) — **LOADS in Autodesk's own reader as a browsable model** (a 3D
-view + our sheet `GEN-101`, not empty, not corrupt).
-
-Certification ledger entry: `docs/coverage/viewer-certified.json` →
-`experiments/genesis/subst_k4/compose/G_ABPD.rvt`. Verdict record:
-`docs/inbox/genesis-audit.md` § "***** ORCHESTRATOR VERDICTS #24 — GENESIS
-LOADS". The user's day-one target is met: **no base file required.**
-
----
-
-## Honest scope — what is proven, what is not
-
-| Claim | Status | Evidence |
-|---|---|---|
-| Read / decompose ANY `.rvt`; class schema loaded from the file itself | **PROVEN** | container round-trips 6/6; schema 4,690 classes, 0 gaps |
-| Whole-file re-write, every framed byte ours (gzip + block framing + per-page ECC + CFB) | **PROVEN** | V15, `docs/acceptance-log.md` |
-| Authored content edits Autodesk renders; element creation; manipulation (delete/modify/move/retype); circuits; wall-hosting | **PROVEN (LOAD)** | V18–V31, M2–M4, H1–H2 — see the acceptance log |
-| Genesis project base (no Autodesk base content) LOADS | **PROVEN (LOAD)** | verdict #24, ledger `G_ABPD.rvt` |
-| **RENDER** (viewable baked geometry from OUR created elements) | **IN PROGRESS** | LOAD is not RENDER: our created walls carried a 2-byte placeholder rep; the seq-103 GElement B-rep is decoded (`rvt.render.wallgeom` reproduces native walls with zero differing leaves) and is being wired. Every certification to date is a LOAD pass. |
-| Created walls + loaded family documents together | **OPEN BUG** | the combination fails while each alone passes; under bisection (`docs/inbox/render-instances.md`) |
-| Genesis residue | **~260 elements** still Autodesk-authored + 4 named stragglers | verdict #24; each = a constructor + an in-place rung |
-| The two shipped product corpora (`Formats/Latest` class schema + ESSchemaStorage unit schemas, byte-identical in EVERY Revit file) | **COUNSEL C4** | not element authorship; ship-verbatim vs regenerate is a counsel ruling |
-| **Deliverability of ANY output** | **PROOF-ONLY until the P0 gates clear** | every manifest stamps `PROOF-ONLY, NOT-DELIVERABLE`; counsel C1 (author string), C4, C5 (format-signature token) + trademark clearance for "tekton" are the gates (`TRACKER.md` P0, `docs/product/COUNSEL-BRIEF.md`) |
-
-The rule underneath the table: a claim is PROVEN only when Autodesk's own
-reader (the Viewer or Revit) accepted the exact file, and the file is in the
-certification ledger. Validator-clean is necessary, never sufficient.
+If `go` is not `READY` from a bare unzip, the product is broken regardless of
+what the repo tests say. Everything else — viewer rounds
+(`tools/probe_batch.py`), provenance, the plugin gates, env vars — is in
+[`CLAUDE.md`](CLAUDE.md) §2 and §3b.
 
 ---
 
-## The CRUD mandate — measured, not claimed
+## Honest scope — certified vs. validated vs. open
 
-Everything tekton touches must be **creatable, editable AND deletable.**
-`tools/coverage.py` measures this as a 28-category × 6-verb matrix
-(`docs/coverage/matrix.md`, source of truth `matrix.json`), where a cell
-counts as proven only when a proof `.rvt` passes the validator with ZERO
-errors, and CERTIFIED only when the ledger records Autodesk-reader
-acceptance of that exact file.
+The rule under everything: **Autodesk's reader is the arbiter.** A file is
+*certified* only when `viewer.autodesk.com` or desktop Revit loaded that
+exact file and the verdict is in
+[`docs/coverage/viewer-certified.json`](docs/coverage/viewer-certified.json).
+"Validator 0 errors" is our shipping gate — necessary, never presented as
+acceptance. The per-route truth, with evidence and caveats per cell, is
+`tools/route.py matrix` / [`PERMUTATION-MATRIX.md`](docs/product/PERMUTATION-MATRIX.md)
+(a test fails if a "works" claim loses its evidence); the summary:
 
-Fresh run (2026-08-04 12:09, `coverage.py run --validate-only`, 168 cells):
+- **Certified by Autodesk's reader:** our composed genesis project bases for
+  Revit **2026 / 2025 / 2024** (no Autodesk-authored base content; 2023 base
+  certified, compose pending); native creation of projects and walls
+  (LOAD, and RENDER where the solid is authored) and edits, including on
+  foreign files; family **generation** (`.rfa`); loading Revit-born `.rfa`
+  and extract → place onto our bases; our generated equipment placed **into
+  existing projects** (`add_to_project`).
+- **The one open cell:** *our generated* families + placed instances on
+  *our composed* bases fail Autodesk's audit while byte-equivalent variants
+  pass (26 single-variable rounds logged in `docs/inbox/genesis-audit.md`;
+  issue #16, next signal = desktop Revit's own error dialog). Every equipment
+  prompt produces exactly that shape, so those deliveries carry the stamp
+  and `--strict` splits shell + equipment — delivered either way.
+- **PROOF-ONLY:** until the deliverability gates clear — G2 identity block,
+  G3 counsel (author string C1, corpora C4, footer token C5, trademark),
+  G4 content — every manifest stamps `PROOF-ONLY, NOT-DELIVERABLE`. The
+  stamp is a label applied *after* delivery, never a refusal
+  ([`docs/PROGRAM.md`](docs/PROGRAM.md) PG5).
 
-- **13.2% CERTIFIED** by Autodesk's own reader (20 of 152 applicable cells).
-- **42.7% of the MUTATING verbs proven** (53/124 — create/modify/move/
-  retype/delete only, all 28 free read cells stripped so the number is not
-  padded by trivial reads).
-- The old "53.3% proven" (81/152) merges viewer-PENDING validation with
-  real certification and is retired as a headline (coverage-critic H3).
-- 0 REGRESSED, 0 FAILS; 40 UNPROVEN, 31 MISSING — the honest to-do list,
-  category by category, in the matrix.
+## The hard rules, one line each (full text and the reasons: [`CLAUDE.md`](CLAUDE.md) §1)
 
-Reproduce: `.venv/bin/python tools/coverage.py run --validate-only`
-(~6 min, validates the proofs on disk) or `run` (~40 min, regenerates
-them). `tools/coverage.py report` re-renders without work.
-
----
+1. **Deliver, then caveat** — status gates are labels, never refusal logic; never swap an IFC for a requested `.rvt`.
+2. **Never read an Autodesk installation directory** — a runtime tripwire enforces it.
+3. **Zero donor bytes in anything shipped** — we mine laws from samples and author our own; sample-derived material stays in git-ignored quarantine dirs.
+4. **Autodesk's reader is the arbiter, not our validator** — certification only via the ledger, every viewer round with a certified base + byte-identical control.
+5. **The reduction law** — a referrer of removed content is deleted with it or left byte-identical, never "neutralised".
+6. **Keep this repo private**; never present "Autodesk Revit" or a template's identity as our author string.
+7. **No Autodesk APS / cloud automation services** — the writer is our own; decided, not up for re-proposal.
+8. **A task declined by a policy layer is surfaced verbatim**, never reworded around.
 
 ## Layout
 
 | Path | What |
 |---|---|
-| `src/rvt/` | the engine — container, schema, object codec, ECC, writer, genesis, famgen, ifc, render, mep |
-| `tools/` | front door (`rvt_job.py` → `frontdoor.py`), edit / validate / IFC / genesis / coverage / sync CLIs |
-| `plugin/` | the shippable Claude Code plugin (skills + engine + commands + agents), synced from source |
-| `spec/` | `building.schema.json` — the versioned building/room spec the front door consumes |
-| `inputs/ifc/` | the user's Claude-Design IFC exports (the IFC path's real inputs) |
-| `experiments/` | proof files and their manifests (the certification ledger's referents) |
-| `docs/coverage/` | the CRUD matrix + the viewer-certification ledger |
-| `docs/product/` | architecture, roadmap, MCP-PATH (future), COUNSEL-BRIEF, content strategy |
-| `TRACKER.md` / `KNOWLEDGE.md` | work queue / institutional memory (orchestrator-edited) |
-| `RENAME.md` | the tekton rename plan (not executed; gated on trademark clearance) |
+| `src/rvt/` | the engine: container/codec layers, per-file schema, validator, `versions/`, `genesis/`, `frontdoor/`, `famgen/`, `famload`, `convert/`, `ifc/` (incl. the stdlib `steplite` reader), `reduce_law` |
+| `tools/` | CLIs: `frontdoor.py`, `route.py`, `rvt_validate.py`, `sync_plugin.py`, `probe_batch.py`, `provenance.py`, `surface_bench.py`, per-release `genesis_*`, forensic instruments; `tools/dev/` = process tooling (`techlead.py`, `coord.py`, portable-path check) |
+| `plugin/` | **the product** — skills (`tekton-author`, `-edit`, `-inspect`, `-native`, `-ifc`), commands, agents, the certified bases under `assets/genesis/`, the mirrored engine under `lib/`. Hand-edited vs generated paths: [`CLAUDE.md`](CLAUDE.md) §3b |
+| `skills/tekton-ifc/` | source of the IFC skill (mirrored into the plugin) |
+| `spec/`, `inputs/ifc/`, `usecases/` | the building/room spec schema, the worked IFC inputs, use-case material (copied into the plugin as examples) |
+| `docs/product/` | user-facing truth: `PERMUTATION-MATRIX`, `REQUIREMENTS`, `SURFACE-PLAYBOOK`, `MCP-PATH` (documented future path, not built), `COUNSEL-BRIEF`, `roadmap` |
+| `docs/process/AUTONOMY.md` | the operating system: roles, labels, bots, what still needs a human and why |
+| `docs/inbox/` | one record per workstream (evidence, findings, `BRANCH STATE`); `genesis-audit.md` = the verdict log |
+| `docs/coverage/` | the viewer-certification ledger (+ the historical CRUD matrix) |
+| `docs/writer/`, `docs/streams/` | format facts per release; the original per-stream format analyses (historical) |
+| `experiments/` | probes and proof files per stream (binaries git-ignored; the ledger cites them) |
+| `tests/` | ~1,700 tests; `tests/ci_shard.txt` = the fast no-samples shard CI runs on 3.11 + 3.12 |
+| git-ignored on purpose | `samples/ vendor/ extracted/` (third-party, quarantined), `experiments/**/*.rvt|rfa`, `out/`, caches, zips |
 
-## Reproduce
+## How work is done (short form; the protocol is [`CLAUDE.md`](CLAUDE.md) §4)
 
-```bash
-uv venv .venv && uv pip install --python .venv/bin/python -e ".[test]"   # `rvt` (runtime dep: olefile) + the test extra (pytest, numpy)
-# no uv?  python3.11 -m venv .venv && .venv/bin/pip install -e ".[test]"  # same thing with plain venv/pip (or: bash scripts/cloud-setup.sh)
-.venv/bin/python -m pytest tests/test_versions.py -q                      # a fresh-clone-safe file; the per-PR shard is tests/ci_shard.txt
-.venv/bin/python tools/sync_plugin.py --check                             # plugin drift guard
-```
-
-Extras declared in `pyproject.toml`: `test` (pytest + numpy — what the
-suite needs), `geometry` (numpy only), `ifc` (ifcopenshell, **optional** —
-IFC *authoring* only; IFC *reading* needs no install thanks to the stdlib
-reader `rvt.ifc.steplite`), `dev` (= test + geometry), `all` (everything).
-The full suite (`tests/ -q`) is ~25 min and coordinated — run your
-stream-local files instead (see `CLAUDE.md` §2).
-
-Python: **always** the repo's `.venv/bin/python`, from the repo root. Read
-`CLAUDE.md`, `AGENT_BRIEF.md`, `KNOWLEDGE.md`, `TRACKER.md` before touching
-anything.
+GitHub Issues are the queue; the pinned 📋 board ([#56](https://github.com/ckaragitz/tekton/issues/56))
+is the live picture. Coding sessions are the tech leads — they log every
+human steer, keep the queue stocked from [`docs/PROGRAM.md`](docs/PROGRAM.md),
+claim one issue (`/next` or `/claim`, one holder enforced), work on one
+branch cut from `main`, and open one PR with `Closes #N` and the stream
+record; CI, review, fix passes and squash-merge are automated
+([`docs/process/AUTONOMY.md`](docs/process/AUTONOMY.md)). `main` is
+protected; nothing is claimed by editing a markdown file; hot files
+(`CLAUDE.md`, `KNOWLEDGE.md`, `TRACKER.md`, `plugin/skills/*/SKILL.md`,
+`docs/coverage/viewer-certified.json`, …) change only through small
+dedicated PRs.

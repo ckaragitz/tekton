@@ -41,4 +41,5 @@ tests/test_revit_kit.py
 tests/test_router_release.py
 tests/test_readers_own_release.py
 tests/test_famload_batch.py
+tests/test_probe_batch.py
 tests/test_rfa_load.py

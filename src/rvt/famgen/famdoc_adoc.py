@@ -964,6 +964,24 @@ def constructive_family_host_tree(doc) -> dict:
     tree = copy.deepcopy(emb["value"])
     tree["m_elemTable"] = None       # lives in Global/ElemTable
     tree["m_pHistory"] = None        # lives in Global/History
+    # ARCHIVE RENUMBERING (the desktop round-2 verdict, issue #52): in a
+    # host ``Global/Latest`` stream the ADocument IS archive object 1 and
+    # every self-reference points there (measured: 196/196 weakrefs == 1
+    # in the load-surviving file).  The embedded form's numbering (self =
+    # object 2, host document = object 1) leaves pointers at a nonexistent
+    # object -- Revit refuses with CArchiveException 119, "many unresolved
+    # pointer references".  Renumber every weakref to 1.
+    def _renumber(v):
+        if isinstance(v, dict):
+            if set(v.keys()) == {"weakref"}:
+                v["weakref"] = 1
+                return
+            for x in v.values():
+                _renumber(x)
+        elif isinstance(v, list):
+            for x in v:
+                _renumber(x)
+    _renumber(tree)
     return tree
 
 
