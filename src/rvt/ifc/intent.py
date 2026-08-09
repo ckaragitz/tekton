@@ -22,7 +22,10 @@ compose here, and this module resolves BOTH:
      from the geometry (upright-box decomposition + a minimum-area oriented
      footprint).  When a file DOES carry real relative placements the same
      formula (world = composed_chain @ local geometry) stays exact, so both
-     writer styles resolve.
+     writer styles resolve.  Swept bodies (``IfcExtrudedAreaSolid`` over a
+     rectangle / circle / arbitrary-closed profile -- what our tekton-ifc
+     harden step and most Revit/ArchiCAD exports emit) are expanded to the
+     same local prism points and ride the identical path (#152).
 
 GAP (b) -- MAPPING.  Every board carries a Pset whose property NAMES are the
 tekton-ifc TAGGING CONTRACT (PanelName / Voltage / Phases / Wires /
@@ -373,6 +376,140 @@ def _faceset_points_tris(item) -> Tuple[Optional[np.ndarray], Optional[np.ndarra
     return None, None
 
 
+# ---- swept solids (IfcExtrudedAreaSolid) -> the same (points, tris) --------
+
+#: chords per full circle when a curved profile edge is polygonised
+_ARC_SEGMENTS = 32
+
+
+def _coords2(p) -> Tuple[float, float]:
+    """(x, y) of an IfcCartesianPoint or a bare coordinate pair."""
+    c = list(p.Coordinates) if hasattr(p, "Coordinates") else list(p)
+    return float(c[0]), (float(c[1]) if len(c) > 1 else 0.0)
+
+
+def _dedupe_ring(ring: List[Tuple[float, float]]) -> List[Tuple[float, float]]:
+    """Drop consecutive repeats and the closing repeat of a 2-D ring."""
+    out: List[Tuple[float, float]] = []
+    for x, y in ring:
+        if not out or abs(out[-1][0] - x) > 1e-9 or abs(out[-1][1] - y) > 1e-9:
+            out.append((x, y))
+    if len(out) > 1 and abs(out[0][0] - out[-1][0]) <= 1e-9 and abs(out[0][1] - out[-1][1]) <= 1e-9:
+        out.pop()
+    return out
+
+
+def _arc_through(p0, pm, p1) -> List[Tuple[float, float]]:
+    """Polygonise the circular arc p0 -> pm -> p1 (an ``IfcArcIndex``);
+    returns the interior chord points + p1 (p0 is already on the ring)."""
+    (x0, y0), (xm, ym), (x1, y1) = p0, pm, p1
+    d = 2.0 * (x0 * (ym - y1) + xm * (y1 - y0) + x1 * (y0 - ym))
+    if abs(d) < 1e-12:                                   # collinear: a chord
+        return [pm, p1]
+    s0, sm, s1 = x0 * x0 + y0 * y0, xm * xm + ym * ym, x1 * x1 + y1 * y1
+    cx = (s0 * (ym - y1) + sm * (y1 - y0) + s1 * (y0 - ym)) / d
+    cy = (s0 * (x1 - xm) + sm * (x0 - x1) + s1 * (xm - x0)) / d
+    r = math.hypot(x0 - cx, y0 - cy)
+    a0, am, a1 = (math.atan2(y - cy, x - cx) for x, y in (p0, pm, p1))
+    ccw = d > 0                                          # p0,pm,p1 orientation
+    sweep = (a1 - a0) % (2 * math.pi) if ccw else -((a0 - a1) % (2 * math.pi))
+    n = max(2, int(math.ceil(abs(sweep) / (2 * math.pi) * _ARC_SEGMENTS)))
+    return [(cx + r * math.cos(a0 + sweep * k / n), cy + r * math.sin(a0 + sweep * k / n))
+            for k in range(1, n + 1)]
+
+
+def _curve_ring(curve) -> Optional[List[Tuple[float, float]]]:
+    """Vertices of a closed planar profile curve (``IfcPolyline`` or
+    ``IfcIndexedPolyCurve``; arc segments polygonised), no closing repeat."""
+    if curve is None:
+        return None
+    if curve.is_a("IfcPolyline"):
+        ring = [_coords2(p) for p in curve.Points]
+    elif curve.is_a("IfcIndexedPolyCurve"):
+        pts = [_coords2(p) for p in curve.Points.CoordList]
+        segs = getattr(curve, "Segments", None)
+        if not segs:
+            ring = pts
+        else:
+            ring = []
+            for seg in segs:
+                idx = [int(i) for i in seg.wrappedValue]
+                if seg.is_a("IfcArcIndex") and len(idx) == 3:
+                    if not ring:
+                        ring.append(pts[idx[0] - 1])
+                    ring += _arc_through(pts[idx[0] - 1], pts[idx[1] - 1], pts[idx[2] - 1])
+                else:                                    # IfcLineIndex
+                    for i in idx[(1 if ring else 0):]:
+                        ring.append(pts[i - 1])
+    else:
+        return None                                      # composite / trimmed: not read
+    ring = _dedupe_ring(ring)
+    return ring if len(ring) >= 3 else None
+
+
+def _profile_ring(profile) -> Optional[np.ndarray]:
+    """Outer boundary of an ``IfcProfileDef`` as Nx2 points in the profile
+    plane: rectangle (XDim x YDim centred on Position), circle (polygonised),
+    arbitrary closed (its outer curve).  Inner voids are ignored -- the
+    downstream consumers read extents / footprints / upright boxes."""
+    if profile is None:
+        return None
+    if profile.is_a("IfcRectangleProfileDef"):
+        hx, hy = float(profile.XDim) / 2.0, float(profile.YDim) / 2.0
+        ring = [(-hx, -hy), (hx, -hy), (hx, hy), (-hx, hy)]
+    elif profile.is_a("IfcCircleProfileDef"):
+        r = float(profile.Radius)
+        ring = [(r * math.cos(2 * math.pi * k / _ARC_SEGMENTS),
+                 r * math.sin(2 * math.pi * k / _ARC_SEGMENTS)) for k in range(_ARC_SEGMENTS)]
+    elif profile.is_a("IfcArbitraryClosedProfileDef"):
+        ring = _curve_ring(profile.OuterCurve)
+        if ring is None:
+            return None
+    else:
+        return None
+    p = np.array(ring, float)
+    pos = getattr(profile, "Position", None)             # parameterised profiles only
+    if pos is not None:
+        m = axis2placement3d_matrix(pos)                 # handles IfcAxis2Placement2D
+        p = p @ m[:2, :2].T + m[:2, 3]
+    return p
+
+
+def _extruded_points_tris(item) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    """(points 2Nx3 LOCAL, tris) of an ``IfcExtrudedAreaSolid``: the profile
+    ring in the solid's Position frame, swept by ExtrudedDirection * Depth.
+    A rectangle profile yields exactly the 8 corners + 12 triangles the
+    upright-box test recognises; caps are fan-triangulated (the triangles
+    only carry connectivity for :func:`decompose_boxes`)."""
+    ring = _profile_ring(item.SweptArea)
+    if ring is None:
+        return None, None
+    n = len(ring)
+    d = np.array(list(item.ExtrudedDirection.DirectionRatios), float)
+    while len(d) < 3:
+        d = np.append(d, 0.0)
+    d = _norm(d[:3]) * float(item.Depth)
+    bot = np.c_[ring, np.zeros(n)]
+    local = np.vstack([bot, bot + d])
+    pos = getattr(item, "Position", None)
+    if pos is not None:
+        local = _apply(axis2placement3d_matrix(pos), local)
+    tris = [(0, k + 1, k) for k in range(1, n - 1)]                 # bottom cap
+    tris += [(n, n + k, n + k + 1) for k in range(1, n - 1)]        # top cap
+    for k in range(n):                                              # sides
+        k1 = (k + 1) % n
+        tris += [(k, k1, n + k1), (k, n + k1, n + k)]
+    return local, np.array(tris, int).reshape(-1, 3)
+
+
+def _item_points_tris(item) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]:
+    """(points LOCAL, tris) of any body item the intent reads: tessellated
+    face sets / faceted breps, and extruded area solids."""
+    if item.is_a("IfcExtrudedAreaSolid"):
+        return _extruded_points_tris(item)
+    return _faceset_points_tris(item)
+
+
 def _apply(m: np.ndarray, pts: np.ndarray) -> np.ndarray:
     if pts.size == 0:
         return pts
@@ -713,7 +850,7 @@ def _collect_items(f, rep_items, base_m: np.ndarray, scale: float,
             _collect_items(f, src.MappedRepresentation.Items, m_item, scale,
                            rep_identifier + "/mapped", out)
             continue
-        pts, tris = _faceset_points_tris(item)
+        pts, tris = _item_points_tris(item)
         if pts is None or len(pts) == 0:
             continue
         world = _apply(base_m, pts) * scale
@@ -726,8 +863,10 @@ def _collect_items(f, rep_items, base_m: np.ndarray, scale: float,
 
 def analyze_product(f, prod, *, scale: float = 1.0,
                     placement: Optional[Placement] = None) -> Tuple[Placement, ProductGeometry]:
-    """Resolve ``prod``'s placement chain and transform every tessellated
-    body into WORLD metres (world = composed_chain @ local_vertices * scale).
+    """Resolve ``prod``'s placement chain and transform every body item
+    (tessellated face set / faceted brep / extruded area solid, directly or
+    via ``IfcMappedItem``) into WORLD metres
+    (world = composed_chain @ local_vertices * scale).
     """
     plc = placement or compose_placement(getattr(prod, "ObjectPlacement", None))
     items: List[GeomItem] = []

@@ -341,3 +341,149 @@ def test_ensure_engine_appends_shim_only_when_real_absent():
                           capture_output=True, text=True, timeout=120, env=env)
     assert proc.returncode == 0, proc.stderr[-2000:]
     assert "OK ensure_engine fallback" in proc.stdout
+
+
+# ===========================================================================
+# 5. swept solids: IfcExtrudedAreaSolid + profiles + planar curves (#152)
+#    -- hand-authored fixture shared with tests/test_ifc_intent.py, so the
+#    stdlib reader is held to the SAME world numbers as the real library
+# ===========================================================================
+
+sys.path.insert(0, os.path.join(ROOT, "tests"))
+import fixtures_ifc_extrusion as FX  # noqa: E402
+
+
+@pytest.fixture(scope="module")
+def extrusion_path(tmp_path_factory):
+    return FX.write_fixture(str(tmp_path_factory.mktemp("extrusion")))
+
+
+def test_swept_solid_schema_rows_serve_the_read_surface(extrusion_path):
+    """The new _SCHEMA rows: attribute access root..leaf, is_a closure,
+    by_type subtype closure, typed Segments, type objects for typeName."""
+    f = SL.open(extrusion_path)
+    solids = f.by_type("IfcExtrudedAreaSolid")
+    assert len(solids) == 9
+    assert [e.id() for e in f.by_type("IfcSweptAreaSolid")] == [e.id() for e in solids]
+    assert [e.id() for e in f.by_type("IfcSolidModel")] == [e.id() for e in solids]
+    slab = f.by_id(46)
+    assert slab.is_a("IfcSweptAreaSolid") and slab.is_a() == "IfcExtrudedAreaSolid"
+    assert slab.Depth == 0.15 and slab.ExtrudedDirection.DirectionRatios == (0.0, 0.0, 1.0)
+    assert slab.Position.Location.Coordinates == (0.0, 0.0, -0.15)
+    prof = slab.SweptArea
+    assert prof.is_a("IfcParameterizedProfileDef") and prof.is_a("IfcProfileDef")
+    assert (prof.ProfileType, prof.XDim, prof.YDim) == ("AREA", 6.0, 4.0)
+    assert prof.Position.is_a("IfcAxis2Placement2D")
+    assert prof.Position.Location.Coordinates == (3.0, 2.0) and prof.Position.RefDirection is None
+    assert f.by_id(63).Position is None                    # OPTIONAL solid Position
+    # profiles: 5 rectangles + 3 arbitrary closed + 1 circle, subtype closure
+    kinds = sorted(p.is_a() for p in f.by_type("IfcProfileDef"))
+    assert kinds.count("IfcRectangleProfileDef") == 5
+    assert kinds.count("IfcArbitraryClosedProfileDef") == 3
+    assert kinds.count("IfcCircleProfileDef") == 1 and f.by_id(150).Radius == 0.15
+    # planar curves
+    poly = f.by_id(55).OuterCurve
+    assert poly.is_a("IfcPolyline") and poly.is_a("IfcCurve") and len(poly.Points) == 5
+    ipc = f.by_id(71)
+    assert ipc.is_a("IfcIndexedPolyCurve") and ipc.SelfIntersect is False
+    assert ipc.Points.is_a("IfcCartesianPointList2D") and len(ipc.Points.CoordList) == 4
+    segs = ipc.Segments
+    assert [s.is_a() for s in segs] == ["IfcLineIndex"] * 4
+    assert segs[0].is_a("IfcLineIndex") and not segs[0].is_a("IfcArcIndex")
+    assert [s.wrappedValue for s in segs] == [(1, 2), (2, 3), (3, 4), (4, 1)]
+    assert f.by_id(61).Segments is None
+    assert [c.is_a() for c in f.by_type("IfcCurve")] == ["IfcIndexedPolyCurve"] * 2 + ["IfcPolyline"]
+    # styled-item inverse on a solid, and the type object behind typeName
+    assert [si.Name for si in f.get_inverse(slab) if si.is_a("IfcStyledItem")] == ["floor_slab"]
+    assert SL.get_type(f.by_id(143)).Name == "Panel type 400A"
+    assert f.by_id(135).RepresentationMaps[0].MappedRepresentation.Items[0].id() == 131
+
+
+@pytest.mark.skipif(not HAVE_NUMPY, reason="intent geometry needs numpy")
+def test_steplite_entities_drive_the_intent_extrusion_reader(extrusion_path):
+    """In-process: steplite entities fed straight to rvt.ifc.intent's
+    product analysis land on the fixture's expected WORLD boxes -- the same
+    table the real-library test asserts."""
+    import numpy as np
+    from rvt.ifc import intent as I
+
+    f = SL.open(extrusion_path)
+    items = {}
+    for prod, plc, geom in I.resolve_products(f):
+        assert not plc.identity and plc.chain_depth == 4
+        for it in geom.items:
+            items[it.name] = it
+    for name, (lo, hi) in FX.EXPECTED_BOXES.items():
+        it = items[name]
+        assert it.is_all_boxes and it.n_tris == 12, name
+        assert np.allclose(it.lo, lo, atol=1e-6), (name, it.lo, lo)
+        assert np.allclose(it.hi, hi, atol=1e-6), (name, it.hi, hi)
+    assert items["pm_enclosure"].rep_identifier == "Body/mapped"
+    bol = items["bollard_body"]
+    assert not bol.is_all_boxes and np.allclose(bol.extent, [0.3, 0.3, 0.9], atol=1e-6)
+
+
+@pytest.mark.skipif(not HAVE_NUMPY, reason="intent path needs numpy")
+def test_extrusion_intent_resolves_on_the_forced_shim(extrusion_path, tmp_path):
+    """No-ifcopenshell path (the plugin sandbox / CI): the shim FORCED first,
+    resolve_intent reads every extruded body -> 4 walls closing the ring,
+    all equipment with geometry and dims, world z + level annotation."""
+    out = os.path.join(str(tmp_path), "intent.json")
+    code = (
+        "import json, sys\n"
+        "import ifcopenshell\n"
+        "assert getattr(ifcopenshell, 'IS_STEPLITE', False), 'expected the shim'\n"
+        "from rvt.ifc import intent as I\n"
+        f"m = I.resolve_intent({extrusion_path!r}, plan_families_flag=False)\n"
+        f"json.dump(I.intent_to_json(m), open({out!r}, 'w'), indent=1)\n"
+        "print('OK shim intent')\n"
+    )
+    env = dict(os.environ)
+    env.update({"PYTHONPATH": os.pathsep.join([SHIM, SRC]), "RVT_STEPLITE_FORCE": "1"})
+    proc = subprocess.run([sys.executable, "-c", code], cwd=ROOT, env=env,
+                          capture_output=True, text=True, timeout=300)
+    assert proc.returncode == 0, proc.stderr[-2000:]
+    assert "OK shim intent" in proc.stdout
+    with open(out) as fh:
+        js = json.load(fh)
+    assert sorted(w["id"] for w in js["walls"]) == sorted(FX.EXPECTED_WALL_IDS)
+    assert all(abs(w["thickness"] - 0.2) < 1e-4 and abs(w["height"] - 3.0) < 1e-4
+               for w in js["walls"])
+    assert js["audit"]["equipment_with_geometry"] == len(FX.EXPECTED_EQUIPMENT)
+    eq = {e["tag"]: e for e in js["equipment"]}
+    for tag, (w, d, h, elev) in FX.EXPECTED_EQUIPMENT.items():
+        dims = eq[tag]["dims_m"]
+        assert abs(dims["w"] - w) < 2e-3 and abs(dims["d"] - d) < 2e-3 and abs(dims["h"] - h) < 1e-4, tag
+        assert abs(eq[tag]["elevation_m"] - elev) < 1e-4 and eq[tag]["level"] == "L1", tag
+    assert eq["PANEL-M"]["typeName"] == "Panel type 400A"      # type row -> typeName parity
+    assert js["levels"][0]["elevation"] == FX.STOREY_ORIGIN[2]
+
+
+@needs_ifcos
+def test_extrusion_fixture_matches_ifcopenshell(extrusion_path):
+    """Parser equivalence for the swept-solid subset: every entity, every
+    named attribute, by_type closures and get_inverse against the real
+    library on the hand-authored fixture."""
+    fr = _ifcos.open(extrusion_path)
+    fs = SL.open(extrusion_path)
+    n = 0
+    for er in fr:
+        es = fs.by_id(er.id())
+        assert es.is_a() == er.is_a(), er.id()
+        for k, v in er.get_info(recursive=False).items():
+            if k in ("id", "type"):
+                continue
+            assert _canon(getattr(es, k)) == _canon(v), (er.id(), er.is_a(), k)
+            n += 1
+    assert n > 300
+    for cls in ("IfcProfileDef", "IfcParameterizedProfileDef", "IfcSweptAreaSolid",
+                "IfcSolidModel", "IfcCurve", "IfcBoundedCurve", "IfcRepresentationItem",
+                "IfcTypeObject", "IfcProduct", "IfcStyledItem"):
+        assert [e.id() for e in fr.by_type(cls)] == [e.id() for e in fs.by_type(cls)], cls
+    for er in fr.by_type("IfcExtrudedAreaSolid"):
+        es = fs.by_id(er.id())
+        assert sorted(x.id() for x in fr.get_inverse(er)) == [x.id() for x in fs.get_inverse(es)]
+    for er in fr.by_type("IfcElement"):
+        assert _up.get_local_placement(er.ObjectPlacement).tolist() == \
+               SL.get_local_placement(fs.by_id(er.id()).ObjectPlacement), er.id()
+        assert _ue.get_psets(er) == SL.get_psets(fs.by_id(er.id())), er.id()
