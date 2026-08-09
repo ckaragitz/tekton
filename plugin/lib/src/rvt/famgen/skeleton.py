@@ -60,7 +60,7 @@ import time
 import uuid
 import zlib
 from dataclasses import dataclass, field as dc_field
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 # --- reuse the project skeleton's building blocks (same shape contract) -----
 from ..genesis import skeleton as _gsk
@@ -833,10 +833,25 @@ def refresh_self_family_index(fam: SkelElement, element_ids: Sequence[int]) -> N
 # ELECTRICAL CONNECTOR  (ConnectorElem + ConnectorElemDomainElectrical)
 # ---------------------------------------------------------------------------
 
-#: Revit's ElectricalSystemType for a power connector's domain
-#: (m_systemType) [VERIFIED 31 on every electrical connector specimen;
-#: 31 = PowerCircuit INFERRED from the API enum]
-ELECTRICAL_SYSTEM_POWER = 31
+#: Revit's ``ElectricalSystemType`` for a power connector's domain
+#: (``m_systemType``).  Codes from the public Revit API reference,
+#: ``ElectricalSystemType`` enumeration: PowerBalanced = 30, PowerUnBalanced
+#: = 31 (PowerCircuit = 6 is a CIRCUIT's type, never a connector's) -- the
+#: family editor's "System Type: Power - Balanced / Power - Unbalanced"
+#: [VERIFIED 31 on every electrical connector specimen: Revit's own
+#: panelboard / lighting / receptacle connectors are Power-Unbalanced;
+#: no Power-Balanced (30) specimen decoded yet].  Sources + quotes:
+#: docs/writer/family-skeleton.md section 7.
+ELECTRICAL_SYSTEM_POWER_BALANCED = 30
+ELECTRICAL_SYSTEM_POWER_UNBALANCED = 31
+#: ``system_type`` names accepted by :func:`electrical_domain` (or the code)
+ELECTRICAL_SYSTEM_TYPES = {
+    "power_balanced": ELECTRICAL_SYSTEM_POWER_BALANCED,
+    "power_unbalanced": ELECTRICAL_SYSTEM_POWER_UNBALANCED,
+}
+#: ``PowerFactorStateType`` (``m_powerFactorState``): Lagging = 1 (Leading
+#: = 0) [API reference enumeration; VERIFIED 1 on every specimen]
+POWER_FACTOR_LAGGING = 1
 
 #: connector ELEMENT-PROPERTY built-ins a family parameter can DRIVE via
 #: the connector's ``FamilyParametrizedElemParamsCell`` ("associate family
@@ -852,34 +867,96 @@ ELEM_PROP_APPARENT_LOAD = -1140005
 BIP_FAMILY_WATTAGE = -1140004
 
 
+def phase_loads_va(apparent_load_va: Union[float, Sequence[float]],
+                   poles: int) -> List[float]:
+    """The per-phase apparent loads [phase 1, 2, 3] in VA of a ``poles``-pole
+    power connector.
+
+    A NUMBER is the connector's whole (balanced) load and is split equally
+    over phases 1..``poles`` -- a balanced load is by definition the same
+    load on every pole, and Revit totals a connected load as "Apparent Load
+    Phase A + Apparent Load Phase B + Apparent Load Phase C" (help: About
+    Load Calculations), so 75 kVA on 3 poles = 25 kVA per phase.  A SEQUENCE
+    is an explicit (unbalanced) per-phase list; it may not be longer than
+    ``poles`` because "Apparent Load Phase 2 [is] active only when ... Number
+    of Poles > 1" and Phase 3 "... > 2" (help: Connector Properties).
+    Phases beyond ``poles`` are 0.
+    """
+    poles = int(poles)
+    if poles not in (1, 2, 3):
+        raise ValueError(f"poles must be 1, 2 or 3 (Revit 'Number of Poles'), got {poles}")
+    if isinstance(apparent_load_va, (int, float)):
+        each = float(apparent_load_va) / poles
+        loads = [each] * poles
+    else:
+        loads = [float(v) for v in apparent_load_va]
+        if not 1 <= len(loads) <= poles:
+            raise ValueError(f"{len(loads)} per-phase loads given for a {poles}-pole "
+                             "connector (phase n is only active when poles >= n)")
+    return loads + [0.0] * (3 - len(loads))
+
+
 def electrical_domain(*, voltage_v: float, poles: int = 1,
-                      apparent_load_va: float = 0.0, power_factor: float = 1.0,
+                      apparent_load_va: Union[float, Sequence[float]] = 0.0,
+                      power_factor: float = 1.0,
                       load_classification_id: int = -1,
                       description: str = "",
-                      balanced_load: bool = True) -> dict:
+                      system_type: Union[str, int] = "power_unbalanced",
+                      primary: bool = True) -> dict:
     """The ``ConnectorElemDomainElectrical`` owned object of a POWER
     connector, from the calc-engine values (display units in, internal out).
 
     [VERIFIED unit rule + field values on the panelboard / lighting /
-    receptacle connectors]  ``apparent_load_va`` is booked on phase 1 for a
-    single-phase load (as the specimens do); ``load_classification_id`` =
-    an ``ElectricalLoadClassification`` element (the document's own copy in a
-    standalone family) -- -1 = unclassified.
+    receptacle connectors -- all three are ``system_type`` 31 =
+    Power-Unbalanced, single load on phase 1, ``m_dApparentLoad`` 0.0]
+    Load law (public Revit help "Connector Properties" + API reference; URLs
+    and quotes in docs/writer/family-skeleton.md section 7):
+
+    * ``power_unbalanced`` (31, the specimens' type, the default): the load
+      lives in ``m_dApparentLoadPhase1..poles`` ("Apparent Load Phase 1 ...
+      Active only when Balanced Load is False"; Phase 2 needs poles > 1,
+      Phase 3 poles > 2) and ``m_dApparentLoad`` -- "Active only when Balanced
+      Load is True" -- stays 0.0 exactly as the specimens store it.  A number
+      is split equally over the poles (:func:`phase_loads_va`); a sequence is
+      the explicit per-phase list.
+    * ``power_balanced`` (30): ``m_dApparentLoad`` carries the whole load (the
+      one active load field of a balanced connector) and the phase fields are
+      written as its equal split so the two agree whichever a reader shows
+      [no Power-Balanced specimen decoded: documented semantics, on-disk
+      values of the inactive phase fields UNOBSERVED -- the factory keeps to
+      31].  A per-phase sequence is refused: unequal phases are unbalanced.
+
+    ``primary`` = ``m_bIsConnectorPrimary``: "A single connector of each
+    discipline is allowed to be primary in each family. The family's
+    electrical data that displays in a schedule is derived from the primary
+    connector" (help) / ``ConnectorElement.IsPrimary`` (API); the DOCUMENT
+    keeps it to one (:meth:`FamilyDoc.resolve_primary`).
+    ``load_classification_id`` = an ``ElectricalLoadClassification`` element
+    (the document's own copy in a standalone family) -- -1 = unclassified.
     """
-    load1 = voltamps(apparent_load_va) if balanced_load or poles == 1 else 0.0
+    sys_code = (ELECTRICAL_SYSTEM_TYPES.get(system_type) if isinstance(system_type, str)
+                else int(system_type))
+    if sys_code not in ELECTRICAL_SYSTEM_TYPES.values():
+        raise ValueError(f"system_type must be one of {sorted(ELECTRICAL_SYSTEM_TYPES)} "
+                         f"or their codes, got {system_type!r}")
+    balanced = sys_code == ELECTRICAL_SYSTEM_POWER_BALANCED
+    if balanced and not isinstance(apparent_load_va, (int, float)):
+        raise ValueError("a per-phase load list is an unbalanced load: use "
+                         "system_type='power_unbalanced'")
+    phases = phase_loads_va(apparent_load_va, poles)
     return {
         "m_pConnElem": _weak(2),
         "m_dVoltage": volts(voltage_v),
-        "m_dApparentLoad": 0.0,
-        "m_dApparentLoadPhase1": float(load1),
-        "m_dApparentLoadPhase2": 0.0,
-        "m_dApparentLoadPhase3": 0.0,
+        "m_dApparentLoad": voltamps(sum(phases)) if balanced else 0.0,
+        "m_dApparentLoadPhase1": voltamps(phases[0]),
+        "m_dApparentLoadPhase2": voltamps(phases[1]),
+        "m_dApparentLoadPhase3": voltamps(phases[2]),
         "m_dPowerFactor": float(power_factor),
         "m_idLoadClassification": int(load_classification_id),
         "m_nNumberOfPoles": int(poles),
-        "m_systemType": ELECTRICAL_SYSTEM_POWER,
-        "m_powerFactorState": 1,          # 1 = lagging [INFERRED]
-        "m_bIsConnectorPrimary": True,
+        "m_systemType": sys_code,
+        "m_powerFactorState": POWER_FACTOR_LAGGING,
+        "m_bIsConnectorPrimary": bool(primary),
         "m_bConnectorUtility": False,
         "m_bSubClassificationMotor": False,
         "m_strConnectorDescription": str(description),
@@ -895,9 +972,11 @@ def new_electrical_connector(elem_id: int, self_family_id: int, *,
                              angle: float = 0.0,
                              voltage_v: float = 120.0, poles: int = 1,
                              load_class_id: int = -1,
-                             apparent_load_va: float = 0.0,
+                             apparent_load_va: Union[float, Sequence[float]] = 0.0,
                              power_factor: float = 1.0,
                              description: str = "",
+                             system_type: Union[str, int] = "power_unbalanced",
+                             primary: bool = True,
                              marker_size_ft: float = 0.4921259842519685,
                              edge_loop_tags: Sequence[int] = (),
                              param_bindings: Sequence[Tuple[int, int]] = (),
@@ -915,7 +994,8 @@ def new_electrical_connector(elem_id: int, self_family_id: int, *,
     in-plane U axis; ``marker_size_ft`` = the drawn arrow size (0.492 ft =
     150 mm).  The electrical DOMAIN comes from the calc engine
     (``voltage_v``, ``poles``, ``apparent_load_va``, ``power_factor``,
-    ``load_class_id``).  ``edge_loop_tags`` = the host face's edge tags
+    ``load_class_id``, ``system_type``, ``primary`` -- laws in
+    :func:`electrical_domain`).  ``edge_loop_tags`` = the host face's edge tags
     (``EdgeLoopRef.m_sortedTagArr``) when the face is a real solid face;
     empty for a datum-plane host.  ``param_bindings`` = the "associate
     family parameter" links [(family_param_id_or_bip, elem_prop_bip)] --
@@ -993,7 +1073,7 @@ def new_electrical_connector(elem_id: int, self_family_id: int, *,
     o["m_pDomain"] = _ptr("ConnectorElemDomainElectrical", electrical_domain(
         voltage_v=voltage_v, poles=poles, apparent_load_va=apparent_load_va,
         power_factor=power_factor, load_classification_id=load_class_id,
-        description=description))
+        description=description, system_type=system_type, primary=primary))
     o["m_grepSize"] = float(marker_size_ft)
     o["m_idLinkedElem"] = -1
     o["m_idPrimaryElem"] = int(elem_id)
@@ -1181,17 +1261,36 @@ class FamilyDoc:
         self.add(el)
         return el
 
+    def has_primary_connector(self) -> bool:
+        """True once one of the document's connectors is the primary one."""
+        return any(c.obj["m_pDomain"]["value"]["m_bIsConnectorPrimary"]
+                   for c in self.connectors)
+
+    def resolve_primary(self, primary: Optional[bool] = None) -> bool:
+        """The one-primary-connector law ("a single connector of each
+        discipline is allowed to be primary in each family",
+        :func:`electrical_domain`): ``None`` = primary iff the document has
+        no primary connector yet; asking for a second primary raises."""
+        have = self.has_primary_connector()
+        if primary is None:
+            return not have
+        if primary and have:
+            raise ValueError("the family already has a primary connector (one primary "
+                             "connector per discipline per family)")
+        return bool(primary)
+
     def add_electrical_connector(self, *, host_element_id: Optional[int] = None,
                                  host_geom_tag: int = 0,
                                  location: Optional[Sequence[float]] = None,
                                  direction: Sequence[float] = (0.0, 0.0, -1.0),
                                  voltage: float = 120.0, poles: int = 1,
                                  load_class: str = "Power",
-                                 apparent_load_va: float = 0.0,
+                                 apparent_load_va: Union[float, Sequence[float]] = 0.0,
                                  power_factor: float = 1.0,
                                  bind_voltage_param: Optional[str] = None,
                                  bind_load_param: Optional[str] = None,
-                                 description: str = "Power Connection") -> SkelElement:
+                                 description: str = "Power Connection",
+                                 primary: Optional[bool] = None) -> SkelElement:
         """Add a POWER connector from the calc-engine values.
 
         ``host_element_id``/``host_geom_tag`` = the face the connector sits
@@ -1204,8 +1303,10 @@ class FamilyDoc:
         / ``bind_load_param`` = captions of family parameters to ASSOCIATE
         with the connector's voltage / apparent-load properties (so the type
         values drive the connector -- the panelboard's rated voltage) [the
-        VERIFIED FamilyParametrizedElemParamsCell mechanism].
+        VERIFIED FamilyParametrizedElemParamsCell mechanism].  ``primary``:
+        :meth:`resolve_primary` (``None`` = only the first connector is).
         """
+        primary = self.resolve_primary(primary)
         host = self.ref_level.elem_id if host_element_id is None else int(host_element_id)
         bindings: List[Tuple[int, int]] = []
         if bind_voltage_param:
@@ -1227,7 +1328,7 @@ class FamilyDoc:
             voltage_v=voltage, poles=poles, load_class_id=lc.elem_id,
             apparent_load_va=apparent_load_va, power_factor=power_factor,
             description=description, param_bindings=bindings,
-            index=len(self.connectors) + 1)
+            primary=primary, index=len(self.connectors) + 1)
         self.connectors.append(con)
         self.add(con)
         return con

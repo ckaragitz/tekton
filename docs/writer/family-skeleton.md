@@ -93,7 +93,7 @@ the rest to the reduction ladder (§10).
 | family parameters | `ParamElemFamily` (+ the FamilyTypeTable / FamilyParams value shape) | `new_family_parameter`, `family_param_value`, `family_type_table` |
 | the units registry | `UnitsElem` | `rvt.genesis.skeleton.new_units_elem` (reused) |
 | the plan-view constellation the datums are drawn in | `DBViewProject`, `DBViewType` 'Floor Plan', `DBViewPlan` "Ref. Level" + Viewer / DBDrawing / Viewport / ExtentElem / SketchPlane / SunAndShadowSettings | `rvt.genesis.skeleton` view constructors (reused verbatim, re-owned by the self-Family) |
-| MEP: power connector + electrical domain | `ConnectorElem` + `ConnectorElemDomainElectrical` (+ `FamilyParametrizedElemParamsCell`) | `new_electrical_connector`, `electrical_domain`, `FamilyDoc.add_electrical_connector` |
+| MEP: power connector + electrical domain | `ConnectorElem` + `ConnectorElemDomainElectrical` (+ `FamilyParametrizedElemParamsCell`) | `new_electrical_connector`, `electrical_domain`, `phase_loads_va`, `FamilyDoc.add_electrical_connector` |
 | the doc's own load classification | `ElectricalLoadClassification` | `rvt.genesis.types.new_load_class` (reused) via `FamilyDoc.add_load_classification` |
 
 | NOT built (ballast — reduction ladder, §10) | why |
@@ -229,16 +229,32 @@ load_class_id, apparent_load_va, power_factor, param_bindings, ...)`:
 | `m_pFaceU` / `m_pFaceV` | two inline `Face`/`Plane`s at the connector point: U = (direction, u_axis), V = (u_axis, direction × u_axis); envelope = `m_grepSize` (the drawn arrow size, 0.492 ft = 150 mm) | V |
 | `m_oEdgeLoopRef` | `EdgeLoopRef{ m_sortedTagArr = the host face's edge tags }` ([3,4,8,17] on a box top; empty for a datum host) | V |
 | `m_geomSteps` | one `ConnectorElemGStep` (face history keys `[6,0,-1]`/`[6,1,-1]`, flags 237373); GeomTable rows `(-1, 1, 1)` | V |
-| `m_pDomain` → `ConnectorElemDomainElectrical` | `m_dVoltage` (V ÷ 0.3048²: 208 V → 2238.89, 120 V → 1291.67), `m_dApparentLoadPhase1..3` (VA ÷ 0.3048², booked on phase 1 for single-phase), `m_dPowerFactor`, `m_nNumberOfPoles` (1 / 3), `m_idLoadClassification` (an `ElectricalLoadClassification` — the DOC'S OWN copy in a standalone family; a HOST id in an embedded doc), `m_systemType` 31 (power circuit [I]), `m_powerFactorState` 1, `m_bIsConnectorPrimary` True, `m_strConnectorDescription` | V |
+| `m_pDomain` → `ConnectorElemDomainElectrical` | `m_dVoltage` (V ÷ 0.3048²: 208 V → 2238.89, 120 V → 1291.67), `m_dApparentLoadPhase1..3` + `m_dApparentLoad` (VA ÷ 0.3048²; **load law below**), `m_dPowerFactor`, `m_nNumberOfPoles` (1 / 2 / 3), `m_idLoadClassification` (an `ElectricalLoadClassification` — the DOC'S OWN copy in a standalone family; a HOST id in an embedded doc), `m_systemType` (30 = Power‑Balanced / **31 = Power‑Unbalanced**, the specimens' value [V] — API `ElectricalSystemType`), `m_powerFactorState` 1 = Lagging (API `PowerFactorStateType`), `m_bIsConnectorPrimary` (**one primary per family**, law below), `m_strConnectorDescription` | V |
 | `m_cellList` (**parameter association**) | `FamilyParametrizedElemParamsCell{ m_paramDrivenData[]: { m_famParamId (a ParamElemFamily id or a BIP), m_elemPropId, m_geomTag -1, m_bIsSymbol False } }` + `PatternHelper` — the family editor's "associate family parameter": `m_elemPropId -1140002` = the connector VOLTAGE, `-1140005` = APPARENT LOAD; e.g. the receptacle's voltage is driven by its 'Switch Voltage' user parameter and its load by 'Load'; the light's load by the wattage BIP `-1140004` | V |
 | header | category -2007000, flags 2058, deletion [self-Family, host face element, load classification, the driving user params, self] | V |
 | seq 103 | `SerializedDummy` (connectors carry no cached geometry) | V |
+
+**Load + primary law of the electrical domain (#164)** — sourced from
+Autodesk's *public* API reference and product help (no install directory,
+no sample bytes), consistent with the three byte‑verified specimens:
+
+| rule | in the file | source (short quote) |
+|---|---|---|
+| system type codes | `m_systemType` 30 = Power‑Balanced, 31 = Power‑Unbalanced (6 = PowerCircuit is a *circuit's* type). Every specimen — Revit's own panelboard / fixture / receptacle connector — is **31** [V]; the factory emits 31 only. | Revit API `ElectricalSystemType` enumeration ("all the possible electrical system types for a connector object"): `PowerBalanced 30`, `PowerUnBalanced 31`, `PowerCircuit 6` — <https://www.revitapidocs.com/2026/90f62108-9cd1-a66a-a123-8372307f4e7f.htm> |
+| unbalanced (31): load lives per phase | `m_dApparentLoadPhase1..poles` carry the load; a connector's *whole* load is split equally over its poles (`phase_loads_va`: 75 kVA, 3‑pole → 25 / 25 / 25 kVA = 269 097.76 internal each); an explicit per‑phase list is written as given; phases beyond `poles` are 0; `m_dApparentLoad` = **0.0** [V on all specimens] | Help *Connector Properties*: "Apparent Load Phase 1 … Active only when Balanced Load is False and System Type is Power"; Phase 2 "… and Number of Poles >1"; Phase 3 "… >2"; "Apparent Load … Active only when Balanced Load is True" — <https://help.autodesk.com/cloudhelp/2020/ENU/Revit-Model/files/GUID-3DE410FC-7BB7-44FD-B75E-A02C4F42C1AD.htm>. Total = "Apparent Load Phase A + Apparent Load Phase B + Apparent Load Phase C" — help *About Load Calculations* <https://help.autodesk.com/view/RVT/2025/ENU/?guid=GUID-EE3F38E5-44A7-4991-BA99-7AC8732DBEDF> |
+| balanced (30): load lives in `m_dApparentLoad` | `m_dApparentLoad` = the total; the phase fields are written as its equal split so both readings agree. **No type‑30 specimen has been decoded** — the semantics are documented, the on‑disk value of the inactive phase fields is UNOBSERVED; exposed as `system_type='power_balanced'`, not used by the factory. | same help page ("Apparent Load … Active only when Balanced Load is True and System Type is Power"); API `ElectricalSystem.ApparentLoadPhaseA/B/C` — "This property only available when System Type is Power!" <https://www.revitapidocs.com/2023/35b66d8e-eafe-f6ba-1d11-4bcac26c2ea8.htm> |
+| one primary connector per family | `m_bIsConnectorPrimary` True on exactly one electrical connector; `factory.add_connector` marks the document's first connector primary and refuses a second; transformer: primary winding True, secondary False | Help *Connector Properties*: "A single connector of each discipline is allowed to be primary in each family. The family's electrical data that displays in a schedule is derived from the primary connector"; API `ConnectorElement.IsPrimary` — "Identifies if this is the primary connector in the family" <https://www.revitapidocs.com/2022/92a0eddf-2414-903f-8872-898442426ded.htm>; `ConnectorElement.AssignAsPrimary` — "promote this connector as primary, and the rest of connectors in this system will be assigned as secondary" <https://www.revitapidocs.com/2022/c6c21445-5e95-e15b-743d-f8fdfb369e79.htm> |
+| power factor state | `m_powerFactorState` 1 = Lagging (0 = Leading) [V 1 on all specimens] | API `PowerFactorStateType`: `Lagging 1`, `Leading 0` — <https://www.revitapidocs.com/2026/bb418213-600f-ca37-e1a0-a09df497ecac.htm> |
+
+None of this is a "loads in Revit" claim: the values are what the format
+and Autodesk's documentation say a reader shows; certification stays with
+the viewer ledger (rule 4).
 
 `FamilyDoc.add_electrical_connector(voltage=208, poles=3, apparent_load_va=
 …, power_factor=…, load_class='Power', bind_voltage_param='Panel
 Voltage', bind_load_param='Apparent Load')` builds the connector FROM THE
 CALC-ENGINE VALUES (`rvt.electrical`) and associates it to the type
-parameters. `host_element_id`/`host_geom_tag` name the face; **when the
+parameters (only the document's first connector is primary). `host_element_id`/`host_geom_tag` name the face; **when the
 document has no solid yet (S0e) the connector references the Ref. Level
 datum face — UNKNOWN acceptance** (every real connector sits on a solid
 face; the solid is the geometry stream's job — the connector's face host is

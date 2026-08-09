@@ -250,6 +250,61 @@ def test_transformer_family_composition():
     # both connectors on the TOP face (tag 1)
     for c in doc.connectors:
         assert c.obj["m_oPlaneRef"]["value"]["m_geomRef"]["m_geomTag"] == 1
+    # the primary WINDING is the family's one primary connector; the secondary
+    # books 75 kVA balanced over its 3 poles = 25 kVA per phase
+    pri, sec = (c.obj["m_pDomain"]["value"] for c in doc.connectors)
+    assert [(d["m_strConnectorDescription"], d["m_bIsConnectorPrimary"]) for d in (pri, sec)] == \
+        [("Primary", True), ("Secondary", False)]
+    assert [sec[f"m_dApparentLoadPhase{i}"] for i in (1, 2, 3)] == \
+        pytest.approx([SK.voltamps(25000.0)] * 3)
+    assert sec["m_dApparentLoad"] == 0.0 and sec["m_systemType"] == SK.ELECTRICAL_SYSTEM_POWER_UNBALANCED
+
+
+def _rfa_connector_domains(path):
+    """[(m_index, ConnectorElemDomainElectrical dict)] decoded from an .rfa FILE."""
+    from rvt.families import FamilyIndex
+    idx = FamilyIndex(path)
+    vals = [idx.value(0, eid) for eid in sorted(idx.ids_of_class(0, "ConnectorElem"))]
+    assert all(v["m_pDomain"]["ptr_class"] == "ConnectorElemDomainElectrical" for v in vals)
+    return [(v["m_index"], v["m_pDomain"]["value"]) for v in vals]
+
+
+@needs_schema
+def test_emitted_transformer_rfa_decodes_three_equal_phase_loads_and_one_primary(tmp_path):
+    """Fresh-clone law check ON THE FILE: the written 75 kVA transformer .rfa
+    decodes back to a secondary with three equal per-phase loads (internal
+    units = VA / 0.3048**2) and exactly one primary connector -- the primary
+    winding.  (Family-mode VALID + provenance of this same default build:
+    test_every_kind_writes_a_family_mode_valid_provenance_clean_rfa.)"""
+    prod = F.make_transformer(kva=75, primary_v=480, secondary_v="208Y/120")
+    rep = prod.write(str(tmp_path / "xfmr.rfa"), validate=False, provenance=False)
+    doms = _rfa_connector_domains(rep["path"])
+    assert [(i, d["m_bIsConnectorPrimary"], round(d["m_dVoltage"] * 0.3048 ** 2))
+            for i, d in doms] == [(1, True, 480), (2, False, 208)]
+    sec = doms[1][1]
+    assert sec["m_nNumberOfPoles"] == 3 and sec["m_systemType"] == 31     # Power-Unbalanced
+    per_phase = 75000.0 / 3 / 0.3048 ** 2                       # 269097.76 internal
+    assert per_phase == pytest.approx(SK.voltamps(25000.0))
+    assert [sec[f"m_dApparentLoadPhase{i}"] for i in (1, 2, 3)] == pytest.approx([per_phase] * 3)
+    assert sec["m_dApparentLoad"] == 0.0
+
+
+@needs_schema
+def test_add_connector_allows_one_primary_per_family():
+    """add_connector: the first connector is primary by default, later ones
+    are not, and asking for a second primary raises."""
+    doc = SK.new_family_document("electrical_equipment", "OnePrimary",
+                                 part_type=SK.PART_TYPE["electrical_equipment"])
+    fb = F.add_box_form(doc, 1.0, 1.0, 1.0, rep=G.REP_DUMMY)
+    kw = dict(host=fb, face="top", location=(0, 0, 1.0), direction=(0, 0, 1), u_axis=(1, 0, 0),
+              voltage_v=208, poles=3)
+    a = F.add_connector(doc, **kw)
+    b = F.add_connector(doc, **kw)
+    with pytest.raises(F.FactoryError):
+        F.add_connector(doc, primary=True, **kw)
+    c = F.add_connector(doc, primary=False, **kw)
+    flags = [x.obj["m_pDomain"]["value"]["m_bIsConnectorPrimary"] for x in (a, b, c)]
+    assert flags == [True, False, False] and len(doc.connectors) == 3
 
 
 @needs_schema
@@ -346,6 +401,11 @@ def test_every_kind_writes_a_family_mode_valid_provenance_clean_rfa(tmp_path, ki
     prov = rep["provenance"]
     assert prov["ok"] and prov["suspects"] == [], prov.get("suspects")
     assert os.path.getsize(rep["path"]) > 100_000
+    # on the FILE: exactly one primary connector per family, every connector
+    # Power-Unbalanced (31) with its load per phase and m_dApparentLoad 0 (#164)
+    doms = [d for _i, d in _rfa_connector_domains(rep["path"])]
+    assert sum(d["m_bIsConnectorPrimary"] for d in doms) == 1 and doms[0]["m_bIsConnectorPrimary"]
+    assert all(d["m_systemType"] == 31 and d["m_dApparentLoad"] == 0.0 for d in doms)
 
 
 @needs_schema
