@@ -85,7 +85,9 @@ import json,sys
 out,pr,head,merge,p,d,v,rc,tail,secs=sys.argv[1:]
 r={"pr":int(pr),"head":head,"merge_with_main":merge,"portable_paths":p,"plugin_drift":d,"plugin_structure":v,
    "shard_rc":int(rc),"shard_summary":tail.strip(),"seconds":int(secs),"sandbox":"uid=nobody,net+pid+mnt ns,no caps,no-new-privs,env scrubbed,tree exported"}
-r["verdict"]="pass" if (merge=="clean" and p=="ok" and d=="ok" and v=="ok" and r["shard_rc"]==0 and " passed" in r["shard_summary"] and "failed" not in r["shard_summary"]) else "fail"
+import re
+green = re.match(r"^\d+ passed\b", r["shard_summary"]) and not re.search(r"(^|, )\d+ (failed|errors?)\b", r["shard_summary"])   # "3 xfailed" is not a failure
+r["verdict"]="pass" if (merge=="clean" and p=="ok" and d=="ok" and v=="ok" and r["shard_rc"]==0 and green) else "fail"
 json.dump(r,open(out,"w")); print(json.dumps(r))
 PYEOF
 rm -rf "$BOX" "$TMPBOX"; flock -u 9
