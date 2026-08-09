@@ -176,10 +176,11 @@ test_surface_perf.py` 26 passed / 4 skipped; `check_portable_paths.py` ok
 
 ## 5. Follow-ups filed
 
-* Thread project number / client / building / address / organisation from
-  the spec `project` block, `IfcProject.LongName/Phase` and a prompt
-  "for the … project" clause (plus `--project-*` flags on the hot-file CLI)
-  into `identity_from_intent` — task issue, `Refs #148`.
+* **#280** — thread project number / client / building / address /
+  organisation from the spec `project` block, `IfcProject.LongName/Phase`
+  and a prompt "for the … project" clause (plus `--project-*` flags on the
+  hot-file CLI, its own tiny PR) into the intent model / `identity_from_intent`
+  (`P2 ready area:frontdoor planned auto`, `Refs #148`).
 * (noted on #19, not a new issue) the `ProjectInformation` stream residue.
 
 ## BRANCH STATE
