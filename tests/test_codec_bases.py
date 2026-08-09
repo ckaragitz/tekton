@@ -38,9 +38,10 @@ from rvt import versions as V
 from rvt.container import PAGE_PAYLOAD, PAGE_STRIDE, open_rvt
 from rvt.encode import (ObjectEncoder, first_divergence, reencode_segment,
                         roundtrip_segment)
-from rvt.partitions import StreamWalker
+from rvt.objects import iter_records
 from rvt.roundtrip import roundtrip, verify_pair
-from rvt.validate import UNFRAMED_STREAMS
+from rvt.validate import UNFRAMED_STREAMS      # project streams stored with NO page ECC
+from rvt.versions._release_schema import verify_schema
 from rvt.versions.records32 import reading32
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -50,9 +51,6 @@ GEN = os.path.join(ROOT, "plugin", "assets", "genesis")
 BASES = {2026: os.path.join(GEN, "G_ABPD.rvt"),
          2025: os.path.join(GEN, "G_ABPD_2025.rvt"),
          2024: os.path.join(GEN, "G_ABPD_2024.rvt")}
-NO_ECC = UNFRAMED_STREAMS | {"PartAtom", "PartAtomXML"}   # stored unframed
-STREAMS = list(se.CODECS)     # ElemTable History DocumentIncrementTable
-                              # PartitionTable Contents BasicFileInfo
 SEQS = (101, 102, 103)
 
 pytestmark = pytest.mark.skipif(
@@ -87,16 +85,17 @@ def _mismatch(what: str, want: bytes, got: bytes) -> str:
 def _ecc_streams(doc):
     for s in doc.streams():
         raw = doc.raw(s.name)
-        if raw and s.name.split("/")[-1] not in NO_ECC:
+        if raw and s.name.split("/")[-1] not in UNFRAMED_STREAMS:
             yield s.name, raw
 
 
 def _unit0_segments(doc) -> dict:
     """StreamWalker over every partition stream (0 errors required); the
-    per-seq concatenated block payloads of unit 0 of the first partition."""
+    per-seq concatenated block payloads of unit 0 of the first partition
+    (the engine's global unit 0, cf. ``rvt.families.unit_segments``)."""
     segs: dict = {}
     for i, pname in enumerate(doc.partition_streams()):
-        w = StreamWalker(doc.logical(pname), inflate=True, keep_data=True)
+        w = P.StreamWalker(doc.logical(pname), inflate=True, keep_data=True)
         assert w.errors == [], (pname, w.errors)
         assert all(b.crc_ok for b in w.blocks), pname
         if i == 0:
@@ -113,10 +112,9 @@ def _unit0_segments(doc) -> dict:
 
 def test_every_gzip_member_crc_ok(base):
     year, doc = base
-    bad = [(s.name, m.index) for s in doc.streams() for m in doc.members(s.name)
-           if not m.crc_ok]
-    n = sum(len(doc.members(s.name)) for s in doc.streams())
-    print(f"\n{year}: gzip members {n}, crc failures {len(bad)}")
+    members = [(s.name, m) for s in doc.streams() for m in doc.members(s.name)]
+    bad = [(name, m.index) for name, m in members if not m.crc_ok]
+    print(f"\n{year}: gzip members {len(members)}, crc failures {len(bad)}")
     assert bad == []
     for name in ("Formats/Latest", "Global/Latest", "Contents", *doc.partition_streams()):
         assert doc.members(name), f"{year}: {name} carries no gzip member"
@@ -128,24 +126,26 @@ def test_every_gzip_member_crc_ok(base):
 
 def test_ecc_full_page_trailers_and_reframe(base):
     year, doc = base
-    n_pages = n_streams = 0
+    n_pages, framed = 0, set()
     for name, raw in _ecc_streams(doc):
-        for k in range(len(raw) // PAGE_STRIDE):
-            page = raw[k * PAGE_STRIDE:k * PAGE_STRIDE + PAGE_PAYLOAD]
-            want = raw[k * PAGE_STRIDE + PAGE_PAYLOAD:(k + 1) * PAGE_STRIDE]
-            assert ecc.page_trailer(page) == want, (year, name, k)
+        for off in range(0, len(raw) - PAGE_STRIDE + 1, PAGE_STRIDE):
+            page = raw[off:off + PAGE_PAYLOAD]
+            assert ecc.page_trailer(page) == raw[off + PAGE_PAYLOAD:off + PAGE_STRIDE], \
+                (year, name, off)
             n_pages += 1
         got = ecc.frame_stream(ecc.unframe_stream(raw))
         assert got == raw, _mismatch(f"{year} {name} reframe", raw, got)
-        n_streams += 1
-    print(f"\n{year}: ECC full pages {n_pages}, framed streams {n_streams}")
-    assert n_pages >= 1 and n_streams >= 6, (n_pages, n_streams)
+        framed.add(name)
+    print(f"\n{year}: ECC full pages {n_pages}, framed streams {len(framed)}")
+    assert n_pages >= 1, year
+    assert {"Formats/Latest", ad.STREAM, "Contents", *doc.partition_streams()} <= framed, framed
 
 
 def test_ecc_verifies_with_numpy_hidden(tmp_path):
     """The same ECC laws on one base from a BARE interpreter (``-I -S``: no
     site-packages, hence no numpy -- only ``src/`` and the plugin's vendored
-    olefile), the way tests/test_coldstart.py runs the shipped surface."""
+    olefile), the way tests/test_coldstart.py runs the shipped surface.
+    The 2025 base, so non-default framing ordinals are in force on that path."""
     year = 2025
     code = (
         "import importlib.util, sys\n"
@@ -153,18 +153,17 @@ def test_ecc_verifies_with_numpy_hidden(tmp_path):
         "assert importlib.util.find_spec('numpy') is None, 'numpy is not hidden'\n"
         "from rvt import ecc\n"
         "from rvt.container import open_rvt, PAGE_PAYLOAD, PAGE_STRIDE\n"
+        "from rvt.validate import UNFRAMED_STREAMS\n"
         "from rvt.versions.records32 import reading32\n"
-        f"path, no_ecc = {BASES[year]!r}, {sorted(NO_ECC)!r}\n"
-        "n = 0\n"
+        f"path, n = {BASES[year]!r}, 0\n"
         "with reading32(path), open_rvt(path) as doc:\n"
         "    for s in doc.streams():\n"
         "        raw = doc.raw(s.name)\n"
-        "        if not raw or s.name.split('/')[-1] in no_ecc:\n"
+        "        if not raw or s.name.split('/')[-1] in UNFRAMED_STREAMS:\n"
         "            continue\n"
-        "        for k in range(len(raw) // PAGE_STRIDE):\n"
-        "            page = raw[k * PAGE_STRIDE:k * PAGE_STRIDE + PAGE_PAYLOAD]\n"
-        "            assert ecc.page_trailer(page) == raw[k * PAGE_STRIDE + PAGE_PAYLOAD:"
-        "(k + 1) * PAGE_STRIDE], (s.name, k)\n"
+        "        for off in range(0, len(raw) - PAGE_STRIDE + 1, PAGE_STRIDE):\n"
+        "            assert ecc.page_trailer(raw[off:off + PAGE_PAYLOAD]) == "
+        "raw[off + PAGE_PAYLOAD:off + PAGE_STRIDE], (s.name, off)\n"
         "            n += 1\n"
         "        assert ecc.frame_stream(ecc.unframe_stream(raw)) == raw, s.name\n"
         "assert n >= 1, n\n"
@@ -182,10 +181,10 @@ def test_ecc_verifies_with_numpy_hidden(tmp_path):
 # (c) the six small structured streams: enc(dec(x)) == x
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("name", STREAMS)
+@pytest.mark.parametrize("name", list(se.CODECS))
 def test_stream_codec_roundtrip_byte_exact(base, name):
     year, doc = base
-    dec, enc, kind = se.CODECS[name]
+    kind = se.CODECS[name][2]
     if kind == "payload":
         data = doc.inflate(f"Global/{name}", 0)
     elif kind == "contents":
@@ -193,8 +192,8 @@ def test_stream_codec_roundtrip_byte_exact(base, name):
     else:
         data = doc.raw(name)
     assert data, f"{year}: {name} is empty"
-    out = enc(dec(data))
-    assert out == data, _mismatch(f"{year} {name}", data, out)
+    exact, out = se.roundtrip(name, data)
+    assert exact, _mismatch(f"{year} {name}", data, out)
 
 
 # ---------------------------------------------------------------------------
@@ -213,12 +212,31 @@ def test_unit0_records_roundtrip_byte_exact(base):
         print(f"\n{year} seq{seq}: {len(seg):,} B records={st['records']} "
               f"tested={st['tested']} pass={st['pass']} fail={st['fail']} "
               f"skipped_unclean={st['skipped_unclean']}")
-        assert st["fail"] == 0 and st["pass"] == st["tested"] > 0, st["failures"][:3]
+        assert st["pass"] == st["tested"] > 0, st["failures"][:3]
+        assert st["skipped_bad_trailer"] == 0, (year, seq)
         tested += st["tested"]
         rebuilt, st2 = reencode_segment(seg, seq, enc)
-        assert st2["records"] == st["records"] and st2["tail"] == 0, st2
+        assert st2["tail"] == 0, st2
         assert rebuilt == seg, _mismatch(f"{year} seq{seq} reencode_segment", seg, rebuilt)
     assert tested >= 9000, (year, tested)
+
+
+@pytest.mark.parametrize("base", [
+    pytest.param(2026, marks=pytest.mark.xfail(
+        strict=True, reason="#138: an Extensible-Storage DataStorage record in "
+        "unit 0 does not decode clean (passed through verbatim by reencode_segment)")),
+    2025, 2024], indirect=True)
+def test_unit0_every_record_decodes_clean(base):
+    """The stricter law behind (d): no record is excluded from the tested set
+    because its object decode is lossy (``roundtrip_segment`` skips those by
+    contract).  Retires its own xfail when #138 lands."""
+    year, doc = base
+    dec = ObjectEncoder(V.schema_of(doc)).dec
+    unclean = [(seq, rec.elem_id, dec.class_name(rec.class_id))
+               for seq, seg in _unit0_segments(doc).items() if seq in SEQS
+               for rec in iter_records(seg, seq) if rec.elem_id >= 0
+               and not dec.decode_record(rec.class_id, rec.payload).clean]
+    assert unclean == [], (year, unclean[:5])
 
 
 # ---------------------------------------------------------------------------
@@ -247,8 +265,10 @@ def test_cfb_roundtrip_is_stream_equal(base, tmp_path):
     out = str(tmp_path / f"rt_{year}.rvt")
     layout, _tr, _tw = roundtrip(doc.path, out)
     assert layout.major_version == 4 and layout.sector_size == 4096, year
-    problems = [p for p in verify_pair(doc.path, out)
-                if not p.startswith("(compoundfiles cross-check skipped")]
+    problems = verify_pair(doc.path, out)
+    if importlib.util.find_spec("compoundfiles") is None:     # optional 2nd reader
+        problems = [p for p in problems
+                    if not p.startswith("(compoundfiles cross-check skipped")]
     assert problems == [], f"{year} round trip mismatch:\n  " + "\n  ".join(problems)
 
 
@@ -258,7 +278,5 @@ def test_cfb_roundtrip_is_stream_equal(base, tmp_path):
 
 def test_schema_matches_known_release_pin(base):
     year, doc = base
-    st = V.schema_of(doc).stats()
-    pin = V.KNOWN_RELEASES[year]
-    assert (st["class_count"], st["sha256"]) == (pin.class_count, pin.schema_sha256), year
+    verify_schema(V.KNOWN_RELEASES[year], V.schema_of(doc))   # size/sha256/classes/refs; raises
     assert V.detect_release(doc) == year

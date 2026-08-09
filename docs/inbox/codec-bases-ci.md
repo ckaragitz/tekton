@@ -16,7 +16,7 @@ are our three composed, certified bases shipped in the plugin.
 
 ## What was built
 
-`tests/test_codec_bases.py` — 37 cases, parametrized over
+`tests/test_codec_bases.py` — 40 cases, parametrized over
 `plugin/assets/genesis/G_ABPD{,_2025,_2024}.rvt` (ids `2026`/`2025`/`2024`).
 The `base` fixture opens each file inside
 `rvt.versions.records32.reading32(base)` (own framing ordinals by name from
@@ -28,17 +28,18 @@ again (the `tests/test_validate_release.py` pattern). Per base:
 | DONE | test | asserts |
 |---|---|---|
 | (a) | `test_every_gzip_member_crc_ok` | every gzip member of every stream `crc_ok`; `Formats/Latest`, `Global/Latest`, `Contents` and every partition carry ≥ 1 member |
-| (b) | `test_ecc_full_page_trailers_and_reframe` | `ecc.page_trailer(page)` == the stored 353-byte trailer for every full page; `frame_stream(unframe_stream(raw)) == raw` for every CRCIO-framed stream (≥ 6) |
-| (b′) | `test_ecc_verifies_with_numpy_hidden` | the same two laws on the 2025 base from a **bare interpreter** (`-I -S`: no site-packages → `find_spec('numpy') is None`, only `src/` + the plugin's vendored `olefile` on the path), inside `reading32`, and `'numpy' not in sys.modules` afterwards — the `tests/test_coldstart.py` recipe |
-| (c) | `test_stream_codec_roundtrip_byte_exact[<year>-<name>]` | `stream_encoders.CODECS` `enc(dec(x)) == x` for ElemTable / History / DocumentIncrementTable / PartitionTable (`Global/*` member 0), Contents (member 0), BasicFileInfo (raw) — 18 cases |
-| (d) | `test_unit0_records_roundtrip_byte_exact` | `StreamWalker` 0 errors + every block `crc_ok` on every partition stream; unit 0: `roundtrip_segment` `fail == 0` and `pass == tested` per seq, Σ tested over 101/102/103 ≥ 9000; `reencode_segment(seg) == seg` and same record count, `tail == 0`, for each seq — encoder built on the base's **own** schema (`ObjectEncoder(schema_of(doc))`) |
+| (b) | `test_ecc_full_page_trailers_and_reframe` | `ecc.page_trailer(page)` == the stored 353-byte trailer for every full page; `frame_stream(unframe_stream(raw)) == raw` for every CRCIO-framed stream (everything not in `rvt.validate.UNFRAMED_STREAMS`); the framed set ⊇ `Formats/Latest`, `Global/Latest`, `Contents`, every partition |
+| (b′) | `test_ecc_verifies_with_numpy_hidden` | the same two laws on the 2025 base (so non-default ordinals are in force) from a **bare interpreter** (`-I -S`: no site-packages → `find_spec('numpy') is None`, only `src/` + the plugin's vendored `olefile` on the path), inside `reading32`, and `'numpy' not in sys.modules` afterwards — the `tests/test_coldstart.py` recipe |
+| (c) | `test_stream_codec_roundtrip_byte_exact[<year>-<name>]` | `stream_encoders.roundtrip(name, x)` byte-exact (`CODECS` `enc(dec(x)) == x`) for ElemTable / History / DocumentIncrementTable / PartitionTable (`Global/*` member 0), Contents (member 0), BasicFileInfo (raw) — 18 cases |
+| (d) | `test_unit0_records_roundtrip_byte_exact` | `StreamWalker` 0 errors + every block `crc_ok` on every partition stream; unit 0: `roundtrip_segment` `pass == tested > 0` and `skipped_bad_trailer == 0` per seq, Σ tested over 101/102/103 ≥ 9000; `reencode_segment(seg) == seg` with `tail == 0` for each seq — encoder built on the base's **own** schema (`ObjectEncoder(schema_of(doc))`) |
+| (d′) | `test_unit0_every_record_decodes_clean` | the stricter law behind (d): no unit-0 record is excluded from the tested set for a lossy object decode. **2026 strict-xfail → #138** (see Findings); 2025/2024 pass |
 | (e) | `test_adocument_decode_clean_and_encode_byte_exact` | `ADocumentDecoder(schema_of(base))`: `errors == []`, `clean`, trailer == `u32 0`, consumed + 2 + 4 == payload length, `encode_latest(adoc) == payload` |
-| (f) | `test_cfb_roundtrip_is_stream_equal` | `rvt.roundtrip.roundtrip(base, tmp)` → CFB v4 / 4096-byte sectors; `verify_pair` reports no difference (the `(compoundfiles cross-check skipped …)` note is filtered — that reader is not a dependency) |
-| (g) | `test_schema_matches_known_release_pin` | parsed schema `class_count` and `sha256` == `KNOWN_RELEASES[year]`; `detect_release == year` |
+| (f) | `test_cfb_roundtrip_is_stream_equal` | `rvt.roundtrip.roundtrip(base, tmp)` → CFB v4 / 4096-byte sectors; `verify_pair` reports no difference (the `(compoundfiles cross-check skipped …)` note is dropped **only** when that optional second reader is genuinely absent — `find_spec("compoundfiles") is None` — so a real rejection by it on a machine that has it still fails the test) |
+| (g) | `test_schema_matches_known_release_pin` | the engine's own pin law `rvt.versions._release_schema.verify_schema(KNOWN_RELEASES[year], schema_of(base))` (size, sha256, class_count, 0 unresolved refs); `detect_release == year` |
 
 No record/page/member counts are hard-coded (bases get re-pinned, #19):
-only structural minima (Σ tested ≥ 9000 from the issue, ≥ 6 framed
-streams, ≥ 1 full page). Mismatch diagnostics reuse
+only structural minima (Σ tested ≥ 9000 from the issue, ≥ 1 full page,
+named streams present). Mismatch diagnostics reuse
 `rvt.encode.first_divergence` (offset + hex window either side, the
 `test_stream_encoders` / `describe_mismatch` style) and
 `roundtrip_segment`'s own `failures` dicts.
@@ -59,51 +60,68 @@ Bare-interpreter ECC case (2025): olefile resolved from
 `plugin/skills/_shared/_vendor/olefile`, `PT_CLASS` 3136 in force, 6 full
 pages + 9 streams reframed, numpy absent.
 
-**No assertion failed on any base → nothing to file, no strict-xfail added.**
+**Every DONE law (a)–(g) holds on all three bases → nothing loosened.** One
+strict-xfail was added, on the *extra* stricter case (d′) for 2026 only,
+against the already-open #138 (see Findings) — no new issue needed
+(searched: `Extensible Storage DataStorage decode` → #138 is the tracker).
 
-### Runtime — `tests/test_codec_bases.py -q -rs --durations=10`
+### Runtime — `tests/test_codec_bases.py -q -rsx --durations=8`
 
-`37 passed in 3.90s` (wall 4.3 s; budget was < 30 s). Slowest:
+`39 passed, 1 xfailed in 4.81s` (budget was < 30 s). Slowest:
 
 ```
 1.03s call  test_unit0_records_roundtrip_byte_exact[2025]
-0.97s call  test_unit0_records_roundtrip_byte_exact[2024]
+0.99s call  test_unit0_records_roundtrip_byte_exact[2024]
 0.90s call  test_unit0_records_roundtrip_byte_exact[2026]
+0.30s call  test_unit0_every_record_decodes_clean[2025]
+0.28s call  test_unit0_every_record_decodes_clean[2024]
+0.25s call  test_unit0_every_record_decodes_clean[2026]   (xfail, #138)
 0.16s call  test_ecc_verifies_with_numpy_hidden
 0.09s call  test_adocument_decode_clean_and_encode_byte_exact[2026]
-0.08s call  test_adocument_decode_clean_and_encode_byte_exact[2025]
-0.08s setup test_every_gzip_member_crc_ok[2026]      (first reading32: schema parse, memoized after)
-0.07s call  test_adocument_decode_clean_and_encode_byte_exact[2024]
-0.06s setup test_every_gzip_member_crc_ok[2025]
-0.06s setup test_every_gzip_member_crc_ok[2024]
 ```
-Everything else ≤ 0.01 s.
+Fixture setup (first `reading32` per base = schema parse, memoized after)
+0.06–0.08 s ×3; everything else ≤ 0.01 s.
 
 ### No leaked module state (run together with the other release-switching modules, both orders)
 
 ```
-pytest tests/test_codec_bases.py tests/test_validate_release.py tests/test_versions.py tests/test_records32.py -q -rs
-  91 passed, 19 skipped, 1 xfailed in 5.96s
-pytest tests/test_records32.py tests/test_versions.py tests/test_validate_release.py tests/test_codec_bases.py -q -rs
-  91 passed, 19 skipped, 1 xfailed in 5.93s
+pytest tests/test_codec_bases.py tests/test_validate_release.py tests/test_versions.py tests/test_records32.py -q
+  93 passed, 19 skipped, 2 xfailed in 6.62s
+pytest tests/test_records32.py tests/test_versions.py tests/test_validate_release.py tests/test_codec_bases.py -q
+  93 passed, 19 skipped, 2 xfailed in 6.68s
 ```
 (the three siblings alone: 54 passed / 19 skipped / 1 xfailed — the 19
-skips are `test_versions.py` dev-sample cases, the xfail is pre-existing.)
+skips are `test_versions.py` dev-sample cases and that xfail is
+pre-existing; the second xfail is (d′)[2026] above.)
 
 ### Other gates
 
-* `python3 tools/dev/check_portable_paths.py` → ok (2768 tracked paths before this branch's two new files; re-run after commit: ok).
-* `.venv/bin/python tools/sync_plugin.py --check` → in sync (nothing under `src/`/`tools/`/`skills/` touched).
+* `python3 tools/dev/check_portable_paths.py` → ok: 2770 tracked paths are portable.
+* `.venv/bin/python tools/sync_plugin.py --check` → plugin in sync with source (nothing under `src/`/`tools/`/`skills/` touched).
+* `/simplify` on the diff: applied — engine helpers instead of local re-derivations (`se.roundtrip`, `verify_schema`, `validate.UNFRAMED_STREAMS` as the sole ECC-exemption source), redundant assertions dropped, the compoundfiles filter gated on the reader's absence, the (d′) case added so the #138 gap is visible in CI rather than routed around by `only_clean`.
 * `/verify`: SKIP — tests-only diff (`tests/test_codec_bases.py`, `tests/ci_shard.txt`, this record), no runtime surface.
 
 ## Findings
 
-* All seven DONE laws hold byte-exact on all three pinned bases today; the
+* All seven DONE laws hold byte-exact on all three pinned bases today. The
   2026 base's unit 0 carries exactly one record whose object decode is not
-  clean (seq 102) — excluded from the tested set by `roundtrip_segment`'s
-  contract and passed through verbatim by `reencode_segment`, which still
-  reproduces the segment byte-for-byte. Not a defect of this stream; noted
-  so a future re-pin that changes it is recognisable.
+  clean: seq 102, element 1382860, class `DataStorage` (0x4a4), error
+  `m_cellList->CellList.m_cells[0]->ESEntityCell.m_entityMap[0].second.m_blob:
+  pointer token pid=-1 to unknown class 0x88ee` — the documented
+  Extensible-Storage entity-blob gap (10-objects.md B1) that #138 exists to
+  close. `roundtrip_segment` excludes it from the tested set by contract and
+  `reencode_segment` passes it through verbatim (segment still byte-exact),
+  so (d) is green; (d′) makes the gap itself red-able and is strict-xfailed
+  on 2026 against #138 so it retires itself when that lands. 2025/2024 unit 0
+  decode 100 % clean.
+* `rvt.roundtrip.verify_pair` mixes an informational note
+  (`(compoundfiles cross-check skipped: …)`, emitted from a bare `except
+  Exception`) into its problem list, so callers must string-filter it and a
+  genuine rejection by that second reader would be filtered too;
+  `tests/test_roundtrip.py` asserts `problems == []` unfiltered and is only
+  green because it self-skips without `samples/`. Small `area:engine`
+  follow-up (notes vs problems split); out of this stream's no-`src/`
+  territory, recorded here for the planner.
 * The ECC read/verify path is a single stdlib code path (`rvt.ecc` imports
   no numpy at all since #182/#75), so "numpy hidden" changes nothing but
   the interpreter's `sys.path`; the bare case is kept as the tripwire that
@@ -118,10 +136,10 @@ under `plugin/assets/genesis/`, adding it to `BASES` exercises the
 ## BRANCH STATE
 
 * Branch `cam/132-codec-bases-tests` from `main@109345e`; PR closes #132.
-* Files: `tests/test_codec_bases.py` (new, 37 cases), `tests/ci_shard.txt`
+* Files: `tests/test_codec_bases.py` (new, 40 cases), `tests/ci_shard.txt`
   (+1 line), `docs/inbox/codec-bases-ci.md` (this). Nothing else.
-* Gates: module 37 passed / 0 skipped / 0 xfailed in 3.90 s; cross-module
-  both orders 91 passed / 19 skipped / 1 xfailed; portable paths ok;
-  `sync_plugin.py --check` in sync. Nothing staged for the viewer (tests
-  only — no output bytes exist, no certification round implied).
+* Gates: module 39 passed / 0 skipped / 1 xfailed (strict, #138) in 4.81 s;
+  cross-module both orders 93 passed / 19 skipped / 2 xfailed; portable
+  paths ok (2770); `sync_plugin.py --check` in sync. Nothing staged for the
+  viewer (tests only — no output bytes exist, no certification round implied).
 * Shipped vs staged: everything is in the PR; no experiments, assets or zip.
