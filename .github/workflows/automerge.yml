@@ -19,6 +19,11 @@ name: automerge
 #     what bots cannot; nothing waits on the owner). Same label for a PR that edits the reviewer
 #     itself (no verdict possible: the session reads the diff). `needs-human` is left only for a
 #     merge GitHub itself refused.
+#   red CI or verdict `changes` -> a live coding session fixes it first; only when
+#     now - max(head commit, red-CI completion, `changes` verdict, last fix attempt) >= pipeline.fix_grace_minutes
+#     (default 15) do we dispatch ONE bot fix pass (claude-review.yml mode=fix, from the default
+#     branch) per (sha, attempt) — no session/bot double-fixing, and a PR whose session or laptop
+#     went away is still picked up (steer #67).
 #   CI gate = every check on the head EXCEPT the repo's own bot jobs (IGNORED_CHECKS below; the same
 #     list is BOT_CHECK_NAMES in tools/dev/techlead.py, pinned by tests): a cancelled board render or a
 #     coord pr-check landing on a PR head is not CI and must never block a merge.
@@ -93,9 +98,28 @@ jobs:
             [ -n "${1:-}" ] || { echo 0; return; }
             echo $(( ( $(date -u +%s) - $(date -u -d "$1" +%s) ) / 60 ))
           }
+          newest() { printf '%s\n' "$@" | grep -v '^$' | sort | tail -1; }   # latest of several ISO timestamps
+          maybe_dispatch_fix() {  # $1=why — one bot fix pass per (sha, attempt), only after the grace window (steer #67)
+            local why="$1" attempts t_verdict t_attempt last quiet key
+            attempts=$(awk 'index($0,"<!-- claude-autofix reset -->"){n=0} /<!-- claude-autofix attempt=[0-9]+ -->/{n++} END{print n+0}' <<<"$cbodies")
+            [ "$attempts" -ge "$MAX_FIX" ] && { say "#$pr: fix budget spent ($attempts/$MAX_FIX) — the fix/review jobs park it bot-stuck"; return 0; }
+            t_verdict=$(grep -F -- "<!-- claude-review: changes sha=$sha -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1)
+            t_attempt=$(grep -E -- "<!-- claude-autofix attempt=[0-9]+ -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1)
+            last=$(newest "$t_head" "$t_red" "$t_verdict" "$t_attempt")
+            quiet=$(age_min "$last")
+            if [ "$quiet" -lt "$FIX_GRACE_MIN" ]; then say "#$pr: $why — grace ${quiet}/${FIX_GRACE_MIN} min: a live session goes first"; return 0; fi
+            key="fix-dispatch-${sha}-${attempts}"
+            has_marker "$key" && { say "#$pr: fix pass already dispatched for ${sha:0:7} (attempt $((attempts+1)))"; return 0; }
+            if gh workflow run claude-review.yml --repo "$REPO" --ref "$DEFAULT" -f pr="$pr" -f mode=fix >/dev/null 2>fx.err; then
+              comment_once "$key" "🔧 ${why} on \`${sha:0:7}\` and no new push for ${quiet} min (grace ${FIX_GRACE_MIN}), so I dispatched the **bot fix pass** (attempt $((attempts+1))/${MAX_FIX}). A live session would have gone first; if yours is about to push, just push — the bot yields to a newer head."
+              say "#$pr: dispatched fix pass ($why, attempt $((attempts+1))/${MAX_FIX})"
+            else
+              echo "::warning::#$pr: could not dispatch the fix pass: $(tr '\n' ' ' <fx.err | cut -c1-200)"
+            fi
+          }
 
           # The repo's own bot jobs are not CI (see header). Keep in step with BOT_CHECK_NAMES in tools/dev/techlead.py.
-          IGNORED_CHECKS='"automerge","claude-review","ci-autofix","claude","render","claim","single-holder","issue-intake","pr-check","sweep","gate","plan","pick","implement","file-issues"'
+          IGNORED_CHECKS='"automerge","claude-review","fix","ci-autofix","claude","render","claim","single-holder","issue-intake","pr-check","sweep","gate","plan","pick","implement","file-issues"'
           merged_any=0
 
           DEFAULT=$(gh api "repos/$REPO" --jq .default_branch)
@@ -103,6 +127,8 @@ jobs:
           QUIET_MIN=$(jq -r '.pipeline.quiet_minutes // 90' <<<"$CFG")
           REVIEW_WAIT_MIN=$(jq -r '.pipeline.review_wait_minutes // 20' <<<"$CFG")     # give a running/queued review this long
           STUCK_AFTER_MIN=$(jq -r '.pipeline.review_stuck_minutes // 240' <<<"$CFG")   # re-requested and still nothing -> bot-stuck
+          FIX_GRACE_MIN=$(jq -r '.pipeline.fix_grace_minutes // 15' <<<"$CFG")         # a live session gets this long before a bot fix pass
+          MAX_FIX=$(jq -r '.pipeline.max_fix_attempts // 3' <<<"$CFG")
 
           all=$(gh pr list --repo "$REPO" --state open --limit 100 \
                   --json number,title,author,isDraft,mergeable,headRefOid,headRefName,labels,body,files,createdAt)
@@ -147,10 +173,12 @@ jobs:
 
             # CI gate on the exact head SHA (ignore automerge itself and the claude* review checks).
             checks=$(gh api "repos/$REPO/commits/$sha/check-runs?per_page=100" \
-                       --jq "[.check_runs[]|select(.name|IN($IGNORED_CHECKS)|not)|select(.name|startswith(\"claude\")|not)|{name,status,conclusion}]")
+                       --jq "[.check_runs[]|select(.name|IN($IGNORED_CHECKS)|not)|select(.name|startswith(\"claude\")|not)|{name,status,conclusion,completed_at}]")
             total=$(jq length <<<"$checks"); pending=$(jq '[.[]|select(.status!="completed")]|length' <<<"$checks")
             bad=$(jq -r '[.[]|select(.status=="completed" and (.conclusion|IN("success","neutral","skipped")|not))|.name]|join(", ")' <<<"$checks")
             ok=$(jq '[.[]|select(.conclusion=="success")]|length' <<<"$checks")
+            t_red=$(jq -r '[.[]|select(.status=="completed" and (.conclusion|IN("success","neutral","skipped")|not))|.completed_at // empty]|max // ""' <<<"$checks")
+            t_head=$(gh api "repos/$REPO/commits/$sha" --jq .commit.committer.date 2>/dev/null || echo "")
 
             # Zero checks on the head (pushes via API/app tokens don't always trigger CI):
             # dispatch CI on the branch ourselves, once per head SHA, instead of stalling.
@@ -168,7 +196,11 @@ jobs:
               continue
             fi
             if [ "$pending" != "0" ]; then say "#$pr: $pending check(s) running"; continue; fi
-            if [ -n "$bad" ]; then comment_once "red-$sha" "🟥 CI is red on \`${sha:0:7}\` (failed: $bad). The auto-fix bot usually pushes a fix within minutes; otherwise your session (or, after the fix budget, a fresh holder via the queue) takes it — I re-check every new commit."; say "#$pr red"; continue; fi
+            if [ -n "$bad" ]; then
+              comment_once "red-$sha" "🟥 CI is red on \`${sha:0:7}\` (failed: $bad). Your session goes first: fix and push, I re-check every new commit. If nothing is pushed within ${FIX_GRACE_MIN} min I dispatch the bot fix pass myself (budget ${MAX_FIX}), so a PR nobody is watching still moves."
+              maybe_dispatch_fix "CI red ($bad)"
+              say "#$pr red"; continue
+            fi
             if [ "$ok" = "0" ]; then say "#$pr: no successful checks"; continue; fi
 
             # Approval: AI verdict for THIS sha, or a human label from someone other than the author.
@@ -183,7 +215,7 @@ jobs:
             fi
 
             if [ -z "$approved_by" ]; then
-              if [ "$verdict" = "changes" ]; then say "#$pr: review requested changes at ${sha:0:7} (auto-fix ladder / re-queue)"; continue; fi
+              if [ "$verdict" = "changes" ]; then maybe_dispatch_fix "review requested changes"; continue; fi
               # No verdict for this SHA.
               if [ "$touches_reviewer" != "0" ]; then
                 add_label session-merge 1d76db
@@ -191,16 +223,16 @@ jobs:
                 say "#$pr edits the reviewer — session merge"; continue
               fi
               # If no review is running or recent for it, re-request once.
-              [ -n "$runs" ] || runs=$(gh run list --repo "$REPO" --workflow claude-review.yml --limit 40 --json headSha,status,createdAt 2>/dev/null || echo '[]')
+              [ -n "$runs" ] || runs=$(gh run list --repo "$REPO" --workflow claude-review.yml --limit 40 --json headSha,status,createdAt,event 2>/dev/null || echo '[]')
               live=$(jq --arg s "$sha" --arg c "$(date -u -d "$REVIEW_WAIT_MIN minutes ago" +%Y-%m-%dT%H:%M:%SZ)" \
-                       '[.[]|select(.headSha==$s and (.status!="completed" or .createdAt > $c))]|length' <<<"$runs")
+                       '[.[]|select((.headSha==$s and (.status!="completed" or .createdAt > $c)) or (.event=="workflow_dispatch" and .status!="completed"))]|length' <<<"$runs")
               if [ "$live" != "0" ]; then say "#$pr: review running/recent for ${sha:0:7} — waiting"; continue; fi
               if ! has_marker "review-dispatch-$sha"; then
-                if gh workflow run claude-review.yml --repo "$REPO" --ref "$branch" -f pr="$pr" >/dev/null 2>rr.err; then
+                if gh workflow run claude-review.yml --repo "$REPO" --ref "$DEFAULT" -f pr="$pr" -f mode=review >/dev/null 2>rr.err; then
                   comment_once "review-dispatch-$sha" "🔎 No review verdict exists for \`${sha:0:7}\` and no review is running, so I re-requested **claude-review** for it. I merge as soon as the verdict and CI agree."
                   say "#$pr: re-requested review for ${sha:0:7}"
                 else
-                  comment_once "review-dispatch-$sha" "🔎 No review verdict for \`${sha:0:7}\`, and re-requesting the review failed (\`$(tr '\n' ' ' <rr.err | cut -c1-160)\`) — usually the branch predates the dispatchable reviewer or carries an older copy of it; merge \`$DEFAULT\` into the branch (or push any commit) and the review runs on the new head."
+                  comment_once "review-dispatch-$sha" "🔎 No review verdict for \`${sha:0:7}\`, and re-requesting the review failed (\`$(tr '\n' ' ' <rr.err | cut -c1-160)\`). Push any commit and the review runs on the new head."
                   say "#$pr: review dispatch failed"
                 fi
               else
@@ -216,8 +248,7 @@ jobs:
 
             if [ "$draft" = "true" ]; then
               has_label wip && { say "#$pr: draft held by wip"; continue; }
-              pushed=$(gh api "repos/$REPO/commits/$sha" --jq .commit.committer.date 2>/dev/null || echo "")
-              quiet=$(age_min "$pushed")
+              quiet=$(age_min "$t_head")
               if [ "$quiet" -ge "$QUIET_MIN" ]; then
                 if gh pr ready "$pr" --repo "$REPO" >/dev/null 2>rd.err; then
                   comment_once "auto-ready-$sha" "🟢 Green, approved ($approved_by) and quiet for ${quiet} min (≥ ${QUIET_MIN}), so I marked this draft **ready** — the session that opened it is done or gone, and finished work should not wait for a click. Merging next. (To keep a draft parked, label it \`wip\`.)"

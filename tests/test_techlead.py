@@ -203,7 +203,7 @@ def test_pr_status_lanes_mirror_automerge_order():
     assert l == "draft" and "auto-marked ready ≈ 08-09 06:30 UTC" in t                # last push 05:00 + 90 quiet min, absolute
     assert lane(draft=True, labels=["wip"]) == "held"
     t, _ = tl.pr_status(_pr(checks=RED, comments=["<!-- claude-autofix attempt=0 -->"] * 3 + ["<!-- claude-autofix exhausted sha=1234567 -->"]), CFG)
-    assert "auto-fix 3/3" in t and "bot-stuck" in t
+    assert "attempts 3/3" in t and "bot-stuck" in t and "bot fix pass after 15 quiet min" in t
 
 
 def test_board_and_automerge_share_one_vocabulary():
@@ -272,6 +272,24 @@ def test_merge_gate_ignores_exactly_the_bots_own_jobs():
     s = tl.summarize_checks(GREEN + [{"name": "render", "status": "completed", "conclusion": "cancelled"},
                                      {"name": "pr-check", "status": "completed", "conclusion": "failure"}])
     assert s["green"] is True and s["bad"] == []
+
+
+def test_fix_pass_is_dispatched_after_a_grace_window_never_inline():
+    """Steer #67 / issue #69: a live session fixes first; bots only after pipeline.fix_grace_minutes,
+    dispatched by automerge from the default branch; the review job never fixes inline; no
+    workflow_run auto-fix on red CI."""
+    am, cr = _wf("automerge.yml"), _wf("claude-review.yml")
+    assert "'.pipeline.fix_grace_minutes // 15'" in am and "maybe_dispatch_fix" in am
+    assert re.search(r'gh workflow run claude-review\.yml --repo "\$REPO" --ref "\$DEFAULT" -f pr="\$pr" -f mode=fix', am)
+    assert "-f mode=review" in am                                    # re-requests also come from the default branch
+    on_block = cr.split("\non:\n", 1)[1].split("\nconcurrency:", 1)[0]
+    keys = "\n".join(ln for ln in on_block.splitlines() if not ln.lstrip().startswith("#"))
+    assert "workflow_run" not in keys and "mode:" in keys
+    review_job = cr.split("\n  claude-review:\n", 1)[1].split("\n  fix:\n", 1)[0]
+    assert "anthropics/claude-code-action" in review_job and "Auto-fix" not in review_job and "claude-autofix attempt=${{" not in review_job
+    fix_job = cr.split("\n  fix:\n", 1)[1]
+    assert "inputs.mode == 'fix'" in fix_job and "<!-- claude-autofix attempt=" in fix_job and "park_stuck" in fix_job
+    assert tl.is_bot_check("fix")
 
 
 def test_board_triggers_stay_bounded():
