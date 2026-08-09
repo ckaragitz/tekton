@@ -26,7 +26,7 @@ this file first, then only the reference files a step tells you to open.
 | **DirectShape** | Revit's "frozen solid" element: correct category, name, parameters, schedulable, movable — but not parametric and with **no MEP connectors**. This is what IFC becomes in Revit. |
 | **Link IFC / Open IFC** | The two ways Revit ingests an `.ifc`. **Link** (recommended, IFC4) = read-only linked model of DirectShapes with all psets as parameters. **Open** (legacy, IFC2x3-era) = converts into a new project, tries to nativise simple walls, drops most pset data. See section 6. |
 | **Shared parameters** | Revit parameters defined in a shared-parameters `.txt` file (GUID-identified) so tags and schedules can use them across projects. Our psets are named to map 1:1 onto the firm's file. |
-| **APS Design Automation** | Autodesk's cloud service that runs headless Revit against an add-in. The only route to Tier 2 (native families/circuits). Out of scope for the IFC path; referenced for escalation. |
+| **tekton-author** | The sibling skill in this plugin that builds a native `.rvt` for a named Revit release from a prompt or an `.ifc`, in one call (`_bootstrap.py go author --ifc FILE --target-version YEAR`), with no Revit and no Autodesk cloud service. Its output is always delivered and honestly stamped (`PROOF-ONLY` + named caveats until certified). The route for any `.rvt` request — see 6.4. |
 
 ## 1. Who this serves and what "editable" honestly means
 
@@ -56,12 +56,16 @@ later:**
 > **Tier 2 — native MEP families with working connectors and circuits.**
 > Revit's IFC importer **never** creates functioning electrical connectors,
 > circuits, or panel schedules from IFC, no matter how good the IFC is. Tier 2
-> requires the Revit API: an add-in run inside Revit or in Autodesk's cloud
-> (APS Design Automation) that places real families and sets their
-> parameters (our psets map 1:1 to the firm's shared parameters), or a native
-> `.rvt` file. This skill delivers Tier 1 plus a **Tier 2 handoff package**
-> (schedule data, family/type callouts, insertion points) so someone with
-> Revit can finish the wiring in minutes instead of remodelling.
+> means a native `.rvt`, and this plugin builds one itself: tell us your
+> Revit version and the **tekton-author** skill turns this same model into a
+> `.rvt` for that release (our own writer, no Revit or Autodesk service in
+> the loop), delivered with an honest `PROOF-ONLY` stamp naming exactly what
+> is and is not yet certified to open in Autodesk's reader. You get that
+> `.rvt` **and** the Tier 1 IFC (which any Revit links regardless of
+> version) **and** a **Tier 2 handoff package** (schedule data, family/type
+> callouts, insertion points; our psets map 1:1 to the firm's shared
+> parameters) so someone with Revit can finish the wiring in minutes instead
+> of remodelling.
 
 Never claim Tier 2 from IFC. Never call the result "native Revit families".
 Correct phrasing: "correctly-categorized, correctly-placed Revit elements
@@ -75,7 +79,7 @@ carrying your schedule data".
 | User attached an `.ifc` (from Design, or anywhere) and wants it Revit-ready | **Workflow B** (section 5) |
 | User describes a building in words/JSON (levels, walls, rooms) and wants IFC | **Workflow C** (section 5.5) — `scripts/generate_ifc.py` from a building spec |
 | User asks "how do I get this into Revit / why can't I edit it / where did my panel data go" | **Section 6** handoff checklist + **section 8** troubleshooting |
-| User wants real families, connectors, circuits, or a `.rvt` file | Explain Tier 2 (section 1); produce the Tier 1 IFC + handoff package; do NOT promise `.rvt` |
+| User wants real families, connectors, circuits, or a `.rvt` file | Ask their Revit version FIRST (6.4), then hand the validated `.ifc` to **tekton-author** in one call — `python <plugin>/skills/tekton-author/scripts/_bootstrap.py go author --ifc FILE --target-version YEAR --out out/rvt` — and relay its honest status/stamps; ALSO deliver the Tier 1 IFC (version-agnostic addition, never a substitute) + the Tier 2 handoff package (section 1) |
 
 If in Design: you author (A) and the browser exports the `.ifc`; the user
 then attaches that `.ifc` in a Cowork/claude.ai chat where the skill runs (B).
@@ -104,8 +108,9 @@ Design itself is normally the author, not the script runner.
    through `scripts/validate_ifc.py` (and, for anything not exported by our
    v2 asset, `scripts/harden_ifc.py`) with the report attached.
 8. **IFC is version-agnostic; `.rvt` is not.** Revit cannot open a `.rvt`
-   saved by a newer Revit. Deliver IFC. If a `.rvt` is ever requested, ask
-   the user's Revit version first (6.4).
+   saved by a newer Revit. For a `.rvt`, ask the user's Revit version first
+   and route to **tekton-author** (6.4); the IFC ships alongside it as the
+   version-agnostic addition — never instead of a requested `.rvt`.
 
 ## 4. WORKFLOW A — Author a Revit-bound model in Claude Design
 
@@ -349,7 +354,8 @@ never invent numbers.) Deliver, together, in one message:
    (`references/shared-parameters-mapping.md`).
 4. If Tier 2 was asked for: the **Tier 2 handoff package** — per-element
    table of tag, class → target family/category, insertion point (metres),
-   type, and the schedule data — for the person with Revit / the APS step.
+   type, and the schedule data — for the person with Revit / the
+   tekton-author `.rvt` step (6.4).
 
 ### 5.5 Workflow C (pointer) — generate IFC from a building spec
 
