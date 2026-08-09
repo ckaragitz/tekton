@@ -12,10 +12,15 @@ the result for the full pre-flight.
     rvt_edit.py FILE set-level --id 311 --elevation-ft 12.0 -o out.rvt
     rvt_edit.py FILE move   --id 1466502 --to 10 4 0 [--rotation-deg 90] -o out.rvt
     rvt_edit.py FILE retype --id 1466502 --symbol 619617 -o out.rvt
+
+The file is opened, planned, re-emitted and verified under ITS OWN Revit
+release (a 2025/2024 project keeps its release's framing, id width and
+schema; the output declares the input's release) -- issue #70.
 """
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import math
 import os
@@ -28,6 +33,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "lib", "src"))     # plugin layout
 from rvt.mutate import Document  # noqa: E402
 from rvt import manipulate as M  # noqa: E402
 from rvt import inventory as INV  # noqa: E402
+from rvt.frontdoor.release_ctx import enter_host_release  # noqa: E402
 
 
 def _report(rep, out):
@@ -64,6 +70,20 @@ def main(argv=None) -> int:
     p.add_argument("--symbol", type=int, required=True); p.add_argument("-o", "--out", required=True)
     a = ap.parse_args(argv)
 
+    # every verb runs under the INPUT file's own release: a Revit 2025/2024
+    # project is opened, planned, re-emitted and verified with its release's
+    # framing + codecs (issue #70); a native file enters no context; a release
+    # we cannot author into is reported here and fails honestly downstream
+    if not os.path.isfile(a.file):
+        ap.error(f"input .rvt not found: {a.file}")
+    with contextlib.ExitStack() as stack:
+        note = enter_host_release(stack, a.file)
+        if note:
+            print(f"[rvt_edit] warning: {note}", file=sys.stderr)
+        return _run(a)
+
+
+def _run(a: argparse.Namespace) -> int:
     doc = Document.from_file(a.file)
 
     if a.cmd == "info":
@@ -87,10 +107,8 @@ def main(argv=None) -> int:
     elif a.cmd == "move":
         rot = math.radians(a.rotation_deg) if a.rotation_deg is not None else None
         rep = M.commit_plans(a.file, a.out, [M.move_instance(doc, a.id, tuple(a.to), rotation=rot)])
-    elif a.cmd == "retype":
+    else:                                                   # retype (argparse guarantees the verb)
         rep = M.commit_plans(a.file, a.out, [M.retype_instance(doc, a.id, a.symbol)])
-    else:
-        ap.error("unknown command"); return 2
     _report(rep, a.out)
     return 0
 

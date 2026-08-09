@@ -56,6 +56,7 @@ Exit codes: 0 = all hard gates passed (status may still be PROOF-ONLY);
 from __future__ import annotations
 
 import argparse
+import contextlib
 import dataclasses
 import hashlib
 import importlib.util
@@ -1050,14 +1051,28 @@ def apply_add_ops(src_path: str, out_path: str, adds: List[dict], *,
 
 
 def cmd_edit(args) -> int:
-    from rvt import manipulate as M
-    from rvt.mutate import Document
-    t0 = time.time()
     in_path = os.path.abspath(args.file)
-    out_path = os.path.abspath(args.out)
     if not os.path.exists(in_path):
         print(f"[rvt_job] input .rvt not found: {in_path}", file=sys.stderr)
         return EX_ERR
+    # plan / commit / verify / validate under the INPUT file's own release
+    # (issue #70): a Revit 2025/2024 project keeps its release's framing and
+    # schema and the output declares the input's release; a native file enters
+    # no context; joins the front door's context when called from --rvt --edit
+    from rvt.frontdoor.release_ctx import enter_host_release
+    with contextlib.ExitStack() as stack:
+        note = enter_host_release(stack, in_path)
+        if note:
+            print(f"[rvt_job] warning: {note}", file=sys.stderr)
+        return _cmd_edit(args, in_path, note)
+
+
+def _cmd_edit(args, in_path: str, release_note: Optional[str]) -> int:
+    from rvt import manipulate as M
+    from rvt import versions as V
+    from rvt.mutate import Document
+    t0 = time.time()
+    out_path = os.path.abspath(args.out)
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
     with open(args.ops) as fh:
         ops = json.load(fh)
@@ -1073,9 +1088,12 @@ def cmd_edit(args) -> int:
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "inputs": {"file": in_path, "ops": _abs(args.ops), "op_count": len(ops)},
         "base": {"path": in_path, "sha256": sha256_of(in_path),
-                 "is_autodesk_sample": is_autodesk_sample(in_path)},
+                 "is_autodesk_sample": is_autodesk_sample(in_path),
+                 "release": V.detect_release(in_path)},
         "_t0": t0,
     }
+    if release_note:
+        manifest["base"]["release_note"] = release_note
     hist0 = history_head_guid(in_path)
     manifest["base"]["history_head_guid"] = hist0
 
