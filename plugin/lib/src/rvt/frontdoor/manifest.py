@@ -166,6 +166,31 @@ def coverage_cross_reference(created: List[Dict[str, Any]]) -> Dict[str, Any]:
 # the honesty box
 # ---------------------------------------------------------------------------
 
+#: honesty.load_vs_render, keyed by the created walls' seq-103 rep (stage W's
+#: ``wall_rep``); no W stage in the run -> the 'dummy' (historical) wording
+LOAD_VS_RENDER = {
+    "solid": ("created walls carry authored solids: each SWall's seq-103 rep is a six-face "
+              "GElement B-rep (rvt.render.brep, the W1_gabpd_wall_solid / "
+              "RSOLID_walls_A_solid recipe -- RENDER-certified as a SHAPE on the composed "
+              "base); THIS exact output is uncertified until its own viewer batch passes, "
+              "and every other certification behind these shapes is a LOAD pass; our loaded "
+              "symbols carry real solids; RVT_WALL_REP=dummy restores the SerializedDummy rep"),
+    "dummy": ("every certification behind these shapes is a LOAD pass; created "
+              "walls carry a SerializedDummy rep (desktop Revit regenerates; "
+              "the cloud viewer does NOT) and our loaded symbols carry real "
+              "solids -- RENDER (baked geometry) is the render stream's "
+              "second gate"),
+}
+
+
+def _wall_rep_of(build: Optional[Dict[str, Any]]) -> str:
+    """The seq-103 rep kind stage W actually wrote ('solid' / 'dummy')."""
+    for st in (build or {}).get("stages") or []:
+        if str(st.get("stage") or "").startswith("W") and st.get("ok") and st.get("wall_rep"):
+            return str(st["wall_rep"])
+    return "dummy"
+
+
 def _honesty(build: Optional[Dict[str, Any]], verdict: Optional[Dict[str, Any]],
              version: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     stamps: List[str] = []
@@ -181,11 +206,7 @@ def _honesty(build: Optional[Dict[str, Any]], verdict: Optional[Dict[str, Any]],
             "autodesk_acceptance": ("NOT claimed by this run: only the Autodesk Viewer / Revit "
                                     "prove acceptance (upload -> 'translated' -> open the {3D} "
                                     "view). Report both tiers separately, never conflated."),
-            "load_vs_render": ("every certification behind these shapes is a LOAD pass; created "
-                               "walls carry a SerializedDummy rep (desktop Revit regenerates; "
-                               "the cloud viewer does NOT) and our loaded symbols carry real "
-                               "solids -- RENDER (baked geometry) is the render stream's "
-                               "second gate"),
+            "load_vs_render": LOAD_VS_RENDER[_wall_rep_of(build)],
         },
         "proof_only_stamps": stamps,
         "release": _release_line(version),

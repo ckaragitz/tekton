@@ -8,7 +8,9 @@ The mechanics are the ifc-room stream's PROVEN build code, reused as-is
        (rvt.famgen.factory catalog products + the honest house switchboard);
     L  LOAD them onto the base (rvt.famgen.loader, four-registry, chained);
     W  the room's WALLS (rvt.mutate.add_wall on the base's own wall type,
-       specimen scaffolding cloned from the certified ancestor R5);
+       specimen scaffolding cloned from the certified ancestor R5; each wall
+       carries an AUTHORED seq-103 GElement solid -- rvt.render.brep, the
+       W1_gabpd_wall_solid recipe -- unless ``RVT_WALL_REP=dummy``);
     E  the EQUIPMENT instances (rvt.mutate.add_family_instance onto OUR
        loaded symbols at the intent's frames, our connector managers);
     C  the feeder CIRCUITS (rvt.mep territory) -- today a NAMED BLOCKER on
@@ -111,6 +113,18 @@ def _relp(p: Optional[str]) -> Optional[str]:
 # options / result
 # ---------------------------------------------------------------------------
 
+#: env opt-out for the created walls' seq-103 rep (``dummy`` restores the
+#: pre-bake SerializedDummy output byte-for-byte; no front-door flag needed)
+WALL_REP_ENV = "RVT_WALL_REP"
+WALL_REPS = ("solid", "dummy")
+
+
+def default_wall_rep() -> str:
+    """``'solid'`` unless ``RVT_WALL_REP=dummy`` (unknown values -> 'solid')."""
+    v = (os.environ.get(WALL_REP_ENV) or "solid").strip().lower()
+    return v if v in WALL_REPS else "solid"
+
+
 @dataclass
 class BuildOptions:
     """How to run the build."""
@@ -121,6 +135,7 @@ class BuildOptions:
     specimen_src: Optional[str] = None         # None -> the pinned ancestor (R5)
     stages: str = "FLWECV"                     # subset of F,L,W,E,C,V
     wall_mode: str = "min"                     # 'min' | 'unjoin' | 'raw'
+    wall_rep: str = dc_field(default_factory=default_wall_rep)   # 'solid' | 'dummy'
     symbol_solid: bool = True
     validate: bool = True
     quiet: bool = True
@@ -535,7 +550,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         if want_walls:
             with _timed_stage(res):
                 wrec, wok = R.stage_walls(model, loaded_file, shell_path, specimens,
-                                          wall_mode=opts.wall_mode)
+                                          wall_mode=opts.wall_mode, wall_rep=opts.wall_rep)
                 wrec["stage"] = "W(shell)"
                 res.stages.append(_slim_stage(wrec))
             if wok:
@@ -570,7 +585,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                        if (have_fams and "E" in opts.stages) else combined_path)
             with _timed_stage(res):
                 wrec, wok = R.stage_walls(model, src, wtarget, specimens,
-                                          wall_mode=opts.wall_mode)
+                                          wall_mode=opts.wall_mode, wall_rep=opts.wall_rep)
                 wrec["stage"] = "W"
                 res.stages.append(_slim_stage(wrec))
             if wok:
@@ -686,6 +701,7 @@ def _harvest_created(res: BuildResult, rec: Dict[str, Any], kind: str) -> None:
         for w in rec.get("walls") or []:
             res.created.append({"kind": "wall", "tag": w.get("id"), "elem_id": w.get("elem_id"),
                                 "length_m": w.get("length_m"), "height_ft": w.get("height_ft"),
+                                "rep": (w.get("rep") or {}).get("kind", "dummy"),
                                 "file_role": rec.get("stage")})
     else:
         for i in rec.get("instances") or []:
@@ -711,9 +727,9 @@ def _harvest_loaded_families(res: BuildResult, loaded: Dict[str, Any]) -> None:
 
 def _slim_stage(rec: Dict[str, Any]) -> Dict[str, Any]:
     """Keep the stage record small enough for the manifest."""
-    keep = ("stage", "ok", "in", "out", "wall_mode", "wall_type", "wall_type_name", "level",
-            "elemtable_before", "elemtable_after", "new_ids", "verify", "structurally_valid",
-            "seconds", "blocker", "error", "notes")
+    keep = ("stage", "ok", "in", "out", "wall_mode", "wall_rep", "wall_type", "wall_type_name",
+            "level", "elemtable_before", "elemtable_after", "new_ids", "verify",
+            "structurally_valid", "seconds", "blocker", "error", "notes")
     out = {k: rec.get(k) for k in keep if k in rec}
     for k in ("in", "out"):
         if out.get(k):
@@ -721,6 +737,7 @@ def _slim_stage(rec: Dict[str, Any]) -> Dict[str, Any]:
     if rec.get("walls"):
         out["walls"] = [{"id": w.get("id"), "elem_id": w.get("elem_id"),
                          "p0_ft": w.get("p0_ft"), "p1_ft": w.get("p1_ft"),
+                         "height_ft": w.get("height_ft"), "rep": w.get("rep"),
                          "n_dangling": w.get("n_dangling")} for w in rec["walls"]]
     if rec.get("instances"):
         out["instances"] = [{"tag": i.get("tag"), "elem_id": i.get("elem_id"),
