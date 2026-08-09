@@ -30,6 +30,7 @@ CLI: ``tools/route.py``.  Territory: perm-matrix stream (new module).
 """
 from __future__ import annotations
 
+import contextlib
 import importlib.util
 import json
 import os
@@ -164,6 +165,20 @@ class _Steps:
 
 class _StepFailed(Exception):
     pass
+
+
+@contextlib.contextmanager
+def _stage_stdout(res: RouteResult, out_dir: str, quiet: bool):
+    """``quiet``: the stages' stdout streams into ``<out_dir>/route.log``
+    (line-buffered: a long route can be tailed, a killed one keeps its
+    progress) and the path rides in ``res.manifest_paths``; else untouched."""
+    if not quiet:
+        yield
+        return
+    log_p = os.path.join(out_dir, "route.log")
+    res.manifest_paths["route.log"] = log_p
+    with open(log_p, "w", buffering=1) as fh, contextlib.redirect_stdout(fh):
+        yield
 
 
 def _load_tool(relpath: str, modname: str):
@@ -1208,7 +1223,6 @@ def _r_spec_on_rvt_seed(res, inputs, out_dir, opts):
         argv.append("--no-validate")
 
     def run() -> int:
-        import contextlib
         import io
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
@@ -1293,6 +1307,10 @@ def route(inputs: Dict[str, Any], output: str, **opts: Any) -> RouteResult:
     Supported cells execute their stage chain and DELIVER (final output +
     every intermediate + the route manifest).  Missing/unknown cells return
     ``ok=False`` with THE one clear line (``.line``) -- never a traceback.
+
+    ``quiet=True`` (``tools/route.py run --json``): whatever the stages print
+    goes to ``<out_dir>/route.log`` (``manifest_paths['route.log']``), never
+    to the caller's stdout -- the front door build's convention (issue #188).
     """
     t0 = time.time()
     inputs = _norm_inputs(inputs)
@@ -1327,7 +1345,8 @@ def route(inputs: Dict[str, Any], output: str, **opts: Any) -> RouteResult:
     res.caveats.extend(cell.caveats)
 
     try:
-        impl(res, inputs, out_dir, opts)
+        with _stage_stdout(res, out_dir, quiet=bool(opts.get("quiet"))):
+            impl(res, inputs, out_dir, opts)
     except _StepFailed:
         res.ok = False
         if not res.status:
