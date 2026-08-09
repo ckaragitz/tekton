@@ -22,6 +22,10 @@ Evidence tiers:
 5. THE REAL FILE (inputs/ifc/electrical-room-2500a.ifc): every position is
    resolved (none at the origin), the walls close a ring, the feeder tree
    is fully corroborated, the intent JSON round-trips.
+6. SWEPT SOLIDS (#152): IfcExtrudedAreaSolid bodies (rectangle / circle /
+   arbitrary-closed profiles, direct and mapped) resolve to the same world
+   boxes, walls and dims -- a hand-authored fixture shared with the
+   stdlib-reader tests.
 
 Corpus-dependent tests skip when the input / catalog is absent.
 """
@@ -39,6 +43,9 @@ ROOM_IFC = os.path.join(ROOT, "inputs", "ifc", "electrical-room-2500a.ifc")
 HAVE_ROOM = os.path.exists(ROOM_IFC)
 
 ifcopenshell = pytest.importorskip("ifcopenshell")
+if getattr(ifcopenshell, "IS_STEPLITE", False):      # the bundled shim, not the library
+    pytest.skip("real ifcopenshell not installed (steplite shim on the path)",
+                allow_module_level=True)
 import ifcopenshell.guid  # noqa: E402
 
 from rvt.ifc import intent as I  # noqa: E402
@@ -765,97 +772,46 @@ def test_intent_json_shape_and_roundtrip(room_model, tmp_path):
 
 # ===========================================================================
 # 6. swept solids: IfcExtrudedAreaSolid bodies ride the tessellated path
-#    (#152) -- hand-authored fixture, tests/fixtures_ifc_extrusion.py
+#    (#152) -- hand-authored fixture + shared checks in
+#    tests/fixtures_ifc_extrusion.py (test_steplite.py holds the stdlib
+#    reader to the same tables)
 # ===========================================================================
 
-import sys as _sys  # noqa: E402
-
-_sys.path.insert(0, os.path.join(ROOT, "tests"))
-import fixtures_ifc_extrusion as FX  # noqa: E402
+import fixtures_ifc_extrusion as FX  # noqa: E402  (tests/ is on sys.path under pytest)
 
 
 @pytest.fixture(scope="module")
-def extrusion_file(tmp_path_factory):
-    path = FX.write_fixture(str(tmp_path_factory.mktemp("extrusion")))
-    return path, ifcopenshell.open(path)
+def extrusion_path(tmp_path_factory):
+    return FX.write_fixture(str(tmp_path_factory.mktemp("extrusion")))
 
 
-def _geom_by_name(f):
-    """{styled item name: GeomItem} over every element product of ``f``."""
-    out = {}
-    for prod, plc, geom in I.resolve_products(f):
-        assert not plc.identity                       # real relative placements
-        for it in geom.items:
-            out[it.name] = it
-    return out
-
-
-def test_extruded_profiles_become_world_upright_boxes(extrusion_file):
+def test_extruded_profiles_become_world_upright_boxes(extrusion_path):
     """Rectangle (with a 2-D profile Position), IfcPolyline and
     IfcIndexedPolyCurve (with and without Segments) profiles, a solid
-    Position rotated about Z and one extruded horizontally (Axis = +X):
-    each expands to exactly the 8 corners / 12 triangles the upright-box
-    test recognises, at the expected WORLD extents (storey at z = 3)."""
-    _, f = extrusion_file
-    items = _geom_by_name(f)
-    for name, (lo, hi) in FX.EXPECTED_BOXES.items():
-        it = items[name]
-        assert it.n_tris == 12 and it.n_components == 1, name
-        assert it.is_all_boxes, name
-        assert np.allclose(it.lo, lo, atol=1e-6), (name, it.lo, lo)
-        assert np.allclose(it.hi, hi, atol=1e-6), (name, it.hi, hi)
-    # the rotated placement turned PANEL-X's 0.6 m width onto world Y
-    b = items["px_enclosure"].boxes[0]
-    assert math.isclose(max(b["xdim"], b["ydim"]), 0.6, abs_tol=1e-6)
-    assert math.isclose(abs(b["xdir"][1]) if b["xdim"] > b["ydim"] else abs(b["xdir"][0]),
-                        1.0, abs_tol=1e-6)
-
-
-def test_extrusion_via_mapped_item_and_circle_profile(extrusion_file):
-    _, f = extrusion_file
-    items = _geom_by_name(f)
-    pm = items["pm_enclosure"]                       # IfcMappedItem -> type map
-    assert pm.rep_identifier == "Body/mapped" and pm.is_all_boxes
-    bol = items["bollard_body"]                     # circle r=0.15, depth 0.9
-    assert not bol.is_all_boxes and bol.n_components == 1
-    assert bol.n_tris == 4 * I._ARC_SEGMENTS - 4
-    assert np.allclose(bol.extent, [0.3, 0.3, 0.9], atol=1e-6)
-    sx, sy, sz = FX.STOREY_ORIGIN
-    assert np.allclose(bol.center, [sx + 1.0, sy + 3.0, sz + 0.45], atol=1e-6)
+    Position rotated about Z, one extruded horizontally (Axis = +X), a
+    rotated *placement*, an IfcMappedItem and a circle profile: each lands
+    on its expected WORLD extents (storey at z = 3)."""
+    FX.check_world_boxes(FX.geom_by_name(I, ifcopenshell.open(extrusion_path)))
 
 
 def test_arc_index_is_polygonised_on_the_circle():
     pts = I._arc_through((1.0, 0.0), (0.0, 1.0), (-1.0, 0.0))   # CCW semicircle
-    assert len(pts) == I._ARC_SEGMENTS // 2
+    assert len(pts) == I._ARC_SEGMENTS // 2 + 1                  # endpoints included
     assert all(math.isclose(math.hypot(x, y), 1.0, abs_tol=1e-9) for x, y in pts)
+    assert pts[0] == (1.0, 0.0)
     assert math.isclose(pts[-1][0], -1.0, abs_tol=1e-9) and abs(pts[-1][1]) < 1e-9
-    assert all(y > -1e-9 for _, y in pts)                        # stayed on the upper half
+    assert all(y > -1e-9 for _, y in pts)                        # the upper half
     cw = I._arc_through((1.0, 0.0), (0.0, -1.0), (-1.0, 0.0))   # CW: the lower half
     assert all(y < 1e-9 for _, y in cw)
-    assert I._arc_through((0.0, 0.0), (1.0, 0.0), (2.0, 0.0)) == [(1.0, 0.0), (2.0, 0.0)]
+    assert I._arc_through((0.0, 0.0), (1.0, 0.0), (2.0, 0.0)) == [(0.0, 0.0), (1.0, 0.0), (2.0, 0.0)]
 
 
-def test_extrusion_fixture_resolves_walls_equipment_and_world_z(extrusion_file):
-    path, _ = extrusion_file
-    model = I.resolve_intent(path, plan_families_flag=False)
+def test_extrusion_fixture_resolves_walls_equipment_and_world_z(extrusion_path):
+    model = I.resolve_intent(extrusion_path, plan_families_flag=False)
     js = I.intent_to_json(model)
-    assert sorted(w["id"] for w in js["walls"]) == sorted(FX.EXPECTED_WALL_IDS)
-    for w in js["walls"]:
-        assert math.isclose(w["thickness"], 0.2, abs_tol=1e-4)
-        assert math.isclose(w["height"], 3.0, abs_tol=1e-4)
-    assert js["audit"]["equipment_with_geometry"] == len(FX.EXPECTED_EQUIPMENT)
-    eq = {e["tag"]: e for e in js["equipment"]}
-    lv = js["levels"]
-    assert lv[0]["elevation"] == FX.STOREY_ORIGIN[2]
-    for tag, (w, d, h, elev) in FX.EXPECTED_EQUIPMENT.items():
-        e = eq[tag]
-        assert math.isclose(e["dims_m"]["w"], w, abs_tol=2e-3), tag
-        assert math.isclose(e["dims_m"]["d"], d, abs_tol=2e-3), tag
-        assert math.isclose(e["dims_m"]["h"], h, abs_tol=1e-4), tag
-        # THE Z CONTRACT: elevation is WORLD; the level only annotates
-        assert math.isclose(e["elevation_m"], elev, abs_tol=1e-4), tag
-        assert e["level"] == "L1"
-        assert math.isclose(I.level_relative_z(e["elevation_m"], lv, e["level"]),
-                            elev - FX.STOREY_ORIGIN[2], abs_tol=1e-4)
-        assert e["positionSource"] == "placement-chain + local geometry"
-    assert eq["PANEL-M"]["typeName"] == "Panel type 400A"
+    FX.check_intent_json(js)
+    # THE Z CONTRACT through the public helper: level-relative = world - datum
+    for e in js["equipment"]:
+        exp = FX.EXPECTED_EQUIPMENT[e["tag"]]
+        assert math.isclose(I.level_relative_z(e["elevation_m"], js["levels"], e["level"]),
+                            exp[3] - FX.STOREY_ORIGIN[2], abs_tol=1e-4)

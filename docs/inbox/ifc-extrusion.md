@@ -16,9 +16,10 @@ Territory touched: `src/rvt/ifc/intent.py`, `src/rvt/ifc/steplite.py`,
 
 ## What was built
 
-* **`rvt.ifc.intent`** — `_item_points_tris(item)` is now the body dispatch
-  in `_collect_items` (direct items and the `IfcMappedItem` recursion alike):
-  tessellated / brep items go to the unchanged `_faceset_points_tris`;
+* **`rvt.ifc.intent`** — `_item_points_tris(item)` (the former
+  `_faceset_points_tris`, renamed and given one more branch) is the single
+  body dispatch in `_collect_items` (direct items and the `IfcMappedItem`
+  recursion alike): tessellated / brep items read exactly as before;
   `IfcExtrudedAreaSolid` goes to `_extruded_points_tris`, which expands the
   profile ring in the solid's `Position` frame, sweeps it by
   `ExtrudedDirection * Depth`, and returns LOCAL prism corners + triangles
@@ -58,15 +59,24 @@ Territory touched: `src/rvt/ifc/intent.py`, `src/rvt/ifc/steplite.py`,
   horizontally with Axis = +X), a board with a rotated *placement*, a typed
   board whose body is an `IfcMappedItem`, and a circle-profile accessory —
   plus the expected WORLD boxes / dims / elevations both backends are held
-  to. `tests/test_ifc_intent.py` +4 (real library: boxes at expected world
-  extents, mapped item + circle, arc polygonisation, full `resolve_intent`:
-  4 walls, dims, world-z contract via `level_relative_z`).
-  `tests/test_steplite.py` +4 (CI, no ifcopenshell needed: schema rows serve
-  the read surface; steplite entities drive the intent reader in-process to
-  the same table; `resolve_intent` on the FORCED shim in a subprocess; and a
-  real-library parity test on the fixture — every entity/attribute, `by_type`
-  closures incl. `IfcRepresentationItem`/`IfcSolidModel`/`IfcCurve`,
-  `get_inverse`, placements, psets — that self-skips without ifcopenshell).
+  to, and the ONE assertion body both backends' tests call
+  (`geom_by_name` / `check_world_boxes` / `check_intent_json`, numpy imported
+  inside so the module stays stdlib at import). `tests/test_ifc_intent.py`
+  +3 (real library: every profile/Position variant + mapped item + circle at
+  the expected world extents; arc polygonisation; full `resolve_intent` —
+  4 walls, dims, typeName, and the world-z contract via `level_relative_z`)
+  and its module guard now also skips when the *shim* is what
+  `importorskip("ifcopenshell")` finds (a pre-existing order-dependent
+  collection error without ifcopenshell once `rvt.ifc` had appended the
+  shim). `tests/test_steplite.py` +4 (CI, no ifcopenshell needed: schema
+  rows serve the read surface incl. the type objects; steplite entities
+  drive the intent reader in-process through the same check; `resolve_intent`
+  on the FORCED shim in a subprocess through the same JSON check; and a
+  real-library parity test on the fixture — every entity/attribute via the
+  now-shared `_assert_attrs_equivalent` / `_assert_by_type_equivalent`
+  helpers, closures incl. `IfcRepresentationItem`/`IfcSolidModel`/`IfcCurve`/
+  `IfcElementType`, `get_inverse`, placements, psets, `get_type` — that
+  self-skips without ifcopenshell).
 
 ## Evidence (cloud VM, Python 3.11, ifcopenshell 0.8.5 present; `steplite` = `RVT_STEPLITE_FORCE=1`)
 
@@ -112,19 +122,41 @@ Territory touched: `src/rvt/ifc/intent.py`, `src/rvt/ifc/steplite.py`,
   set (all the consumers use), not a watertight mesh for concave outlines. If
   a consumer ever needs true faces (e.g. an IFC→mesh export), swap in ear
   clipping there.
+* Why the `typeName` divergence was silent: `resolve_intent` wraps
+  `get_type(prod).Name` in `except Exception: etype = None`, which swallows
+  steplite's descriptive `AttributeError` for a class outside `_SCHEMA`.
+  Filed as a follow-up (make unknown-class attribute access on the read path
+  loud, or at least logged) rather than discovering rows one export at a time.
+* Emitted wording still says "tessellated" in three places
+  (`"no tessellated body: …"` note, the `position_source` sentence, the
+  house-switchboard fact-sheet source). Changing them changes every
+  `intent.json` (and this stream's byte-identical regression guard), so they
+  were left for a tiny follow-up rather than folded in here.
+* `skills/tekton-ifc/scripts/bridge_lib.py` carries its own copies of the
+  faceset reader / `decompose_boxes` and an ad-hoc extrusion summariser; the
+  engine and the skill script now have two notions of "read an
+  IfcExtrudedAreaSolid". Out of territory (the skill is the emitter side);
+  noted for the tekton-ifc stream.
 
 ## BRANCH STATE
 
 * Branch `cam/152-ifc-extruded-solids` from `origin/main@311dee9`; PR
   `Closes #152`.
 * Files: `src/rvt/ifc/intent.py`, `src/rvt/ifc/steplite.py`,
-  `tests/fixtures_ifc_extrusion.py` (new), `tests/test_ifc_intent.py` (+4),
+  `tests/fixtures_ifc_extrusion.py` (new), `tests/test_ifc_intent.py` (+3),
   `tests/test_steplite.py` (+4), `docs/inbox/ifc-extrusion.md` (this), and
   the `tools/sync_plugin.py` mirrors `plugin/lib/src/rvt/ifc/intent.py`,
   `plugin/lib/src/rvt/ifc/steplite.py`.
-* Gates: see the PR body for the exact counts of
-  `tests/test_ifc_intent.py tests/test_steplite.py tests/test_frontdoor.py
-  tests/test_router.py` with and without ifcopenshell importable,
-  `sync_plugin.py --check`, `validate_plugin.py`, portable paths.
+* Gates on the final diff: `tests/test_ifc_intent.py tests/test_steplite.py
+  tests/test_frontdoor.py tests/test_router.py` — WITH ifcopenshell 0.8.5:
+  **178 passed / 8 skipped / 0 failed**; WITHOUT ifcopenshell (fresh venv,
+  `.[test]` only): **139 passed / 17 skipped / 3 failed**, the 3 being
+  `test_router.py`'s spec→ifc *authoring* cases (`ifcopenshell.api`), which
+  fail identically on `origin/main@311dee9` in the same venv (3 failed / 73
+  passed there) and are why `tests/ci_shard.txt` keeps `test_router.py` out
+  of CI — not this diff; both collection orders of the two stream files
+  green without ifcopenshell (7 passed / 9 skipped). `sync_plugin.py` synced
+  2 mirrors, `--check` in sync; `validate_plugin.py` PASS (25);
+  `check_portable_paths.py` ok (2773).
 * Staged vs shipped: nothing staged for the viewer (no certification claim);
   the reader change ships in the plugin mirrors.

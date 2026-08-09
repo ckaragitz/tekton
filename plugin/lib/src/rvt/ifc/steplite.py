@@ -379,8 +379,10 @@ _SCHEMA: Dict[str, Tuple[str, Optional[str], Tuple[str, ...]]] = {
                          "LastModifyingApplication", "CreationDate")),
 }
 
-#: CamelCase names of the inline typed-value wrappers (select types) the
-#: reference files + product_facts._MEASURE_* tables use.
+#: CamelCase names of the inline typed-value wrappers the reference files +
+#: product_facts._MEASURE_* tables use (measure selects), plus the segment
+#: index types of IfcIndexedPolyCurve -- interior capitals cannot be
+#: recovered from the all-caps STEP token, so no-arg is_a() needs the table.
 _TYPED_CAMEL = {n.upper(): n for n in (
     "IfcLabel", "IfcText", "IfcIdentifier", "IfcReal", "IfcInteger", "IfcBoolean",
     "IfcLogical", "IfcCountMeasure", "IfcLengthMeasure", "IfcPositiveLengthMeasure",
@@ -390,7 +392,7 @@ _TYPED_CAMEL = {n.upper(): n for n in (
     "IfcNumericMeasure", "IfcRatioMeasure", "IfcMassMeasure",
     "IfcPlaneAngleMeasure", "IfcFrequencyMeasure", "IfcNormalisedRatioMeasure",
     "IfcTimeMeasure", "IfcMonetaryMeasure", "IfcTimeStamp",
-    "IfcLineIndex", "IfcArcIndex", "IfcPositiveInteger",   # IfcIndexedPolyCurve.Segments
+    "IfcLineIndex", "IfcArcIndex", "IfcPositiveInteger",
 )}
 
 # derived lookups -----------------------------------------------------------

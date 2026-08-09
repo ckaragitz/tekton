@@ -82,25 +82,35 @@ def _canon(x):
     return x
 
 
-@needs_ifcos
-@needs_corpus
-@pytest.mark.parametrize("path", [ROOM_IFC, LIGHT_IFC],
-                         ids=["electrical-room", "downlight"])
-def test_every_entity_every_attribute_matches_ifcopenshell(path):
-    fr = _ifcos.open(path)
-    fs = SL.open(path)
+def _assert_attrs_equivalent(fr, fs) -> int:
+    """Every entity of the real-library file ``fr``: same class and every
+    named attribute equal (canonicalised) in the steplite file ``fs``.
+    Returns the number of attributes compared."""
     assert fs.schema == fr.schema
     n = 0
     for er in fr:
         es = fs.by_id(er.id())
         assert es.is_a() == er.is_a(), er.id()
-        info = er.get_info(recursive=False)
-        for k, v in info.items():
+        for k, v in er.get_info(recursive=False).items():
             if k in ("id", "type"):
                 continue
             assert _canon(getattr(es, k)) == _canon(v), (er.id(), er.is_a(), k)
             n += 1
-    assert n > 400                                       # the comparison ran
+    return n
+
+
+def _assert_by_type_equivalent(fr, fs, classes) -> None:
+    """by_type subtype closure AND ordering match for every class name."""
+    for cls in classes:
+        assert [e.id() for e in fr.by_type(cls)] == [e.id() for e in fs.by_type(cls)], cls
+
+
+@needs_ifcos
+@needs_corpus
+@pytest.mark.parametrize("path", [ROOM_IFC, LIGHT_IFC],
+                         ids=["electrical-room", "downlight"])
+def test_every_entity_every_attribute_matches_ifcopenshell(path):
+    assert _assert_attrs_equivalent(_ifcos.open(path), SL.open(path)) > 400
 
 
 @needs_ifcos
@@ -108,14 +118,11 @@ def test_every_entity_every_attribute_matches_ifcopenshell(path):
 @pytest.mark.parametrize("path", [ROOM_IFC, LIGHT_IFC],
                          ids=["electrical-room", "downlight"])
 def test_by_type_ordering_and_closure_match(path):
-    fr = _ifcos.open(path)
-    fs = SL.open(path)
-    for cls in ("IfcProduct", "IfcElement", "IfcObject", "IfcStyledItem",
-                "IfcBuildingStorey", "IfcProject", "IfcApplication",
-                "IfcLightFixture", "IfcOpeningElement", "IfcTessellatedFaceSet",
-                "IfcElectricDistributionBoard", "IfcSpatialElement"):
-        assert [e.id() for e in fr.by_type(cls)] == \
-               [e.id() for e in fs.by_type(cls)], cls
+    _assert_by_type_equivalent(_ifcos.open(path), SL.open(path), (
+        "IfcProduct", "IfcElement", "IfcObject", "IfcStyledItem",
+        "IfcBuildingStorey", "IfcProject", "IfcApplication",
+        "IfcLightFixture", "IfcOpeningElement", "IfcTessellatedFaceSet",
+        "IfcElectricDistributionBoard", "IfcSpatialElement"))
 
 
 @needs_ifcos
@@ -345,12 +352,11 @@ def test_ensure_engine_appends_shim_only_when_real_absent():
 
 # ===========================================================================
 # 5. swept solids: IfcExtrudedAreaSolid + profiles + planar curves (#152)
-#    -- hand-authored fixture shared with tests/test_ifc_intent.py, so the
-#    stdlib reader is held to the SAME world numbers as the real library
+#    -- hand-authored fixture + shared checks (tests/fixtures_ifc_extrusion.py),
+#    so the stdlib reader is held to the SAME world numbers as the real library
 # ===========================================================================
 
-sys.path.insert(0, os.path.join(ROOT, "tests"))
-import fixtures_ifc_extrusion as FX  # noqa: E402
+import fixtures_ifc_extrusion as FX  # noqa: E402  (tests/ is on sys.path under pytest)
 
 
 @pytest.fixture(scope="module")
@@ -387,15 +393,17 @@ def test_swept_solid_schema_rows_serve_the_read_surface(extrusion_path):
     ipc = f.by_id(71)
     assert ipc.is_a("IfcIndexedPolyCurve") and ipc.SelfIntersect is False
     assert ipc.Points.is_a("IfcCartesianPointList2D") and len(ipc.Points.CoordList) == 4
-    segs = ipc.Segments
-    assert [s.is_a() for s in segs] == ["IfcLineIndex"] * 4
-    assert segs[0].is_a("IfcLineIndex") and not segs[0].is_a("IfcArcIndex")
-    assert [s.wrappedValue for s in segs] == [(1, 2), (2, 3), (3, 4), (4, 1)]
+    assert [s.is_a() for s in ipc.Segments] == ["IfcLineIndex"] * 4
+    assert not ipc.Segments[0].is_a("IfcArcIndex")
+    assert [s.wrappedValue for s in ipc.Segments] == [(1, 2), (2, 3), (3, 4), (4, 1)]
     assert f.by_id(61).Segments is None
     assert [c.is_a() for c in f.by_type("IfcCurve")] == ["IfcIndexedPolyCurve"] * 2 + ["IfcPolyline"]
-    # styled-item inverse on a solid, and the type object behind typeName
+    # styled-item inverse on a solid; the type objects behind typeName
     assert [si.Name for si in f.get_inverse(slab) if si.is_a("IfcStyledItem")] == ["floor_slab"]
-    assert SL.get_type(f.by_id(143)).Name == "Panel type 400A"
+    assert SL.get_type(f.by_id(158)).Name == "Bollard 300 dia"          # IfcDiscreteAccessoryType
+    assert SL.get_type(f.by_id(97)).PredefinedType == "USERDEFINED"     # IfcBuildingElementProxyType
+    assert [t.Name for t in f.by_type("IfcBuildingElementType")] == \
+        ["Room shell type", "Generic 150 slab", "Generic 200 wall"]
     assert f.by_id(135).RepresentationMaps[0].MappedRepresentation.Items[0].id() == 131
 
 
@@ -403,24 +411,10 @@ def test_swept_solid_schema_rows_serve_the_read_surface(extrusion_path):
 def test_steplite_entities_drive_the_intent_extrusion_reader(extrusion_path):
     """In-process: steplite entities fed straight to rvt.ifc.intent's
     product analysis land on the fixture's expected WORLD boxes -- the same
-    table the real-library test asserts."""
-    import numpy as np
+    check the real-library test runs."""
     from rvt.ifc import intent as I
 
-    f = SL.open(extrusion_path)
-    items = {}
-    for prod, plc, geom in I.resolve_products(f):
-        assert not plc.identity and plc.chain_depth == 4
-        for it in geom.items:
-            items[it.name] = it
-    for name, (lo, hi) in FX.EXPECTED_BOXES.items():
-        it = items[name]
-        assert it.is_all_boxes and it.n_tris == 12, name
-        assert np.allclose(it.lo, lo, atol=1e-6), (name, it.lo, lo)
-        assert np.allclose(it.hi, hi, atol=1e-6), (name, it.hi, hi)
-    assert items["pm_enclosure"].rep_identifier == "Body/mapped"
-    bol = items["bollard_body"]
-    assert not bol.is_all_boxes and np.allclose(bol.extent, [0.3, 0.3, 0.9], atol=1e-6)
+    FX.check_world_boxes(FX.geom_by_name(I, SL.open(extrusion_path)))
 
 
 @pytest.mark.skipif(not HAVE_NUMPY, reason="intent path needs numpy")
@@ -445,45 +439,27 @@ def test_extrusion_intent_resolves_on_the_forced_shim(extrusion_path, tmp_path):
     assert proc.returncode == 0, proc.stderr[-2000:]
     assert "OK shim intent" in proc.stdout
     with open(out) as fh:
-        js = json.load(fh)
-    assert sorted(w["id"] for w in js["walls"]) == sorted(FX.EXPECTED_WALL_IDS)
-    assert all(abs(w["thickness"] - 0.2) < 1e-4 and abs(w["height"] - 3.0) < 1e-4
-               for w in js["walls"])
-    assert js["audit"]["equipment_with_geometry"] == len(FX.EXPECTED_EQUIPMENT)
-    eq = {e["tag"]: e for e in js["equipment"]}
-    for tag, (w, d, h, elev) in FX.EXPECTED_EQUIPMENT.items():
-        dims = eq[tag]["dims_m"]
-        assert abs(dims["w"] - w) < 2e-3 and abs(dims["d"] - d) < 2e-3 and abs(dims["h"] - h) < 1e-4, tag
-        assert abs(eq[tag]["elevation_m"] - elev) < 1e-4 and eq[tag]["level"] == "L1", tag
-    assert eq["PANEL-M"]["typeName"] == "Panel type 400A"      # type row -> typeName parity
-    assert js["levels"][0]["elevation"] == FX.STOREY_ORIGIN[2]
+        FX.check_intent_json(json.load(fh))
 
 
 @needs_ifcos
 def test_extrusion_fixture_matches_ifcopenshell(extrusion_path):
-    """Parser equivalence for the swept-solid subset: every entity, every
-    named attribute, by_type closures and get_inverse against the real
-    library on the hand-authored fixture."""
+    """Parser equivalence for the swept-solid subset (and the type-object
+    rows) against the real library on the hand-authored fixture."""
     fr = _ifcos.open(extrusion_path)
     fs = SL.open(extrusion_path)
-    n = 0
-    for er in fr:
-        es = fs.by_id(er.id())
-        assert es.is_a() == er.is_a(), er.id()
-        for k, v in er.get_info(recursive=False).items():
-            if k in ("id", "type"):
-                continue
-            assert _canon(getattr(es, k)) == _canon(v), (er.id(), er.is_a(), k)
-            n += 1
-    assert n > 300
-    for cls in ("IfcProfileDef", "IfcParameterizedProfileDef", "IfcSweptAreaSolid",
-                "IfcSolidModel", "IfcCurve", "IfcBoundedCurve", "IfcRepresentationItem",
-                "IfcTypeObject", "IfcProduct", "IfcStyledItem"):
-        assert [e.id() for e in fr.by_type(cls)] == [e.id() for e in fs.by_type(cls)], cls
+    assert _assert_attrs_equivalent(fr, fs) > 300
+    _assert_by_type_equivalent(fr, fs, (
+        "IfcProfileDef", "IfcParameterizedProfileDef", "IfcSweptAreaSolid",
+        "IfcSolidModel", "IfcCurve", "IfcBoundedCurve", "IfcRepresentationItem",
+        "IfcTypeObject", "IfcElementType", "IfcProduct", "IfcStyledItem"))
     for er in fr.by_type("IfcExtrudedAreaSolid"):
         es = fs.by_id(er.id())
         assert sorted(x.id() for x in fr.get_inverse(er)) == [x.id() for x in fs.get_inverse(es)]
     for er in fr.by_type("IfcElement"):
+        es = fs.by_id(er.id())
         assert _up.get_local_placement(er.ObjectPlacement).tolist() == \
-               SL.get_local_placement(fs.by_id(er.id()).ObjectPlacement), er.id()
-        assert _ue.get_psets(er) == SL.get_psets(fs.by_id(er.id())), er.id()
+               SL.get_local_placement(es.ObjectPlacement), er.id()
+        assert _ue.get_psets(er) == SL.get_psets(es), er.id()
+        tr, ts = _ue.get_type(er), SL.get_type(es)
+        assert (tr.id() if tr else None) == (ts.id() if ts else None), er.id()

@@ -28,13 +28,17 @@ is WORLD -- the intent's z contract):
                   depth 1.372; placement storey-local (5, 1, 1).
 * ``BOLLARD``     IfcDiscreteAccessory, circle profile r = 0.15, depth 0.9,
                   placement storey-local (1, 3, 0).
+* Type objects: the shell, PANEL-M and BOLLARD are typed
+  (IfcBuildingElementProxyType / IfcElectricDistributionBoardType /
+  IfcDiscreteAccessoryType) and an IfcWallType + IfcSlabType stand
+  unassigned, so every steplite type-object row is instantiated once.
+
+The ``check_*`` helpers below are the ONE assertion body both backends'
+tests call (numpy imported inside; this module stays stdlib at import).
 """
 from __future__ import annotations
 
 import os
-
-__all__ = ["STEP_TEXT", "write_fixture", "EXPECTED_BOXES", "EXPECTED_EQUIPMENT",
-           "STOREY_ORIGIN", "EXPECTED_WALL_IDS"]
 
 STOREY_ORIGIN = (10.0, 20.0, 3.0)
 
@@ -161,6 +165,12 @@ DATA;
 #157=IFCLOCALPLACEMENT(#22,#156);
 #158=IFCDISCRETEACCESSORY('0test000000000000000D1',#5,'BOLLARD',$,$,#157,#154,'BOLLARD',.USERDEFINED.);
 #160=IFCRELCONTAINEDINSPATIALSTRUCTURE('0test000000000000000R8',#5,$,$,(#97,#118,#143,#158),#23);
+#170=IFCBUILDINGELEMENTPROXYTYPE('0test000000000000000T2',#5,'Room shell type',$,$,$,$,$,$,.USERDEFINED.);
+#171=IFCRELDEFINESBYTYPE('0test000000000000000R9',#5,$,$,(#97),#170);
+#172=IFCDISCRETEACCESSORYTYPE('0test000000000000000T3',#5,'Bollard 300 dia',$,$,$,$,$,$,.USERDEFINED.);
+#173=IFCRELDEFINESBYTYPE('0test00000000000000R10',#5,$,$,(#158),#172);
+#174=IFCWALLTYPE('0test000000000000000T4',#5,'Generic 200 wall',$,$,$,$,$,$,.STANDARD.);
+#175=IFCSLABTYPE('0test000000000000000T5',#5,'Generic 150 slab',$,$,$,$,$,$,.FLOOR.);
 ENDSEC;
 END-ISO-10303-21;
 """
@@ -180,11 +190,11 @@ EXPECTED_BOXES = {
 }
 
 #: expected equipment records (world insertion z contract: level annotates,
-#: z stays world): tag -> (w, d, h, elevation_m)
+#: z stays world): tag -> (w, d, h, elevation_m, typeName)
 EXPECTED_EQUIPMENT = {
-    "PANEL-X": (0.6, 0.2, 1.5, _SZ + 1.2),
-    "PANEL-M": (0.5, 0.19, 1.372, _SZ + 1.0),
-    "BOLLARD": (0.3, 0.3, 0.9, _SZ + 0.0),
+    "PANEL-X": (0.6, 0.2, 1.5, _SZ + 1.2, None),
+    "PANEL-M": (0.5, 0.19, 1.372, _SZ + 1.0, "Panel type 400A"),
+    "BOLLARD": (0.3, 0.3, 0.9, _SZ + 0.0, "Bollard 300 dia"),
 }
 
 EXPECTED_WALL_IDS = ("W-E", "W-N", "W-S", "W-W")
@@ -198,6 +208,50 @@ def write_fixture(dirpath: str, name: str = "extrusion-fixture.ifc") -> str:
     return path
 
 
-if __name__ == "__main__":  # pragma: no cover
-    import sys
-    print(write_fixture(sys.argv[1] if len(sys.argv) > 1 else "."))
+def geom_by_name(intent_mod, f) -> dict:
+    """``{styled item name: GeomItem}`` over every element product of the
+    opened file ``f`` (either backend), via ``rvt.ifc.intent``."""
+    out = {}
+    for prod, plc, geom in intent_mod.resolve_products(f):
+        assert not plc.identity and plc.chain_depth == 4, prod.Name   # real chains
+        for it in geom.items:
+            out[it.name] = it
+    return out
+
+
+def check_world_boxes(items: dict) -> None:
+    """Every named extrusion is ONE upright box at its expected WORLD extents;
+    the mapped item came through the map; the circle is a 0.3 x 0.3 x 0.9
+    prism (not a box) centred on its placement."""
+    import numpy as np
+
+    for name, (lo, hi) in EXPECTED_BOXES.items():
+        it = items[name]
+        assert it.is_all_boxes and it.n_components == 1, name
+        assert np.allclose(it.lo, lo, atol=1e-6), (name, it.lo, lo)
+        assert np.allclose(it.hi, hi, atol=1e-6), (name, it.hi, hi)
+    assert items["pm_enclosure"].rep_identifier == "Body/mapped"
+    bol = items["bollard_body"]
+    assert not bol.is_all_boxes and bol.n_components == 1
+    assert np.allclose(bol.extent, [0.3, 0.3, 0.9], atol=1e-6)
+    assert np.allclose(bol.center, [_SX + 1.0, _SY + 3.0, _SZ + 0.45], atol=1e-6)
+
+
+def check_intent_json(js: dict) -> None:
+    """The resolved intent of the fixture: 4 wall runs closing the ring, all
+    equipment with geometry + dims, WORLD elevations with the level as an
+    annotation, typeName through the type objects."""
+    assert sorted(w["id"] for w in js["walls"]) == sorted(EXPECTED_WALL_IDS)
+    for w in js["walls"]:
+        assert abs(w["thickness"] - 0.2) < 1e-4 and abs(w["height"] - 3.0) < 1e-4, w
+    assert js["audit"]["equipment_with_geometry"] == len(EXPECTED_EQUIPMENT)
+    assert js["levels"][0]["elevation"] == _SZ
+    eq = {e["tag"]: e for e in js["equipment"]}
+    for tag, (w, d, h, elev, type_name) in EXPECTED_EQUIPMENT.items():
+        e = eq[tag]
+        assert abs(e["dims_m"]["w"] - w) < 2e-3 and abs(e["dims_m"]["d"] - d) < 2e-3, tag
+        assert abs(e["dims_m"]["h"] - h) < 1e-4, tag
+        assert abs(e["elevation_m"] - elev) < 1e-4, tag          # z stays WORLD
+        assert e["level"] == "L1", tag                            # level annotates
+        assert e["typeName"] == type_name, tag
+        assert e["positionSource"] == "placement-chain + local geometry", tag
