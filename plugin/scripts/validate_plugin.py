@@ -419,9 +419,10 @@ def check_stale_claims() -> None:
 
 
 # ---------------------------------------------------------------- identity scan
-# The content audit lives in the repo's tools/sync_plugin.py (with its
-# allowlist beside it); this validator borrows it when the repo is there, so
-# CI's "Plugin structure" step and `sync_plugin.py --check` can never disagree.
+# The content audit and its wording live in the repo's tools/sync_plugin.py
+# (allowlist beside it); this validator borrows both when the repo is there,
+# so CI's "Plugin structure" step and `sync_plugin.py --check` cannot disagree
+# (yes, CI then runs the ~0.3 s scan twice -- issue #193 asks for both gates).
 REPO_SYNC_PLUGIN = os.path.normpath(os.path.join(HERE, "..", "..", "tools", "sync_plugin.py"))
 
 
@@ -435,20 +436,16 @@ def check_identity_strings() -> None:
     sp = importlib.util.module_from_spec(spec)
     try:
         spec.loader.exec_module(sp)
-        res = sp.check_identity_strings(ROOT, zip_path=None)
+        lines = sp.format_identity_report(sp.check_identity_strings(ROOT, zip_path=None),
+                                          table=False)
     except Exception as e:                  # engine dep (olefile) missing, allowlist unreadable...
         fail(f"identity scan could not run: {e} -- run with the repo's .venv/bin/python")
         return
-    for o, f, m, t, n, want in res["unexpected"]:
-        exp = "not allowlisted" if want is None else f"allowlist says {want}"
-        fail(f"identity scan: UNEXPECTED {f}{' :: ' + m if m else ''} carries {t!r} x{n} "
-             f"({exp}) -- remove the string, never extend {res['allowlist']}")
-    for o, f, m, t, want in res["vanished"]:
-        fail(f"identity scan: VANISHED {f}{' :: ' + m if m else ''} {t!r} x{want} is gone "
-             f"from the bytes -- delete its row from {res['allowlist']} (tracked by #19)")
-    if not (res["unexpected"] or res["vanished"]):
-        ok(f"identity scan: {res['files']} files, {res['allowlisted']} allowlisted hit(s) "
-           f"(tracked by #19), 0 unexpected, 0 vanished ({res['seconds']:.2f} s)")
+    problems = [l.strip() for l in lines if l.lstrip().startswith(("UNEXPECTED", "VANISHED"))]
+    for prob in problems:
+        fail("identity scan: " + prob)
+    if not problems:
+        ok("identity scan: " + lines[-1].strip())
 
 
 # ---------------------------------------------------------------- main
