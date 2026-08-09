@@ -274,17 +274,20 @@ def real_type_names(doc) -> List[str]:
     [corpus law, measured on 36 native host Family rows: zero rows with more
     than the one leading blank, zero whose ``m_idx`` names a blank, zero
     instances bound to a blank-named symbol -- docs/inbox/species.md 1.2]."""
-    return [str(n) for n, _v in (doc.types or []) if str(n).strip()]
+    names = (str(n) for n, _v in (doc.types or []))
+    return [n for n in names if n.strip()]
 
 
 def symbol_type_name(doc, fallback: str) -> str:
     """The host FamilySymbol's type name: the current type when it is
     real-named, else the first real-named type, else ``fallback``."""
     types = doc.types or []
-    ci = doc.current_type if 0 <= doc.current_type < len(types) else 0
-    if types and str(types[ci][0]).strip():
-        return str(types[ci][0])
-    return next(iter(real_type_names(doc)), fallback)
+    if 0 <= doc.current_type < len(types):
+        cur = str(types[doc.current_type][0])
+        if cur.strip():
+            return cur
+    real = real_type_names(doc)
+    return real[0] if real else fallback
 
 
 @dataclass

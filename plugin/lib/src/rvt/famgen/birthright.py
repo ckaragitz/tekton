@@ -1164,16 +1164,11 @@ def walked_bind_census(doc) -> Dict[str, Any]:
 # Zero donor bytes; v1/v2 surfaces unchanged; opt-in only.
 #
 # PROMOTED TO PRODUCT (#10, docs/inbox/hostsym-product.md): both loaders now
-# enforce the host symbol law themselves -- ``rvt.famload._plan_family``
-# plans host symbol pairs for real-named types only and
-# ``rvt.famgen.loader.author_host_family`` never copies a blank pair from the
-# unit table (``rvt.famgen.loader.real_type_names`` / ``symbol_type_name``).
-# The v3 lane below is KEPT (its refusals still verify the baked unit-side
-# shape, and its reports feed the species/identity accounting), but on
-# product output it has nothing left to change: ``apply_host_symbol_law``
-# strips a blank the loaders would already have skipped, and the live-
-# patched ``apply_host_family_table_law`` reports ``applied: False,
-# dropped_blank_rows: 0`` (tests/test_hostsym_product.py pins both).
+# enforce this law themselves (``rvt.famgen.loader.real_type_names`` /
+# ``symbol_type_name``; ``rvt.famload._plan_family``).  The v3 lane is KEPT
+# as a verifier of the baked unit-side shape and for the species/identity
+# accounting; on product output it has nothing left to change (the loader
+# half reports ``applied: False``).
 # ---------------------------------------------------------------------------
 
 _V3_LANES = _V2_LANES + ("hostsym",)

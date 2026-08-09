@@ -18,9 +18,8 @@ import sys
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-for p in (os.path.join(ROOT, "src"),):
-    if p not in sys.path:
-        sys.path.insert(0, p)
+if os.path.join(ROOT, "src") not in sys.path:
+    sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from rvt import famload as FL                                       # noqa: E402
 from rvt.famgen import birthright as BR                            # noqa: E402
@@ -67,24 +66,10 @@ def _make_born_shaped(doc, *, current_on_blank: bool = False):
     return doc
 
 
-def _names(pairs):
-    return [str(p.get("name", "")) for p in pairs]
-
-
 def _table(family_obj):
+    """(row names, m_idx) of a Family element's FamilyTypeTable."""
     ftt = family_obj["m_pFamilyTypes"]["value"]
-    return _names(ftt["m_pairs"]), ftt["m_idx"]
-
-
-def _assert_host_table_lawful(family_obj):
-    names, idx = _table(family_obj)
-    assert names, "host Family has no type rows"
-    assert names[0] == " ", names                      # one leading current-values row
-    assert all(n.strip() for n in names[1:]), names    # ...and no other blank
-    if len(names) > 1:
-        assert idx >= 1 and names[idx].strip(), (names, idx)   # m_idx on a real pair
-    else:
-        assert idx == 0
+    return [str(p.get("name", "")) for p in ftt["m_pairs"]], ftt["m_idx"]
 
 
 # ---------------------------------------------------------------------------
@@ -143,8 +128,7 @@ class TestFamgenLoader:
         assert unit_names == [" ", "400A MCB 42ckt"] and unit_idx == 1   # unit side keeps the born law
         plan = L.plan_load(prod, host, place=True)
         el = L.author_host_family(prod, plan, host)
-        _assert_host_table_lawful(el.obj)
-        assert _table(el.obj) == ([" ", "400A MCB 42ckt"], 1)
+        assert _table(el.obj) == ([" ", "400A MCB 42ckt"], 1)   # one leading blank, m_idx on real
         # the unit-side table is untouched by the host authoring
         assert _table(prod.doc.self_family.obj) == (unit_names, unit_idx)
 
