@@ -1136,6 +1136,17 @@ def author_family_adocument(source, *, mode: str = "candidate",
         pwi["m_penWidthTableElemId"] = by_class["PenWidthTableElem"]
         report["registries"]["PenWidthTableInfo.m_penWidthTableElemId"] = \
             f"= {by_class['PenWidthTableElem']} (OUR ISO-128 pen table)"
+    # 4c. DEFAULT-TYPE REGISTRATION (issue #333, desktop round 15): temporary
+    # dimensions resolve the default linear DimensionStyle through
+    # SymbolIdMgr.m_defElementTypeMap key 10 (measured on the donor famdoc's
+    # inline ADocument); unregistered -> "Where is the DimensionStyle?" +
+    # the LinearDimString.cpp:331 selection assert.
+    sim = _appinfo_body(tree, "SymbolIdMgr")
+    if isinstance(sim, dict) and "DimensionStyle" in by_class:
+        sim["m_defElementTypeMap"] = [
+            {"first": 10, "second": by_class["DimensionStyle"]}]
+        report["registries"]["SymbolIdMgr.m_defElementTypeMap"] = \
+            f"key 10 -> {by_class['DimensionStyle']} (OUR default linear DimensionStyle)"
 
     # 5. authorship -------------------------------------------------------------
     tree["m_ownerFamilyId"] = int(inv.self_family_id)      # the family owns the document

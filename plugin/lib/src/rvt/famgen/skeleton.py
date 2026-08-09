@@ -152,6 +152,16 @@ PGROUP_PHOTOMETRICS = "autodesk.parameter.group:photometrics-1.0.0"
 SPEC_LENGTH = "autodesk.spec.aec:length-1.0.0"
 SPEC_NUMBER = "autodesk.spec.aec:number-1.0.0"
 SPEC_TEXT = "autodesk.spec:spec.string-1.0.0"
+SPEC_INTEGER = "autodesk.spec:spec.int64-1.0.0"
+#: text/integer are NON-measurable specs: their family-parameter definition
+#: is a ParamDefString / ParamDefInt (no m_specTypeId), NOT a measurable
+#: ParamDefValue -- issue #333 round 24, byte-measured on a Revit-2026-born
+#: specimen (a blank Generic Model + one Text + one Integer param).  Authoring
+#: them as ParamDefValue with a spec id crashed the Family Types dialog
+#: (0xe06d7363 at doModal: the dialog read a measurable def and formatted a
+#: string/int value through the units path).
+PGROUP_TEXT = "autodesk.parameter.group:text-1.0.0"
+_INT32_LOW, _INT32_HIGH = -2147483648, 2147483647
 SPEC_VOLTAGE = "autodesk.spec.aec.electrical:potential-1.0.0"
 SPEC_APPARENT_POWER = "autodesk.spec.aec.electrical:apparentPower-1.0.0"
 SPEC_WATTAGE = "autodesk.spec.aec.electrical:wattage-1.0.0"
@@ -479,6 +489,186 @@ def new_required_settings(ids, self_family_id: int) -> List[SkelElement]:
     return out
 
 
+#: the FAMILY-UNITS LAW (issue #333, desktop round 16): the Family Types
+#: dialog formats EVERY parameter value through UnitsElem.m_units --
+#: a Revit-born family carries a 136-spec m_formatOptionsMap (measured on
+#: the owner's donor; pure unit configuration, spec/unit type ids +
+#: accuracies only) where our project-derived table carried 8 entries with
+#: MISMATCHED spec versions (-2.0.0 vs the -1.0.0 our param defs declare).
+#: The first electrical lookup missed and the dialog threw at doModal.
+_FAMILY_UNITS_ASSET = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                   "assets", "family_units.json")
+
+
+def _apply_family_units_law(units: "SkelElement") -> None:
+    with open(_FAMILY_UNITS_ASSET, "r", encoding="utf-8") as fh:
+        units.obj["m_units"] = json.load(fh)
+
+
+def _dim_format_options(unit: str = "autodesk.unit.unit:meters-1.0.0", *,
+                        symbol: str = "", accuracy: float = 1.0,
+                        use_default: bool = True) -> dict:
+    return {"m_symbolTypeId": {"m_typeId": symbol},
+            "m_unitTypeId": {"m_typeId": unit},
+            "m_accuracy": float(accuracy), "m_roundingMethod": 0,
+            "m_bSuppressLeadingZeros": False, "m_bSuppressSpaces": False,
+            "m_bSuppressTrailingZeros": False, "m_bUseDefault": bool(use_default),
+            "m_bUseGrouping": False, "m_bUsePlusPrefix": False}
+
+
+def new_dimension_style_constellation(ids, self_family_id: int) -> Tuple[int, List[SkelElement]]:
+    """The DIMENSION-STYLE LAW (issue #333, desktop round 15): selecting any
+    element in the family editor spawns temporary dimensions, and the lookup
+    behind them dies without a registered default linear ``DimensionStyle``
+    (journal: ``Where is the DimensionStyle?  LinearDimStringState.cpp:106``
+    then the ``LinearDimString.cpp:331`` assert).
+
+    Returns ``(dim_style_id, elements)``: the donor-measured 11-element
+    constellation of the default style -- ``LeaderStyle`` ("Diagonal"
+    arrowhead) + ``DimensionStyle`` ("Diagonal" linear), each ``CategoryElem``
+    they reference (leader / text / tick / centerline; anonymous categories,
+    parent -2000059, type 4) carrying ONE ``GStyleElem`` line style, plus the
+    text ``FontElem`` (Arial 3/32").  Every scalar was measured on the owner's
+    Revit-2026-born donor famdoc (unit-1 ids 2642-2652); nothing is copied --
+    all schema-built.  ``famdoc_adoc`` registers the style as the document
+    default in ``SymbolIdMgr.m_defElementTypeMap`` (key 10, the donor's
+    linear-dimension slot).
+    """
+    from ..genesis.types import blank_object as _blank
+    fam = int(self_family_id)
+
+    def _base(cls: str, eid: int, **fields) -> dict:
+        o = _blank(cls)
+        o.update({"m_id": int(eid), "m_famId": fam,
+                  "m_docAccess": {"m_pDoc": _weak(1)},
+                  "m_assocLevelId": -1, "m_unplacedOwnerId": -1,
+                  "m_ownerDBViewId": -1, "m_createdPhaseId": -1,
+                  "m_demolishedPhaseId": -1, "m_designOptionId": -4})
+        o.update(fields)
+        return o
+
+    def _el(cls, eid, o, deletion, *, flags, kind):
+        hdr = element_header(cls, category=-1, deletion=deletion, flags=flags,
+                             visible_view_flags=-32768)
+        return SkelElement(int(eid), cls, hdr, o, None, kind=kind)
+
+    def _category_elem(eid: int, owner_id: int, gstyle_id: int) -> SkelElement:
+        o = _base("CategoryElem", eid, m_ownerId=int(owner_id),
+                  m_pCategory={"ptr_class": "Category", "pid": -1, "value": {
+                      "m_name": "", "m_parentCategoryId": -2000059,
+                      "m_categoryType": 4, "m_flags": 7}},
+                  m_gstyleIds=[int(gstyle_id)])
+        return _el("CategoryElem", eid, o, [fam, int(owner_id), eid, int(gstyle_id)],
+                   flags=8202, kind="dim-style-category")
+
+    def _gstyle_elem(eid: int, category_id: int, *, pen: int, color: int,
+                     line_pattern: int) -> SkelElement:
+        o = _base("GStyleElem", eid, m_categoryId=int(category_id), m_gstyleType=1,
+                  m_pGStyle={"ptr_class": "GStyle", "pid": -1, "value": {
+                      "m_linePatternId": int(line_pattern), "m_materialElemId": -1,
+                      "m_penNumber": int(pen), "m_color": int(color),
+                      "m_isScreenSized": False}})
+        return _el("GStyleElem", eid, o, [fam, int(category_id), eid],
+                   flags=8202, kind="dim-style-gstyle")
+
+    leader_id = _alloc(ids); leader_cat = _alloc(ids); leader_g = _alloc(ids)
+    dim_id = _alloc(ids); text_cat = _alloc(ids); text_g = _alloc(ids)
+    font_id = _alloc(ids); tick_cat = _alloc(ids); tick_g = _alloc(ids)
+    center_cat = _alloc(ids); center_g = _alloc(ids)
+
+    lo = _base("LeaderStyle", leader_id, m_categoryId=leader_cat,
+               m_tickType=0, m_arrowFilled=0,
+               m_symbolInfo={"ptr_class": "SymbolInfo", "pid": -1,
+                             "value": {"m_name": "Diagonal"}},
+               m_pParamValueSetDouble={"ptr_class": "ParamValueSetDouble", "pid": -1,
+                                       "value": {"m_paramSet": [
+                                           {"m_value": 0.5235987755982984, "m_paramId": -1006426},
+                                           {"m_value": 0.010416666666666666, "m_paramId": -1006424}]}})
+    leader = _el("LeaderStyle", leader_id, lo, [fam, leader_id, leader_cat],
+                 flags=14, kind="dim-style-leader")
+
+    do = _base("DimensionStyle", dim_id,
+               m_designOptionId=-1,
+               m_symbolInfo={"ptr_class": "SymbolInfo", "pid": -1,
+                             "value": {"m_name": "Diagonal"}},
+               m_pParamValueSetDouble={"ptr_class": "ParamValueSetDouble", "pid": -1,
+                                       "value": {"m_paramSet": [
+                                           {"m_value": 0.010416666666666666, "m_paramId": -1006465},
+                                           {"m_value": 0.0078125, "m_paramId": -1006433},
+                                           {"m_value": 0.0, "m_paramId": -1006431},
+                                           {"m_value": 0.010416666666666666, "m_paramId": -1006407},
+                                           {"m_value": 0.005208333333333333, "m_paramId": -1006405},
+                                           {"m_value": 0.0078125, "m_paramId": -1006404},
+                                           {"m_value": 0.005208333333333333, "m_paramId": -1006401},
+                                           {"m_value": 1.0, "m_paramId": -1006327}]}},
+               m_pParamValueSetElementId={"ptr_class": "ParamValueSetElementId", "pid": -1,
+                                          "value": {"m_paramSet": [
+                                              {"m_paramId": -1006430, "m_value": -1}]}},
+               m_alternateUnitsPrefix="", m_alternateUnitsSuffix="",
+               m_equalityFormattingArr=[{"m_labelType": 3, "m_leadingSpaces": 0,
+                                         "m_bLeadingParam": True, "m_prefix": "",
+                                         "m_suffix": "",
+                                         "m_formatOptions": _dim_format_options()}],
+               m_equalityText="EQ", m_radiusDiameterPrefixText="",
+               m_prefix="", m_suffix="",
+               m_oLinFormatOptions={"ptr_class": "FormatOptions", "pid": -1,
+                                    "value": _dim_format_options()},
+               m_oLinFormatOptionsAlternate={"ptr_class": "FormatOptions", "pid": -1,
+                                             "value": _dim_format_options(
+                                                 "autodesk.unit.unit:millimeters-1.0.1",
+                                                 use_default=False)},
+               m_oAngFormatOptions={"ptr_class": "FormatOptions", "pid": -1,
+                                    "value": _dim_format_options()},
+               m_oAngFormatOptionsAlternate={"ptr_class": "FormatOptions", "pid": -1,
+                                             "value": _dim_format_options(
+                                                 "autodesk.unit.unit:degrees-1.0.1",
+                                                 symbol="autodesk.unit.symbol:degree-1.0.1",
+                                                 accuracy=0.01, use_default=False)},
+               m_pLineAndTextAttr={"ptr_class": "LineAndTextAttr", "pid": -1,
+                                   "value": {"m_fontId": font_id,
+                                             "m_categoryId": text_cat,
+                                             "m_background": 0, "m_bBold": False,
+                                             "m_bItalic": False, "m_bUnderline": False}},
+               m_dimLineSnapDist=0.0, m_leaderShoulderLength=0.0,
+               m_tickCategoryId=tick_cat, m_heavyEndCatId=-1,
+               m_centerlinePatternCatId=center_cat, m_centerlineTickMarkStyleId=-2,
+               m_arrowHeadStyleId=leader_id, m_interiorTickMarkStyleId=leader_id,
+               m_leaderTickMarkStyleId=-1, m_witnessLineTickMarkStyleId=-1,
+               m_leaderDisplayCondition=1, m_leaderType=1, m_leaderTextLocation=0,
+               m_textAlignment=1, m_linearTickType=0, m_radialTickType=8,
+               m_dimensionStyleType=0, m_textLoc=0,
+               m_radiusDiameterSymbolLocation=0, m_equalityWitnessDisplay=0,
+               m_alternateUnits=0, m_interiorTickMarkDisplay=0, m_linearDimType=1,
+               m_arcCenterMark=True, m_radiusPrefix=False,
+               m_txtBackgroundTransparent=False, m_dimWitnCntrlExtBelow=False,
+               m_showOpeningHt=False, m_linearFilledTick=False,
+               m_radialFilledTick=False, m_suppressSpaces=False)
+    dim = _el("DimensionStyle", dim_id, do,
+              [fam, leader_id, dim_id, text_cat, font_id, tick_cat, center_cat],
+              flags=14, kind="dim-style")
+
+    fo = _base("FontElem", font_id, m_ownerId=dim_id,
+               m_pFont={"ptr_class": "Font", "pid": -1, "value": {
+                   "m_name": "Arial", "m_size": 0.0078125, "m_color": 16777216}})
+    font = _el("FontElem", font_id, fo, [fam, dim_id, font_id],
+               flags=8202, kind="dim-style-font")
+
+    els = [
+        leader,
+        _category_elem(leader_cat, leader_id, leader_g),
+        _gstyle_elem(leader_g, leader_cat, pen=5, color=4294967295, line_pattern=-1),
+        dim,
+        _category_elem(text_cat, dim_id, text_g),
+        _gstyle_elem(text_g, text_cat, pen=1, color=0, line_pattern=-3000010),
+        font,
+        _category_elem(tick_cat, dim_id, tick_g),
+        _gstyle_elem(tick_g, tick_cat, pen=5, color=0, line_pattern=-1),
+        _category_elem(center_cat, dim_id, center_g),
+        _gstyle_elem(center_g, center_cat, pen=1, color=0, line_pattern=-3000010),
+    ]
+    return dim_id, els
+
+
 def new_center_reference_planes(ids, self_family_id: int, *, gen_view_id: int = -1,
                                 length_ft: float = 10.0, height_ft: float = 10.0
                                 ) -> List[SkelElement]:
@@ -581,12 +771,18 @@ def new_family_parameter(elem_id: int, self_family_id: int, name: str, *,
     the ``revit.local.family`` identity (default: the deterministic
     :func:`local_param_guid` of ``family_name`` + ``name``).
     ``restriction`` 1 [VERIFIED on all specimen params; meaning UNKNOWN].
+
+    STORAGE-CLASS LAW (issue #333 round 24, measured on a Revit-2026-born
+    Text + Integer specimen): :data:`SPEC_TEXT` selects a ``ParamDefString``
+    and :data:`SPEC_INTEGER` a ``ParamDefInt`` with int32 bounds -- both
+    WITHOUT ``m_specTypeId`` / ``m_restriction`` / ``m_boundless``; only
+    measurable (double-valued) specs use ``ParamDefValue``.
     """
     fam_guid = family_guid or local_param_guid(family_name, name)
     o = element_base(elem_id, cell_list=False, design_option=FAMILY_DESIGN_OPTION)
     o["m_famId"] = int(self_family_id)
     o["m_description"] = str(description)
-    o["m_pParamDef"] = _ptr("ParamDefValue", {
+    base_def = {
         "m_dynamicGroupName": "",
         "m_groupTypeId": {"m_typeId": str(group_type_id)},
         "m_caption": str(name),
@@ -595,10 +791,18 @@ def new_family_parameter(elem_id: int, self_family_id: int, name: str, *,
         "m_allowVaryBetweenGroups": False,
         "m_readOnly": bool(read_only),
         "m_userVisible": bool(user_visible),
-        "m_specTypeId": {"m_typeId": str(spec_type_id)},
-        "m_restriction": int(restriction),
-        "m_boundless": False,
-    })
+    }
+    if spec_type_id == SPEC_TEXT:
+        o["m_pParamDef"] = _ptr("ParamDefString", base_def)
+    elif spec_type_id == SPEC_INTEGER:
+        o["m_pParamDef"] = _ptr("ParamDefInt", dict(
+            base_def, m_lowBound=_INT32_LOW, m_upBound=_INT32_HIGH))
+    else:
+        o["m_pParamDef"] = _ptr("ParamDefValue", dict(
+            base_def,
+            m_specTypeId={"m_typeId": str(spec_type_id)},
+            m_restriction=int(restriction),
+            m_boundless=False))
     o["m_instanceParam"] = bool(is_instance)
     hdr = element_header("ParamElemFamily", category=-1,
                          deletion=[self_family_id, elem_id],
@@ -1336,6 +1540,7 @@ class FamilyDoc:
     views: List[SkelElement] = dc_field(default_factory=list)
     view_ids: Dict[str, int] = dc_field(default_factory=dict)
     plan_view_id: int = -1
+    dim_style_id: int = -1
     part_type: int = 0
     work_plane_based: bool = False
     finalized: bool = False
@@ -1598,6 +1803,15 @@ class FamilyDoc:
             groups.append((PGROUP_IDENTITY, used_bips))
         fam.obj["m_cellList"] = _ptr("CellList", {"m_cells": [
             family_params_order_cell(groups)]})
+        # ONE group per group-type id (issue #333, desktop round 18): the
+        # Family Types dialog builds its tree keyed by parameter group, so a
+        # group-type id may appear only once -- but user identity params plus
+        # the built-in identity BIPs above produced TWO identityData groups,
+        # which threw at ADialog::doModal.  normalize_order_cell merges the
+        # duplicate key in place and re-ranks (dimensions < identity <
+        # electrical); it is content-preserving (asserts the id multiset).
+        from . import layout_law as _LL
+        _LL.normalize_order_cell(self)
         # locked-for-direct-manipulation = the length parameters (Revit locks
         # dimension params it drives geometry with) [INFERRED default]
         fam.obj["m_lockedParameterIdsForDirectManipulation"] = sorted(
@@ -1750,6 +1964,7 @@ def new_family_document(category, name: str, *, host: str = "none",
     units.obj["m_famId"] = fam.elem_id
     units.header["m_familyId"] = fam.elem_id
     units.kind = "registry"
+    _apply_family_units_law(units)
     doc.add(units)
     # -- the level type + reference level ------------------------------
     ltype = new_family_level_type(_alloc(ids), fam.elem_id)
@@ -1783,6 +1998,12 @@ def new_family_document(category, name: str, *, host: str = "none",
     # demands these of every family document) -----------------------------
     for se in new_required_settings(ids, fam.elem_id):
         doc.add(se)
+    # -- the default dimension-style constellation (issue #333: temporary
+    # dimensions on selection need a registered default linear style) ------
+    dim_style_id, dim_els = new_dimension_style_constellation(ids, fam.elem_id)
+    for se in dim_els:
+        doc.add(se)
+    doc.dim_style_id = dim_style_id
     doc.types = []
     return doc
 
@@ -1827,6 +2048,7 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     plan = _gsk.new_plan_view(ids, "Ref. Level", level_id, 0.0, vt.elem_id,
                               phase_id=-1, phase_filter_id=-1)
     els = list(proj.elements()) + [vt] + list(plan.elements())
+    _apply_family_viewer_law(els, proj.view.elem_id)
     for e in els:
         # family-document elements: object design-option sentinel + famId
         if isinstance(e.obj, dict) and "m_designOptionId" in e.obj:
@@ -1841,6 +2063,39 @@ def _add_view_constellation(doc: FamilyDoc, level_id: int) -> int:
     doc.view_ids["view_type_plan"] = vt.elem_id
     doc.view_ids["plan"] = plan.view.elem_id
     return plan.view.elem_id
+
+
+def _apply_family_viewer_law(els, project_view_id: int) -> None:
+    """FAMILY-VIEWER LAW (issue #333; measured on the owner's Revit-2026-born
+    donor, viewers 22/26 vs 49): a family document's Viewers keep the project
+    skeleton's per-view-type basis frames but differ in the bound box and the
+    projection fields.
+
+    Every viewer: ``m_boundOffset[2]`` = ``(100.0, 0.0)`` -- the z interval
+    sits ON the reference level, never the symmetric ``(100,-100)`` box or the
+    plan default ``(1000, 0.1)``.  The PLAN viewer additionally matches the
+    project viewer's shape: bounds inactive, crop on, ortho
+    (``m_projMethodType`` 1, not 2), ``m_viewerFlags`` 0 (not 7),
+    ``m_intentionallyPlaced`` False.  [Every crash journal on #333 warns
+    ``BoundedSpace.cpp:86``; the basis rows themselves were exonerated --
+    donor keeps the elevation frame on the project viewer.]
+    """
+    for e in els:
+        if e.class_name != "Viewer":
+            continue
+        o = e.obj
+        bs = o.get("m_boundedSpace")
+        if isinstance(bs, dict):
+            bo = bs.get("m_boundOffset")
+            if isinstance(bo, list) and len(bo) >= 3:
+                bo[2] = [100.0, 0.0]
+            if o.get("m_dbViewId") != project_view_id:
+                bs["m_boundActive"] = [[False, False]] * 3
+                bs["m_isOn"] = True
+        if o.get("m_dbViewId") != project_view_id:
+            o["m_projMethodType"] = 1
+            o["m_viewerFlags"] = 0
+            o["m_intentionallyPlaced"] = False
 
 
 # ---------------------------------------------------------------------------

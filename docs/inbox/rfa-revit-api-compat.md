@@ -287,3 +287,207 @@ tests/test_required_settings.py, this record, plugin mirror (sync clean).
 Gates: settings+selfcontained+famgen+analyze suites green; full suite
 1625/1/0 (the 1 = upstream); sync_plugin --check clean; validate_plugin
 PASS.  Desktop evidence chain: issue #52 comments (rounds 1–10).
+
+## Iteration 6 — the FAMILY-VIEWER LAW (round 13; issue #333)
+
+Rounds 11–12 (probes K/K2: ALL drawables stripped, still crashed on the
+first canvas click) proved the fault lives in the view furniture, and the
+round-12 diff blamed `Viewer.m_boundedSpace`'s basis.  **Round 13
+correction: that diff compared a mismatched pair** — OUR project viewer
+against the DONOR's plan viewer.  Measured properly (donor viewers 22/26 =
+plan, 49 = project vs ours 1010/1005):
+
+* The basis frames are EXONERATED — the donor keeps the project skeleton's
+  per-view-type frames (plan frame on plan viewers, elevation frame on the
+  project viewer), numerically identical to ours.
+* Every donor viewer's `m_boundOffset[2]` is `(100.0, 0.0)` — the z
+  interval sits on the reference level.  Ours: `(100,-100)` on the project
+  viewer, `(1000, 0.1)` on the plan viewer.
+* The donor's PLAN viewers match the project viewer's SHAPE: bounds
+  inactive (`m_boundActive` all False; ours True on x/y), crop ON
+  (`m_isOn` True; ours False), ortho (`m_projMethodType` 1; ours 2),
+  `m_viewerFlags` 0 (ours 7), `m_intentionallyPlaced` False (ours True).
+  Every crash journal warns `BoundedSpace.cpp:86`.
+
+**Consequence for probes L1/L2** (delivered before the correction): their
+patch forces the PROJECT viewer into a plan frame — donor-contradicted, so
+their verdicts are non-conclusive on the BoundedSpace hypothesis.
+Superseded by probe M.
+
+**Landed:** `_apply_family_viewer_law` in `famgen/skeleton.py`
+(family-doc override only; the project skeleton's `[VERIFIED vs rstbasic]`
+values are untouched), guarded by `test_family_viewer_bound_law`.
+**Probe M** (`probe_m_viewerlaw.rfa`, full panelboard, ONE composite
+variable = the viewer law) is with the owner; control = `main_smoke.rfa`
+(same engine, law absent).  Validator VALID 0 errors, provenance ok on
+both.
+
+## BRANCH STATE (iteration 6)
+
+Branch `claude/333-family-viewer-law` (from main efcf81c).
+Files: src/rvt/famgen/skeleton.py (`_apply_family_viewer_law`),
+tests/test_required_settings.py (+1 test), this record, plugin mirror.
+Gates: required_settings+famgen_skeleton+famgen_factory+selfcontained →
+79 passed / 17 skipped; sync_plugin run (zip rebuilt) + validate_plugin
+PASS; probe M validator VALID 0 errors + provenance ok.  Awaiting the
+owner's desktop verdict on probe M (File > Open + canvas click).
+
+## Iteration 7 — viewer law CONVICTED; the DIMENSION-STYLE LAW (rounds 14-15)
+
+**Round 14 void:** probe M was an instrument error (plain `prod.write()` →
+252-byte host-ADocument stub → `Failed to load elemStream#0` on both open
+paths).  Voided; corrected pair M2 (law) / M0 (control) built via
+`standalone_family_write`, both host ADocument 65,249 B.
+
+**Round 15 verdicts (journals 0024/0025) — the cleanest pair yet:**
+* **M0 (control):** BoundedSpace + safeSqrt warnings present; middle-mouse
+  pan → 0xc0000005 in ViewManipEditor (same as L1/L2).
+* **M2 (viewer law):** ZERO BoundedSpace/safeSqrt warnings — first time in
+  the campaign; zoom + first click fine; **the viewer law is convicted and
+  fixed** (PR #336 now carries desktop evidence).  New, LATER failure:
+  selecting the panel body → `DBG_WARN: Where is the DimensionStyle?
+  (LinearDimStringState.cpp:106)` then `LinearDimString.cpp:331` assert,
+  0xe06d7363 — temporary dimensions can't resolve a default style.
+
+**The dimension-style law (measured on the donor's EMBEDDED famdoc, unit 1
+ids 2642-2652 + its inline ADocument):** the default linear DimensionStyle
+is registered in `SymbolIdMgr.m_defElementTypeMap` under key 10; the style's
+constellation is DimensionStyle + LeaderStyle ("Diagonal" arrowhead) + 4
+anonymous CategoryElems (parent -2000059, type 4; leader/text/tick/
+centerline) each owning ONE GStyleElem line style + FontElem (Arial 3/32").
+Our M2 file's map had 0 entries and no style elements — the literal state
+of the warning.  (This is also the first authored slice of the in-document
+style subsystem — the standing GStyleElem lead.)
+
+**Landed:** `new_dimension_style_constellation` in `famgen/skeleton.py`
+(11 schema-built elements, donor-measured constants only) + famdoc_adoc
+step 4c registering key 10.  **Probe N** (`probe_n_dimstyle.rfa`, = M2 +
+this law) with the owner; validator VALID 0 errors; famgen suites 87
+passed / 28 skipped.  Donor structure note for the record: the donor .rfa
+is TWO units (unit 0 = the 2,054-element host/editor doc, unit 1 = the
+224-element embedded famdoc — the true minimal family inventory) + a
+ContentDocuments inline ADocument; our flat single-unit shape has no
+ContentDocuments row (accepted by load-into-project so far).
+
+## Iteration 8 — dimension-style law HOLDS; the FAMILY-UNITS LAW (round 16)
+
+**Round 16 verdict (journal 0026, probe N):** open, zoom, SELECT the panel
+body, middle-mouse PAN — all clean, zero warnings (the dimension-style law
+holds).  New crash: the Family Types ribbon button (`ID_FAMILY_TYPE`) →
+`ADialog::doModal start` → immediate 0xe06d7363, no DBG_WARN.
+
+**Diagnosis (instrumented, no desktop round needed):** the dialog formats
+every parameter value through `UnitsElem.m_units.m_formatOptionsMap`.
+Donor famdoc: **136** spec entries.  Ours: **8**, and with MISMATCHED spec
+versions — the table spoke `current-2.0.0`/`potential-2.0.0` while our
+ParamElemFamily defs declare `-1.0.0` specs.  First electrical lookup
+missed → throw at doModal.
+
+**Landed:** `src/rvt/famgen/assets/family_units.json` (the donor-measured
+136-spec table; pure unit configuration — spec/unit type ids, accuracies,
+rounding; no identity strings, verified by string scan) +
+`_apply_family_units_law` replacing the project-derived 8-entry table in
+`new_family_document`.  **Probe O** (`probe_o_units.rfa` = N + this law)
+with the owner; validator VALID 0 errors; famgen suites 87 passed / 28
+skipped.
+
+Ladder so far: viewer law (convicted round 15) → dimension-style law
+(holds round 16) → units law (probe O pending).  Each round's crash has
+been strictly LATER in the user journey: open → click → pan → select →
+Family Types dialog.
+
+## Iteration 9 — the PARAM-SPEC/UNITS COHERENCE fix (round 17)
+
+**Round 17 verdict (journal 0027, probe O):** Family Types still crashed at
+`ADialog::doModal` (0xe06d7363) even with the full 136-spec units table.
+
+**Root cause (instrumented):** our `ShortCircuitRatingkA` param declared
+spec `autodesk.spec.aec:number-1.0.1`, but Revit 2026's registry AND the
+donor units table both use `number-1.0.0`.  `factory.py`'s SPEC map had
+`number-1.0.1` (labelled "corpus") while `skeleton.py` already defined the
+correct `SPEC_NUMBER = number-1.0.0` -- an internal disagreement.  The
+dialog formats every param value; the `-1.0.1` lookup missed the table and
+threw.
+
+**Fix:** `factory.py` SPEC["number"] now points at `SK.SPEC_NUMBER`
+(`number-1.0.0`).  Every unit-bearing param spec our families declare now
+resolves against the units table (verified: 0 missing).  Guarded forever by
+`test_units_table_covers_every_param_spec` (asserts every non-unitless
+ParamElemFamily spec has a format entry).
+
+**Probe P** (`probe_p_numberspec.rfa`) with the owner; validator VALID 0
+errors; famgen+ifc suites 104 passed / 31 skipped.
+
+Ladder: viewer law (round 15) → dimension-style law (round 16) → units
+table (round 16) → param-spec/units coherence (round 17).  If Family Types
+opens on P, the next frontiers are value-edit and Save-As.
+
+## Iteration 10 — the ORDER-CELL law: one group per group-type id (round 18)
+
+**Round 18 verdict (journal 0028, probe P):** Family Types STILL crashed at
+`ADialog::doModal` (0xe06d7363) with the spec fix.  Ruled out by instrument:
+param ref integrity clean (14 params, all m_familyParams / cell / locked ids
+resolve), param field structure matches the donor, all three group-type ids
+(dimensions/electrical/identityData -1.0.0) confirmed present in a real Revit
+corpus.
+
+**Root cause:** the self-Family's `FamilyParamsOrderCell.m_sortedParams`
+listed `identityData-1.0.0` **twice** -- once for the user identity params
+(PanelName, Mounting) and again for the built-in identity BIPs
+(-1010109/-1010104/-1010103).  The Family Types dialog builds its tree keyed
+by parameter group; a duplicate group key collides -> throw at doModal.  The
+donor has each group exactly once.
+
+**The fix already existed but was unwired:** `layout_law.normalize_order_cell`
+(the "M3 fix") merges duplicate group keys and re-ranks (dimensions <
+identity < electrical), content-preserving.  It was only called from a probe
+path; `tools/layout_diff.py` even carried a note "defect: make
+normalize_order_cell part of [the build]".  Now called from
+`FamilyDoc.finalize`, so every family is deduped by construction.  Guarded by
+`test_order_cell_has_one_group_per_group_type`; `test_order_cell_merge`
+updated (the build no longer emits duplicates, so the merge is now tested on
+a synthetic duplicate).
+
+**Probe Q** (`probe_q_ordercell.rfa`) with the owner; group keys now unique
++ ranked; validator VALID 0 errors; famgen+layout suites 120 passed / 28
+skipped.
+
+Ladder: viewer (r15) -> dim-style (r16) -> units table (r16) ->
+param-spec/units coherence (r17) -> order-cell dedup (r18).  Five real
+famdoc laws, each crash strictly later than the last.
+
+## Iteration 11 — the STORAGE-CLASS LAW (rounds 22-24; the owner's specimen)
+
+**Rounds 22-23:** spec-version hypothesis falsified (probe W: -2.0.0 also
+crashed; Revit API docs confirm ForgeTypeId comparison ignores version).
+Probes Y/Z: text-only AND integer-only both crash; probe U: all
+double-valued params fine.  Probe AA (ints re-specced as number doubles)
+OPENED the dialog — the crash axis is the VALUE STORAGE CLASS.
+
+**Round 24 — the owner supplied the missing specimen** (`Test.rfa`: blank
+Generic Model + one Text + one Integer param, made in Revit 2026), and it
+ended the guessing in one measurement:
+
+* A TEXT family parameter's def is a **`ParamDefString`** — carrying NO
+  `m_specTypeId`, NO `m_restriction`, NO `m_boundless`.
+* An INTEGER param's def is a **`ParamDefInt`** — same three fields absent,
+  plus `m_lowBound=-2147483648`, `m_upBound=2147483647` (int32 bounds).
+* Only measurable (double-valued) specs use `ParamDefValue` (+spec id +
+  restriction 1 + boundless False) — the ONLY shape we knew, verified on
+  all-double specimens, and wrongly stamped onto every param.  The dialog
+  read our text/int params as measurable and formatted their values through
+  the units path -> 0xe06d7363 at doModal.
+* Value entries (m_familyParams / type rows) keep the SAME FamilyParamValue
+  union shape for all storage classes.
+
+**Landed:** `new_family_parameter` branches on storage class (SPEC_TEXT ->
+ParamDefString, new SPEC_INTEGER sentinel -> ParamDefInt with int32 bounds,
+else ParamDefValue); factory's "integer" spec now the sentinel (was the
+INFERRED spec.int64 id, whose comment even claimed "a wrong spec id only
+affects units display" — false: it crashed the dialog).  **Probe AB** (full
+panelboard, every param in its native def class) with the owner; validator
+VALID 0 errors; suites 97 passed / 28 skipped.
+
+Remaining open threads: the recoverable "serious error" the owner hit while
+EDITING values in probe AA (may vanish with the real law — AB tests it);
+`Sketch Grid Appearance` (UET slot 40) follow-up singleton.
