@@ -545,6 +545,21 @@ def _render_md(m: Dict[str, Any]) -> str:
     if sg:
         ap(f"- deliverability (P0 gate): {sg.get('status')}"
            + (f" — {sg.get('reason')}" if sg.get("reason") else ""))
+        res = sg.get("residue")
+        if res:
+            disp = f"; recorded dispositions {res['by_disposition']}" if res.get("by_disposition") else ""
+            ap(f"- base authorship (issue #143 census): **{sg['base_kind']}** {res['base_id']} "
+               f"(Revit {res['revit_release']}) — {res['ours_by_composition']:,} of "
+               f"{res['host_elements']:,} base elements ours by composition; residue "
+               f"{res['identical_to_ancestor']:,} still byte-identical to the Autodesk ancestor "
+               f"({res['never_authored']} never authored, {res['landed_but_identical']} "
+               f"re-emitted identically by our constructors{disp})")
+            tot = sg.get("provenance_totals") or {}
+            ap(f"- this build: {tot.get('ours-created', 0)} created elements ours, "
+               f"{tot.get('transitive-cloned', 0)} created with lineage into the residue")
+        elif sg.get("base_kind"):
+            ap(f"- base authorship: **{sg['base_kind']}** (no census: everything inherited "
+               "from the base is ledgered as the base's)")
     for d in (build.get("degradations") or []):
         ap(f"- **degradation**: {d}")
     for e in (build.get("errors") or []):

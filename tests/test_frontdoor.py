@@ -770,19 +770,12 @@ def test_stage_p_edits_only_projectinfo_and_is_deterministic(tmp_path, release):
         assert a.read() == b.read()
 
 
-#: ONE prompt job on the bundled 2026 base serves every product-shape check
-#: below (identity, levels): the issue #147 DONE prompt -- two storeys, a
-#: floor-to-floor height, gear on both levels
-TWO_STOREY = ("a two storey electrical building 40 by 30 ft, floor to floor 14 ft, with a "
-              "main switchboard and four lighting panels on level 2")
-
-
 @pytest.fixture(scope="module")
 def identity_job(tmp_path_factory):
     if not os.path.isfile(PINNED[2026]):
         pytest.skip("bundled genesis base missing")
     out = str(tmp_path_factory.mktemp("pi") / "job")
-    return FD.author(prompt=TWO_STOREY, out=out, no_handoff=True)
+    return FD.author(prompt="an electrical room with 1 panel", out=out, no_handoff=True)
 
 
 def test_e2e_prompt_output_carries_the_job_identity(identity_job):
@@ -811,6 +804,29 @@ def test_e2e_prompt_output_carries_the_job_identity(identity_job):
         assert "project information (ProjectInfo" in fh.read()
 
 
+def test_e2e_rename_and_set_mark_on_our_own_output(identity_job, tmp_path):
+    """Issue #186: the two most natural follow-up edits -- rename the panel,
+    set its Mark -- succeed on a prompt-built project whose placed instance
+    carries no param rows at all (set_param upserts the AString rows)."""
+    from rvt import manipulate as M
+    from rvt.mutate import Document
+    r = identity_job
+    assert r.ok, (r.status, r.errors)
+    combined = r.manifest["build"]["files"]["combined"]["path"]
+    (panel,) = E.editables(Document.from_file(combined))["instances"]
+    ref = panel["name"]
+    r2 = FD.author(rvt=combined, edit=f"rename panel {ref} to DPX; set mark of {ref} to M-7",
+                   out=str(tmp_path / "edit"))
+    assert r2.route == "rvt" and r2.ok, (r2.status, r2.errors)
+    assert [o["op"] for o in r2.manifest["edit"]["spec"]["ops"]] == ["rename", "set-mark"]
+    assert r2.manifest["edit"]["hard_gates_passed"] is True
+    edited = Document.from_file(r2.files["edited"])
+    assert E.editables(edited)["instances"] == [dict(panel, name="DPX")]
+    rows = edited.value(panel["id"])["m_pParamValueSetAString"]["value"]["m_paramSet"]
+    assert rows == [{"m_paramId": M.BIP_RBS_ELEC_PANEL_NAME, "m_value": "DPX"},
+                    {"m_paramId": M.BIP_ALL_MODEL_MARK, "m_value": "M-7"}]
+
+
 # ===========================================================================
 # 9. stage D: the intent's levels bound to the base's two building-story
 #    datums (issue #147) -- rename + re-elevate (the certified modify shape),
@@ -819,6 +835,9 @@ def test_e2e_prompt_output_carries_the_job_identity(identity_job):
 
 from rvt.frontdoor import levels as LV                      # noqa: E402
 
+#: the issue #147 DONE prompt: two storeys, a floor-to-floor height, gear on both levels
+TWO_STOREY = ("a two storey electrical building 40 by 30 ft, floor to floor 14 ft, with a "
+              "main switchboard and four lighting panels on level 2")
 THREE_LEVELS = [{"id": "L1", "name": "Level 1", "elevation": 0.0},
                 {"id": "L2", "name": "Level 2", "elevation": 4.2672},      # 14 ft
                 {"id": "L3", "name": "Level 3", "elevation": 8.5344}]      # 28 ft
@@ -905,15 +924,23 @@ def test_stage_d_writes_nothing_when_the_datums_already_match(tmp_path):
     assert not not_built
 
 
-def test_e2e_two_storey_prompt_places_gear_per_level(identity_job):
+@pytest.fixture(scope="module")
+def two_storey_job(tmp_path_factory):
+    if not os.path.isfile(PINNED[2026]):
+        pytest.skip("bundled genesis base missing")
+    if not _catalog_ok():
+        pytest.skip("famgen catalog absent (no equipment to place)")
+    out = str(tmp_path_factory.mktemp("lv") / "job")
+    return FD.author(prompt=TWO_STOREY, out=out, no_handoff=True)
+
+
+def test_e2e_two_storey_prompt_places_gear_per_level(two_storey_job):
     """The product shape of issue #147: the DONE prompt's combined .rvt has
     the base's two story datums renamed 'Level 1'/'Level 2' at 0 / 14 ft, the
     four lighting panels on Level 2 (m_assocLevelId + z above ITS datum), the
     switchboard on Level 1, the walls on Level 1, and an honest manifest."""
     from rvt.mutate import Document
-    if not _catalog_ok():
-        pytest.skip("famgen catalog absent (no equipment to place)")
-    r = identity_job
+    r = two_storey_job
     assert r.ok, (r.status, r.errors)
     m = r.manifest
     assert m["intent"]["summary"]["levels"] == [

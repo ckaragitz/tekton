@@ -20,6 +20,7 @@ tests/test_plugin_sync.py
 tests/test_plugin_validate.py
 tests/test_bootstrap.py
 tests/test_coldstart.py
+tests/test_schema_memo.py
 tests/test_go_target_version.py
 tests/test_lazy_ifc_import.py
 tests/test_ifc_read_fallback.py
@@ -46,3 +47,4 @@ tests/test_probe_batch.py
 tests/test_rfa_load.py
 tests/test_go_edit.py
 tests/test_frontdoor_wallsolid.py
+tests/test_status_gate.py

@@ -496,8 +496,45 @@ def _is_ident(b: bytes) -> bool:
 
 
 # ---------------------------------------------------------------------------
-def parse(data: bytes, source: str = "") -> Schema:
-    """Parse a whole ``Formats/Latest`` inflated stream. Raises ParseError."""
+# In-process memo (issue #183).  ``Formats/Latest`` is a RELEASE CONSTANT --
+# byte-identical in every file of a release -- yet one front-door job hands
+# the same ~500 KB stream to ``parse`` dozens of times (every decoder /
+# encoder / validator construction re-inflates it from whichever container it
+# is holding).  The parse result is a pure function of the bytes, so it is
+# keyed by their sha256 and materialised once per process.  Consumers treat a
+# ``Schema`` as read-only (audited: docs/inbox/perf-schema-memo.md); the memo
+# hands every caller the SAME object.  ``rvt.schema_cache`` (the build-time
+# on-disk cache the plugin ships) fills and consults this same memo through
+# :func:`memoized`, so a cache-file load also happens at most once.
+MEMO_MAX = 8                       # distinct schemas held; a job touches 1-2
+_MEMO: dict[str, Schema] = {}      # sha256 hex -> Schema, insertion order
+
+
+def memoized(digest: str, build) -> Schema:
+    """The memoized :class:`Schema` for stream digest ``digest`` (lowercase
+    sha256 hex); on a miss call ``build()`` -- which returns a Schema or
+    ``None`` -- and remember a non-None result.  Bounded: beyond
+    :data:`MEMO_MAX` distinct digests the first-inserted entry is dropped
+    (plain FIFO on purpose -- with 1-2 live digests per process, recency
+    bookkeeping on every hit would buy nothing)."""
+    s = _MEMO.get(digest)
+    if s is None:
+        s = build()
+        if s is not None:
+            if len(_MEMO) >= MEMO_MAX:
+                del _MEMO[next(iter(_MEMO))]
+            _MEMO[digest] = s
+    return s
+
+
+def memo_clear() -> None:
+    """Forget every memoized schema (tests; long-lived hosts)."""
+    _MEMO.clear()
+
+
+def parse_uncached(data: bytes, source: str = "") -> Schema:
+    """Really parse a whole ``Formats/Latest`` inflated stream into a NEW
+    :class:`Schema`, bypassing the memo.  Raises ParseError."""
     p = _Parser(data)
     s = p.run()
     s.classes.sort(key=lambda c: c.type_id)   # id order (== definition order)
@@ -505,6 +542,16 @@ def parse(data: bytes, source: str = "") -> Schema:
     s.sha256 = hashlib.sha256(data).hexdigest()
     s.source = source
     return s
+
+
+def parse(data: bytes, source: str = "") -> Schema:
+    """Parse a whole ``Formats/Latest`` inflated stream. Raises ParseError.
+
+    Memoized per process by content sha256: the same bytes yield the SAME
+    :class:`Schema` object (``source`` then names its first materialisation);
+    use :func:`parse_uncached` for a private copy."""
+    return memoized(hashlib.sha256(data).hexdigest(),
+                    lambda: parse_uncached(data, source))
 
 
 def load_schema(path: str = DEFAULT_PATH) -> Schema:
