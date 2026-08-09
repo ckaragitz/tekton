@@ -481,9 +481,9 @@ def _render_md(m: Dict[str, Any]) -> str:
     if v:
         ap(f"- degrade mode: **{v.get('mode')}** — {v.get('reason')}")
         if v.get("stamp"):
-            ap(f"- **STAMP: {v.get('stamp')}**")
+            ap(f"- **STAMP: {v.get('stamp')}** (a label: the file below is delivered)")
         if v.get("open_bug_text"):
-            ap(f"- open bug: {v.get('open_bug_text')}")
+            ap(f"- open cell: {v.get('open_bug_text')}")
     files = build.get("files") or {}
     for role, f in files.items():
         ap(f"- file **{role}**: `{f.get('relpath')}` ({f.get('bytes')} bytes, sha256 `{str(f.get('sha256'))[:16]}…`)")

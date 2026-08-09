@@ -287,3 +287,110 @@ Files (repo root): `src/rvt/frontdoor/**`, `tools/frontdoor.py`,
 prompt-electrical-room/**, prompt-electrical-room-strict/**,
 ifc-electrical-room-2500a/**, rvt-edit-room/**}`,
 `docs/inbox/frontdoor.md`.
+
+---
+
+## 2026-08-09 — stream `eng142` (issue #142): the front door stamps the REAL open cell
+
+**Why.** The degrade policy above keyed on "created walls + loaded families in
+one file" (verdict #24). The ledger has since said the opposite: walls + a
+loaded family PASS (`WF_fix` / `WF_nofix`, genesis-audit #27,
+`docs/inbox/genesis-audit.md:1167-1170`), while **placed instances of OUR
+generated family documents on OUR composed genesis base** are THE open cell
+(verdict #48, `genesis-audit.md:1754-1774`; `ROOM2025_full.rvt` and
+`demo-250v-v5/prompt_room.rvt` FAIL in `docs/coverage/viewer-certified.json`;
+issue #16). So an equipment-only prompt shipped with `mode=single` and **no**
+open-cell stamp, and a walls + loaded-families file got a false one. PG1: a
+label may claim neither more nor less than the evidence. Rule 1 unchanged:
+every mode delivers its file(s); the stamp is a label after delivery.
+
+**Reproduced first** (main @ 730fe5a, pinned G_ABPD base, this cloud VM):
+`frontdoor author --prompt "six 225A panelboards"` → 6 families generated,
+loaded, **6 instances placed** → `combination_verdict.mode = "single"`,
+`triggers_open_bug = false`, `stamp = null`; honesty stamps =
+`['PROOF-ONLY, NOT-DELIVERABLE']` only.
+
+**The truth table now implemented** (`rvt.frontdoor.intent.combination_check(model,
+strict=, stages=, composed_base=, loaded_tags=)`; `build.py` passes `opts.stages`
+and `composed_base = not base.is_autodesk_sample` — the pinned bases and any
+explicit/env genesis override count as our composed lineage; only a
+quarantined pristine Autodesk sample does not — and calls it a second time
+after the L stage with `loaded_tags = the tags that actually loaded`, so the
+verdict follows the load result instead of the plan: a load that degrades to
+nothing places nothing and drops the label, a partial load counts only the
+instances it can place):
+
+| job shape (what the stages will actually do) | host | `mode` | `triggers_open_bug` | stamp | files |
+|---|---|---|---|---|---|
+| ≥1 instance of our generated family PLACED (`L`+`E` in stages, buildable plan) — with or without walls | composed base | `stamp-proof-only` | **true** | `PROOF-ONLY: generated-family INSTANCES on a composed genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)` | `combined` (delivered) |
+| same, `--strict` | composed base | `split-strict` | **true** | none (split instead) | `shell` = walls + LOADED families, no placement (WF_fix shape) + `equipment` = loaded families + PLACED instances (the cell, isolated) — **both delivered** |
+| walls + loaded families, NO placement (`--stages FLWV`) | any | `single` | false | none | `combined` |
+| walls only / loaded families only / nothing loaded (load degraded → verdict re-derived, stamp dropped) | any | `single` | false | none | `combined` |
+| instances placed | NOT our composed base (pristine host: T1r/T1u/U16 PASS) | `single` | false | none (status gate still says PROOF-ONLY) | `combined` |
+
+New verdict fields (additive, JSON too): `n_instances`, `composed_base`, and
+the derived `places_instances`. `OPEN_BUG_ID = "generated-family-instances-on-composed-base"`,
+`OPEN_CELL_STAMP` exported (`matrix.py` stays import-light and repeats it as
+prose; `tests/test_router.py::test_open_cell_caveat_names_the_front_door_stamp`
+pins the constant, the matrix caveat and `PERMUTATION-MATRIX.md` together).
+Side fix in the single-file branch: the loaded families are harvested into
+`elements_created` whenever the output descends from the loaded chain (the FLWV
+manifest used to list 4 walls + 7 `.rfa` but not the 7 loaded families). `add_to_project` / `merge_ifc` (out of territory)
+call `combination_check(model, strict=)` unchanged and therefore get the
+conservative default (`stages` full, `composed_base=True`): an add/merge that
+places an instance now carries the open-cell stamp; one that only creates
+walls + loads families does not.
+
+**Runtime evidence through the real CLI** (`tools/frontdoor.py author`, pinned
+2026 base, `.venv` from `scripts/cloud-setup.sh`, wall time = `time` real):
+
+| shape | command | verdict lines from `manifest.json` | delivered | `tools/rvt_validate.py` | wall |
+|---|---|---|---|---|---|
+| equipment-only | `--prompt "six 225A panelboards"` | `mode=stamp-proof-only triggers_open_bug=true n_walls=0 n_loaded_families=6 n_instances=6 places_instances=true composed_base=true stamp="PROOF-ONLY: generated-family INSTANCES on a composed genesis base (open cell, docs/inbox/genesis-audit.md #48, issue #16)"` | `out/eq/prompt_room.rvt` (6 rfa, 6 loaded, 6 instances) | ok=True, 0 errors / 1 warning | 15.1 s (17.6 s for the same prompt on main before the change, same VM — no latency cost) |
+| walls + loaded families, no placement | room prompt¹ `--stages FLWV` | `mode=single triggers_open_bug=false n_walls=4 n_loaded_families=7 n_instances=0 stamp=null reason="open cell not exercised by this job: 4 walls + 7 loaded families WITHOUT placement -- the WF_fix / WF_nofix certified shape (genesis-audit #27)…"` | `out/flwv/prompt_room.rvt` (4 walls, 7 rfa, 7 loaded families) | ok=True, 0 errors / 1 warning | 16.6 s |
+| `--strict` | room prompt¹ `--strict` | `mode=split-strict triggers_open_bug=true n_walls=4 n_loaded_families=7 n_instances=7 files=[shell, equipment] reason="…'shell' (the 4 walls + the 7 loaded families, NO placement -- the WF_fix-certified shape) and 'equipment' (the loaded families + their 7 PLACED instances = the open cell, isolated). Both files are delivered…"` | `out/strict/prompt_room-shell.rvt` (4 walls + 7 loaded families) **and** `out/strict/prompt_room-equipment.rvt` (7 loaded + 7 instances) | both ok=True, 0 errors / 1 warning; manifest self-checks VALID/PASS on both roles | 17.7 s |
+
+¹ `"an electrical room 30x20 ft rated for 2500 A service with a main switchboard, two 400 A distribution panels and four lighting panels"`. Every run: exit 0, `status: PROOF-ONLY (self-checks PASS…)`, honesty box lists the open-cell stamp first when it applies plus the P0 `PROOF-ONLY, NOT-DELIVERABLE` gate; `MANIFEST.md` prints `STAMP: … (a label: the file below is delivered)` and an `open cell:` line citing #48 / #16 and the certified neighbours.
+
+**Also changed:** `matrix.py` `_OPEN_BUG` caveat text + the `intent->rvt`
+stage blurb (text only, no cell flips; `verify_evidence` untouched);
+`docs/product/PERMUTATION-MATRIX.md` — only the open-cell caveats (prompt→rvt
+row, ifc→rvt / spec→rvt "same caveats" words, the ifc+rvt merge caveat, demo3
+line, and the "Open bug r2" named gap now marked exonerated); the rfa rows are
+#171's and untouched. `manifest.py` renders `open cell:` instead of `open bug:`.
+Tests: `test_combination_detected_and_degraded` and
+`test_no_combination_when_walls_or_families_only` rewritten to the table above
+(equipment-only stamps; FLWV does not; `--strict` files; non-composed host);
+`test_manifest_crud_and_honesty_shape` + the e2e genesis test use
+`FI.OPEN_CELL_STAMP`; `tests/test_router.py` two e2e assertions now expect the
+`generated-family INSTANCES` stamp (they self-skip here: `experiments/genesis`
+absent in a cloud clone).
+
+**Follow-ups filed (out of territory, `Refs #142`):** #240 — stale "walls+families"
+wording in `tools/frontdoor.py --strict` help (hot file),
+`src/rvt/frontdoor/__init__.py` + `SKILL.frontdoor.md` docstrings and
+`plugin/skills/tekton-author/references/GENESIS-BASE.md`; and #239 —
+`rvt.convert.add_to_project` should pass the target's lineage
+(`composed_base = tekton-authored target`) so an add-into-a-pristine-user-project
+run rides the certified T1u cell instead of the conservative composed-base label,
+and its `--strict` split should adopt the shell = walls + loaded families shape.
+
+### BRANCH STATE (eng142)
+
+* Branch `cam/142-open-cell-stamp` from main @ 730fe5a; PR `Closes #142`.
+* Files written: `src/rvt/frontdoor/intent.py`, `src/rvt/frontdoor/build.py`,
+  `src/rvt/frontdoor/matrix.py` (caveat text), `src/rvt/frontdoor/manifest.py`
+  (one render line), `docs/product/PERMUTATION-MATRIX.md` (open-cell caveats
+  only), `tests/test_frontdoor.py`, `tests/test_router.py`, this section; plugin
+  mirror regenerated by `tools/sync_plugin.py` (4 files synced).
+* Gates (this VM, fresh cloud clone): `tests/test_frontdoor.py` 31 passed / 4
+  skipped; `tests/test_router.py` 73 passed / 4 skipped (48 s, includes the
+  built-room convert e2e with the new merge stamp assertion);
+  `tests/test_plugin_sync.py` 7 passed; `tests/test_convert_combo.py` 3 passed /
+  9 skipped; the CI shard (`tests/ci_shard.txt`) result is in the PR body;
+  `tools/sync_plugin.py` run + `--check` clean; `plugin/scripts/validate_plugin.py`
+  PASS (23 assertions); `tools/dev/check_portable_paths.py` ok (2694 paths).
+  Skips are the usual absent `experiments/genesis` / `samples/` gates.
+* Shipped vs staged: code + docs shipped in the PR; **no viewer claim** — the
+  three CLI outputs above are validator-clean local artifacts (`out/`, ignored),
+  not STAGED; nothing in `docs/coverage/viewer-certified.json` changes.

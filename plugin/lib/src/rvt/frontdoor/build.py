@@ -17,22 +17,28 @@ The mechanics are the ifc-room stream's PROVEN build code, reused as-is
        gate / the P0 provenance-deliverability gate, per output file.
 
 What THIS module adds is the degrade policy the ifc-room pipeline never
-had -- the OPEN BUG (docs/inbox/genesis-audit.md verdict #24): created WALLS
-+ LOADED FAMILY DOCUMENTS in the SAME file trip Autodesk's audit, while walls
-alone PASS and loaded families(+placement) alone PASS.  So
-:func:`build_intent` first asks :func:`rvt.frontdoor.intent.combination_check`
-and then does exactly one of:
+had -- THE OPEN CELL (docs/inbox/genesis-audit.md verdict #48, issue #16):
+PLACED INSTANCES of OUR generated family documents on OUR composed genesis
+base fail Autodesk's audit, while walls PASS, loaded families PASS and
+walls + loaded families in one file PASS (WF_fix / WF_nofix, verdict #27).
+So :func:`build_intent` first asks
+:func:`rvt.frontdoor.intent.combination_check` (intent + stages + the
+base's lineage) and then does exactly one of:
 
-  * ``single``            walls-only OR families-only -> ONE proven-shaped file;
-  * ``split-strict``      (``--strict``) -> TWO coordinated files:
-                          ``shell`` (the walls on the base) + ``equipment``
-                          (the loaded families + their instances on the base);
+  * ``single``            no instance placed on a composed base (walls only,
+                          loaded families only, walls + loaded families
+                          without placement, or a non-composed host) -> ONE
+                          certified-shape file, no open-cell stamp;
+  * ``split-strict``      (``--strict``) -> TWO coordinated files, both
+                          delivered: ``shell`` (the walls + the LOADED
+                          families on the base -- the certified shape) +
+                          ``equipment`` (the loaded families + their PLACED
+                          instances -- the open cell, isolated);
   * ``stamp-proof-only``  (default) -> ONE combined file whose manifest is
-                          STAMPED 'PROOF-ONLY: walls+families combination
-                          unverified'.
+                          STAMPED :data:`rvt.frontdoor.intent.OPEN_CELL_STAMP`.
 
-It never silently ships the unverified combination, and it never pretends a
-refused family (no catalog facts) or a blocked circuit was built.
+A stamp is a label (hard rule 1): every mode delivers its file(s).  It never
+pretends a refused family (no catalog facts) or a blocked circuit was built.
 
 Territory: ``src/rvt/frontdoor/`` (front-door stream).
 """
@@ -111,7 +117,7 @@ class BuildOptions:
     out_dir: str
     base: ResolvedBase
     stem: str = "frontdoor"                    # output file stem
-    strict: bool = False                       # --strict => split-strict degrade
+    strict: bool = False                       # --strict => split-strict degrade (open cell)
     specimen_src: Optional[str] = None         # None -> the pinned ancestor (R5)
     stages: str = "FLWECV"                     # subset of F,L,W,E,C,V
     wall_mode: str = "min"                     # 'min' | 'unjoin' | 'raw'
@@ -162,7 +168,7 @@ class BuildResult:
 
 def build_intent(model: FI.IntentModel, opts: BuildOptions) -> BuildResult:
     """Build ``model`` into ``.rvt`` file(s) on the certified genesis base
-    with the honest walls+families DEGRADE (see module docstring)."""
+    with the honest open-cell DEGRADE (see module docstring)."""
     t0 = time.time()
     res = BuildResult()
     out_dir = opts.out_dir
@@ -230,8 +236,13 @@ def _build_intent_inner(model: FI.IntentModel, opts: BuildOptions, R,
     SA.forbid_research_inputs(
         allow=[p for p in (opts.base.path, opts.specimen_src) if p])
     try:
-        # ---- the degrade decision (walls + loaded families = the OPEN BUG) ----
-        verdict = FI.combination_check(model, strict=opts.strict)
+        # ---- the degrade decision (placed instances of OUR families on OUR
+        #      composed base = THE OPEN CELL).  Every base except a pristine
+        #      Autodesk sample (dev-only, quarantined) is treated as our composed
+        #      lineage: the pinned bases are, and an explicit/env override is a
+        #      genesis campaign base -- the conservative label either way. ----
+        verdict = FI.combination_check(model, strict=opts.strict, stages=opts.stages,
+                                       composed_base=not opts.base.is_autodesk_sample)
         res.verdict = verdict
         plans = FI.buildable_family_plans(model)
         n_walls = verdict.n_walls
@@ -336,50 +347,60 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     equip_path = os.path.join(out_dir, f"{stem}-equipment.rvt")
 
     have_fams = bool(loaded) and loaded_file
-    have_walls_now = want_walls
+    # the verdict FOLLOWS the load result: only families that actually loaded
+    # can be placed, so a load that degraded (partly or to nothing) shrinks or
+    # drops the open-cell label honestly -- one call, no special case
+    if want_fams:
+        planned = verdict
+        verdict = FI.combination_check(model, strict=opts.strict, stages=opts.stages,
+                                       composed_base=planned.composed_base,
+                                       loaded_tags=loaded if have_fams else ())
+        res.verdict = verdict
+        if planned.triggers_open_bug and not verdict.triggers_open_bug:
+            res.degradations.append("nothing loaded -> no instance placed: the job collapsed "
+                                    "to walls-only, a single certified-shape file (open cell "
+                                    "not exercised, stamp dropped)")
     mode = verdict.mode
-    # re-derive the effective mode if a load degradation removed the families
-    if verdict.triggers_open_bug and not have_fams:
-        mode = "single"
-        res.degradations.append("the walls+families combination collapsed to walls-only "
-                                "(nothing loaded) -- single proven-shaped file")
 
     # ------------------------------------------------------------------
     # W + E per the degrade mode
     # ------------------------------------------------------------------
     if mode == "split-strict":
-        # (a) shell = the walls on the BASE alone
-        wrec, wok = R.stage_walls(model, base_path, shell_path, specimens,
-                                  wall_mode=opts.wall_mode)
-        wrec["stage"] = "W(shell)"
-        res.stages.append(_slim_stage(wrec))
-        if wok:
-            res.files["shell"] = shell_path
-            _harvest_created(res, wrec, "wall")
-        else:
-            res.degradations.append("shell (walls) file NOT emitted: "
-                                    + str(wrec.get("blocker") or wrec.get("error")))
-        # (b) equipment = the loaded families + their instances (no walls)
-        if have_fams and "E" in opts.stages:
-            erec, eok = R.stage_equipment(model, loaded_file, equip_path, specimens, loaded)
-            erec["stage"] = "E(equipment)"
-            res.stages.append(_slim_stage(erec))
-            if eok:
-                res.files["equipment"] = equip_path
-                _harvest_created(res, erec, "instance")
-                _harvest_loaded_families(res, loaded)
+        # (a) shell = the walls + the LOADED families (no placement): the
+        #     WF_fix-certified shape, grown on the loaded chain; with no walls
+        #     requested/built the loaded chain IS the certified shell
+        wok = None
+        if want_walls:
+            wrec, wok = R.stage_walls(model, loaded_file, shell_path, specimens,
+                                      wall_mode=opts.wall_mode)
+            wrec["stage"] = "W(shell)"
+            res.stages.append(_slim_stage(wrec))
+            if wok:
+                _harvest_created(res, wrec, "wall")
             else:
-                res.degradations.append("equipment file NOT emitted: "
-                                        + str(erec.get("blocker") or erec.get("error")))
-        elif have_fams:
-            # families loaded but no placement requested: the loaded chain IS the equipment file
-            shutil.copyfile(loaded_file, equip_path)
+                res.degradations.append("shell walls NOT built: "
+                                        + str(wrec.get("blocker") or wrec.get("error"))
+                                        + " -> the shell is the loaded families alone")
+        if not wok:
+            shutil.copyfile(loaded_file, shell_path)
+        res.files["shell"] = shell_path
+        _harvest_loaded_families(res, loaded)
+        # (b) equipment = the loaded families + their PLACED instances (the
+        #     open cell, isolated from the certified shell)
+        erec, eok = R.stage_equipment(model, loaded_file, equip_path, specimens, loaded)
+        erec["stage"] = "E(equipment)"
+        res.stages.append(_slim_stage(erec))
+        if eok:
             res.files["equipment"] = equip_path
-            _harvest_loaded_families(res, loaded)
+            _harvest_created(res, erec, "instance")
+        else:
+            res.degradations.append("equipment file NOT emitted (instances NOT placed): "
+                                    + str(erec.get("blocker") or erec.get("error"))
+                                    + " -- the shell file still carries the loaded families")
     else:
         # single / stamp-proof-only: one file, built in W -> E order
         current = None
-        if have_walls_now:
+        if want_walls:
             src = loaded_file if have_fams else base_path
             wtarget = (os.path.join(stages_dir, "stage_W_walls.rvt")
                        if (have_fams and "E" in opts.stages) else combined_path)
@@ -401,7 +422,6 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
             if eok:
                 current = combined_path
                 _harvest_created(res, erec, "instance")
-                _harvest_loaded_families(res, loaded)
             else:
                 res.degradations.append("equipment instances NOT placed: "
                                         + str(erec.get("blocker") or erec.get("error")))
@@ -411,16 +431,18 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                 elif current is None and loaded_file:
                     shutil.copyfile(loaded_file, combined_path)   # loaded-only survives
                     current = combined_path
-                    _harvest_loaded_families(res, loaded)
         elif have_fams and current is None:
             shutil.copyfile(loaded_file, combined_path)
             current = combined_path
-            _harvest_loaded_families(res, loaded)
         if current and os.path.abspath(current) != os.path.abspath(combined_path):
             shutil.copyfile(current, combined_path)
             current = combined_path
         if current:
             res.files["combined"] = combined_path
+            if have_fams:
+                # every file grown in this branch descends from the loaded
+                # chain, so the loaded families ride it (placed or not)
+                _harvest_loaded_families(res, loaded)
 
     # ------------------------------------------------------------------
     # C. circuits (rvt.mep territory; a NAMED BLOCKER on this base today)

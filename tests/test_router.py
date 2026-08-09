@@ -280,6 +280,17 @@ def test_permutation_matrix_doc_agrees_with_machine_matrix():
     assert set(doc) == set(MX.CELLS), f"doc rows without a machine cell: {set(doc) - set(MX.CELLS)}"
 
 
+def test_open_cell_caveat_names_the_front_door_stamp():
+    """matrix.py stays import-light, so its open-cell caveat carries the stamp
+    as prose: pin it to the front door's constant and to the rendered doc so
+    the three cannot drift (issue #142)."""
+    from rvt.frontdoor import intent as FI
+    assert FI.OPEN_CELL_STAMP in MX._OPEN_BUG
+    assert "issue #16" in FI.OPEN_CELL_STAMP and "genesis-audit.md #48" in FI.OPEN_CELL_STAMP
+    with open(MATRIX_DOC, encoding="utf-8") as fh:
+        assert FI.OPEN_CELL_STAMP in fh.read()
+
+
 # ===========================================================================
 # 2. the router: unsupported cells = ONE clear line, never a traceback
 # ===========================================================================
@@ -493,8 +504,8 @@ def test_e2e_prompt_via_ifc_to_rvt_chain(tmp_path):
     assert os.path.isfile(res.files["ifc"])
     assert os.path.isfile(res.files["intent_from_prompt"])
     assert res.files.get("combined") and os.path.isfile(res.files["combined"])
-    assert any("walls+families" in s for s in res.stamps), \
-        "the open-bug stamp must ride the combined file"
+    assert any("generated-family INSTANCES" in s for s in res.stamps), \
+        "the open-cell stamp must ride the combined file (instances placed on the composed base)"
 
 
 @needs_ifc
@@ -694,7 +705,8 @@ def test_e2e_add_into_project(built_room, tmp_path):
 def test_e2e_merge_ifc_into_project(built_room, tmp_path):
     """ifc+rvt: an IFC of a second small room MERGED into the built room at
     the auto-disjoint offset -- delivered, VALID 0 errors, release preserved,
-    the open-bug stamp riding because walls AND families were created."""
+    the open-cell stamp riding because an INSTANCE of our generated family was
+    placed on a composed-base project (walls + loaded families alone would not)."""
     ifc = R.route({"prompt": "an electrical room 16x12 ft with one 100 A lighting panel"},
                   "ifc", out=str(tmp_path / "i"))
     assert ifc.ok, ifc.errors
@@ -710,7 +722,7 @@ def test_e2e_merge_ifc_into_project(built_room, tmp_path):
     g = man["validation"]["combined"]
     assert g["validate"]["verdict"] == "VALID" and g["release"]["preserved"] is True
     assert _validator_errors(out) == 0
-    assert any("walls+families" in s for s in res.stamps), res.stamps
+    assert any("generated-family INSTANCES" in s for s in res.stamps), res.stamps
 
 
 def test_e2e_edit_shaped_prompt_still_edits(built_room, tmp_path):
