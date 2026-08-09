@@ -339,9 +339,10 @@ def test_unnamed_counts_and_references_unchanged():
     # ... and bare tags alone still stand for one item each, carrying that tag
     _p, got = _tags(ROOM + "LP-1 and LP-2")
     assert got == [("LP-1", "lighting_panelboard"), ("LP-2", "lighting_panelboard")]
-    # an explicit tag is never re-issued by auto-numbering
+    # an explicit tag is never re-issued by auto-numbering (which carries on
+    # from the named ordinal: LP-2, then LP-3)
     _p, got = _tags(ROOM + "one lighting panel LP-2 and one more lighting panel")
-    assert sorted(t for t, _k in got) == ["LP-1", "LP-2"]
+    assert [t for t, _k in got] == ["LP-2", "LP-3"]
 
 
 @needs_catalog

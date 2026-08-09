@@ -89,20 +89,22 @@ _NUM_WORDS = {
 #: equipment kinds: (kind, tag prefix, regex over the noun phrase).  ORDER
 #: MATTERS -- most specific first; a matched span is consumed so a bare
 #: "panels" cannot re-match text a "distribution panels" clause already took.
+#: A kind's ABBREVIATIONS sit in the named group ``abbr``: an abbreviation is
+#: a noun ('two LPs') unless it is spelled as a tag reference ('LP-1').
 _KIND_PATTERNS: List[Tuple[str, str, str]] = [
     ("switchboard", "MSB",
      r"(?:main\s+(?:service\s+)?)?(?:service\s+(?:entrance\s+)?)?switch\s*boards?"
-     r"|switch\s*gear|\bmsb\b|service\s+entrance\s+(?:board|equipment)"),
+     r"|switch\s*gear|(?P<abbr>\bmsb\b)|service\s+entrance\s+(?:board|equipment)"),
     ("distribution_panelboard", "DP",
      r"(?:power\s+)?distribution\s+(?:panel\s*boards?|panels?|boards?|sections?)"
-     r"|power\s+panels?|\bmdp\b|\bdps?\b|distribution\s+panelboards?"),
+     r"|power\s+panels?|(?P<abbr>\bmdp\b|\bdps?\b)|distribution\s+panelboards?"),
     ("lighting_panelboard", "LP",
-     r"lighting\s+(?:and\s+appliance\s+)?(?:panel\s*boards?|panels?)|\blps?\b"),
+     r"lighting\s+(?:and\s+appliance\s+)?(?:panel\s*boards?|panels?)|(?P<abbr>\blps?\b)"),
     ("receptacle_panelboard", "RP",
      r"(?:receptacle|appliance|branch(?:\s*-?\s*circuit)?|utility)\s+(?:panel\s*boards?|panels?)"
-     r"|\brps?\b"),
+     r"|(?P<abbr>\brps?\b)"),
     ("transformer", "T",
-     r"(?:dry[\s-]*type\s+)?(?:step[\s-]*(?:down|up)\s+)?transformers?|\bxfmrs?\b"),
+     r"(?:dry[\s-]*type\s+)?(?:step[\s-]*(?:down|up)\s+)?transformers?|(?P<abbr>\bxfmrs?\b)"),
     ("panelboard", "PP",
      r"panel\s*boards?|(?:electrical\s+|branch\s+)?panels?"),
 ]
@@ -138,22 +140,28 @@ _RE_MLO = re.compile(r"main\s+lugs?(?:\s+only)?|\bmlo\b", re.I)
 _RE_FLUSH = re.compile(r"flush(?:[\s-]*mount(?:ed)?)?|recessed", re.I)
 _RE_SURFACE = re.compile(r"surface(?:[\s-]*mount(?:ed)?)?", re.I)
 _RE_SECTIONS = re.compile(r"(\d{1,2})\s*[- ]?\s*sections?\b", re.I)
-_RE_NAMED = re.compile(r"(?:named|called|tagged|labell?ed|mark(?:ed)?)\s+[\"']?([A-Za-z][A-Za-z0-9\-]{0,11})[\"']?", re.I)
-#: an equipment TAG token ('LP-1', 'DP2', 'T1', 'PP-3A', 'MSB'): a short
-#: letter prefix + number, or one of the digit-less lineup abbreviations
-_TAG_TOKEN = r"(?:[a-z]{1,4}-?\d{1,3}[a-z]?|msb|mdp|swbd)\b"
+_NAMING_VERBS = r"(?:named|called|tagged|labell?ed|mark(?:ed)?|designated)"
+_RE_NAMED = re.compile(_NAMING_VERBS + r"\s+[\"']?([A-Za-z][A-Za-z0-9\-]{0,11})[\"']?", re.I)
+#: an equipment TAG token ('LP-1', 'DP2', 'T1', 'PP-3A'): a short letter
+#: prefix + number -- or a lineup abbreviation that is conventionally the
+#: tag itself ('main switchboard MSB')
+_TAG_TOKEN = r"(?:[a-z]{1,4}-?\d{1,3}[a-z]?|msb|mdp)\b"
 #: the tag LIST that may directly follow an equipment noun -- 'lighting
 #: panel LP-1', 'panels LP-1, LP-2 and LP-3', 'panel named "LP-1"'.  It
 #: deliberately reads across 'and' / ',' (a clause boundary everywhere
 #: else) because there they join tags, not clauses.
 _RE_TAG_LIST = re.compile(
-    r"\s*(?:(?:named|called|tagged|labell?ed|marked|designated)\s+)?"
-    r"[\"']?" + _TAG_TOKEN + r"[\"']?"
+    r"\s*(?:" + _NAMING_VERBS + r"\s+)?[\"']?" + _TAG_TOKEN + r"[\"']?"
     r"(?:\s*(?:,\s*(?:and\s+)?|\band\s+|&\s*)[\"']?" + _TAG_TOKEN + r"[\"']?)*", re.I)
 _RE_TAG_TOKEN = re.compile(_TAG_TOKEN, re.I)
-#: '-1' right after a kind ABBREVIATION ('lp', 'dp', 'msb') makes the whole
+#: '-1' right after a kind abbreviation ('lp', 'dp', 'msb') makes the whole
 #: token a tag REFERENCE ('LP-1'), not another equipment noun
 _RE_TAG_SUFFIX = re.compile(r"-\d{1,3}[a-z]?\b", re.I)
+#: count words before an equipment noun: numerals / number words, and the
+#: wider token set that also counts articles ('a panel') and 'pair'
+_COUNT_WORDS = r"\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve"
+_RE_COUNT_WORD = re.compile(r"\b(" + _COUNT_WORDS + r")\b")
+_RE_COUNT_TOK = re.compile(r"\b(" + _COUNT_WORDS + r"|a|an|pair|single)\b")
 
 #: room / dimension extractors
 _RE_ROOM = re.compile(
@@ -574,7 +582,6 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # 2. EQUIPMENT clauses (count + kind + attributes)
     # ------------------------------------------------------------------
     items: List[PromptItem] = []
-    counters: Dict[str, int] = {}
     #: attribute window around a kind match: text between the previous
     #: comma/'and'/period and the next comma/'and'/period
     boundaries = [m.start() for m in re.finditer(r",|;|\band\b|\bplus\b|\bwith\b|\.", low)]
@@ -598,22 +605,26 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     def overlaps(a: int, b: int) -> bool:
         return any(not (b <= x or a >= y) for x, y in taken)
 
+    counters: Dict[str, int] = {}                     # items issued per tag prefix
     used_tags: set = set()
 
-    def next_auto_tag(prefix: str) -> Tuple[str, int]:
-        """Next free auto-numbered tag for ``prefix`` (skips tags the
-        prompt already named explicitly, so 'LP-2 and one more lighting
-        panel' never yields two LP-2s)."""
+    def issue_tag(prefix: str, explicit: Optional[str] = None) -> Tuple[str, int]:
+        """(tag, ordinal) for the next ``prefix`` item: the tag the prompt
+        named, else the next FREE auto-numbered one -- an explicitly named
+        tag is never re-issued ('LP-2 and one more lighting panel')."""
         while True:
             counters[prefix] = counters.get(prefix, 0) + 1
             idx = counters[prefix]
-            if prefix == "MSB":
+            if explicit:
+                tag = explicit
+            elif prefix == "MSB":
                 tag = "MSB" if idx == 1 else f"MSB-{idx}"
             elif prefix == "T":
                 tag = f"T{idx}"
             else:
                 tag = f"{prefix}-{idx}"
-            if tag not in used_tags:
+            if explicit or tag not in used_tags:
+                used_tags.add(tag)
                 return tag, idx
 
     #: 'X fed from Y': X and Y are tag REFERENCES by grammar, even digit-less
@@ -624,7 +635,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
         """End offset of the tag REFERENCE a kind ABBREVIATION match is part
         of -- 'lp' + '-1' = 'LP-1', or a bare 'MSB' inside a fed-from clause
         -- or None when the match is an equipment NOUN ('two LPs')."""
-        if not (km.group(0).isalpha() and len(km.group(0)) <= 4):
+        if not km.groupdict().get("abbr"):
             return None
         msuf = _RE_TAG_SUFFIX.match(low, km.end())
         if msuf is not None:
@@ -639,14 +650,12 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
     # regardless of prompt order.  A reference to a tag a noun clause
     # already produced is just consumed; an unseen one stands for ONE item
     # carrying that tag.  So naming a tag never double-counts equipment.
-    kind_matches = [(kind, prefix, km) for kind, prefix, pat in _KIND_PATTERNS
+    kind_matches = [(kind, prefix, km, ref_end(km)) for kind, prefix, pat in _KIND_PATTERNS
                     for km in re.finditer(pat, low)]
-    kind_matches = ([m for m in kind_matches if ref_end(m[2]) is None]
-                    + [m for m in kind_matches if ref_end(m[2]) is not None])
-    for kind, prefix, km in kind_matches:
+    kind_matches.sort(key=lambda m: m[3] is not None)      # stable: nouns, then refs
+    for kind, prefix, km, rend in kind_matches:
         if overlaps(km.start(), km.end()):
             continue
-        rend = ref_end(km)
         ref_tag = text[km.start():rend].upper() if rend is not None else None
         if ref_tag in used_tags:
             # a REFERENCE to equipment a noun clause already produced: consume
@@ -655,7 +664,6 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             continue
         ws, we = clause_window(km.start(), km.end())
         window = text[ws:we]
-        wlow = window.lower()
         # explicit TAGS: a bare reference IS its tag; a noun may be followed
         # by its tag list ('lighting panel LP-1', 'panels LP-1 and LP-2',
         # 'panel named LP-1'); else a 'named X' anywhere in the clause.
@@ -673,33 +681,32 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             elif named is not None:
                 tag_start = ws + named.start()
                 tag_toks = [(named.group(1).upper(), ws + named.end())]
-        seen = set(used_tags)
-        tag_toks = [(t, e) for t, e in tag_toks if not (t in seen or seen.add(t))]
+        fresh: List[Tuple[str, int]] = []                 # drop repeats / already-issued tags
+        for t, e in tag_toks:
+            if t not in used_tags and all(t != f for f, _e in fresh):
+                fresh.append((t, e))
+        tag_toks = fresh
         # count: the nearest number-word / digit BEFORE the noun in the
         # window, after RATING expressions ('400 A', '75 kVA', '65 kA',
         # '42-space', '480Y/277 V') are scrubbed so a unit letter ('A')
         # or a rating digit is never mistaken for a count.  An explicit
         # count WINS over the number of tags named; tags alone set the
         # count of an uncounted plural; a bare reference is ONE item.
-        head = wlow[: km.start() - ws]
+        head = low[ws:km.start()]
         head_count = head
         for scrub in (_RE_AMP, _RE_KVA, _RE_KA, _RE_SPACES, _RE_SECTIONS,
                       _RE_VOLT_SYS, _RE_VOLT_SLASH, _RE_VOLT_PLAIN):
             head_count = scrub.sub(" ", head_count)
-        cnt = 1
-        mnum = re.findall(r"\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|"
-                          r"eleven|twelve|a|an|pair|single)\b", head_count)
         plural = km.group(0).rstrip().endswith("s") or "pair" in head
         explicit_count = None
-        for tok in reversed(mnum):
+        for tok in ([] if ref_tag else reversed(_RE_COUNT_TOK.findall(head_count))):
             nv = _num_word(tok)
             if nv is None:
                 continue
             explicit_count = nv
             break
-        if ref_tag is not None:
-            cnt = 1
-        elif explicit_count is not None:
+        cnt = 1
+        if explicit_count is not None:
             cnt = explicit_count
         elif tag_toks:
             cnt = len(tag_toks)
@@ -710,7 +717,10 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
             continue
         tag_toks = tag_toks[:cnt]
         tags = [t for t, _e in tag_toks]
-        tag_span = (tag_start, tag_toks[-1][1]) if tag_toks else None
+        tag_span = None
+        if tag_toks:
+            tend = tag_toks[-1][1]
+            tag_span = (tag_start, tend + (text[tend:tend + 1] in ("'", '"')))   # + closing quote
         # attributes from the clause window
         amp = _RE_AMP.search(window)
         kva = _RE_KVA.search(window)
@@ -722,11 +732,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                     else ("surface" if _RE_SURFACE.search(window) else None))
         sections = _RE_SECTIONS.search(window)
         for j in range(cnt):
-            if j < len(tags):
-                tag, idx = tags[j], j + 1
-            else:
-                tag, idx = next_auto_tag(prefix)
-            used_tags.add(tag)
+            tag, idx = issue_tag(prefix, tags[j] if j < len(tags) else None)
             it = PromptItem(kind=kind, tag=tag, count_index=idx, source_text=window.strip())
             if amp:
                 it.rating_a = _clean_num(amp.group(1))
@@ -755,8 +761,7 @@ def parse_prompt(prompt: str) -> ParsedPrompt:
                    _RE_VOLT_PLAIN.search(window)):
             if vm is not None:
                 mark((ws + vm.start(), ws + vm.end()))
-        for nm in re.finditer(r"\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|"
-                              r"eleven|twelve)\b", head):
+        for nm in _RE_COUNT_WORD.finditer(head):
             if _num_word(nm.group(1)) == cnt:
                 mark((ws + nm.start(), ws + nm.end()))
         cov.understood.append({
