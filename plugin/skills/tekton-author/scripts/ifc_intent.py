@@ -808,9 +808,15 @@ def _scrub_instance(el, doc, *, our_symbol: int, our_family: Optional[int],
 
 def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
                     specimens: SpecimenSet, loaded: Dict[str, Any], *,
-                    level_id: Optional[int] = None) -> Tuple[Dict[str, Any], Optional[str]]:
+                    level_id: Optional[int] = None,
+                    level_ids: Optional[Dict[str, Tuple[int, float]]] = None,
+                    ) -> Tuple[Dict[str, Any], Optional[str]]:
     """Place one instance of each loaded family at the intent's insertion /
-    frame -> ``out_path``."""
+    frame -> ``out_path``.  ``level_ids`` (``{intent level id: (Level elem
+    id, datum z ft)}``, from ``rvt.frontdoor.levels``) places each item on
+    ITS level: ``m_assocLevelId`` = that datum, z = datum z + the item's
+    level-relative z; items with no / an unmapped level, and callers passing
+    none, use ``level_id`` (else the story datum nearest 0) at world z."""
     from rvt.mutate import Document
     from rvt.commit import commit_new_elements, verify_written
     rec: Dict[str, Any] = {"stage": "E", "in": _relp(src_rvt), "out": _relp(out_path),
@@ -821,6 +827,7 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
         rec["specimens"] = specimens.inject_into(doc)
         lvl = level_id if level_id is not None else _pick_level(doc, 0.0)
         rec["level"] = lvl
+        level_ids = dict(level_ids or {})
         tpl = specimens.instance_id
         if tpl is None:
             rec["blocker"] = ("no free-standing FamilyInstance specimen (family-free base + "
@@ -841,9 +848,10 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
             fam = info.get("family_id")
             prod = info.get("product")
             ins = eq.insertion_m
-            pos_ft = (ins[0] * FT_PER_M, ins[1] * FT_PER_M, ins[2] * FT_PER_M)
+            eq_lvl, z0_ft = level_ids.get(getattr(eq, "level", None) or "", (lvl, 0.0))
+            pos_ft = (ins[0] * FT_PER_M, ins[1] * FT_PER_M, z0_ft + ins[2] * FT_PER_M)
             yaw = math.radians(float(eq.yaw_deg))
-            el = doc.add_family_instance(sym, lvl, position=pos_ft, rotation=yaw,
+            el = doc.add_family_instance(sym, eq_lvl, position=pos_ft, rotation=yaw,
                                          template_instance_id=tpl)
             # the intent's full frame (wall gear stands UPRIGHT: a work-plane
             # family free-placed with an explicit 3x3; floor gear = yaw)
@@ -862,13 +870,15 @@ def stage_equipment(model: I.IntentModel, src_rvt: str, out_path: str,
                 "tag": eq.tag, "kind": eq.kind, "elem_id": el.elem_id, "symbol": sym,
                 "family": fam, "position_ft": [round(x, 3) for x in pos_ft],
                 "position_m": [round(x, 4) for x in ins],
+                "level": getattr(eq, "level", None), "level_id": eq_lvl,
+                "z_above_level_ft": round(ins[2] * FT_PER_M, 3),
                 "yaw_deg": eq.yaw_deg, "frame_kind": eq.frame_kind,
                 "frame3x3": eq.frame3x3, "connector_slots_panel": n_slots,
                 "scrub": scrub, "dangling_refs": dangling[:16],
                 "n_dangling": len(dangling), "notes": el.notes,
             })
             _log(f"E  {eq.tag:5s} elem {el.elem_id} symbol {sym} at "
-                 f"{[round(x,2) for x in pos_ft]} ft {eq.frame_kind} "
+                 f"{[round(x,2) for x in pos_ft]} ft on level {eq_lvl} {eq.frame_kind} "
                  f"(dangling refs {len(dangling)}, dropped rows {scrub['param_rows_dropped']})")
         records, plans = [], []
         for el in els:

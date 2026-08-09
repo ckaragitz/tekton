@@ -770,12 +770,19 @@ def test_stage_p_edits_only_projectinfo_and_is_deterministic(tmp_path, release):
         assert a.read() == b.read()
 
 
+#: ONE prompt job on the bundled 2026 base serves every product-shape check
+#: below (identity, levels): the issue #147 DONE prompt -- two storeys, a
+#: floor-to-floor height, gear on both levels
+TWO_STOREY = ("a two storey electrical building 40 by 30 ft, floor to floor 14 ft, with a "
+              "main switchboard and four lighting panels on level 2")
+
+
 @pytest.fixture(scope="module")
 def identity_job(tmp_path_factory):
     if not os.path.isfile(PINNED[2026]):
         pytest.skip("bundled genesis base missing")
     out = str(tmp_path_factory.mktemp("pi") / "job")
-    return FD.author(prompt="an electrical room with 1 panel", out=out, no_handoff=True)
+    return FD.author(prompt=TWO_STOREY, out=out, no_handoff=True)
 
 
 def test_e2e_prompt_output_carries_the_job_identity(identity_job):
@@ -802,3 +809,143 @@ def test_e2e_prompt_output_carries_the_job_identity(identity_job):
     assert build["validation"]["combined"]["validate"]["n_errors"] == 0
     with open(r.manifest_paths["md"], encoding="utf-8") as fh:
         assert "project information (ProjectInfo" in fh.read()
+
+
+# ===========================================================================
+# 9. stage D: the intent's levels bound to the base's two building-story
+#    datums (issue #147) -- rename + re-elevate (the certified modify shape),
+#    storeys beyond them recorded, per-item association in stage E
+# ===========================================================================
+
+from rvt.frontdoor import levels as LV                      # noqa: E402
+
+THREE_LEVELS = [{"id": "L1", "name": "Level 1", "elevation": 0.0},
+                {"id": "L2", "name": "Level 2", "elevation": 4.2672},      # 14 ft
+                {"id": "L3", "name": "Level 3", "elevation": 8.5344}]      # 28 ft
+
+
+@needs_pinned
+@pytest.mark.parametrize("release", [2026, 2025, 2024])
+def test_stage_d_binds_levels_to_the_story_datums_only(tmp_path, release):
+    """On each pinned base: L1/L2 land on the two is_building_story datums
+    (renamed, L2 re-elevated 12 -> 14 ft), L3 is NOT created and says why,
+    those two Level records are the ONLY bytes that change, and two runs are
+    byte-identical."""
+    from rvt.mutate import Document
+    from rvt import manipulate as M
+    from rvt import reduce_law as RL
+    from rvt.frontdoor import release_ctx as RC
+    base = PINNED[release]
+    out1, out2 = str(tmp_path / "d1.rvt"), str(tmp_path / "d2.rvt")
+    with RC.release_build_context(base):
+        before = {lv["id"]: lv for lv in Document.from_file(base).levels()}
+        stories = sorted((lv for lv in before.values() if lv["is_building_story"]),
+                         key=lambda lv: lv["elevation_ft"])
+        assert len(stories) == 2, stories                    # the premise: two story datums
+        rec = LV.stage_levels(base, out1, THREE_LEVELS)
+        assert rec["ok"] is True and rec["written"] is True, rec
+        l1, l2 = rec["levels"]
+        assert (l1["base_id"], l2["base_id"]) == (stories[0]["id"], stories[1]["id"])
+        assert (l1["name"], l1["elevation_ft"], l1["move"]) == ("Level 1", 0.0, False)
+        assert (l2["name"], l2["elevation_ft"], l2["move"]) == ("Level 2", 14.0, True)
+        assert l2["base_elevation_ft"] == 12.0 and l1["rename"] and l2["rename"]
+        # the third storey: recorded, bound to the top datum at its OWN z, never created
+        assert [nb["id"] for nb in rec["not_built"]] == ["L3"]
+        assert "NOT created" in rec["not_built"][0]["reason"]
+        assert rec["level_map"] == {"L1": (l1["base_id"], 0.0), "L2": (l2["base_id"], 14.0),
+                                    "L3": (l2["base_id"], 28.0)}
+        assert rec["commit"]["replaced"] == [[102, l1["base_id"]], [102, l2["base_id"]]]
+        assert rec["commit"]["elemtable_count_before"] == rec["commit"]["elemtable_count_after"]
+        # read back: the two story datums say what the intent says, every other level untouched
+        after = {lv["id"]: lv for lv in Document.from_file(out1).levels()}
+        assert after[l1["base_id"]]["name"] == "Level 1" and after[l1["base_id"]]["elevation_ft"] == 0.0
+        assert after[l2["base_id"]]["name"] == "Level 2" and after[l2["base_id"]]["elevation_ft"] == 14.0
+        assert {k: v for k, v in after.items() if k not in (l1["base_id"], l2["base_id"])} == \
+               {k: v for k, v in before.items() if k not in (l1["base_id"], l2["base_id"])}
+        assert len(after) == len(before)                       # no Level constructor ran
+        # the certified modify shape's structural proof, under the file's own release
+        v = M.verify_manipulated(out1, edited_ids=rec["edited_ids"])
+        assert v["stamps_ok"] and v["crc_failures"] == 0 and v["walker_errors"] == 0, v
+        assert v["ecc_mismatches"] == 0 and v["unit0_ids_equal_elemtable"] is True, v
+        assert {k: e["102"] for k, e in v["edited"].items()} == {
+            str(l1["base_id"]): {"class": "Level", "clean": True},
+            str(l2["base_id"]): {"class": "Level", "clean": True}}
+        # the Document record diff: exactly the two datums modified (seq 102), nothing else
+        diff = RL.element_diff(Document.from_file(base), Document.from_file(out1))
+        assert not diff.removed and not diff.added, (diff.removed, diff.added)
+        assert diff.modified == {l1["base_id"]: [102], l2["base_id"]: [102]}, diff.modified
+        # deterministic
+        assert LV.stage_levels(base, out2, THREE_LEVELS)["ok"] is True
+    with open(out1, "rb") as a, open(out2, "rb") as b:
+        assert a.read() == b.read()
+
+
+@needs_pinned
+def test_stage_d_writes_nothing_when_the_datums_already_match(tmp_path):
+    """An intent whose levels already carry the base's names / elevations is a
+    no-op: no file, ok, and the map still names the datums."""
+    from rvt.mutate import Document
+    base = PINNED[2026]
+    stories = [lv for lv in Document.from_file(base).levels() if lv["is_building_story"]]
+    same = [{"id": f"L{i + 1}", "name": st["name"], "elevation": st["elevation_ft"] / LV.FT_PER_M}
+            for i, st in enumerate(stories)]
+    rec = LV.stage_levels(base, str(tmp_path / "noop.rvt"), same)
+    assert rec["ok"] is True and rec["written"] is False and not rec["edited_ids"]
+    assert not os.path.exists(str(tmp_path / "noop.rvt"))
+    assert rec["level_map"] == {"L1": (stories[0]["id"], 0.0), "L2": (stories[1]["id"], 12.0)}
+    # a DEFAULTED level (a prompt / IFC silent about levels) asserts no name: it
+    # binds to the first storey and keeps the datum's own name -> nothing to write
+    dflt = [{"id": "L1", "name": "Level 1", "elevation": 0.0, "default": True}]
+    assert PP.parse_prompt("an electrical room 30 by 20 ft").levels == dflt
+    rec = LV.stage_levels(base, str(tmp_path / "dflt.rvt"), dflt)
+    assert rec["ok"] and not rec["written"] and rec["levels"][0]["name"] == stories[0]["name"]
+    # an empty intent binds the first storey as 'Level 1' @ 0 (rename only)
+    bound, not_built = LV.bind_levels(Document.from_file(base), [])
+    assert [(b["name"], b["elevation_ft"], b["move"]) for b in bound] == [("Level 1", 0.0, False)]
+    assert not not_built
+
+
+def test_e2e_two_storey_prompt_places_gear_per_level(identity_job):
+    """The product shape of issue #147: the DONE prompt's combined .rvt has
+    the base's two story datums renamed 'Level 1'/'Level 2' at 0 / 14 ft, the
+    four lighting panels on Level 2 (m_assocLevelId + z above ITS datum), the
+    switchboard on Level 1, the walls on Level 1, and an honest manifest."""
+    from rvt.mutate import Document
+    if not _catalog_ok():
+        pytest.skip("famgen catalog absent (no equipment to place)")
+    r = identity_job
+    assert r.ok, (r.status, r.errors)
+    m = r.manifest
+    assert m["intent"]["summary"]["levels"] == [
+        {"id": "L1", "name": "Level 1", "elevation": 0.0},
+        {"id": "L2", "name": "Level 2", "elevation": 4.2672}]
+    cov = m["prompt_coverage"]
+    assert not any("all equipment is placed on Level 1" in w for w in cov["warnings"])
+    assert not cov["ignored_words"] and not cov["not_built"]
+    build = m["build"]
+    assert [s["stage"] for s in build["stages"]][:2] == ["P", "D"]
+    lv = build["levels"]
+    assert lv["ok"] and lv["written"] and not lv["not_built"]
+    l1_id, l2_id = (b["base_id"] for b in lv["levels"])
+    doc = Document.from_file(build["files"]["combined"]["path"])
+    stories = {x["id"]: (x["name"], x["elevation_ft"]) for x in doc.levels() if x["is_building_story"]}
+    assert stories == {l1_id: ("Level 1", 0.0), l2_id: ("Level 2", 14.0)}
+    inst = {c["tag"]: c for c in build["elements_created"] if c["kind"] == "equipment-instance"}
+    assert set(inst) == {"MSB", "LP-1", "LP-2", "LP-3", "LP-4"}
+    for tag, c in inst.items():
+        v = doc.value(c["elem_id"])
+        z = v["m_pInstanceInfo"]["value"]["m_Trf"]["m_or"][2]
+        if tag == "MSB":
+            assert (c["level"], c["level_id"], v["m_assocLevelId"]) == ("L1", l1_id, l1_id)
+            assert abs(z - c["z_above_level_ft"]) < 1e-3                    # datum @ 0
+        else:
+            assert (c["level"], c["level_id"], v["m_assocLevelId"]) == ("L2", l2_id, l2_id)
+            assert abs(z - (14.0 + c["z_above_level_ft"])) < 1e-3           # datum @ 14 ft
+            assert abs(z - (14.0 + PP.DEFAULT_PANEL_MOUNT_CENTER_M * PP.FT_PER_M)) < 1e-9
+    walls = [c for c in build["elements_created"] if c["kind"] == "wall"]
+    assert len(walls) == 4 and all(doc.value(w["elem_id"])["m_assocLevelId"] == l1_id for w in walls)
+    assert build["validation"]["combined"]["validate"]["n_errors"] == 0
+    with open(r.manifest_paths["md"], encoding="utf-8") as fh:
+        md = fh.read()
+    assert "levels (the base's building-story datums, renamed / re-elevated)" in md
+    assert "L2 → 'Level 2' @ 14 ft" in md

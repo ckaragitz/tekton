@@ -281,6 +281,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
                          for f in ((build.get("families") or {}).get("families") or [])],
         "elements_created": created,
         "project_info": build.get("project_info") or {},
+        "levels": build.get("levels") or {},
         "degradations": build.get("degradations") or [],
         "circuits": build.get("circuits") or {},
         "validation": build.get("validation") or {},
@@ -524,6 +525,15 @@ def _render_md(m: Dict[str, Any]) -> str:
         ap(f"- project information (ProjectInfo {pi.get('elem_id')}): "
            + ", ".join(f"{k}='{v}'" for k, v in ident.items() if v)
            + " (the element's other fields blank)")
+    lv = build.get("levels") or {}
+    if lv.get("levels"):
+        ap("- levels (the base's building-story datums, "
+           + ("renamed / re-elevated" if lv.get("written") else "unchanged") + "): "
+           + ", ".join(f"{b.get('id')} → '{b.get('name')}' @ {b.get('elevation_ft'):g} ft "
+                       f"(Level {b.get('base_id')}, was '{b.get('base_name')}' @ "
+                       f"{b.get('base_elevation_ft'):g} ft)" for b in lv["levels"]))
+        for nb in lv.get("not_built") or []:
+            ap(f"- **level NOT created**: {nb.get('reason')}")
     for role, g in (build.get("validation") or {}).items():
         val = (g or {}).get("validate") or {}
         idg = (g or {}).get("identity") or {}
