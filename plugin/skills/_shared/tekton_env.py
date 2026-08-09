@@ -189,20 +189,26 @@ def ensure_engine(root: str | None = None) -> str:
     import rvt  # noqa: F401  -- raises ImportError with the real reason if broken
     _install_lazy_schema()
     _install_schema_cache()
-    # IFC read fallback: when the real ifcopenshell is ABSENT, append the
-    # bundled pure-python steplite shim package (rvt/ifc/_ifcos_shim) so
-    # `import ifcopenshell` inside the read paths resolves to it -- try
-    # ifcopenshell, else steplite, by ordinary import order (APPEND, so a
-    # real install always wins; the shim additionally stands down by itself
-    # if a real distribution appears ahead of it on a child's path).
-    import importlib.util as _ilu
-    if _ilu.find_spec("ifcopenshell") is None:
+    # IFC read fallback: when the real ifcopenshell is ABSENT, the bundled
+    # pure-python steplite shim package (rvt/ifc/_ifcos_shim) is APPENDED to
+    # sys.path so `import ifcopenshell` inside the read paths resolves to it
+    # (a real install always wins).  The ENGINE selects this itself when
+    # `rvt.ifc` is imported (rvt.ifc._fallback, #130); calling it here keeps
+    # the doctor's report accurate before any read module loads and exports
+    # the dir for child processes.  Engines older than #130: same law inline.
+    try:
+        from rvt.ifc._fallback import SHIM_DIR as shim, ensure_ifc_reader
+        ensure_ifc_reader()
+    except ImportError:
+        import importlib.util as _ilu
         shim = os.path.join(os.path.dirname(os.path.abspath(rvt.__file__)),
                             "ifc", "_ifcos_shim")
-        if os.path.isdir(os.path.join(shim, "ifcopenshell")):
-            if shim not in sys.path:
-                sys.path.append(shim)
-            _append_env_path("PYTHONPATH", shim)
+        if (_ilu.find_spec("ifcopenshell") is None
+                and os.path.isdir(os.path.join(shim, "ifcopenshell"))
+                and shim not in sys.path):
+            sys.path.append(shim)
+    if shim in sys.path:
+        _append_env_path("PYTHONPATH", shim)
     src = os.path.dirname(os.path.abspath(getattr(rvt, "__file__", "") or ""))
     if bundled and src.startswith(os.path.abspath(lib_src)):
         return f"bundled source: {lib_src}"

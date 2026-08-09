@@ -22,6 +22,7 @@ tests/test_bootstrap.py
 tests/test_coldstart.py
 tests/test_go_target_version.py
 tests/test_lazy_ifc_import.py
+tests/test_ifc_read_fallback.py
 tests/test_coord.py
 tests/test_validate_release.py
 tests/test_validate_footer_blob.py
