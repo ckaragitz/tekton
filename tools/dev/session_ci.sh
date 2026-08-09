@@ -32,7 +32,7 @@ PY=${SESSION_CI_PYTHON:-$REPO/.venv/bin/python}; WT=$S/ci/wt-$PR; LOG=$S/ci/$PR.
 # The sandbox side lives under /tmp/tekton-ci (every parent traversable by `nobody`); the PARENT stays root-owned
 # 0755 so `nobody` cannot swap box-<pr>/tmp-<pr> for a symlink between our mkdir and our writes into them.
 JAIL=/tmp/tekton-ci; BOX=$JAIL/box-$PR; TMPBOX=$JAIL/tmp-$PR
-[ ! -L "$JAIL" ] && mkdir -p "$JAIL" && [ ! -L "$JAIL" ] && [ -d "$JAIL" ] && chown -h root:root "$JAIL" && chmod 755 "$JAIL" || { echo "refusing $JAIL (symlink or not creatable)" >&2; exit 2; }
+[ ! -L "$JAIL" ] && mkdir -p "$JAIL" && [ ! -L "$JAIL" ] && [ -d "$JAIL" ] && chown -h root:root "$JAIL" && [ -O "$JAIL" ] && chmod 755 "$JAIL" || { echo "refusing $JAIL (symlink, foreign, or not creatable)" >&2; exit 2; }
 cd "$REPO" || exit 2
 exec 9>"$LOCK"; flock -n 9 || { echo "{\"pr\":$PR,\"error\":\"another session_ci run holds PR $PR\"}"; exit 2; }   # one run per PR at a time
 rm -f "$LOG" "$OUT"; : > "$LOG"; rm -rf "$BOX" "$TMPBOX"; git worktree remove --force "$WT" >/dev/null 2>&1; rm -rf "$WT"; git worktree prune
@@ -65,9 +65,9 @@ sandbox() {  # run "$@" as nobody: no network, own PID + mount namespaces (child
         PYTHONPATH="$BOX/src" PYTHONDONTWRITEBYTECODE=1 RVT_SKIP_LARGE=1 GIT_CONFIG_GLOBAL="$TMPBOX/.gitconfig" \
     bash -c 'cd "$0" && exec "$@"' "$BOX" "$@" 9>&- </dev/null   # the flock fd and stdin never reach PR code
 }
-sandbox timeout 120 git init -q >>"$LOG" 2>&1 && sandbox timeout 300 git add -A >>"$LOG" 2>&1 && \
-  sandbox timeout 300 git -c user.name=ci -c user.email=ci@local commit -qm export >>"$LOG" 2>&1 || echo "(box git init failed — tests needing git ls-files may fail)" >> "$LOG"
-step() { local name=$1; shift; echo "=== $name" >> "$LOG"; if sandbox timeout 600 "$@" >> "$LOG" 2>&1; then echo ok; else echo FAIL; fi; }   # time-boxed: a hanging PR step must not stall the tick
+sandbox timeout -k 30 120 git init -q >>"$LOG" 2>&1 && sandbox timeout -k 30 300 git add -A >>"$LOG" 2>&1 && \
+  sandbox timeout -k 30 300 git -c user.name=ci -c user.email=ci@local commit -qm export >>"$LOG" 2>&1 || echo "(box git init failed — tests needing git ls-files may fail)" >> "$LOG"
+step() { local name=$1; shift; echo "=== $name" >> "$LOG"; if sandbox timeout -k 30 600 "$@" >> "$LOG" 2>&1; then echo ok; else echo FAIL; fi; }   # time-boxed: a hanging PR step must not stall the tick
 t0=$(date +%s)
 D=$(step plugin_drift "$PY" tools/sync_plugin.py --check)
 V=$(step plugin_structure "$PY" plugin/scripts/validate_plugin.py)
@@ -75,7 +75,7 @@ if [ -n "$BADSHARD" ] || [ "${#SHARD[@]}" = "0" ]; then
   echo "=== shard REFUSED: ${#SHARD[@]} entries, invalid:${BADSHARD:- (empty list)}" >> "$LOG"; RC=3; TAIL="shard list refused (${#SHARD[@]} entries; see log)"
 else
   echo "=== shard (${#SHARD[@]} files, sandboxed: uid nobody, no network, own pid/mount ns)" >> "$LOG"
-  sandbox timeout 1500 "$PY" -m pytest -q -p no:cacheprovider --durations=5 -- "${SHARD[@]}" >> "$LOG" 2>&1; RC=$?
+  sandbox timeout -k 30 1500 "$PY" -m pytest -q -p no:cacheprovider --durations=5 -- "${SHARD[@]}" >> "$LOG" 2>&1; RC=$?
   # The summary line is sandbox OUTPUT (untrusted text): keep only a pytest-shaped tally, never arbitrary log content.
   TAIL=$(grep -oE '[0-9]+ (passed|failed|error|errors)(, [0-9]+ [a-z]+)* in [0-9.]+s( \([0-9:]+\))?' "$LOG" | tail -1 | cut -c1-160)   # bounded: it gets posted
 fi

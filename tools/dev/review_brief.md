@@ -43,7 +43,8 @@ Standard — read `CLAUDE.md` §1 (hard rules), §3b (sources vs generated mirro
 runs with this session's privileges (it must not reach the GitHub connector, git
 credentials, or the session's files). Only through the sandbox:
 ```
-[ ! -L /tmp/tekton-ci ] && install -d -m 755 -o root -g root /tmp/tekton-ci   # parent stays root-owned; refuse a planted symlink
+[ ! -L /tmp/tekton-ci ] || { echo 'refusing: /tmp/tekton-ci is a symlink'; exit 1; }   # abort loudly, never proceed through it
+install -d -m 755 -o root -g root /tmp/tekton-ci                            # parent stays root-owned
 rm -rf /tmp/tekton-ci/rv<PR> /tmp/tekton-ci/rv<PR>-tmp                     # never reuse a dir `nobody` could have prepared
 mkdir -m 755 /tmp/tekton-ci/rv<PR> /tmp/tekton-ci/rv<PR>-tmp
 git -C <repo root> archive refs/pr/<PR> | tar -x -C /tmp/tekton-ci/rv<PR>
