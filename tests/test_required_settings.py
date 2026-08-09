@@ -167,6 +167,26 @@ def test_units_table_covers_every_param_spec(fi):
     assert not missing, f"param specs missing from units table: {missing}"
 
 
+def test_order_cell_has_one_group_per_group_type(fi):
+    """The order-cell law (#333, round 18): the Family Types dialog builds a
+    tree keyed by parameter group, so each group-type id may appear only once
+    in the self-Family FamilyParamsOrderCell.m_sortedParams (a duplicate
+    identityData group -- user identity params + built-in identity BIPs --
+    threw at ADialog::doModal)."""
+    recs = fi.unit_records(0).get(102, {})
+    fam = [eid for eid, r in recs.items() if fi.class_name(r.class_id) == "Family"]
+    assert len(fam) == 1
+    sf = fi.value(0, fam[0], 102)
+    cells = ((sf.get("m_cellList") or {}).get("value") or {}).get("m_cells") or []
+    assert cells, "self-Family carries no order cell"
+    for c in cells:
+        sp = ((c.get("value") or {}) if isinstance(c, dict) else {}).get("m_sortedParams")
+        if not isinstance(sp, list):
+            continue
+        keys = [(g.get("m_groupTypeId") or {}).get("m_typeId") for g in sp]
+        assert len(keys) == len(set(keys)), f"duplicate group keys: {keys}"
+
+
 def test_walked_binds_stay_self_contained(rfa):
     """The viewer-certified self-contained-binds law (T2a): curve/solid rep
     style binds are member GStyleElem ids or -1, never foreign ids -- the

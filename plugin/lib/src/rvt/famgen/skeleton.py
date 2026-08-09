@@ -1548,6 +1548,15 @@ class FamilyDoc:
             groups.append((PGROUP_IDENTITY, used_bips))
         fam.obj["m_cellList"] = _ptr("CellList", {"m_cells": [
             family_params_order_cell(groups)]})
+        # ONE group per group-type id (issue #333, desktop round 18): the
+        # Family Types dialog builds its tree keyed by parameter group, so a
+        # group-type id may appear only once -- but user identity params plus
+        # the built-in identity BIPs above produced TWO identityData groups,
+        # which threw at ADialog::doModal.  normalize_order_cell merges the
+        # duplicate key in place and re-ranks (dimensions < identity <
+        # electrical); it is content-preserving (asserts the id multiset).
+        from . import layout_law as _LL
+        _LL.normalize_order_cell(self)
         # locked-for-direct-manipulation = the length parameters (Revit locks
         # dimension params it drives geometry with) [INFERRED default]
         fam.obj["m_lockedParameterIdsForDirectManipulation"] = sorted(

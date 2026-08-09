@@ -158,21 +158,26 @@ def test_order_cell_merge(doc):
                 return sp
         return []
 
-    before = groups()
-    keys_before = [str((g.get("m_groupTypeId") or {}).get("m_typeId"))
-                   for g in before]
-    ids_before = sorted(pid for g in before
-                        for pid in (g.get("m_paramIds") or []))
-    assert len(keys_before) != len(set(keys_before)), \
-        "fixture regression: famgen no longer emits duplicate group keys " \
-        "(update this test AND retire the M3 axis)"
+    # Since issue #333 round 18 the M3 fix lives in FamilyDoc.finalize, so the
+    # BUILD already emits one group per group-type id.
+    built = groups()
+    keys_built = [str((g.get("m_groupTypeId") or {}).get("m_typeId"))
+                  for g in built]
+    ids_before = sorted(pid for g in built for pid in (g.get("m_paramIds") or []))
+    assert len(keys_built) == len(set(keys_built)), \
+        f"build regressed: duplicate group keys {keys_built}"
+    assert "electrical" in keys_built[-1] or "identity" in keys_built[-1].lower()
+
+    # normalize_order_cell still merges a SYNTHETIC duplicate (idempotent on a
+    # clean cell, merging on a dirty one) -- it stays the guardrail.
+    sp = built
+    dup = {"m_groupTypeId": {"m_typeId": keys_built[0]}, "m_paramIds": [-1010999]}
+    sp.append(dup)
     rep = LL.normalize_order_cell(d)
     after = groups()
     keys_after = [str((g.get("m_groupTypeId") or {}).get("m_typeId"))
                   for g in after]
-    ids_after = sorted(pid for g in after
-                       for pid in (g.get("m_paramIds") or []))
+    ids_after = sorted(pid for g in after for pid in (g.get("m_paramIds") or []))
     assert len(keys_after) == len(set(keys_after)), "duplicate keys survive"
-    assert ids_after == ids_before, "param id multiset changed"
+    assert ids_after == sorted(ids_before + [-1010999]), "param id multiset changed"
     assert rep["merged_groups"] >= 1
-    assert "electrical" in keys_after[-1] or "identity" in keys_after[-1].lower()

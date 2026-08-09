@@ -421,3 +421,37 @@ errors; famgen+ifc suites 104 passed / 31 skipped.
 Ladder: viewer law (round 15) → dimension-style law (round 16) → units
 table (round 16) → param-spec/units coherence (round 17).  If Family Types
 opens on P, the next frontiers are value-edit and Save-As.
+
+## Iteration 10 — the ORDER-CELL law: one group per group-type id (round 18)
+
+**Round 18 verdict (journal 0028, probe P):** Family Types STILL crashed at
+`ADialog::doModal` (0xe06d7363) with the spec fix.  Ruled out by instrument:
+param ref integrity clean (14 params, all m_familyParams / cell / locked ids
+resolve), param field structure matches the donor, all three group-type ids
+(dimensions/electrical/identityData -1.0.0) confirmed present in a real Revit
+corpus.
+
+**Root cause:** the self-Family's `FamilyParamsOrderCell.m_sortedParams`
+listed `identityData-1.0.0` **twice** -- once for the user identity params
+(PanelName, Mounting) and again for the built-in identity BIPs
+(-1010109/-1010104/-1010103).  The Family Types dialog builds its tree keyed
+by parameter group; a duplicate group key collides -> throw at doModal.  The
+donor has each group exactly once.
+
+**The fix already existed but was unwired:** `layout_law.normalize_order_cell`
+(the "M3 fix") merges duplicate group keys and re-ranks (dimensions <
+identity < electrical), content-preserving.  It was only called from a probe
+path; `tools/layout_diff.py` even carried a note "defect: make
+normalize_order_cell part of [the build]".  Now called from
+`FamilyDoc.finalize`, so every family is deduped by construction.  Guarded by
+`test_order_cell_has_one_group_per_group_type`; `test_order_cell_merge`
+updated (the build no longer emits duplicates, so the merge is now tested on
+a synthetic duplicate).
+
+**Probe Q** (`probe_q_ordercell.rfa`) with the owner; group keys now unique
++ ranked; validator VALID 0 errors; famgen+layout suites 120 passed / 28
+skipped.
+
+Ladder: viewer (r15) -> dim-style (r16) -> units table (r16) ->
+param-spec/units coherence (r17) -> order-cell dedup (r18).  Five real
+famdoc laws, each crash strictly later than the last.
