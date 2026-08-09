@@ -275,8 +275,12 @@ per issue is enforced, not requested:** if the issue already has an
 assignee, a second one is removed again within a minute with a ⛔ comment
 naming the holder (a holder *can* add a partner themselves — that is
 pairing, and it sticks). If you get the ⛔, pick something else; that
-comment is the whole point. `/release` (or unassigning yourself) hands an
-issue back. Never start work someone else is assigned to: on this repo's
+comment is the whole point. Locks are **per session**, not just per login:
+`/next s=<tag>` / `/claim s=<tag>` record which of your sessions holds it,
+`/next` requests from one login are handled one at a time, and every claim
+is verified (earliest standing assignee + earliest standing 🔒) before the
+bot says 🎯 — so your laptop session and your phone session cannot collide
+either. `/release` (or unassigning yourself) hands an issue back. Never start work someone else is assigned to: on this repo's
 first night three bugs were filed and fixed twice by two people's sessions
 minutes apart, because nobody had claimed anything. **Before filing a new
 issue, search for it** (`gh issue list --search "<two or three keywords>"
@@ -323,17 +327,27 @@ gh pr list --author @me --state open           # 1. service your own PRs first (
                                                #    prefer one you did not author; no verdict -> never merge a workflow-file PR
 #  2. your human said something directional this session? -> /steer "<their words>"  (before acting on it)
 #  3. untriaged steers, or ready&unassigned below the floor? -> /techlead  (≤10 min, charter-bounded)
-gh issue list --assignee @me --state open      # 4. resume yours, or take the head of the queue:
-gh issue comment <any> -b /next                #    (or claim by hand: gh issue edit <n> --add-assignee @me)
+export TEKTON_SESSION=<tag>                    # 4. name THIS session once (laptop, phone, session_01ab…): locks are per SESSION,
+python3 tools/dev/techlead.py mine             #    not just per login — `mine` says which of your assigned issues are this session's,
+                                               #    ⛔ active in another live session of yours (hands off), or 🟡 idle ≥ 2 h (resumable)
+gh issue comment <any> -b "/next s=$TEKTON_SESSION"   # otherwise take the head of the queue; coord assigns, VERIFIES you are first
+                                               #    holder + first lock, and only then replies 🎯 (a lost race is retried for you)
+python3 tools/dev/techlead.py claim <n>        #    (claiming a specific issue: claim-and-verify; exit 4 + holder if someone was first)
 git switch -c <you>/<issue#>-<slug>            # one issue = one branch = one PR, always from main
 #  5. more independent ready issues than you can hold? -> /fanout (engineer sessions / subagents), keep building yours
 ```
-Cloud sessions (no `gh` CLI) do the same through the GitHub MCP tools:
+**Work is pulled, never pushed** (steer #90, S-2026-08-09-f): nobody assigns
+stories; every session, engineer session and the worker takes the head of the
+one shared queue and the lock is taken — and verified — at that moment, so two
+people (or two sessions of one person) can never both be told they hold an
+issue. Cloud sessions (no `gh` CLI) do the same through the GitHub MCP tools:
 `issue_read` on the board issue for the picture, `issue_write` with label
-`steer` to log a steer, `add_issue_comment` with body `/next` or `/claim`
-to take work, `issue_write` (assignees) to claim by hand. Either way, glance
-at the issue a minute later (`gh issue view <n>` / `issue_read`): a ⛔ from
-the bot means someone beat you to it — stop and pick another.
+`steer` to log a steer, `add_issue_comment` with body `/next s=<tag>` or
+`/claim s=<tag>` to take work (wait for the bot's 🎯/🔒 reply — about a minute —
+before the first commit; ⛔ or ↩️ means someone, possibly your own other
+session, was first: take what `/next` hands you instead). Never resume an
+assigned issue that shows activity or a 🔒 from another session in the last
+2 h unless that session is gone (`/claim s=<tag> take-over`).
 **Before picking new work, service your own open PRs** — this is how a
 session "gets notified": it looks.
 ```bash

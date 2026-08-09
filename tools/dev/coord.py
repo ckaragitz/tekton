@@ -39,6 +39,14 @@ The parts of the workflow that bash + jq do badly:
            `intake` so the tech-lead planner triages it instead of it sitting unread.
              python tools/dev/coord.py taskshape < body.txt
 
+  locks    Session-scoped claim locks (steer #90). Every 🔒 comment coord posts carries
+           `<!-- lock by=LOGIN session=TAG token=ID -->`; /release, the reaper and the
+           re-queue sweep post `<!-- unlock by=LOGIN -->`. A lock is STANDING when its
+           holder is still an assignee and no later unlock names them. The earliest
+           standing lock wins ties between sessions — including two sessions of the SAME
+           login, which the assignee field alone cannot tell apart.
+             python tools/dev/coord.py locks --comments comments.json --assignees a,b  -> JSON
+
 issues.json / prs.json are `gh issue list --json number,title,state,assignees,labels` and
 `gh pr list --json number,author,body` output.
 """
@@ -199,6 +207,43 @@ def queue(issues: list, prs: list, *, held_labels=("bot-working",)) -> list:
     return sorted(out, key=lambda i: (priority(i), int(i["number"])))
 
 
+LOCK_RE = re.compile(r"<!-- lock by=([A-Za-z0-9_.\[\]-]+) session=([A-Za-z0-9_.:@/-]+) token=([A-Za-z0-9_-]+) -->")
+UNLOCK_RE = re.compile(r"<!-- unlock by=([A-Za-z0-9_.\[\]-]+) -->")
+
+
+def lock_marker(by: str, session: str = "-", token: str = "-") -> str:
+    return f"<!-- lock by={by} session={session or '-'} token={token or '-'} -->"
+
+
+def unlock_marker(by: str) -> str:
+    return f"<!-- unlock by={by} -->"
+
+
+def standing_locks(comments: list, assignees) -> list:
+    """Locks whose holder is still assigned and not unlocked since, oldest first.
+
+    `comments` = the issue's comments in creation order ({body, created_at, id});
+    returns [{by, session, token, created_at, comment_id}]. The FIRST entry holds the issue.
+    A comment carrying BOTH an unlock and a lock for the same holder (coord's re-lock /
+    take-over reply) means "release the old, take the new": unlocks in a comment apply
+    before the locks in that same comment, so the fresh lock stands.
+    """
+    held = set(assignees or [])
+    last_unlock = {}
+    locks = []
+    for i, c in enumerate(comments or []):
+        body = c.get("body") or ""
+        for by in UNLOCK_RE.findall(body):
+            last_unlock[by] = i
+        for by, session, token in LOCK_RE.findall(body):
+            locks.append({"by": by, "session": session, "token": token, "created_at": c.get("created_at", ""),
+                          "comment_id": c.get("id"), "_idx": i})
+    out = [l for l in locks if l["by"] in held and l["_idx"] >= last_unlock.get(l["by"], -1)]
+    for l in out:
+        l.pop("_idx", None)
+    return out
+
+
 def is_task_shaped(body: str) -> bool:
     """True if an issue body carries a checkable DONE (## DONE, **DONE =**, DONE: ...)."""
     return bool(TASK_SHAPE.search(re.sub(r"<!--.*?-->", " ", body or "", flags=re.S)))
@@ -230,12 +275,20 @@ def main(argv=None) -> int:
     u.add_argument("--issues", required=True, help="JSON file: gh issue list --json number,title,state,assignees,labels")
     u.add_argument("--prs", required=True, help="JSON file: gh pr list --json number,author,body")
     sub.add_parser("taskshape", help="exit 0 if the issue body on stdin has a DONE section, else 1")
+    k = sub.add_parser("locks", help="print the standing claim locks of an issue as JSON (first = holder)")
+    k.add_argument("--comments", required=True, help="JSON file: the issue's comments (gh api .../comments)")
+    k.add_argument("--assignees", default="", help="comma-separated current assignee logins")
     a = ap.parse_args(argv)
     if a.cmd == "refs":
         print(json.dumps(refs(sys.stdin.read())))
         return 0
     if a.cmd == "taskshape":
         return 0 if is_task_shaped(sys.stdin.read()) else 1
+    if a.cmd == "locks":
+        with open(a.comments, encoding="utf-8") as fh:
+            comments = json.load(fh)
+        print(json.dumps(standing_locks(comments, [x for x in a.assignees.split(",") if x])))
+        return 0
     if a.cmd == "reqfile":
         with open(a.path, encoding="utf-8") as fh:
             print(json.dumps(reqfile(fh.read(), a.path)))

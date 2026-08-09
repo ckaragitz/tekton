@@ -20,6 +20,11 @@ planner and human-started sessions both follow, starting from `brief`.
           eventually close drafts nobody has touched for days
   steer   log a human steer verbatim as a `steer` issue BEFORE acting on it:
             python3 tools/dev/techlead.py steer "what they said" --by <login>
+  claim   claim-and-VERIFY one issue for this session (steer #90): assign me, wait, confirm I am the
+          earliest standing assignee and lock, post the session-tagged 🔒 — exit 4 (holder printed)
+          if someone, or another session of mine, was first:  techlead.py claim 24 --session laptop
+  mine    my assigned issues, each judged `this-session` / `active-elsewhere (hands off)` / `idle,
+          resumable` from lock session tags and recent activity — the resume rule for a fresh session
   config  print one knob (dotted key) from the merged config, for workflows with a checkout
   labels  create the label vocabulary this system relies on
   hello   the SessionStart banner (never fails; offline-safe; a few small calls at most)
@@ -959,6 +964,7 @@ def plan_sweep(snap: dict, cfg: dict, now=None) -> list:
 
 def _requeue_issue(gh: GH, n: int, key: str, note: str, branch: str, unassign=()) -> bool:
     """Unassign, `ready` + `retry`, record the branch to continue in the body, say why. Idempotent per key."""
+    note = note.rstrip() + "".join(f" {coord.unlock_marker(u)}" for u in unassign)     # their session locks lapse too
     if not gh.comment_once(n, key, note):
         return False
     gh.unassign(n, unassign)
@@ -1040,6 +1046,111 @@ def steer_issue(text: str, by: str = "", source: str = "session", logged_by: str
     return {"title": title, "body": body, "labels": ["steer"]}
 
 
+# ─────────────────────────────── claim / mine (steer #90) ──────────────────
+
+def first_standing_assignee(events: list, assignees) -> str:
+    """Earliest assignee still standing, replaying assigned/unassigned events (single-holder's rule)."""
+    cur = list(assignees or [])
+    pos, order = {}, []
+    for e in events or []:
+        ev, who = e.get("event"), ((e.get("assignee") or {}).get("login") or "")
+        if ev == "assigned" and who not in pos:
+            order.append(who); pos[who] = len(order)
+        elif ev == "unassigned":
+            pos.pop(who, None)
+    for i, who in enumerate(order, start=1):
+        if who in pos and pos[who] == i and who in cur:
+            return who
+    return cur[0] if cur else ""
+
+
+def judge_mine(issue: dict, locks: list, me: str, session: str, now, idle_hours: float = 2.0, pr_head_date=None) -> tuple:
+    """('this-session' | 'active-elsewhere' | 'idle', reason) for one of MY assigned issues.
+    locks = coord.standing_locks(comments, assignees); pr_head_date = newest push on a PR closing it."""
+    mine = [l for l in locks if l["by"] == me]
+    lock = mine[0] if mine else None
+    last = max([t for t in (parse_ts(issue.get("updated_at")), parse_ts(pr_head_date) if pr_head_date else None) if t] or [now])
+    idle_h = (now - last).total_seconds() / 3600
+    if lock and lock["session"] == session and session not in ("", "-"):
+        return "this-session", f"locked by this session ({lock['session']})"
+    if lock and lock["session"] not in ("", "-") and lock["session"] != session:
+        lock_age_h = (now - (parse_ts(lock["created_at"]) or now)).total_seconds() / 3600
+        if min(lock_age_h, idle_h) < idle_hours:
+            return "active-elsewhere", f"held by your other session `{lock['session']}` (lock {lock_age_h:.1f} h old, activity {idle_h:.1f} h ago) — hands off"
+    if idle_h < idle_hours:
+        return "active-elsewhere", f"activity {idle_h:.1f} h ago and no lock naming this session — assume another live session; hands off (or `/claim s=<tag> take-over`)"
+    return "idle", f"idle {idle_h:.1f} h — resumable: re-lock it for this session (`techlead.py claim {issue['number']} --session <tag>` or `/claim s=<tag>`)"
+
+
+def claim(gh: GH, number: int, me: str, session: str, settle: float = 6.0, log=print) -> dict:
+    """Assign me, wait, verify first standing assignee + first standing lock, post the session lock.
+    Returns {'ok': bool, 'holder': str, 'holder_session': str, 'reason': str}."""
+    import time
+    issue = gh.get(f"issues/{number}")
+    assignees = [a["login"] for a in issue.get("assignees") or []]
+    if assignees and me not in assignees:
+        return {"ok": False, "holder": assignees[0], "holder_session": "-", "reason": f"held by @{', @'.join(assignees)}"}
+    comments = gh.comments(number)
+    locks = coord.standing_locks(comments, assignees)
+    if me in assignees and locks and locks[0]["by"] == me and locks[0]["session"] not in ("-", session):
+        age_h = (utcnow() - (parse_ts(locks[0]["created_at"]) or utcnow())).total_seconds() / 3600
+        if age_h < 2:
+            return {"ok": False, "holder": me, "holder_session": locks[0]["session"],
+                    "reason": f"held by your other session `{locks[0]['session']}` ({age_h:.1f} h) — /next instead, or claim with --take-over"}
+    if me not in assignees:
+        gh.post(f"issues/{number}/assignees", {"assignees": [me]})
+    token = f"cli-{int(utcnow().timestamp())}"
+    gh.comment(number, f"🔒 @{me} holds #{number} (session `{session or '-'}`, claimed from a coding session).\n{coord.lock_marker(me, session or '-', token)}")
+    time.sleep(settle)
+    events = gh.paged(f"issues/{number}/events", max_pages=3)
+    issue = gh.get(f"issues/{number}")
+    assignees = [a["login"] for a in issue.get("assignees") or []]
+    first = first_standing_assignee([e for e in events if e.get("event") in ("assigned", "unassigned")], assignees)
+    # ONE authority per question (#90): across logins the earliest standing ASSIGNEE wins (single-holder's
+    # rule); between sessions of one login the earliest standing LOCK *of that login* picks the session.
+    mine_locks = [l for l in coord.standing_locks(gh.comments(number), assignees) if l["by"] == me]
+    lock0 = mine_locks[0] if mine_locks else {"by": me, "session": "-", "token": ""}
+    if first == me and lock0.get("token") == token:
+        return {"ok": True, "holder": me, "holder_session": session, "reason": "verified: first assignee and my login's first lock"}
+    if first != me:
+        gh.unassign(number, [me])                     # another login was first: undo mine and yield
+        gh.comment(number, f"↩️ @{me} (session `{session or '-'}`) yields #{number} to @{first}, whose claim landed first. {coord.unlock_marker(me)}")
+        return {"ok": False, "holder": first, "holder_session": "-", "reason": "lost the race to another login"}
+    # my login holds it through ANOTHER of my sessions: keep the assignment, drop only this request's lock
+    gh.comment(number, f"↩️ session `{session or '-'}` of @{me} steps back from #{number}: session `{lock0.get('session', '-')}` "
+                       f"locked it first. {coord.unlock_marker(me)}\n{coord.lock_marker(me, lock0.get('session', '-'), lock0.get('token') or 'relock')}")
+    return {"ok": False, "holder": me, "holder_session": lock0.get("session", "-"), "reason": "held by another session of mine"}
+
+
+def mine(gh: GH, me: str, session: str, idle_hours: float, now=None) -> list:
+    now = now or utcnow()
+    out = []
+    issues = [i for i in gh.get("issues", state="open", assignee=me, per_page=100) if not i.get("pull_request")]
+    prs = gh.get("pulls", state="open", per_page=100)
+    closing = {}
+    for p in prs:
+        for n in coord.refs(p.get("body") or "")["closing"]:
+            closing.setdefault(n, []).append(p)
+    for i in issues:
+        comments = gh.comments(i["number"])
+        locks = coord.standing_locks(comments, [a["login"] for a in i.get("assignees") or []])
+        head_date = None
+        for p in closing.get(i["number"], []):
+            try:
+                d = gh.get(f"commits/{p['head']['sha']}")["commit"]["committer"]["date"]
+                head_date = max(head_date or d, d)
+            except GitHubError:
+                pass
+        verdict, why = judge_mine(i, locks, me, session, now, idle_hours, head_date)
+        out.append({"number": i["number"], "title": i.get("title", ""), "verdict": verdict, "why": why,
+                    "prs": [p["number"] for p in closing.get(i["number"], [])]})
+    return out
+
+
+def whoami(gh: GH) -> str:
+    return (gh.request("GET", gh.api + "/user") or {}).get("login", "")
+
+
 # ─────────────────────────────── hello (SessionStart) ───────────────────────
 
 HELLO = ("tekton · you are a TECH LEAD here: you own the backlog AND you build (CLAUDE.md §4, docs/process/AUTONOMY.md).\n"
@@ -1118,6 +1229,16 @@ def main(argv=None) -> int:
     t.add_argument("--dry-run", action="store_true")
     c = sub.add_parser("config", help="print one merged config value, e.g. `config planner.max_turns`")
     c.add_argument("key")
+    cl = sub.add_parser("claim", help="claim-and-verify one issue for this session (exit 4 = someone else holds it)")
+    cl.add_argument("number", type=int)
+    cl.add_argument("--session", default=os.environ.get("TEKTON_SESSION", "-"), help="tag for THIS session (also $TEKTON_SESSION)")
+    cl.add_argument("--me", default="", help="my login (default: whoever the token belongs to)")
+    cl.add_argument("--take-over", action="store_true", help="take it from another session of mine (that session is gone)")
+    mi = sub.add_parser("mine", help="my assigned issues judged this-session / active-elsewhere / idle (the resume rule)")
+    mi.add_argument("--session", default=os.environ.get("TEKTON_SESSION", "-"))
+    mi.add_argument("--me", default="")
+    mi.add_argument("--idle-hours", type=float, default=2.0)
+    mi.add_argument("--json", action="store_true")
     sub.add_parser("labels", help="create the label vocabulary")
     sub.add_parser("hello", help="SessionStart banner")
     a = ap.parse_args(argv)
@@ -1152,6 +1273,28 @@ def _run(a, cfg: dict) -> int:
     gh = _client(a.repo)
     if a.cmd == "labels":
         ensure_labels(gh)
+        return 0
+    if a.cmd == "claim":
+        me = a.me or whoami(gh)
+        if a.take_over:
+            gh.comment(a.number, f"🔓 @{me} takes #{a.number} over from another session of theirs. {coord.unlock_marker(me)}")
+        r = claim(gh, a.number, me, a.session)
+        print(json.dumps(r, ensure_ascii=False))
+        if not r["ok"]:
+            print(f"claim: NOT yours — {r['reason']} (holder @{r['holder']}, session {r['holder_session']})", file=sys.stderr)
+            return 4
+        return 0
+    if a.cmd == "mine":
+        me = a.me or whoami(gh)
+        rows = mine(gh, me, a.session, a.idle_hours)
+        if a.json:
+            print(json.dumps(rows, ensure_ascii=False, indent=2))
+        else:
+            icons = {"this-session": "🟢 yours (this session)", "active-elsewhere": "⛔ active elsewhere", "idle": "🟡 idle, resumable"}
+            for r in rows:
+                print(f"#{r['number']:<5} {icons[r['verdict']]:<26} {r['title'][:70]}\n        {r['why']}" + (f"  PRs: {r['prs']}" if r["prs"] else ""))
+            if not rows:
+                print(f"@{me} holds nothing open — `/next s={a.session}` for the head of the queue.")
         return 0
     snap = snapshot(gh, cfg, with_runs=(a.cmd in ("board", "brief")))
     now = parse_ts(snap["now"])

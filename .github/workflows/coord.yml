@@ -7,8 +7,11 @@ name: coord
 # squash-merged, and a 39-file branch sat pushed with no PR where nobody could see it.
 # CLAUDE.md section 4 is the user-facing description; keep the two in step.
 #
-#   claim         "/claim" comment = assign the commenter (for surfaces that cannot assign, e.g. a
-#                 cloud session's MCP tools without write, or a phone), or say who holds it;
+#   claim         "/claim [s=<session>] [take-over]" comment = assign the commenter (for surfaces
+#                 that cannot assign, e.g. a cloud session's MCP tools without write, or a phone),
+#                 or say who holds it — including "your OTHER session holds it" for two sessions of
+#                 one login (session-tagged 🔒 locks, steer #90); every claim is VERIFIED (first
+#                 standing assignee + first standing lock) before anyone is told they hold it;
 #                 "/release" unassigns; "/next" on ANY issue = assign the commenter the head of
 #                 the ready queue (tools/dev/coord.py queue: P0 > P1 > rest, oldest first,
 #                 skipping gated / in-review / worker-held issues) — a session's "what should I
@@ -100,9 +103,11 @@ jobs:
          startsWith(github.event.comment.body, '/next'))) ||
        startsWith(github.event.comment.body, '/steer'))
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     concurrency:
-      group: issue-${{ github.event.issue.number }}
+      # /next is serialized per LOGIN — two sessions of the same person asking at once are handled one
+      # after the other, so they can never be handed the same head (steer #90); the rest per issue.
+      group: ${{ startsWith(github.event.comment.body, '/next') && format('next-{0}', github.event.comment.user.login) || format('issue-{0}', github.event.issue.number) }}
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v6
@@ -121,6 +126,31 @@ jobs:
           eval "$COORD_LIB"
           react() { gh api -X POST "repos/$REPO/issues/comments/$COMMENT_ID/reactions" -f content="$1" >/dev/null 2>&1 || true; }
           reply() { gh issue comment "$N" --repo "$REPO" --body "$1" >/dev/null; }
+          # Session tag: `/next s=laptop`, `/claim s=session_01abc` — distinguishes sessions of the SAME
+          # login (steer #90). Optional; the requesting comment id is the unique token either way.
+          SESSION=$(grep -oE '(^|[[:space:]])s=[A-Za-z0-9_.:@/-]{1,64}' <<<"${BODY%%$'\n'*}" | head -1 | sed -E 's/.*s=//' || true); SESSION=${SESSION:--}
+          TAKEOVER=no; grep -qiE '(^|[[:space:]])(take-over|takeover)([[:space:]]|$)' <<<"${BODY%%$'\n'*}" && TAKEOVER=yes
+          lock_line() { echo "<!-- lock by=$WHO session=$SESSION token=$COMMENT_ID -->"; }
+          # first_holder <issue>: replay assignment events (same rule as single-holder) -> login of the
+          # earliest standing assignee, or "" when unassigned.
+          first_holder() {
+            local cur; cur=$(holders "$1"); [ -z "$cur" ] && { echo ""; return; }
+            local f; f=$(gh api "repos/$REPO/issues/$1/events?per_page=100" --paginate \
+                  --jq '.[]|select(.event=="assigned" or .event=="unassigned")|"\(.event) \(.assignee.login)"' \
+                | awk -v cur=",$cur," '$1=="assigned" && !($2 in pos) { pos[$2]=++n; order[n]=$2 } $1=="unassigned" { delete pos[$2] } END { for (i=1; i<=n; i++) if ((order[i] in pos) && pos[order[i]]==i && index(cur, ","order[i]",")) { print order[i]; exit } }')
+            [ -z "$f" ] && f=${cur%%,*}; echo "$f"
+          }
+          # first_lock <issue> [login]: "by session token created_at" of the earliest STANDING lock
+          # (tools/dev/coord.py locks) — of that login only when given. ONE authority per question (#90):
+          # across logins the earliest standing ASSIGNEE wins (what single-holder enforces); between
+          # sessions of one login the earliest standing LOCK of that login picks the session.
+          first_lock() {
+            local f who="${2:-}"; f=$(mktemp)      # never write scratch into the checkout
+            gh api "repos/$REPO/issues/$1/comments?per_page=100" --paginate > "$f"
+            python3 tools/dev/coord.py locks --comments "$f" --assignees "$(holders "$1")" \
+              | jq -r --arg who "$who" '[.[] | select($who == "" or .by == $who)][0] // empty | "\(.by) \(.session) \(.token) \(.created_at)"'
+            rm -f "$f"
+          }
           # Live state, not the event payload: two /claim comments seconds apart are serialized by
           # the concurrency group, so the second one sees the first one's assignment.
           held=$(holders "$N")
@@ -143,44 +173,99 @@ jobs:
               ;;
             /release*)
               gh issue edit "$N" --repo "$REPO" --remove-assignee "$WHO" >/dev/null 2>&1 || true
+              gh issue comment "$N" --repo "$REPO" --body "🔓 @$WHO released #$N — back in the queue. <!-- unlock by=$WHO -->" >/dev/null
               react "+1"; say "#$N released by $WHO"
               ;;
             /next*)
-              # Hand the commenter the head of the queue (tools/dev/coord.py queue): `ready`,
-              # unassigned, not gated, not already answered by an open PR, not held by the
-              # worker; P0 > P1 > rest, oldest first. Two /next on different issues can race on
-              # the same pick; single-holder removes the loser, who just comments /next again.
+              # Hand the commenter the head of the queue (tools/dev/coord.py queue): `ready`, unassigned,
+              # not gated, not already answered by an open PR, not held by the worker; P0 > P1 > rest,
+              # oldest first. The lock is taken here and VERIFIED here (steer #90): assign -> settle ->
+              # the earliest standing assignee AND the earliest standing 🔒 lock must both be this request;
+              # otherwise this request lost a race (another person, or another session of the same person)
+              # and moves on to the next candidate — nobody is ever told "you hold it" wrongly.
               gh issue list --repo "$REPO" --state open --limit 200 --json number,title,state,labels,assignees > issues.json
               gh pr list --repo "$REPO" --state open --limit 100 --json number,author,body > prs.json
-              pick=$(python3 tools/dev/coord.py queue --issues issues.json --prs prs.json | head -1)
+              mapfile -t cands < <(python3 tools/dev/coord.py queue --issues issues.json --prs prs.json | head -6)
+              pick=""; tried=0
+              for cand in "${cands[@]}"; do
+                tried=$((tried+1))
+                [ -n "$(holders "$cand")" ] && continue                       # taken since the queue was read
+                gh issue edit "$cand" --repo "$REPO" --add-assignee "$WHO" >/dev/null 2>&1 || { react "confused"; reply "⚠️ @$WHO — could not assign you #$cand (are you a collaborator on this repo?)"; exit 1; }
+                gh issue comment "$cand" --repo "$REPO" --body "🔒 @$WHO holds #$cand (session \`$SESSION\`, via \`/next\`). Branch \`<you>/$cand-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$cand\`** after the first commit — the bots review, fix, mark ready and merge it even if your session ends. \`/release\` if you drop it.
+              $(lock_line)" >/dev/null
+                sleep 6                                                        # let a simultaneous rival's assignment/lock land
+                fh=$(first_holder "$cand"); read -r _lby lsession ltoken _lts <<<"$(first_lock "$cand" "$WHO")" || true
+                # WIN = my login is the earliest standing assignee AND this request holds my login's earliest lock.
+                if [ "$fh" = "$WHO" ] && [ "${ltoken:-}" = "$COMMENT_ID" ]; then pick=$cand; break; fi
+                if [ "$fh" != "$WHO" ]; then
+                  # Another LOGIN's assignment landed first: undo mine (single-holder would evict me anyway) and yield.
+                  gh issue edit "$cand" --repo "$REPO" --remove-assignee "$WHO" >/dev/null 2>&1 || true
+                  gh issue comment "$cand" --repo "$REPO" --body "↩️ @$WHO (session \`$SESSION\`) yields #$cand to @$fh, whose claim landed first. <!-- unlock by=$WHO -->" >/dev/null
+                  say "/next: $WHO lost the race for #$cand to $fh"
+                else
+                  # My login holds it, but through ANOTHER of my sessions (its lock is my login's earliest): keep the
+                  # assignment (that session's), drop only THIS request's lock, and move on to the next candidate.
+                  gh issue comment "$cand" --repo "$REPO" --body "↩️ session \`$SESSION\` of @$WHO steps back from #$cand: @$WHO's session \`${lsession:--}\` locked it first. <!-- unlock by=$WHO -->
+              <!-- lock by=$WHO session=${lsession:--} token=${ltoken:-relock} -->" >/dev/null
+                  say "/next: $WHO/$SESSION defers #$cand to own session ${lsession:--}"
+                fi
+              done
               if [ -z "$pick" ]; then
                 react "confused"
-                reply "📭 @$WHO — the ready queue is empty right now (everything \`ready\` is held, in review, or gated on a human). The tech-lead planner refills it from docs/PROGRAM.md within hours — or run a planning pass yourself now (\`/techlead\` in your session; charter: .github/prompts/techlead.md) and then \`/next\` again."
-                say "/next by $WHO: queue empty"
-              elif gh issue edit "$pick" --repo "$REPO" --add-assignee "$WHO" >/dev/null 2>&1; then
+                if [ "${#cands[@]}" = "0" ]; then
+                  reply "📭 @$WHO — the ready queue is empty right now (everything \`ready\` is held, in review, or gated on a human). The tech-lead planner refills it from docs/PROGRAM.md within hours — or run a planning pass yourself now (\`/techlead\` in your session; charter: .github/prompts/techlead.md) and then \`/next\` again."
+                  say "/next by $WHO: queue empty"
+                else
+                  reply "🔁 @$WHO — lost $tried race(s) in a row for the head of the queue (busy moment). Comment \`/next\` again in a minute."
+                  say "/next by $WHO: lost every race"
+                fi
+              else
                 react "+1"
                 retry=""
                 if jq -e --argjson n "$pick" '.[]|select(.number==$n)|.labels|map(.name)|index("retry")' issues.json >/dev/null; then
                   retry=" **This is re-queued work (\`retry\`): continue on the existing branch/PR named in the last ♻️ comment there instead of starting over.**"
                 fi
-                [ "$pick" != "$N" ] && reply "🎯 @$WHO → you now hold #$pick (head of the ready queue). Details there.$retry"
-                gh issue comment "$pick" --repo "$REPO" --body "🔒 @$WHO holds #$pick (assigned via \`/next\`). Branch \`<you>/$pick-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$pick\`** after the first commit — the bots review, fix, mark ready and merge it even if your session ends. \`/release\` if you drop it.$retry" >/dev/null
-                say "/next: #$pick -> $WHO"
-              else
-                react "confused"
-                reply "⚠️ @$WHO — could not assign you #$pick (are you a collaborator on this repo?)"
-                exit 1
+                [ "$pick" != "$N" ] && reply "🎯 @$WHO (session \`$SESSION\`) → you now hold #$pick (head of the ready queue) — verified: first assignee and first lock. Details there.$retry"
+                say "/next: #$pick -> $WHO/$SESSION"
               fi
               ;;
             *)
               if [ -n "$held" ] && [[ ",$held," != *",$WHO,"* ]]; then
                 react "-1"
-                reply "⛔ @$WHO — #$N is already held by @${held//,/, @}. Pick another \`ready\` issue with no assignee, or ask here to pair or take over (a holder can assign you, or \`/release\`). Starting anyway is how duplicate PRs happen."
+                reply "⛔ @$WHO — #$N is already held by @${held//,/, @}. Pick another \`ready\` issue with no assignee (\`/next\`), or ask here to pair or take over (a holder can assign you, or \`/release\`). Starting anyway is how duplicate PRs happen."
                 say "#$N: claim by $WHO refused (held by $held)"
-              elif gh issue edit "$N" --repo "$REPO" --add-assignee "$WHO" >/dev/null 2>err.txt; then
-                react "+1"
-                reply "🔒 @$WHO holds #$N. Branch \`<you>/$N-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$N\`** after the first commit. \`/release\` if you drop it."
-                say "#$N claimed by $WHO"
+                exit 0
+              fi
+              if [[ ",$held," == *",$WHO,"* ]]; then
+                # Already assigned to this login: is it THIS session's lock, another live session's, or idle?
+                read -r lby lsession ltoken lts <<<"$(first_lock "$N" "$WHO")" || true      # MY login's locks only (a pairing partner's earlier lock must not mask my other session's)
+                if [ -n "${lby:-}" ] && [ "$lby" = "$WHO" ] && [ "$lsession" != "$SESSION" ] && [ "$TAKEOVER" != "yes" ]; then
+                  age=$(( ( $(date -u +%s) - $(date -u -d "$lts" +%s) ) / 60 ))
+                  if [ "$age" -lt 120 ]; then
+                    react "-1"
+                    reply "⛔ @$WHO — #$N is held by **your other session** \`$lsession\` (locked ${age} min ago). Two sessions of one person on one issue is still duplicate work: take the head of the queue instead (\`/next s=$SESSION\`), or, if that session is gone, \`/claim s=$SESSION take-over\`."
+                    say "#$N: same-login claim by $WHO/$SESSION refused (held by session $lsession, ${age} min)"
+                    exit 0
+                  fi
+                fi
+                gh issue comment "$N" --repo "$REPO" --body "🔒 @$WHO holds #$N (session \`$SESSION\`$( [ "$TAKEOVER" = yes ] && echo ", taken over" )). <!-- unlock by=$WHO -->
+              $(lock_line)" >/dev/null
+                react "+1"; say "#$N: re-locked for $WHO/$SESSION"
+                exit 0
+              fi
+              if gh issue edit "$N" --repo "$REPO" --add-assignee "$WHO" >/dev/null 2>err.txt; then
+                gh issue comment "$N" --repo "$REPO" --body "🔒 @$WHO holds #$N (session \`$SESSION\`). Branch \`<you>/$N-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$N\`** after the first commit. \`/release\` if you drop it.
+              $(lock_line)" >/dev/null
+                sleep 6
+                fh=$(first_holder "$N")
+                if [ "$fh" != "$WHO" ]; then
+                  gh issue edit "$N" --repo "$REPO" --remove-assignee "$WHO" >/dev/null 2>&1 || true
+                  gh issue comment "$N" --repo "$REPO" --body "↩️ @$WHO yields #$N to @$fh, whose claim landed first. <!-- unlock by=$WHO -->" >/dev/null
+                  react "-1"; reply "⛔ @$WHO — @$fh claimed #$N a moment before you; yours is undone. \`/next\` for the head of the queue."
+                  say "#$N: $WHO lost the claim race to $fh"
+                else
+                  react "+1"; say "#$N claimed by $WHO/$SESSION (verified)"
+                fi
               else
                 react "confused"
                 reply "⚠️ @$WHO — could not assign you (are you a collaborator on this repo?): \`$(tr '\n' ' ' <err.txt | cut -c1-200)\`"
@@ -482,8 +567,8 @@ jobs:
             if [ -n "$(python3 tools/dev/coord.py rivals --issue "$n" --prs prs.json)" ]; then
               say "#$n: held by $who, open PR closes it — live"; continue
             fi
-            for u in ${who//,/ }; do gh issue edit "$n" --repo "$REPO" --remove-assignee "$u" >/dev/null 2>&1 || true; done
-            gh issue comment "$n" --repo "$REPO" --body "⏳ Released back to the queue: held by @${who//,/, @} for ${STALE_H}h+ with no open PR closing it and no activity, so the claim looks abandoned (laptop asleep, session ended). It is unassigned and \`ready\` again — anyone may \`/claim\` it, including the previous holder if the work is still live (and if so: push your branch and open the draft PR, that is what keeps a claim alive)." >/dev/null
+            unlocks=""; for u in ${who//,/ }; do gh issue edit "$n" --repo "$REPO" --remove-assignee "$u" >/dev/null 2>&1 || true; unlocks="$unlocks <!-- unlock by=$u -->"; done
+            gh issue comment "$n" --repo "$REPO" --body "⏳ Released back to the queue: held by @${who//,/, @} for ${STALE_H}h+ with no open PR closing it and no activity, so the claim looks abandoned (laptop asleep, session ended). It is unassigned and \`ready\` again — anyone may \`/claim\` it, including the previous holder if the work is still live (and if so: push your branch and open the draft PR, that is what keeps a claim alive).$unlocks" >/dev/null
             say "#$n: released stale claim by $who"
           done < <(gh issue list --repo "$REPO" --state open --limit 200 \
                      --json number,updatedAt,assignees,labels \

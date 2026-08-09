@@ -51,6 +51,11 @@ env:
     attempts_since_reset() {
       jq -r '[.[].body] | reduce .[] as $b (0; if ($b|contains("<!-- claude-autofix reset -->")) then 0 elif ($b|test("<!-- claude-autofix attempt=[0-9]+ -->")) then .+1 else . end)' <<<"$comments"
     }
+    # verdict_of <sha>: newest verdict marker in $comments (JSON) whose sha field is a >=12-hex prefix of <sha>.
+    verdict_of() {   # `|| true`: a no-match grep must not fail the step under pipefail
+      { jq -r '.[].body' <<<"$comments" | grep -oE "<!-- claude-review: (approve|nits|changes) sha=[0-9a-f]{12,40} -->" || true; } \
+        | awk -v s="$1" '{ split($4, kv, "="); if (index(s, kv[2]) == 1) v = $3 } END { print v }'
+    }
     park_stuck() {    # $1=pr $2=sha $3=why — label bot-stuck + one explanatory comment per sha (never needs-human)
       gh label create bot-stuck --repo "$REPO" --color b60205 >/dev/null 2>&1 || true
       gh pr edit "$1" --repo "$REPO" --add-label bot-stuck >/dev/null
@@ -173,7 +178,10 @@ jobs:
           SHA: ${{ steps.ctx.outputs.sha }}
         run: |
           set -euo pipefail
-          if gh api "repos/$REPO/issues/$PR/comments" --paginate --jq '.[].body' | grep -qE "<!-- claude-review: (approve|nits|changes) sha=$SHA -->"; then
+          eval "$REVIEW_LIB"
+          # shellcheck disable=SC2034   # read by verdict_of (eval'd from REVIEW_LIB)
+          comments=$(gh api "repos/$REPO/issues/$PR/comments" --paginate)
+          if [ -n "$(verdict_of "$SHA")" ]; then
             echo "found=yes" >> "$GITHUB_OUTPUT"
           else
             echo "found=no" >> "$GITHUB_OUTPUT"; echo "::warning::review pass ended without a verdict marker for $SHA (outcome: ${{ steps.review.outcome }}) — running the rescue pass"
@@ -217,8 +225,9 @@ jobs:
         run: |
           set -euo pipefail
           eval "$REVIEW_LIB"
+          # shellcheck disable=SC2034   # read by verdict_of / attempts_since_reset (eval'd from REVIEW_LIB)
           comments=$(gh api "repos/$REPO/issues/$PR/comments" --paginate)
-          verdict=$(jq -r '.[].body' <<<"$comments" | grep -oE "<!-- claude-review: (approve|nits|changes) sha=$SHA -->" | tail -1 | sed -E 's/.*: (approve|nits|changes) .*/\1/' || true)
+          verdict=$(verdict_of "$SHA")
           attempts=$(attempts_since_reset)
           [ -z "$verdict" ] && { echo "::error::no verdict marker for $SHA even after the rescue pass — automerge re-requests this review once, then parks the PR as bot-stuck (a PR that edits this very workflow can never be bot-reviewed: the action refuses modified copies; a session merges it)"; exit 1; }
           echo "verdict=$verdict attempts=$attempts/$MAX_FIX_ATTEMPTS"
@@ -264,6 +273,7 @@ jobs:
           [ "$(jq -r .isCrossRepository <<<"$j")" = "false" ] || { echo "PR #$IN_PR comes from a fork — not pushing there"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0; }
           sha=$(jq -r .headRefOid <<<"$j"); ref=$(jq -r .headRefName <<<"$j")
           max=$(cfg_max_fix)
+          # shellcheck disable=SC2034   # read by verdict_of / attempts_since_reset (eval'd from REVIEW_LIB)
           comments=$(gh api "repos/$REPO/issues/$IN_PR/comments" --paginate)
           attempts=$(attempts_since_reset)
           if [ "$attempts" -ge "$max" ]; then
@@ -277,7 +287,7 @@ jobs:
           if [ -n "$run_id" ] && [ "${run_id#* }" != "success" ]; then
             ci_red=yes; gh run view "${run_id% *}" --repo "$REPO" --log-failed 2>/dev/null | tail -300 > /tmp/ci-failed.log || true
           fi
-          verdict=$(jq -r '.[].body' <<<"$comments" | grep -oE "<!-- claude-review: (approve|nits|changes) sha=$sha -->" | tail -1 | sed -E 's/.*: (approve|nits|changes) .*/\1/' || true)
+          verdict=$(verdict_of "$sha")
           if [ "$ci_red" = "no" ] && [ "$verdict" != "changes" ]; then
             echo "head ${sha:0:7}: CI not red and verdict is '${verdict:-none}' — nothing to fix (a session probably pushed first)"; echo "go=no" >> "$GITHUB_OUTPUT"; exit 0
           fi

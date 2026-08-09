@@ -240,3 +240,31 @@ would be retried every sweep); the lift is now scoped by reason via the per-head
 = head moved → re-evaluate). Note: `worker.yml`'s `refresh-board` job now also fires after a
 `rebase`-mode run (the old inline step exited first) — intentional and harmless (idempotent
 dispatch; a rebase push changes the board anyway).
+
+## Claims at real-time scale (steer #90), same session
+
+ck asked how three people's agents avoid taking each other's work "at lightning speed". Model kept
+and made explicit: pull, don't push (S-2026-08-09-f). Two real gaps closed: (1) the lock knew
+logins, not sessions — `/next`/`/claim` now write session-tagged lock markers
+(`<!-- lock by session token -->`, `coord.py standing_locks`), `/next` is serialized per login,
+`/claim s=<tag>` refuses an issue another session of the same login locked < 2 h ago, and
+`techlead.py mine` gives a fresh session the resume rule (this-session / active-elsewhere / idle);
+(2) the ~1-minute cross-login race — `/next` and `/claim` now VERIFY (earliest standing assignee by
+event replay + earliest standing lock) after a settle delay and retry the next candidate for the
+loser instead of a late ⛔; `techlead.py claim <n>` does the same from a session. `/release`, the
+reaper and the re-queue sweep post unlock markers so old locks lapse. Also: verdict markers are now
+matched by a ≥ 12-hex prefix of the head in automerge/claude-review (the reviewer dropped the last
+digit of a SHA once on #89; that can no longer stall a PR).
+
+**Review rounds on #107 (independent reviewer from `main`), for the record:** (1) a re-lock comment
+carrying unlock + fresh lock in one body self-cancelled the fresh lock (`>` → `>=`: unlocks in a comment
+apply before its locks); (2) a stray `lc-5.json` from a local drive of `first_lock` was committed
+(`first_lock` now writes to `mktemp`); (3) cross-login races were judged by two authorities that can
+disagree inside the settle window (assignment-event order vs lock-comment order), leaving a "loser" still
+assigned. Resolution: ONE authority per question — across logins the earliest standing assignee wins
+(exactly `single-holder`'s rule), between sessions of one login the earliest standing lock *of that
+login* picks the session (`first_lock <issue> <login>`, `claim()` filters its own login's locks). A request
+whose assignment was first therefore wins even if a rival's lock comment posted earlier; the rival (not
+first assignee) unassigns and yields; a request that finds its own *other* session's lock first keeps the
+login's assignment and drops only its own lock. No branch can now report a loss while leaving a stale
+assignment.
