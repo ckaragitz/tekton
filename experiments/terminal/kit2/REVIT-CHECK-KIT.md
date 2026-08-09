@@ -24,11 +24,11 @@ The v2 files are the real product shapes, built through the front door on the pi
 | 3 | `K3_room_combined.rvt` | combined | 4 | 1 | 1 | 0 errors / 1 warnings |
 | 4 | `families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa` | standalone generated family (PP-1) | - | - | - | 0 errors / 0 warnings |
 
-`K0_CTRL_G_ABPD.rvt` is byte-identical to the pinned base (sha256 `84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50`); the other files were built ON it, so every element id above the base watermark **1472524** was authored by tekton. `manifest.json` beside these files lists, per file, every such id -> class -> save unit -> family, and an `id_index` across the whole kit.
+`K0_CTRL_G_ABPD.rvt` is byte-identical to the pinned base (sha256 `84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50`); the other files were built ON it, so every element id above the base watermark **1472524** was authored by tekton. `manifest.json` beside these files lists, per file, every such id -> class -> save unit -> family, and an `id_index` across the whole kit. Always keep the `manifest.json` that came WITH the files you open: family-document GUIDs and K2/K3 hashes differ per build.
 
 Expected reading per file:
 
-- `K0_CTRL_G_ABPD.rvt` -- CERTIFIED base, byte-identical to the plugin's pinned G_ABPD (viewer verdict #24). Must open clean; if it does not, the Revit install / release is the problem and nothing else in the kit can be read.
+- `K0_CTRL_G_ABPD.rvt` -- CERTIFIED base, byte-identical to the plugin's pinned G_ABPD (docs/inbox/genesis-audit.md '***** ORCHESTRATOR VERDICTS #24' (2026-08-04): GENESIS LOADS). Must open clean; if it does not, the Revit install / release is the problem and nothing else in the kit can be read.
 - `K1_shell_walls.rvt` -- Walls-only species on the composed base -- the certified render lane. Expected to open clean with 4 walls visible in 3D; a dialog here would be NEW information (walls were never the failing axis).
 - `K2_equipment_1fam_1inst.rvt` -- THE OPEN CELL, minimal: exactly one generated family document (save unit 1, 64-B blob present) + one placed instance, no walls. The cloud viewer rejects this shape (VERDICTS #48). Whatever dialog / journal line Revit shows here IS the fix spec -- capture it verbatim.
 - `K3_room_combined.rvt` -- K1 + K2 in one file: the stamped product shape (PROOF-ONLY: walls+families combination). Same dialog as K2 => one shared cause; a different / extra dialog => the combination adds a second defect.
@@ -41,7 +41,7 @@ For EACH project file, in the order above:
 1. File > Open > browse to the file and **tick `Audit`** in the Open dialog before clicking Open. Audit makes Revit run its full consistency pass and say what it repaired.
 2. **Screenshot every dialog that appears, in order, before clicking anything.** If a dialog has `Show`, `More Info`, `Expand` or `Details`, open it and screenshot that too. Then click through (OK / Close / Continue -- never `Delete` unless it is the only way on, and say so).
 3. If a dialog names an **element id**: note it, then once the file is open use Manage > Inquiry > **Select by ID**, paste the id, and screenshot what gets selected (Properties palette open). `tools/revit_kit.py lookup <id>` (or `manifest.json` `id_index`) tells us which of our elements that is -- host element or inside the family document.
-4. If it opens: Manage > Inquiry > **Review Warnings** -> Export the list (or screenshot it in full). Open the default 3D view: K1/K3 should show four walls; K2/K3 a panelboard box near the west wall. Screenshot.
+4. If it opens: Manage > Inquiry > **Review Warnings** -> Export the list (or screenshot it in full). Open the default 3D view: K1/K3 should show four walls; K2/K3 a panelboard box near x = -15 ft. Screenshot.
 5. File > Save As under a new name; screenshot any dialog (a save-time audit failure is as informative as an open-time one).
 6. With `K1_shell_walls.rvt` open and clean: Insert > **Load Family** > `families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa`; screenshot any dialog; if it loads, place one instance from the Project Browser and Save As again.
 7. **Always attach the newest journal**, whatever happened (clean open, dialog, or crash): after closing Revit, open `%LOCALAPPDATA%\Autodesk\Revit\Autodesk Revit 2026\Journals` in Explorer, sort by date, and **copy the newest `journal.*.txt` out by hand** to the folder you send back. Never point a script or tool at that directory (or any Autodesk directory) -- copy the file out, then we read the copy.
@@ -63,7 +63,7 @@ For EACH project file, in the order above:
 
 ## Send back
 
-The screenshots, the exported warnings (if any), the copied journal file(s), and one line per file: `opened clean` / `dialog: <first words>` / `corrupt: <detail line>` / `crash`. The receiving session records it as the next `## ORCHESTRATOR VERDICTS` entry in docs/inbox/genesis-audit.md and on issue #16.
+The screenshots, the exported warnings (if any), the copied journal file(s), the kit's `manifest.json`, and one line per file: `opened clean` / `dialog: <first words>` / `corrupt: <detail line>` / `crash`. The receiving session records it as the next `## ORCHESTRATOR VERDICTS` entry in docs/inbox/genesis-audit.md and on issue #16.
 
 ## Safety / provenance
 

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import sys
 
 import pytest
@@ -51,8 +52,7 @@ def kit(tmp_path_factory):
             "md": (out / "REVIT-CHECK-KIT.md").read_text(encoding="utf-8")}
 
 
-def _file(manifest, name):
-    return RK._file(manifest, name)
+_file = RK._file
 
 
 # ---------------------------------------------------------------------------
@@ -60,11 +60,12 @@ def _file(manifest, name):
 # ---------------------------------------------------------------------------
 
 def test_constants_agree_with_the_engine():
-    from rvt.frontdoor.base import PIN
-    from rvt.validate import UNIT_FOOTER_BLOB_LEN
+    from rvt.frontdoor.base import PIN, resolve_base
     assert RK.PINNED_SHA256 == PIN.base_sha256 == PIN_SHA256
-    assert RK.BLOB_LEN == UNIT_FOOTER_BLOB_LEN == 64
-    assert RK.watermark_of(RK.PINNED_BASE) == RK.BASE_WATERMARK == 1472524
+    assert RK.BLOB_LEN == 64
+    assert RK.sha256_of(resolve_base().path) == PIN_SHA256
+    assert RK.watermark_of(RK.PINNED_BASE) == 1472524
+    assert set(RK.KIT_SPEC) == {RK.K0, RK.K1, RK.K2, RK.K3}
 
 
 # ---------------------------------------------------------------------------
@@ -88,7 +89,9 @@ def test_k0_is_byte_identical_to_the_pin(kit):
     assert RK.sha256_of(os.path.join(kit["dir"], RK.K0)) == PIN_SHA256
     assert k0["byte_identical_to_pin"] is True and k0["role"] == "control"
     assert kit["manifest"]["base"]["watermark"] == 1472524
+    assert kit["manifest"]["base"]["release"] == 2026
     assert k0["census"]["added_classes"] == {} and k0["census"]["added_save_units"] == 0
+    assert k0["added_elements"] == [] and k0["family_documents"] == []
 
 
 def test_k1_is_the_shell(kit):
@@ -160,7 +163,6 @@ def test_id_map_resolves_dialog_ids(kit):
 
 def test_verify_passes_on_the_fresh_kit_and_catches_a_swapped_file(kit, tmp_path):
     assert RK.verify_kit(kit["dir"]) == []
-    import shutil
     copy = tmp_path / "kitcopy"
     shutil.copytree(kit["dir"], copy)
     shutil.copyfile(copy / RK.K1, copy / RK.K2)          # a mislabelled copy
@@ -204,12 +206,30 @@ def test_tracked_kit_markdown_is_a_v2_render():
         assert n in md
 
 
-def test_terminal_diff_kit_delegates(monkeypatch):
+def test_check_kit_convicts_a_broken_shape(kit):
+    """The shape laws are data (KIT_SPEC): a manifest whose K2 lost its
+    instance, or whose famdoc blob is short, is reported, not passed."""
+    import copy
+    m = copy.deepcopy(kit["manifest"])
+    k2 = _file(m, RK.K2)
+    k2["census"]["added_classes"].pop("FamilyInstance")
+    k2["family_documents"][0]["blob_len"] = 0
+    k2["census"]["save_units"][1]["blob_len"] = 0
+    bad = RK.check_kit(m)
+    assert any("K2" in b and "added structural classes" in b for b in bad), bad
+    assert any("K2" in b and "0x0f3f blob 0 B != 64" in b for b in bad), bad
+
+
+def test_terminal_diff_kit_delegates(kit, capsys):
+    """`terminal_diff kit` only delegates to revit_kit.main (default argv =
+    build into experiments/terminal/kit2); exercised here with a cheap
+    lookup against the fixture kit instead of a second 16 s build."""
     import terminal_diff as td
     assert not hasattr(td, "KIT_MD") and not hasattr(td, "BXHF")
-    assert td.KIT_DIR.endswith(os.path.join("experiments", "terminal", "kit2"))
-    seen = {}
-    monkeypatch.setattr(RK, "main", lambda argv: seen.setdefault("argv", list(argv)) and 0)
-    monkeypatch.setitem(sys.modules, "revit_kit", RK)
-    assert td.kit() == 0
-    assert seen["argv"] == ["build", "--out", td.KIT_DIR]
+    assert td.KIT_DIR == os.path.join(td.OUT_DIR, "kit2")
+    inst = [r for r in _file(kit["manifest"], RK.K2)["added_elements"]
+            if r["class"] == "FamilyInstance"][0]
+    assert td.kit(["lookup", str(inst["id"]), "--kit", kit["dir"]]) == 0
+    out = capsys.readouterr().out
+    assert "kit -> tools/revit_kit.py lookup" in out
+    assert f"{inst['id']}: {RK.K2} unit 0 (host) class FamilyInstance" in out

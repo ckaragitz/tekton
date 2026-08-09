@@ -35,13 +35,12 @@ Exit codes: 0 = kit built and every self-check holds, 1 = a check failed
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import shutil
 import sys
 import time
-import uuid
+from collections import Counter
 from typing import Any, Dict, List, Optional, Sequence
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -50,40 +49,70 @@ for _p in (os.path.join(ROOT, "src"), os.path.join(ROOT, "lib", "src")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 
+from rvt.frontdoor.base import PIN, BaseError, resolve_base, sha256_of  # noqa: E402
+from rvt.validate import UNIT_FOOTER_BLOB_LEN as BLOB_LEN               # noqa: E402
+
 KIT_VERSION = 2
 DEFAULT_OUT = os.path.join(ROOT, "experiments", "terminal", "kit2")
 PUBLISHED_MD = os.path.join(ROOT, "experiments", "terminal", "REVIT-CHECK-KIT.md")
+#: the fresh-clone location of the pinned base (resolve_base() finds it there)
 PINNED_BASE = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
+#: kit v2 is DEFINED on this base; asserted equal to the engine's pin at build
+#: time -- if the pin ever moves, bump KIT_VERSION together with this literal.
 PINNED_SHA256 = "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50"
-BASE_WATERMARK = 1472524          # G_ABPD's highest issued ElementId (== rst == K4)
-BLOB_LEN = 64                     # the 0x0f3f unit footer blob law (VERDICTS #36)
 PROMPT = "an electrical room with 1 panel"
 
 K0, K1, K2, K3 = ("K0_CTRL_G_ABPD.rvt", "K1_shell_walls.rvt",
                   "K2_equipment_1fam_1inst.rvt", "K3_room_combined.rvt")
 
-#: classes whose counts the kit reports per file (total in host doc + added)
+#: host classes whose totals the kit reports per file
 CLASSES_OF_INTEREST = ("SWall", "Family", "FamilySymbol", "FamSymSurrogate",
                        "FamilySurrogate", "FamilyInstance")
+#: the structural classes a build may ADD; anything else added is a check
+#: failure, except ParamElemFamily whose count follows the family's parameters
+STRUCTURAL = frozenset(CLASSES_OF_INTEREST)
+_ONE_FAMILY = {"Family": 1, "FamilySymbol": 1, "FamSymSurrogate": 1,
+               "FamilySurrogate": 1, "FamilyInstance": 1}
 
-EXPECTED = {
-    K0: ("CERTIFIED base, byte-identical to the plugin's pinned G_ABPD (viewer "
-         "verdict #24). Must open clean; if it does not, the Revit install / "
-         "release is the problem and nothing else in the kit can be read."),
-    K1: ("Walls-only species on the composed base -- the certified render lane. "
-         "Expected to open clean with 4 walls visible in 3D; a dialog here would "
-         "be NEW information (walls were never the failing axis)."),
-    K2: ("THE OPEN CELL, minimal: exactly one generated family document (save "
-         "unit 1, 64-B blob present) + one placed instance, no walls. The cloud "
-         "viewer rejects this shape (VERDICTS #48). Whatever dialog / journal "
-         "line Revit shows here IS the fix spec -- capture it verbatim."),
-    K3: ("K1 + K2 in one file: the stamped product shape (PROOF-ONLY: walls+"
-         "families combination). Same dialog as K2 => one shared cause; a "
-         "different / extra dialog => the combination adds a second defect."),
-    "rfa": ("The generated family K2/K3 embed, as a standalone .rfa. Insert > Load "
-            "Family it into the opened K1 (or File > Open it). Loads clean => the "
-            "defect is in how the project EMBEDS/places it, not the family body; "
-            "a dialog => the family document itself is what Revit objects to."),
+#: one row per project file: which front-door job/role produces it, and the
+#: exact shape it must have (added structural classes, added save units,
+#: total SWall in the host document)
+KIT_SPEC: Dict[str, Dict[str, Any]] = {
+    K0: {"role": "control", "job": None,
+         "expect": {"added": {}, "added_units": 0, "swall": 0},
+         "expected": "CERTIFIED base, byte-identical to the plugin's pinned G_ABPD ({verdict}). "
+                     "Must open clean; if it does not, the Revit install / release is the "
+                     "problem and nothing else in the kit can be read."},
+    K1: {"role": "shell", "job": "split",
+         "expect": {"added": {"SWall": 4}, "added_units": 0, "swall": 4},
+         "expected": "Walls-only species on the composed base -- the certified render lane. "
+                     "Expected to open clean with 4 walls visible in 3D; a dialog here would "
+                     "be NEW information (walls were never the failing axis)."},
+    K2: {"role": "equipment", "job": "split",
+         "expect": {"added": _ONE_FAMILY, "added_units": 1, "swall": 0},
+         "expected": "THE OPEN CELL, minimal: exactly one generated family document (save "
+                     "unit 1, 64-B blob present) + one placed instance, no walls. The cloud "
+                     "viewer rejects this shape (VERDICTS #48). Whatever dialog / journal "
+                     "line Revit shows here IS the fix spec -- capture it verbatim."},
+    K3: {"role": "combined", "job": "combined",
+         "expect": {"added": {**_ONE_FAMILY, "SWall": 4}, "added_units": 1, "swall": 4},
+         "expected": "K1 + K2 in one file: the stamped product shape (PROOF-ONLY: walls+"
+                     "families combination). Same dialog as K2 => one shared cause; a "
+                     "different / extra dialog => the combination adds a second defect."},
+}
+RFA_EXPECTED = ("The generated family K2/K3 embed, as a standalone .rfa. Insert > Load "
+                "Family it into the opened K1 (or File > Open it). Loads clean => the "
+                "defect is in how the project EMBEDS/places it, not the family body; "
+                "a dialog => the family document itself is what Revit objects to.")
+
+RETIRED = {
+    "H12": ("retired: the all-native-copy probe's ONLY defect was its empty 0x0f3f unit "
+            "footer blob -- E1 (= H12 + the donor's 64-B blob, one stream changed) and "
+            "E1b (random 64 B) both PASSED in genesis-audit VERDICTS #36. Opening it in "
+            "desktop Revit would re-discover a law already fixed in core."),
+    "BXhf_f1i1": ("retired: a batch-38-era G_ABPD probe built before the blob fix (empty "
+                  "blob on its family unit) -- it fails for the solved reason, not the "
+                  "open one."),
 }
 
 
@@ -95,14 +124,6 @@ def log(msg: str) -> None:
     print(f"[revit_kit] {msg}", flush=True)
 
 
-def sha256_of(path: str) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
 def relp(path: str, start: str = ROOT) -> str:
     try:
         return os.path.relpath(path, start).replace(os.sep, "/")
@@ -111,7 +132,6 @@ def relp(path: str, start: str = ROOT) -> str:
 
 
 def jdump(path: str, obj: Any) -> None:
-    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(obj, f, indent=1, default=str)
         f.write("\n")
@@ -120,6 +140,11 @@ def jdump(path: str, obj: Any) -> None:
 # ---------------------------------------------------------------------------
 # read-only inspection of one container
 # ---------------------------------------------------------------------------
+
+def _watermark(et) -> int:
+    """Highest issued ElementId: max(ElemTable footer last_id, max row id)."""
+    return max([int(et.footer.last_id)] + [int(r.id) for r in et.records])
+
 
 def elemtable_of(path: str):
     from rvt.container import open_rvt
@@ -130,24 +155,19 @@ def elemtable_of(path: str):
 
 
 def watermark_of(path: str) -> int:
-    """Highest issued ElementId: max(ElemTable footer last_id, max row id)."""
-    et = elemtable_of(path)
-    return max([int(et.footer.last_id)] + [int(r.id) for r in et.records])
+    return _watermark(elemtable_of(path))
 
 
-def save_units(path: str) -> List[Dict[str, Any]]:
-    """Every Partitions save unit: index, GUID, block count, 0x0f3f blob length."""
+def blob_lengths(path: str) -> List[int]:
+    """0x0f3f footer blob length per save unit, in FamilyIndex's global unit
+    order (partition streams in container order, units in stream order)."""
     from rvt.container import open_rvt
     from rvt.partitions import StreamWalker
-    out: List[Dict[str, Any]] = []
+    out: List[int] = []
     with open_rvt(path) as f:
         for pn in f.partition_streams():
             w = StreamWalker(f.logical(pn), inflate=False, keep_data=False)
-            for u in w.units:
-                out.append({"stream": pn, "index": u.index,
-                            "guid": str(uuid.UUID(bytes_le=u.guid)) if u.guid else None,
-                            "blocks": u.n_blocks, "blob_len": len(u.footer_blob),
-                            "kind": "host" if not u.guid else "famdoc"})
+            out.extend(len(u.footer_blob) for u in w.units)
     return out
 
 
@@ -187,114 +207,82 @@ def inspect_rvt(path: str, *, base_watermark: int, base_units: int = 1,
     ``family_documents``: every GUID-carrying save unit -> host Family name,
     blob length, and its own element id -> class map (a famdoc has its OWN id
     space, so a journal id may resolve there instead of the host)."""
-    from rvt.families import FamilyIndex
+    from rvt.families import FamilyIndex, family_documents
     tags = tags or {}
     fi = FamilyIndex.open(path)
     et = elemtable_of(path)
     et_ids = {int(r.id) for r in et.records}
-    wm = max([int(et.footer.last_id)] + list(et_ids)) if et_ids else int(et.footer.last_id)
     u0 = fi.unit_records(0)
-    recs102 = u0.get(102, {})
-    host_ids = set(recs102) & et_ids if et_ids else set(recs102)
+    recs102 = u0[102]
+    host_ids = set(recs102) & et_ids
 
     def cls_of(unit_recs, eid):
         for seq in [102] + sorted(s for s in unit_recs if s != 102):
             r = unit_recs.get(seq, {}).get(eid)
             if r is not None:
-                return fi.class_name(r.class_id), seq
-        return None, None
+                return fi.class_name(r.class_id)
+        return None
 
-    totals = {c: 0 for c in CLASSES_OF_INTEREST}
-    for eid in host_ids:
-        c = fi.class_name(recs102[eid].class_id)
-        if c in totals:
-            totals[c] += 1
-
+    totals = Counter(fi.class_name(recs102[e].class_id) for e in host_ids)
     added_ids = sorted(i for i in et_ids if i > base_watermark)
-    added: List[Dict[str, Any]] = []
-    added_counts: Dict[str, int] = {}
-    for eid in added_ids:
-        c, seq = cls_of(u0, eid)
-        added.append({"id": eid, "class": c, "seq": seq, "unit": 0, "unit_kind": "host"})
-        added_counts[c or "?"] = added_counts.get(c or "?", 0) + 1
+    added = [{"id": e, "class": cls_of(u0, e), "unit": 0} for e in added_ids]
 
-    # host Family -> name / famdoc GUID; then family attribution by ref closure
-    units = save_units(path)
-    guid_unit = {u["guid"]: u["index"] for u in units if u["guid"]}
-    fam_name: Dict[int, str] = {}
-    fam_guid: Dict[int, Optional[str]] = {}
-    for row in added:
-        if row["class"] == "Family":
-            v = fi.value(0, row["id"]) or {}
-            fam_name[row["id"]] = str(v.get("m_name") or "")
-            fam_guid[row["id"]] = ((v.get("m_oFamDoc") or {}).get("value") or {}).get("m_contentDocGUID")
-    owner: Dict[int, int] = {f: f for f in fam_name}
-    refs: Dict[int, List[int]] = {}
+    # host families we added (name, famdoc unit, symbols) via the shared census
+    fams = {d["family_id"]: d for d in family_documents(fi) if d["family_id"] > base_watermark}
+    owner: Dict[int, int] = {f: f for f in fams}
+    for d in fams.values():
+        for s in d["symbols"]:
+            owner[s["symbol_id"]] = d["family_id"]
     added_set = set(added_ids)
-    for row in added:
-        if row["id"] in owner or row["seq"] != 102:
-            continue
-        v = fi.value(0, row["id"])
-        refs[row["id"]] = sorted({i for i in _int_refs(v, base_watermark)
-                                  if i in added_set and i != row["id"]})
+    refs = {row["id"]: {i for i in _int_refs(fi.value(0, row["id"]), base_watermark)
+                       if i in added_set and i != row["id"]}
+            for row in added if row["id"] not in owner and row["id"] in recs102}
     changed = True
     while changed:
         changed = False
         for eid, rr in refs.items():
-            if eid in owner:
-                continue
-            for r in rr:
-                if r in owner:
-                    owner[eid] = owner[r]
-                    changed = True
-                    break
+            hit = next((r for r in sorted(rr) if r in owner), None) if eid not in owner else None
+            if hit is not None:
+                owner[eid] = owner[hit]
+                changed = True
     for row in added:
-        f = owner.get(row["id"])
-        row["family"] = fam_name.get(f) if f is not None else None
-        row["family_id"] = f
-        g = fam_guid.get(f) if f is not None else None
-        row["family_unit"] = guid_unit.get(g) if g else None
-        v = fi.value(0, row["id"]) if row["seq"] == 102 else None
+        fam = fams.get(owner.get(row["id"]))
+        row["family"] = fam["family_name"] if fam else None
+        row["family_id"] = fam["family_id"] if fam else None
+        row["family_unit"] = fam["unit"] if fam else None
+        v = fi.value(0, row["id"]) if row["id"] in recs102 else None
         if v and v.get("m_name"):
-            row["name"] = str(v.get("m_name"))
+            row["name"] = str(v["m_name"])
         if row["id"] in tags:
             row["tag"] = tags[row["id"]]
-        row.pop("seq", None)
 
+    blobs = blob_lengths(path)
+    units = [{"index": u.index, "guid": u.guid, "blocks": u.n_blocks, "blob_len": blobs[u.index]}
+             for u in fi.units]
+    name_by_unit = {d["unit"]: d["family_name"] for d in fams.values() if d["unit"] is not None}
     famdocs: List[Dict[str, Any]] = []
-    name_by_guid = {g: fam_name[f] for f, g in fam_guid.items() if g}
     for u in units:
         if not u["guid"]:
             continue
         urecs = fi.unit_records(u["index"])
-        elems = []
-        for eid in sorted({e for seq in urecs.values() for e in seq}):
-            c, _s = cls_of(urecs, eid)
-            elems.append({"id": eid, "class": c})
-        hist: Dict[str, int] = {}
-        for e in elems:
-            hist[e["class"] or "?"] = hist.get(e["class"] or "?", 0) + 1
+        elems = [{"id": e, "class": cls_of(urecs, e)}
+                 for e in sorted({e for seq in urecs.values() for e in seq})]
         famdocs.append({"unit": u["index"], "guid": u["guid"], "blob_len": u["blob_len"],
-                        "blocks": u["blocks"], "family": name_by_guid.get(u["guid"]),
-                        "added": u["index"] >= base_units,
-                        "n_elements": len(elems), "classes": hist, "elements": elems})
-
+                        "blocks": u["blocks"], "family": name_by_unit.get(u["index"]),
+                        "added": u["index"] >= base_units, "n_elements": len(elems),
+                        "classes": dict(Counter(e["class"] or "?" for e in elems)),
+                        "elements": elems})
     return {
-        "watermark": wm,
+        "watermark": _watermark(et),
         "elemtable_rows": len(et.records),
         "host_records": len(host_ids),
-        "classes": totals,
-        "added_classes": dict(sorted(added_counts.items())),
+        "classes": {c: totals.get(c, 0) for c in CLASSES_OF_INTEREST},
+        "added_classes": dict(sorted(Counter(r["class"] or "?" for r in added).items())),
         "save_units": units,
         "added_save_units": sum(1 for u in units if u["index"] >= base_units),
         "added_elements": added,
         "family_documents": famdocs,
     }
-
-
-def inspect_rfa(path: str) -> Dict[str, Any]:
-    units = save_units(path)
-    return {"save_units": units}
 
 
 # ---------------------------------------------------------------------------
@@ -313,109 +301,84 @@ def _author(out_dir: str, *, base: str, strict: bool):
 def _tags_from(manifest: Dict[str, Any]) -> Dict[int, str]:
     """elem id -> build tag (walls, instances, loaded family/symbol ids)."""
     out: Dict[int, str] = {}
-    for row in (manifest.get("build") or {}).get("elements_created") or []:
-        t = row.get("tag")
+    for row in manifest["build"].get("elements_created") or []:
         for k in ("elem_id", "symbol_id", "family_id", "symbol", "family"):
-            v = row.get(k)
-            if isinstance(v, int) and t:
-                out.setdefault(v, str(t))
+            if isinstance(row.get(k), int) and row.get("tag"):
+                out.setdefault(row[k], str(row["tag"]))
     return out
 
 
-def _family_rows(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
-    return [r for r in (manifest.get("build") or {}).get("family_files") or []]
-
-
 def build_kit(out_dir: str = DEFAULT_OUT, *, publish_md: Optional[str] = PUBLISHED_MD,
-              base_path: str = PINNED_BASE, keep_build: bool = False) -> Dict[str, Any]:
+              base_path: Optional[str] = None, keep_build: bool = False) -> Dict[str, Any]:
     """Build K0-K3 + families into ``out_dir``; write manifest.json and
     REVIT-CHECK-KIT.md there (and to ``publish_md`` when given).  Returns the
     manifest (with ``checks`` = the self-check problems, empty when good)."""
     t0 = time.time()
+    if PIN.base_sha256.lower() != PINNED_SHA256:
+        raise BaseError(f"the genesis pin moved ({PIN.base_sha256[:16]}...): kit v{KIT_VERSION} "
+                        f"is defined on {PINNED_SHA256[:16]}... -- bump KIT_VERSION + PINNED_SHA256")
+    base = resolve_base(base_path)                    # located + sha-verified against the pin
     out_dir = os.path.abspath(out_dir)
-    if not os.path.isfile(base_path):
-        raise FileNotFoundError(f"pinned base absent: {relp(base_path)}")
-    os.makedirs(out_dir, exist_ok=True)
     fam_dir = os.path.join(out_dir, "families")
     work = os.path.join(out_dir, "_build")
     for d in (fam_dir, work):
-        if os.path.isdir(d):
-            shutil.rmtree(d)
+        shutil.rmtree(d, ignore_errors=True)
     os.makedirs(fam_dir)
 
     # -- K0: the byte-identical control ------------------------------------
     k0 = os.path.join(out_dir, K0)
-    shutil.copyfile(base_path, k0)
-    base_sha = sha256_of(k0)
+    shutil.copyfile(base.path, k0)
     base_wm = watermark_of(k0)
-    base_units = len(save_units(k0))
-    log(f"K0 <- {relp(base_path)} sha256 {base_sha[:16]}... watermark {base_wm}")
+    base_units = len(blob_lengths(k0))
+    log(f"K0 <- {relp(base.path)} sha256 {base.sha256[:16]}... watermark {base_wm}")
 
     # -- K1 + K2: the strict twins; K3: the combined product shape --------------
     log(f"building on K0 through rvt.frontdoor.author: {PROMPT!r} (strict, then combined)")
-    r_split = _author(os.path.join(work, "split"), base=k0, strict=True)
-    r_comb = _author(os.path.join(work, "combined"), base=k0, strict=False)
-    bs, bc = r_split.manifest["build"]["files"], r_comb.manifest["build"]["files"]
-    src = {K1: bs["shell"]["path"], K2: bs["equipment"]["path"], K3: bc["combined"]["path"]}
-    for name, p in src.items():
-        shutil.copyfile(p, os.path.join(out_dir, name))
-    tags = {K1: _tags_from(r_split.manifest), K2: _tags_from(r_split.manifest),
-            K3: _tags_from(r_comb.manifest)}
-    build_seconds = {"split": r_split.seconds, "combined": r_comb.seconds}
-    stamps = {K1: list(r_split.as_json().get("stamps") or []),
-              K2: list(r_split.as_json().get("stamps") or []),
-              K3: list(r_comb.as_json().get("stamps") or [])}
-
-    fam_files: List[Dict[str, Any]] = []
-    seen = set()
-    for r in (r_split, r_comb):
-        for row in _family_rows(r.manifest):
+    jobs = {"split": _author(os.path.join(work, "split"), base=k0, strict=True),
+            "combined": _author(os.path.join(work, "combined"), base=k0, strict=False)}
+    for name, spec in KIT_SPEC.items():
+        if spec["job"]:
+            built = jobs[spec["job"]].manifest["build"]["files"][spec["role"]]["path"]
+            shutil.copyfile(built, os.path.join(out_dir, name))
+    fam_rows: Dict[str, Dict[str, Any]] = {}
+    for r in jobs.values():
+        for row in r.manifest["build"].get("family_files") or []:
             p = row.get("path")
-            if not p or not os.path.isfile(p):
-                continue
-            name = os.path.basename(p)
-            if name in seen:
-                continue
-            seen.add(name)
-            dst = os.path.join(fam_dir, name)
-            shutil.copyfile(p, dst)
-            fam_files.append({"name": f"families/{name}", "tag": row.get("tag"),
-                              "catalog": row.get("catalog"), "variant": row.get("variant")})
+            if p and os.path.isfile(p) and os.path.basename(p) not in fam_rows:
+                shutil.copyfile(p, os.path.join(fam_dir, os.path.basename(p)))
+                fam_rows[os.path.basename(p)] = row
     if not keep_build:
         shutil.rmtree(work, ignore_errors=True)
 
-    # -- inspect + validate everything -----------------------------------------
+    # -- inspect + validate everything (the kit's own gate on the bytes it ships)
     files: List[Dict[str, Any]] = []
-    roles = {K0: "control", K1: "shell", K2: "equipment", K3: "combined"}
-    for name in (K0, K1, K2, K3):
+    for name, spec in KIT_SPEC.items():
         p = os.path.join(out_dir, name)
         log(f"inspecting {name}")
+        job = jobs.get(spec["job"]) if spec["job"] else None
+        insp = inspect_rvt(p, base_watermark=base_wm, base_units=base_units,
+                           tags=_tags_from(job.manifest) if job else None)
         entry: Dict[str, Any] = {
-            "name": name, "kind": "rvt", "role": roles[name],
+            "name": name, "kind": "rvt", "role": spec["role"],
             "sha256": sha256_of(p), "bytes": os.path.getsize(p),
-            "expected": EXPECTED[name], "validation": validate(p),
-            "stamps": stamps.get(name, []),
+            "expected": spec["expected"].format(verdict=(PIN.certification.get("verdict") or "certified")),
+            "validation": validate(p),
+            "stamps": list(job.as_json().get("stamps") or []) if job else [],
+            "added_elements": insp.pop("added_elements"),
+            "family_documents": insp.pop("family_documents"),
+            "census": insp,
         }
-        if name == K0:
-            entry["source"] = relp(base_path)
+        if job is None:
+            entry["source"] = relp(base.path)
             entry["byte_identical_to_pin"] = entry["sha256"] == PINNED_SHA256
-            entry["census"] = {k: v for k, v in inspect_rvt(
-                p, base_watermark=base_wm, base_units=base_units).items()
-                if k not in ("added_elements", "family_documents")}
-            entry["added_elements"], entry["family_documents"] = [], []
-        else:
-            insp = inspect_rvt(p, base_watermark=base_wm, base_units=base_units,
-                               tags=tags[name])
-            entry["added_elements"] = insp.pop("added_elements")
-            entry["family_documents"] = insp.pop("family_documents")
-            entry["census"] = insp
         files.append(entry)
-    for ff in fam_files:
-        p = os.path.join(out_dir, ff["name"])
-        ff.update({"kind": "rfa", "role": "family", "sha256": sha256_of(p),
-                   "bytes": os.path.getsize(p), "expected": EXPECTED["rfa"],
-                   "validation": validate(p), "census": inspect_rfa(p)})
-        files.append(ff)
+    for fname, row in fam_rows.items():
+        p = os.path.join(fam_dir, fname)
+        files.append({"name": f"families/{fname}", "kind": "rfa", "role": "family",
+                      "tag": row.get("tag"), "catalog": row.get("catalog"),
+                      "variant": row.get("variant"), "sha256": sha256_of(p),
+                      "bytes": os.path.getsize(p), "expected": RFA_EXPECTED,
+                      "validation": validate(p), "census": {"blob_lengths": blob_lengths(p)}})
 
     # -- the id index: any id a dialog names -> where it lives -------------------
     id_index: Dict[str, List[Dict[str, Any]]] = {}
@@ -431,19 +394,22 @@ def build_kit(out_dir: str = DEFAULT_OUT, *, publish_md: Optional[str] = PUBLISH
                      "class": el["class"], "family": fd.get("family")})
 
     manifest: Dict[str, Any] = {
-        "schema": "tekton.revit-check-kit/2",
+        "schema": f"tekton.revit-check-kit/{KIT_VERSION}",
         "kit_version": KIT_VERSION,
         "tool": "tools/revit_kit.py",
         "issue": "#118 (kit v2); serves #16 (the desktop-Revit round)",
         "honesty": "PROOF-ONLY dev probes under experiments/; never a deliverable",
-        "base": {"path": relp(base_path), "sha256": base_sha, "pinned_sha256": PINNED_SHA256,
-                 "watermark": base_wm, "save_units": base_units, "release": 2026},
+        "volatility": ("K2/K3/.rfa sha256 and famdoc GUIDs differ per build (famgen mints "
+                       "fresh GUIDs, cf. #9); element ids and classes are stable. Read the "
+                       "manifest.json that travelled WITH the files; `verify` catches a mismatch."),
+        "base": {"path": relp(base.path), "source": base.source, "sha256": base.sha256,
+                 "pinned_sha256": PINNED_SHA256, "watermark": base_wm,
+                 "save_units": base_units, "release": int(PIN.revit_release),
+                 "verdict": PIN.certification.get("verdict")},
         "prompt": PROMPT,
         "built_through": "rvt.frontdoor.author(prompt, base=K0, strict=True) -> K1/K2; "
                          "strict=False -> K3",
-        "build_seconds": build_seconds,
-        "open_order": [K0, K1, K2, K3] + [f["name"] for f in fam_files[:1]],
-        "retired": RETIRED,
+        "build_seconds": {k: r.seconds for k, r in jobs.items()},
         "files": files,
         "id_index": id_index,
     }
@@ -451,14 +417,13 @@ def build_kit(out_dir: str = DEFAULT_OUT, *, publish_md: Optional[str] = PUBLISH
     manifest["seconds"] = round(time.time() - t0, 1)
     jdump(os.path.join(out_dir, "manifest.json"), manifest)
     md = render_kit_md(manifest)
-    with open(os.path.join(out_dir, "REVIT-CHECK-KIT.md"), "w", encoding="utf-8", newline="\n") as f:
-        f.write(md)
-    if publish_md:
-        with open(publish_md, "w", encoding="utf-8", newline="\n") as f:
+    for target in filter(None, (os.path.join(out_dir, "REVIT-CHECK-KIT.md"), publish_md)):
+        with open(target, "w", encoding="utf-8", newline="\n") as f:
             f.write(md)
+    if publish_md:
         log(f"published {relp(publish_md)}")
     log(f"kit written to {relp(out_dir)} in {manifest['seconds']} s; "
-        f"checks: {'ALL HOLD' if not manifest['checks'] else manifest['checks']}")
+        f"checks: {manifest['checks'] or 'ALL HOLD'}")
     return manifest
 
 
@@ -474,57 +439,36 @@ def _file(manifest: Dict[str, Any], name: str) -> Dict[str, Any]:
 
 
 def check_kit(manifest: Dict[str, Any]) -> List[str]:
-    """The kit's shape laws; returns the list of violated ones (empty = good)."""
-    bad: List[str] = []
+    """The kit's shape laws (KIT_SPEC + blob + validator); returns the list of
+    violated ones (empty = good)."""
     names = {e["name"] for e in manifest["files"]}
-    for n in (K0, K1, K2, K3):
-        if n not in names:
-            bad.append(f"{n} missing")
+    bad = [f"{n} missing" for n in KIT_SPEC if n not in names]
     if bad:
         return bad
-    if manifest["base"]["sha256"] != PINNED_SHA256:
-        bad.append(f"base sha256 {manifest['base']['sha256'][:16]} != pin {PINNED_SHA256[:16]}")
-    if manifest["base"]["watermark"] != BASE_WATERMARK:
-        bad.append(f"base watermark {manifest['base']['watermark']} != {BASE_WATERMARK}")
+    if _file(manifest, K0)["sha256"] != PINNED_SHA256:
+        bad.append("K0 is not byte-identical to the pinned G_ABPD")
     for e in manifest["files"]:
         v = e["validation"]
         if not v["ok"] or v["errors"]:
             bad.append(f"{e['name']}: validator {v['errors']} error(s): {v['error_messages'][:3]}")
-    k0 = _file(manifest, K0)
-    if k0["sha256"] != PINNED_SHA256 or not k0.get("byte_identical_to_pin"):
-        bad.append("K0 is not byte-identical to the pinned G_ABPD")
-    k1 = _file(manifest, K1)
-    if k1["census"]["classes"].get("SWall") != 4:
-        bad.append(f"K1 SWall {k1['census']['classes'].get('SWall')} != 4")
-    if k1["census"]["added_classes"] != {"SWall": 4}:
-        bad.append(f"K1 added {k1['census']['added_classes']} != 4 SWall only")
-    if k1["census"]["added_save_units"] != 0:
-        bad.append(f"K1 added save units {k1['census']['added_save_units']} != 0")
-    k2 = _file(manifest, K2)
-    a2 = k2["census"]["added_classes"]
-    for c in ("Family", "FamilySymbol", "FamSymSurrogate", "FamilyInstance"):
-        if a2.get(c) != 1:
-            bad.append(f"K2 added {c} {a2.get(c)} != 1")
-    if k2["census"]["classes"].get("SWall"):
-        bad.append(f"K2 SWall {k2['census']['classes'].get('SWall')} != 0")
-    added_docs = [d for d in k2["family_documents"] if d["added"]]
-    if k2["census"]["added_save_units"] != 1 or len(added_docs) != 1:
-        bad.append(f"K2 added save units {k2['census']['added_save_units']} != 1")
-    elif added_docs[0]["blob_len"] != BLOB_LEN:
-        bad.append(f"K2 famdoc unit blob {added_docs[0]['blob_len']} B != {BLOB_LEN}")
-    k3 = _file(manifest, K3)
-    a3 = k3["census"]["added_classes"]
-    if a3.get("SWall") != 4 or a3.get("FamilyInstance") != 1 or a3.get("Family") != 1:
-        bad.append(f"K3 added {a3} != 4 SWall + 1 Family + 1 FamilyInstance")
-    if k3["census"]["added_save_units"] != 1:
-        bad.append(f"K3 added save units {k3['census']['added_save_units']} != 1")
-    for n in (K1, K2, K3):
-        e = _file(manifest, n)
-        if not e["added_elements"]:
-            bad.append(f"{n}: added-element id map empty")
-        for d in e["family_documents"]:
-            if d["blob_len"] != BLOB_LEN:
-                bad.append(f"{n}: unit {d['unit']} blob {d['blob_len']} B != {BLOB_LEN}")
+    for name, spec in KIT_SPEC.items():
+        e, want = _file(manifest, name), spec["expect"]
+        got = {c: n for c, n in e["census"]["added_classes"].items() if c != "ParamElemFamily"}
+        if got != want["added"]:
+            bad.append(f"{name}: added structural classes {got} != {want['added']}")
+        unexpected = set(got) - STRUCTURAL
+        if unexpected:
+            bad.append(f"{name}: unexpected added classes {sorted(unexpected)}")
+        if e["census"]["classes"]["SWall"] != want["swall"]:
+            bad.append(f"{name}: SWall total {e['census']['classes']['SWall']} != {want['swall']}")
+        added_docs = [d for d in e["family_documents"] if d["added"]]
+        if e["census"]["added_save_units"] != want["added_units"] or len(added_docs) != want["added_units"]:
+            bad.append(f"{name}: added save units {e['census']['added_save_units']} != {want['added_units']}")
+        for u in e["census"]["save_units"]:
+            if u["blob_len"] != BLOB_LEN:
+                bad.append(f"{name}: unit {u['index']} 0x0f3f blob {u['blob_len']} B != {BLOB_LEN}")
+        if want["added"] and not e["added_elements"]:
+            bad.append(f"{name}: added-element id map empty")
     if not any(e["kind"] == "rfa" for e in manifest["files"]):
         bad.append("no families/*.rfa in the kit")
     if not manifest["id_index"]:
@@ -536,28 +480,13 @@ def check_kit(manifest: Dict[str, Any]) -> List[str]:
 # the markdown
 # ---------------------------------------------------------------------------
 
-RETIRED = {
-    "H12": ("retired: the all-native-copy probe's ONLY defect was its empty 0x0f3f unit "
-            "footer blob -- E1 (= H12 + the donor's 64-B blob, one stream changed) and "
-            "E1b (random 64 B) both PASSED in genesis-audit VERDICTS #36. Opening it in "
-            "desktop Revit would re-discover a law already fixed in core."),
-    "BXhf_f1i1": ("retired: a batch-38-era G_ABPD probe built before the blob fix (empty "
-                  "blob on its family unit) -- it fails for the solved reason, not the "
-                  "open one."),
-}
-
-
 def render_kit_md(manifest: Dict[str, Any]) -> str:
     files = manifest["files"]
     rvts = [e for e in files if e["kind"] == "rvt"]
     rfas = [e for e in files if e["kind"] == "rfa"]
     base = manifest["base"]
-
-    def cz(e, c):
-        return e.get("census", {}).get("classes", {}).get(c, 0)
-
-    def added_units(e):
-        return e.get("census", {}).get("added_save_units", 0)
+    rel = base["release"]
+    rfa_name = rfas[0]["name"] if rfas else "families/<the .rfa>"
 
     lines: List[str] = []
     w = lines.append
@@ -580,7 +509,7 @@ def render_kit_md(manifest: Dict[str, Any]) -> str:
       "more cloud probes.")
     w("")
     w("**What changed since v1.** The two v1 files are retired, do not open them:")
-    for k, why in manifest.get("retired", RETIRED).items():
+    for k, why in RETIRED.items():
         w(f"- `{k}` -- {why}")
     w("The v2 files are the real product shapes, built through the front door on the "
       "pinned certified base, every unit carrying the 64-byte blob, every file "
@@ -591,9 +520,9 @@ def render_kit_md(manifest: Dict[str, Any]) -> str:
     w("| # | file | what it is | walls | placed instances | added family docs | validator |")
     w("|---|---|---|---|---|---|---|")
     for i, e in enumerate(rvts):
-        v = e["validation"]
-        w(f"| {i} | `{e['name']}` | {e['role']} | {cz(e, 'SWall')} | {cz(e, 'FamilyInstance')} "
-          f"| {added_units(e)} | {v['errors']} errors / {v['warnings']} warnings |")
+        v, cz = e["validation"], e["census"]["classes"]
+        w(f"| {i} | `{e['name']}` | {e['role']} | {cz['SWall']} | {cz['FamilyInstance']} "
+          f"| {e['census']['added_save_units']} | {v['errors']} errors / {v['warnings']} warnings |")
     for j, e in enumerate(rfas, start=len(rvts)):
         v = e["validation"]
         w(f"| {j} | `{e['name']}` | standalone generated family ({e.get('tag') or '?'}) "
@@ -603,14 +532,16 @@ def render_kit_md(manifest: Dict[str, Any]) -> str:
       f"the other files were built ON it, so every element id above the base watermark "
       f"**{base['watermark']}** was authored by tekton. `manifest.json` beside these files "
       "lists, per file, every such id -> class -> save unit -> family, and an `id_index` "
-      "across the whole kit.")
+      "across the whole kit. Always keep the `manifest.json` that came WITH the files you "
+      "open: family-document GUIDs and K2/K3 hashes differ per build.")
     w("")
     w("Expected reading per file:")
     w("")
     for e in rvts + rfas[:1]:
         w(f"- `{e['name']}` -- {e['expected']}")
     w("")
-    w("## What to do (Revit 2026; a newer release is fine and will offer to upgrade; an OLDER release cannot open these -- stop there)")
+    w(f"## What to do (Revit {rel}; a newer release is fine and will offer to upgrade; "
+      "an OLDER release cannot open these -- stop there)")
     w("")
     w("For EACH project file, in the order above:")
     w("")
@@ -625,12 +556,12 @@ def render_kit_md(manifest: Dict[str, Any]) -> str:
       "`id_index`) tells us which of our elements that is -- host element or inside the "
       "family document.")
     w("4. If it opens: Manage > Inquiry > **Review Warnings** -> Export the list (or screenshot it in full). "
-      "Open the default 3D view: K1/K3 should show four walls; K2/K3 a panelboard box near the west wall. Screenshot.")
+      "Open the default 3D view: K1/K3 should show four walls; K2/K3 a panelboard box near x = -15 ft. Screenshot.")
     w("5. File > Save As under a new name; screenshot any dialog (a save-time audit failure is as informative as an open-time one).")
-    w(f"6. With `{K1}` open and clean: Insert > **Load Family** > `{(rfas[0]['name'] if rfas else 'families/<the .rfa>')}`; "
+    w(f"6. With `{K1}` open and clean: Insert > **Load Family** > `{rfa_name}`; "
       "screenshot any dialog; if it loads, place one instance from the Project Browser and Save As again.")
     w("7. **Always attach the newest journal**, whatever happened (clean open, dialog, or crash): "
-      "after closing Revit, open `%LOCALAPPDATA%\\Autodesk\\Revit\\Autodesk Revit 2026\\Journals` "
+      f"after closing Revit, open `%LOCALAPPDATA%\\Autodesk\\Revit\\Autodesk Revit {rel}\\Journals` "
       "in Explorer, sort by date, and **copy the newest `journal.*.txt` out by hand** to the folder "
       "you send back. Never point a script or tool at that directory (or any Autodesk directory) -- copy the file out, then we read the copy.")
     w("8. If Revit CRASHES: screenshot the crash reporter, do not send the report to Autodesk, and grab the journal as in step 7 (it names the failing subsystem, cf. docs/inbox/rfa-revit-api-compat.md Iteration 3).")
@@ -651,8 +582,8 @@ def render_kit_md(manifest: Dict[str, Any]) -> str:
     w("")
     w("## Send back")
     w("")
-    w("The screenshots, the exported warnings (if any), the copied journal file(s), and one line per file: "
-      "`opened clean` / `dialog: <first words>` / `corrupt: <detail line>` / `crash`. "
+    w("The screenshots, the exported warnings (if any), the copied journal file(s), the kit's `manifest.json`, "
+      "and one line per file: `opened clean` / `dialog: <first words>` / `corrupt: <detail line>` / `crash`. "
       "The receiving session records it as the next `## ORCHESTRATOR VERDICTS` entry in docs/inbox/genesis-audit.md and on issue #16.")
     w("")
     w("## Safety / provenance")
@@ -678,7 +609,7 @@ def verify_kit(kit_dir: str = DEFAULT_OUT) -> List[str]:
     """Re-check an existing kit dir against its manifest (sha256 per file,
     K0 against the pin) plus the recorded shape checks."""
     m = load_manifest(kit_dir)
-    bad = list(check_kit(m))
+    bad = check_kit(m)
     for e in m["files"]:
         p = os.path.join(kit_dir, e["name"])
         if not os.path.isfile(p):
@@ -689,7 +620,7 @@ def verify_kit(kit_dir: str = DEFAULT_OUT) -> List[str]:
 
 
 def lookup(kit_dir: str, ids: Sequence[str]) -> Dict[str, List[Dict[str, Any]]]:
-    idx = load_manifest(kit_dir).get("id_index") or {}
+    idx = load_manifest(kit_dir)["id_index"]
     return {str(i): idx.get(str(i), []) for i in ids}
 
 
@@ -716,35 +647,36 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         try:
             m = build_kit(a.out, publish_md=None if a.no_publish else PUBLISHED_MD,
                           keep_build=a.keep_build)
-        except FileNotFoundError as e:
+        except BaseError as e:
             log(f"ERROR {e}")
             return 2
         for e in m["files"]:
             v = e["validation"]
             log(f"  {e['name']:<44} sha256 {e['sha256'][:12]}  {v['errors']} errors / "
                 f"{v['warnings']} warnings  " + (
-                    f"added {e['census'].get('added_classes')} units+{e['census'].get('added_save_units')}"
+                    f"added {e['census']['added_classes']} units+{e['census']['added_save_units']}"
                     if e["kind"] == "rvt" else f"({e.get('tag')})"))
         log(f"id_index: {len(m['id_index'])} ids")
-        return 0 if not m["checks"] else 1
+        return int(bool(m["checks"]))
+    if not os.path.isfile(os.path.join(a.kit, "manifest.json")):
+        log(f"ERROR no manifest.json in {a.kit} -- run `revit_kit.py build --out {a.kit}` first")
+        return 2
     if a.cmd == "verify":
         bad = verify_kit(a.kit)
-        log("VERIFIED: every file matches its manifest and every shape law holds"
-            if not bad else f"PROBLEMS: {bad}")
-        return 0 if not bad else 1
-    if a.cmd == "lookup":
-        res = lookup(a.kit, a.ids)
-        for i, hits in res.items():
-            if not hits:
-                print(f"{i}: not a kit-added element (base element <= watermark, or unknown)")
-            for h in hits:
-                print(f"{i}: {h['file']} unit {h['unit']}"
-                      + (f" ({h['unit_guid']})" if h.get("unit_guid") else " (host)")
-                      + f" class {h['class']}"
-                      + (f" family {h['family']!r}" if h.get("family") else "")
-                      + (f" tag {h['tag']}" if h.get("tag") else ""))
-        return 0
-    return 2
+        log(f"PROBLEMS: {bad}" if bad else
+            "VERIFIED: every file matches its manifest and every shape law holds")
+        return int(bool(bad))
+    res = lookup(a.kit, a.ids)
+    for i, hits in res.items():
+        if not hits:
+            print(f"{i}: not a kit-added element (base element <= watermark, or unknown)")
+        for h in hits:
+            print(f"{i}: {h['file']} unit {h['unit']}"
+                  + (f" ({h['unit_guid']})" if h.get("unit_guid") else " (host)")
+                  + f" class {h['class']}"
+                  + (f" family {h['family']!r}" if h.get("family") else "")
+                  + (f" tag {h['tag']}" if h.get("tag") else ""))
+    return 0
 
 
 if __name__ == "__main__":

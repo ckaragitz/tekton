@@ -1368,7 +1368,7 @@ def stage() -> Dict[str, Any]:
 KIT_DIR = os.path.join(OUT_DIR, "kit2")
 
 
-def kit() -> int:
+def kit(argv: Optional[Sequence[str]] = None) -> int:
     """The desktop-Revit check kit is v2 (issue #118): built from a fresh
     clone by ``tools/revit_kit.py build`` -- K0 (byte-identical pinned base),
     K1 (shell walls), K2 (one generated family + one instance), K3 (room
@@ -1376,13 +1376,17 @@ def kit() -> int:
     family index, and the regenerated REVIT-CHECK-KIT.md.  The v1 pair this
     verb used to copy (H12 + BXhf_f1i1) is retired: E1/E1b PASSED in
     VERDICTS #36, so H12 failed only on its empty 0x0f3f blob, and BXhf_f1i1
-    predates that fix.  This verb only delegates."""
-    log("kit -> tools/revit_kit.py build --out " + relp(KIT_DIR)
+    predates that fix.  This verb only delegates (``argv`` defaults to the
+    build into experiments/terminal/kit2)."""
+    import importlib.util
+    argv = list(argv) if argv is not None else ["build", "--out", KIT_DIR]
+    log("kit -> tools/revit_kit.py " + " ".join(argv)
         + "  (kit v2, issue #118; the H12/BXhf_f1i1 pair is retired)")
-    if HERE not in sys.path:
-        sys.path.insert(0, HERE)
-    import revit_kit
-    return revit_kit.main(["build", "--out", KIT_DIR])
+    spec = importlib.util.spec_from_file_location(
+        "_terminal_revit_kit", os.path.join(HERE, "revit_kit.py"))
+    rk = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rk)
+    return rk.main(argv)
 
 
 # ===========================================================================

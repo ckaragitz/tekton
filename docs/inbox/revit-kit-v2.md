@@ -13,9 +13,11 @@ gone), `experiments/terminal/REVIT-CHECK-KIT.md` (regenerated v2),
 `experiments/terminal/kit2/{manifest.json,REVIT-CHECK-KIT.md}` (json/md tracked;
 `.rvt`/`.rfa` git-ignored), `tests/test_revit_kit.py` (new), `tests/ci_shard.txt`
 (one line), `docs/inbox/terminal-diff.md` (dated addendum header only), this
-record — plus one necessary adjacent edit: `tests/test_terminal_diff.py::
-test_revit_check_kit_in_place` asserted the v1 text/H12+BXhf copies and would have
-gone red on the owner's machine; it now asserts the v2 render (6 lines).  No
+record — plus one necessary adjacent deletion, recorded here in this stream's
+voice: `tests/test_terminal_diff.py::test_revit_check_kit_in_place` asserted the v1
+text + the H12/BXhf copies (red on the owner's machine once the kit is v2, and not
+in the CI shard); the kit is no longer terminal_diff's artifact, so the test is
+removed and `tests/test_revit_kit.py` owns those facts.  No
 ledger / KNOWLEDGE.md / TRACKER.md edits; read-only use of `rvt.frontdoor`,
 `rvt.families.FamilyIndex`, `rvt.elemtable`, `rvt.partitions.StreamWalker`,
 `rvt.validate`.
@@ -36,7 +38,13 @@ ledger / KNOWLEDGE.md / TRACKER.md edits; read-only use of `rvt.frontdoor`,
   `manifest.json` + `REVIT-CHECK-KIT.md` into the kit dir and (unless
   `--no-publish`) regenerates `experiments/terminal/REVIT-CHECK-KIT.md`.  Exit 0
   only if every shape law in `check_kit()` holds; the kit is written either way
-  (deliverable rule — labels, not refusals).
+  (deliverable rule — labels, not refusals).  The shape laws are data: one
+  `KIT_SPEC` row per file (front-door job/role, exact added structural classes,
+  added save units, SWall total) drives the copy loop, the manifest entries and
+  `check_kit` alike; the pin sha is a literal (kit v2 is *defined* on
+  `84173b89…`) asserted equal to `rvt.frontdoor.base.PIN` at build start, the base
+  is located by `resolve_base()`, the blob law is `rvt.validate.UNIT_FOOTER_BLOB_LEN`,
+  host families come from `rvt.families.family_documents`.
 * `verify [--kit DIR]`: re-checks an existing kit dir against its manifest (sha256
   per file + the shape laws) — for the human after copying the folder to Windows.
 * `lookup ID… [--kit DIR]`: resolves an element id a Revit dialog / journal names
@@ -66,16 +74,17 @@ with Audit, warnings-only, `.rfa` load, crash).
 
 ## Evidence (this VM, fresh clone: no samples/, vendor/, extracted/)
 
-`build` wall time **16.2–17.1 s** (front door: split 6.4–7.0 s + combined 5.4 s;
-the rest is census/validation).  Manifest summary of the tracked run:
+`build` wall time **16.2–17.1 s** over four runs (front door: split 6.4–7.0 s +
+combined 5.4 s; the rest is census + the kit's own validator pass, ~3 s).  Manifest
+summary of the tracked run:
 
 | file | bytes | sha256 | validator | added classes | added units (blob) |
 |---|---|---|---|---|---|
 | K0_CTRL_G_ABPD.rvt | 581,632 | `84173b8960b8…` (== pin) | 0 err / 1 warn | {} | 0 |
 | K1_shell_walls.rvt | 581,632 | `7d013d43a219…` | 0 err / 1 warn | SWall 4 | 0 |
-| K2_equipment_1fam_1inst.rvt | 593,920 | `c0da81bbc5f9…` | 0 err / 1 warn | Family 1, FamilySymbol 1, FamSymSurrogate 1, FamilySurrogate 1, FamilyInstance 1, ParamElemFamily 14; SWall total 0 | 1 (64 B) |
-| K3_room_combined.rvt | 593,920 | `9d8efa65f734…` | 0 err / 1 warn | the K2 set + SWall 4 | 1 (64 B) |
-| families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa | 217,088 | `a2bfcbc97f17…` | 0 err / 0 warn (family mode) | – | – |
+| K2_equipment_1fam_1inst.rvt | 593,920 | `19d316822770…` | 0 err / 1 warn | Family 1, FamilySymbol 1, FamSymSurrogate 1, FamilySurrogate 1, FamilyInstance 1, ParamElemFamily 14; SWall total 0 | 1 (64 B) |
+| K3_room_combined.rvt | 593,920 | `9cac854210a1…` | 0 err / 1 warn | the K2 set + SWall 4 | 1 (64 B) |
+| families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa | 217,088 | `de82cde9eb6f…` | 0 err / 0 warn (family mode) | – | – |
 
 The one standing warning on every project file is the inherited DataStorage
 Extensible-Storage decode gap (1/3106 records), present on the certified base too.
@@ -89,8 +98,10 @@ datums), blob 64 B, 3 blocks.  `tools/provenance.py K2 --baseline all --streams`
 runs (unbaselined on a fresh clone — no samples — as expected; kit files are
 PROOF-ONLY probes, not deliverables).
 
-Gates: `tests/test_revit_kit.py` **12 passed in 16.9 s** (module builds the kit
-once into tmp_path); `tests/test_terminal_diff.py -k kit_in_place` 1 passed;
+Gates: `tests/test_revit_kit.py` **13 passed in 16.0 s** (module builds the kit
+once into tmp_path; includes a negative `check_kit` case and the terminal_diff
+delegation via a cheap `lookup`); `tests/test_terminal_diff.py` 9 passed / 5
+skipped (samples-gated) on this clone;
 `tools/sync_plugin.py --check` clean (in sync, deny-audit clean);
 `plugin/scripts/validate_plugin.py` PASS (23 assertions); `check_portable_paths`
 ok (2698 paths); `tools/terminal_diff.py kit` end-to-end → delegates, exit 0.
@@ -103,12 +114,13 @@ ok (2698 paths); `tools/terminal_diff.py kit` end-to-end → delegates, exit 0.
    famdoc self-Family `1472525` (unit 1) share a number; K2's instance `1472584`
    is K3's wall W-S.  A dialog id is only meaningful with the file name; `lookup`
    prints every candidate with file + unit + GUID.
-2. **K1 is byte-deterministic across builds; K2/K3/.rfa are not.**  Two builds
-   minutes apart gave the identical K1 sha (`7d013d43a219`) but different K2/K3/
-   .rfa shas and famdoc GUIDs — the famgen/famload lane mints fresh GUIDs per run
+2. **K1 is byte-deterministic across builds; K2/K3/.rfa are not.**  Four builds
+   over an hour gave the identical K1 sha (`7d013d43a219`) but different K2/K3/
+   .rfa shas and famdoc GUIDs each time — the famgen/famload lane mints fresh GUIDs per run
    (cf. #9 determinism).  Consequence for the round: the human must send back (or
-   we must keep) the exact `manifest.json` of the kit they opened; `verify` catches
-   a mismatched folder.
+   we must keep) the exact `manifest.json` of the kit they opened; the manifest
+   carries a `volatility` note, the md says so, and `verify` catches a mismatched
+   folder.
 3. The equipment twin carries **19 added host elements** for one panel (Family,
    14 ParamElemFamily, FamilySurrogate, FamilySymbol, FamSymSurrogate,
    FamilyInstance) — all attributed to the one family by reference closure, no
@@ -121,12 +133,16 @@ ok (2698 paths); `tools/terminal_diff.py kit` end-to-end → delegates, exit 0.
   return screenshots + journal; the receiving session writes VERDICTS #49.
 * If #9 (determinism) lands, finding 2 disappears and the tracked manifest's
   shas become reproducible; until then the manifest is per-build evidence.
+* `/simplify` review skips, on purpose: the kit re-validates K1–K3 itself (~2.3 s)
+  although the front door validated the same bytes — kept as the kit's independent
+  gate on what it ships; the two front-door jobs repeat stage F/L (~2.5 s) — an
+  engine-side nicety for a dev tool, not filed.
 
 ## BRANCH STATE
 
 * Branch `cam/118-revit-kit-v2` from `main` @ 730fe5a; PR `Closes #118`.
 * Files written: `tools/revit_kit.py`, `tools/terminal_diff.py` (kit verb),
-  `tests/test_revit_kit.py`, `tests/test_terminal_diff.py` (kit assertion → v2),
+  `tests/test_revit_kit.py`, `tests/test_terminal_diff.py` (v1 kit assertion removed),
   `tests/ci_shard.txt` (+1 line), `experiments/terminal/REVIT-CHECK-KIT.md`
   (regenerated), `experiments/terminal/kit2/{manifest.json,REVIT-CHECK-KIT.md}`,
   `docs/inbox/terminal-diff.md` (addendum), `docs/inbox/revit-kit-v2.md`.

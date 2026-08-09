@@ -4,30 +4,22 @@
  "tool": "tools/revit_kit.py",
  "issue": "#118 (kit v2); serves #16 (the desktop-Revit round)",
  "honesty": "PROOF-ONLY dev probes under experiments/; never a deliverable",
+ "volatility": "K2/K3/.rfa sha256 and famdoc GUIDs differ per build (famgen mints fresh GUIDs, cf. #9); element ids and classes are stable. Read the manifest.json that travelled WITH the files; `verify` catches a mismatch.",
  "base": {
   "path": "plugin/assets/genesis/G_ABPD.rvt",
+  "source": "pinned-bundled",
   "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
   "pinned_sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
   "watermark": 1472524,
   "save_units": 1,
-  "release": 2026
+  "release": 2026,
+  "verdict": "docs/inbox/genesis-audit.md '***** ORCHESTRATOR VERDICTS #24' (2026-08-04): GENESIS LOADS"
  },
  "prompt": "an electrical room with 1 panel",
  "built_through": "rvt.frontdoor.author(prompt, base=K0, strict=True) -> K1/K2; strict=False -> K3",
  "build_seconds": {
-  "split": 7.0,
-  "combined": 5.4
- },
- "open_order": [
-  "K0_CTRL_G_ABPD.rvt",
-  "K1_shell_walls.rvt",
-  "K2_equipment_1fam_1inst.rvt",
-  "K3_room_combined.rvt",
-  "families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa"
- ],
- "retired": {
-  "H12": "retired: the all-native-copy probe's ONLY defect was its empty 0x0f3f unit footer blob -- E1 (= H12 + the donor's 64-B blob, one stream changed) and E1b (random 64 B) both PASSED in genesis-audit VERDICTS #36. Opening it in desktop Revit would re-discover a law already fixed in core.",
-  "BXhf_f1i1": "retired: a batch-38-era G_ABPD probe built before the blob fix (empty blob on its family unit) -- it fails for the solved reason, not the open one."
+  "split": 6.7,
+  "combined": 5.6
  },
  "files": [
   {
@@ -36,7 +28,7 @@
    "role": "control",
    "sha256": "84173b8960b8cbba1b096a42ad4a97ed24deba9476ccb05eb8853d4c6d06df50",
    "bytes": 581632,
-   "expected": "CERTIFIED base, byte-identical to the plugin's pinned G_ABPD (viewer verdict #24). Must open clean; if it does not, the Revit install / release is the problem and nothing else in the kit can be read.",
+   "expected": "CERTIFIED base, byte-identical to the plugin's pinned G_ABPD (docs/inbox/genesis-audit.md '***** ORCHESTRATOR VERDICTS #24' (2026-08-04): GENESIS LOADS). Must open clean; if it does not, the Revit install / release is the problem and nothing else in the kit can be read.",
    "validation": {
     "ok": true,
     "errors": 0,
@@ -45,8 +37,8 @@
     "mode": "project"
    },
    "stamps": [],
-   "source": "plugin/assets/genesis/G_ABPD.rvt",
-   "byte_identical_to_pin": true,
+   "added_elements": [],
+   "family_documents": [],
    "census": {
     "watermark": 1472524,
     "elemtable_rows": 3102,
@@ -62,18 +54,16 @@
     "added_classes": {},
     "save_units": [
      {
-      "stream": "Partitions/21",
       "index": 0,
       "guid": null,
       "blocks": 14,
-      "blob_len": 64,
-      "kind": "host"
+      "blob_len": 64
      }
     ],
     "added_save_units": 0
    },
-   "added_elements": [],
-   "family_documents": []
+   "source": "plugin/assets/genesis/G_ABPD.rvt",
+   "byte_identical_to_pin": true
   },
   {
    "name": "K1_shell_walls.rvt",
@@ -97,7 +87,6 @@
      "id": 1472525,
      "class": "SWall",
      "unit": 0,
-     "unit_kind": "host",
      "family": null,
      "family_id": null,
      "family_unit": null,
@@ -107,7 +96,6 @@
      "id": 1472526,
      "class": "SWall",
      "unit": 0,
-     "unit_kind": "host",
      "family": null,
      "family_id": null,
      "family_unit": null,
@@ -117,7 +105,6 @@
      "id": 1472527,
      "class": "SWall",
      "unit": 0,
-     "unit_kind": "host",
      "family": null,
      "family_id": null,
      "family_unit": null,
@@ -127,7 +114,6 @@
      "id": 1472528,
      "class": "SWall",
      "unit": 0,
-     "unit_kind": "host",
      "family": null,
      "family_id": null,
      "family_unit": null,
@@ -152,12 +138,10 @@
     },
     "save_units": [
      {
-      "stream": "Partitions/21",
       "index": 0,
       "guid": null,
       "blocks": 14,
-      "blob_len": 64,
-      "kind": "host"
+      "blob_len": 64
      }
     ],
     "added_save_units": 0
@@ -167,7 +151,7 @@
    "name": "K2_equipment_1fam_1inst.rvt",
    "kind": "rvt",
    "role": "equipment",
-   "sha256": "c0da81bbc5f951492902c5bfa9178640ad6007cb73378824efd1355b3145ee2c",
+   "sha256": "19d31682277092f49ab2102016fac2b4159954064b97280e71d3bd2e80c56335",
    "bytes": 593920,
    "expected": "THE OPEN CELL, minimal: exactly one generated family document (save unit 1, 64-B blob present) + one placed instance, no walls. The cloud viewer rejects this shape (VERDICTS #48). Whatever dialog / journal line Revit shows here IS the fix spec -- capture it verbatim.",
    "validation": {
@@ -185,7 +169,6 @@
      "id": 1472566,
      "class": "Family",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -196,7 +179,6 @@
      "id": 1472567,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -205,7 +187,6 @@
      "id": 1472568,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -214,7 +195,6 @@
      "id": 1472569,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -223,7 +203,6 @@
      "id": 1472570,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -232,7 +211,6 @@
      "id": 1472571,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -241,7 +219,6 @@
      "id": 1472572,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -250,7 +227,6 @@
      "id": 1472573,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -259,7 +235,6 @@
      "id": 1472574,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -268,7 +243,6 @@
      "id": 1472575,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -277,7 +251,6 @@
      "id": 1472576,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -286,7 +259,6 @@
      "id": 1472577,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -295,7 +267,6 @@
      "id": 1472578,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -304,7 +275,6 @@
      "id": 1472579,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -313,7 +283,6 @@
      "id": 1472580,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -322,7 +291,6 @@
      "id": 1472581,
      "class": "FamilySurrogate",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -332,7 +300,6 @@
      "id": 1472582,
      "class": "FamilySymbol",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -342,7 +309,6 @@
      "id": 1472583,
      "class": "FamSymSurrogate",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -352,7 +318,6 @@
      "id": 1472584,
      "class": "FamilyInstance",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -362,7 +327,7 @@
    "family_documents": [
     {
      "unit": 1,
-     "guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+     "guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
      "blob_len": 64,
      "blocks": 3,
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
@@ -580,20 +545,16 @@
     },
     "save_units": [
      {
-      "stream": "Partitions/21",
       "index": 0,
       "guid": null,
       "blocks": 14,
-      "blob_len": 64,
-      "kind": "host"
+      "blob_len": 64
      },
      {
-      "stream": "Partitions/21",
       "index": 1,
-      "guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+      "guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
       "blocks": 3,
-      "blob_len": 64,
-      "kind": "famdoc"
+      "blob_len": 64
      }
     ],
     "added_save_units": 1
@@ -603,7 +564,7 @@
    "name": "K3_room_combined.rvt",
    "kind": "rvt",
    "role": "combined",
-   "sha256": "9d8efa65f7345af4b43e6d622bff71f5687252cd2fc01181660fe28f9915d115",
+   "sha256": "9cac854210a184c5ad61a22a5c39a1239c24c33a0e4b1ca88839c9e03404e981",
    "bytes": 593920,
    "expected": "K1 + K2 in one file: the stamped product shape (PROOF-ONLY: walls+families combination). Same dialog as K2 => one shared cause; a different / extra dialog => the combination adds a second defect.",
    "validation": {
@@ -622,7 +583,6 @@
      "id": 1472566,
      "class": "Family",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -633,7 +593,6 @@
      "id": 1472567,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -642,7 +601,6 @@
      "id": 1472568,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -651,7 +609,6 @@
      "id": 1472569,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -660,7 +617,6 @@
      "id": 1472570,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -669,7 +625,6 @@
      "id": 1472571,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -678,7 +633,6 @@
      "id": 1472572,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -687,7 +641,6 @@
      "id": 1472573,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -696,7 +649,6 @@
      "id": 1472574,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -705,7 +657,6 @@
      "id": 1472575,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -714,7 +665,6 @@
      "id": 1472576,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -723,7 +673,6 @@
      "id": 1472577,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -732,7 +681,6 @@
      "id": 1472578,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -741,7 +689,6 @@
      "id": 1472579,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -750,7 +697,6 @@
      "id": 1472580,
      "class": "ParamElemFamily",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1
@@ -759,7 +705,6 @@
      "id": 1472581,
      "class": "FamilySurrogate",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -769,7 +714,6 @@
      "id": 1472582,
      "class": "FamilySymbol",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -779,7 +723,6 @@
      "id": 1472583,
      "class": "FamSymSurrogate",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -789,7 +732,6 @@
      "id": 1472584,
      "class": "SWall",
      "unit": 0,
-     "unit_kind": "host",
      "family": null,
      "family_id": null,
      "family_unit": null,
@@ -799,7 +741,6 @@
      "id": 1472585,
      "class": "SWall",
      "unit": 0,
-     "unit_kind": "host",
      "family": null,
      "family_id": null,
      "family_unit": null,
@@ -809,7 +750,6 @@
      "id": 1472586,
      "class": "SWall",
      "unit": 0,
-     "unit_kind": "host",
      "family": null,
      "family_id": null,
      "family_unit": null,
@@ -819,7 +759,6 @@
      "id": 1472587,
      "class": "SWall",
      "unit": 0,
-     "unit_kind": "host",
      "family": null,
      "family_id": null,
      "family_unit": null,
@@ -829,7 +768,6 @@
      "id": 1472588,
      "class": "FamilyInstance",
      "unit": 0,
-     "unit_kind": "host",
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
      "family_id": 1472566,
      "family_unit": 1,
@@ -839,7 +777,7 @@
    "family_documents": [
     {
      "unit": 1,
-     "guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+     "guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
      "blob_len": 64,
      "blocks": 3,
      "family": "Panelboard PP-1 480Y/277 225A MLO 42sp",
@@ -1058,20 +996,16 @@
     },
     "save_units": [
      {
-      "stream": "Partitions/21",
       "index": 0,
       "guid": null,
       "blocks": 14,
-      "blob_len": 64,
-      "kind": "host"
+      "blob_len": 64
      },
      {
-      "stream": "Partitions/21",
       "index": 1,
-      "guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+      "guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
       "blocks": 3,
-      "blob_len": 64,
-      "kind": "famdoc"
+      "blob_len": 64
      }
     ],
     "added_save_units": 1
@@ -1079,12 +1013,12 @@
   },
   {
    "name": "families/pp1_eaton_prl2x_225a_42sp_480y_277.rfa",
+   "kind": "rfa",
+   "role": "family",
    "tag": "PP-1",
    "catalog": "eaton/pow-r-line-panelboards",
    "variant": "PRL2X",
-   "kind": "rfa",
-   "role": "family",
-   "sha256": "a2bfcbc97f17ab1873d98954aa8cd40780491ff65b1c4445838f574aebd3b47a",
+   "sha256": "de82cde9eb6fa2f630527eb3a310865d5973d21cd3ad3e37786b24bb19046ab0",
    "bytes": 217088,
    "expected": "The generated family K2/K3 embed, as a standalone .rfa. Insert > Load Family it into the opened K1 (or File > Open it). Loads clean => the defect is in how the project EMBEDS/places it, not the family body; a dialog => the family document itself is what Revit objects to.",
    "validation": {
@@ -1095,15 +1029,8 @@
     "mode": "family"
    },
    "census": {
-    "save_units": [
-     {
-      "stream": "Partitions/0",
-      "index": 0,
-      "guid": null,
-      "blocks": 3,
-      "blob_len": 64,
-      "kind": "host"
-     }
+    "blob_lengths": [
+     64
     ]
    }
   }
@@ -1120,14 +1047,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "Family",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "Family",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1143,14 +1070,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "UnitsElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "UnitsElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1166,14 +1093,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "LevelAttributes",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "LevelAttributes",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1189,14 +1116,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "Level",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "Level",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1509,14 +1436,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "DBViewProject",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "DBViewProject",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1525,14 +1452,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "Viewer",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "Viewer",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1541,14 +1468,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "Viewport",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "Viewport",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1557,14 +1484,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "DBDrawing",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "DBDrawing",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1573,14 +1500,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "DBViewType",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "DBViewType",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1589,14 +1516,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "DBViewPlan",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "DBViewPlan",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1605,14 +1532,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "Viewer",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "Viewer",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1621,14 +1548,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "SketchPlane",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "SketchPlane",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1637,14 +1564,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "SunAndShadowSettings",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "SunAndShadowSettings",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1653,14 +1580,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "Viewport",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "Viewport",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1669,14 +1596,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "DBDrawing",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "DBDrawing",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1685,14 +1612,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ExtentElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ExtentElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1701,14 +1628,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "RefPlane",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "RefPlane",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1717,14 +1644,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "RefPlane",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "RefPlane",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1733,14 +1660,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1749,14 +1676,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1765,14 +1692,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1781,14 +1708,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1797,14 +1724,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1813,14 +1740,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1829,14 +1756,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1845,14 +1772,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1861,14 +1788,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1877,14 +1804,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1893,14 +1820,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1909,14 +1836,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1925,14 +1852,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1941,14 +1868,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ParamElemFamily",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1957,14 +1884,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "SketchPlane",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "SketchPlane",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1973,14 +1900,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "VarSketch",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "VarSketch",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -1989,14 +1916,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "CurveElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "CurveElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -2005,14 +1932,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "CurveElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "CurveElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -2021,14 +1948,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "CurveElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "CurveElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -2037,14 +1964,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "CurveElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "CurveElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -2053,14 +1980,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ExtrusionElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ExtrusionElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -2069,14 +1996,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ElectricalLoadClassification",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ElectricalLoadClassification",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -2085,14 +2012,14 @@
    {
     "file": "K2_equipment_1fam_1inst.rvt",
     "unit": 1,
-    "unit_guid": "6847f204-5e0d-4905-bfd2-71b7647365f1",
+    "unit_guid": "5ecec1f6-f022-404d-9d00-faaa1722ff41",
     "class": "ConnectorElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    },
    {
     "file": "K3_room_combined.rvt",
     "unit": 1,
-    "unit_guid": "3c10ec1e-9d1c-4349-b94a-257ad44fd48f",
+    "unit_guid": "67081b13-a98d-40c8-8e0c-98cb814fe040",
     "class": "ConnectorElem",
     "family": "Panelboard PP-1 480Y/277 225A MLO 42sp"
    }
@@ -2135,5 +2062,5 @@
   ]
  },
  "checks": [],
- "seconds": 16.5
+ "seconds": 16.4
 }
