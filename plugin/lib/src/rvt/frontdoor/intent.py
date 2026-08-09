@@ -9,7 +9,9 @@ itself needs:
 * :func:`intent_from_ifc` -- the ``--ifc`` route: the resolved-placement,
   Pset-join-key intent (the ifc-room stream's resolver).
 * :func:`summarize` -- a compact, JSON-able intent summary for the manifest
-  (equipment by kind, walls, feeder edges, family plans by status).
+  (equipment by kind, walls, feeder edges, family plans by status, the
+  recorded-only ``other_products``, and the IFC census of issue #153: what
+  the file held vs what reached the intent).
 * :func:`combination_check` -- detects THE OPEN CELL (docs/inbox/
   genesis-audit.md ORCHESTRATOR VERDICTS #48, issue #16): PLACED INSTANCES
   of OUR generated family documents on OUR composed genesis base fail
@@ -129,6 +131,10 @@ def summarize(model: IntentModel) -> Dict[str, Any]:
                           "refusal": p.refusal}
                          for p in (model.family_plans or [])],
         "clearances": len(model.clearances or []),
+        "other_products_total": len(model.other_products or []),
+        "other_products": [{k: o.get(k) for k in ("name", "tag", "ifcClass", "kind", "disposition")}
+                           for o in (model.other_products or [])],
+        "census": dict(model.census or {}),
         "audit": dict(model.audit or {}),
     }
 

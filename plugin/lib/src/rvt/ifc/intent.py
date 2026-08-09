@@ -2227,6 +2227,7 @@ class IntentModel:
     conduit_runs: List[dict]
     family_plans: List[FamilyPlan]
     audit: Dict[str, Any] = dc_field(default_factory=dict)
+    census: Dict[str, Any] = dc_field(default_factory=dict)   # what the IFC held vs what reached the intent
     notes: List[str] = dc_field(default_factory=list)
 
     # -- lookups -----------------------------------------------------------
@@ -2471,12 +2472,16 @@ def resolve_intent(ifc_path: str, *, plan_families_flag: bool = True) -> IntentM
     # ---- audit / self-checks
     audit = _audit(equipment, room, feeders)
 
+    # ---- census: what the file held vs what reached the intent (#153)
+    census = _census(f, products, equipment, others)
+
     model = IntentModel(
         source_path=os.path.abspath(ifc_path), schema=f.schema,
         project_name=(proj.Name if proj else None) or "Imported model",
         length_scale_m=scale, levels=levels, equipment=equipment,
         other_products=others, room=room, clearances=clearances,
-        feeders=feeders, conduit_runs=runs, family_plans=plans, audit=audit)
+        feeders=feeders, conduit_runs=runs, family_plans=plans, audit=audit,
+        census=census)
     model.notes += [
         "positions are RECOVERED FROM THE TESSELLATED GEOMETRY: every product's "
         "IfcLocalPlacement chain (product -> storey -> building -> site) composes to "
@@ -2525,6 +2530,217 @@ def _audit(equipment: List[Equipment], room: Optional[RoomShell],
 
 
 # ============================================================================
+# THE CENSUS: everything the IFC held vs what reached the intent (issue #153)
+# ============================================================================
+
+#: IfcRelationship classes the resolver CONSUMES (spatial structure + psets +
+#: types); every other relationship present in a file is enumerated as
+#: ignored, with what ignoring it costs the conversion when that is known
+CONSUMED_RELATIONSHIPS = ("IfcRelAggregates", "IfcRelContainedInSpatialStructure",
+                          "IfcRelDefinesByProperties", "IfcRelDefinesByType")
+
+_IGNORED_REL_EFFECT = {
+    "IfcRelVoidsElement": "openings are not cut into their host",
+    "IfcRelFillsElement": "doors / windows are not hosted in their opening",
+    "IfcRelProjectsElement": "projections are not added to their host",
+    "IfcRelAssociatesMaterial": "materials / layer sets are not carried",
+    "IfcRelAssociatesClassification": "classification references are not carried",
+    "IfcRelAssociatesDocument": "document references are not carried",
+    "IfcRelConnectsPathElements": "wall joins are not carried",
+    "IfcRelConnectsElements": "element connections are not carried",
+    "IfcRelConnectsPorts": "port connectivity is not carried (feeder edges come from the FedFrom pset)",
+    "IfcRelConnectsPortToElement": "ports are not attached (feeder edges come from the FedFrom pset)",
+    "IfcRelNests": "nested ports / components are not carried",
+    "IfcRelAssignsToGroup": "groups / systems / circuits are not carried",
+    "IfcRelAssignsToProduct": "product assignments are not carried",
+    "IfcRelServicesBuildings": "system-to-building service links are not carried",
+    "IfcRelSpaceBoundary": "space boundaries are not carried",
+    "IfcRelCoversBldgElements": "coverings are not attached to their element",
+    "IfcRelCoversSpaces": "coverings are not attached to their space",
+    "IfcRelSequence": "process sequencing is not carried",
+    "IfcRelDeclares": "project library declarations are not read",
+}
+
+#: body item classes :func:`_item_points_tris` reads (an item of one of these
+#: can still be unreadable -- an extrusion of a composite-curve profile, an
+#: empty brep; the census counts what was ACTUALLY read, this is the legend)
+READABLE_BODY_ITEMS = ("IfcTriangulatedFaceSet", "IfcTriangulatedIrregularNetwork",
+                       "IfcPolygonalFaceSet", "IfcFacetedBrep", "IfcExtrudedAreaSolid")
+
+_CENSUS_LEGEND = {
+    "read": "instances of the class present in the IFC (every IfcProduct is enumerated)",
+    "mapped": ("reached the intent as content the build AUTHORS in the .rvt: equipment of a "
+               "generated kind (our family + a placed instance), the room-shell proxy "
+               "(walls / doors / pads), a building storey (a level)"),
+    "recorded": ("kept in intent.json (identity, placement, psets, geometry) but no Revit "
+                 "element is authored for it: recorded equipment kinds, clearance proxies "
+                 "(annotation zones), site / building (placement scaffolding)"),
+    "dropped": "present in the IFC, absent from the intent: nothing of it reaches the .rvt",
+    "body_items": ("leaf items of every product's 'Body' representation (IfcMappedItem "
+                   "resolved through, once per occurrence); 'unreadable' = items of READ "
+                   "products the resolver has no tessellator for, so their geometry is lost"),
+}
+
+
+def _drop_reason(prod) -> str:
+    """Why a product the resolver never reads does not reach the intent."""
+    if prod.is_a("IfcSpace"):
+        return ("IfcSpace is not read into the intent (no room / space element is authored "
+                "from it yet, #158); products contained in it still resolve their storey "
+                "through it")
+    if prod.is_a("IfcOpeningElement") or prod.is_a("IfcFeatureElement"):
+        return "voids / surface features are skipped: openings are not cut into their host (#157)"
+    if prod.is_a("IfcPort"):
+        return ("ports are skipped: connectivity is not modelled (feeder edges come from the "
+                "FedFrom pset)")
+    if prod.is_a("IfcAnnotation"):
+        return "2D annotations are not read"
+    if prod.is_a("IfcGrid"):
+        return "grids are not authored"
+    if prod.is_a("IfcSpatialStructureElement") or prod.is_a("IfcSpatialElement"):
+        return "spatial element other than site / building / storey: not read"
+    return f"{prod.is_a()} is not an IfcElement: outside the resolver's read set"
+
+
+def _body_leaves(prod) -> Tuple[List[Any], Dict[str, int]]:
+    """(leaf items of ``prod``'s Body representations -- IfcMappedItem
+    resolved through, once per use -- , {identifier: leaf count} of its
+    NON-body representations (Axis / FootPrint / Box ...), which are never
+    'unreadable body')."""
+    body: List[Any] = []
+    other: Dict[str, int] = {}
+
+    def walk(items, out: List[Any]) -> None:
+        for item in items or ():
+            if item.is_a("IfcMappedItem"):
+                walk(item.MappingSource.MappedRepresentation.Items, out)
+            else:
+                out.append(item)
+
+    rep = getattr(prod, "Representation", None)
+    for r in (rep.Representations if rep is not None else ()) or ():
+        ident = str(getattr(r, "RepresentationIdentifier", None) or "")
+        leaves: List[Any] = []
+        walk(r.Items, leaves)
+        if ident.lower() in ("body", ""):
+            body += leaves
+        else:
+            other[ident] = other.get(ident, 0) + len(leaves)
+    return body, other
+
+
+def _census(f, products: List[Tuple[Any, Placement, ProductGeometry]],
+            equipment: List[Equipment], others: List[dict]) -> Dict[str, Any]:
+    """Enumerate EVERY IfcProduct and IfcRelationship in ``f`` against what
+    the resolver did with it: per class read / mapped / recorded / dropped
+    (+ why), the spatial structure, every Body item by type with the ones no
+    reader exists for, and the relationship classes that were not read.
+    Pure enumeration over the same file handle -- identical under steplite
+    and ifcopenshell, and it never changes what is resolved."""
+    geom_of = {prod.id(): geom for prod, _plc, geom in products}
+    fate: Dict[int, str] = {}
+    kinds_recorded: Dict[str, set] = defaultdict(set)
+    for eq in equipment:
+        fate[eq.step_id] = "mapped" if eq.kind in GENERATED_KINDS else "recorded"
+        if fate[eq.step_id] == "recorded":
+            kinds_recorded[eq.ifc_class].add(eq.kind)
+    for o in others:
+        fate[o["step_id"]] = "mapped" if o.get("kind") == "room_shell" else "recorded"
+        if fate[o["step_id"]] == "recorded":
+            kinds_recorded[str(o.get("ifcClass"))].add(str(o.get("kind")))
+
+    by_class: Dict[str, Dict[str, Any]] = {}
+    spatial = {"sites": 0, "buildings": 0, "storeys": 0, "spaces": 0}
+    by_type: Dict[str, int] = defaultdict(int)
+    unreadable_by_type: Dict[str, int] = defaultdict(int)
+    non_body: Dict[str, int] = defaultdict(int)
+    n_read = n_unreadable = n_on_unread = 0
+    bodiless: List[Dict[str, Any]] = []
+    all_products = f.by_type("IfcProduct")
+    for prod in all_products:
+        cls = prod.is_a()
+        row = by_class.setdefault(cls, {"read": 0, "mapped": 0, "recorded": 0,
+                                        "dropped": 0, "reason": None})
+        row["read"] += 1
+        what = fate.get(prod.id())
+        if what is None:                                   # never entered pass 1
+            if cls == "IfcBuildingStorey":
+                what, spatial["storeys"] = "mapped", spatial["storeys"] + 1
+                row["reason"] = row["reason"] or "-> a level (the base's story datums)"
+            elif cls in ("IfcSite", "IfcBuilding"):
+                what = "recorded"
+                spatial["sites" if cls == "IfcSite" else "buildings"] += 1
+                row["reason"] = row["reason"] or ("placement scaffolding: composed into every "
+                                                  "product's placement chain; no element authored")
+            else:
+                what = "dropped"
+                if cls == "IfcSpace":
+                    spatial["spaces"] += 1
+                row["reason"] = row["reason"] or _drop_reason(prod)
+        row[what] += 1
+        # ---- body items
+        leaves, other = _body_leaves(prod)
+        for ident, n in other.items():
+            non_body[ident] += n
+        geom = geom_of.get(prod.id())
+        read_ids = {it.item_id for it in geom.items} if geom is not None else None
+        lost_here = 0
+        for leaf in leaves:
+            lcls = leaf.is_a()
+            by_type[lcls] += 1
+            if read_ids is None:
+                n_on_unread += 1
+            elif leaf.id() in read_ids:
+                n_read += 1
+            else:
+                n_unreadable += 1
+                unreadable_by_type[lcls] += 1
+                lost_here += 1
+        if geom is not None and leaves and not geom.has_body:
+            bodiless.append({"step_id": prod.id(), "ifcClass": cls, "name": prod.Name,
+                             "tag": getattr(prod, "Tag", None), "body_items": len(leaves),
+                             "unreadable": lost_here})
+    for cls, kinds in kinds_recorded.items():
+        row = by_class.get(cls)
+        if row is not None and row["recorded"] and not row["reason"]:
+            row["reason"] = (f"recorded only (kind {', '.join(sorted(kinds))}): kept in "
+                             "intent.json with placement + psets, no Revit element authored")
+
+    rels: Dict[str, int] = defaultdict(int)
+    for rel in f.by_type("IfcRelationship"):
+        rels[rel.is_a()] += 1
+    ignored = [{"class": c, "count": n,
+                "effect": _IGNORED_REL_EFFECT.get(c, "not read by the resolver")}
+               for c, n in sorted(rels.items()) if c not in CONSUMED_RELATIONSHIPS]
+
+    totals = {"mapped": 0, "recorded": 0, "dropped": 0}
+    for row in by_class.values():
+        for k in totals:
+            totals[k] += row[k]
+    return {
+        "schema": f.schema,
+        "products_total": len(all_products),
+        "totals": totals,
+        "by_class": dict(sorted(by_class.items())),
+        "spatial": spatial,
+        "body_items": {
+            "total": sum(by_type.values()),
+            "by_type": dict(sorted(by_type.items())),
+            "read": n_read,
+            "unreadable": n_unreadable,
+            "unreadable_by_type": dict(sorted(unreadable_by_type.items())),
+            "on_unread_products": n_on_unread,
+            "readable_kinds": list(READABLE_BODY_ITEMS),
+            "products_left_bodiless": bodiless,
+            "non_body_representations": dict(sorted(non_body.items())),
+        },
+        "relationships_consumed": {c: rels[c] for c in CONSUMED_RELATIONSHIPS if rels.get(c)},
+        "relationships_ignored": ignored,
+        "legend": dict(_CENSUS_LEGEND),
+    }
+
+
+# ============================================================================
 # JSON (the spec v2)
 # ============================================================================
 
@@ -2568,6 +2784,7 @@ def intent_to_json(model: IntentModel, *, include_geometry_items: bool = True) -
         },
         "familyMapping": [p.as_json() for p in model.family_plans],
         "otherProducts": model.other_products,
+        "census": model.census,
         "audit": model.audit,
         "notes": model.notes,
     }
