@@ -3,7 +3,7 @@
  "generator": "tools/dev/make_ifc_fixtures.py",
  "pins": "IfcSpace aggregated into the upper of two storeys, one panel contained in the SPACE (level resolves through the space to L2), one contained directly in the lower storey",
  "notes": [
-  "#158: the IfcSpace itself is not an IfcElement, so it appears in neither equipment nor other_products today; #158 reads it into the intent as a room",
+  "#158: the IfcSpace itself is not an IfcElement, so it appears in neither equipment nor other_products today -- the census (#153) counts it dropped x1 with the reason; #158 reads it into the intent as a room",
   "the panel inside the space must still get level L2 (containment walked space -> storey)"
  ],
  "parity_xfail": null,
@@ -149,6 +149,83 @@
     "RP-2"
    ],
    "positions_all_zero": false
+  },
+  "census": {
+   "schema": "IFC4",
+   "products_total": 7,
+   "totals": {
+    "mapped": 4,
+    "recorded": 2,
+    "dropped": 1
+   },
+   "by_class": {
+    "IfcBuilding": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "placement scaffolding: composed into every product's placement chain; no element authored"
+    },
+    "IfcBuildingStorey": {
+     "read": 2,
+     "mapped": 2,
+     "recorded": 0,
+     "dropped": 0,
+     "reason": "-> a level (the base's story datums)"
+    },
+    "IfcElectricDistributionBoard": {
+     "read": 2,
+     "mapped": 2,
+     "recorded": 0,
+     "dropped": 0,
+     "reason": null
+    },
+    "IfcSite": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "placement scaffolding: composed into every product's placement chain; no element authored"
+    },
+    "IfcSpace": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 0,
+     "dropped": 1,
+     "reason": "IfcSpace is not read into the intent (no room / space element is authored from it yet, #158); products contained in it still resolve their storey through it"
+    }
+   },
+   "spatial": {
+    "sites": 1,
+    "buildings": 1,
+    "storeys": 2,
+    "spaces": 1
+   },
+   "body_items": {
+    "total": 4,
+    "by_type": {
+     "IfcTriangulatedFaceSet": 4
+    },
+    "read": 4,
+    "unreadable": 0,
+    "unreadable_by_type": {},
+    "on_unread_products": 0,
+    "readable_kinds": [
+     "IfcTriangulatedFaceSet",
+     "IfcTriangulatedIrregularNetwork",
+     "IfcPolygonalFaceSet",
+     "IfcFacetedBrep",
+     "IfcExtrudedAreaSolid"
+    ],
+    "products_left_bodiless": [],
+    "non_body_representations": {}
+   },
+   "relationships_consumed": {
+    "IfcRelAggregates": 4,
+    "IfcRelContainedInSpatialStructure": 2,
+    "IfcRelDefinesByProperties": 3
+   },
+   "relationships_ignored": []
   }
  }
 }

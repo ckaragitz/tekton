@@ -1,11 +1,10 @@
 {
- "fixture": "d_wall_opening_door",
+ "fixture": "j_census_space_unreadable_body",
  "generator": "tools/dev/make_ifc_fixtures.py",
- "pins": "IfcWallStandardCase with an IfcExtrudedAreaSolid body, an IfcOpeningElement related by IfcRelVoidsElement, an IfcDoor filling it (IfcRelFillsElement), plus one tessellated panel",
+ "pins": "census probe (#153): an IfcSpace WITH its own extruded body aggregated into the storey, a tessellated panel contained in the space, an IfcWallStandardCase extrusion, and an IfcCableCarrierSegment whose only body item is an IfcSweptDiskSolid (no reader exists)",
  "notes": [
-  "#152 (landed, PR #327): the wall's IfcExtrudedAreaSolid body IS read -- has_body true, insertion = footprint centre [4,2,0] through the (1,2,0) placement, dims 6.0 x 0.2 x 3.0, position_source placement-chain + local geometry; the extrusion carries no IfcStyledItem so its item name is null",
-  "#157: the wall is still recorded as equipment kind wall / disposition recorded and room is null; #157 turns it into a WallRun with the opening recorded",
-  "#155 (landed): steplite keeps the IfcDoor in its IfcProduct closure exactly as ifcopenshell does -- D-1 is recorded equipment of kind proxy with its body read (insertion [3.45,2,0], dims 0.9 x 0.05 x 2.1) and an unmapped family plan; parity holds, no xfail"
+  "#153: census pins products_total 7 -- IfcSpace dropped 1 (its extrusion counted on_unread_products), DP-1 mapped, W-1 + CT-1 recorded; body items 5 = IfcExtrudedAreaSolid 2 + IfcSweptDiskSolid 1 + IfcTriangulatedFaceSet 2, read 3, unreadable 1 (the swept disk), CT-1 listed as left without any body",
+  "#158 will flip IfcSpace from dropped to mapped/recorded; a swept-disk reader would flip unreadable to 0 -- either re-pins this fixture deliberately"
  ],
  "parity_xfail": null,
  "pinned_backend": "steplite",
@@ -24,43 +23,6 @@
   ],
   "equipment": [
    {
-    "tag": "D-1",
-    "name": "Single flush door 900 x 2100",
-    "ifcClass": "IfcDoor",
-    "predefinedType": "DOOR",
-    "kind": "proxy",
-    "disposition": "recorded",
-    "level": "L1",
-    "typeName": null,
-    "has_body": true,
-    "insertion_m": [
-     3.45,
-     2.0,
-     0.0
-    ],
-    "front_normal": [
-     0.0,
-     -1.0,
-     0.0
-    ],
-    "yaw_deg": 0.0,
-    "dims_m": {
-     "w": 0.9,
-     "d": 0.05,
-     "h": 2.1,
-     "footprint_area": 0.045
-    },
-    "mounting": "floor",
-    "position_source": "placement-chain + local geometry",
-    "fed_from": null,
-    "contract": {
-     "PanelName": "D-1"
-    },
-    "items": [
-     null
-    ]
-   },
-   {
     "tag": "W-1",
     "name": "Basic Wall 200 mm",
     "ifcClass": "IfcWallStandardCase",
@@ -71,8 +33,8 @@
     "typeName": null,
     "has_body": true,
     "insertion_m": [
-     4.0,
      2.0,
+     3.1,
      0.0
     ],
     "front_normal": [
@@ -82,10 +44,10 @@
     ],
     "yaw_deg": 0.0,
     "dims_m": {
-     "w": 6.0,
+     "w": 4.0,
      "d": 0.2,
-     "h": 3.0,
-     "footprint_area": 1.2
+     "h": 2.7,
+     "footprint_area": 0.8
     },
     "mounting": "floor",
     "position_source": "placement-chain + local geometry",
@@ -108,8 +70,8 @@
     "typeName": null,
     "has_body": true,
     "insertion_m": [
-     5.0,
-     1.9,
+     2.0,
+     2.9,
      1.3
     ],
     "front_normal": [
@@ -143,6 +105,36 @@
      "DP-1_enclosure",
      "DP-1_nameplate"
     ]
+   },
+   {
+    "tag": "CT-1",
+    "name": "Conduit DP-1 homerun",
+    "ifcClass": "IfcCableCarrierSegment",
+    "predefinedType": "CONDUITSEGMENT",
+    "kind": "conduit_run",
+    "disposition": "recorded",
+    "level": "L1",
+    "typeName": null,
+    "has_body": false,
+    "insertion_m": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {},
+    "mounting": "floor",
+    "position_source": "unresolved (no body, identity chain)",
+    "fed_from": null,
+    "contract": {
+     "PanelName": "CT-1"
+    },
+    "items": []
    }
   ],
   "other_products": [],
@@ -150,12 +142,6 @@
   "feeders": [],
   "conduit_runs": [],
   "family_plans": [
-   {
-    "tag": "D-1",
-    "kind": "proxy",
-    "status": "unmapped",
-    "catalog": null
-   },
    {
     "tag": "W-1",
     "kind": "wall",
@@ -167,6 +153,12 @@
     "kind": "distribution_panelboard",
     "status": "resolved",
     "catalog": "eaton/pow-r-line-panelboards"
+   },
+   {
+    "tag": "CT-1",
+    "kind": "conduit_run",
+    "status": "unmapped",
+    "catalog": null
    }
   ],
   "audit": {
@@ -199,12 +191,12 @@
      "dropped": 0,
      "reason": "-> a level (the base's story datums)"
     },
-    "IfcDoor": {
+    "IfcCableCarrierSegment": {
      "read": 1,
      "mapped": 0,
      "recorded": 1,
      "dropped": 0,
-     "reason": "recorded only (kind proxy): kept in intent.json with placement + psets, no Revit element authored"
+     "reason": "recorded only (kind conduit_run): kept in intent.json with placement + psets, no Revit element authored"
     },
     "IfcElectricDistributionBoard": {
      "read": 1,
@@ -213,19 +205,19 @@
      "dropped": 0,
      "reason": null
     },
-    "IfcOpeningElement": {
-     "read": 1,
-     "mapped": 0,
-     "recorded": 0,
-     "dropped": 1,
-     "reason": "voids / surface features are skipped: openings are not cut into their host (#157)"
-    },
     "IfcSite": {
      "read": 1,
      "mapped": 0,
      "recorded": 1,
      "dropped": 0,
      "reason": "placement scaffolding: composed into every product's placement chain; no element authored"
+    },
+    "IfcSpace": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 0,
+     "dropped": 1,
+     "reason": "IfcSpace is not read into the intent (no room / space element is authored from it yet, #158); products contained in it still resolve their storey through it"
     },
     "IfcWallStandardCase": {
      "read": 1,
@@ -239,17 +231,20 @@
     "sites": 1,
     "buildings": 1,
     "storeys": 1,
-    "spaces": 0
+    "spaces": 1
    },
    "body_items": {
     "total": 5,
     "by_type": {
-     "IfcExtrudedAreaSolid": 3,
+     "IfcExtrudedAreaSolid": 2,
+     "IfcSweptDiskSolid": 1,
      "IfcTriangulatedFaceSet": 2
     },
-    "read": 4,
-    "unreadable": 0,
-    "unreadable_by_type": {},
+    "read": 3,
+    "unreadable": 1,
+    "unreadable_by_type": {
+     "IfcSweptDiskSolid": 1
+    },
     "on_unread_products": 1,
     "readable_kinds": [
      "IfcTriangulatedFaceSet",
@@ -258,26 +253,24 @@
      "IfcFacetedBrep",
      "IfcExtrudedAreaSolid"
     ],
-    "products_left_bodiless": [],
+    "products_left_bodiless": [
+     {
+      "step_id": 70,
+      "ifcClass": "IfcCableCarrierSegment",
+      "name": "Conduit DP-1 homerun",
+      "tag": "CT-1",
+      "body_items": 1,
+      "unreadable": 1
+     }
+    ],
     "non_body_representations": {}
    },
    "relationships_consumed": {
-    "IfcRelAggregates": 3,
-    "IfcRelContainedInSpatialStructure": 1,
-    "IfcRelDefinesByProperties": 2
+    "IfcRelAggregates": 4,
+    "IfcRelContainedInSpatialStructure": 2,
+    "IfcRelDefinesByProperties": 1
    },
-   "relationships_ignored": [
-    {
-     "class": "IfcRelFillsElement",
-     "count": 1,
-     "effect": "doors / windows are not hosted in their opening"
-    },
-    {
-     "class": "IfcRelVoidsElement",
-     "count": 1,
-     "effect": "openings are not cut into their host"
-    }
-   ]
+   "relationships_ignored": []
   }
  }
 }

@@ -182,6 +182,90 @@
    ],
    "load_equipment_unfed": [],
    "positions_all_zero": false
+  },
+  "census": {
+   "schema": "IFC4",
+   "products_total": 6,
+   "totals": {
+    "mapped": 2,
+    "recorded": 4,
+    "dropped": 0
+   },
+   "by_class": {
+    "IfcBuilding": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "placement scaffolding: composed into every product's placement chain; no element authored"
+    },
+    "IfcBuildingStorey": {
+     "read": 1,
+     "mapped": 1,
+     "recorded": 0,
+     "dropped": 0,
+     "reason": "-> a level (the base's story datums)"
+    },
+    "IfcCableCarrierSegment": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "recorded only (kind conduit_run): kept in intent.json with placement + psets, no Revit element authored"
+    },
+    "IfcDiscreteAccessory": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "recorded only (kind support): kept in intent.json with placement + psets, no Revit element authored"
+    },
+    "IfcSite": {
+     "read": 1,
+     "mapped": 0,
+     "recorded": 1,
+     "dropped": 0,
+     "reason": "placement scaffolding: composed into every product's placement chain; no element authored"
+    },
+    "IfcTransformer": {
+     "read": 1,
+     "mapped": 1,
+     "recorded": 0,
+     "dropped": 0,
+     "reason": null
+    }
+   },
+   "spatial": {
+    "sites": 1,
+    "buildings": 1,
+    "storeys": 1,
+    "spaces": 0
+   },
+   "body_items": {
+    "total": 5,
+    "by_type": {
+     "IfcTriangulatedFaceSet": 5
+    },
+    "read": 5,
+    "unreadable": 0,
+    "unreadable_by_type": {},
+    "on_unread_products": 0,
+    "readable_kinds": [
+     "IfcTriangulatedFaceSet",
+     "IfcTriangulatedIrregularNetwork",
+     "IfcPolygonalFaceSet",
+     "IfcFacetedBrep",
+     "IfcExtrudedAreaSolid"
+    ],
+    "products_left_bodiless": [],
+    "non_body_representations": {}
+   },
+   "relationships_consumed": {
+    "IfcRelAggregates": 3,
+    "IfcRelContainedInSpatialStructure": 1,
+    "IfcRelDefinesByProperties": 2
+   },
+   "relationships_ignored": []
   }
  }
 }
