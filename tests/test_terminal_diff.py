@@ -1,7 +1,8 @@
 """terminal-diff stream tests: the exhaustive H12-vs-native enumeration is
 complete and classified, the measured envelope facts hold on the real bytes,
 the E-probes are single-axis and gate-clean, batch 42 is staged with a
-byte-identical control, and the desktop-Revit kit is in place."""
+byte-identical control.  (The desktop-Revit kit is v2 and owned by
+tests/test_revit_kit.py -- issue #118.)"""
 import hashlib
 import json
 import os
@@ -21,7 +22,6 @@ from rvt.partitions import StreamWalker                       # noqa: E402
 TD_JSON = os.path.join(ROOT, "experiments", "terminal", "terminal_diff.json")
 PROBES_JSON = os.path.join(ROOT, "experiments", "terminal", "probes.json")
 BATCH = os.path.join(ROOT, "experiments", "acceptance", "batch_42.json")
-KIT = os.path.join(ROOT, "experiments", "terminal", "REVIT-CHECK-KIT.md")
 
 
 def md5_of(path):
@@ -271,12 +271,3 @@ def test_batch_42_staged_with_byte_identical_control(probes):
         name = os.path.basename(e["staged_as"])[:-4]
         assert e["md5"] == by[name]["md5"], name
         assert md5_of(os.path.join(ROOT, e["staged_as"])) == e["md5"], name
-
-
-def test_revit_check_kit_in_place():
-    assert os.path.isfile(KIT)
-    text = open(KIT).read()
-    assert "BXhf_f1i1.rvt" in text and "H12.rvt" in text
-    assert "Warnings" in text and "screenshot" in text.lower()
-    assert md5_of(os.path.join(td.OUT_DIR, "H12.rvt")) == md5_of(td.H12)
-    assert md5_of(os.path.join(td.OUT_DIR, "BXhf_f1i1.rvt")) == md5_of(td.BXHF)
