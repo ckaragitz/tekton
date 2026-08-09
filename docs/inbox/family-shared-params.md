@@ -185,13 +185,14 @@ law instead (`kind=` text → `ParamDefString`, integer → `ParamDefInt`); (v3)
 family ADocument's `ExternalParamTracking.m_keyDataMap` populated with our 11 GUIDs;
 (v4) load into `G_ABPD` with the twin as built vs. registered in the host's map.
 
-## 6. Follow-ups (searched first; filed as task issues, `Refs #165`)
+## 6. Follow-ups (searched first; task issues, `Refs #165`)
 
-* Register shared-parameter GUIDs in the family ADocument's `ExternalParamTracking` and, on
-  load, reuse-by-GUID / register in the host's map (findings 2–3; territory `famdoc_adoc.py`,
-  loaders) — then STAGE v1/v3/v4.
-* Deterministic document GUID for factory builds (the remaining class-(a) per-build noise;
-  `new_family_document(document_guid=None)` → uuid4), same policy as #9.
+* **#339** (filed by this stream) — register shared-parameter GUIDs in the family ADocument's
+  `ExternalParamTracking` and, on load, reuse-by-GUID / register in the host's map (findings
+  2–3; territory `famdoc_adoc.py`, loaders) — then STAGE v1–v4 (`needs-viewer`).
+* **#168** (already open, not duplicated) — byte-identical `make_family.py` runs: the
+  remaining class-(a) per-build noise is the document GUID (`new_family_document(document_guid=None)`
+  → uuid4); this stream removed class (b) (local parameter identities).
 
 ## BRANCH STATE
 
