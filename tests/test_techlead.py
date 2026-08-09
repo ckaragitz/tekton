@@ -300,6 +300,7 @@ def test_workflow_file_prs_need_a_verdict_before_session_merge():
     no_verdict = am.split("if [ -z \"$approved_by\" ]; then", 1)[1].split("if [ \"$draft\" = \"true\" ]; then", 1)[0]
     assert "add_label session-merge" not in no_verdict, "session-merge must never be offered before a verdict exists"
     assert "-f mode=review" in no_verdict and "add_label needs-human" in no_verdict and "other than the author" in no_verdict
+    assert "drop_label needs-human" in am, "the human gate must lift itself once the approval it asked for exists"
     approved = am.split("if [ \"$touches_wf\" != \"0\" ]; then", 1)[1].split("if [ \"$mergeable\" = \"CONFLICTING\" ]", 1)[0]
     assert "add_label session-merge" in approved and "--match-head-commit" in approved
     for wf_name in ("worker.yml", "techlead.yml"):

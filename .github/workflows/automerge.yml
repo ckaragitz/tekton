@@ -159,7 +159,15 @@ jobs:
             cbodies=$(gh api "repos/$REPO/issues/$pr/comments" --paginate --jq '.[]|(.created_at + " " + (.body|gsub("[\r\n]";" ")))')
 
             has_label do-not-merge && { say "#$pr held by do-not-merge"; continue; }
-            has_label needs-human && { say "#$pr waiting on a human"; continue; }
+            if has_label needs-human; then
+              # Self-healing: the human gate lifts itself once the approval it asked for exists — a
+              # `merge-when-green` label (validated as non-author below) or a verdict for THIS head.
+              if has_label merge-when-green || grep -qE "<!-- claude-review: (approve|nits) sha=$sha -->" <<<"$cbodies"; then
+                drop_label needs-human; say "#$pr: needs-human lifted (approval present) — re-evaluating"
+              else
+                say "#$pr waiting on a human"; continue
+              fi
+            fi
             if has_label session-merge && [ -z "${MERGE_TOKEN:-}" ]; then say "#$pr waiting for a coding session to merge it"; continue; fi
 
             # Duplicate rule: an older open PR closes the same issue -> park this one for the planner.
@@ -243,7 +251,7 @@ jobs:
                   if [ "$touches_wf" != "0" ]; then
                     if ! has_label needs-human; then
                       add_label needs-human b60205
-                      comment_once "review-stuck-$sha" "🧑 **Needs a human approval.** No independent review verdict could be produced for \`${sha:0:7}\` after re-requesting it, and this PR changes \`.github/workflows/**\` — the files that run with the repository's secrets — so it will not be merged on a session's say-so alone. **A collaborator other than the author** reads the diff and applies \`merge-when-green\` (or the owner squash-merges); after that a session may perform the merge. Pushing any commit re-arms the automatic review."
+                      comment_once "review-stuck-$sha" "🧑 **Needs a human approval.** No independent review verdict could be produced for \`${sha:0:7}\` after re-requesting it, and this PR changes \`.github/workflows/**\` — the files that run with the repository's secrets — so it will not be merged on a session's say-so alone. **A collaborator other than the author** reads the diff and applies \`merge-when-green\` (or the owner squash-merges); I lift \`needs-human\` myself on the next sweep once that label — or a verdict for the current head — is present, and a session may then perform the merge. Pushing any commit re-arms the automatic review."
                     fi
                   elif ! has_label bot-stuck; then
                     add_label bot-stuck b60205
@@ -314,7 +322,7 @@ jobs:
               done
             else
               err=$(tr '\n' ' ' </tmp/m.log | cut -c1-400); add_label needs-human b60205
-              comment_once "merge-failed-$sha" "🛑 Squash-merge at \`${sha:0:7}\` refused by GitHub: \`$err\`. Owner: merge by hand (or fix the cause and remove \`needs-human\`)."
+              comment_once "merge-failed-$sha" "🛑 Squash-merge at \`${sha:0:7}\` refused by GitHub: \`$err\`. Owner: merge by hand, or fix the cause and push — a fresh verdict for the new head (or a non-author \`merge-when-green\`) lifts \`needs-human\` automatically."
               echo "::warning::#$pr merge failed: $err"
             fi
           done
