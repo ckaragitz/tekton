@@ -86,7 +86,7 @@ class FamilyInventory:
     family_id: int
     family_name: str                     # PartAtom title (the display name)
     type_names: List[str]
-    params: List[dict]                   # {caption, param_id, def_class, spec, kind, carrier, current}
+    params: List[dict]                   # {caption, param_id, def_class, spec, carrier, current}
     release: Optional[int] = None
     quarantined: bool = False
     doc: Any = None                      # rvt.mutate.Document
@@ -109,8 +109,9 @@ class FamilyInventory:
         return {"path": _relp(self.path), "family_id": self.family_id,
                 "family_name": self.family_name, "type_names": self.type_names,
                 "release": self.release, "quarantined": self.quarantined,
-                "params": [{k: p.get(k) for k in ("caption", "param_id", "def_class",
-                                                  "spec", "kind", "carrier", "current")}
+                "params": [dict({k: p[k] for k in ("caption", "param_id", "def_class",
+                                                   "spec", "carrier", "current")},
+                                kind=_KIND_OF_CARRIER[p["carrier"]])
                            for p in self.params],
                 "notes": list(self.notes)}
 
@@ -120,16 +121,11 @@ _KIND_OF_CARRIER = {"m_str": "text", "m_int": "integer", "m_value": "number"}
 
 
 def _carrier_for_param(def_class: str, spec: str) -> str:
-    """The value carrier of one family parameter: its definition's STORAGE
-    CLASS decides first (``ParamDefString`` / ``ParamDefInt`` carry no spec
-    at all under the #333 storage-class law), the spec of a ``ParamDefValue``
-    otherwise.  ``def_class`` is the pointer class NAME the file's own schema
-    resolved -- never a class id."""
-    cls = str(def_class or "")
-    s = str(spec or "")
-    if cls.endswith("ParamDefString") or "spec.string" in s:
+    """Storage class first (the schema-resolved pointer class name), the
+    spec of a ``ParamDefValue`` otherwise -- see THE VALUE CARRIERS above."""
+    if def_class == "ParamDefString" or "spec.string" in spec:
         return "m_str"
-    if cls.endswith("ParamDefInt") or "spec.int64" in s:
+    if def_class == "ParamDefInt" or "spec.int64" in spec:
         return "m_int"
     return "m_value"
 
@@ -181,7 +177,6 @@ def inventory_family(path: str) -> FamilyInventory:
         row = cur_rows.get(int(eid), {})
         params.append({"caption": cap, "param_id": int(eid),
                        "def_class": def_class, "spec": spec,
-                       "kind": _KIND_OF_CARRIER[carrier],
                        "carrier": carrier, "current": row.get(carrier)})
     inv = FamilyInventory(
         path=os.path.abspath(path), family_id=fam,
@@ -243,7 +238,7 @@ def _convert_value(param: dict, raw: str) -> Tuple[Any, List[str]]:
     unit = (m.group(2) or "").lower()
     if carrier == "m_int":
         if unit:
-            notes.append(f"{param['caption']}: unit {unit!r} ignored (integer spec)")
+            notes.append(f"{param['caption']}: unit {unit!r} ignored (integer parameter)")
         return int(round(num)), notes
     # doubles: spec-driven conversion to Revit internal units
     if "electrical:current" in spec:
