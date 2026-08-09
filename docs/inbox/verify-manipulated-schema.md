@@ -78,8 +78,7 @@ the record body at a baked `+16` (64-bit header width) — the same bake
   "synthetic schema damage … latest-release schema") and the honest
   consequence (`clean: False` on a 2025 file under the 2026 schema) is
   visible rather than hidden. Autouse fixture asserts the latest-release
-  constants are back after every test. Added to `tests/ci_shard.txt`
-  (10 → 11 files).
+  constants are back after every test. Added to `tests/ci_shard.txt`.
 
 ## Evidence
 
@@ -107,6 +106,17 @@ the record body at a baked `+16` (64-bit header width) — the same bake
   `schema_cache` hits. Halving it needs `reading32` to accept/yield the
   parsed schema — the `versions/` (hot) follow-up already written down in
   `docs/inbox/validate-release-aware.md` §Findings (a); not done here.
+* Runtime verification at the user surfaces (this branch): `tools/rvt_edit.py
+  G_ABPD.rvt set-level --id 1351691 --elevation-ft 5 -o out.rvt` → structural
+  verify 0/0/0, stamps ok, 3102/3102, exit 0; `tools/frontdoor.py author --rvt
+  G_ABPD.rvt --edit "set level 1351691 elevation to 5 ft"` → hard gates
+  PASSED, job manifest `structural: PASS verify_manipulated` with the Level
+  triple clean, validation PASS. The same two commands on the 2025 base die
+  *before* the verifier (`cannot open/plan …: unexpected Partitions header
+  v=9 cls=0x391`) — pre-existing, filed as #70. Degraded inputs through the
+  public export (64 KiB truncation of the 2025 edit, a non-CFB file) still
+  raise as before, and `partitions.BLOCK_TAG` is `0x0f28` afterwards: the
+  ExitStack restores constants on the exception path too.
 * Gates: see BRANCH STATE.
 
 ## Findings / follow-ups (filed as issues, not done here)
@@ -139,7 +149,9 @@ the record body at a baked `+16` (64-bit header width) — the same bake
 
 ## BRANCH STATE
 
-* Branch `cam/11-verify-own-schema` from `main@af59d26`; PR closes #11.
+* Branch `cam/11-verify-own-schema` cut from `main@af59d26`, rebased on
+  `main@552ba73` before push (one trivial append/append conflict in
+  `tests/ci_shard.txt`, both lines kept); PR closes #11.
 * Files: `src/rvt/manipulate.py` (verify_manipulated only),
   `tests/test_verify_manipulated_release.py` (new, 7 tests),
   `tests/ci_shard.txt` (+1 line), `docs/inbox/verify-manipulated-schema.md`
@@ -148,7 +160,7 @@ the record body at a baked `+16` (64-bit header width) — the same bake
   skipped; `tools/sync_plugin.py` synced 1 file, deny-audit clean,
   validation passed, zip rebuilt (not committed); `--check` in sync;
   `plugin/scripts/validate_plugin.py` PASS; `tools/dev/check_portable_paths.py`
-  ok; CI shard (`tests/ci_shard.txt`, 11 files, `RVT_SKIP_LARGE=1`) green —
-  counts in the PR body.
+  ok (2658 paths); CI shard (`tests/ci_shard.txt`, 12 files after rebase,
+  `RVT_SKIP_LARGE=1`) 143 passed / 23 skipped, 33 s.
 * Shipped vs staged: everything in the PR; no experiments, no assets, no
   zip, no viewer batch.
