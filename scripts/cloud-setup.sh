@@ -10,9 +10,10 @@ if [ ! -x .venv/bin/python ]; then
   "$PY" -m venv .venv
 fi
 .venv/bin/python -m pip install -q --upgrade pip
-.venv/bin/python -m pip install -q -e . pytest numpy          # engine + test/geometry extras
-# Optional IFC *authoring* backend; IFC reading works without it (steplite). Don't fail setup on it.
-.venv/bin/python -m pip install -q ifcopenshell 2>/dev/null || echo "note: ifcopenshell not installed (optional; IFC authoring only)"
+.venv/bin/python -m pip install -q -e ".[test]"               # engine + the `test` extra (pytest, numpy) declared in pyproject.toml
+# Optional IFC *authoring* backend (the `ifc` extra = pinned ifcopenshell); IFC reading works
+# without it (steplite). Don't fail setup on it.
+.venv/bin/python -m pip install -q -e ".[ifc]" 2>/dev/null || echo "note: ifcopenshell not installed (optional; IFC authoring only)"
 
 git config pull.rebase true
 git config rebase.autoStash true
