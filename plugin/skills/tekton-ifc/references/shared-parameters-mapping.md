@@ -76,9 +76,10 @@ PARAM	<guid>	NeutralRating	TEXT		1	1		1
 This is the documented structure of the project's real file (group
 "Panelboard", the eleven parameters, and these datatype tokens) [project:
 `docs/design-ground-truth.md` §3, KNOWLEDGE.md "Ground truth"]. The literal
-file lives in the Design project (`exports/panelboard-shared-parameters.txt`)
-and is not vendored in this repo; **the `<guid>` values must be copied from
-that file verbatim — never regenerated.** The GUID *is* the parameter's
+file — OURS, with its eleven real GUIDs — is tracked in this repo at
+`usecases/eaton-panelboard/panelboard-shared-parameters.txt`; **the `<guid>`
+values must be copied from that file verbatim — never regenerated** (§1.3 is
+how the family generator does exactly that). The GUID *is* the parameter's
 identity: a re-created file with new GUIDs defines eleven *new* parameters that
 no existing tag family, schedule template, or project knows. If the file is
 ever lost, export it back out of a project that has the parameters (parameter
@@ -118,6 +119,39 @@ Revit spec (data type) comes from the IFC measure of the property value.
 Naming has varied by processor generation (`Prop(Pset)` in the streamlined
 processor) — **always read the names off one imported element** (select a
 panel ▸ Properties ▸ scroll to the IFC group) before wiring anything.
+
+### 1.3 GUID identity policy for GENERATED families (`.rfa`, `tools/make_family.py`)
+
+A generated family carries two kinds of parameter identity, and the rule for
+each is fixed:
+
+| Parameter | Element class in the `.rfa` | Identity (`m_typeId` / GUID key) | Where the value comes from |
+|---|---|---|---|
+| **A tagging-contract parameter** — its caption AND datatype match a `PARAM` row of OUR shared-parameter file | `ParamElemExternal` (a *shared* family parameter) | `revit.local.shared:<guid>-1.0.0` **and** `m_externalParamKey.m_guidValue = <guid>` — the row's GUID, **copied verbatim, never regenerated, never re-minted at load** | `--shared-params usecases/eaton-panelboard/panelboard-shared-parameters.txt` (factory `shared_params=`); the parser reads the tab-separated `*PARAM` grammar of §1.1 |
+| **Every other parameter** (Width/Height/Depth, kVA Rating, Lumens, …) | `ParamElemFamily` (a *local* family parameter) | `revit.local.family:<32-hex><8-hex element id>-1.0.0` where the 32-hex part = `uuid5(LOCAL_PARAM_NAMESPACE, "<family name>\|<caption>")`, `LOCAL_PARAM_NAMESPACE = uuid5(NAMESPACE_DNS, "rvt-writer.family.parameters")` (`rvt.famgen.skeleton`) — deterministic: the same family + caption always yields the same identity, two builds agree byte for byte, and no Autodesk-minted GUID is ever reused | nothing to supply |
+
+Consequences an operator can rely on:
+
+- **Without `--shared-params` nothing changes**: every parameter is local, exactly
+  the historical file shape (same records, classes, ids and field values; only
+  the 32-hex identity part is now deterministic instead of a per-build `uuid4`).
+- With it, the panelboard's eleven contract parameters (`PanelName` …
+  `NeutralRating`) are shared at the file's GUIDs, so a schedule column or tag
+  label keyed on those GUIDs in the firm's project is *the same parameter* after
+  the family is loaded — no route-B rebinding on the project side. Other products
+  share only what genuinely matches (the transformer's `Phases`, the luminaire's
+  `Voltage`); a caption that matches a row with a *different* datatype is refused
+  (`FactoryError`), never given a second GUID.
+- The report (`<stem>.json` → `family.shared_parameters`) lists caption → GUID;
+  `tools/make_family.py provenance` stays PROVENANCE-CLEAN (`revit.local.shared:*`
+  is whitelisted format vocabulary like `revit.local.family:*`).
+- **Honest status:** the shared definition's layout is our own constructor's
+  (`rvt.genesis.residue_b.shared_parameter`, verified field-for-field on 466
+  *project*-side definitions) plus the two family-document conventions; no corpus
+  *family* carries a shared parameter, so family-side `ParamElemExternal` (and the
+  host-side `ExternalParamTracking` registration a load implies) is a **candidate
+  variable for a certification batch, not a loads claim** — validator-green
+  (family mode, 0 errors) is necessary, not sufficient (hard rule 4).
 
 ---
 

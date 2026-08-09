@@ -203,6 +203,98 @@ class FactoryError(ValueError):
 
 
 # ---------------------------------------------------------------------------
+# OUR shared-parameter file (usecases/eaton-panelboard/panelboard-shared-
+# parameters.txt) -- the GUID identities a firm's schedules / tags bind by.
+# Policy (shared-parameters-mapping.md §1.3): a family parameter whose
+# caption AND datatype match a row of the file IS that shared parameter and
+# carries the file's GUID VERBATIM; every other parameter stays local.
+# ---------------------------------------------------------------------------
+
+#: the tracked shared-parameter file of the tagging contract (OURS)
+DEFAULT_SHARED_PARAMS = os.path.join(_ROOT, "usecases", "eaton-panelboard",
+                                     "panelboard-shared-parameters.txt")
+
+#: shared-parameter-file DATATYPE token -> the factory SPEC key it must equal
+SHARED_DATATYPE_SPEC = {
+    "TEXT": "text", "INTEGER": "integer", "NUMBER": "number", "LENGTH": "length",
+    "ELECTRICAL_POTENTIAL": "voltage", "ELECTRICAL_CURRENT": "current",
+    "ELECTRICAL_APPARENT_POWER": "apparent_power", "ELECTRICAL_WATTAGE": "wattage",
+    "ELECTRICAL_LUMINOUS_FLUX": "luminous_flux", "COLOR_TEMPERATURE": "cct",
+    "ELECTRICAL_EFFICACY": "efficacy",
+}
+
+
+@dataclass
+class SharedParamDef:
+    """One ``PARAM`` row of a Revit shared-parameter file."""
+    guid: str
+    name: str
+    datatype: str
+    group: str = ""
+    description: str = ""
+    visible: bool = True
+
+    @property
+    def spec_key(self) -> Optional[str]:
+        return SHARED_DATATYPE_SPEC.get(self.datatype.upper())
+
+
+def read_shared_parameter_file(path: str) -> Dict[str, SharedParamDef]:
+    """Parse a Revit shared-parameter TXT (the documented tab-separated
+    grammar: ``#`` comments, ``*KIND<TAB>col...`` header rows naming the
+    columns of the ``KIND<TAB>value...`` rows that follow -- META / GROUP /
+    PARAM) into ``{name: SharedParamDef}``.  UTF-8 or UTF-16 (Revit writes
+    UTF-16 LE with a BOM; ours is UTF-8).  Duplicate names, a malformed GUID
+    or a PARAM row before its ``*PARAM`` header -> :class:`FactoryError`."""
+    with open(path, "rb") as fh:
+        raw = fh.read()
+    enc = "utf-16" if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else "utf-8-sig"
+    headers: Dict[str, List[str]] = {}
+    groups: Dict[str, str] = {}
+    out: Dict[str, SharedParamDef] = {}
+    for ln, line in enumerate(raw.decode(enc).splitlines(), 1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        cells = line.rstrip("\r\n").split("\t")
+        kind, rest = cells[0], cells[1:]
+        if kind.startswith("*"):
+            headers[kind[1:]] = rest
+            continue
+        cols = headers.get(kind)
+        if cols is None:
+            raise FactoryError(f"{path}:{ln}: {kind} row before its *{kind} header")
+        row = dict(zip(cols, rest + [""] * (len(cols) - len(rest))))
+        if kind == "GROUP":
+            groups[row.get("ID", "")] = row.get("NAME", "")
+        elif kind == "PARAM":
+            name = row.get("NAME", "")
+            try:
+                guid = str(uuid.UUID(row.get("GUID", "")))
+            except ValueError:
+                raise FactoryError(f"{path}:{ln}: PARAM {name!r} has no valid GUID") from None
+            if name in out:
+                raise FactoryError(f"{path}:{ln}: duplicate PARAM name {name!r}")
+            out[name] = SharedParamDef(
+                guid=guid, name=name, datatype=row.get("DATATYPE", ""),
+                group=groups.get(row.get("GROUP", ""), row.get("GROUP", "")),
+                description=row.get("DESCRIPTION", ""),
+                visible=str(row.get("VISIBLE", "1")).strip() != "0")
+    return out
+
+
+#: ``shared_params=``: a shared-parameter file path, or its parsed rows
+SharedParamsArg = Union[None, str, Dict[str, SharedParamDef]]
+
+
+def _shared_table(shared_params: SharedParamsArg) -> Dict[str, SharedParamDef]:
+    if not shared_params:
+        return {}
+    if isinstance(shared_params, str):
+        return read_shared_parameter_file(shared_params)
+    return dict(shared_params)
+
+
+# ---------------------------------------------------------------------------
 # small helpers
 # ---------------------------------------------------------------------------
 
@@ -909,6 +1001,11 @@ class FamilyProduct:
     def unverified(self) -> List[str]:
         return sorted({k for s in self._sheets() for k in s.unverified()})
 
+    def shared_parameters(self) -> Dict[str, str]:
+        """{caption: GUID} of the parameters authored SHARED (file GUIDs)."""
+        return {n: pe.refs["guid"] for n, pe in sorted(self.doc.params.items())
+                if pe.class_name == "ParamElemExternal"}
+
     def summary(self) -> Dict[str, Any]:
         pes = self.doc.params
         summ = {
@@ -918,6 +1015,7 @@ class FamilyProduct:
             "elements": len(self.doc.elements),
             "types": [n for n, _v in self.doc.types],
             "parameters": sorted(pes),
+            "shared_parameters": self.shared_parameters(),
             "forms": [{"kind": f.kind, **{k: v for k, v in f.params.items()
                                           if k in ("width_ft", "depth_ft", "height_ft",
                                                    "base_z_ft", "rep")}}
@@ -957,12 +1055,26 @@ class FamilyProduct:
 # family assembly helpers shared by the three product constructors
 # ---------------------------------------------------------------------------
 
-def _text(doc: SK.FamilyDoc, name: str, group: str = "identity") -> SK.SkelElement:
-    return doc.add_family_parameter(name, SPEC["text"], GROUP[group])
+def _text(doc: SK.FamilyDoc, name: str, group: str = "identity",
+          shared: Optional[Dict[str, SharedParamDef]] = None) -> SK.SkelElement:
+    return _num(doc, name, "text", group, shared)
 
 
-def _num(doc: SK.FamilyDoc, name: str, spec: str, group: str) -> SK.SkelElement:
-    return doc.add_family_parameter(name, SPEC[spec], GROUP[group])
+def _num(doc: SK.FamilyDoc, name: str, spec: str, group: str,
+         shared: Optional[Dict[str, SharedParamDef]] = None) -> SK.SkelElement:
+    """Declare parameter ``name``: SHARED (``ParamElemExternal`` at the
+    file's GUID, verbatim) when ``shared`` has a row of that caption --
+    whose DATATYPE must be this ``spec`` (a schedule bound to the file's
+    definition would reject any other) -- else a LOCAL family parameter."""
+    row = (shared or {}).get(name)
+    if row is None:
+        return doc.add_family_parameter(name, SPEC[spec], GROUP[group])
+    if row.spec_key != spec:
+        raise FactoryError(f"shared parameter {name!r}: the file declares DATATYPE "
+                           f"{row.datatype!r} but the family authors it as {spec!r} "
+                           f"-- fix the file row or the family's spec, never both GUIDs")
+    return doc.add_shared_parameter(name, row.guid, SPEC[spec], GROUP[group],
+                                    description=row.description)
 
 
 def _clean_name(*parts: Any) -> str:
@@ -1138,7 +1250,8 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                     neutral_rating: str = "100%",
                     solid: bool = True, name: Optional[str] = None,
                     start_id: int = 1000,
-                    types: Optional[Sequence[Any]] = None) -> FamilyProduct:
+                    types: Optional[Sequence[Any]] = None,
+                    shared_params: SharedParamsArg = None) -> FamilyProduct:
     """Compose a PANELBOARD family from catalog facts.
 
     Geometry: the enclosure box at TRUE catalog dimensions (width x height
@@ -1161,7 +1274,13 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
     becomes one type-table row carrying ITS dims / ratings / Model; the
     first is the primary type (the solid is built at its box).  ``None`` =
     the single type ``mains_a``/``spaces``/``mcb`` describe.
+
+    ``shared_params`` = OUR shared-parameter file (path or parsed rows):
+    every parameter it names is authored SHARED at the file's GUID (the
+    eleven contract parameters for :data:`DEFAULT_SHARED_PARAMS`), the rest
+    stay local; ``None`` = every parameter local (the historical shape).
     """
+    shared = _shared_table(shared_params)
     jobs = _type_jobs(types, {"mains_a": mains_a, "spaces": spaces, "mcb": mcb,
                               "sccr_ka": sccr_ka, "neutral_rating": neutral_rating},
                       scalar_key="mains_a")
@@ -1191,10 +1310,11 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
                      "panelboard); enclosure box in the family XY = the host face")
     # -- parameters: dimensions ------------------------------------------
     for dim in ("Width", "Height", "Depth"):
-        _num(doc, dim, "length", "dimensions")
-    # -- parameters: the tagging contract (same NAMES -> schedules bind) ---
+        _num(doc, dim, "length", "dimensions", shared)
+    # -- parameters: the tagging contract (same NAMES -> schedules bind; the
+    #    same GUIDs too under ``shared_params``) ------------------------------
     for pname, spec_k, group_k in PANEL_CONTRACT_PARAMS:
-        doc.add_family_parameter(pname, SPEC[spec_k], GROUP[group_k])
+        _num(doc, pname, spec_k, group_k, shared)
     # -- the type(s): facts as parameter VALUES ------------------------------
     rows: List[TypeRow] = []
     for job, fx in zip(jobs, sheets):
@@ -1256,12 +1376,20 @@ def make_panelboard(*, vendor: str = "eaton", line: str = "pow-r-line",
 
 
 def _multi_type_notes(prod: FamilyProduct, label: str = "UNVERIFIED (assumed): ") -> None:
-    """Surface the assumed fields (of every type) under ``label`` and, for a
+    """Surface the assumed fields (of every type) under ``label``; for a
     multi-type family, say out loud that the ONE solid sits at the primary
-    type's dimensions while the other rows carry theirs as parameter VALUES."""
+    type's dimensions while the other rows carry theirs as parameter VALUES;
+    and name the parameters authored SHARED (file GUIDs) if any."""
     assumed = prod.assumed()
     if assumed:
         prod.notes.append(label + ", ".join(assumed))
+    shared = prod.shared_parameters()
+    if shared:
+        prod.notes.append(
+            f"{len(shared)} SHARED parameters (ParamElemExternal, GUIDs verbatim from OUR "
+            f"shared-parameter file): {', '.join(shared)} -- a schedule / tag keyed on "
+            f"those GUIDs binds after load; every other parameter is local "
+            f"[family-side shared definitions are UNCERTIFIED: no loads claim]")
     if len(prod.types) > 1:
         prod.notes.append(
             f"{len(prod.types)} types {[t.name for t in prod.types]}: ONE family, one "
@@ -1279,7 +1407,8 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
                      primary_v: Any = 480, secondary_v: Any = "208Y/120",
                      solid: bool = True, name: Optional[str] = None,
                      start_id: int = 1000,
-                     types: Optional[Sequence[Any]] = None) -> FamilyProduct:
+                     types: Optional[Sequence[Any]] = None,
+                     shared_params: SharedParamsArg = None) -> FamilyProduct:
     """Compose a DRY-TYPE TRANSFORMER family from catalog facts: the
     enclosure box at the catalog W x D footprint x H tall standing on the
     Reference Level (free-standing, floor-mounted), with TWO 3-pole power
@@ -1289,7 +1418,10 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
 
     ``types`` = kVA points (``[30, 45, 75]`` / ``'45kVA'`` / ``{'kva': 45}``)
     for a MULTI-TYPE family: one row per rating with its own frame / dims /
-    weight / Model; the first is the primary type (the solid is its box)."""
+    weight / Model; the first is the primary type (the solid is its box).
+    ``shared_params`` as :func:`make_panelboard` (caption + datatype match a
+    file row -> SHARED at the file's GUID; else local)."""
+    shared = _shared_table(shared_params)
     jobs = _type_jobs(types, {"kva": kva}, scalar_key="kva")
     sheets = [resolve_transformer_facts(float(j["kva"]), vendor=vendor, primary_v=primary_v,
                                         secondary_v=secondary_v) for j in jobs]
@@ -1310,17 +1442,17 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
     doc.notes.append("transformer: free-standing (floor); part type 15 = the rme "
                      "dry-type transformer's own part type [V value]")
     for dim in ("Width", "Height", "Depth"):
-        _num(doc, dim, "length", "dimensions")
-    _num(doc, "kVA Rating", "apparent_power", "electrical")
-    _num(doc, "Primary Voltage", "voltage", "electrical")
-    _num(doc, "Secondary Voltage", "voltage", "electrical")
-    _num(doc, "Phases", "integer", "electrical")
-    _num(doc, "Temperature Rise", "number", "electrical")
+        _num(doc, dim, "length", "dimensions", shared)
+    _num(doc, "kVA Rating", "apparent_power", "electrical", shared)
+    _num(doc, "Primary Voltage", "voltage", "electrical", shared)
+    _num(doc, "Secondary Voltage", "voltage", "electrical", shared)
+    _num(doc, "Phases", "integer", "electrical", shared)
+    _num(doc, "Temperature Rise", "number", "electrical", shared)
     has_weight = any(fx.get("weight_lb") for fx in sheets)
     if has_weight:
-        _num(doc, "Weight", "number", "identity")
-    _text(doc, "Frame")
-    _text(doc, "Enclosure")
+        _num(doc, "Weight", "number", "identity", shared)
+    _text(doc, "Frame", shared=shared)
+    _text(doc, "Enclosure", shared=shared)
     rows: List[TypeRow] = []
     for job, fx in zip(jobs, sheets):
         j_kva = float(job["kva"])
@@ -1388,7 +1520,8 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                    aperture_in: Optional[float] = None,
                    solid: bool = True, name: Optional[str] = None,
                    start_id: int = 1000,
-                   types: Optional[Sequence[Any]] = None) -> FamilyProduct:
+                   types: Optional[Sequence[Any]] = None,
+                   shared_params: SharedParamsArg = None) -> FamilyProduct:
     """Compose a LUMINAIRE family: a recessed TROFFER (rectangular housing at
     the catalog dimensions) or a recessed DOWNLIGHT (OUR parametric can --
     the flagship record's housing dims are not sourced).  One single-phase
@@ -1400,7 +1533,9 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
     ``types`` = wattage / lumen packages for a MULTI-TYPE family: watts
     (``[30, 38, 48]`` / ``'38W'``) or dicts over ``wattage, lumens, cct,
     size, aperture_in``; one row per package, the first = the primary type
-    (the housing solid is built at its dimensions)."""
+    (the housing solid is built at its dimensions).  ``shared_params`` as
+    :func:`make_panelboard`."""
+    shared = _shared_table(shared_params)
     jobs = _type_jobs(types, {"wattage": wattage, "lumens": lumens, "cct": cct,
                               "size": size, "aperture_in": aperture_in},
                       scalar_key="wattage")
@@ -1427,11 +1562,11 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
                      "light-source element (skeleton exposes no constructor) -- "
                      "photometrics ride as parameters; IES = URL reference only")
     # parameters
-    _num(doc, "Wattage", "wattage", "electrical")
-    _num(doc, "Lumens", "luminous_flux", "photometrics")
-    _num(doc, "Color Temperature", "cct", "photometrics")
-    _num(doc, "Voltage", "voltage", "electrical")
-    _text(doc, "IES File (URL reference)", "photometrics")
+    _num(doc, "Wattage", "wattage", "electrical", shared)
+    _num(doc, "Lumens", "luminous_flux", "photometrics", shared)
+    _num(doc, "Color Temperature", "cct", "photometrics", shared)
+    _num(doc, "Voltage", "voltage", "electrical", shared)
+    _text(doc, "IES File (URL reference)", "photometrics", shared)
     if shape == "box":
         dims = (("Length", "length_in"), ("Width", "width_in"), ("Height", "height_in"))
         L = inches(facts.get("length_in")); Wd = inches(facts.get("width_in"))
@@ -1441,7 +1576,7 @@ def make_luminaire(*, kind: str = "recessed-troffer", size: str = "2x4",
         L = inches(facts.get("can_diameter_in")); Wd = L
     Hh = inches(facts.get("height_in"))
     for caption, _key in dims:
-        _num(doc, caption, "length", "dimensions")
+        _num(doc, caption, "length", "dimensions", shared)
     rows: List[TypeRow] = []
     for job, fx in zip(jobs, sheets):
         j_size, j_watt = job["size"], fx.get("wattage_w")
