@@ -1,0 +1,125 @@
+{
+ "fixture": "d_wall_opening_door",
+ "generator": "tools/dev/make_ifc_fixtures.py",
+ "pins": "IfcWallStandardCase with an IfcExtrudedAreaSolid body, an IfcOpeningElement related by IfcRelVoidsElement, an IfcDoor filling it (IfcRelFillsElement), plus one tessellated panel",
+ "notes": [
+  "#152: the extruded wall/door bodies are NOT read today (has_body false; the wall's insertion falls back to its placement origin) -- #152 flips has_body and dims",
+  "#157: the wall is recorded as equipment kind wall / disposition recorded and room is null; #157 turns it into a WallRun with the opening recorded",
+  "#155: steplite has no IfcDoor schema row, so the door is absent from its IfcProduct closure; real ifcopenshell lists it (kind proxy, recorded)"
+ ],
+ "parity_xfail": "#155: IfcDoor dropped by steplite's IfcProduct closure, kept by ifcopenshell",
+ "pinned_backend": "steplite",
+ "expected": {
+  "ok": true,
+  "schema": "IFC4",
+  "project": "tekton conformance fixture",
+  "length_scale_m_per_unit": 1.0,
+  "levels": [
+   {
+    "id": "L1",
+    "name": "Level 1",
+    "elevation": 0.0,
+    "elevation_from_placement": 0.0
+   }
+  ],
+  "equipment": [
+   {
+    "tag": "W-1",
+    "name": "Basic Wall 200 mm",
+    "ifcClass": "IfcWallStandardCase",
+    "predefinedType": "STANDARD",
+    "kind": "wall",
+    "disposition": "recorded",
+    "level": "L1",
+    "typeName": null,
+    "has_body": false,
+    "insertion_m": [
+     1.0,
+     2.0,
+     0.0
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {},
+    "mounting": "floor",
+    "position_source": "placement-chain",
+    "fed_from": null,
+    "contract": {
+     "PanelName": "W-1"
+    },
+    "items": []
+   },
+   {
+    "tag": "DP-1",
+    "name": "DP-1 distribution panel 480Y/277 V",
+    "ifcClass": "IfcElectricDistributionBoard",
+    "predefinedType": "DISTRIBUTIONBOARD",
+    "kind": "distribution_panelboard",
+    "disposition": "generated-family",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     5.0,
+     1.9,
+     1.3
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {
+     "w": 0.9,
+     "d": 0.25,
+     "h": 1.4
+    },
+    "mounting": "wall",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": null,
+    "contract": {
+     "PanelName": "DP-1",
+     "Voltage": "480Y/277 V",
+     "Phases": 3.0,
+     "Wires": 4.0,
+     "BusRating": 400.0,
+     "MainsRating": 400.0
+    },
+    "items": [
+     "DP-1_enclosure",
+     "DP-1_nameplate"
+    ]
+   }
+  ],
+  "other_products": [],
+  "room": null,
+  "feeders": [],
+  "conduit_runs": [],
+  "family_plans": [
+   {
+    "tag": "W-1",
+    "kind": "wall",
+    "status": "unmapped",
+    "catalog": null
+   },
+   {
+    "tag": "DP-1",
+    "kind": "distribution_panelboard",
+    "status": "resolved",
+    "catalog": "eaton/pow-r-line-panelboards"
+   }
+  ],
+  "audit": {
+   "feeder_roots_external": [],
+   "load_equipment_unfed": [
+    "DP-1"
+   ],
+   "positions_all_zero": false
+  }
+ }
+}

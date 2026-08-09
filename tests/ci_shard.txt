@@ -68,3 +68,4 @@ tests/test_residue_b.py
 tests/test_genesis_skeleton.py
 tests/test_ifc_family.py
 tests/test_sync_zip.py
+tests/test_ifc_conformance.py

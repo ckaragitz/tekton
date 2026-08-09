@@ -1,0 +1,173 @@
+{
+ "fixture": "b_units_feet",
+ "generator": "tools/dev/make_ifc_fixtures.py",
+ "pins": "IfcConversionBasedUnit FOOT (0.3048 m via IfcMeasureWithUnit): scale 0.3048, same room as a_units_mm authored in feet",
+ "notes": [
+  "steplite has no schema row for IfcDimensionalExponents / IfcMeasureWithUnit internals beyond what calculate_unit_scale reads; the scale must still be 0.3048"
+ ],
+ "parity_xfail": null,
+ "pinned_backend": "steplite",
+ "expected": {
+  "ok": true,
+  "schema": "IFC4",
+  "project": "tekton conformance fixture",
+  "length_scale_m_per_unit": 0.3048,
+  "levels": [
+   {
+    "id": "L1",
+    "name": "Level 1",
+    "elevation": 0.0,
+    "elevation_from_placement": 0.0
+   }
+  ],
+  "equipment": [
+   {
+    "tag": "DP-1",
+    "name": "DP-1 distribution panel 480Y/277 V",
+    "ifcClass": "IfcElectricDistributionBoard",
+    "predefinedType": "DISTRIBUTIONBOARD",
+    "kind": "distribution_panelboard",
+    "disposition": "generated-family",
+    "level": "L1",
+    "typeName": null,
+    "has_body": true,
+    "insertion_m": [
+     1.0,
+     2.15,
+     1.3
+    ],
+    "front_normal": [
+     0.0,
+     -1.0,
+     0.0
+    ],
+    "yaw_deg": 0.0,
+    "dims_m": {
+     "w": 0.9,
+     "d": 0.25,
+     "h": 1.4
+    },
+    "mounting": "wall",
+    "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
+    "fed_from": null,
+    "contract": {
+     "PanelName": "DP-1",
+     "Voltage": "480Y/277 V",
+     "Phases": 3.0,
+     "Wires": 4.0,
+     "BusRating": 400.0,
+     "MainsType": "Main breaker",
+     "MainsRating": 400.0,
+     "Mounting": "SURFACE",
+     "NumberOfCircuits": 42.0
+    },
+    "items": [
+     "DP-1_enclosure",
+     "DP-1_nameplate"
+    ]
+   }
+  ],
+  "other_products": [
+   {
+    "name": "Electrical Room room shell",
+    "ifcClass": "IfcBuildingElementProxy",
+    "kind": "room_shell",
+    "disposition": "room shell -> walls / doors / pads (see 'room')"
+   }
+  ],
+  "room": {
+   "name": "Electrical Room room shell",
+   "level": "L1",
+   "walls": [
+    {
+     "id": "W-S",
+     "start": [
+      -3.0,
+      -2.25
+     ],
+     "end": [
+      3.0,
+      -2.25
+     ],
+     "thickness": 0.2,
+     "height": 3.0,
+     "base": 0.0,
+     "synthesized": false,
+     "openings": []
+    },
+    {
+     "id": "W-E",
+     "start": [
+      3.0,
+      -2.25
+     ],
+     "end": [
+      3.0,
+      2.25
+     ],
+     "thickness": 0.2,
+     "height": 3.0,
+     "base": 0.0,
+     "synthesized": false,
+     "openings": []
+    },
+    {
+     "id": "W-N",
+     "start": [
+      3.0,
+      2.25
+     ],
+     "end": [
+      -3.0,
+      2.25
+     ],
+     "thickness": 0.2,
+     "height": 3.0,
+     "base": 0.0,
+     "synthesized": false,
+     "openings": []
+    },
+    {
+     "id": "W-W",
+     "start": [
+      -3.0,
+      2.25
+     ],
+     "end": [
+      -3.0,
+      -2.25
+     ],
+     "thickness": 0.2,
+     "height": 3.0,
+     "base": 0.0,
+     "synthesized": false,
+     "openings": []
+    }
+   ],
+   "doors": 0,
+   "info": {
+    "ClearDepth": 14.108,
+    "ClearHeight": 9.843,
+    "ClearWidth": 19.029,
+    "RoomName": "Electrical Room"
+   }
+  },
+  "feeders": [],
+  "conduit_runs": [],
+  "family_plans": [
+   {
+    "tag": "DP-1",
+    "kind": "distribution_panelboard",
+    "status": "resolved",
+    "catalog": "eaton/pow-r-line-panelboards"
+   }
+  ],
+  "audit": {
+   "feeder_roots_external": [],
+   "load_equipment_unfed": [
+    "DP-1"
+   ],
+   "positions_all_zero": false
+  }
+ }
+}
