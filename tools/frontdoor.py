@@ -64,7 +64,11 @@ def build_parser() -> argparse.ArgumentParser:
         description="THE FRONT DOOR: prompt / IFC / (rvt + edit) -> the ONE intent model -> our "
                     ".rvt on the certified genesis base + a deliverable manifest.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="One entrypoint, three inputs -- exactly ONE of --prompt / --ifc / --rvt.")
+        epilog="One entrypoint, three inputs -- exactly ONE of --prompt / --ifc / --rvt.\n"
+               "Any OTHER permutation (rfa/spec inputs, combinations, chains, rfa/ifc\n"
+               "outputs, rvt->ifc export, family extract/edit): tools/route.py -- the\n"
+               "permutation router over the same stages (`frontdoor matrix` prints the\n"
+               "table; rendered: docs/product/PERMUTATION-MATRIX.md).")
     sub = ap.add_subparsers(dest="cmd", required=True)
     pa = sub.add_parser("author", help="author from a prompt, an IFC, or an existing .rvt + edit")
     src = pa.add_argument_group("input (exactly one)")
@@ -119,6 +123,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="skip the handoff package (fallback build only)")
     pa.add_argument("--json", action="store_true", help="print the result as JSON")
     pa.add_argument("--verbose", "-v", action="store_true", help="stream the build log")
+    pm = sub.add_parser("matrix", help="print the permutation matrix (every routable "
+                                       "input/output cell + the evidence self-audit; "
+                                       "tools/route.py runs the cells)")
+    pm.add_argument("--json", action="store_true")
     return ap
 
 
@@ -184,11 +192,27 @@ def cmd_author(a) -> int:
     return EX_OK
 
 
+def cmd_matrix(a) -> int:
+    """The live permutation matrix + evidence self-audit (read-only; the one
+    renderer rvt.frontdoor.matrix.render_text is shared with tools/route.py)."""
+    from rvt.frontdoor import matrix as MX
+    if a.json:
+        payload = MX.as_json()
+        payload["audit"] = MX.audit()
+        print(json.dumps(payload, indent=1, default=str))
+        return EX_OK
+    text, rep = MX.render_text()
+    print(text, end="")
+    return EX_INCOMPLETE if (rep.get("ledger_present") and rep.get("problems")) else EX_OK
+
+
 def main(argv=None) -> int:
     ap = build_parser()
     a = ap.parse_args(argv)
     if a.cmd == "author":
         return cmd_author(a)
+    if a.cmd == "matrix":
+        return cmd_matrix(a)
     ap.error("unknown command")
     return EX_USAGE
 
