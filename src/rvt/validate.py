@@ -124,6 +124,7 @@ from __future__ import annotations
 
 import struct
 import time
+import uuid
 import zlib
 from collections import Counter, defaultdict
 from contextlib import ExitStack
@@ -181,8 +182,8 @@ GLOBAL_PREFIX_VALUE = {
 MAX_SAFE_DATA_REPAIRS_PER_BLOCK = 8
 
 #: the 0x0f3f unit-footer blob length every non-degenerate save unit carries
-#: (corpus 2,071/2,072; == rvt.famgen.famdoc_adoc.FOOTER_BLOB_LEN, the length
-#: our writers emit -- kept local so the validator does not import famgen)
+#: (corpus 2,071/2,072) == rvt.famgen.famdoc_adoc.FOOTER_BLOB_LEN, the length
+#: our writers emit (a test pins the two together)
 UNIT_FOOTER_BLOB_LEN = 64
 
 _ISIZE_ADJ = {4: 0, 5: 4, 6: -4, 7: 0}
@@ -844,17 +845,13 @@ class Validator:
         regression: WARNING here (reader-tolerated on its own); the semantic
         layer makes it an ERROR when an instance resolves into the unit
         (:meth:`_check_instanced_unit_footers`)."""
-        if w.header.elem_table_count == 0 and len(w.units) == 1:
-            return                            # the degenerate empty-partition unit
-        short = [(u.index, len(u.footer_blob)) for u in w.units
-                 if len(u.footer_blob) != UNIT_FOOTER_BLOB_LEN]
+        short = _short_blob_units(w)
         if short:
             self.rep.warn(
                 L_STRUCTURE, pname,
                 f"{len(short)}/{len(w.units)} save unit(s) whose 0x0f3f footer blob "
                 f"is not {UNIT_FOOTER_BLOB_LEN} bytes (unit:len "
-                + ", ".join(f"u{i}:{n}" for i, n in short[:8])
-                + (f" +{len(short) - 8}" if len(short) > 8 else "")
+                + ", ".join(f"u{u.index}:{len(u.footer_blob)}" for u in short[:8])
                 + ") — Autodesk's audit rejects the file as soon as a placed "
                 "instance walks into such a unit (verdict #36: presence "
                 "mandatory, content unverified); tolerated only while "
@@ -1252,6 +1249,7 @@ class Validator:
         typed_checks: List[Tuple[int, str, int, str]] = []       # (owner, field, target, need)
         sym_family: Dict[int, int] = {}                          # FamilySymbol -> m_familyId
         fam_guids: Dict[int, Set[str]] = {}                      # host Family -> famdoc GUID(s)
+        inst_ids: Set[int] = set()                               # FamilyInstance-derived owners
         limit = self.decode_limit
         n = 0
         for eid, (cls, payload, unit) in recs102.items():
@@ -1289,7 +1287,9 @@ class Validator:
                 circuits.append((eid, v))
             if isinstance(v, dict):
                 names = chain_names(cls)
-                if "FamilySymbol" in names:
+                if "FamilyInstance" in names:
+                    inst_ids.add(eid)
+                elif "FamilySymbol" in names:
                     fid = v.get("m_familyId")
                     if isinstance(fid, int) and fid > 0:
                         sym_family[eid] = fid
@@ -1347,9 +1347,7 @@ class Validator:
                       f"{len(lvl_bad)} level id(s) resolve to non-Level elements. e.g. {ex}")
 
         # -- instanced save units must carry the 64-byte footer blob ------------------------
-        sym_refs = [(o, t) for o, _f, t, need in typed_checks if need == "Symbol"]
-        self._check_instanced_unit_footers(sym_refs, recs102, sym_family, fam_guids,
-                                           chain_names)
+        self._check_instanced_unit_footers(typed_checks, sym_family, fam_guids, inst_ids)
 
         # -- connector graph symmetry ---------------------------------------------------------
         edges, viol, unverifiable, viol_ex = check_connector_graph(conns, universe, clean)
@@ -1379,37 +1377,41 @@ class Validator:
         # -- loaded-content consistency (the product-path laws) -------------------------------
         self._check_loaded_content(recs102, dec)
 
-    def _check_instanced_unit_footers(self, sym_refs, recs102, sym_family, fam_guids,
-                                       chain_names) -> None:
+    def _content_units(self, pick: Callable[[StreamWalker], Iterable[partitions.Unit]]
+                       = lambda w: w.units) -> List[Tuple[str, partitions.Unit, str]]:
+        """(stream, unit, separator GUID string) of every loaded content-document
+        save unit (index >= 1) across the partition walkers; ``pick`` narrows
+        the units considered per walker (e.g. :func:`_short_blob_units`)."""
+        return [(pname, u, str(uuid.UUID(bytes_le=u.guid)).lower())
+                for pname, w in self._walkers().items()
+                for u in pick(w) if u.index != 0 and u.guid]
+
+    def _check_instanced_unit_footers(self, typed_checks, sym_family, fam_guids,
+                                       inst_ids) -> None:
         """ERROR half of the 0x0f3f footer-blob law (:meth:`_check_unit_footers`
         warns on presence alone).  A loaded-family save unit (index >= 1,
         keyed by its separator GUID) whose blob is not 64 bytes FAILS
         Autodesk's audit as soon as one placed instance walks into it --
-        resolved here as instance ``m_symbolId``/``m_masterSymbolId`` ->
-        ``FamilySymbol.m_familyId`` -> host ``Family`` famdoc GUID
-        (``m_oFamDoc.m_contentDocGUID`` / ``m_famDocGUID``) == unit GUID.
-        A FamilyInstance whose chain breaks before a GUID cannot be shown to
-        avoid the short-blob unit(s), so it convicts them too: this validator
-        must never say VALID on a file the audit may reject.  Native files
-        never reach here (no corpus content unit has a short blob)."""
-        import uuid as _uuid
-        short: Dict[str, Tuple[str, int, int]] = {}          # guid -> (stream, unit, blob len)
-        for pname, w in self._walkers().items():
-            for u in w.units:
-                if u.index == 0 or not u.guid or len(u.footer_blob) == UNIT_FOOTER_BLOB_LEN:
-                    continue
-                short[str(_uuid.UUID(bytes_le=u.guid)).lower()] = (
-                    pname, u.index, len(u.footer_blob))
+        resolved here as instance ``m_symbolId``/``m_masterSymbolId`` (the
+        Symbol-typed ``typed_checks``) -> ``FamilySymbol.m_familyId``
+        (``sym_family``) -> host ``Family`` famdoc GUID (``fam_guids``:
+        ``m_oFamDoc.m_contentDocGUID`` / ``m_famDocGUID``) == unit GUID.  A
+        FamilyInstance (``inst_ids``) whose chain breaks before a GUID cannot
+        be shown to avoid the short-blob unit(s), so it convicts them too:
+        this validator must never say VALID on a file the audit may reject.
+        Native files never reach here (no corpus content unit has a short
+        blob)."""
+        short = {g: (pname, u) for pname, u, g in self._content_units(_short_blob_units)}
         if not short:
             return
         walkers: Dict[str, Set[int]] = defaultdict(set)     # guid -> instance ids
         unresolved: Set[int] = set()
-        for owner, target in sym_refs:
-            fam = sym_family.get(target)
-            guids = fam_guids.get(fam) if fam is not None else None
+        for owner, _fname, target, need in typed_checks:
+            if need != "Symbol":
+                continue
+            guids = fam_guids.get(sym_family.get(target))
             if not guids:
-                rec = recs102.get(owner)
-                if rec is not None and "FamilyInstance" in chain_names(rec[0]):
+                if owner in inst_ids:
                     unresolved.add(owner)
                 continue
             for g in guids:
@@ -1418,16 +1420,14 @@ class Validator:
         if not walkers and not unresolved:
             return                                           # uninstanced: the L1 warning stands
         parts = []
-        for g, (pname, idx, blen) in sorted(short.items(), key=lambda kv: kv[1][:2]):
+        for g, (pname, u) in short.items():
             ids = sorted(walkers.get(g, ()))
-            parts.append(f"{pname} u{idx} ({g[:8]}, blob {blen}B) <- "
-                         + (f"instance(s) {ids[:4]}{' ...' if len(ids) > 4 else ''}"
-                            if ids else "no resolved instance"))
-        n_inst = len(set().union(*walkers.values())) if walkers else 0
+            parts.append(f"{pname} u{u.index} ({g[:8]}, blob {len(u.footer_blob)}B) <- "
+                         + (f"instance(s) {ids[:4]}" if ids else "no resolved instance"))
+        n_inst = len(set().union(*walkers.values()))
         msg = (f"{n_inst} placed instance(s) walk into {len(walkers)}/{len(short)} "
                f"loaded-family save unit(s) whose 0x0f3f footer blob is not "
-               f"{UNIT_FOOTER_BLOB_LEN} bytes: " + "; ".join(parts[:4])
-               + (f" (+{len(parts) - 4})" if len(parts) > 4 else ""))
+               f"{UNIT_FOOTER_BLOB_LEN} bytes: " + "; ".join(parts[:4]))
         if unresolved:
             ex = sorted(unresolved)[:4]
             msg += (f"; {len(unresolved)} placed FamilyInstance(s) {ex} whose family "
@@ -1545,11 +1545,7 @@ class Validator:
         # unit GUIDs from the partition walkers
         unit_guids: List[str] = []
         try:
-            import uuid as _uuid
-            for pname, w in self._walkers().items():
-                for u in w.units:
-                    if u.index != 0 and u.guid:
-                        unit_guids.append(str(_uuid.UUID(bytes_le=u.guid)).lower())
+            unit_guids = [g for _p, _u, g in self._content_units()]
         except Exception:
             pass
         need_latest = bool(cd_guids or unit_guids)
@@ -1585,9 +1581,8 @@ class Validator:
                       f"units-not-in-CD {sorted(su - sc)[:2]}; CT-dangling {sorted(st_ - su)[:2]}; "
                       f"FM-dangling {sorted(sf - su)[:2]}")
         if len(cd_guids) >= 2 and isinstance(recs, list):
-            import uuid as _uuid
             try:
-                keys = [_uuid.UUID(g).bytes_le for g in ct_guids]
+                keys = [uuid.UUID(g).bytes_le for g in ct_guids]
             except Exception:
                 keys = []
             if keys and keys != sorted(keys):
@@ -1634,8 +1629,19 @@ def _RefDecoder(schema):
 
 
 # ---------------------------------------------------------------------------
-# decoded-object helpers
+# unit-footer / decoded-object helpers
 # ---------------------------------------------------------------------------
+
+def _short_blob_units(w: StreamWalker) -> List[partitions.Unit]:
+    """Save units of one partition walker whose 0x0f3f footer blob is not
+    the 64 bytes every corpus unit carries.  An EMPTY partition (header
+    elem_table_count 0 -- dach Partitions/85, the same predicate the
+    consistency layer uses) holds no records to walk into and legitimately
+    carries the degenerate empty footer: exempt."""
+    if w.header.elem_table_count == 0:
+        return []
+    return [u for u in w.units if len(u.footer_blob) != UNIT_FOOTER_BLOB_LEN]
+
 
 def _famdoc_guids(v: dict) -> Set[str]:
     """The content-document GUID(s) a host ``Family`` element names:

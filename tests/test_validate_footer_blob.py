@@ -55,17 +55,29 @@ def _blob_findings(rep):
     return [f for f in rep.findings if "0x0f3f" in f.message]
 
 
-def census(path):
-    """[(stream, unit index, blob len)] for every save unit of ``path``."""
-    out = []
+def _footer_errors(rep):
+    return [f for f in rep.errors if f.where == "unit-footer"]
+
+
+def _entries(path):
+    """Yield (entry, logical, walker) per CFB entry of ``path`` under the
+    file's own release; logical/walker are None for non-partition entries."""
     with ExitStack() as stack:
         VA.enter_own_release(stack, path)
         for e in read_entries(path):
             if e.entry_type == "stream" and e.path.startswith("Partitions/"):
-                w = StreamWalker(ecc.unframe_stream(e.data), inflate=False, keep_data=False)
+                logical = ecc.unframe_stream(e.data)
+                w = StreamWalker(logical, inflate=False, keep_data=False)
                 assert not w.errors, (path, e.path, w.errors)
-                out.extend((e.path, u.index, len(u.footer_blob)) for u in w.units)
-    return out
+                yield e, logical, w
+            else:
+                yield e, None, None
+
+
+def census(path):
+    """[(stream, unit index, blob len)] for every save unit of ``path``."""
+    return [(e.path, u.index, len(u.footer_blob))
+            for e, _l, w in _entries(path) if w is not None for u in w.units]
 
 
 def strip_footer_blob(src, dst, unit_index, new_len=0):
@@ -73,26 +85,18 @@ def strip_footer_blob(src, dst, unit_index, new_len=0):
     to ``new_len`` bytes (default: the empty form our writers once emitted).
     Only the one footer changes; the stream is re-framed (CRCIO) and the
     container rewritten, so every other validator check stays green."""
-    done = 0
-    out = []
-    with ExitStack() as stack:
-        VA.enter_own_release(stack, src)
-        for e in read_entries(src):
-            if not (e.entry_type == "stream" and e.path.startswith("Partitions/")):
-                out.append(e)
-                continue
-            logical = ecc.unframe_stream(e.data)
-            w = StreamWalker(logical, inflate=False, keep_data=False)
-            assert not w.errors, w.errors
-            u = w.units[unit_index]
-            p = u.footer_offset + len(P.TERMINATOR)
+    out, patched_streams = [], 0
+    for e, logical, w in _entries(src):
+        if w is not None:
+            p = w.units[unit_index].footer_offset + len(P.TERMINATOR)
             tag, blen = struct.unpack_from("<HI", logical, p)
             assert tag == P.FOOTER_TAG and blen == UNIT_FOOTER_BLOB_LEN, (tag, blen)
             patched = (logical[:p] + struct.pack("<HI", P.FOOTER_TAG, new_len)
                        + logical[p + 6:p + 6 + new_len] + logical[p + 6 + blen:])
-            out.append(dataclasses.replace(e, data=ecc.frame_stream(patched)))
-            done += 1
-    assert done == 1, f"expected exactly one Partitions stream in {src}"
+            e = dataclasses.replace(e, data=ecc.frame_stream(patched))
+            patched_streams += 1
+        out.append(e)
+    assert patched_streams == 1, f"expected exactly one Partitions stream in {src}"
     write_cfb(dst, out)
     return dst
 
@@ -155,34 +159,33 @@ def built(tmp_path_factory):
                       no_handoff=True)
     except Exception as e:                                   # pragma: no cover
         pytest.skip(f"prompt build unavailable here: {type(e).__name__}: {e}")
+    from rvt.mutate import Document
     assert r.ok, (r.status, r.errors)
     combined = r.manifest["build"]["files"]["combined"]["path"]
-    stages = os.path.join(os.path.dirname(combined), "_stages")
-    load_only = os.path.join(stages, "stage_L1_pp1.rvt")
+    load_only = os.path.join(os.path.dirname(combined), "_stages", "stage_L1_pp1.rvt")
     assert os.path.isfile(combined) and os.path.isfile(load_only)
-    return {"dir": out, "combined": combined, "load_only": load_only}
-
-
-def _instance_ids(path):
-    from rvt.mutate import Document
-    return sorted(Document.from_file(path).ids_of_class("FamilyInstance"))
+    instances = {k: sorted(Document.from_file(p).ids_of_class("FamilyInstance"))
+                 for k, p in (("load_only", load_only), ("combined", combined))}
+    return {"dir": out, "combined": combined, "load_only": load_only,
+            "instances": instances,
+            # the load-only stage with its family unit's blob emptied (no instance)
+            "load_only_u1_empty": strip_footer_blob(load_only, str(out / "L1_u1_empty.rvt"), 1)}
 
 
 def test_writer_output_carries_the_blob_on_every_unit(built):
-    for key, n_units in (("load_only", 2), ("combined", 2)):
-        cen = census(built[key])
-        assert len(cen) == n_units and all(n == 64 for (_s, _i, n) in cen), (key, cen)
+    for key in ("load_only", "combined"):
+        assert [n for (_s, _i, n) in census(built[key])] == [64, 64], key
         rep = validate_file(built[key])
         assert rep.ok, (key, _msgs(rep.errors))
         assert not _blob_findings(rep), (key, _msgs(_blob_findings(rep)))
-    assert _instance_ids(built["load_only"]) == []
-    assert len(_instance_ids(built["combined"])) == 1
+    assert built["instances"]["load_only"] == []
+    assert len(built["instances"]["combined"]) == 1
 
 
 def test_uninstanced_empty_blob_unit_is_a_warning(built):
     """H10 / L_v2: a loaded family nobody placed loads fine with an empty
     blob -- reader-tolerated, so WARNING (visible) but the file stays VALID."""
-    probe = strip_footer_blob(built["load_only"], str(built["dir"] / "L1_u1_empty.rvt"), 1)
+    probe = built["load_only_u1_empty"]
     assert [n for (_s, _i, n) in census(probe)] == [64, 0]
     rep = validate_file(probe)
     assert rep.ok, _msgs(rep.errors)
@@ -195,15 +198,14 @@ def test_instanced_empty_blob_unit_is_an_error(built, capsys):
     """E3/E6: the placed panel's family unit loses its blob => the exact file
     shape Autodesk's audit rejects => INVALID, naming unit and instance."""
     probe = strip_footer_blob(built["combined"], str(built["dir"] / "demo_u1_empty.rvt"), 1)
-    inst = _instance_ids(built["combined"])
     rep = validate_file(probe)
     assert not rep.ok
-    errs = [f for f in rep.errors if f.where == "unit-footer"]
+    errs = _footer_errors(rep)
     assert len(errs) == 1 and errs == rep.errors, _msgs(rep.errors)
     msg = errs[0].message
     assert errs[0].layer == "semantic"
     assert "1 placed instance(s) walk into 1/1" in msg and " u1 (" in msg
-    assert str(inst[0]) in msg and "VERDICTS #36" in msg
+    assert str(built["instances"]["combined"][0]) in msg and "VERDICTS #36" in msg
     # the framing-layer warning is still there for the same unit
     assert any(f.severity == "warning" and "u1:0" in f.message for f in _blob_findings(rep))
     # and the CLI exits non-zero on it
@@ -214,26 +216,21 @@ def test_instanced_empty_blob_unit_is_an_error(built, capsys):
 def test_unresolvable_instance_convicts_every_short_unit(built):
     """If a FamilyInstance's symbol -> family -> famdoc GUID chain breaks, the
     validator cannot show the short-blob unit is uninstanced: ERROR.  A
-    non-instance owner of an unresolvable symbol id is not evidence."""
-    probe = strip_footer_blob(built["load_only"], str(built["dir"] / "L1_u1_unres.rvt"), 1)
+    non-instance owner of an unresolvable symbol id is not evidence, and an
+    instance resolving to another family document is not either."""
+    probe = built["load_only_u1_empty"]
+    sym_ref = [(111, "m_symbolId", 222, "Symbol")]      # owner 111 -> symbol 222
+    other_doc = {333: {"12345678-1234-1234-1234-123456789abc"}}
     v = Validator(probe, layers=("structure",))
     with ExitStack() as stack:
         VA.enter_own_release(stack, probe)
         v.run()
         assert v.rep.ok
-        # a FamilyInstance (owner 111) whose symbol 222 is unknown
-        v._check_instanced_unit_footers([(111, 222)], {111: (0, b"", 0)}, {}, {},
-                                         lambda _cls: {"FamilyInstance", "Instance"})
-        errs = [f for f in v.rep.errors if f.where == "unit-footer"]
-        assert len(errs) == 1, _msgs(v.rep.findings)
-        assert "could not be resolved" in errs[0].message and "[111]" in errs[0].message
-        assert "0 placed instance(s) walk into 0/1" in errs[0].message
-        # same inputs, but the owner is not an instance class: nothing added
-        v._check_instanced_unit_footers([(111, 222)], {111: (0, b"", 0)}, {}, {},
-                                         lambda _cls: {"Dimension"})
-        assert len([f for f in v.rep.errors if f.where == "unit-footer"]) == 1
-        # a resolved instance of ANOTHER (blob-carrying / absent) family doc is fine too
-        v._check_instanced_unit_footers([(111, 222)], {111: (0, b"", 0)}, {222: 333},
-                                         {333: {"12345678-1234-1234-1234-123456789abc"}},
-                                         lambda _cls: {"FamilyInstance"})
-        assert len([f for f in v.rep.errors if f.where == "unit-footer"]) == 1
+        v._check_instanced_unit_footers(sym_ref, {}, {}, inst_ids=set())        # not an instance
+        v._check_instanced_unit_footers(sym_ref, {222: 333}, other_doc, {111})  # resolved elsewhere
+        assert not _footer_errors(v.rep), _msgs(v.rep.findings)
+        v._check_instanced_unit_footers(sym_ref, {}, {}, inst_ids={111})        # chain broken
+    errs = _footer_errors(v.rep)
+    assert len(errs) == 1, _msgs(v.rep.findings)
+    assert "could not be resolved" in errs[0].message and "[111]" in errs[0].message
+    assert "0 placed instance(s) walk into 0/1" in errs[0].message
