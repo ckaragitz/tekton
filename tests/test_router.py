@@ -1024,6 +1024,35 @@ def test_route_without_quiet_still_prints_progress(tmp_path, capsys):
     assert "route.log" not in res.manifest_paths
 
 
+def test_quiet_route_into_readonly_dir_still_runs_its_stage(tmp_path, capsys, monkeypatch):
+    """An unwritable out_dir must degrade ``quiet`` to "unlogged" (in-memory
+    sink + a note in ``errors``), not to "route crashed" with no stage run --
+    the --json path is never worse than the human path (#330, from #313)."""
+    ran = []
+
+    def fake_stage(res, inputs, out_dir, opts):
+        print("[fake] progress line")
+        ran.append(out_dir)
+        res.ok, res.status = True, "OK (fake)"
+
+    monkeypatch.setitem(R._IMPLS, "prompt_to_rfa", fake_stage)
+    ro = tmp_path / "ro"
+    ro.mkdir()
+    ro.chmod(0o555)
+    try:
+        if os.access(str(ro), os.W_OK):
+            pytest.skip("chmod 0555 did not make the dir read-only (running as root?)")
+        res = R.route({"prompt": PANEL_PROMPT}, "rfa", out=str(ro), quiet=True)
+    finally:
+        ro.chmod(0o755)
+    assert ran == [str(ro)], res.errors
+    assert res.ok and res.status == "OK (fake)", res.errors
+    assert "route.log" not in res.manifest_paths
+    assert any("route.log not writable" in e for e in res.errors), res.errors
+    assert not any("route crashed" in e for e in res.errors), res.errors
+    assert "[fake]" not in capsys.readouterr().out          # still kept off stdout
+
+
 @needs_pin
 @needs_catalog
 def test_frontdoor_json_stdout_stays_one_document(tmp_path):
