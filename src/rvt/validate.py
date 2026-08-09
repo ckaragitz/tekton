@@ -36,6 +36,12 @@ L1 STRUCTURE  (``structure``)
       TRANSLATED) and the block-header A/C counter identity (V20-V29 carry
       the commit.py off-by-4*A counter defect and all TRANSLATED).  Every
       other structure finding is an error.
+    * THE 0x0f3f UNIT-FOOTER BLOB (genesis-audit VERDICTS #36): every save
+      unit's footer carries a 64-byte opaque blob.  Presence is what
+      Autodesk's open-time audit demands of any unit a placed instance
+      walks into (content unverified -- a random blob PASSED, E1b); an
+      uninstanced short/empty blob is reader-tolerated.  So: WARNING here,
+      escalated to ERROR by the semantic layer when the unit is instanced.
 
 SEVERITY CALIBRATION (docs/writer/validation.md has the full matrix): the
 default mode is calibrated to the Autodesk Model Derivative oracle — every
@@ -90,6 +96,14 @@ L3 SEMANTIC  (``semantic``, schema-driven)
     * CIRCUITS: an ``RbsElectricalSystem`` with a base connector must point
       it at itself with the index of its LAST connector; connectors indices
       unique.
+    * INSTANCED UNIT FOOTER BLOBS: a loaded-family save unit whose 0x0f3f
+      footer blob is not 64 bytes is an ERROR as soon as one placed instance
+      resolves into it (instance ``m_symbolId`` -> ``FamilySymbol.m_familyId``
+      -> host ``Family`` famdoc GUID == the unit's separator GUID) -- the
+      single cause behind every instanced audit FAIL of the campaign
+      (E3/E6 FAIL empty; E1b PASS random).  A FamilyInstance whose family
+      document cannot be resolved counts against every short-blob unit
+      (never VALID on a possibly-failing file).
 
 Public API::
 
@@ -110,6 +124,7 @@ from __future__ import annotations
 
 import struct
 import time
+import uuid
 import zlib
 from collections import Counter, defaultdict
 from contextlib import ExitStack
@@ -166,8 +181,14 @@ GLOBAL_PREFIX_VALUE = {
 #: corrections (V9: one flipped trailer byte translated successfully)
 MAX_SAFE_DATA_REPAIRS_PER_BLOCK = 8
 
+#: the 0x0f3f unit-footer blob length every non-degenerate save unit carries
+#: (corpus 2,071/2,072) == rvt.famgen.famdoc_adoc.FOOTER_BLOB_LEN, the length
+#: our writers emit (a test pins the two together)
+UNIT_FOOTER_BLOB_LEN = 64
+
 _ISIZE_ADJ = {4: 0, 5: 4, 6: -4, 7: 0}
 _INVALID_U64 = 0xFFFFFFFFFFFFFFFF
+_NIL_GUID = "00000000-0000-0000-0000-000000000000"
 
 
 def _as_int(v: Any) -> Optional[int]:
@@ -804,8 +825,39 @@ class Validator:
                 rep.error(L_STRUCTURE, pname, f"block walker: {msg}")
             n_blocks += len(w.blocks)
             n_records += self._check_blocks_and_records(pname, w)
+            self._check_unit_footers(pname, w)
         rep.stats["partition_blocks"] = n_blocks
         rep.stats["records"] = n_records
+
+    # ------------------------------------------------------------------
+    def _check_unit_footers(self, pname: str, w: StreamWalker) -> None:
+        """THE 0x0f3f UNIT-FOOTER BLOB PRESENCE LAW (genesis-audit VERDICTS
+        #36, the E-round of batch 42).  Every save unit ends terminator +
+        ``u16 0x0f3f + u32 n + n opaque bytes`` + the signature string, and
+        n == 64 in 2,071/2,072 corpus units (the one n == 0 is the degenerate
+        unit of an EMPTY partition, header count 0 -- dach Partitions/85).
+        Autodesk's open-time audit REJECTS the file the moment a placed
+        instance walks into a unit whose blob is empty (E3/E6 FAIL) and does
+        not verify the bytes (E1b: a random blob PASSES); an uninstanced
+        empty-blob unit is tolerated (H10 / L_v2 / the L1a loads PASSED).
+        Our writers emitted n == 0 for months -- the single cause behind every
+        instanced FAIL since R_inst_box -- so a short blob is a writer
+        regression: WARNING here (reader-tolerated on its own); the semantic
+        layer makes it an ERROR when an instance resolves into the unit
+        (:meth:`_check_instanced_unit_footers`)."""
+        short = _short_blob_units(w)
+        if short:
+            self.rep.warn(
+                L_STRUCTURE, pname,
+                f"{len(short)}/{len(w.units)} save unit(s) whose 0x0f3f footer blob "
+                f"is not {UNIT_FOOTER_BLOB_LEN} bytes (unit:len "
+                + ", ".join(f"u{u.index}:{len(u.footer_blob)}" for u in short[:8])
+                + ") — Autodesk's audit rejects the file as soon as a placed "
+                "instance walks into such a unit (verdict #36: presence "
+                "mandatory, content unverified); tolerated only while "
+                "uninstanced (the semantic layer makes it an ERROR when "
+                "instanced). Regenerate with the current writer "
+                "(famdoc_adoc.build_footer nonce)")
 
     # ------------------------------------------------------------------
     def _check_blocks_and_records(self, pname: str, w: StreamWalker) -> int:
@@ -1179,6 +1231,15 @@ class Validator:
                             buf[r.payload_off + 2:r.payload_off + r.body_size], u)
 
         # -- decode + collect ---------------------------------------------------------
+        cls_chain_cache: Dict[int, Set[str]] = {}
+
+        def chain_names(class_id: int) -> Set[str]:
+            got = cls_chain_cache.get(class_id)
+            if got is None:
+                got = {c.name for c in dec.chain(class_id)}
+                cls_chain_cache[class_id] = got
+            return got
+
         clean: Set[int] = set()
         failures: Counter = Counter()
         fail_examples: Dict[str, str] = {}
@@ -1186,6 +1247,9 @@ class Validator:
         conns: Dict[int, Dict[int, List[Tuple[int, int, int]]]] = {}
         circuits: List[Tuple[int, dict]] = []
         typed_checks: List[Tuple[int, str, int, str]] = []       # (owner, field, target, need)
+        sym_family: Dict[int, int] = {}                          # FamilySymbol -> m_familyId
+        fam_guids: Dict[int, Set[str]] = {}                      # host Family -> famdoc GUID(s)
+        inst_ids: Set[int] = set()                               # FamilyInstance-derived owners
         limit = self.decode_limit
         n = 0
         for eid, (cls, payload, unit) in recs102.items():
@@ -1221,6 +1285,18 @@ class Validator:
                 conns[eid] = cm
             if dec.class_name(cls) == "RbsElectricalSystem":
                 circuits.append((eid, v))
+            if isinstance(v, dict):
+                names = chain_names(cls)
+                if "FamilyInstance" in names:
+                    inst_ids.add(eid)
+                elif "FamilySymbol" in names:
+                    fid = v.get("m_familyId")
+                    if isinstance(fid, int) and fid > 0:
+                        sym_family[eid] = fid
+                elif "Family" in names:
+                    guids = _famdoc_guids(v)
+                    if guids:
+                        fam_guids[eid] = guids
 
         rep.stats["elements_decoded"] = n
         n_fail = sum(failures.values())
@@ -1249,15 +1325,6 @@ class Validator:
                       + f"). e.g. {ex}")
 
         # -- typed resolution: symbols / levels -------------------------------------------
-        cls_chain_cache: Dict[int, Set[str]] = {}
-
-        def chain_names(class_id: int) -> Set[str]:
-            got = cls_chain_cache.get(class_id)
-            if got is None:
-                got = {c.name for c in dec.chain(class_id)}
-                cls_chain_cache[class_id] = got
-            return got
-
         sym_bad = []
         lvl_bad = []
         for owner, fname, target, need in typed_checks:
@@ -1278,6 +1345,9 @@ class Validator:
             ex = "; ".join(f"element {o} {f}={t} ({c})" for o, f, t, c in lvl_bad[:4])
             rep.error(L_SEMANTIC, "levels",
                       f"{len(lvl_bad)} level id(s) resolve to non-Level elements. e.g. {ex}")
+
+        # -- instanced save units must carry the 64-byte footer blob ------------------------
+        self._check_instanced_unit_footers(typed_checks, sym_family, fam_guids, inst_ids)
 
         # -- connector graph symmetry ---------------------------------------------------------
         edges, viol, unverifiable, viol_ex = check_connector_graph(conns, universe, clean)
@@ -1306,6 +1376,69 @@ class Validator:
 
         # -- loaded-content consistency (the product-path laws) -------------------------------
         self._check_loaded_content(recs102, dec)
+
+    def _content_units(self, pick: Callable[[StreamWalker], Iterable[partitions.Unit]]
+                       = lambda w: w.units) -> List[Tuple[str, partitions.Unit, str]]:
+        """(stream, unit, separator GUID string) of every loaded content-document
+        save unit (index >= 1) across the partition walkers; ``pick`` narrows
+        the units considered per walker (e.g. :func:`_short_blob_units`)."""
+        return [(pname, u, str(uuid.UUID(bytes_le=u.guid)).lower())
+                for pname, w in self._walkers().items()
+                for u in pick(w) if u.index != 0 and u.guid]
+
+    def _check_instanced_unit_footers(self, typed_checks, sym_family, fam_guids,
+                                       inst_ids) -> None:
+        """ERROR half of the 0x0f3f footer-blob law (:meth:`_check_unit_footers`
+        warns on presence alone).  A loaded-family save unit (index >= 1,
+        keyed by its separator GUID) whose blob is not 64 bytes FAILS
+        Autodesk's audit as soon as one placed instance walks into it --
+        resolved here as instance ``m_symbolId``/``m_masterSymbolId`` (the
+        Symbol-typed ``typed_checks``) -> ``FamilySymbol.m_familyId``
+        (``sym_family``) -> host ``Family`` famdoc GUID (``fam_guids``:
+        ``m_oFamDoc.m_contentDocGUID`` / ``m_famDocGUID``) == unit GUID.  A
+        FamilyInstance (``inst_ids``) whose chain breaks before a GUID cannot
+        be shown to avoid the short-blob unit(s), so it convicts them too:
+        this validator must never say VALID on a file the audit may reject.
+        Native files never reach here (no corpus content unit has a short
+        blob)."""
+        short = {g: (pname, u) for pname, u, g in self._content_units(_short_blob_units)}
+        if not short:
+            return
+        walkers: Dict[str, Set[int]] = defaultdict(set)     # guid -> instance ids
+        unresolved: Set[int] = set()
+        for owner, _fname, target, need in typed_checks:
+            if need != "Symbol":
+                continue
+            guids = fam_guids.get(sym_family.get(target))
+            if not guids:
+                if owner in inst_ids:
+                    unresolved.add(owner)
+                continue
+            for g in guids:
+                if g in short:
+                    walkers[g].add(owner)
+        if not walkers and not unresolved:
+            return                                           # uninstanced: the L1 warning stands
+        parts = []
+        for g, (pname, u) in short.items():
+            ids = sorted(walkers.get(g, ()))
+            parts.append(f"{pname} u{u.index} ({g[:8]}, blob {len(u.footer_blob)}B) <- "
+                         + (f"instance(s) {ids[:4]}" if ids else "no resolved instance"))
+        n_inst = len(set().union(*walkers.values()))
+        msg = (f"{n_inst} placed instance(s) walk into {len(walkers)}/{len(short)} "
+               f"loaded-family save unit(s) whose 0x0f3f footer blob is not "
+               f"{UNIT_FOOTER_BLOB_LEN} bytes: " + "; ".join(parts[:4]))
+        if unresolved:
+            ex = sorted(unresolved)[:4]
+            msg += (f"; {len(unresolved)} placed FamilyInstance(s) {ex} whose family "
+                    f"document could not be resolved (symbol -> family -> famdoc "
+                    f"GUID) are counted against every short-blob unit")
+        self.rep.error(
+            L_SEMANTIC, "unit-footer",
+            msg + " — Autodesk's open-time audit rejects exactly this (genesis-audit "
+                  "VERDICTS #36: empty blob under an instance FAILS, a random 64-byte "
+                  "blob PASSES => presence-only). Regenerate through the fixed writer "
+                  "(factory.build_family_save_unit / famdoc_adoc.build_footer)")
 
     def _check_loaded_content(self, recs102, dec) -> None:
         """Loaded-family / placed-instance consistency — the rules Autodesk's
@@ -1412,11 +1545,7 @@ class Validator:
         # unit GUIDs from the partition walkers
         unit_guids: List[str] = []
         try:
-            import uuid as _uuid
-            for pname, w in self._walkers().items():
-                for u in w.units:
-                    if u.index != 0 and u.guid:
-                        unit_guids.append(str(_uuid.UUID(bytes_le=u.guid)).lower())
+            unit_guids = [g for _p, _u, g in self._content_units()]
         except Exception:
             pass
         need_latest = bool(cd_guids or unit_guids)
@@ -1452,9 +1581,8 @@ class Validator:
                       f"units-not-in-CD {sorted(su - sc)[:2]}; CT-dangling {sorted(st_ - su)[:2]}; "
                       f"FM-dangling {sorted(sf - su)[:2]}")
         if len(cd_guids) >= 2 and isinstance(recs, list):
-            import uuid as _uuid
             try:
-                keys = [_uuid.UUID(g).bytes_le for g in ct_guids]
+                keys = [uuid.UUID(g).bytes_le for g in ct_guids]
             except Exception:
                 keys = []
             if keys and keys != sorted(keys):
@@ -1501,8 +1629,38 @@ def _RefDecoder(schema):
 
 
 # ---------------------------------------------------------------------------
-# connector helpers
+# unit-footer / decoded-object helpers
 # ---------------------------------------------------------------------------
+
+def _short_blob_units(w: StreamWalker) -> List[partitions.Unit]:
+    """Save units of one partition walker whose 0x0f3f footer blob is not
+    the 64 bytes every corpus unit carries.  An EMPTY partition (header
+    elem_table_count 0 -- dach Partitions/85, the same predicate the
+    consistency layer uses) holds no records to walk into and legitimately
+    carries the degenerate empty footer: exempt."""
+    if w.header.elem_table_count == 0:
+        return []
+    return [u for u in w.units if len(u.footer_blob) != UNIT_FOOTER_BLOB_LEN]
+
+
+def _famdoc_guids(v: dict) -> Set[str]:
+    """The content-document GUID(s) a host ``Family`` element names:
+    ``m_oFamDoc.m_contentDocGUID`` (== the loaded save unit's separator GUID)
+    and ``m_famDocGUID``.  The self-Family of a family document carries the
+    nil GUID / a null famdoc and yields nothing (rvt.provenance mirrors this
+    over a Document)."""
+    out: Set[str] = set()
+    fd = v.get("m_oFamDoc")
+    if isinstance(fd, dict):
+        g = (fd.get("value") or {}).get("m_contentDocGUID")
+        if isinstance(g, str):
+            out.add(g.lower())
+    g2 = v.get("m_famDocGUID")
+    if isinstance(g2, str):
+        out.add(g2.lower())
+    out.discard(_NIL_GUID)
+    return out
+
 
 def _connector_map(v: dict) -> Optional[Dict[int, List[Tuple[int, int, int]]]]:
     """{connector nIndex: [(target_id, target_index, connType), ...]} for an
