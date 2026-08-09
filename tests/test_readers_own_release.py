@@ -121,8 +121,9 @@ def test_run_certified_keeps_releases_apart(monkeypatch):
     monkeypatch.setattr(C, "load_certified",
                         lambda *a, **k: {"certified": [rel[2026], rel[2025]],
                                          "failed": [rel[2024]]})
-    rep = C.run_certified(include_samples=False, with_dbviewtype=False)
-    assert rep["reference_release"] == V.LATEST_RELEASE == 2026
+    rep = C.run_certified(include_samples=False, with_dbviewtype=False,
+                          with_adocument=False)
+    assert rep["reference_release"] == 2026            # most accepted files; tie -> later
     assert rep["passing_files"] == [rel[2026]] and rep["failing_files"] == []
     assert set(rep["by_release"]) == {2026, 2025, 2024}
     assert rep["by_release"][2025]["passing_files"] == [rel[2025]]
@@ -130,6 +131,9 @@ def test_run_certified_keeps_releases_apart(monkeypatch):
     assert rep["mandatory_set"] == rep["by_release"][2026]["mandatory_set"]
     assert set(rep["censuses"]) == set(rel.values())
     assert {c["release"] for c in rep["censuses"].values()} == {2026, 2025, 2024}
+    rep25 = C.run_certified(include_samples=False, reference_release=2025,
+                            with_dbviewtype=False, with_adocument=False)
+    assert rep25["reference_release"] == 2025 and rep25["passing_files"] == [rel[2025]]
 
 
 def test_census_nests_inside_an_outer_release_context():

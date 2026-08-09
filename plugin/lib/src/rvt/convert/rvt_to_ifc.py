@@ -47,11 +47,9 @@ content.  The manifest stamps the source lineage (tekton-authored vs
 Autodesk-sample vs unknown) and quarantined sources are labelled dev-only.
 
 RELEASE: the source is read under its OWN Revit release
-(``rvt.global_framing.enter_own_release`` -- entered once around the route,
-restored on exit, nest-safe), so a 2025 / 2024 project exports like a 2026
-one; the manifest's ``input.provenance.format`` names that release and a
-degraded source (own schema unreadable) records the fallback rung taken as
-a caveat -- the IFC is still delivered.
+(``rvt.global_framing.enter_own_release``), so a 2025 / 2024 project exports
+like a 2026 one; ``input.provenance.format`` names that release and a
+degraded source records the fallback rung taken as a caveat.
 
 CLI::
 
@@ -587,14 +585,15 @@ def source_provenance(rvt_path: str) -> Dict[str, Any]:
 def extract_intent(rvt_path: str, *, max_walls: Optional[int] = None) -> ExtractedModel:
     """Read ``rvt_path`` back into the intent-shaped :class:`ExtractedModel`
     (under the file's own release; the whole read happens inside it)."""
-    if not os.path.isfile(rvt_path):
-        raise RvtReadError(f"no such file: {rvt_path}")
     with ExitStack() as stack:
-        enter_own_release(stack, rvt_path)
+        if os.path.isfile(rvt_path):
+            enter_own_release(stack, rvt_path)
         return _extract_intent(rvt_path, max_walls=max_walls)
 
 
 def _extract_intent(rvt_path: str, *, max_walls: Optional[int]) -> ExtractedModel:
+    if not os.path.isfile(rvt_path):
+        raise RvtReadError(f"no such file: {rvt_path}")
     from ..families import FamilyIndex
     from ..inventory import wall_types
     from ..mutate import Document
@@ -743,8 +742,8 @@ def convert_rvt_to_ifc(rvt_path: str, out_ifc: Optional[str] = None, *,
 
     Returns the manifest record; the IFC + ``<stem>.manifest.json`` /
     ``MANIFEST.md`` land beside it (``out_dir`` defaults to the IFC's
-    directory).  The source is read under its own release, entered once
-    here; a fallback rung, if taken, is a caveat in the manifest."""
+    directory).  The source's own release is entered once here, around the
+    whole route; a fallback rung, if taken, is a caveat in the manifest."""
     with ExitStack() as stack:
         note = enter_own_release(stack, rvt_path) if os.path.isfile(rvt_path) else None
         return _convert_rvt_to_ifc(rvt_path, out_ifc, out_dir=out_dir,
@@ -784,7 +783,7 @@ def _convert_rvt_to_ifc(rvt_path: str, out_ifc: Optional[str], *,
         rec["degradations"].append(f"source release: {release_note}")
 
     try:
-        model = extract_intent(rvt_path, max_walls=max_walls)
+        model = _extract_intent(rvt_path, max_walls=max_walls)   # already in the release
         rec["extraction"] = model.extraction
         rec["levels"] = model.levels
         rec["equipment"] = [e.as_json() for e in model.equipment]

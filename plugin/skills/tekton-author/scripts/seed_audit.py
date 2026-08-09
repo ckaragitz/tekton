@@ -23,10 +23,9 @@ audit checks two things:
    instance").
 
 Accepts either a .rvt path or a research-corpus name (e.g. rmebasicsampleproject).
-A path is read under the seed's OWN Revit release (rvt.global_framing's
-lenient ladder, entered once around the audit and restored on exit), so a
-firm on Revit 2025 / 2024 audits its own seed; if the seed's schema cannot
-settle the framing the report says which fallback was used (``release_note``).
+A path is read under the seed's OWN Revit release (rvt.global_framing.
+enter_own_release), so a firm on Revit 2025 / 2024 audits its own seed; a
+degraded seed says which fallback framing was used (``release_note``).
 """
 from __future__ import annotations
 
@@ -397,7 +396,7 @@ def audit(seed: str, spec: dict | None) -> dict:
     """Inventory (+ coverage against ``spec``) of ``seed``, read under the
     seed's own release when it is a file on disk."""
     with ExitStack() as stack:
-        note = enter_own_release(stack, seed) if os.path.exists(seed) else None
+        note = enter_own_release(stack, seed) if os.path.isfile(seed) else None
         report = _audit(seed, spec)
     if note:
         report["release_note"] = note

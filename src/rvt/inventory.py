@@ -48,9 +48,9 @@ Demo::
     python -m rvt.inventory --stats            # name-resolution % on 3 samples
 
 The functions take an already-open ``Document`` (the caller's release
-context applies); the CLI opens a ``.rvt`` path under the file's OWN
-release (``rvt.global_framing.enter_own_release``, once, restored on exit)
-so a Revit 2025 / 2024 project is inventoried, not refused.
+context applies); the CLI opens a path under the file's OWN release
+(``rvt.global_framing.enter_own_release``), so a Revit 2025 / 2024 project
+is inventoried, not refused.
 """
 from __future__ import annotations
 
@@ -682,18 +682,15 @@ def main(argv=None):
     if not argv or argv[0] in ("--stats",):
         _print_stats()
         return 0
+    import os
     from contextlib import ExitStack
     from .global_framing import enter_own_release
+    from .mutate import Document
     path = argv[0]
     with ExitStack() as stack:                  # the file's own release, once
-        note = enter_own_release(stack, path) if path.endswith(".rvt") else None
-        return _main(path, argv, note)
-
-
-def _main(path: str, argv: list, note: Optional[str]) -> int:
-    from .mutate import Document
-    doc = Document.from_file(path) if path.endswith(".rvt") else Document.load(path)
-    inv = inventory(doc)
+        note = enter_own_release(stack, path) if os.path.isfile(path) else None
+        doc = Document.from_file(path) if path.endswith(".rvt") else Document.load(path)
+        inv = inventory(doc)                    # plain data from here on
     if note:
         inv["release_note"] = note
     if "--json" in argv:

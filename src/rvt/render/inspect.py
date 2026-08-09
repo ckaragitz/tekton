@@ -169,28 +169,24 @@ class ElementGeometry:
 
 # --- source normalisation -----------------------------------------------------
 
-def _is_file_source(source: Any) -> bool:
-    """True when ``source`` names a file on disk (not a Document / corpus name)."""
-    return isinstance(source, str) and (
-        source.lower().endswith((".rvt", ".rte", ".rfa")) or os.sep in source)
-
-
 def _open(source: Union[str, "Document"]) -> Document:
     """A Document from a corpus project name, a .rvt path, or a Document."""
     if isinstance(source, Document):
         return source
     if isinstance(source, str):
-        if _is_file_source(source):
+        if source.lower().endswith((".rvt", ".rte", ".rfa")) or os.sep in source:
             return Document.from_file(source)
         return Document.load(source)
     raise TypeError(f"unsupported source {type(source)!r}")
 
 
 def _enter_release(stack: ExitStack, source: Any) -> Optional[str]:
-    """Put a file source's OWN release in force on ``stack`` (the shared
-    lenient ladder; a Document / corpus name has no file to read it from).
-    Returns the fallback sentence when the own schema did not settle it."""
-    return enter_own_release(stack, source) if _is_file_source(source) else None
+    """Put a file source's OWN release in force on ``stack`` (a Document /
+    corpus name has no file to read it from).  Returns the ladder's fallback
+    sentence when the file's own schema did not settle it."""
+    if isinstance(source, str) and os.path.isfile(source):
+        return enter_own_release(stack, source)
+    return None
 
 
 def _ptr(x: Any):
@@ -570,36 +566,34 @@ def main(argv: Optional[list] = None) -> int:
         note = _enter_release(stack, source)
         if note:
             print(f"release: {note}")
-        return _report(source, classes, ids, json_out, limit, show_faces, show_all)
-
-
-def _report(source, classes, ids, json_out, limit, show_faces, show_all) -> int:
-    doc = _open(source)
-    if not classes and not ids and not show_all:
-        # default: the classes a genesis / creation stream cares about
-        classes = ["SWall", "VWall", "FaceWall", "FamilyInstance",
-                   "FamilySymbol", "Floor", "Ceiling", "Level", "Grid"]
-    rows = inspect(doc, classes=classes or None, ids=ids or None, limit=limit)
-    if len(rows) > 60 and not ids:
-        print(render_class_summary(rows))
-        s = summary(rows)
-        print("-" * 78)
-        print(f"{s['elements']} elements: {s['with_baked_geometry']} baked/referenced, "
-              f"{s['without_baked_geometry']} without; kinds "
-              + ", ".join(f"{k}={v}" for k, v in sorted(s["kinds"].items(), key=lambda kv: -kv[1])))
-    else:
-        print(render_report(rows))
-        for r in rows:
-            if r.by_reference:
-                ref = resolve_instance_reference(doc, r)
-                if ref is not None:
-                    print(f"    -> instance {r.element_id} references symbol {r.symbol_id}: "
-                          f"{ref.kind} ({ref.geometry_bytes} B, faces={ref.n_faces})")
-    if show_faces:
-        for r in rows:
-            if r.kind == "brep":
-                print()
-                print(face_report(doc, r.element_id))
+        doc = _open(source)
+        if not classes and not ids and not show_all:
+            # default: the classes a genesis / creation stream cares about
+            classes = ["SWall", "VWall", "FaceWall", "FamilyInstance",
+                       "FamilySymbol", "Floor", "Ceiling", "Level", "Grid"]
+        rows = inspect(doc, classes=classes or None, ids=ids or None, limit=limit)
+        if len(rows) > 60 and not ids:
+            print(render_class_summary(rows))
+            s = summary(rows)
+            print("-" * 78)
+            print(f"{s['elements']} elements: {s['with_baked_geometry']} baked/referenced, "
+                  f"{s['without_baked_geometry']} without; kinds "
+                  + ", ".join(f"{k}={v}" for k, v in sorted(s["kinds"].items(),
+                                                          key=lambda kv: -kv[1])))
+        else:
+            print(render_report(rows))
+            for r in rows:
+                if r.by_reference:
+                    ref = resolve_instance_reference(doc, r)
+                    if ref is not None:
+                        print(f"    -> instance {r.element_id} references symbol "
+                              f"{r.symbol_id}: {ref.kind} ({ref.geometry_bytes} B, "
+                              f"faces={ref.n_faces})")
+        if show_faces:
+            for r in rows:
+                if r.kind == "brep":
+                    print()
+                    print(face_report(doc, r.element_id))
     if json_out:
         os.makedirs(os.path.dirname(os.path.abspath(json_out)), exist_ok=True)
         with open(json_out, "w") as fh:
