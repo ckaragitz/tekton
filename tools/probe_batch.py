@@ -794,13 +794,21 @@ def batch_release(entries: Sequence[Entry], ledger: Ledger) -> Optional[int]:
 HISTORICAL_ROUNDS = 14
 
 
+#: Environment floor for batch numbers (#285): coord's `/batches k` reservation replies with a
+#: range nobody else can be given; exporting its first number here makes EVERY stager that goes
+#: through next_batch_number() honour it (most tools compute their own number and never see a
+#: --batch flag). "highest local + 1" alone collides whenever two sessions branch from one main.
+BATCH_FLOOR_ENV = "RVT_BATCH_FLOOR"
+
+
 def next_batch_number(out_dir: str = ACCEPTANCE) -> int:
     n = HISTORICAL_ROUNDS
     for p in glob.glob(os.path.join(out_dir, "batch_*.json")):
         m = re.match(r"batch_(\d+)\.json$", os.path.basename(p))
         if m:
             n = max(n, int(m.group(1)))
-    return n + 1
+    floor = os.environ.get(BATCH_FLOOR_ENV, "").strip()
+    return max(n + 1, int(floor)) if floor.isdigit() else n + 1
 
 
 def make_control(ledger: Ledger, batch_n: int, out_dir: str = ACCEPTANCE, *,
@@ -862,14 +870,19 @@ def stage_batch(probes: Sequence[str], *, candidate_bases: Sequence[str] = (),
                                       manifest_override=manifest_override)
     if violations:
         raise GateRefusal(violations)
-    n = batch_n or next_batch_number(out_dir)
-    if not batch_n:
-        # "highest local batch_<n>.json + 1" is only right when nobody else is staging: two sessions
-        # branching from the same main both took 57..59 (PRs #277/#283). The server-side reservation
-        # (`/batches k` comment -> coord replies with a range, #285) is the collision-free source.
-        print(f"note: batch number {n} chosen locally (highest staged + 1). If other sessions may be "
-              f"staging too, reserve first — comment `/batches <k>` on your issue — and pass the "
-              f"number coord replies with as --batch.", file=sys.stderr)
+    n = batch_n
+    if not n:
+        n = next_batch_number(out_dir)
+        floor = os.environ.get(BATCH_FLOOR_ENV, "").strip()
+        if floor and not floor.isdigit():
+            print(f"warning: {BATCH_FLOOR_ENV}={floor!r} is not a number — ignored", file=sys.stderr)
+        if not floor.isdigit():
+            # "highest local + 1" is only right when nobody else is staging: two sessions branching
+            # from the same main both took 57..59 (PRs #277/#283). coord's `/batches k` reply (#285)
+            # is the collision-free source — pass it as --batch, or export it as RVT_BATCH_FLOOR.
+            print(f"note: batch number {n} chosen locally (highest staged + 1). If other sessions may be "
+                  f"staging too, reserve first — comment `/batches <k>` on your issue — and pass the "
+                  f"number coord replies with as --batch (or export {BATCH_FLOOR_ENV}=<N>).", file=sys.stderr)
     control = make_control(ledger, n, out_dir, source=control_from,
                            release=batch_release(entries, ledger))
     os.makedirs(out_dir, exist_ok=True)

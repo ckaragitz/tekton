@@ -378,71 +378,77 @@ def test_session_locks_and_the_resume_rule():
 
 def test_viewer_batch_numbers_are_reserved_server_side_and_clashes_are_judged():
     """#285: two engineer sessions branching from the same main both staged batch_57..59 (PRs #277,
-    #283). `/batches k` hands out ranges above everything on main / reserved / in any open PR (so two
-    reservations in one sweep never overlap), and pr-check tells the PR that must MOVE — a number
-    belongs to the issue it was reserved for, else to the older PR — the exact renumber command."""
+    #283). `/batches k` (coord.py reserve) hands out ranges above everything on main / reserved / in any
+    open PR, idempotently per requesting comment; the judge (coord.py batchjudge, at PR open/edit and
+    hourly) tells the PR that must MOVE — a number belongs to the issue it was reserved for, else to
+    the older PR — the exact renumber range; automerge holds `batch-clash`; probe_batch honours the floor."""
     coord = tl.coord
-    on_main = set(range(1, 57))
-    assert coord.batch_numbers(["experiments/acceptance/batch_57.json", "experiments/x/y/batch_3.json",
-                                "docs/batch_9.json", "batch_4.json", "experiments/acceptance/batch_x.json"]) == {57, 3, 4}
-    bot = {"login": "github-actions[bot]"}
-    reg = [{"body": "🔢 " + coord.reserve_marker("cam", 57, 59, 134, "501"), "user": bot, "created_at": "2026-08-09T13:00:00Z"},
-           {"body": coord.reserve_marker("mallory", 90, 99, 1, "666"), "user": {"login": "mallory"}}]   # a human's marker reserves nothing
+    on_main = set(range(15, 57))
+    assert coord.batch_numbers(["experiments/acceptance/batch_57.json", "experiments/x/y/batch_3.json", "docs/batch_9.json",
+                                "batch_4.json", "experiments/acceptance/batch_x.json", "README.md"]) == {57, 3}
+    marker = "<!-- batches by=cam lo=57 hi=59 issue=134 token=501 -->"
+    reg = [{"body": "🔢 " + marker, "user": {"login": "github-actions[bot]"}, "created_at": "2026-08-09T13:00:00Z"},
+           {"body": marker.replace("issue=134", "issue=1").replace("token=501", "token=666"), "user": {"login": "mallory"}}]
     reserved = coord.reservations(reg)
-    assert [(r["lo"], r["hi"], r["issue"], r["token"]) for r in reserved] == [(57, 59, 134, "501")]
-    prs = [{"number": 277, "author": {"login": "cam"}, "body": "Closes #144",
-            "files": [{"path": "experiments/acceptance/batch_%d.json" % n} for n in (57, 58, 59)] + [{"path": "src/rvt/frontdoor/build.py"}]},
-           {"number": 283, "author": {"login": "cam"}, "body": "Closes #134",
-            "files": [{"path": "experiments/acceptance/batch_%d.json" % n} for n in (57, 58, 59)]},
-           {"number": 203, "author": {"login": "cam"}, "body": "Closes #8",
-            "files": [{"path": "experiments/acceptance/batch_12.json"}]}]            # MODIFIES a batch file that is on main: adds nothing
+    assert reserved == [{"by": "cam", "lo": 57, "hi": 59, "issue": 134, "token": "501"}]        # a human's marker reserves nothing
+    bf = lambda *ns: [{"path": "experiments/acceptance/batch_%d.json" % n} for n in ns]
+    prs = [{"number": 277, "author": {"login": "cam"}, "body": "Closes #144", "files": bf(57, 58, 59) + [{"path": "src/rvt/frontdoor/build.py"}], "labels": []},
+           {"number": 283, "author": {"login": "cam"}, "body": "Closes #134", "files": bf(57, 58, 59), "labels": []},
+           {"number": 203, "author": {"login": "cam"}, "body": "Closes #8", "files": bf(20), "labels": []}]   # EDITS a manifest that is on main: adds nothing
     assert coord.pr_batches(prs, on_main) == {277: {57, 58, 59}, 283: {57, 58, 59}}
-    # next free: above main (56), above open PRs (59), above reservations; two requests in one sweep never overlap
+    # next free: above main (56), above open PRs (59), above reservations, never below the historical floor
     assert coord.next_batch(3, on_main, [], {57, 58, 59}) == (60, 62)
-    r1 = coord.next_batch(3, on_main, reserved, {57, 58, 59})
-    r2 = coord.next_batch(2, on_main, reserved + [{"by": "cam", "lo": r1[0], "hi": r1[1], "issue": 2, "token": "t"}], {57, 58, 59})
-    assert r1 == (60, 62) and r2 == (63, 64)
-    assert coord.next_batch(0, set(), [], set()) == (1, 1) and coord.next_batch(50, set(), [], set()) == (1, coord.MAX_RESERVE)
-    # today's case, no reservations: the OLDER PR keeps 57..59; the newer one is told to move to 60..62
-    newer = coord.batch_clashes(283, {57, 58, 59}, {134}, prs, [], on_main)
-    assert [c["kind"] for c in newer["clashes"]] == ["older-pr"] * 3 and newer["clashes"][0]["pr"] == 277
-    assert tuple(newer["suggest"]) == (60, 62) and "--batch 60" in newer["message"] and "/batches" in newer["message"]
-    older = coord.batch_clashes(277, {57, 58, 59}, {144}, prs, [], on_main)
-    assert older["clashes"] == [] and older["flag"] == {"283": [57, 58, 59]} and "#277" in older["rival_messages"]["283"]
-    # a reservation for #134 flips it: numbers belong to the ISSUE they were reserved for (logins are shared by sessions)
-    assert [c["kind"] for c in coord.batch_clashes(277, {57, 58, 59}, {144}, prs, reserved, on_main)["clashes"]] == ["reserved"] * 3
-    owner = coord.batch_clashes(283, {57, 58, 59}, {134}, prs, reserved, on_main)
-    assert owner["clashes"] == [] and owner["flag"] == {"277": [57, 58, 59]} and owner["key"] == "none"
-    # a batch file that reached main after the branch was cut must move too
-    late = coord.batch_clashes(300, {56}, {9}, prs, [], on_main)
-    assert late["clashes"] == [{"n": 56, "kind": "main"}] and tuple(late["suggest"]) == (60, 60)
-    # CLI round trip (the workflow calls these verbs)
+    assert coord.next_batch(1, set(), [], set()) == (coord.BATCH_FLOOR + 1,) * 2 and coord.next_batch(50, set(), [], set())[1] == coord.BATCH_FLOOR + coord.MAX_RESERVE
+    with open(os.path.join(ROOT, "tools", "probe_batch.py"), encoding="utf-8") as fh:
+        pb_src = fh.read()
+    assert int(re.search(r"^HISTORICAL_ROUNDS = (\d+)", pb_src, re.M).group(1)) == coord.BATCH_FLOOR   # one floor, two files
+    assert 'BATCH_FLOOR_ENV = "RVT_BATCH_FLOOR"' in pb_src and "os.environ.get(BATCH_FLOOR_ENV" in pb_src  # every stager honours the reservation
+    # /batches: the decision, its wording, idempotency per requesting comment, and no overlap between two requests
+    r1 = coord.reserve(3, "cam", 300, "777", "https://x/1", 287, on_main, reserved, prs)
+    assert (r1["lo"], r1["hi"], r1["seen"]) == (60, 62, False)
+    assert "<!-- batches by=cam lo=60 hi=62 issue=300 token=777 -->" in r1["registry_body"] and coord.RESERVE_RE.search(r1["registry_body"])
+    assert "--batch 60" in r1["reply"] and "RVT_BATCH_FLOOR=60" in r1["reply"] and "#287" in r1["reply"]
+    again = coord.reserve(3, "cam", 134, "501", "u", 287, on_main, reserved, prs)
+    assert (again["lo"], again["hi"], again["seen"]) == (57, 59, True)                                # re-run of a recorded request: same range, nothing new
+    r2 = coord.reserve(2, "chase", 301, "778", "u", 287, on_main, reserved + coord.reservations([{"body": r1["registry_body"]}]), prs)
+    assert (r2["lo"], r2["hi"]) == (63, 64)
+    # the judge, today's case with no reservation: the OLDER PR keeps 57..59, the newer moves to 60..62
+    j = coord.batch_judgement(prs, [], on_main)
+    assert [(m["pr"], m["nums"], m["key"]) for m in j] == [(283, [57, 58, 59], "batch-clash-57_58_59")]
+    assert "→ **60..62**" in j[0]["message"] and "--batch 60" in j[0]["message"] and "older PR #277" in j[0]["message"] and "/batches" in j[0]["message"]
+    # a reservation for #134 flips it: numbers belong to the ISSUE they were reserved for (sessions share a login)
+    assert [(m["pr"], m["nums"]) for m in coord.batch_judgement(prs, reserved, on_main)] == [(277, [57, 58, 59])]
+    # a PR that reserved on ITSELF (issue = PR number) owns the range too; two movers never get the same target range
+    prs2 = prs + [{"number": 295, "author": {"login": "x"}, "body": "Refs #2", "files": bf(57), "labels": []}]
+    moves = coord.batch_judgement(prs2, [{"by": "x", "lo": 57, "hi": 57, "issue": 295, "token": "9"}], on_main)
+    assert [(m["pr"], m["nums"]) for m in moves] == [(277, [57]), (283, [57, 58, 59])]
+    targets = [re.search(r"→ \*\*([0-9.]+)\*\*", m["message"]).group(1) for m in moves]
+    assert targets == ["60", "61..63"]
+    # CLI round trip of the two verbs the workflow calls
     import tempfile
     with tempfile.TemporaryDirectory() as d:
-        paths = {k: os.path.join(d, k) for k in ("tree.txt", "reg.json", "prs.json", "files.json")}
+        paths = {k: os.path.join(d, k) for k in ("tree.txt", "reg.json", "prs.json")}
         with open(paths["tree.txt"], "w") as fh:
             fh.write("\n".join(f"experiments/acceptance/batch_{n}.json" for n in sorted(on_main)) + "\nREADME.md\n")
-        for k, v in (("reg.json", reg), ("prs.json", prs), ("files.json", [{"filename": "experiments/acceptance/batch_57.json", "status": "added"},
-                                                                           {"filename": "experiments/acceptance/batch_20.json", "status": "modified"}])):
+        for k, v in (("reg.json", reg), ("prs.json", prs)):
             with open(paths[k], "w") as fh:
                 json.dump(v, fh)
-        run = lambda *a: subprocess.run([sys.executable, os.path.join(ROOT, "tools", "dev", "coord.py"), *a],
-                                       capture_output=True, text=True, check=True).stdout
-        assert run("nextbatch", "--k", "3", "--tree", paths["tree.txt"], "--registry", paths["reg.json"], "--prs", paths["prs.json"]).split() == ["60", "62"]
-        assert run("nextbatch", "--k", "2").split() == ["1", "2"]                       # every input optional (bootstrap / API hiccup)
-        out = json.loads(run("batchclash", "--self", "283", "--linked", "134", "--self-files", paths["files.json"],
-                             "--prs", paths["prs.json"], "--registry", paths["reg.json"], "--tree", paths["tree.txt"]))
-        assert out["clashes"] == [] and out["flag"] == {"277": [57]}                    # 283 holds the reservation; only ADDED files count
-    # coord.yml wiring: the command, its repo-wide serialization, the registry, the PR-time check on every push
+        run = lambda *a: json.loads(subprocess.run([sys.executable, os.path.join(ROOT, "tools", "dev", "coord.py"), *a,
+                                                     "--tree", paths["tree.txt"], "--registry", paths["reg.json"], "--prs", paths["prs.json"]],
+                                                    capture_output=True, text=True, check=True).stdout)
+        got = run("reserve", "--k", "3", "--by", "cam", "--issue", "300", "--token", "777", "--url", "u", "--registry-number", "287")
+        assert (got["lo"], got["hi"], got["seen"]) == (60, 62, False)
+        assert [(m["pr"], m["nums"]) for m in run("batchjudge")] == [(277, [57, 58, 59])]         # reg.json reserves 57..59 for #134
+    # wiring: the command and its repo-wide serialization, the registry, open-time + hourly judging, the merge hold, the rebase rule
     cy = _wf("coord.yml")
-    for needle in ("startsWith(github.event.comment.body, '/batches') && 'batches'", "synchronize", "registry_issue",
-                   "batch-registry", "tools/dev/coord.py nextbatch", "tools/dev/coord.py reservations", "tools/dev/coord.py batchclash",
-                   "<!-- batches by=$WHO lo=$lo hi=$hi issue=$N token=$COMMENT_ID -->", "batch-clash", "pulls/$PR/files"):
+    for needle in ("startsWith(github.event.comment.body, '/batches') && 'batches'", "registry_issue", "batch-registry", "coord_has",
+                   "tools/dev/coord.py reserve", "tools/dev/coord.py batchjudge", "batch_judge_apply", "git ls-tree -r --name-only HEAD",
+                   "Re-judge viewer batch numbers across open PRs", "pulls/$PR/files"):
         assert needle in cy, needle
-    assert coord.RESERVE_RE.search("<!-- batches by=cam-karagitz lo=60 hi=62 issue=134 token=5231762869 -->")
-    # the tool and the docs tell sessions to reserve first
-    with open(os.path.join(ROOT, "tools", "probe_batch.py"), encoding="utf-8") as fh:
-        assert "/batches <k>" in fh.read()
+    assert "synchronize" not in cy.split("pull_request:")[1].split("schedule:")[0]                    # no runner per push (hourly sweep instead)
+    assert "has_label batch-clash" in _wf("automerge.yml")
+    with open(os.path.join(ROOT, ".github", "prompts", "worker.md"), encoding="utf-8") as fh:
+        assert "batch-clash" in fh.read()
     with open(os.path.join(ROOT, "CLAUDE.md"), encoding="utf-8") as fh:
         assert "/batches <k>" in fh.read()
 

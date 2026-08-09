@@ -102,9 +102,11 @@ uv pip install --python .venv/bin/python -e ".[ifc]"                    # OPTION
   numbers are campaign-global and other sessions stage in parallel: **reserve
   yours first — comment `/batches <k>` on your issue (k = batches you will
   stage, one per release); `coord` replies within a minute with a range nobody
-  else can be given — then `probe_batch.py stage … --batch <N>`** (two PRs took
-  57–59 from the same `main` before this existed, #285; `coord / pr-check`
-  flags any PR that reuses a number and names the renumber command).
+  else can be given — then `probe_batch.py stage … --batch <N>` (or export
+  `RVT_BATCH_FLOOR=<N>` for tools that number batches themselves).** Two PRs
+  took 57–59 from the same `main` before this existed (#285); `coord` labels a
+  PR that reuses a reserved or older PR's number `batch-clash` with the exact
+  renumber command, and automerge holds it until renumbered.
   `tools/serve_acceptance.py [PORT]` serves that dir on 127.0.0.1:8765 for
   the browser upload loop.
 - **Provenance before anything ships:** `.venv/bin/python tools/provenance.py FILE.rvt --baseline all --streams --json out.json`;
@@ -116,7 +118,8 @@ uv pip install --python .venv/bin/python -e ".[ifc]"                    # OPTION
   (plugin bundle root for the standalone path), `RVT_GENESIS_BASE`
   (explicit base override), `RVT_STEPLITE_FORCE=1` (force the pure-Python
   IFC reader), `RVT_SEG_CACHE=<dir>` (cache slow segment builds),
-  `RVT_SKIP_LARGE=1` (tests).
+  `RVT_SKIP_LARGE=1` (tests), `RVT_BATCH_FLOOR=<N>` (lowest viewer batch
+  number `probe_batch` may pick — set it to what `/batches` reserved for you).
 
 ### Working from a Claude Code cloud session (claude.ai/code)
 
