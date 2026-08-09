@@ -504,3 +504,15 @@ RVT_SEG_CACHE=<segcache> .venv/bin/python -m rvt.render.wallgeom reproduce rmeba
   genesis streams' stale G0 fixtures), NONE in this territory, ZERO new
   failures.  This stream's 15 tests + the sibling render stream's 16 run
   green together (`tests/test_render_{wallgeom,inspect}.py`, 31 passed).
+
+## Z. Addendum from the wall-solids-frontdoor stream (issue #144, 2026-08-09)
+
+§5's last gap ("`mutate.add_wall` still emits the dummy by default … the
+create-time bake is opt-in") is closed **at the product layer**: the front
+door's stage W now installs the `rvt.render.brep` six-face solid (the
+W1_gabpd_wall_solid recipe) as `NewElement.rep` for every created wall on the
+2026/2025/2024 pinned bases by default (`RVT_WALL_REP=dummy` opts out,
+byte-exact); `mutate.add_wall` itself is still untouched. `wallgeom audit`
+reads the product output back clean (all_baked, audit []). Evidence, gates and
+the STAGED viewer batches 57/58/59 are in `docs/inbox/wall-solids-frontdoor.md`;
+the upload rides #145. No render claim is made until those verdicts land.
