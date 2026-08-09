@@ -339,6 +339,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
         "errors": (build.get("errors") or []) + list(errors or []),
     }
     gaps = census_gaps((intent_summary or {}).get("census"))
+    m["intent"]["census_gaps"] = gaps
     if gaps["show"]:                       # a LABEL on the delivered file(s), never a refusal
         m["build"]["degradations"].append(_census_degradation(gaps))
     m["crud"] = crud_affordances(files, created, out_dir=out_dir)
@@ -559,18 +560,17 @@ def _render_md(m: Dict[str, Any]) -> str:
             ap(f"- recorded, not modelled ({len(ops)}): "
                + ", ".join(f"{o.get('name') or o.get('tag')} ({o.get('ifcClass')} → {o.get('kind')})"
                            for o in ops[:24]))
-        cs = it.get("census") or {}
-        if cs:
-            tot = cs.get("totals") or {}
-            bi = cs.get("body_items") or {}
-            ap(f"- IFC census ({cs.get('schema')}): {cs.get('products_total')} products read — "
-               f"{tot.get('mapped', 0)} mapped, {tot.get('recorded', 0)} recorded only, "
-               f"{tot.get('dropped', 0)} dropped; body items {bi.get('read', 0)}/{bi.get('total', 0)} "
-               f"read, {bi.get('unreadable', 0)} unreadable"
-               + (" — nothing dropped or unreadable" if not (tot.get("dropped") or bi.get("unreadable"))
-                  else " — see **Not converted from the IFC** below"))
+    gaps = (m.get("intent") or {}).get("census_gaps") or census_gaps(it.get("census"))
+    cs = it.get("census") or {}
+    if cs:
+        tot = cs.get("totals") or {}
+        bi = cs.get("body_items") or {}
+        ap(f"- IFC census ({cs.get('schema')}): {cs.get('products_total')} products read — "
+           f"{tot.get('mapped', 0)} mapped, {tot.get('recorded', 0)} recorded only, "
+           f"{gaps['n_dropped']} dropped; body items {bi.get('read', 0)}/{bi.get('total', 0)} read, "
+           f"{gaps['n_unreadable']} unreadable — "
+           + ("see **Not converted from the IFC** below" if gaps["show"] else "nothing dropped or unreadable"))
     ap(f"- intent JSON: `{(m.get('intent') or {}).get('json')}`")
-    gaps = census_gaps(it.get("census"))
     if gaps["show"]:
         ap("")
         ap("## Not converted from the IFC")

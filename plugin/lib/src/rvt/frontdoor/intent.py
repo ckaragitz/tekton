@@ -134,7 +134,7 @@ def summarize(model: IntentModel) -> Dict[str, Any]:
         "other_products_total": len(model.other_products or []),
         "other_products": [{k: o.get(k) for k in ("name", "tag", "ifcClass", "kind", "disposition")}
                            for o in (model.other_products or [])],
-        "census": dict(model.census or {}),
+        "census": {k: v for k, v in (model.census or {}).items() if k != "legend"},   # legend = prose, in intent.json
         "audit": dict(model.audit or {}),
     }
 

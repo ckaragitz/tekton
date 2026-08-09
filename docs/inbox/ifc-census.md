@@ -37,17 +37,20 @@ and the two `IfcRelVoidsElement` / `IfcRelFillsElement` relationships vanish the
     the room-shell proxy → **mapped** (content the build authors); other equipment and the
     clearance proxies → **recorded** (kept in intent.json, no element authored; reason names
     the kinds); `IfcBuildingStorey` → mapped (a level); `IfcSite` / `IfcBuilding` → recorded
-    ("placement scaffolding"); everything that never entered pass 1 → **dropped** with
-    `_drop_reason()` (IfcSpace → #158, openings/features → #157, ports, annotations, grids,
+    ("placement scaffolding"); everything else `resolve_products` passes over → **dropped**
+    with the reason from `_unread_fate()` — the ONE filter `resolve_products` applies and the
+    census reports (IfcSpace → #158, openings/features → #157, ports, annotations, grids,
     other spatial elements, "not an IfcElement");
   * `spatial {sites, buildings, storeys, spaces}`;
   * `body_items {total, by_type, read, unreadable, unreadable_by_type, on_unread_products,
     readable_kinds, products_left_bodiless, non_body_representations}` — leaf items of every
     product's `Body` (or unnamed) representation, `IfcMappedItem` resolved through once per
-    use (same walk as `_collect_items`); an item is **read** iff its id is among the product's
-    `GeomItem.item_id`s, so an `IfcExtrudedAreaSolid` over an unsupported profile or an empty
-    brep counts unreadable exactly like an `IfcSweptDiskSolid`; items on products the resolver
-    never reads (a space's own volume) are `on_unread_products`, never "unreadable"; non-Body
+    use; for read products the counts come straight from `ProductGeometry.items`
+    (`GeomItem.ifc_class`) and the new `ProductGeometry.skipped` that `_collect_items` fills at
+    the moment `_item_points_tris` returns nothing, so an `IfcExtrudedAreaSolid` over an
+    unsupported profile or an empty brep counts unreadable exactly like an `IfcSweptDiskSolid`
+    and the census never re-derives a read decision; items on products the resolver never
+    reads (a space's own volume) are `on_unread_products`, never "unreadable"; non-Body
     representations (Axis / FootPrint / Box) are tallied by identifier and never called
     unreadable body. Invariant (asserted by the test): `read + unreadable + on_unread_products
     == total == sum(by_type)`; per class `mapped + recorded + dropped == read`;
@@ -107,7 +110,7 @@ the equipment list already differs by).
 | input | products | mapped / recorded / dropped | body items (read / unreadable / on unread) | ignored rels | section |
 |---|---|---|---|---|---|
 | `inputs/ifc/electrical-room-2500a.ifc` | 17 | 10 / 7 / 0 | 111 tess (111 / 0 / 0) | — | absent ("nothing dropped or unreadable") |
-| `usecases/chicago-plenum-electrical-room/hardened.ifc` | 14 | see /verify below | 61 extrusions + 4 tess | — | absent |
+| `usecases/chicago-plenum-electrical-room/hardened.ifc` | 14 | 11 / 3 / 0 | 61 extr + 4 tess (65 / 0 / 0) | — | absent |
 | `d_wall_opening_door` | 8 | 2 / 4 / 1 (IfcOpeningElement) | 3 extr + 2 tess (4 / 0 / 1) | IfcRelFillsElement×1, IfcRelVoidsElement×1 | present |
 | `e_space_in_storey` | 7 | 4 / 2 / 1 (IfcSpace) | 4 tess (4 / 0 / 0) | — | present |
 | `j_census_space_unreadable_body` | 7 | 2 / 4 / 1 (IfcSpace) | 2 extr + 1 swept disk + 2 tess (3 / 1 / 1) | — | present |
@@ -125,6 +128,20 @@ MANIFEST.md of `frontdoor author --ifc tests/ifc_conformance/j_census_space_unre
 …
 - **degradation**: IFC census: 1 of 7 products dropped (IfcSpace×1); 1 of 5 body items unreadable (IfcSweptDiskSolid×1) -- that content does not reach the .rvt; delivery unchanged (a label, hard rule 1); itemised under 'Not converted from the IFC' / manifest.json intent.summary.census
 ```
+
+## /verify (the product driven end to end, both backends)
+
+`frontdoor author --ifc <input> --out out/verify/<k>_<backend> --json` for
+`hardened.ifc`, `electrical-room-2500a.ifc`, fixture `j`, each under real ifcopenshell 0.8.5
+and `RVT_STEPLITE_FORCE=1` — **6/6 exit 0**, status `PROOF-ONLY (self-checks PASS; …)`,
+one `.rvt` delivered per run, `tools/rvt_validate.py` → `VALID (no errors); warnings=1` (the
+known DataStorage decoder-gap warning) on all six; census blocks byte-identical between the
+two backends per input; hardened + room: `census_gaps.show False`, no census degradation, no
+`Not converted` section, one-liner "… nothing dropped or unreadable"; j: section PRESENT +
+exactly one `IFC census:` degradation. **Baseline against `origin/main` @ 935b419** (same
+inputs, git worktree): status string identical, `proof_only_stamps` identical, delivered
+`.rvt` byte size identical (room 667,648 B; j 593,920 B), `build.degradations` room 5 → 5
+(nothing added), j 2 → 3 (added = the census line only, nothing removed).
 
 ## Re-pins (deliberate, `--update-expected`) — every change explained
 
@@ -166,11 +183,39 @@ Checked semantically against `HEAD` (script in the scratchpad: old `expected` ==
   buckets were kept.
 * Pset `IfcLengthMeasure` values (fixture `a`'s `RoomInformation` in mm) are still not
   unit-converted; the census enumerates products / bodies / relationships, not measures.
-  Follow-up filed (see BRANCH STATE).
+  Follow-up filed: **#348**.
 * Under steplite an IFC2X3-only relationship or product class (outside the IFC4 closure) is
   matched by exact name only, so it would be missing from `by_type("IfcRelationship")` /
   `by_type("IfcProduct")` — the same #159 / #337 gap the equipment list already has; noted
   for #337 rather than editing `steplite.py`.
+
+* `router._absorb_author_result` copies stamps and the target-version line into `RouteResult`
+  but not `build.degradations`, so `route run --ifc … --to rvt` will not show the census line
+  (nor any other build degradation). Router territory → follow-up **#347**.
+* `CONSUMED_RELATIONSHIPS` is a hand list of what `_levels` / `_storey_of_products` /
+  `get_psets` / `get_type` touch; consumption is spread across ifcopenshell utils, so there is
+  no cheap single source — accepted, documented at the constant.
+
+## /simplify pass (4 review angles) — what changed after the first cut
+
+Reuse / altitude findings were the same pattern — a post-hoc observer re-deriving decisions
+the resolver had already taken — and were fixed at the decision points, behaviour-preserving
+(the ten steplite pins did not move; parity still identical):
+* `_collect_items` now records every leaf it cannot read into `ProductGeometry.skipped`
+  (item id, class, rep identifier) and stamps `GeomItem.ifc_class`; the census reads those
+  instead of re-walking read products (only never-read products are walked, by `_leaf_items`).
+* `READABLE_BODY_ITEMS` moved beside `_item_points_tris` as that ladder's legend.
+* ONE filter `_unread_fate(prod)` is applied by `resolve_products` AND reported by the census
+  (replaces the census-private `_drop_reason` + storey/site/building branches).
+* mapped/recorded read off `Equipment.disposition`; one fate loop; `spatial` derived from
+  `by_class`; reasons set once per class; `census_gaps` computed once in `build_manifest` and
+  stashed as `manifest.json` → `intent.census_gaps` (the compact "what was lost" block) for
+  `_render_md`; `summarize()` drops the prose `legend` (it stays in intent.json); the test
+  resolves each IFC once in-process (module fixture).
+Skipped on purpose: threading `readable_kinds` out of the census (kept — the JSON should be
+self-explaining to a QA reader who never opens the Python) and dropping
+`non_body_representations` (kept — it is what makes `total` reconcile when a file carries
+Axis / FootPrint reps).
 
 ## BRANCH STATE
 

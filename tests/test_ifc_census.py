@@ -123,25 +123,34 @@ def test_census_identical_under_real_ifcopenshell(lite):
 # the manifest: section + ONE degradation line, delivery untouched
 # ---------------------------------------------------------------------------
 
-def _manifest_for(ifc_path: str, tmp_path):
-    """summarize() -> build_manifest() -> MANIFEST.md text for ``ifc_path``,
-    in-process (whichever backend rvt.ifc selected -- the census is identical
-    under both), with no build (the section and the line hang off the intent
-    alone; the 17 s genesis build is the /verify run, not a shard test)."""
+@pytest.fixture(scope="module")
+def models():
+    """Each IFC resolved ONCE in-process (whichever backend rvt.ifc selected --
+    the census is identical under both)."""
+    from rvt.frontdoor import intent as FI
+    return {p: FI.intent_from_ifc(p) for p in (FIXTURE, ROOM_IFC)}
+
+
+def _manifest_for(model, tmp_path):
+    """summarize() -> build_manifest() -> MANIFEST.md text, with no build (the
+    section and the line hang off the intent alone; the 17 s genesis build is
+    the /verify run, not a shard test)."""
     from rvt.frontdoor import intent as FI
     from rvt.frontdoor import manifest as MF
     from rvt.frontdoor.base import ResolvedBase
-    model = FI.intent_from_ifc(ifc_path)
     summary = FI.summarize(model)
-    base = ResolvedBase(path=ifc_path, source="explicit", sha256="0" * 64, pinned=False)
-    m = MF.build_manifest(route="ifc", inputs={"ifc": ifc_path}, base=base, out_dir=str(tmp_path),
-                          intent_summary=summary, intent_json=None, build=None)
-    return model, summary, m, MF._render_md(m)
+    base = ResolvedBase(path=model.source_path, source="explicit", sha256="0" * 64, pinned=False)
+    m = MF.build_manifest(route="ifc", inputs={"ifc": model.source_path}, base=base,
+                          out_dir=str(tmp_path), intent_summary=summary, intent_json=None, build=None)
+    return summary, m, MF._render_md(m)
 
 
-def test_manifest_prints_not_converted_section_and_one_degradation(tmp_path):
-    model, summary, m, md = _manifest_for(FIXTURE, tmp_path)
-    assert model.census == summary["census"] and summary["census"]["totals"]["dropped"] == 1
+def test_manifest_prints_not_converted_section_and_one_degradation(models, tmp_path):
+    model = models[FIXTURE]
+    summary, m, md = _manifest_for(model, tmp_path)
+    assert {k: v for k, v in model.census.items() if k != "legend"} == summary["census"]
+    assert summary["census"]["totals"]["dropped"] == 1
+    assert m["intent"]["census_gaps"]["show"] is True            # manifest.json carries the compact gaps too
     assert summary["other_products_total"] == 0 and summary["other_products"] == []
     degr = [d for d in m["build"]["degradations"] if d.startswith("IFC census:")]
     assert len(degr) == 1, m["build"]["degradations"]
@@ -158,8 +167,9 @@ def test_manifest_prints_not_converted_section_and_one_degradation(tmp_path):
     assert "census" not in m["status"].lower()
 
 
-def test_manifest_has_no_section_when_nothing_is_lost(tmp_path):
-    model, summary, m, md = _manifest_for(ROOM_IFC, tmp_path)
+def test_manifest_has_no_section_when_nothing_is_lost(models, tmp_path):
+    model = models[ROOM_IFC]
+    summary, m, md = _manifest_for(model, tmp_path)
     assert summary["census"]["totals"]["dropped"] == 0
     assert summary["census"]["body_items"]["unreadable"] == 0
     assert "## Not converted from the IFC" not in md
@@ -171,11 +181,10 @@ def test_manifest_has_no_section_when_nothing_is_lost(tmp_path):
     assert "recorded, not modelled (2)" in md
 
 
-def test_intent_json_carries_the_census(tmp_path):
+def test_intent_json_carries_the_census(models, tmp_path):
     import json
     from rvt.frontdoor import intent as FI
-    model = FI.intent_from_ifc(FIXTURE)
-    p = FI.write_intent_json(model, str(tmp_path / "intent.json"))
+    p = FI.write_intent_json(models[FIXTURE], str(tmp_path / "intent.json"))
     with open(p) as fh:
         doc = json.load(fh)
     assert doc["census"]["by_class"]["IfcSpace"]["dropped"] == 1
