@@ -38,7 +38,7 @@ streams agree a shared contract (recorded in docs/inbox/convert-a.md).
 CLI::
 
     python -m rvt.convert.edit_family <family.rfa> -o <out_dir>
-        [--set "BusRating=225"] [--set "PanelName=DP-7"]
+        [--set "BusRating=225"] [--set "PanelName=DP-7"] [--type "400A MLO 42ckt"]
         [--rename-type "OLD=NEW" | --rename-type "NEW"]
         [--rename-family "NEW"] [--ops ops.json] [--inventory]
 
@@ -140,7 +140,10 @@ def _flag_ops(a: argparse.Namespace) -> List[Dict[str, Any]]:
         if "=" not in spec:
             raise FamilyOpsError(f"--set needs NAME=VALUE (got {spec!r})")
         name, val = spec.split("=", 1)
-        ops.append({"op": "set-param", "param": name.strip(), "value": val.strip()})
+        op = {"op": "set-param", "param": name.strip(), "value": val.strip()}
+        if a.type:                                   # scope every --set to ONE type row
+            op["type"] = str(a.type)
+        ops.append(op)
     for spec in a.rename_type or []:
         if "=" in spec:
             old, new = spec.split("=", 1)
@@ -164,6 +167,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap.add_argument("--set", action="append", metavar="NAME=VALUE",
                     help="set a family parameter (repeatable); lengths need a "
                          "unit suffix, e.g. --set 'Width=600 mm'")
+    ap.add_argument("--type", default=None, metavar="TYPE",
+                    help="scope every --set to ONE type-table row (a multi-type "
+                         "family); default: the current type + its defaults mirror")
     ap.add_argument("--rename-type", action="append", metavar="[OLD=]NEW")
     ap.add_argument("--rename-family", metavar="NEW", default=None)
     ap.add_argument("--ops", default=None, help="ops.json with structured ops")

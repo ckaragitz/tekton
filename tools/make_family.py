@@ -23,6 +23,21 @@ Usage::
     python tools/make_family.py provenance <file.rfa>
     python tools/make_family.py loader            # loader readiness (no file)
 
+MULTI-TYPE families (one product line, a type per rating -- issue #163)::
+
+    python tools/make_family.py panelboard --types 225,400,600 --spaces 42 \
+        --voltage 480Y/277 --type-catalog -o out/prl2x_mlo.rfa
+    python tools/make_family.py transformer --types 30,45,75 -o out/dt3.rfa
+    python tools/make_family.py luminaire --kind recessed-troffer --types 30,38,48 \
+        --cct 4000 -o out/blt_2x4.rfa
+
+``--types`` = comma-separated catalog selectors along the product's rating
+axis (mains A / kVA / input W): ONE .rfa with one type-table row per
+selection (per-type dims / ratings / Model, per-type ``assumed_fields`` in
+the report's ``family.type_facts``); the first is the primary type whose box
+the solid is built at.  ``--type-catalog`` also writes OUR Revit type
+catalog ``<stem>.txt`` beside the .rfa from the same facts.
+
 Exit code 0 = the file emitted, verified, validated (0 errors, family mode)
 and provenance-clean.  ``--json`` prints the machine-readable report; the
 report is always also written beside the output as ``<stem>.json``.
@@ -56,6 +71,27 @@ def _ensure_standalone() -> None:
     SA.activate()
 
 
+def _types_arg(raw) -> list:
+    """``--types 225,400,600`` -> ['225', '400', '600'] (the factory parses
+    each selector; '400A' / '45kVA' / '38W' spellings are fine)."""
+    if not raw:
+        return []
+    return [t.strip() for t in str(raw).split(",") if t.strip()]
+
+
+def _emit(prod, ns) -> dict:
+    """Write the .rfa (+ report), the optional type catalog, print, return."""
+    out = ns.output or os.path.join(F.FACTORY_OUT, prod.file_stem + ".rfa")
+    rep = prod.write(out, validate=not ns.no_validate)
+    if getattr(ns, "type_catalog", False):
+        rep["type_catalog"] = prod.write_type_catalog(rfa_path=out)
+        with open(rep["report_path"], "w") as fh:          # keep the sidecar in the report
+            json.dump({k: v for k, v in rep.items() if k != "report_path"},
+                      fh, indent=1, default=str)
+    _print_report(rep, ns.json)
+    return rep
+
+
 def _print_report(rep: dict, as_json: bool) -> None:
     if as_json:
         print(json.dumps(rep, indent=1, default=str))
@@ -64,6 +100,13 @@ def _print_report(rep: dict, as_json: bool) -> None:
     print(f"family      : {fam.get('family_name')}  [{fam.get('category')}, "
           f"part type {fam.get('part_type')}]")
     print(f"types       : {fam.get('types')}")
+    type_facts = fam.get("type_facts") or []
+    if len(type_facts) > 1:
+        for tf in type_facts:
+            print(f"              {tf.get('name')}: assumed {tf.get('assumed_fields')}")
+    if rep.get("type_catalog"):
+        print(f"type catalog: {rep['type_catalog'].get('path')} "
+              f"({len(rep['type_catalog'].get('columns') or [])} columns)")
     print(f"parameters  : {len(fam.get('parameters') or [])} "
           f"({', '.join((fam.get('parameters') or [])[:8])}...)")
     forms = fam.get("forms") or []
@@ -96,33 +139,26 @@ def _print_report(rep: dict, as_json: bool) -> None:
 
 def cmd_panelboard(ns) -> int:
     prod = F.make_panelboard(vendor=ns.vendor, line=ns.line, mains_a=ns.mains,
-                              spaces=ns.spaces, voltage=ns.voltage, mcb=ns.mcb,
-                              mounting=ns.mounting, panel_name=ns.name,
-                              sccr_ka=ns.sccr, neutral_rating=ns.neutral,
-                              solid=not ns.dummy)
-    out = ns.output or os.path.join(F.FACTORY_OUT, prod.file_stem + ".rfa")
-    rep = prod.write(out, validate=not ns.no_validate)
-    _print_report(rep, ns.json)
-    return 0 if rep["ok"] else 1
+                             spaces=ns.spaces, voltage=ns.voltage, mcb=ns.mcb,
+                             mounting=ns.mounting, panel_name=ns.name,
+                             sccr_ka=ns.sccr, neutral_rating=ns.neutral,
+                             solid=not ns.dummy, types=_types_arg(ns.types))
+    return 0 if _emit(prod, ns)["ok"] else 1
 
 
 def cmd_transformer(ns) -> int:
     prod = F.make_transformer(kva=ns.kva, vendor=ns.vendor, primary_v=ns.primary,
-                              secondary_v=ns.secondary, solid=not ns.dummy)
-    out = ns.output or os.path.join(F.FACTORY_OUT, prod.file_stem + ".rfa")
-    rep = prod.write(out, validate=not ns.no_validate)
-    _print_report(rep, ns.json)
-    return 0 if rep["ok"] else 1
+                              secondary_v=ns.secondary, solid=not ns.dummy,
+                              types=_types_arg(ns.types))
+    return 0 if _emit(prod, ns)["ok"] else 1
 
 
 def cmd_luminaire(ns) -> int:
     prod = F.make_luminaire(kind=ns.kind, size=ns.size, wattage=ns.wattage,
                             lumens=ns.lumens, cct=ns.cct, voltage=ns.voltage,
-                            aperture_in=ns.aperture, solid=not ns.dummy)
-    out = ns.output or os.path.join(F.FACTORY_OUT, prod.file_stem + ".rfa")
-    rep = prod.write(out, validate=not ns.no_validate)
-    _print_report(rep, ns.json)
-    return 0 if rep["ok"] else 1
+                            aperture_in=ns.aperture, solid=not ns.dummy,
+                            types=_types_arg(ns.types))
+    return 0 if _emit(prod, ns)["ok"] else 1
 
 
 def cmd_proofs(ns) -> int:
@@ -174,10 +210,18 @@ def main(argv=None) -> int:
         description="Generate a Revit family (.rfa) from a job spec via the asset factory.")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
+    def _types_flags(p, axis: str) -> None:
+        p.add_argument("--types", default=None, metavar="A,B,C",
+                       help=f"multi-type family: comma-separated {axis} selectors, one "
+                            "type-table row each (first = primary type / the solid's box)")
+        p.add_argument("--type-catalog", action="store_true",
+                       help="also write OUR Revit type catalog <stem>.txt beside the .rfa")
+
     p = sub.add_parser("panelboard", help="generate a panelboard family")
     p.add_argument("--vendor", default="eaton")
     p.add_argument("--line", default="pow-r-line")
     p.add_argument("--mains", type=float, default=400, help="mains rating (A)")
+    _types_flags(p, "mains-rating (A)")
     p.add_argument("--spaces", type=int, default=42, help="branch circuit spaces")
     p.add_argument("--voltage", default="480Y/277", help="system voltage, e.g. 480Y/277")
     p.add_argument("--mcb", action="store_true", default=False,
@@ -195,6 +239,7 @@ def main(argv=None) -> int:
 
     p = sub.add_parser("transformer", help="generate a dry-type transformer family")
     p.add_argument("--kva", type=float, default=75)
+    _types_flags(p, "kVA")
     p.add_argument("--vendor", default="eaton")
     p.add_argument("--primary", default="480")
     p.add_argument("--secondary", default="208Y/120")
@@ -210,6 +255,7 @@ def main(argv=None) -> int:
                             "recessed-downlight"])
     p.add_argument("--size", default="2x4")
     p.add_argument("--wattage", type=float, default=None)
+    _types_flags(p, "input-wattage (W)")
     p.add_argument("--lumens", type=float, default=None)
     p.add_argument("--cct", type=float, default=None)
     p.add_argument("--voltage", default="120-277")
