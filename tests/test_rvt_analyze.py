@@ -22,6 +22,7 @@ for p in (os.path.join(ROOT, "src"), os.path.join(ROOT, "tools")):
         sys.path.insert(0, p)
 
 BASE = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD.rvt")
+BASE_2025 = os.path.join(ROOT, "plugin", "assets", "genesis", "G_ABPD_2025.rvt")
 PY = sys.executable
 
 pytestmark = pytest.mark.skipif(
@@ -59,6 +60,34 @@ def test_analyze_bundled_base():
     assert rep["census"]["coherence"]["coherent"] is True
     assert rep["validation"]["mode"] == "project"
     assert rep["validation"]["n_errors"] == 0
+
+
+@pytest.mark.skipif(not os.path.isfile(BASE_2025),
+                    reason="bundled 2025 genesis base missing")
+def test_analyze_older_release_base_is_coherent():
+    """census + validation of a 2025 file run under ITS release (issue #50):
+    no silent census error, no spurious validation errors, no fallback."""
+    rep = RA.analyze(BASE_2025, top=5)
+    assert rep["identity"]["release"] == 2025
+    assert "framing" not in rep                          # own release resolved
+    assert "error" not in rep["census"], rep["census"]
+    assert rep["census"]["host_records"] > 0
+    assert rep["validation"]["verdict"] == "VALID", rep["validation"]["errors"]
+
+
+def test_analyze_states_the_framing_fallback(monkeypatch):
+    """If the file's own schema cannot settle its framing the report says
+    which rung was used under ``framing`` (here: the pinned table of the
+    release BasicFileInfo declares) and the sections still run."""
+    import rvt.versions.records32 as R32
+
+    def _unreadable(path):
+        raise RuntimeError("schema unreadable (simulated)")
+    monkeypatch.setattr(R32, "reading32", _unreadable)
+    rep = RA.analyze(BASE, top=5, with_validate=False)
+    fb = rep["framing"]["fallback"]
+    assert "simulated" in fb and "Revit 2026 framing table" in fb, fb
+    assert rep["census"]["coherence"]["coherent"] is True
 
 
 def test_analyze_generated_family(rfa):
