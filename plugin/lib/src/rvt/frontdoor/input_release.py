@@ -6,7 +6,8 @@ question is not "which release do you want" but "which release IS this, and
 has tekton ever read one".  Every job answers it up front from the two cheap
 signals the container carries -- the ``BasicFileInfo`` era markers
 (:func:`rvt.meta.classify_bfi_era`, layout-independent) and, failing a year
-there, the ``Formats/Latest`` signature -- and lands in exactly one of:
+there, :func:`rvt.versions.detect_release` on the open container -- and
+lands in exactly one of:
 
 * ``known``      -- the year is in ``rvt.versions.KNOWN_RELEASES``: the job
                     proceeds exactly as before (no schema parse added).
@@ -24,63 +25,64 @@ there, the ``Formats/Latest`` signature -- and lands in exactly one of:
                     output to withhold.
 
 The block is cheap for the common case (one container open + one raw
-stream read); only the ``unverified`` branch parses the schema, and that
-parse is the memoised one the read ladder reuses a moment later.
+stream read, ~0.3 ms); only the ``unverified`` branch parses the schema
+(``rvt.schema.parse`` is memoised per process, so the read ladder that
+follows does not parse it again).
 """
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List
 
 from .. import versions as V
 from ..meta import BFI_ERA_2008, BFI_ERA_2019, BFI_ERA_UNKNOWN, classify_bfi_era
+from .target_status import supported_targets
 
-__all__ = ["UNVERIFIED_STAMP", "REFUSED_PREFIX", "input_release_block",
-           "verified_floor"]
+__all__ = ["UNVERIFIED_TAG", "UNVERIFIED_STAMP", "REFUSED_PREFIX",
+           "input_release_block", "verified_floor"]
 
 #: the stamp an ``unverified`` input puts on the manifest / status (verbatim
-#: from the issue's DONE -- relayed as-is by the skills)
-UNVERIFIED_STAMP = ("UNVERIFIED-RELEASE: no file of this release has been read by "
+#: from the issue's DONE -- relayed as-is by the skills); the tag alone rides
+#: in the one-line status
+UNVERIFIED_TAG = "UNVERIFIED-RELEASE"
+UNVERIFIED_STAMP = (f"{UNVERIFIED_TAG}: no file of this release has been read by "
                     "tekton before; validate before trusting")
 #: the status prefix of a refused input (``manifest.status`` starts with it)
 REFUSED_PREFIX = "REFUSED (input release)"
 
 
-def verified_floor() -> Dict[str, Any]:
+def verified_floor() -> Dict[str, List[int]]:
     """The releases tekton has actually read / edited, derived from the
     version model (never a year literal): read = every KNOWN release, edit =
-    the creation-certified ones (the host release context, #70)."""
-    known = sorted(V.KNOWN_RELEASES)
-    editable = sorted(V.SUPPORTED_CREATION_RELEASES)
-    return {"read_min": known[0], "read": known,
-            "edit_min": (editable[0] if editable else None), "edit": editable}
+    the creation-certified ones (the host release context, #70).  Both
+    sorted ascending, so ``[0]`` is the floor."""
+    return {"read": sorted(V.KNOWN_RELEASES), "edit": supported_targets()}
 
 
-def _refusal_line(path: str, era: str, year: Optional[int], reason: str) -> str:
-    floor = verified_floor()
-    name = os.path.basename(path)
-    what = {BFI_ERA_2008: f"a Revit {year or '2008-2018'} file in the pre-2019 BasicFileInfo layout",
-            BFI_ERA_2019: f"a Revit {year if year else '2019+ (year unreadable)'} file",
-            BFI_ERA_UNKNOWN: "not a Revit file tekton can classify"}[era]
-    return (f"{REFUSED_PREFIX}: {name} is {what} ({reason}); tekton reads Revit "
-            f"{floor['read_min']}+ and edits Revit {floor['edit_min']}+ "
+def _refusal_line(blk: Dict[str, Any], reason: str) -> str:
+    era, year, floor = blk["era"], blk["year"], blk["floor"]
+    if era == BFI_ERA_2008:
+        what = f"a Revit {year or '2008-2018'} file in the pre-2019 BasicFileInfo layout"
+    elif era == BFI_ERA_2019:
+        what = f"a Revit {year or '2019+ (year unreadable)'} file"
+    else:
+        what = "not a Revit file tekton can classify"
+    return (f"{REFUSED_PREFIX}: {os.path.basename(blk['path'])} is {what} ({reason}); "
+            f"tekton reads Revit {floor['read'][0]}+ and edits Revit {floor['edit'][0]}+ "
             f"({', '.join(map(str, floor['edit']))}) -- re-save it in Revit "
-            f"{floor['read_min']} or newer, or hand over an IFC export of it instead "
+            f"{floor['read'][0]} or newer, or hand over an IFC export of it instead "
             "(frontdoor author --ifc FILE.ifc)")
 
 
 def input_release_block(path: str) -> Dict[str, Any]:
     """Classify ``path`` (an existing file) -> the manifest's ``input_release``
-    block: ``{status, era, year, known, floor, note | stamp | line, ...}``.
+    block: ``{path, era, year, floor, status, note | stamp | line (+reason)}``.
     Total: never raises; an unreadable container is a ``refused`` block."""
-    floor = verified_floor()
     blk: Dict[str, Any] = {"path": os.path.abspath(path), "era": BFI_ERA_UNKNOWN,
-                           "year": None, "year_source": None, "known": False,
-                           "floor": floor}
+                           "year": None, "floor": verified_floor()}
 
     def refuse(reason: str) -> Dict[str, Any]:
-        blk.update(status="refused", reason=reason,
-                   line=_refusal_line(path, blk["era"], blk["year"], reason))
+        blk.update(status="refused", reason=reason, line=_refusal_line(blk, reason))
         return blk
 
     # ---- the container + the two cheap signals -----------------------------
@@ -89,21 +91,14 @@ def input_release_block(path: str) -> Dict[str, Any]:
         doc = open_rvt(os.fspath(path))
     except Exception as e:                                           # noqa: BLE001
         return refuse(f"not an OLE2 compound file: {type(e).__name__}")
-    try:
+    with doc:
         has_bfi, has_schema = doc.has("BasicFileInfo"), doc.has("Formats/Latest")
         if has_bfi:
             blk.update(classify_bfi_era(doc.raw("BasicFileInfo")))
-            if blk["year"] is not None:
-                blk["year_source"] = "BasicFileInfo"
-        if blk["year"] is None and has_schema:
-            try:
-                blk["year"] = V.detect_release_from_schema(doc.concat("Formats/Latest"))
-            except Exception:                                        # noqa: BLE001
-                blk["year"] = None
-            if blk["year"] is not None:
-                blk["year_source"] = "Formats/Latest signature"
-    finally:
-        doc.close()
+        if blk["year"] is None:
+            # the detector every other consumer uses (BFI's binary Format
+            # field, then the Formats/Latest signature) on the OPEN container
+            blk["year"] = V.detect_release(doc)
 
     # ---- the decision --------------------------------------------------------
     if blk["era"] == BFI_ERA_2008:
@@ -111,29 +106,28 @@ def input_release_block(path: str) -> Dict[str, Any]:
                       "decodes only the 2019+ 'Format: ...' layout and has never read a "
                       "file of this era")
     if not has_schema:
-        return refuse("no Formats/Latest class schema stream" +
-                      ("" if has_bfi else " and no BasicFileInfo"))
+        return refuse("no Formats/Latest class schema stream"
+                      + ("" if has_bfi else " and no BasicFileInfo"))
     if blk["year"] is None:
         return refuse("no release year in BasicFileInfo and an unrecognised "
                       "Formats/Latest signature")
     year = int(blk["year"])
+    floor = blk["floor"]
     if year in V.KNOWN_RELEASES:
-        blk.update(status="known", known=True,
-                   note=f"Revit {year}: a release tekton reads"
-                        + ("" if year in floor["edit"] else
-                           f" (edits are verified on {', '.join(map(str, floor['edit']))} only)"))
+        blk.update(status="known", note=f"Revit {year}: a release tekton reads"
+                   + ("" if year in floor["edit"] else
+                      f" (edits are verified on {', '.join(map(str, floor['edit']))} only)"))
         return blk
     # a year outside the roster: proceed only if its OWN schema parses by name
     try:
-        from ..global_framing import schema_of          # memoised: the ladder reuses it
+        from ..global_framing import schema_of
         V.ordinals_from_schema(schema_of(path))
     except Exception as e:                                           # noqa: BLE001
         return refuse(f"its own Formats/Latest schema does not parse "
                       f"({type(e).__name__}: {str(e)[:120]})")
-    side = "older" if year < floor["read_min"] else "newer"
+    side = "older" if year < floor["read"][0] else "newer"
     blk.update(status="unverified", stamp=UNVERIFIED_STAMP,
                note=(f"Revit {year} is {side} than any release tekton has read "
-                     f"({floor['read_min']}-{floor['read'][-1]}); its own class schema "
-                     "parses, so the job proceeds under that schema -- "
-                     + UNVERIFIED_STAMP))
+                     f"({floor['read'][0]}-{floor['read'][-1]}); its own class schema "
+                     "parses, so the job proceeds under that schema"))
     return blk

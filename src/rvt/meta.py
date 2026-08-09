@@ -131,17 +131,16 @@ def raw_inflate_after_gzip_header(data: bytes, off: int) -> Tuple[bytes, int]:
 BFI_ERA_2019 = "2019+"          # 'Format: 20xx' -- the layout parse_basic_file_info decodes
 BFI_ERA_2008 = "2008-2018"      # 'Revit Build: <product> 20xx (Build: ...)' -- never read by tekton
 BFI_ERA_UNKNOWN = "unknown"      # neither marker: not a BasicFileInfo we can classify
-_FORMAT_MARKER = "Format:".encode("utf-16le")
-_REVIT_BUILD_MARKER = "Revit Build:".encode("utf-16le")
+_ERA_MARKERS = (("Format:".encode("utf-16le"), BFI_ERA_2019),
+                ("Revit Build:".encode("utf-16le"), BFI_ERA_2008))
 _ERA_YEAR_WINDOW = 256           # bytes of UTF-16LE text scanned after a marker for the year
+_YEAR_ON_LINE = re.compile(r"[^\r\n]*?(20\d{2})")   # first 20xx before the line ends
 
 
 def _year_after(data: bytes, at: int) -> Optional[int]:
-    """First ``20xx`` in the UTF-16LE text starting at byte ``at`` (up to the
-    end of that mirror line), else None."""
-    text = data[at:at + _ERA_YEAR_WINDOW].decode("utf-16le", errors="replace")
-    line = text.split("\r", 1)[0].split("\n", 1)[0]
-    m = re.search(r"(20\d{2})", line)
+    """First ``20xx`` in the UTF-16LE text starting at byte ``at``, on that
+    mirror line only, else None."""
+    m = _YEAR_ON_LINE.match(data[at:at + _ERA_YEAR_WINDOW].decode("utf-16le", errors="replace"))
     return int(m.group(1)) if m else None
 
 
@@ -163,12 +162,10 @@ def classify_bfi_era(raw: bytes) -> Dict[str, Any]:
     Total: never raises, whatever the bytes.
     """
     data = bytes(raw or b"")
-    i = data.find(_FORMAT_MARKER)
-    if i != -1:
-        return {"era": BFI_ERA_2019, "year": _year_after(data, i + len(_FORMAT_MARKER))}
-    i = data.find(_REVIT_BUILD_MARKER)
-    if i != -1:
-        return {"era": BFI_ERA_2008, "year": _year_after(data, i + len(_REVIT_BUILD_MARKER))}
+    for marker, era in _ERA_MARKERS:                # 'Format:' wins when both appear
+        i = data.find(marker)
+        if i != -1:
+            return {"era": era, "year": _year_after(data, i + len(marker))}
     return {"era": BFI_ERA_UNKNOWN, "year": None}
 
 

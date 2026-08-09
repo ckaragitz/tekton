@@ -21,7 +21,7 @@ import hashlib
 import json
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Sequence
 
 from .base import ResolvedBase, PIN, repo_root
 
@@ -192,13 +192,16 @@ def _wall_rep_of(build: Optional[Dict[str, Any]]) -> str:
 
 
 def _honesty(build: Optional[Dict[str, Any]], verdict: Optional[Dict[str, Any]],
-             version: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+             version: Optional[Dict[str, Any]] = None, *,
+             extra_stamps: Sequence[str] = (),
+             release_line: Optional[str] = None) -> Dict[str, Any]:
     stamps: List[str] = []
     if verdict and verdict.get("stamp"):
         stamps.append(str(verdict["stamp"]))
     status = (build or {}).get("status_gate") or {}
     if status.get("status") and "PROOF-ONLY" in str(status.get("status")):
         stamps.append(str(status.get("status")))
+    stamps += list(extra_stamps)
     return {
         "tiers": {
             "self_checks": ("rvt.validate (0 errors), four-registry coherence, identity gate -- "
@@ -209,7 +212,7 @@ def _honesty(build: Optional[Dict[str, Any]], verdict: Optional[Dict[str, Any]],
             "load_vs_render": LOAD_VS_RENDER[_wall_rep_of(build)],
         },
         "proof_only_stamps": stamps,
-        "release": _release_line(version),
+        "release": release_line or _release_line(version),
     }
 
 
@@ -329,6 +332,20 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
     job = run.get("job_manifest") or {}
     out_rvt = run.get("out_rvt")
     gates = job.get("gates") or {}
+    # the INPUT's era / release, classified before anything opened it (#176):
+    # a refused input's one line IS the status and the release story; an
+    # unverified release stamps the honesty box and the status; known just rides
+    ir = input_release or {}
+    refused_line = str(ir["line"]) if ir.get("status") == "refused" else None
+    unverified = ir.get("status") == "unverified"
+    status = job.get("status") or ("FAILED (no job manifest)" if run.get("rc") else "UNKNOWN")
+    if errors or (run.get("rc") not in (0, None) and not job):
+        status = "FAILED (edit did not complete: rc %s)" % (run.get("rc"),)
+    if refused_line:
+        status = refused_line
+    elif unverified:
+        from .input_release import UNVERIFIED_TAG
+        status = f"{status}; {UNVERIFIED_TAG} (input Revit {ir.get('year')})"
     m: Dict[str, Any] = {
         "tool": TOOL, "tool_version": TOOL_VERSION,
         "product": "tekton (multi-surface front door)",
@@ -369,26 +386,16 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
                            "--edit \"<sentence | ops.json | inline JSON>\" --out <dir>"),
             "editables_before": editables_before,
         },
-        "honesty": _honesty(None, None, version),
-        "status": (job.get("status") or ("FAILED (no job manifest)" if run.get("rc") else "UNKNOWN")),
+        "honesty": _honesty(None, None, version,
+                            extra_stamps=([ir["stamp"]] if unverified else ()),
+                            release_line=refused_line),
+        "status": status,
         "errors": list(errors or []),
     }
     if version:
         m["target_version"] = dict(version)
-    if m["errors"] or (run.get("rc") not in (0, None) and not job):
-        m["status"] = "FAILED (edit did not complete: rc %s)" % (run.get("rc"),)
-    # the INPUT's era / release, classified before anything opened it (#176):
-    # a refused input names its one line as the status; an unverified release
-    # stamps both the honesty block and the status; a known one just rides
-    if input_release:
-        m["input_release"] = dict(input_release)
-        st = input_release.get("status")
-        if st == "refused":
-            m["status"] = str(input_release.get("line"))
-        elif st == "unverified":
-            stamp = str(input_release.get("stamp"))
-            m["honesty"]["proof_only_stamps"].append(stamp)
-            m["status"] = f"{m['status']}; {stamp.split(':', 1)[0]} (input Revit {input_release.get('year')})"
+    if ir:
+        m["input_release"] = dict(ir)
     return m
 
 
@@ -431,15 +438,16 @@ def _render_md(m: Dict[str, Any]) -> str:
                f"(lineage {bs.get('id')}; docs/writer/genesis-2025-plan.md)")
         if tv.get("note"):
             ap(f"- {tv.get('note')}")
-    ir = m.get("input_release") or {}
+    ir = m.get("input_release")
     if ir:
         ap("")
         ap("## Input release")
-        ap(f"- Revit {ir.get('year')} · BasicFileInfo era {ir.get('era')} · **{ir.get('status')}**"
-           + (f" (year from {ir.get('year_source')})" if ir.get("year_source") else ""))
-        for key in ("line", "stamp", "note", "read_ladder"):
+        ap(f"- Revit {ir.get('year')} · BasicFileInfo era {ir.get('era')} · **{ir.get('status')}**")
+        for key in ("line", "stamp"):
             if ir.get(key):
-                ap(f"- {'**' + ir[key] + '**' if key in ('line', 'stamp') else ir[key]}")
+                ap(f"- **{ir[key]}**")
+        if ir.get("note"):
+            ap(f"- {ir['note']}")
     ap("")
     inp = m.get("inputs") or {}
     ap("## Input")

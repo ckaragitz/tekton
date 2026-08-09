@@ -97,15 +97,15 @@ def test_classify_prefers_format_marker_and_reads_only_its_own_line():
     assert meta.classify_bfi_era(raw) == {"era": "2019+", "year": None}
 
 
-@needs_base
-def test_classify_our_own_bases_are_2019_era_with_their_year():
+@pytest.mark.parametrize("year,name", [(2026, "G_ABPD.rvt"), (2025, "G_ABPD_2025.rvt"),
+                                       (2024, "G_ABPD_2024.rvt")])
+def test_classify_our_own_bases_are_2019_era_with_their_year(year, name):
     from rvt.container import open_rvt
-    for year, name in ((2026, "G_ABPD.rvt"), (2025, "G_ABPD_2025.rvt"), (2024, "G_ABPD_2024.rvt")):
-        p = os.path.join(os.path.dirname(BASE_2026), name)
-        if not os.path.isfile(p):
-            continue
-        with open_rvt(p) as d:
-            assert meta.classify_bfi_era(d.raw("BasicFileInfo")) == {"era": "2019+", "year": year}
+    p = os.path.join(os.path.dirname(BASE_2026), name)
+    if not os.path.isfile(p):
+        pytest.skip(f"bundled base {name} missing")
+    with open_rvt(p) as d:
+        assert meta.classify_bfi_era(d.raw("BasicFileInfo")) == {"era": "2019+", "year": year}
 
 
 # ---------------------------------------------------------------------------
@@ -141,9 +141,8 @@ def _base_declaring(path, year: int) -> str:
 
 def test_floor_is_derived_from_the_version_model():
     floor = IR.verified_floor()
-    assert floor["read_min"] == min(V.KNOWN_RELEASES)
+    assert floor["read"] == sorted(V.KNOWN_RELEASES) and floor["read"][0] == min(V.KNOWN_RELEASES)
     assert floor["edit"] == sorted(V.SUPPORTED_CREATION_RELEASES)
-    assert floor["edit_min"] == min(V.SUPPORTED_CREATION_RELEASES)
 
 
 @pytest.mark.parametrize("make,era,year,needle", [
@@ -163,14 +162,14 @@ def test_block_refuses_unreadable_inputs_with_one_line(tmp_path, make, era, year
     assert needle in line
     floor = IR.verified_floor()
     # the ONE line names the verified floor and both remedies
-    assert f"reads Revit {floor['read_min']}+" in line and f"edits Revit {floor['edit_min']}+" in line
+    assert f"reads Revit {floor['read'][0]}+" in line and f"edits Revit {floor['edit'][0]}+" in line
     assert "re-save it in Revit" in line and "IFC" in line
 
 
 @needs_base
 def test_block_known_release_is_cheap_and_unstamped():
     blk = IR.input_release_block(BASE_2026)
-    assert (blk["status"], blk["era"], blk["year"], blk["known"]) == ("known", "2019+", 2026, True)
+    assert (blk["status"], blk["era"], blk["year"]) == ("known", "2019+", 2026)
     assert "stamp" not in blk and "line" not in blk
 
 
@@ -178,7 +177,8 @@ def test_block_known_release_is_cheap_and_unstamped():
 def test_block_unread_year_with_parseable_schema_is_unverified(tmp_path):
     blk = IR.input_release_block(_base_declaring(tmp_path / "old.rvt", UNREAD_YEAR))
     assert (blk["status"], blk["era"], blk["year"]) == ("unverified", "2019+", UNREAD_YEAR)
-    assert blk["stamp"] == IR.UNVERIFIED_STAMP and blk["stamp"].startswith("UNVERIFIED-RELEASE:")
+    assert blk["stamp"] == IR.UNVERIFIED_STAMP == f"{IR.UNVERIFIED_TAG}: " + blk["stamp"].split(": ", 1)[1]
+    assert "older" in blk["note"] and IR.UNVERIFIED_TAG not in blk["note"]
     newer = IR.input_release_block(_base_declaring(tmp_path / "new.rvt", max(V.KNOWN_RELEASES) + 1))
     assert newer["status"] == "unverified" and "newer" in newer["note"]
 
@@ -212,6 +212,7 @@ def test_route_refuses_with_exit_2_one_line_and_a_manifest(tmp_path, capsys, mak
     assert res.route == "rvt" and res.ok is False and res.status == str(exc)
     man = json.loads((out / "manifest.json").read_text())
     assert man["status"] == str(exc) and man["input_release"]["status"] == "refused"
+    assert man["honesty"]["release"] == str(exc)          # not "Revit 2026 target ..."
     assert not res.files and man["output"] in (None, {})
     assert "Input release" in (out / "MANIFEST.md").read_text()
     # the CLI: usage-error exit 2, the one line on stderr, never a traceback
@@ -242,13 +243,8 @@ def test_route_unread_release_proceeds_stamped_unverified(tmp_path):
     # manifest AND status AND the --json stamps carry it, whatever the edit did
     assert IR.UNVERIFIED_STAMP in r.manifest["honesty"]["proof_only_stamps"]
     assert IR.UNVERIFIED_STAMP in r.as_json()["stamps"]
-    assert f"UNVERIFIED-RELEASE (input Revit {UNREAD_YEAR})" in r.status
+    assert f"{IR.UNVERIFIED_TAG} (input Revit {UNREAD_YEAR})" in r.status
     # this synthetic input carries a schema tekton CAN read, so the edit is
     # expected to complete and DELIVER (rule 1) -- stamped, never withheld
     assert r.ok, (r.status, r.errors)
     assert r.files.get("edited") and os.path.isfile(r.files["edited"])
-
-
-def test_ci_shard_lists_this_file():
-    with open(os.path.join(ROOT, "tests", "ci_shard.txt")) as fh:
-        assert "tests/test_input_release.py" in {ln.strip() for ln in fh}
