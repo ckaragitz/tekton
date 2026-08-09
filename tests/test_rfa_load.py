@@ -73,9 +73,8 @@ def panel_rfa(tmp_path_factory):
 
 
 def _validator_errors(path: str) -> int:
-    from rvt import validate as V
-    vr = V.validate_file(path)
-    return sum(1 for f in vr.findings if f.severity == V.SEV_ERROR)
+    from rvt.validate import validate_file
+    return len(validate_file(path).errors)
 
 
 # ---------------------------------------------------------------------------
@@ -98,19 +97,19 @@ def test_source_facts_and_typed_remap_build(panel_rfa):
     remapped alongside, GElement reps kept."""
     src = RL.RfaSource(panel_rfa)
     f = src.facts
-    assert f.n_units == 1 and f.n_elements >= 30
-    assert f.id_floor == 1000 and f.self_family == 1000
+    assert f.n_elements >= 30 and src.members[0] == 1000 and f.self_family == 1000
     assert f.category == -2001040                       # OST_ElectricalEquipment
-    assert f.real_type_names and all(n.strip() for n in f.real_type_names)
-    assert f.owner_source == "Global/ElemTable"
+    assert f.release == 2026
+    real = [n for n in f.type_names if n.strip()]
+    assert real and f.type_names[f.current_type] == real[0]
     assert f.class_histogram.get("Family") == 1
     doc = src.build(start_id=2_000_001)
     ids = sorted(e.elem_id for e in doc.elements)
     assert ids[0] == 2_000_001 and ids == list(range(ids[0], ids[0] + len(ids)))
     assert doc.self_family.elem_id == 2_000_001
     assert doc.finalized and doc.category_id == f.category
-    assert [n for n, _ in doc.types] == f.real_type_names
-    census = src.builds[-1]
+    assert [n for n, _ in doc.types] == f.type_names            # raw table; famload filters
+    census = src.last_build
     assert census["mode"] == "schema-typed decode-time remap"
     assert census["ids_remapped_values"] > len(ids)      # m_id + m_famId at least
     # no element keeps a reference into the OLD id block (1000..1000+n)
@@ -210,6 +209,7 @@ def test_route_rfa_to_rvt_loads_our_standalone_born_rfa(panel_rfa, tmp_path):
     cav = " ".join(res.caveats)
     assert "STANDALONE-BORN" in cav and RL.CERTIFIED_BY in cav
     assert "THIS artifact is not" in cav                            # never "loads in Revit"
+    assert "ids from 1000 <= host watermark" in cav
     man = json.load(open(res.manifest_paths["route.json"]))
     assert man["ok"] is True and man["files"]["loaded_rvt"]
 

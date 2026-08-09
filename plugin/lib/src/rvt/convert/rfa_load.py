@@ -4,7 +4,8 @@ Product wiring of the viewer-certified research lane T2a (issue #99):
 
 * read      the family document (unit 0) of a STANDALONE ``.rfa`` -- ours
             (``start_id=1000`` deliverables) or any Revit-saved family whose
-            ElemTable our codec parses; owner ids come from the
+            ElemTable our codec parses -- under the file's OWN release
+            (:func:`rvt.global_framing.reading`); owner ids come from the
             ``Global/ElemTable`` STREAM (the standalone ownership law: a
             standalone file's ``Global/Latest`` ADocument carries an EMPTY
             inline elem table, the owners are externalised);
@@ -19,26 +20,23 @@ Product wiring of the viewer-certified research lane T2a (issue #99):
             loader :func:`rvt.famload.load_family_documents` (embedded save
             unit + ContentDocuments entry + ContentTable record + FamilyMgr
             entry + host Family / FamilySymbol(s) / surrogates / parameter
-            twins), no instance placed; project validator afterwards.
+            twins), no instance placed; project validator afterwards.  The
+            ENCODE side runs under the HOST's release (famload's own
+            host_release_context), so a 2026-born family lands on a 2025 /
+            2024 base through the port layer.
 
 The mechanism is viewer-CERTIFIED (ledger: ``experiments/rftprobe/T2a.rvt``
 -- a Revit-born 1,992-element ``.rfa`` famloaded onto the composed base with
 a placed instance); THIS lane's own artifacts are not, until a batch of them
-is staged and a human records the verdict (rule 4) -- the caller says so.
+is staged and a human records the verdict (rule 4) -- :data:`SUMMARY`
+says so and the router relays it.
 
-HONEST LIMITS (refused with names, not faked):
-
-* an ElemTable whose footer carries ``GraveyardRec`` rows (never observed in
-  the corpus; a foreign-file codec gap, issue #13-class) is refused;
-* a unit-0 seq-103 class beyond ``GElement`` / ``SerializedDummy`` would be
-  re-encoded lossily -> refused;
-* nested families (further save units) are not carried in v1 -> refused;
-* a family file of a release with no certified creation support cannot be
-  read under its own framing -> refused by :mod:`rvt.frontdoor.release_ctx`.
+HONEST LIMITS -- :data:`REFUSED_BY_NAME` (one clear line, never faked).
 
 Zero donor bytes (rule 3): the reader decodes the USER's / OUR file and the
 loader re-authors every record from the decoded values; nothing from the
-research corpus enters this module.
+research corpus enters this module.  ``RemapDecoder`` is a codec capability
+whose natural home is ``rvt.objects`` once a second product caller exists.
 
 Territory: ``src/rvt/convert/`` (issue #99); read-only ancestry:
 ``tools/rft_probe.py`` (``load_rft_elements`` / ``_remap_decoder`` /
@@ -57,7 +55,7 @@ from .add_to_project import ConvertError, _relp
 __all__ = [
     "RfaLoadError", "RemapDecoder", "RfaSource", "BornRfaDoc",
     "rfa_id_floor", "host_watermark", "is_standalone_born",
-    "load_rfa_into_project", "MECHANISM", "CERTIFIED_BY",
+    "load_rfa_into_project", "MECHANISM", "CERTIFIED_BY", "REFUSED_BY_NAME",
 ]
 
 #: what the manifest / router name as the implementation
@@ -65,6 +63,11 @@ MECHANISM = ("schema-typed decode-time id remap + rvt.famload four-registry "
              "load (the T2a mechanism)")
 #: the ledger entry that certifies the MECHANISM (not this lane's artifacts)
 CERTIFIED_BY = "experiments/rftprobe/T2a.rvt"
+#: the by-name refusals, ONE sentence the router relays verbatim
+REFUSED_BY_NAME = ("Refused by name: a project (.rvt) passed as a family, a "
+                   "GraveyardRec ElemTable footer (codec gap #13), nested family "
+                   "documents, seq-103 classes beyond GElement/SerializedDummy, "
+                   "records that do not decode against the file's own schema")
 
 _REP_CLASSES_OK = ("GElement", "SerializedDummy")
 
@@ -101,7 +104,7 @@ def RemapDecoder(schema, idmap: Dict[int, int]):
 
 
 # ---------------------------------------------------------------------------
-# cheap classifiers (no partition walk)
+# cheap classifiers (ElemTable reads only, no partition walk)
 # ---------------------------------------------------------------------------
 
 def _elemtable(path: str):
@@ -113,8 +116,9 @@ def _elemtable(path: str):
 
 
 def host_watermark(host_rvt: str) -> int:
-    """The host's id watermark: max(ElemTable footer last_id, highest row id)
-    -- the same law :func:`rvt.famload.survey_host` allocates above."""
+    """The host's id watermark: max(ElemTable footer last_id, highest row
+    id) -- THE allocation law of :func:`rvt.famload.survey_host` (which
+    also opens the Document; this is its ElemTable-only reading)."""
     et = _elemtable(host_rvt)
     last = int(et.footer.last_id) if et.footer else 0
     return max([last] + [int(r.id) for r in et.records])
@@ -122,8 +126,7 @@ def host_watermark(host_rvt: str) -> int:
 
 def rfa_id_floor(rfa_path: str) -> int:
     """The lowest positive element id the family file has issued."""
-    et = _elemtable(rfa_path)
-    ids = [int(r.id) for r in et.records if int(r.id) > 0]
+    ids = [int(r.id) for r in _elemtable(rfa_path).records if int(r.id) > 0]
     if not ids:
         raise RfaLoadError(f"{_relp(rfa_path)}: Global/ElemTable lists no elements")
     return min(ids)
@@ -146,7 +149,9 @@ class BornRfaDoc:
     standalone-born family: segments are RE-ENCODED from the elements by
     :func:`rvt.famgen.skeleton.build_unit_segments` (the loader's own
     roundtrip gate re-proves every host record; the unit records decode
-    clean or the load's verify step says so)."""
+    clean or the load's verify step says so).  ``types`` is the family's
+    RAW type table (blank current-values pair included): the loader applies
+    its own real-named-types law to it."""
 
     finalized = True
 
@@ -182,29 +187,36 @@ class BornRfaDoc:
 #             phase 2 (build(start_id): typed-remap decode into a block)
 # ---------------------------------------------------------------------------
 
+def _self_family(idx) -> Optional[dict]:
+    """The unit-0 self-Family facts ({id, category, part_type, types}).  A
+    standalone family with no nested families carries exactly ONE ``Family``
+    element: decode just that row (a 2k-element Revit family would otherwise
+    pay a full identity decode of every element only to count references);
+    several ``Family`` rows -> the shared reference-count walk
+    :func:`rvt.families.self_family_of_unit`."""
+    from ..families import self_family_of_unit
+    fam_ids = idx.ids_of_class(0, "Family")
+    if len(fam_ids) != 1:
+        return self_family_of_unit(idx, 0)
+    v = idx.value(0, fam_ids[0]) or {}
+    ftt = (v.get("m_pFamilyTypes") or {}).get("value") or {}
+    return {"id": fam_ids[0], "category": v.get("m_categoryId"),
+            "part_type": v.get("m_partType"),
+            "types": [{"name": pr.get("name")} for pr in ftt.get("m_pairs") or []]}
+
+
 @dataclass
 class RfaFacts:
-    path: str
-    n_units: int
+    """What phase 1 measured on the family file (reported in the record)."""
     n_elements: int
-    id_floor: int
-    id_ceiling: int
     self_family: int
     category: int
     part_type: int
-    type_names: List[str]
-    real_type_names: List[str]
-    current_type: int
+    type_names: List[str]                 # the RAW type table, blank pair included
+    current_type: int                     # index of the first real-named type
     name: str
-    owner_source: str
+    release: Optional[int]
     class_histogram: Dict[str, int] = dc_field(default_factory=dict)
-    release: Optional[int] = None
-    notes: List[str] = dc_field(default_factory=list)
-
-    def as_json(self) -> dict:
-        d = dict(self.__dict__)
-        d["path"] = _relp(self.path)
-        return d
 
 
 class RfaSource:
@@ -214,11 +226,11 @@ class RfaSource:
     the four-registry loader calls with a free block above the watermark."""
 
     def __init__(self, rfa_path: str, *, name: Optional[str] = None):
-        from .. import adocument as A
+        from .. import versions as V
         from ..container import open_rvt
         from ..elemtable import INVALID_ID
-        from ..families import FamilyIndex, self_family_of_unit
-        from ..frontdoor.release_ctx import host_release_context, native_release
+        from ..families import FamilyIndex
+        from ..global_framing import reading
         from .extract_family import _partatom_title
         self.path = os.path.abspath(rfa_path)
         rp = _relp(self.path)
@@ -253,22 +265,15 @@ class RfaSource:
             for r in et.records}
         # ---- records + schema + self-Family, under the file's OWN release --
         try:
-            with host_release_context(self.path) as info:
-                # a same-release (native) file enters no context: info is None
-                self.release = int((info or {}).get("release") or native_release())
+            with reading(self.path):
                 idx = FamilyIndex(self.path)
-                if not idx.units:
-                    raise RfaLoadError(f"{rp}: no save units (not a family file)")
-                recs = idx.unit_records(0)
-                sf = self_family_of_unit(idx, 0)
-                with open_rvt(self.path) as f:
-                    latest = f.inflate("Global/Latest")
-                ad = A.decode_latest(latest)
-        except RfaLoadError:
-            raise
+                recs = idx.unit_records(0) if idx.units else {}
+                sf = _self_family(idx) if idx.units else None
         except Exception as e:                                     # noqa: BLE001
             raise RfaLoadError(f"{rp}: cannot be read as a family document "
                                f"({type(e).__name__}: {e})") from e
+        if not idx.units:
+            raise RfaLoadError(f"{rp}: no save units (not a family file)")
         if sf is None:
             raise RfaLoadError(f"{rp}: unit 0 has no self-Family element (not a "
                                "family document)")
@@ -277,55 +282,40 @@ class RfaSource:
                 f"{rp}: the family embeds {len(idx.units) - 1} NESTED family "
                 "document(s) (further save units); carrying nested units + their "
                 "ContentDocuments entries along is not built in v1 -- refused by name")
-        notes: List[str] = []
-        owner_source = "Global/ElemTable"
-        if ad.clean:
-            inner = ((ad.value.get("m_elemTable") or {}).get("value") or {})
-            rows = inner.get("m_elemArr") or []
-            if rows:
-                notes.append(f"Global/Latest ADocument elem table UNEXPECTEDLY "
-                             f"populated ({len(rows)} rows) -- species note; owners "
-                             "still taken from Global/ElemTable")
-        else:
-            notes.append("Global/Latest ADocument does not decode clean (owners "
-                         "come from Global/ElemTable regardless)")
-        self._idx = idx
-        self._recs = recs
-        self.schema = idx.schema
         members = sorted(recs.get(102, {}))
         if not members:
             raise RfaLoadError(f"{rp}: unit 0 carries no element records")
-        other_rep = sorted({idx.class_name(r.class_id)
-                            for r in recs.get(103, {}).values()}
-                           - set(_REP_CLASSES_OK))
+        rep_class = {eid: idx.class_name(r.class_id) for eid, r in recs.get(103, {}).items()}
+        other_rep = sorted(set(rep_class.values()) - set(_REP_CLASSES_OK))
         if other_rep:
             raise RfaLoadError(
                 f"{rp}: unit 0 carries seq-103 classes beyond GElement/"
                 f"SerializedDummy ({other_rep}) -- re-encoding them from decoded "
                 "values would be lossy; refused by name")
+        # keep only what build() needs (record payloads are copies; the
+        # FamilyIndex with its inflated partition blocks is not retained)
+        self._recs = recs
+        self._gelement_reps = {eid for eid, c in rep_class.items() if c == "GElement"}
+        self.schema = idx.schema
         self.members: List[int] = members
         self._class_of = {eid: idx.class_name(recs[102][eid].class_id) for eid in members}
         hist: Dict[str, int] = {}
         for c in self._class_of.values():
             hist[c] = hist.get(c, 0) + 1
         type_names = [str(t.get("name") or "") for t in (sf.get("types") or [])]
-        real = [n for n in type_names if n.strip()]
         # the current type = the first REAL-named pair (a born family's type
         # table opens with the blank ' ' current-values pair; a host symbol is
-        # never blank-named -- famload's real_type_names law)
+        # never blank-named -- famload's real_type_names law does the rest)
         cur = next((i for i, n in enumerate(type_names) if n.strip()), 0)
-        title = name or _partatom_title(self.path) or \
-            os.path.splitext(os.path.basename(self.path))[0]
         self.facts = RfaFacts(
-            path=self.path, n_units=len(idx.units), n_elements=len(members),
-            id_floor=members[0], id_ceiling=members[-1],
-            self_family=int(sf["id"]),
+            n_elements=len(members), self_family=int(sf["id"]),
             category=int(sf.get("category") if sf.get("category") is not None else -1),
-            part_type=int(sf.get("part_type") if sf.get("part_type") is not None else 0),
-            type_names=type_names, real_type_names=real, current_type=int(cur),
-            name=str(title), owner_source=owner_source, class_histogram=hist,
-            release=self.release, notes=notes)
-        self.builds: List[Dict[str, Any]] = []          # one census per build()
+            part_type=int(sf.get("part_type") or 0),
+            type_names=type_names, current_type=int(cur),
+            name=str(name or _partatom_title(self.path)
+                     or os.path.splitext(os.path.basename(self.path))[0]),
+            release=V.detect_release(self.path), class_histogram=hist)
+        self.last_build: Optional[Dict[str, Any]] = None      # census of build()
 
     # -- the famload builder ------------------------------------------------
     def idmap_at(self, start_id: int) -> Dict[int, int]:
@@ -339,50 +329,47 @@ class RfaSource:
         from ..genesis.skeleton import SkelElement
         idmap = self.idmap_at(start_id)
         dec = RemapDecoder(self.schema, idmap)
-        recs = self._recs
 
-        def val(seq: int, eid: int):
-            r = recs.get(seq, {}).get(eid)
+        def val(r):
             if r is None:
                 return None
             o = dec.decode_record(r.class_id, r.payload)
             return o.value if o else None
 
+        r101, r102, r103 = (self._recs.get(s, {}) for s in (101, 102, 103))
         els: List[Any] = []
         undecoded: List[str] = []
         for eid in self.members:
-            obj = val(102, eid)
-            hdr = val(101, eid)
-            rep = None
-            r3 = recs.get(103, {}).get(eid)
-            if r3 is not None and self._idx.class_name(r3.class_id) == "GElement":
-                rv = val(103, eid)
-                rep = rv if isinstance(rv, dict) else None
+            cname = self._class_of[eid]
+            obj = val(r102[eid])
+            hdr = val(r101.get(eid))
+            rep = val(r103.get(eid)) if eid in self._gelement_reps else None
             if not isinstance(obj, dict):
-                undecoded.append(f"{self._class_of[eid]} {eid}")
+                undecoded.append(f"{cname} {eid}")
             raw_owner = self._owner_of.get(eid, -1)
             owner = idmap.get(raw_owner, raw_owner) if raw_owner > 0 else -1
-            els.append(SkelElement(idmap[eid], self._class_of[eid],
+            els.append(SkelElement(idmap[eid], cname,
                                    hdr if isinstance(hdr, dict) else {},
-                                   obj if isinstance(obj, dict) else {}, rep,
+                                   obj if isinstance(obj, dict) else {},
+                                   rep if isinstance(rep, dict) else None,
                                    owner_id=owner))
         if undecoded:
             raise RfaLoadError(
                 f"{_relp(self.path)}: {len(undecoded)} element record(s) do not "
                 f"decode against the file's own schema ({undecoded[:6]}) -- "
                 "re-authoring them would drop content; refused by name")
-        sf_new = idmap[self.facts.self_family]
-        sf = next(e for e in els if e.elem_id == sf_new)
         f = self.facts
-        types = [(n, {}) for n in f.real_type_names] or [(f.name, {})]
+        sf_new = idmap[f.self_family]
+        sf = next(e for e in els if e.elem_id == sf_new)
         doc = BornRfaDoc(els, sf, name=f.name, category_id=f.category,
-                         part_type=f.part_type, types=types,
+                         part_type=f.part_type,
+                         types=[(n, {}) for n in f.type_names],
                          current_type=f.current_type)
-        self.builds.append({"start_id": int(start_id),
-                            "block": [int(start_id), int(start_id) + len(els) - 1],
-                            "self_family": sf_new,
-                            "ids_remapped_values": int(dec.n_remapped),
-                            "mode": "schema-typed decode-time remap"})
+        self.last_build = {"start_id": int(start_id),
+                           "block": [int(start_id), int(start_id) + len(els) - 1],
+                           "self_family": sf_new,
+                           "ids_remapped_values": int(dec.n_remapped),
+                           "mode": "schema-typed decode-time remap"}
         return doc
 
 
@@ -391,47 +378,54 @@ class RfaSource:
 # ---------------------------------------------------------------------------
 
 def load_rfa_into_project(rfa_path: str, host_rvt: str, out_rvt: str, *,
-                          name: Optional[str] = None, validate: bool = True,
-                          report_path: Optional[str] = None) -> Dict[str, Any]:
+                          name: Optional[str] = None,
+                          validate: bool = True) -> Dict[str, Any]:
     """LOAD a standalone-born ``.rfa`` into a copy of ``host_rvt`` ->
     ``out_rvt`` through :func:`rvt.famload.load_family_documents` (the
     loader invokes :meth:`RfaSource.build` with the free block above the
     host watermark and binds the family's own category style row as a core
-    id when the host carries one -- T2a's recipe).  Returns the load record
-    (ok / stop_reason / plan ids / census / validator summary); raises
+    id when the host carries one -- T2a's recipe).  Writes the loader's
+    report beside the output (``out_rvt + '.load.json'``).  Returns the
+    load record (ok / stop_reason / plan ids / census / validator summary /
+    ``summary`` = the one honest line for a manifest); raises
     :class:`RfaLoadError` only for a file this lane refuses by name."""
     from .. import famload as FL
     t0 = time.time()
     src = RfaSource(rfa_path, name=name)
-    key = name or src.facts.name
-    report_path = report_path or (out_rvt + ".load.json")
-    fl = FL.FamilyLoad(key=str(key), builder=src.build,
-                       core_categories=[src.facts.category] if src.facts.category > 0 else None)
-    res = FL.load_family_documents(host_rvt, [fl], out_rvt, validate=validate,
-                                   report_path=report_path)
+    report_path = out_rvt + ".load.json"
+    res = FL.load_family_documents(host_rvt, [FL.FamilyLoad(key=src.facts.name,
+                                                            builder=src.build)],
+                                   out_rvt, validate=validate, report_path=report_path)
     plan = res.plans[0] if res.plans else None
     ver = dict(res.proofs.get("verify_written") or {})
     v = ver.get("validate") or {}
-    census = ver.get("registries") or {}
-    inv = ver.get("family_inventory") or {}
+    reg = ver.get("registries") or {}
+    wm = (res.proofs.get("host") or {}).get("watermark")
+    rb = src.last_build or {}
+    summary = (f"STANDALONE-BORN .rfa (ids from {src.members[0]} <= host watermark "
+               f"{wm}): loaded by the schema-typed id remap ({rb.get('ids_remapped_values')} "
+               f"ElementId values -> block {rb.get('block')}) + rvt.famload. The "
+               f"MECHANISM is viewer-certified ({CERTIFIED_BY}: a Revit-born "
+               "1,992-element .rfa on the composed base + instance); THIS artifact is "
+               "not -- it validates, certification stays with the ledger "
+               "(docs/coverage/viewer-certified.json)")
     return {
         "ok": bool(res.ok), "stop_reason": res.stop_reason or None,
-        "mechanism": MECHANISM, "certified_by": CERTIFIED_BY,
+        "mechanism": MECHANISM, "certified_by": CERTIFIED_BY, "summary": summary,
         "out": _relp(out_rvt), "rfa": _relp(rfa_path), "host": _relp(host_rvt),
-        "facts": src.facts.as_json(),
-        "rebase": (src.builds[-1] if src.builds else None),
+        "facts": dict(src.facts.__dict__), "rebase": src.last_build,
         "ids": None if plan is None else {
             "host_family": plan.host_family_id, "symbols": list(plan.symbol_ids),
             "symbol": plan.symbol_id, "surrogate": plan.surrogate_id,
             "twins": len(plan.twin_of), "core_ids": list(plan.core_ids),
             "content_guid": plan.guid, "doc_id_range": list(plan.doc_id_range)},
-        "host_watermark": (res.proofs.get("host") or {}).get("watermark"),
+        "host_watermark": wm,
         "elements_added": int((res.proofs.get("host_elements") or {}).get("count") or 0),
-        "registries": {k: census.get(k) for k in (
+        "registries": {k: reg.get(k) for k in (
             "save_units", "contentdocs_entries", "contenttable_records",
             "familymgr_entries", "coherent", "units_added", "ours_in_all_four")
-            if k in census} or None,
-        "family_inventory_ok": inv.get("ok"),
+            if k in reg} or None,
+        "family_inventory_ok": (ver.get("family_inventory") or {}).get("ok"),
         "verify_ok": bool(ver.get("ok")),
         "validate": ({"verdict": v.get("verdict"), "n_errors": v.get("n_errors"),
                       "n_warnings": v.get("n_warnings")} if v else None),

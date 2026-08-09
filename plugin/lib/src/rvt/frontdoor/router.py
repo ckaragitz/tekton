@@ -259,59 +259,56 @@ def _read_famspec(rfa: Any) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
                      ".json path / inline) nor a .rfa path")
 
 
-def _default_host() -> Tuple[str, str]:
-    """The default LOAD HOST when no rvt is supplied: the pinned, hash-verified
-    certified genesis base (repo copy or the plugin-bundled one) -- never an
-    Autodesk sample.  Returns (path, one-line description); raises
-    :class:`rvt.frontdoor.base.BaseError` when the pin cannot be resolved."""
-    from .base import resolve_base
-    rb = resolve_base()
-    return rb.path, (f"the pinned certified genesis base ({rb.source}, sha256 "
-                     f"{rb.sha256[:12]}...)")
+def _target_base(res: RouteResult, opts: Dict[str, Any], label: str):
+    """Resolve the certified base for ``opts['target_version']`` (None = the
+    registry default) through the front door's ONE resolver and record the
+    version block on ``res``.  Returns ``(base | None, version_block)``; the
+    resolver's errors ride in ``res.errors``.  Shared by every family route
+    that needs a base: the load host here, the emit release in
+    :func:`_emit_at_target`."""
+    from . import AuthorRequest, _resolve_base_and_version
+    target = opts.get("target_version")
+    base, vb, errors = _resolve_base_and_version(
+        AuthorRequest(prompt=f"({label})", base=opts.get("base"),
+                      target_version=None if target is None else int(target)))
+    res.target_version = vb
+    res.errors.extend(errors)
+    return base, vb
 
 
 def _resolve_host(res: RouteResult, host: Optional[str], *, verb: str,
-                  opts: Optional[Dict[str, Any]] = None) -> Optional[str]:
+                  opts: Dict[str, Any]) -> Optional[str]:
     """``host`` when given (the user's project -- its own release rules), else
     the default host: the pinned certified genesis base, or with
-    ``--target-version N`` the certified base OF THAT RELEASE (the front
-    door's one resolver; the load then runs under that host's release via
-    ``rvt.famload``'s host_release_context).  An uncertified / refused target
-    degrades to the default base + THE line as a caveat (rule 1: delivered,
-    labelled).  On a missing pin returns None after setting a FAILED status +
-    the clear line (never a traceback)."""
-    target = (opts or {}).get("target_version")
+    ``--target-version N`` the certified base OF THAT RELEASE
+    (:func:`_target_base`; the load then runs under that host's release via
+    ``rvt.famload``'s host_release_context).  An uncertified target degrades
+    to the default base + THE line as a caveat (rule 1: delivered, labelled).
+    On a missing pin / refused base returns None after setting a FAILED
+    status + the clear line (never a traceback)."""
+    target = opts.get("target_version")
     if host is not None:
         if target is not None:
             res.caveats.append(f"--target-version {target} ignored for the LOAD: the "
                                "family goes INTO your --rvt, whose own release rules")
         return host
-    try:
-        if target is None:
-            path, desc = _default_host()
-        else:
-            from . import AuthorRequest, _resolve_base_and_version
-            base, vb, errors = _resolve_base_and_version(
-                AuthorRequest(prompt="(family load)", base=opts.get("base"),
-                              target_version=int(target)))
-            res.target_version = vb
-            if base is None:
-                raise RouteError("; ".join(errors) or str(vb.get("note")))
-            path = base.path
-            desc = (f"the certified Revit {vb.get('output_release')} genesis base "
-                    f"({base.source}, sha256 {base.sha256[:12]}...)")
-            if vb.get("status") != "match":
-                res.caveats.append(f"target {target} requested: {vb.get('line') or vb.get('note')}")
-    except Exception as e:                                           # noqa: BLE001
+    n_err = len(res.errors)
+    base, vb = _target_base(res, opts, "family load")
+    if base is None:
+        reason = "; ".join(res.errors[n_err:]) or str(vb.get("note"))
         res.ok = False
-        res.status = f"FAILED (no host project: {type(e).__name__}: {e})"
+        res.status = f"FAILED (no host project: {reason})"
         res.line = (f"rfa -> rvt {verb}s the family INTO a host project: pass --rvt "
                     "<your.rvt>, or restore the pinned genesis base "
                     "(rvt/frontdoor/assets/genesis_base.json / $RVT_GENESIS_BASE).")
         return None
-    res.caveats.append(f"no host .rvt supplied: {verb}ed into {desc} -- the "
-                       "certified base every build route authors on")
-    return path
+    if target is not None and vb.get("status") != "match":
+        res.caveats.append(f"target {target} requested: {vb.get('line') or vb.get('note')}")
+    rel = vb.get("output_release")
+    res.caveats.append(f"no host .rvt supplied: {verb}ed into the certified Revit {rel} "
+                       f"genesis base ({base.source}, sha256 {base.sha256[:12]}...) -- "
+                       "the certified base every build route authors on")
+    return base.path
 
 
 def _abs_repo(p: Any) -> Any:
@@ -816,12 +813,9 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
                      f"default release (Revit {native}); Revit cannot open a newer file "
                      "-- ask the recipient's Revit year first")}
         return emit()
-    from . import AuthorRequest, _emit_ifc_addition, _resolve_base_and_version
+    from . import _emit_ifc_addition
     target = int(target)
-    base, vb, errors = _resolve_base_and_version(
-        AuthorRequest(prompt="(family route)", base=opts.get("base"), target_version=target))
-    res.target_version = vb
-    res.errors.extend(errors)
+    base, vb = _target_base(res, opts, "family route")
     if vb.get("status") == "match" and base is not None and target != native:
         n_err, n_steps = len(res.errors), len(res.steps)
         try:
@@ -1016,16 +1010,19 @@ def _load_family(res: RouteResult, out_dir: str, opts: Dict[str, Any], *,
 
 _FAMSPEC_KINDS = ("downlight",)
 
-_RFA_LANES_LINE = (
-    "What this cell reads: a famspec JSON ({'kind': 'downlight'}), a .rfa tekton "
-    "EXTRACTED from a loaded project (reloaded verbatim), or any STANDALONE-BORN .rfa "
-    "-- our own .rfa deliverables and Revit-saved 2024-2026 family files whose "
-    "ElemTable our codec parses (schema-typed id remap + four-registry famload, the "
-    "certified T2a mechanism). Refused by name: a GraveyardRec ElemTable footer (codec "
-    "gap #13), nested family documents, seq-103 classes beyond GElement/SerializedDummy, "
-    "a release with no certified creation support. Closest supported routes: rvt -> rfa "
-    "-> rfa+rvt -> rvt (the extract/reload cycle), prompt+rvt -> rvt ('add a ... to my "
-    "project' generates, loads AND places), prompt -> rvt.")
+def _rfa_lanes_line() -> str:
+    """THE one clear line's tail when a .rfa cannot be loaded: what the cell
+    reads, what it refuses by name (one home: rvt.convert.rfa_load), and the
+    closest supported routes."""
+    from ..convert.rfa_load import REFUSED_BY_NAME
+    return ("What this cell reads: a famspec JSON ({'kind': 'downlight'}), a .rfa "
+            "tekton EXTRACTED from a loaded project (reloaded verbatim), or any "
+            "STANDALONE-BORN .rfa -- our own .rfa deliverables and Revit-saved family "
+            "files whose ElemTable our codec parses (schema-typed id remap + "
+            f"four-registry famload, the certified T2a mechanism). {REFUSED_BY_NAME}. "
+            "Closest supported routes: rvt -> rfa -> rfa+rvt -> rvt (the extract/reload "
+            "cycle), prompt+rvt -> rvt ('add a ... to my project' generates, loads AND "
+            "places), prompt -> rvt.")
 
 
 def _reload_rfa(res: RouteResult, rfa_path: str, out_dir: str, opts: Dict[str, Any], *,
@@ -1075,22 +1072,14 @@ def _reload_rfa(res: RouteResult, rfa_path: str, out_dir: str, opts: Dict[str, A
                                           "(rvt.famgen.loader four-registry component load)",
                             lambda: EF.reload_family(rfa_path, host_rvt, out_rvt,
                                                      validate=not opts.get("no_validate")))
-    except _StepFailed:
+    except _StepFailed as sf:
         res.ok = False
-        err = res.errors[-1] if res.errors else "reload failed"
-        msg = err.split(": ", 2)[-1][:400]
-        res.status = f"FAILED ({err.split(':', 1)[0]}: {msg})"
-        res.line = f"rfa -> rvt could not load this .rfa: {msg}. {_RFA_LANES_LINE}"
+        msg = str(sf.__cause__)[:400]
+        res.status = f"FAILED ({sf.args[0]}: {msg})"
+        res.line = f"rfa -> rvt could not load this .rfa: {msg}. {_rfa_lanes_line()}"
         return
-    if born:
-        rb = rec.get("rebase") or {}
-        res.caveats.append(
-            f"STANDALONE-BORN .rfa (ids from {floor} <= host watermark {wm}): loaded by "
-            f"the schema-typed id remap ({rb.get('ids_remapped_values')} ElementId values "
-            f"-> block {rb.get('block')}) + rvt.famload. The MECHANISM is viewer-certified "
-            f"({RL.CERTIFIED_BY}: a Revit-born 1,992-element .rfa on the composed base + "
-            "instance); THIS artifact is not -- it validates, certification stays with the "
-            "ledger (docs/coverage/viewer-certified.json)")
+    if rec.get("summary"):
+        res.caveats.append(str(rec["summary"]))
     res.files["loaded_rvt"] = _abs_repo(rec.get("out")) or out_rvt
     rep_p = out_rvt + ".load.json"
     if os.path.isfile(rep_p):

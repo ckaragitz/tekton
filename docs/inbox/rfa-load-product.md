@@ -110,11 +110,12 @@ Provenance of the output (`tools/provenance.py --baseline all --streams`): ident
 `author='rvt-writer'`, username `''`, no violations; element ledger unbaselined (no
 `samples/` in a cloud VM — expected).
 
-Gates: `tests/test_rfa_load.py` 9 passed (10.9 s); `tests/test_router.py
+Gates (first commit): `tests/test_rfa_load.py` 9 passed (10.9 s); `tests/test_router.py
 tests/test_frontdoor.py` 112 passed / 8 skipped (48.9 s, includes the built-room
 full cycle); `tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_coldstart.py`
 26 passed; `tools/sync_plugin.py` run + `--check` clean (deny-audit clean);
 `plugin/scripts/validate_plugin.py` PASS (24 assertions); `check_portable_paths` ok.
+Gates on the merged tree after the /simplify commit are in the section below.
 
 ## Findings
 
@@ -133,17 +134,54 @@ full cycle); `tests/test_plugin_sync.py tests/test_bootstrap.py tests/test_colds
    document with a fresh GUID). Revit's own reaction to two same-named families is
    a viewer question, recorded here, not asserted.
 
+## /simplify pass (second commit) — what changed and what was deliberately left
+
+Four review angles (reuse / simplification / efficiency / altitude). Applied:
+`RfaSource` reads under `rvt.global_framing.reading(path)` (the READING leaf
+`rvt_to_ifc` uses) instead of the authoring `release_ctx.host_release_context` —
+`rvt.convert` no longer imports `rvt.frontdoor` for a read, and a readable-but-not-
+creation-certified family is no longer refused for a reason the lane manufactured
+(encode still runs under the host's release inside famload); the `Global/Latest`
+ADocument decode (a whole extra open for a note) and the constant `owner_source`
+dropped; `RfaFacts` trimmed to non-derivable fields; the RAW type table is passed and
+famload's own `real_type_names` law does the filtering (no third copy of the
+blank-pair law); the redundant `core_categories`/`key` arguments removed; the
+`FamilyIndex` is not retained past `__init__` (GElement rep ids precomputed — several
+MB on a 2k-element family); a one-`Family` short circuit avoids identity-decoding
+every element just to find the self-Family (~0.35 s at T2a scale); a project passed as
+`.rfa` is refused up front (no `PartAtom` stream, 0.1 s); router: one `_target_base()`
+helper shared by `_resolve_host` and `_emit_at_target`, the failure line built from
+`_StepFailed`'s stage/cause and from `rfa_load.REFUSED_BY_NAME` (one home for the
+refusal list), the post-delivery caveat comes from the record's `summary` (the router
+no longer knows the record's key names). Measured after: route 2.2 s (was 2.3 s);
+`tests/test_rfa_load.py` 10 passed.
+
+Left on purpose (with issues): a shared unit-0 reader for `extract_family.RfaFamilyDoc`
+and `RfaSource` (would edit the certified verbatim lane's code path in this PR); the
+ElemTable `watermark` / `layout_observed` laws given one home in `rvt.elemtable`
+(engine-core, outside this issue's territory) → **#271**; the schema-parse memo that
+is 35 % of the route's wall time → data point added to **#183**; shared pytest
+fixtures for pinned base / catalog (pre-existing pattern across `tests/`).
+
+Merged `origin/main` (@ 4b716df: #260 famgen ADocument weakref renumbering, #262,
+#263) into the branch — one conflict, `tests/ci_shard.txt` (both sides appended; kept
+both). Re-verified on the merged tree: `make_family panelboard` VALID + provenance ok;
+route default/2025/2024 ok=true, wall 2.3/2.2/2.2 s, VALID 0 errors each; project-as-
+`.rfa` refused in 0.1 s with one line; bare-unzip `go` READY, ok=true 2.4 s.
+
 ## Open questions / follow-ups (filed as issues, `Refs #99`)
 
-* `needs-viewer`: STAGE a batch of this lane's outputs (DP-1 on G_ABPD + byte-identical
-  control; then 2025/2024) so form (c) can cite its own ledger entry instead of T2a's.
-* A Revit-born multi-type `.rfa` authors one host symbol per real-named type (famload's
-  N-type path, as for our own families); T2a certified a single type. Worth one probe in
-  the same batch.
+* **#270** `needs-viewer`: STAGE a batch of this lane's outputs (DP-1 on G_ABPD +
+  byte-identical control; then 2025) so form (c) can cite its own ledger entry instead
+  of T2a's; optional multi-type probe (one host symbol per real-named type — T2a
+  certified a single type).
+* **#271** `rvt.elemtable` owns `watermark(et)` + `layout_observed(et)`.
+* **#183** (existing) schema-parse memo — 11 parses per rfa→rvt route, ~0.8 s of 2.3 s.
 
 ## BRANCH STATE
 
-* Branch `cam/99-route-rfa-load` from `main` @ 5a40b22; PR: Closes #99.
+* Branch `cam/99-route-rfa-load` from `main` @ 5a40b22, `origin/main` @ 4b716df merged
+  in; PR **#269** (Closes #99), first head reviewed ✅ + CI green.
 * Files written: `src/rvt/convert/rfa_load.py` (new), `src/rvt/frontdoor/router.py`,
   `src/rvt/frontdoor/matrix.py`, `tests/test_rfa_load.py` (new), `tests/test_router.py`,
   `tests/ci_shard.txt`, `docs/product/PERMUTATION-MATRIX.md` (two rows + gap),
