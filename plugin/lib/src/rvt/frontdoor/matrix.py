@@ -490,12 +490,21 @@ _CELL_LIST: List[Cell] = [
           "worked:experiments/convert_combo/A2_add_rme_devonly/manifest.json",
           "test:tests/test_manipulate.py", "test:tests/test_frontdoor.py",
           "test:tests/test_convert_combo.py", "test:tests/test_router.py",
-          "record:docs/inbox/convert-b.md"),
+          "test:tests/test_edit_own_release.py",
+          "record:docs/inbox/convert-b.md", "record:docs/inbox/edit-own-release.md"),
          ("an EDIT-shaped prompt (an edit sentence, ops.json path, or inline "
           "JSON: modify / move / retype / delete / cascade / add-instance / "
           "add-circuit) runs the certified edit pipeline -- certified "
           "including on a FOREIGN file (M2_rac); known blocker: rename / "
           "set-mark on OUR created instances (no instance param rows yet)",
+          "PER RELEASE: the edit runs under the INPUT file's own release and "
+          "the output keeps it -- Revit 2026 / 2025 / 2024 projects open, "
+          "edit, re-emit and validate 0 errors through the front door, "
+          "tools/rvt_edit.py and tools/rvt_job.py edit "
+          "(tests/test_edit_own_release.py); the edit certifications above "
+          "are 2026-era files -- 2025/2024 edit outputs are VALIDATED, not yet "
+          "viewer-certified; a release we cannot author into (2023 and older) "
+          "is named and refused, never guessed",
           "an AUTHORING-shaped prompt ('add a 100 A lighting panel and a 75 "
           "kVA transformer to my project') runs rvt.convert.add_to_project: "
           "the new equipment is generated, loaded and placed INTO your file "
