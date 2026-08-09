@@ -10,37 +10,59 @@ the 📋 board (#56) for who is doing what. Hard rules (`CLAUDE.md` §1) bound e
 label, never withhold; Autodesk's reader — via the ledger — is the only arbiter of "certified"; zero donor
 bytes; no APS; no Autodesk install directories.
 
-Axes: [A. Plugin / skill-path latency](#a-plugin--skill-path-latency-first-class-per-steer-108) ·
-[B. Genesis: native creation from a prompt](#b-genesis-native-creation-from-a-prompt) ·
-[C. IFC → RVT conversion](#c-ifc--rvt-conversion) · [D. RFA / families](#d-rfa--families) ·
-[E. Backwards compatibility with older Revit generations](#e-backwards-compatibility-with-older-revit-generations) ·
-[F. Trustworthy output, the open cell, any-surface, engine depth, quality, beta](#f-the-other-axes-wave-0--wave-1)
+Axes: **A.** plugin / skill-path latency · **B.** genesis: native creation from a prompt · **C.** IFC → RVT conversion · **D.** RFA / families · **E.** backwards compatibility with older Revit generations · **F.** the other axes (trust + gates, open cell, any surface, engine depth, quality/process, beta UX).
 
 ---
 
 ## A. Plugin / skill-path latency (first-class per steer #108)
 
-**Where we stand (measured 2026-08-09, bare unzip + system python3, cloud VM):** `go author --prompt "an
-electrical room with 6 panels"` = **22.2 s cold / 21.8 s warm** end to end (READY, per-release flat);
-a 1-panel prompt ≈ 6 s; preflight 0.045 s; per simulated skill session `surface_bench` cowork 17.0 s /
-codeexec 15.2 s (8 calls). The job is **build-dominated (~20 s)**: each generated family's load stage costs
-~2.5 s, so equipment count drives wall time (#124). Import weight was the second lever: the prompt-only path
-eagerly imported ifcopenshell (+numpy/shapely/lark) — fixed in PR #141 (`import rvt.frontdoor.build`
-376 → 52 ms; process import time 423 → 200 ms; cold bare `go author` 20.1 → 18.8 s); the numpy-free ECC
-engine from PR #128 removed another ~3 s cold (19.7 → 16.9 s on that engineer's box). Every latency item is
-only *done* with a measured before/after from a bare surface (S-2026-08-09-g).
+**Where we stand (measured 2026-08-09, bare unzip + system python3 without numpy, cloud VM).**
+The flagship `go author --prompt "an electrical room with 6 panels"` is **27–28.6 s cold, 27.3 s warm**
+end to end on the scout VM (22 s on the engineers' VMs), max RSS 128 MB, READY; a 1-panel prompt is
+~6.4 s and `"a room"` 2.3 s, so equipment count drives wall time. Warm equals cold: nothing is cached
+between calls, and two runs are not byte-identical. The zip is 5.0 MB / 340 files; preflight is 0.06 s;
+per simulated skill session `surface_bench` costs cowork 18.0 s / codeexec 19.0 s (8 calls).
 
-**Done, for a user:** a one-sentence request returns a delivered file in well under 10 s for a typical
-room on any surface, in ONE tool call whose JSON already carries paths, per-release status and caveats
-(no follow-up calls), with the skill layer's eagerly loaded text small enough not to tax the model.
+Where the time goes (cProfile + an un-profiled timer on the same job):
 
-**Staged path:** (1) measure + guard — surface perf tests execute in CI (#136), latency numbers in every
-latency PR; (2) the big lever — per-family load stage cost (#124: cache/parametrise the famdoc build,
-share the four-registry walk across N families, avoid re-decoding the base per family); (3) startup —
-remaining eager imports (#139 xml.sax → urllib/http/ssl), schema-cache load, python discovery; (4) round
-trips — one-call `go` results that carry the honest status block (#24), progressive references.
+- **57 % is `rvt.ecc.encode_block`** — the CRCIO page-ECC *encoder*, a bit-at-a-time Python loop on the
+  WRITE path (frame_stream / page_trailer from commit and the family loader): 15.6 s of 27.0 s. A
+  byte-identical bit-sliced stdlib prototype takes the whole job to **11.35 s** (encode 0.66 s; page
+  120 ms → 6.2 ms). → **#182** (engineer in flight). PR #128 already did the same for the *verify* side
+  (validator numpy-free, ~3 s cold saved).
+- **Six identical families are generated and loaded sequentially** (stage_load 6 × 7.6 s; stage_families
+  6 × standalone_family_write): the prompt "6 panels" yields six copies of one catalog model that differ
+  only in Mark/GUIDs. → **#124** (one host pass for N families; reuse the famdoc).
+- **The schema cache is loaded 62 times per job for ONE digest** (4.1 s; `schema_cache.parse_cached` has
+  no in-process memo). → **#183**.
+- Imports are *not* the cost on the bare path (209 modules, 0.16 s self-time) — but with ifcopenshell
+  present the prompt path used to import it eagerly: fixed in **PR #141** (`import rvt.frontdoor.build`
+  376 → 52 ms; process import time 423 → 200 ms). Remaining eager import: `xml.sax` → urllib/http/ssl in
+  famgen (#139).
+- **Round trips and tokens, the model-side latency:** no SKILL.md documents the one-call `go` flow (0
+  hits; tekton-author still prescribes 2 calls, tekton-edit 4); the `go` result JSON (2 KB: errors,
+  files, handoff, intent_json, manifest, ok, out_dir, route, seconds, status) lacks the stamps /
+  degradations / validation / counts / target-version line that "How to report" needs, forcing the model
+  to open a 28–99 KB manifest → **#185** (report block in the result), **#213** (SKILL.md teaches the
+  one-call flow), **#24 → PR #173** (year first, one call, 11.9 → 10.4 KB SKILL.md). Eager skill text
+  today: SKILL.md 65.9 KB across five skills (tekton-ifc alone 33.5 KB) + tekton-ifc references 154 KB.
+- **No CI guard:** `test_surface_perf.py` is not in the shard, skips without numpy in /usr/bin/python3,
+  and benches the 1-panel prompt (6–7 s) against a 20 s ceiling while the flagship measures 27–28 s. →
+  **#184** (flagship job in the bench with a ceiling), **#136**.
 
-**Issues:** #6 (PR #141), #124, #139, #136, #24, #92 (PR #126), #75 (PR #128), #110, #125, #127.
+**Done, for a user:** a one-sentence request returns a delivered file in **≤ 10 s** for a typical room on
+any surface, in ONE tool call whose JSON already carries paths, per-release status and caveats (no
+follow-up calls), with the skill layer's eagerly loaded text small enough not to tax the model — and CI
+fails if the flagship job regresses.
+
+**Staged path:** (1) the encoder (#182) — the single 2.4× lever, byte-identical so no viewer round;
+(2) N-family host pass + famdoc reuse (#124) and the schema memo (#183) — together the path to ≤ 10 s;
+(3) the report block + one-call skills (#185, #213, PR #173) — fewer model round trips; (4) guards —
+flagship bench in CI (#184, #136), a per-user cache dir so warm < cold, determinism (#168) so caching is
+even possible; (5) the long tail — remaining eager imports (#139), IFC on the bare surface (#127, #130).
+
+**Issues:** #182, #124, #183 (schema memo), #184 (flagship bench in CI), #185, #213, #139, #136, #111, #110, #125, #127, #130; landed: PR #141
+(#6), PR #128 (#75), PR #126 (#92), PR #173 (#24).
 
 ## B. Genesis: native creation from a prompt
 
@@ -180,7 +202,15 @@ area and gate; `auto` where the unattended worker may take it.
 - **A stranger on any surface (PG3):** #122 (windows-latest + macos CI jobs), #130 (engine-level steplite fallback), #133 (CI runs the whole sample-free suite), #136.
 - **Engine depth (PG6):** #138 (Extensible-Storage integration → 0 warnings), #140 (opt-in baked wall solids in the front door), plus the engineers' follow-ups #66 #70 #71 #87 #93 #94 #116 #123.
 - **Process (PG7):** #106/#107 (session-scoped claim locks), #98 (verdict-marker truncation — fixed by #107), #100, #59, #60, #86.
-- Wave 1's remaining axes (measured latency deep-dive, flexibility breadth, quality infrastructure, beta/skill UX) append here as their issues are filed. <!-- issues:wave1 -->
+- **Wave 1 (eight-axis sweep, filed 2026-08-09):**
+  - *Latency (measured):* #182 #183 #184 #185 (see §A).
+  - *Flexibility / capability breadth:* #186 (rename/set-mark edits on our own output), #187 (multi-room prompts list the extra room honestly), #188 (`route.py run --json` = one JSON document on stdout), #189 (NL `copy` edit verb), #190 (`params --id` + `set <param> of <ref>`), #191 (needs-decision: MCC/ATS/UPS/generator envelope families).
+  - *Trust + deliverability gates:* #192 (identity gate ADVISORY for inherited GUIDs/paths), #193 (`sync_plugin --check` content-scans shipped bytes for inherited usernames/paths), #194 #195 (needs-viewer: PI/TransmissionData scrub, fresh document GUID per delivered file), #196 (`probe_batch.py audit`: matrix ↔ ledger ↔ pins), #197 (ledger sha256 backfill), #198 (facts coverage report), #200 (C5 footer-token engineering probe for counsel).
+  - *Open cell + release coverage:* #201 (golden sha256 of the walls prompt per release in CI), #202 (`revit_journal.py` readout parser), #203 (`probe_batch record --verdicts-json`), #204 #205 (owner-machine: ledger backfill, `verify-pins` recomposition).
+  - *A stranger on any surface:* #206 (`plugin-zip-smoke` CI job on a spaced path with `python -I`), #207 (declared Python floor 3.9 proven in CI), #208 (schema cache dir owned by another user never fails a job), #209 (an exception after the build still returns one JSON naming the delivered file), #210 (forced-ASCII locale + non-ASCII prompt), #211 #212 (actionable NOT READY / PEP 668 lines), #213 (SKILL.md one-call flow, hot-file), #214 (FIRST-RUN.md).
+  - *Engine depth:* #215 (rename/set-mark params on prompt output), #216 (schema parse memo — engine side), #217 (two-partition projects), #218 (rvt→ifc emits IfcWallStandardCase + storeys), #219 (owner-machine: add_to_project into a 32 MB host < 60 s, today 235–331 s).
+  - *Test / quality / process:* #220 (owner-machine canonical run recorded), #221 (`product-smoke` CI job = surface_bench on system python), #222 (cost guard: per-day caps + board counter), #223 (junit + flaky detector), #224 (7-day pipeline metrics in `techlead.py brief`), #225 (bounded `fold` step for learned notes), #226 (`check_doc_refs.py`).
+  - *Beta learning + skill UX:* #227 (`feedback.py new` schema-valid beta record), #228 (roll-up → `beta-feedback` issue), #229 (label + form + board section + planner charter), #230 (P0 hot-file: tekton-ifc SKILL.md must route a `.rvt` request to tekton-author, never "do NOT"), #231 (`releases` block from `rvt.versions.creation_status`), #232 (`stale-release-claim` guard in validate_plugin), #233 (golden skill-report fixtures), #234 (BETA-ONBOARDING + BETA-INTAKE docs).
 
 ---
 

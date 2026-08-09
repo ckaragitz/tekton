@@ -12,12 +12,14 @@ What is proven here:
 * the PROMPT ROUTE runs on a bare interpreter with ZERO extras installed
   (``-I -S``: no site-packages, hence no numpy): module import, the handoff
   package, and the full fallback native build all work -- numpy is lazy and
-  the prompt path never exercises it (the validator's ECC tier degrades to a
-  stated ERROR, never an import-time corpse);
+  the prompt path never exercises it (the validator's ECC tier verifies on
+  its stdlib decoder, never an import-time corpse; every family's own
+  report validates ok -- issue #75);
 * the four skill ``_bootstrap.py`` shims stay byte-identical.
 """
 from __future__ import annotations
 
+import glob
 import hashlib
 import json
 import os
@@ -218,9 +220,11 @@ def test_go_usage_error(plugin_copy, workdir):
 def test_prompt_fallback_build_runs_without_numpy(plugin_copy, workdir):
     """THE headline: the full prompt fallback native build (families ->
     load -> walls -> equipment) completes and writes the combined .rvt with
-    NO numpy anywhere on the interpreter.  The validator's vectorised ECC
-    tier states its numpy need as an in-report ERROR (honest degrade, exit
-    4) -- never an import-time crash, never a withheld file."""
+    NO numpy anywhere on the interpreter.  The validator's ECC tier runs on
+    its stdlib decoder there -- never an import-time crash, never a withheld
+    file -- and every generated family's OWN report validates ok with a
+    family-mode verdict (issue #75: it used to say ``ok: false`` /
+    "not CRCIO-framed" on exactly this surface)."""
     out = os.path.join(workdir, "go-nonumpy-build")
     r = _run(BARE_PY + [_bootstrap(plugin_copy), "go", "author",
                         "--prompt", SMALL_PROMPT, "--out", out, "--json"],
@@ -234,6 +238,12 @@ def test_prompt_fallback_build_runs_without_numpy(plugin_copy, workdir):
     assert files.get("combined") and os.path.isfile(files["combined"]), \
         "the fallback build must deliver the combined .rvt without numpy"
     assert os.path.isfile(res["intent_json"])
+    fam_reports = sorted(glob.glob(os.path.join(out, "families", "*.json")))
+    assert fam_reports, "the build must write one report per generated family"
+    for p in fam_reports:
+        v = json.load(open(p)).get("validate") or {}
+        assert v.get("ok") is True, (os.path.basename(p), v.get("error") or v)
+        assert (v.get("family_mode") or {}).get("verdict") == "VALID", os.path.basename(p)
 
 
 def test_frontdoor_import_is_numpy_free(plugin_copy, workdir):

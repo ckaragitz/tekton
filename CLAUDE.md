@@ -60,12 +60,11 @@ you plan from are imported right here so they are always in context:
 ## 2. Setup and the commands you'll actually use
 
 ```bash
-uv venv .venv && uv pip install --python .venv/bin/python -e .          # package: rvt (src layout); only declared dep is olefile
-uv pip install --python .venv/bin/python pytest numpy                   # test/geometry extras are NOT declared in pyproject
-uv pip install --python .venv/bin/python ifcopenshell                   # OPTIONAL: IFC *authoring* only; IFC reading has a stdlib fallback (steplite)
+uv venv .venv && uv pip install --python .venv/bin/python -e ".[test]"  # package: rvt (src layout) + the `test` extra (pytest, numpy); the only declared RUNTIME dep is olefile
+uv pip install --python .venv/bin/python -e ".[ifc]"                    # OPTIONAL: ifcopenshell for IFC *authoring* only; IFC reading has a stdlib fallback (steplite)
 .venv/bin/python -m pytest tests/test_frontdoor.py -q                   # ALWAYS run python from repo root via .venv/bin/python
 ```
-(Plain `python3.11 -m venv .venv && .venv/bin/pip install -e . pytest numpy` also works; the checked-in `.venv` on the owner's machine is uv-built and has no `pip` inside.)
+(Plain `python3.11 -m venv .venv && .venv/bin/pip install -e ".[test]"` also works, and `bash scripts/cloud-setup.sh` does exactly that; extras in `pyproject.toml`: `test` = pytest + numpy, `geometry` = numpy only, `ifc` = ifcopenshell (optional), `dev` = test + geometry, `all` = everything. The checked-in `.venv` on the owner's machine is uv-built and has no `pip` inside.)
 
 - **Tests:** the full suite is ~1,700 tests / ~25 min (last canonical:
   1697 passed / 7 failed / 2 skipped); **do not run it casually or
