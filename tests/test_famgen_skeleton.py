@@ -209,22 +209,29 @@ def test_electrical_connectors_byte_exact(idx_rme, enc):
                  if c["ptr_class"] == "FamilyParametrizedElemParamsCell"]
         binds = [(d["m_famParamId"], d["m_elemPropId"])
                  for c in cells for d in c["value"]["m_paramDrivenData"]]
+        phases = ("m_dApparentLoadPhase1", "m_dApparentLoadPhase2", "m_dApparentLoadPhase3")
+        # every specimen is Power-Unbalanced (31): per-phase loads, m_dApparentLoad 0
+        assert dom["m_systemType"] == fs.ELECTRICAL_SYSTEM_POWER_UNBALANCED
+        assert dom["m_dApparentLoad"] == 0.0
         el = fs.new_electrical_connector(
             eid, famid, host_element_id=gr["m_elemId"], host_geom_tag=gr["m_geomTag"],
             location=fu["m_origin"], direction=fu["m_xVec"], u_axis=fu["m_yVec"],
             offset_uv=pr["m_offset"], angle=pr["m_angle"],
             voltage_v=dom["m_dVoltage"] * 0.3048 ** 2, poles=dom["m_nNumberOfPoles"],
             load_class_id=dom["m_idLoadClassification"],
-            apparent_load_va=dom["m_dApparentLoadPhase1"] * 0.3048 ** 2,
+            apparent_load_va=[dom[k] * 0.3048 ** 2 for k in phases[:dom["m_nNumberOfPoles"]]],
             power_factor=dom["m_dPowerFactor"],
-            description=dom["m_strConnectorDescription"], marker_size_ft=v["m_grepSize"],
+            description=dom["m_strConnectorDescription"],
+            primary=dom["m_bIsConnectorPrimary"], marker_size_ft=v["m_grepSize"],
             edge_loop_tags=v["m_oEdgeLoopRef"]["value"]["m_sortedTagArr"],
             param_bindings=binds, flip=pr["m_flip"],
             index=v["m_index"], flags=h["m_abFlags4Bytes"])
         # feed the specimen's exact stored floats (unit round-trips drift 1 ulp)
         d = el.obj["m_pDomain"]["value"]
         d["m_dVoltage"] = dom["m_dVoltage"]
-        d["m_dApparentLoadPhase1"] = dom["m_dApparentLoadPhase1"]
+        for k in phases:
+            assert d[k] == pytest.approx(dom[k])
+            d[k] = dom[k]
         for f, src in ((el.obj["m_pFaceU"], fu), (el.obj["m_pFaceV"], fv)):
             p = f["value"]["m_pSurf"]["value"]
             p["m_origin"], p["m_xVec"], p["m_yVec"] = (src["m_origin"], src["m_xVec"],
@@ -354,6 +361,73 @@ def test_type_and_parameter_authoring():
     assert groups[fs.PGROUP_DIMENSIONS] == [L.elem_id]
     # length params are locked for direct manipulation
     assert doc.self_family.obj["m_lockedParameterIdsForDirectManipulation"] == [L.elem_id]
+
+
+def test_phase_loads_split_a_balanced_load_equally_over_the_poles():
+    """A number is the whole (balanced) load: equal split over phases
+    1..poles, the rest 0; a sequence is the explicit per-phase list."""
+    assert fs.phase_loads_va(75000.0, 3) == [25000.0, 25000.0, 25000.0]
+    assert fs.phase_loads_va(4800, 2) == [2400.0, 2400.0, 0.0]
+    assert fs.phase_loads_va(180.0, 1) == [180.0, 0.0, 0.0]           # the specimens' shape
+    assert fs.phase_loads_va([30000, 25000, 20000], 3) == [30000.0, 25000.0, 20000.0]
+    assert fs.phase_loads_va([1000.0], 3) == [1000.0, 0.0, 0.0]
+    with pytest.raises(ValueError):
+        fs.phase_loads_va([1.0, 2.0], 1)          # phase 2 is inactive on a 1-pole connector
+    with pytest.raises(ValueError):
+        fs.phase_loads_va(100.0, 4)               # Number of Poles is 1, 2 or 3
+    with pytest.raises(ValueError):
+        fs.phase_loads_va([], 3)
+
+
+def test_electrical_domain_load_and_primary_laws():
+    """Power-Unbalanced (31, the specimens' type): load on Phase1..poles,
+    m_dApparentLoad 0; Power-Balanced (30): m_dApparentLoad = the total,
+    phases its equal split; the primary flag is the caller's to set."""
+    assert (fs.ELECTRICAL_SYSTEM_POWER_UNBALANCED, fs.ELECTRICAL_SYSTEM_POWER_BALANCED) == (31, 30)
+    assert fs.ELECTRICAL_SYSTEM_POWER == 31                              # the specimens' code
+    d = fs.electrical_domain(voltage_v=208.0, poles=3, apparent_load_va=75000.0)
+    assert d["m_systemType"] == 31 and d["m_nNumberOfPoles"] == 3
+    third = fs.voltamps(25000.0)
+    assert [d["m_dApparentLoadPhase1"], d["m_dApparentLoadPhase2"],
+            d["m_dApparentLoadPhase3"]] == pytest.approx([third] * 3)
+    assert d["m_dApparentLoad"] == 0.0
+    assert d["m_bIsConnectorPrimary"] is True and d["m_powerFactorState"] == fs.POWER_FACTOR_LAGGING
+    # single-phase: the whole load on phase 1 (byte law of the fixture / receptacle)
+    s = fs.electrical_domain(voltage_v=120.0, poles=1, apparent_load_va=180.0, primary=False)
+    assert s["m_dApparentLoadPhase1"] == pytest.approx(fs.voltamps(180.0))
+    assert s["m_dApparentLoadPhase2"] == s["m_dApparentLoadPhase3"] == s["m_dApparentLoad"] == 0.0
+    assert s["m_bIsConnectorPrimary"] is False
+    # explicit unbalanced per-phase list
+    u = fs.electrical_domain(voltage_v=208.0, poles=3, apparent_load_va=[3000.0, 2000.0, 1000.0])
+    assert [u["m_dApparentLoadPhase1"], u["m_dApparentLoadPhase2"], u["m_dApparentLoadPhase3"]] == \
+        pytest.approx([fs.voltamps(3000.0), fs.voltamps(2000.0), fs.voltamps(1000.0)])
+    assert u["m_dApparentLoad"] == 0.0
+    # balanced system type: the total in m_dApparentLoad, consistent with the phase sum
+    b = fs.electrical_domain(voltage_v=480.0, poles=3, apparent_load_va=45000.0,
+                             system_type="power_balanced")
+    assert b["m_systemType"] == 30
+    assert b["m_dApparentLoad"] == pytest.approx(fs.voltamps(45000.0))
+    assert b["m_dApparentLoad"] == pytest.approx(b["m_dApparentLoadPhase1"] + b["m_dApparentLoadPhase2"]
+                                                 + b["m_dApparentLoadPhase3"])
+    with pytest.raises(ValueError):
+        fs.electrical_domain(voltage_v=480.0, poles=3, apparent_load_va=[1.0, 2.0, 3.0],
+                             system_type="power_balanced")            # a list is unbalanced
+    with pytest.raises(ValueError):
+        fs.electrical_domain(voltage_v=480.0, system_type="power_circuit")
+
+
+@needs_schema
+def test_only_the_first_s0e_connector_is_primary():
+    """One primary connector per family: a second add_electrical_connector
+    on the S0e document is written non-primary."""
+    doc = fs.new_family_document("electrical_equipment", "Two Connectors",
+                                 part_type=fs.PART_TYPE["panelboard"], work_plane_based=True)
+    doc.add_electrical_connector(voltage=208.0, poles=3, apparent_load_va=0.0)
+    doc.add_electrical_connector(voltage=120.0, poles=1, apparent_load_va=100.0)
+    doc.finalize()
+    flags = [c.obj["m_pDomain"]["value"]["m_bIsConnectorPrimary"] for c in doc.connectors]
+    assert flags == [True, False]
+    assert doc.roundtrip()["failed"] == 0
 
 
 def test_units_and_type_id_helpers():

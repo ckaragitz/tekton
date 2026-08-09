@@ -789,11 +789,12 @@ def box_face(face: str) -> Dict[str, Any]:
 def add_connector(doc: SK.FamilyDoc, *, host: G.FormBundle, face: str,
                   location: Sequence[float], direction: Sequence[float],
                   u_axis: Sequence[float], voltage_v: float, poles: int,
-                  apparent_load_va: float = 0.0, power_factor: float = 1.0,
+                  apparent_load_va: Any = 0.0, power_factor: float = 1.0,
                   bind_voltage_param: Optional[str] = None,
                   bind_load_param: Optional[str] = None,
                   load_class: str = "Power",
-                  description: str = "Power Connection") -> SK.SkelElement:
+                  description: str = "Power Connection",
+                  primary: Optional[bool] = None) -> SK.SkelElement:
     """Add a POWER connector hosted on a named FACE of ``host`` (a box form
     bundle): the connector references the extrusion's face by geometry tag
     (:func:`box_face`) and carries the face's edge-loop tags -- the same
@@ -803,9 +804,21 @@ def add_connector(doc: SK.FamilyDoc, *, host: G.FormBundle, face: str,
     ``bind_voltage_param`` / ``bind_load_param`` = captions of the doc's
     family parameters to ASSOCIATE with the connector's voltage / apparent
     load (the type value drives the connector) [V mechanism].
+    ``apparent_load_va`` = the connector's whole load (split equally over
+    the poles) or a per-phase list (:func:`rvt.famgen.skeleton.electrical_domain`).
+    ``primary``: "a single connector of each discipline is allowed to be
+    primary in each family" -- ``None`` = primary iff it is the document's
+    first connector; asking for a second primary raises.
     """
     if doc.finalized:
         raise FactoryError("document is finalized; add connectors before finalize")
+    have_primary = any(c.obj["m_pDomain"]["value"]["m_bIsConnectorPrimary"]
+                       for c in doc.connectors)
+    if primary is None:
+        primary = not have_primary
+    elif primary and have_primary:
+        raise FactoryError("the family already has a primary connector (one primary "
+                           "connector per discipline per family)")
     ext = host.by_class("ExtrusionElem")
     if not ext:
         raise FactoryError("host form has no ExtrusionElem")
@@ -834,8 +847,9 @@ def add_connector(doc: SK.FamilyDoc, *, host: G.FormBundle, face: str,
         direction=tuple(float(c) for c in direction),
         u_axis=tuple(float(c) for c in u_axis),
         voltage_v=float(voltage_v), poles=int(poles),
-        load_class_id=lc.elem_id, apparent_load_va=float(apparent_load_va),
+        load_class_id=lc.elem_id, apparent_load_va=apparent_load_va,
         power_factor=float(power_factor), description=str(description),
+        primary=bool(primary),
         edge_loop_tags=list(fx["edges"]), param_bindings=bindings,
         index=len(doc.connectors) + 1)
     con.notes.append(f"hosted on the enclosure's {face} face (tag {fx['tag']}, "
@@ -1340,25 +1354,29 @@ def make_transformer(*, kva: float = 75, vendor: str = "eaton",
     fb.params.update({"role": "transformer enclosure",
                       "dims_in": [facts.get("width_in"), facts.get("depth_in"),
                                   facts.get("height_in")]})
-    # connectors: primary + secondary on the top face, offset in X
+    # connectors: primary + secondary windings on the top face, offset in X.
+    # The primary winding is the family's ONE primary connector (the side an
+    # upstream circuit attaches to); the secondary books the kVA rating as a
+    # balanced 3-pole load = an equal per-phase split (SK.electrical_domain)
     add_connector(doc, host=fb, face="top",
                   location=(-W / 4.0, 0.0, Hh), direction=(0.0, 0.0, 1.0),
                   u_axis=(1.0, 0.0, 0.0), voltage_v=vp, poles=3,
                   apparent_load_va=0.0, bind_voltage_param="Primary Voltage",
-                  load_class="Power", description="Primary")
+                  load_class="Power", description="Primary", primary=True)
     add_connector(doc, host=fb, face="top",
                   location=(W / 4.0, 0.0, Hh), direction=(0.0, 0.0, 1.0),
                   u_axis=(1.0, 0.0, 0.0), voltage_v=vs, poles=3,
                   apparent_load_va=float(kva) * 1000.0,
                   bind_voltage_param="Secondary Voltage",
                   bind_load_param="kVA Rating",
-                  load_class="Power", description="Secondary")
+                  load_class="Power", description="Secondary", primary=False)
     doc.finalize()
     prod = FamilyProduct("transformer", doc, facts, forms=[fb], types=rows,
                          file_stem=_slug(f"xfmr_{_joined([float(j['kva']) for j in jobs], 'kVA')}"
                                          f"_{int(vp)}-{secondary_v}"))
-    prod.notes.append("two connectors (primary / secondary) on the top face; the "
-                      "secondary is bound to the kVA rating (the load it can serve)")
+    prod.notes.append("two connectors on the top face: the primary winding is the "
+                      "family's primary connector; the secondary is bound to the kVA "
+                      "rating and books it as an equal per-phase (balanced) load")
     _multi_type_notes(prod)
     return prod
 
