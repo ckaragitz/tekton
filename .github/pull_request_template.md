@@ -1,5 +1,7 @@
-<!-- One issue = one branch = one PR. After you open it: CI + claude-review run automatically, a bounded auto-fix may push to your branch, and automerge squash-merges when green + approved. Humans are only pinged via a `needs-human` label. -->
+<!-- One issue = one branch (from main, never stacked on another PR's branch) = one PR. `coord` checks the linked issue / claim / overlap the moment this opens; CI + claude-review run automatically, a bounded auto-fix may push to your branch, and automerge squash-merges when green + approved. Humans are only pinged via a `needs-human` label. For a partial, write "Refs #N" — never "does not close #N" (GitHub closes it anyway). -->
 Closes #
+
+- [ ] I was that issue's assignee before starting (self-assign or `/claim`; no ⛔ from the `coord` bot), and searched open issues/PRs for the same work
 
 ## What changed and why
 <!-- 2-5 lines. What the change does, not how you found it. -->
