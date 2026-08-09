@@ -4,6 +4,9 @@ CERTIFIED GENESIS BASE (all three input routes end here).
 The mechanics are the ifc-room stream's PROVEN build code, reused as-is
 (``tools/ifc_intent.py`` loaded as a module -- imported, never edited):
 
+    P  the job's PROJECT INFORMATION (rvt.frontdoor.project_info: the
+       intent's identity written into the base's ProjectInfo element by the
+       certified modify shape -- first, so every later file inherits it);
     F  our generated FAMILIES (.rfa) from the intent's family mapping
        (rvt.famgen.factory catalog products + the honest house switchboard);
     L  LOAD them onto the base (rvt.famgen.loader, four-registry, chained);
@@ -59,6 +62,7 @@ from dataclasses import dataclass, field as dc_field
 from typing import Any, Dict, List, Optional
 
 from . import intent as FI
+from . import project_info as PI
 from . import release_ctx as RC
 from .base import ResolvedBase, repo_root, resolve_specimen_source
 from . import standalone as SA
@@ -153,6 +157,7 @@ class BuildResult:
     validation: Dict[str, Any] = dc_field(default_factory=dict)      # role -> gates
     circuits: Dict[str, Any] = dc_field(default_factory=dict)
     status_gate: Dict[str, Any] = dc_field(default_factory=dict)
+    project_info: Dict[str, Any] = dc_field(default_factory=dict)    # stage P record
     degradations: List[str] = dc_field(default_factory=list)
     created: List[Dict[str, Any]] = dc_field(default_factory=list)   # created elements
     errors: List[str] = dc_field(default_factory=list)
@@ -172,7 +177,8 @@ class BuildResult:
             "verdict": self.verdict.as_json() if self.verdict is not None else None,
             "families": self.families, "load": self.load,
             "validation": self.validation, "circuits": self.circuits,
-            "status_gate": self.status_gate, "degradations": list(self.degradations),
+            "status_gate": self.status_gate, "project_info": self.project_info,
+            "degradations": list(self.degradations),
             "created": list(self.created), "errors": list(self.errors),
             "stages": list(self.stages), "seconds": self.seconds,
         }
@@ -452,7 +458,23 @@ def _build_intent_inner(model: FI.IntentModel, opts: BuildOptions, R,
 def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
          want_walls: bool, want_fams: bool, stages_dir: str) -> None:
     out_dir = opts.out_dir
-    base_path = opts.base.path
+    base_path = opts.base.path        # the pinned base: the P0 gate's reference
+
+    # ------------------------------------------------------------------
+    # P. the job's identity -> the base's ProjectInfo (one modify, first,
+    #    so every downstream file inherits it; issue #148)
+    # ------------------------------------------------------------------
+    p_out = os.path.join(stages_dir, "stage_P_identity.rvt")
+    with _timed_stage(res):
+        prec = PI.stage_project_info(base_path, p_out, PI.identity_from_intent(model))
+        res.stages.append(_slim_stage(prec))
+    res.project_info = {**prec, "in": _relp(base_path), "out": _relp(p_out)}
+    src_base = p_out if prec["ok"] else base_path     # what L / W grow on
+    if not prec["ok"]:
+        res.degradations.append("job identity NOT written into ProjectInfo: "
+                                + str(prec.get("blocker"))
+                                + " -> the output keeps the base's placeholder Project "
+                                  "Information (edit it in Revit: Manage > Project Information)")
 
     # ------------------------------------------------------------------
     # F. our generated FAMILIES (.rfa) -- standalone deliverables too
@@ -478,7 +500,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     loaded_file: Optional[str] = None
     if want_fams:
         with _timed_stage(res):
-            lrec = stage_load_batched(model, base_path, stages_dir, R,
+            lrec = stage_load_batched(model, src_base, stages_dir, R,
                                       symbol_solid=opts.symbol_solid)
             loaded = lrec.pop("_loaded", {}) or {}
             lrec.pop("_products", None)
@@ -501,7 +523,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
             else:
                 res.errors.append("no family could be loaded and there are no walls to build")
                 return
-        if loaded_file == base_path or not loaded:
+        if loaded_file == src_base or not loaded:
             loaded_file = None
 
     # ------------------------------------------------------------------
@@ -581,7 +603,7 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         # single / stamp-proof-only: one file, built in W -> E order
         current = None
         if want_walls:
-            src = loaded_file if have_fams else base_path
+            src = loaded_file if have_fams else src_base
             wtarget = (os.path.join(stages_dir, "stage_W_walls.rvt")
                        if (have_fams and "E" in opts.stages) else combined_path)
             with _timed_stage(res):
@@ -687,6 +709,13 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                 except Exception as e:                                   # noqa: BLE001
                     res.status_gate = {"status": f"PROOF-ONLY, NOT-DELIVERABLE (gate crashed: "
                                                  f"{type(e).__name__}: {e})", "deliverable": False}
+                # the Project Status written in stage P mirrors this gate's stamp;
+                # the day the gate says deliverable, that constant must follow it
+                written = (res.project_info.get("after") or {}).get("project_status")
+                if res.status_gate.get("deliverable") and written == PI.PROJECT_STATUS_PROOF_ONLY:
+                    res.degradations.append(
+                        f"ProjectInfo Project Status reads '{written}' but the P0 gate now says "
+                        "DELIVERABLE -- rvt.frontdoor.project_info's default is stale")
             res.stages.append({"stage": "V", "files": sorted(res.validation),
                                "gates": gate_seconds})
     elif not opts.validate:

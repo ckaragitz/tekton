@@ -280,6 +280,7 @@ def build_manifest(*, route: str, inputs: Dict[str, Any], base: ResolvedBase,
                           "reason": f.get("reason") or f.get("error")}
                          for f in ((build.get("families") or {}).get("families") or [])],
         "elements_created": created,
+        "project_info": build.get("project_info") or {},
         "degradations": build.get("degradations") or [],
         "circuits": build.get("circuits") or {},
         "validation": build.get("validation") or {},
@@ -517,6 +518,12 @@ def _render_md(m: Dict[str, Any]) -> str:
     n_wall = sum(1 for c in (build.get("elements_created") or []) if c.get("kind") == "wall")
     n_lf = sum(1 for c in (build.get("elements_created") or []) if c.get("kind") == "loaded-family")
     ap(f"- created: {n_wall} walls, {n_inst} equipment instances, {n_lf} loaded families")
+    pi = build.get("project_info") or {}
+    if pi.get("ok"):
+        ident = pi.get("after") or {}
+        ap(f"- project information (ProjectInfo {pi.get('elem_id')}): "
+           + ", ".join(f"{k}='{v}'" for k, v in ident.items() if v)
+           + " (the element's other fields blank)")
     for role, g in (build.get("validation") or {}).items():
         val = (g or {}).get("validate") or {}
         idg = (g or {}).get("identity") or {}
