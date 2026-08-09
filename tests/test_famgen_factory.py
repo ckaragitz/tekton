@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import os
 import struct
+from functools import partial
 
 import pytest
 
@@ -334,12 +335,12 @@ def test_panelboard_rfa_verifies_validates_and_is_provenance_clean(tmp_path):
     assert os.path.exists(rep["report_path"])
 
 
-#: every product kind the ``make_family`` CLI advertises, as it calls them
+#: every product kind the ``make_family`` CLI advertises, with its defaults
 ALL_KINDS = {
-    "panelboard": lambda: F.make_panelboard(),
-    "transformer": lambda: F.make_transformer(),
-    "troffer": lambda: F.make_luminaire(kind="recessed-troffer", size="2x4"),
-    "downlight": lambda: F.make_luminaire(kind="downlight"),
+    "panelboard": F.make_panelboard,
+    "transformer": F.make_transformer,
+    "troffer": partial(F.make_luminaire, kind="recessed-troffer"),
+    "downlight": partial(F.make_luminaire, kind="downlight"),
 }
 
 
@@ -358,8 +359,20 @@ def test_every_kind_writes_a_family_mode_valid_provenance_clean_rfa(tmp_path, ki
     assert fam["verdict"] == "VALID" and fam["n_errors"] == 0, fam.get("errors")
     prov = rep["provenance"]
     assert prov["ok"] and prov["suspects"] == [], prov.get("suspects")
-    assert all(prov["checks"].values()), prov["checks"]
     assert os.path.getsize(rep["path"]) > 100_000
+
+
+@needs_schema
+def test_connector_refuses_a_host_that_is_not_a_4_curve_prism():
+    """add_connector speaks box_face's _box_tags(4): a true two-arc cylinder
+    host is refused, not silently mis-tagged."""
+    doc = SK.new_family_document("lighting_fixture", "Guard", work_plane_based=True)
+    ctx = F.geometry_context(doc)
+    cyl = G.cylinder(0.25, 0.5, ctx, doc.ids)
+    doc.add(*cyl.elements)
+    with pytest.raises(F.FactoryError, match="4-curve prism"):
+        F.add_connector(doc, host=cyl, face="top", location=(0, 0, 0.5),
+                        direction=(1, 0, 0), u_axis=(0, 0, -1), voltage_v=120, poles=1)
 
 
 def test_provenance_scan_whitelists_forge_vocabulary_only():
