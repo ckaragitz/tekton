@@ -128,6 +128,9 @@ class TestBuiltProbes:
     def test_probe_files_exist_with_recorded_md5(self):
         import rft_probe as RP
         a = _load(ACCT)
+        if not any(os.path.isfile(os.path.join(ROOT, a["built"][n]["file"]))
+                   for n in BUILT_TODAY):
+            pytest.skip("probe binaries are git-ignored and absent (fresh clone)")
         for n in BUILT_TODAY:
             f = os.path.join(ROOT, a["built"][n]["file"])
             assert os.path.isfile(f), n
@@ -207,6 +210,9 @@ class TestStagedBatch:
     def test_staged_copies_byte_identical(self):
         import rft_probe as RP
         m = _rft_batches()[-1]
+        if not any(os.path.isfile(os.path.join(ROOT, e["staged_as"]))
+                   for e in m["entries"]):
+            pytest.skip("staged binaries are git-ignored and absent (fresh clone)")
         for e in m["entries"]:
             f = os.path.join(ROOT, e["staged_as"])
             assert os.path.isfile(f), e["staged_as"]
@@ -370,6 +376,11 @@ class TestToolHelpers:
         import rft_probe as RP
         monkeypatch.setattr(RP, "RFT_DIR", str(tmp_path / "none"))
         monkeypatch.setattr(RP, "BIRTH_JSON", str(tmp_path / "nope.json"))
+        # hermetic: T2a keys on the vendor .rfa being on disk (git-ignored
+        # quarantine dir) -- pin it present so the shape is machine-independent
+        rfa = tmp_path / "born.rfa"
+        rfa.write_bytes(b"r")
+        monkeypatch.setattr(RP, "VENDOR_RFA", str(rfa))
         out = RP.poll()
         assert out["buildable_now"] == ["TB0", "TB0r", "T0", "T2a"]
         assert len(out["waiting_on"]) == 2
@@ -383,6 +394,9 @@ class TestToolHelpers:
         bj.write_text(json.dumps({"class_histogram": {"Family": 1}}))
         monkeypatch.setattr(RP, "RFT_DIR", str(d))
         monkeypatch.setattr(RP, "BIRTH_JSON", str(bj))
+        rfa = tmp_path / "born.rfa"
+        rfa.write_bytes(b"r")
+        monkeypatch.setattr(RP, "VENDOR_RFA", str(rfa))
         out = RP.poll()
         assert set(out["buildable_now"]) == {"TB0", "TB0r", "T0", "T2a",
                                              "T2", "T1", "T3"}

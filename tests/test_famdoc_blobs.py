@@ -49,6 +49,14 @@ pytestmark = pytest.mark.skipif(
     not (os.path.isfile(ACCT) and os.path.isfile(PROBES)),
     reason="famdoc_blobs artifacts not built (run tools/famdoc_blobs.py build)")
 
+#: the manifests are tracked in git but the probe .rvt binaries live in
+#: git-ignored dirs -- a fresh clone has the JSONs and not the bytes, so
+#: binary-reading tests skip on the samples/ sentinel (KNOWLEDGE: tests
+#: self-skip when samples or built ladders are absent)
+needs_bins = pytest.mark.skipif(
+    not os.path.isfile(RST),
+    reason="samples/ not present (fresh clone) -- probe binaries unavailable")
+
 
 @pytest.fixture(scope="module")
 def acct():
@@ -123,6 +131,7 @@ def test_fixed_writer_paths_emit_the_footer():
 # every emitted probe: blob census + nonce, independently re-derived
 # ---------------------------------------------------------------------------
 
+@needs_bins
 @pytest.mark.parametrize("name", LADDER)
 def test_probe_every_unit_carries_64B_blob_and_added_nonce_matches(name, acct):
     from rvt.famgen.famdoc_adoc import build_footer
@@ -188,6 +197,7 @@ def test_b6_carries_the_donor_inline_adocument(acct):
 # probes.json: order, bases, decision table
 # ---------------------------------------------------------------------------
 
+@needs_bins
 def test_probes_json_order_and_bases(probes):
     rungs = [p["rung"] for p in probes["probes"]]
     assert rungs == list(LADDER), "reading order must be B7, B0, B1..B6"
@@ -243,6 +253,7 @@ staged = pytest.mark.skipif(_blobs_batch() is None,
 
 
 @staged
+@needs_bins
 def test_staged_batch_two_controls_and_md5s():
     n, man = _blobs_batch()
     assert man["control_count"] == 2

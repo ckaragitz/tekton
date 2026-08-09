@@ -22,6 +22,14 @@ import famdoc_bisect as FB  # noqa: E402
 
 OUT = os.path.join(ROOT, "experiments", "famdoc_bisect")
 
+#: every test rides the autouse schema install (needs the git-ignored
+#: G_ABPD compose) and the RST donor -- a fresh clone has neither, so the
+#: whole module self-skips (KNOWLEDGE: tests self-skip when samples or
+#: built ladders are absent)
+pytestmark = pytest.mark.skipif(
+    not (os.path.isfile(FB.RST) and os.path.isfile(FB.G_ABPD)),
+    reason="samples/ or experiments/genesis compose not present (fresh clone)")
+
 
 @pytest.fixture(scope="module", autouse=True)
 def _schema():

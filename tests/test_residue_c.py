@@ -160,6 +160,10 @@ def test_year_schedule_names_still_autodesks_in_parent():
 
 @needs_artifacts
 def test_rung_reports_valid_and_byte_delta_asserted():
+    rungs = ("RC_year", "RC_preview", "RC_hdr", "RC_area", "RC_deep")
+    if not any(os.path.exists(os.path.join(RESIDUE_DIR, f"{n}.rvt"))
+               for n in rungs):
+        pytest.skip("rung binaries are git-ignored and absent (fresh clone)")
     for name in ("RC_year", "RC_preview", "RC_hdr", "RC_area", "RC_deep"):
         p = os.path.join(RESIDUE_DIR, f"{name}.json")
         with open(p) as fh:

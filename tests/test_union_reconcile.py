@@ -270,6 +270,9 @@ class TestStaged:
     def test_staged_bytes_match(self):
         import hashlib
         man = _newest_unionrec_batch()
+        if not any(os.path.isfile(os.path.join(ROOT, e["staged_as"]))
+                   for e in man["entries"]):
+            pytest.skip("staged binaries are git-ignored and absent (fresh clone)")
         for e in man["entries"]:
             p = os.path.join(ROOT, e["staged_as"])
             assert os.path.isfile(p), e["staged_as"]

@@ -6,6 +6,7 @@ layout-delta classes the plan's table missed), (2) the field-map hooks,
 matches the 2025 corpus field shape, (4) the conductor catalog is refused
 honestly.  Sample-backed assertions skip cleanly off the dev machine.
 """
+import glob
 import os
 import sys
 
@@ -228,8 +229,10 @@ def test_adapted_shapes_match_2025_corpus():
 # ---------------------------------------------------------------------------
 SUBST_DIR = os.path.join(ROOT, "experiments", "genesis2025", "subst")
 PROBES = os.path.join(SUBST_DIR, "probes.json")
-needs_ladder = pytest.mark.skipif(not os.path.exists(PROBES),
-                                  reason="Y2025 ladder not staged here")
+needs_ladder = pytest.mark.skipif(
+    not (os.path.exists(PROBES) and glob.glob(os.path.join(SUBST_DIR, "*.rvt"))),
+    reason="Y2025 ladder not staged here (probes.json is tracked; the .rvt "
+           "binaries are git-ignored and absent on a fresh clone)")
 
 
 @needs_ladder

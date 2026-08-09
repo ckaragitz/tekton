@@ -398,14 +398,44 @@ def _repair_block(block: bytearray, syn_row: np.ndarray, geom_first: int,
     return n_corr, n_data, n_other, uncorrectable
 
 
+def _numpy_available() -> bool:
+    if "_np_ok" not in _NP_STATE:
+        try:
+            import numpy                                     # noqa: F401
+            _NP_STATE["_np_ok"] = True
+        except ImportError:
+            _NP_STATE["_np_ok"] = False
+    return _NP_STATE["_np_ok"]
+
+
+_NP_STATE: dict = {}
+
+
 def ecc_verify_stream(name: str, raw: bytes, rep: Report,
                       batch: int = 64) -> _EccStreamResult:
     """Syndrome-verify every CRCIO block of a framed stream and return the
-    ECC-repaired logical stream.  Emits ECC findings on ``rep``."""
+    ECC-repaired logical stream.  Emits ECC findings on ``rep``.
+
+    Without numpy (a bare zero-pip surface) the syndrome math cannot run:
+    the stream is unframed with the pure-python reader and ONE warning per
+    report says the ECC pages went unverified -- an unavailable checker is
+    an environment gap, not a file defect (the deliverable rule), and every
+    other structure check still runs on the logical bytes."""
     res = _EccStreamResult(b"")
     out = bytearray()
     n_full = len(raw) // ecc.PAGE_STRIDE
     where = f"{name}"
+
+    if not _numpy_available():
+        res.logical = ecc.unframe_stream(raw)
+        res.pages += n_full + (1 if raw[n_full * ecc.PAGE_STRIDE:] else 0)
+        if not getattr(rep, "_ecc_skip_warned", False):
+            rep._ecc_skip_warned = True
+            rep.warn(L_STRUCTURE, where,
+                     "ECC page verification SKIPPED: numpy not installed "
+                     "(pages unframed without syndrome checks; install numpy "
+                     "for full verification)")
+        return res
 
     # ---- full pages (fixed params, batched) --------------------------------
     if n_full:
@@ -604,13 +634,25 @@ class Validator:
     """Runs the layered checks over one .rvt file and fills a Report."""
 
     def __init__(self, path: str, layers: Iterable[str] = ALL_LAYERS,
-                 decode_limit: Optional[int] = None, strict: bool = False):
+                 decode_limit: Optional[int] = None, strict: bool = False,
+                 family: bool = False):
         self.path = path
         self.layers = tuple(l for l in ALL_LAYERS if l in set(layers))
         self.decode_limit = decode_limit
         # strict = the "circuit-ready" gate: one-way connector links (which
         # Autodesk's translator tolerates) become errors instead of warnings
         self.strict = strict
+        # family = the TWO family-shape adjustments (the long-recorded
+        # `rvt_validate --family` request): a family file carries PartAtom
+        # (plain unframed Atom XML) in place of ProjectInformation.  Every
+        # other check -- container, ECC, gzip, walker, schema decode, table
+        # decodes, reference integrity -- is identical in both modes.
+        self.family = bool(family)
+        self.required_streams = (tuple(s for s in REQUIRED_STREAMS
+                                       if s != "ProjectInformation")
+                                 if family else REQUIRED_STREAMS)
+        self.unframed_streams = (frozenset(set(UNFRAMED_STREAMS) | {"PartAtom"})
+                                 if family else UNFRAMED_STREAMS)
         self.rep = Report(path, layers=self.layers)
         self.ole: Optional[olefile.OleFileIO] = None
         self.names: List[str] = []
@@ -673,7 +715,7 @@ class Validator:
         rep = self.rep
         names = set(self.names)
         # -- inventory --------------------------------------------------------
-        for req in REQUIRED_STREAMS:
+        for req in self.required_streams:
             if req not in names:
                 rep.error(L_STRUCTURE, req, "expected stream is missing")
         if not self.partition_names():
@@ -686,7 +728,7 @@ class Validator:
         pages = 0
         for name in self.names:
             raw = self.raw(name)
-            if name in UNFRAMED_STREAMS:
+            if name in self.unframed_streams:
                 self.logical[name] = raw
                 continue
             res = ecc_verify_stream(name, raw, rep)
@@ -697,7 +739,7 @@ class Validator:
         # -- gzip members ---------------------------------------------------------
         n_members = 0
         for name in self.names:
-            if name in UNFRAMED_STREAMS or name.startswith("Partitions/"):
+            if name in self.unframed_streams or name.startswith("Partitions/"):
                 continue
             logical = self.logical[name]
             members = _gzip_members(logical)
@@ -857,7 +899,7 @@ class Validator:
             if name not in self.names:
                 return None
             raw = self.raw(name)
-            if name in UNFRAMED_STREAMS:
+            if name in self.unframed_streams:
                 self.logical[name] = raw
             else:
                 self.logical[name] = ecc_verify_stream(name, raw, self.rep).logical
@@ -1576,14 +1618,18 @@ def check_circuits(circuits: Iterable[Tuple[int, dict]],
 # ---------------------------------------------------------------------------
 
 def validate_file(path: str, layers: Iterable[str] = ALL_LAYERS,
-                  decode_limit: Optional[int] = None, strict: bool = False) -> Report:
+                  decode_limit: Optional[int] = None, strict: bool = False,
+                  family: bool = False) -> Report:
     """Validate a .rvt file and return the layered Report.
 
     ``strict=True`` is the "circuit-ready" gate: one-way connector links
     (tolerated by Autodesk's translator, so a WARNING by default) become
-    errors.  Everything else is identical in both modes.
+    errors.  ``family=True`` applies the TWO family-shape adjustments
+    (PartAtom unframed; ProjectInformation not required) for ``.rfa``/
+    ``.rft`` streams sets.  Everything else is identical in all modes.
     """
-    v = Validator(path, layers=layers, decode_limit=decode_limit, strict=strict)
+    v = Validator(path, layers=layers, decode_limit=decode_limit, strict=strict,
+                  family=family)
     try:
         return v.run()
     except _Abort:
@@ -1594,6 +1640,7 @@ def validate_file(path: str, layers: Iterable[str] = ALL_LAYERS,
 def main(argv=None) -> int:
     import argparse
     import json
+    import os
     import sys
 
     ap = argparse.ArgumentParser(prog="rvt_validate",
@@ -1607,14 +1654,25 @@ def main(argv=None) -> int:
     ap.add_argument("--strict", action="store_true",
                     help="circuit-ready gate: one-way connector links become errors "
                          "(default: warnings — Autodesk accepts such files)")
+    ap.add_argument("--family", dest="family", action="store_true", default=None,
+                    help="family mode: PartAtom unframed, ProjectInformation not "
+                         "required (auto-enabled for .rfa/.rft files)")
+    ap.add_argument("--project", dest="family", action="store_false",
+                    help="force project mode even for a .rfa/.rft extension")
     ap.add_argument("--quiet", action="store_true", help="only print the verdict line")
     a = ap.parse_args(argv)
     layers = [s.strip() for s in a.layers.split(",") if s.strip()]
     reports = []
     worst = 0
     for f in a.files:
+        fam = a.family
+        if fam is None:
+            fam = os.path.splitext(f)[1].lower() in (".rfa", ".rft")
+            if fam and not a.quiet:
+                print(f"[{os.path.basename(f)}] family mode auto-enabled by "
+                      "extension (force off with --project)")
         rep = validate_file(f, layers=layers, decode_limit=a.decode_limit,
-                            strict=a.strict)
+                            strict=a.strict, family=fam)
         reports.append(rep)
         if a.quiet:
             print(f"{'OK  ' if rep.ok else 'FAIL'} {f}  errors={len(rep.errors)} "

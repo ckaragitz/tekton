@@ -29,6 +29,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RFA_2026 = os.path.join(ROOT, "vendor", "phi-ag-rvt", "examples", "Autodesk",
                         "racbasicsamplefamily-2026.rfa")
 
+#: every test reads the quarantined rme sample (dev-only, git-ignored);
+#: a fresh clone self-skips (CLAUDE.md: tests self-skip without samples/)
+pytestmark = pytest.mark.skipif(
+    not os.path.isfile(os.path.join(ROOT, "samples", "rmebasicsampleproject.rvt")),
+    reason="samples/ not present (fresh clone)")
+
 
 @pytest.fixture(scope="module")
 def rme():

@@ -4903,12 +4903,14 @@
    "residue_a.py:1833",
    "residue_a.py:205",
    "residue_a.py:421",
+   "y2024_b.py:401",
    "y2025_b.py:416"
   ],
   "AreaMeasureElem": [
    "settings.py:179",
    "settings.py:2307",
    "settings.py:2591",
+   "y2024_b.py:763",
    "y2025_b.py:792"
   ],
   "AreaReportSettingsElem": [
@@ -4924,6 +4926,7 @@
    "residue_a2.py:1924",
    "residue_a2.py:2044",
    "residue_a2.py:2332",
+   "y2024_b.py:745",
    "y2025_b.py:774"
   ],
   "AreaSettingsElem": [
@@ -5003,6 +5006,7 @@
    "residue_a2.py:934",
    "residue_c.py:302",
    "residue_c.py:434",
+   "y2024_b.py:710",
    "y2025_b.py:739"
   ],
   "CableTraySettingsElem": [
@@ -5128,6 +5132,7 @@
    "settings.py:163",
    "settings.py:2006",
    "settings.py:2584",
+   "y2024_b.py:708",
    "y2025_b.py:737"
   ],
   "CurtaSystemFaceManager": [
@@ -5140,6 +5145,8 @@
    "residue_a.py:1782",
    "residue_a.py:191",
    "residue_a2.py:224",
+   "y2024_b.py:124",
+   "y2024_b.py:756",
    "y2025_b.py:142",
    "y2025_b.py:785"
   ],
@@ -5172,6 +5179,8 @@
    "residue_a2.py:172",
    "residue_a2.py:1978",
    "settings.py:237",
+   "y2024_b.py:732",
+   "y2024_b.py:735",
    "y2025_b.py:761",
    "y2025_b.py:764"
   ],
@@ -5209,6 +5218,7 @@
    "residue_a2.py:2382",
    "residue_a2.py:2400",
    "residue_a2.py:2402",
+   "y2024_b.py:709",
    "y2025_b.py:738"
   ],
   "DatumPlaneGeomStep": [
@@ -5399,6 +5409,7 @@
    "residue_a.py:2391",
    "residue_a.py:358",
    "residue_a2.py:223",
+   "y2024_b.py:717",
    "y2025_b.py:746"
   ],
   "FillGrid": [
@@ -5679,6 +5690,7 @@
    "residue_a.py:1782",
    "residue_a.py:197",
    "residue_a2.py:225",
+   "y2024_b.py:712",
    "y2025_b.py:741"
   ],
   "Level": [
@@ -5699,6 +5711,8 @@
    "residue_a.py:1782",
    "residue_a.py:195",
    "residue_a2.py:226",
+   "y2024_b.py:124",
+   "y2024_b.py:756",
    "y2025_b.py:142",
    "y2025_b.py:785"
   ],
@@ -5726,6 +5740,7 @@
    "residue_a.py:1669",
    "residue_a.py:200",
    "residue_a2.py:227",
+   "y2024_b.py:768",
    "y2025_b.py:797"
   ],
   "LoadCaseElem": [
@@ -6270,6 +6285,7 @@
    "residue_b.py:1916",
    "residue_b.py:2605",
    "residue_b.py:325",
+   "y2024_b.py:769",
    "y2025_b.py:798"
   ],
   "ReferencePoint": [
@@ -6315,6 +6331,8 @@
    "residue_b.py:2018",
    "residue_b.py:2660",
    "residue_b.py:333",
+   "y2024_b.py:124",
+   "y2024_b.py:756",
    "y2025_b.py:142",
    "y2025_b.py:785"
   ],
@@ -6336,6 +6354,7 @@
    "residue_a2.py:2402",
    "residue_b.py:149",
    "residue_b.py:343",
+   "y2024_b.py:707",
    "y2025_b.py:736"
   ],
   "RvtLinkInstanceAppearanceParentElem": [
@@ -6357,6 +6376,7 @@
    "residue_a2.py:2402",
    "residue_b.py:148",
    "residue_b.py:339",
+   "y2024_b.py:706",
    "y2025_b.py:735"
   ],
   "SSEPointVisibilitySettings": [
@@ -6422,6 +6442,7 @@
    "residue_b.py:329",
    "skeleton.py:1505",
    "skeleton.py:1508",
+   "y2024_b.py:756",
    "y2025_b.py:785"
   ],
   "SlaveSymbolTrackerElem": [

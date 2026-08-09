@@ -895,6 +895,9 @@ def test_probes_manifest_consistency():
     m = json.load(open(p))
     rungs = [x["rung"] for x in m["probes"]]
     assert rungs == ["S1", "S2", "S3", "S4", "S5"]
+    if not any(os.path.exists(os.path.join(ROOT, x["file"]))
+               for x in m["probes"]):
+        pytest.skip("probe binaries are git-ignored and absent (fresh clone)")
     for x in m["probes"]:
         assert x["tests_one_thing"] and x["PASS_means"] and x["FAIL_means"]
         if x["verdict"] == "VALID":
@@ -1130,6 +1133,9 @@ def test_v2_probes_manifest_consistency():
     m = json.load(open(p))
     names = [x["file"] for x in m["probes"]]
     assert any("X_pen" in n for n in names) and any("X_cat" in n for n in names)
+    if not any(os.path.exists(os.path.join(ROOT, x["file"]))
+               for x in m["probes"]):
+        pytest.skip("probe binaries are git-ignored and absent (fresh clone)")
     for x in m["probes"]:
         assert x["tests_one_thing"] and x["passing_sibling"]
         assert x["PASS_means"] and x["FAIL_means"]

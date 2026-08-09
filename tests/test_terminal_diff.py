@@ -184,6 +184,9 @@ def test_probes_json_shape_and_gates(probes):
     names = [p["name"] for p in probes["probes"]]
     assert names == td.ORDER == ["E_ALL", "E1", "E1b", "E3", "E6", "E4",
                                  "E5", "E2"]
+    if not any(os.path.isfile(os.path.join(ROOT, p["file"]))
+               for p in probes["probes"]):
+        pytest.skip("probe binaries are git-ignored and absent (fresh clone)")
     for p in probes["probes"]:
         path = os.path.join(ROOT, p["file"])
         assert os.path.isfile(path), p["file"]

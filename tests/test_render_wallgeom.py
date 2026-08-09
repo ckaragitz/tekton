@@ -329,6 +329,9 @@ def test_render_probes_manifest_is_consistent():
         m = json.load(fh)
     assert m["base"]["file"].endswith("ZA_deep.rvt")
     import hashlib
+    if not any(os.path.exists(os.path.join(ROOT, p["file"]))
+               for p in m["probes"]):
+        pytest.skip("probe binaries are git-ignored and absent (fresh clone)")
     for p in m["probes"]:
         path = os.path.join(ROOT, p["file"])
         assert os.path.exists(path), p["file"]

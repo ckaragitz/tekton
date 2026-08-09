@@ -1844,13 +1844,9 @@ def validate_family(path: str, *, layers=None) -> Dict[str, Any]:
     """
     from .. import validate as _v
     raw = _v.validate_file(path, layers=layers or _v.ALL_LAYERS)
-    saved_req, saved_unf = _v.REQUIRED_STREAMS, _v.UNFRAMED_STREAMS
-    try:
-        _v.REQUIRED_STREAMS = tuple(s for s in saved_req if s != "ProjectInformation")
-        _v.UNFRAMED_STREAMS = frozenset(set(saved_unf) | {"PartAtom"})
-        fam = _v.validate_file(path, layers=layers or _v.ALL_LAYERS)
-    finally:
-        _v.REQUIRED_STREAMS, _v.UNFRAMED_STREAMS = saved_req, saved_unf
+    # family mode is now a first-class validator parameter (the recorded
+    # `rvt_validate --family` request, landed) -- no global mutation
+    fam = _v.validate_file(path, layers=layers or _v.ALL_LAYERS, family=True)
 
     def summarize(rep) -> Dict[str, Any]:
         errs = [f for f in rep.findings if f.severity == _v.SEV_ERROR]

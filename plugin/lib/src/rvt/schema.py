@@ -508,7 +508,19 @@ def parse(data: bytes, source: str = "") -> Schema:
 
 
 def load_schema(path: str = DEFAULT_PATH) -> Schema:
-    """Load and fully parse the canonical Revit 2026 schema."""
+    """Load and fully parse the canonical Revit 2026 schema.
+
+    When the research corpus is not on this machine (fresh clone / cloud
+    session) the default-path call falls back to the sha-pinned bundled
+    genesis base's own embedded ``Formats/Latest`` -- the same bytes (the
+    per-release schema constant), resolved the way the shipped plugin
+    resolves them.  An explicit ``path`` is always honoured verbatim."""
+    if path == DEFAULT_PATH and not os.path.isfile(path):
+        try:
+            from .frontdoor.standalone import bundled_schema
+            return bundled_schema()
+        except Exception:                                    # noqa: BLE001
+            pass          # fall through to the original error naming the path
     with open(path, "rb") as fh:
         data = fh.read()
     return parse(data, source=path)
