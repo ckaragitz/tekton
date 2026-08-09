@@ -8,6 +8,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch: {}   # automerge re-arms CI on PR heads that ended up with zero check runs
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}

@@ -9,7 +9,9 @@ name: coord
 #
 #   claim         "/claim" comment = assign the commenter (for surfaces that cannot assign, e.g. a
 #                 cloud session's MCP tools without write, or a phone), or say who holds it;
-#                 "/release" unassigns. Serialized per issue.
+#                 "/release" unassigns; "/next" on ANY issue = assign the commenter the
+#                 highest-priority (P0 > P1 > rest), oldest, unassigned `ready` issue —
+#                 a session's "what should I work on" with zero human routing. Serialized per issue.
 #   single-holder however an assignment happens (UI, gh, MCP, /claim), a SECOND assignee is
 #                 removed again and told who holds the issue — unless a current holder added
 #                 them (pairing). This is the invariant; /claim is sugar.
@@ -25,7 +27,9 @@ name: coord
 #                 was deleted are reopened + retargeted (unless their commits ride in an open PR);
 #                 (b) any branch pushed >20 min ago, ahead of the default branch, with no PR in
 #                 any state gets a draft PR — or, if this repo does not let Actions open PRs, a
-#                 line on a tracking issue — so the work is visible.
+#                 line on a tracking issue — so the work is visible; (c) an issue held 72 h+
+#                 with no open PR closing it and no activity is unassigned back to the queue
+#                 (hardware-gated labels exempt) — abandoned claims heal without a human.
 #
 # Structural settings that make most of `sweep` unnecessary (repo admin, no token involved):
 #   * Settings -> General -> "Automatically delete head branches": GitHub then deletes merged
@@ -83,7 +87,8 @@ jobs:
   claim:
     if: >-
       github.event_name == 'issue_comment' && !github.event.issue.pull_request &&
-      (startsWith(github.event.comment.body, '/claim') || startsWith(github.event.comment.body, '/release'))
+      (startsWith(github.event.comment.body, '/claim') || startsWith(github.event.comment.body, '/release') ||
+       startsWith(github.event.comment.body, '/next'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
@@ -109,6 +114,29 @@ jobs:
             /release*)
               gh issue edit "$N" --repo "$REPO" --remove-assignee "$WHO" >/dev/null 2>&1 || true
               react "+1"; say "#$N released by $WHO"
+              ;;
+            /next*)
+              # Hand the commenter the top of the queue: highest priority (P0 > P1 > rest),
+              # oldest first, `ready`, unassigned. Two /next on different issues can race on
+              # the same pick; single-holder removes the loser, who just comments /next again.
+              pick=$(gh issue list --repo "$REPO" --state open --label ready --limit 200 --json number,labels,assignees \
+                | jq -r '[.[]|select((.assignees|length)==0)
+                          |{n:.number, p:(if any(.labels[];.name=="P0") then 0 elif any(.labels[];.name=="P1") then 1 else 2 end)}]
+                         |sort_by(.p,.n)|.[0].n // empty')
+              if [ -z "$pick" ]; then
+                react "confused"
+                reply "📭 @$WHO — no unassigned \`ready\` issues right now. Open one (title = the checkable DONE) and \`/claim\` it, or check the \`blocked\`/\`needs-viewer\` queues with your human."
+                say "/next by $WHO: queue empty"
+              elif gh issue edit "$pick" --repo "$REPO" --add-assignee "$WHO" >/dev/null 2>&1; then
+                react "+1"
+                [ "$pick" != "$N" ] && reply "🎯 @$WHO → you now hold #$pick (top of the \`ready\` queue). Details there."
+                gh issue comment "$pick" --repo "$REPO" --body "🔒 @$WHO holds #$pick (assigned via \`/next\`). Branch \`<you>/$pick-<slug>\` from \`$DEFAULT\`, push early, and open a **draft PR with \`Closes #$pick\`** after the first commit. \`/release\` if you drop it." >/dev/null
+                say "/next: #$pick -> $WHO"
+              else
+                react "confused"
+                reply "⚠️ @$WHO — could not assign you #$pick (are you a collaborator on this repo?)"
+                exit 1
+              fi
               ;;
             *)
               if [ -n "$held" ] && [[ ",$held," != *",$WHO,"* ]]; then
@@ -283,6 +311,9 @@ jobs:
       group: sweep
       cancel-in-progress: false
     steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: tools/dev
       - name: Retarget (or reopen) PRs stacked on a branch whose PR has merged
         shell: bash
         run: |
@@ -375,3 +406,35 @@ jobs:
             fi
           done < <(gh api "repos/$REPO/branches?per_page=100" --paginate --jq '.[].name')
           say "orphan sweep done: $opened draft PR(s) opened"
+      - name: Release stale claims back to the queue
+        if: github.event_name != 'pull_request'
+        env:
+          STALE_H: "72"
+        shell: bash
+        run: |
+          set -euo pipefail
+          eval "$COORD_LIB"
+          # An issue held for STALE_H+ hours with NO open PR closing it and no activity is a
+          # dead claim — the repo rule is "push early, draft PR after the first commit", so a
+          # live claim always has a visible PR long before 72 h. Hardware-gated issues
+          # (needs-viewer, needs-revit-desktop, owner-machine) are exempt: their holders
+          # legitimately wait on physical access. Without this, an abandoned claim needs a
+          # human to notice it; with it, the queue heals itself.
+          [ -f tools/dev/coord.py ] || { say "tools/dev/coord.py not on $DEFAULT yet — reaper skipped"; exit 0; }
+          cutoff=$(date -u -d "$STALE_H hours ago" +%Y-%m-%dT%H:%M:%SZ)
+          gh pr list --repo "$REPO" --state open --limit 100 --json number,author,body > prs.json
+          while read -r n updated who; do
+            [ -z "${n:-}" ] && continue
+            if [ -n "$(python3 tools/dev/coord.py rivals --issue "$n" --prs prs.json)" ]; then
+              say "#$n: held by $who, open PR closes it — live"; continue
+            fi
+            for u in ${who//,/ }; do gh issue edit "$n" --repo "$REPO" --remove-assignee "$u" >/dev/null 2>&1 || true; done
+            gh issue comment "$n" --repo "$REPO" --body "⏳ Released back to the queue: held by @${who//,/, @} for ${STALE_H}h+ with no open PR closing it and no activity, so the claim looks abandoned (laptop asleep, session ended). It is unassigned and \`ready\` again — anyone may \`/claim\` it, including the previous holder if the work is still live (and if so: push your branch and open the draft PR, that is what keeps a claim alive)." >/dev/null
+            say "#$n: released stale claim by $who"
+          done < <(gh issue list --repo "$REPO" --state open --limit 200 \
+                     --json number,updatedAt,assignees,labels \
+                   | jq -r --arg c "$cutoff" \
+                       '.[]|select((.assignees|length) > 0 and .updatedAt < $c)
+                           |select(([.labels[].name] | any(IN("needs-viewer","needs-revit-desktop","owner-machine"))) | not)
+                           |"\(.number) \(.updatedAt) \([.assignees[].login]|join(","))"')
+          say "stale-claim reaper done"

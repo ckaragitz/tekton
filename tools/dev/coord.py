@@ -19,6 +19,12 @@ The parts of the workflow that bash + jq do badly:
   rivals   Other PRs whose body closes a given issue, through the same parser.
              python tools/dev/coord.py rivals --issue 37 --prs prs.json  -> "number login" lines
 
+  reqfile  Parse a docs/requirements/*.md drop-box file for requirements.yml: optional
+           front matter (--- delimited, simple `key: value` lines only — no YAML dep)
+           with `title:`, `labels:` (comma-separated) and `auto:`; title falls back to
+           the first `# ` heading, then to the prettified filename.
+             python tools/dev/coord.py reqfile --path docs/requirements/foo.md  -> JSON
+
 issues.json / prs.json are `gh issue list --json number,title,state,assignees` and
 `gh pr list --json number,author,body` output.
 """
@@ -103,6 +109,44 @@ def rivals(issue: int, prs: list, self_number: int = 0) -> list:
             if int(p["number"]) != int(self_number or 0) and issue in refs(p.get("body") or "")["closing"]]
 
 
+def reqfile(text: str, path: str = "") -> dict:
+    """Parse a requirements drop-box markdown file.
+
+    Returns {'title', 'labels', 'auto', 'body'}. Front matter is the strict
+    subset every generator gets right: a leading `---` line, `key: value`
+    lines, a closing `---`. Unknown keys are ignored; a malformed block is
+    treated as body so a requirement never fails to file over formatting.
+    """
+    title, labels, auto = "", [], ""
+    body = text or ""
+    lines = body.split("\n")
+    if lines and lines[0].strip() == "---":
+        for end in range(1, len(lines)):
+            if lines[end].strip() == "---":
+                fm = {}
+                for ln in lines[1:end]:
+                    m = re.match(r"^\s*([A-Za-z_][\w-]*)\s*:\s*(.*?)\s*$", ln)
+                    if not m:
+                        fm = None
+                        break
+                    fm[m.group(1).lower()] = m.group(2)
+                if fm is not None:
+                    title = fm.get("title", "")
+                    labels = [t.strip() for t in fm.get("labels", "").split(",") if t.strip()]
+                    auto = fm.get("auto", "").strip().lower()
+                    body = "\n".join(lines[end + 1:])
+                break
+            if re.match(r"^\s*[A-Za-z_][\w-]*\s*:", lines[end]) is None:
+                break   # not front matter (e.g. a --- rule further down a plain document)
+    if not title:
+        m = re.search(r"^#\s+(.+?)\s*$", body, re.M)
+        title = m.group(1) if m else ""
+    if not title and path:
+        stem = re.sub(r"\.md$", "", path.replace("\\", "/").rsplit("/", 1)[-1])
+        title = re.sub(r"[-_]+", " ", stem).strip().capitalize()
+    return {"title": title.strip(), "labels": labels, "auto": auto, "body": body.strip()}
+
+
 def _fmt_hit(score, issue, shared) -> str:
     who = ", ".join("@" + a["login"] for a in (issue.get("assignees") or []) if a.get("login"))
     state = str(issue.get("state", "")).lower() or "?"
@@ -123,9 +167,15 @@ def main(argv=None) -> int:
     r.add_argument("--issue", type=int, required=True)
     r.add_argument("--self", type=int, default=0, help="number of the PR being checked (excluded)")
     r.add_argument("--prs", required=True, help="JSON file: gh pr list --json number,author,body")
+    q = sub.add_parser("reqfile", help="parse a docs/requirements/*.md file, print JSON {title, labels, auto, body}")
+    q.add_argument("--path", required=True)
     a = ap.parse_args(argv)
     if a.cmd == "refs":
         print(json.dumps(refs(sys.stdin.read())))
+        return 0
+    if a.cmd == "reqfile":
+        with open(a.path, encoding="utf-8") as fh:
+            print(json.dumps(reqfile(fh.read(), a.path)))
         return 0
     with open(a.issues if a.cmd == "similar" else a.prs, encoding="utf-8") as fh:
         data = json.load(fh)
