@@ -54,7 +54,8 @@ from .base import (BaseError, BaseNotCertified, ResolvedBase, PIN,
                    is_autodesk_sample, resolve_base, release_status)
 
 __all__ = [
-    "author", "run", "AuthorRequest", "AuthorResult", "FrontDoorError", "ROUTES",
+    "author", "run", "AuthorRequest", "AuthorResult", "FrontDoorError",
+    "InputReleaseRefused", "ROUTES",
     "BaseError", "BaseNotCertified", "ResolvedBase", "PIN", "resolve_base",
     "is_autodesk_sample", "release_status", "VERSION",
 ]
@@ -65,6 +66,17 @@ ROUTES = ("prompt", "ifc", "rvt")
 
 class FrontDoorError(RuntimeError):
     """A request the front door cannot honour (bad arguments / no input)."""
+
+
+class InputReleaseRefused(FrontDoorError):
+    """The ``--rvt`` INPUT is of an era / release tekton cannot read (issue
+    #176): nothing can be built from it, so the route stops with ONE line
+    (``str(exc)``; the CLI's usage-error exit 2, no traceback) after writing
+    the refusal manifest.  ``.result`` is that :class:`AuthorResult`."""
+
+    def __init__(self, line: str, result: "AuthorResult") -> None:
+        super().__init__(line)
+        self.result = result
 
 
 @dataclass
@@ -531,6 +543,14 @@ def _route_rvt(req: AuthorRequest, out_dir: str) -> AuthorResult:
         res.errors.append(f"--rvt file not found: {req.rvt}")
         res.status = "FAILED (rvt file not found)"
         return res
+    # the INPUT's era / release is classified on EVERY job before anything
+    # opens it (issue #176): a known release proceeds as before, a 2019+
+    # release tekton has never read proceeds stamped UNVERIFIED-RELEASE, and
+    # a pre-2019 / undetectable / non-Revit input is refused with one line
+    from .input_release import input_release_block
+    in_rel = input_release_block(rvt_path)
+    if in_rel["status"] == "refused":
+        return _refuse_rvt_input(req, out_dir, res, rvt_path, in_rel)
     # the edit runs under the INPUT file's own release (host release context,
     # issue #14): a Revit 2025/2024 project is opened, planned, edited and
     # verified with its release's framing + codecs; a native file enters no
@@ -538,11 +558,38 @@ def _route_rvt(req: AuthorRequest, out_dir: str) -> AuthorResult:
     from .release_ctx import enter_host_release
     with contextlib.ExitStack() as stack:
         ctx_note = enter_host_release(stack, rvt_path)
-        return _route_rvt_inner(req, out_dir, res, rvt_path, ctx_note)
+        if ctx_note and in_rel["status"] == "unverified":
+            # no authoring context exists for a release outside the roster:
+            # at least READ it under its own schema (the instruments' lenient
+            # ladder) so open / plan are schema-directed, never 2026-framed
+            from ..global_framing import enter_own_release
+            rung = enter_own_release(stack, rvt_path)
+            in_rel["read_ladder"] = rung or "own schema (framing by name + id width)"
+        return _route_rvt_inner(req, out_dir, res, rvt_path, ctx_note, in_rel)
+
+
+def _refuse_rvt_input(req: AuthorRequest, out_dir: str, res: AuthorResult,
+                      rvt_path: str, in_rel: Dict[str, Any]) -> AuthorResult:
+    """Write the refusal manifest for an unreadable-era input, then raise
+    :class:`InputReleaseRefused` (the ONE line; exit 2 at the CLI)."""
+    from . import manifest as MF
+    line = str(in_rel["line"])
+    manifest = MF.edit_manifest(
+        inputs={"rvt": rvt_path, "edit": req.edit},
+        base_note="no edit attempted: the input's release cannot be read (see input_release)",
+        out_dir=out_dir, edit_spec={"error": [line]}, run={}, errors=[line],
+        version=None, input_release=in_rel)
+    res.manifest = manifest
+    res.manifest_paths = MF.write_manifest(manifest, out_dir)
+    res.status = str(manifest.get("status"))
+    res.errors = [line]
+    res.ok = False
+    raise InputReleaseRefused(line, res)
 
 
 def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
-                     rvt_path: str, ctx_note: Optional[str]) -> AuthorResult:
+                     rvt_path: str, ctx_note: Optional[str],
+                     in_rel: Dict[str, Any]) -> AuthorResult:
     from . import edit as E
     from . import manifest as MF
 
@@ -591,7 +638,7 @@ def _route_rvt_inner(req: AuthorRequest, out_dir: str, res: AuthorResult,
         inputs=inputs, base_note=base_note, out_dir=out_dir,
         edit_spec=(spec.as_json() if spec is not None else {"error": errors[:1]}),
         run=run, editables_before=editables_before, errors=errors,
-        version=version_block)
+        version=version_block, input_release=in_rel)
     res.manifest = manifest
     res.manifest_paths = MF.write_manifest(manifest, out_dir)
     res.status = str(manifest.get("status"))

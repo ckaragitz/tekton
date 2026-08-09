@@ -324,7 +324,8 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
                   edit_spec: Dict[str, Any], run: Dict[str, Any],
                   editables_before: Optional[Dict[str, Any]] = None,
                   errors: Optional[List[str]] = None,
-                  version: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+                  version: Optional[Dict[str, Any]] = None,
+                  input_release: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     job = run.get("job_manifest") or {}
     out_rvt = run.get("out_rvt")
     gates = job.get("gates") or {}
@@ -376,6 +377,18 @@ def edit_manifest(*, inputs: Dict[str, Any], base_note: str, out_dir: str,
         m["target_version"] = dict(version)
     if m["errors"] or (run.get("rc") not in (0, None) and not job):
         m["status"] = "FAILED (edit did not complete: rc %s)" % (run.get("rc"),)
+    # the INPUT's era / release, classified before anything opened it (#176):
+    # a refused input names its one line as the status; an unverified release
+    # stamps both the honesty block and the status; a known one just rides
+    if input_release:
+        m["input_release"] = dict(input_release)
+        st = input_release.get("status")
+        if st == "refused":
+            m["status"] = str(input_release.get("line"))
+        elif st == "unverified":
+            stamp = str(input_release.get("stamp"))
+            m["honesty"]["proof_only_stamps"].append(stamp)
+            m["status"] = f"{m['status']}; {stamp.split(':', 1)[0]} (input Revit {input_release.get('year')})"
     return m
 
 
@@ -418,6 +431,15 @@ def _render_md(m: Dict[str, Any]) -> str:
                f"(lineage {bs.get('id')}; docs/writer/genesis-2025-plan.md)")
         if tv.get("note"):
             ap(f"- {tv.get('note')}")
+    ir = m.get("input_release") or {}
+    if ir:
+        ap("")
+        ap("## Input release")
+        ap(f"- Revit {ir.get('year')} · BasicFileInfo era {ir.get('era')} · **{ir.get('status')}**"
+           + (f" (year from {ir.get('year_source')})" if ir.get("year_source") else ""))
+        for key in ("line", "stamp", "note", "read_ladder"):
+            if ir.get(key):
+                ap(f"- {'**' + ir[key] + '**' if key in ('line', 'stamp') else ir[key]}")
     ap("")
     inp = m.get("inputs") or {}
     ap("## Input")
