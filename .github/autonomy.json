@@ -19,6 +19,7 @@
   "pipeline": {
     "quiet_minutes": 90,
     "max_fix_attempts": 3,
+    "fix_grace_minutes": 15,
     "review_wait_minutes": 20,
     "review_stuck_minutes": 240,
     "stale_draft_days": 5,
