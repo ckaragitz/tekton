@@ -138,6 +138,35 @@ def test_family_viewer_bound_law(fi):
     assert seen == 2, seen
 
 
+def test_units_table_covers_every_param_spec(fi):
+    """The family-units law (#333, round 16-17): the Family Types dialog
+    formats every parameter value through UnitsElem.m_units, so every
+    unit-bearing spec a ParamElemFamily declares MUST have a format entry
+    (a miss threw at ADialog::doModal).  Unitless base specs (string,
+    int64, bool) are exempt -- they carry no format."""
+    recs = fi.unit_records(0).get(102, {})
+    specs = None
+    for eid, r in recs.items():
+        if fi.class_name(r.class_id) == "UnitsElem":
+            fmt = ((fi.value(0, eid, 102).get("m_units") or {})
+                   .get("m_formatOptionsMap") or [])
+            specs = {p["first"]["m_typeId"] for p in fmt}
+            break
+    assert specs, "no UnitsElem format table"
+    assert len(specs) >= 130, f"units table too small: {len(specs)}"
+    unitless = ("autodesk.spec:spec.string", "autodesk.spec:spec.int64",
+                "autodesk.spec:spec.bool")
+    missing = []
+    for eid, r in sorted(recs.items()):
+        if fi.class_name(r.class_id) != "ParamElemFamily":
+            continue
+        pd = (fi.value(0, eid, 102).get("m_pParamDef") or {}).get("value") or {}
+        sp = (pd.get("m_specTypeId") or {}).get("m_typeId")
+        if sp and not sp.startswith(unitless) and sp not in specs:
+            missing.append((pd.get("m_caption"), sp))
+    assert not missing, f"param specs missing from units table: {missing}"
+
+
 def test_walked_binds_stay_self_contained(rfa):
     """The viewer-certified self-contained-binds law (T2a): curve/solid rep
     style binds are member GStyleElem ids or -1, never foreign ids -- the

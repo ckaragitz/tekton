@@ -114,7 +114,7 @@ PANEL_CONTRACT_PARAMS = (
 SPEC = {
     "length": SK.SPEC_LENGTH,                                    # V
     "text": SK.SPEC_TEXT,                                        # published id
-    "number": "autodesk.spec.aec:number-1.0.1",                  # corpus
+    "number": SK.SPEC_NUMBER,                                    # number-1.0.0 (Revit-2026 registry + donor units table; #333 round 17)
     "integer": "autodesk.spec:spec.int64-1.0.0",                  # INFERRED
     "voltage": SK.SPEC_VOLTAGE,                                  # V
     "current": "autodesk.spec.aec.electrical:current-1.0.0",     # corpus

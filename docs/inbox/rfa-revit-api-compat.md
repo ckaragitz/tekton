@@ -395,3 +395,29 @@ Ladder so far: viewer law (convicted round 15) → dimension-style law
 (holds round 16) → units law (probe O pending).  Each round's crash has
 been strictly LATER in the user journey: open → click → pan → select →
 Family Types dialog.
+
+## Iteration 9 — the PARAM-SPEC/UNITS COHERENCE fix (round 17)
+
+**Round 17 verdict (journal 0027, probe O):** Family Types still crashed at
+`ADialog::doModal` (0xe06d7363) even with the full 136-spec units table.
+
+**Root cause (instrumented):** our `ShortCircuitRatingkA` param declared
+spec `autodesk.spec.aec:number-1.0.1`, but Revit 2026's registry AND the
+donor units table both use `number-1.0.0`.  `factory.py`'s SPEC map had
+`number-1.0.1` (labelled "corpus") while `skeleton.py` already defined the
+correct `SPEC_NUMBER = number-1.0.0` -- an internal disagreement.  The
+dialog formats every param value; the `-1.0.1` lookup missed the table and
+threw.
+
+**Fix:** `factory.py` SPEC["number"] now points at `SK.SPEC_NUMBER`
+(`number-1.0.0`).  Every unit-bearing param spec our families declare now
+resolves against the units table (verified: 0 missing).  Guarded forever by
+`test_units_table_covers_every_param_spec` (asserts every non-unitless
+ParamElemFamily spec has a format entry).
+
+**Probe P** (`probe_p_numberspec.rfa`) with the owner; validator VALID 0
+errors; famgen+ifc suites 104 passed / 31 skipped.
+
+Ladder: viewer law (round 15) → dimension-style law (round 16) → units
+table (round 16) → param-spec/units coherence (round 17).  If Family Types
+opens on P, the next frontiers are value-edit and Save-As.
