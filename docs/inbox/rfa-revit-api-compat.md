@@ -153,6 +153,53 @@ verdicts in the ledger.  I can STAGE batches from a session but must stop at
 READY — the upload is the orchestrating human's step.  APS / Design
 Automation stays off the table (decided twice; hard rule 7).
 
+## Iteration 3 — issue #52: the desktop-Revit crash, root-caused and fixed
+
+**The first desktop-Revit verdict on the bare-.rfa surface** (owner, Revit
+2026): File>Open AND Insert>Load Family both terminate with the generic
+unrecoverable-error dialog.  The journal names it: `Cannot get
+AutoCamSettingsElem from the ADoccument!` (DBG_WARN), then **`Assertion
+failed: EditModeMgr.cpp:333`** on view activation → 0xe06d7363 →
+termination.
+
+**Root cause (measured):** the crashed `.rfa`'s host ADocument populated
+AppInfo slot set was IDENTICAL to the bundled PROJECT base's — 241 slots,
+180 populated, exact set match.  `standalone_family_write` passes the
+bundled genesis base (a project) as `emit_family_rfa_v2`'s ADocument
+archetype donor; `family_template_tree` faithfully templated a
+project-shaped registry set into a family container.  The family editor
+reads project furniture where family-editor state belongs and asserts.
+Dev builds never showed it (default donor = the Revit-born vendor `.rfa`);
+certification never caught it (every certified family win is a
+load-into-project where OUR loader authors the embedded famdoc — the
+`.rfa`'s own host ADocument is only read on desktop open/load).
+
+**Fix (Track A):** `emit_family_rfa_v2` now discriminates the donor
+(`container_is_family`: PartAtom stream).  A project donor no longer
+templates the ADocument; instead `constructive_family_host_tree` builds
+the famdoc tree from the SCHEMA ALONE — the verified
+`factory.author_embedded_adocument` construction (the L1a-certified
+lineage: 239-slot all-null AppInfoManager) lifted to host form (inline
+ElemTable/History dropped; authorship set by the normal step 5).  The
+existing purge/repopulate/gates pipeline runs unchanged over it.
+Measured on the emitted candidate: 239 slots / 0 populated, host tables
+None, owner family ours, product build stamp, ADocument payload 1,333 B
+(was ~78 KB of project registries), decodes clean, round-trips, all
+instruments green.  Family-container donors (dev machine,
+$RVT_FAMILY_DONOR) keep the archetype path byte-for-byte.
+
+**Fix (Track B, honesty):** `standalone_family_write` reports now carry
+`adocument_archetype` + an explicit `caveats` entry when the constructive
+path is used; the skill preflight says the same out loud.  Deliverable
+rule kept: always deliver, caveat spoken.
+
+**Evidence:** famgen/famdoc/frontdoor/analyze suites 108 passed; bare
+unzip + system python `go author` exit 0 with famdoc-shaped (239/0)
+ADocuments in the emitted `.rfa`s; full suite 1067 passed / 0 failed.
+**Desktop acceptance of the all-null-registry shape is the open
+verification** — the owner re-tests in Revit 2026 (minutes, journal on
+failure); issue #52 stays open until that verdict.
+
 ## BRANCH STATE
 
 * Branch `claude/rfa-revit-api-compat-izqaum`; all work committed and

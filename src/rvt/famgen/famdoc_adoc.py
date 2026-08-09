@@ -859,6 +859,40 @@ def _appinfo_bodies(value: dict) -> List[Tuple[str, dict]]:
     return out
 
 
+def container_is_family(path: str) -> bool:
+    """True when ``path`` is a FAMILY container (carries a ``PartAtom``
+    stream) -- the discriminator between a lawful ADocument archetype for
+    family authoring and a PROJECT container (whose registry set Revit's
+    family editor terminates on: EditModeMgr assertion, issue #52)."""
+    from ..container import open_rvt
+    try:
+        with open_rvt(path) as f:
+            return any(s.name == "PartAtom" for s in f.streams())
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def constructive_family_host_tree(doc) -> dict:
+    """HOST-form family-document ADocument built from the SCHEMA ALONE --
+    no archetype file read.  The verified constructive embedded tree
+    (``factory.author_embedded_adocument``, the L1a-certified lineage)
+    lifted to host stream form: the inline ElemTable / DocumentHistory
+    dropped (a standalone container carries them as separate Global
+    streams); authorship fields (owner family, stored-by build) are set by
+    ``author_family_adocument`` step 5 as for any archetype.
+
+    This is the archetype the bundled standalone surface uses (its only
+    bundled container is a PROJECT base -- templating from that ships a
+    project-shaped registry set; desktop Revit 2026 terminates on it in
+    both File>Open and Insert>Load Family, issue #52)."""
+    from . import factory as F
+    emb = F.author_embedded_adocument(doc)
+    tree = copy.deepcopy(emb["value"])
+    tree["m_elemTable"] = None       # lives in Global/ElemTable
+    tree["m_pHistory"] = None        # lives in Global/History
+    return tree
+
+
 def author_family_adocument(source, *, mode: str = "candidate",
                             donor: str = TEMPLATE_DONOR,
                             source_tree: Optional[dict] = None,
@@ -1494,7 +1528,22 @@ def emit_family_rfa_v2(doc, path: str, *, mode: str = "candidate",
         doc.finalize()
     ts = int(timestamp if timestamp is not None else time.time())
     # -- OUR document object -----------------------------------------------------
-    ad = author_family_adocument(doc, mode=mode, donor=donor)
+    donor_is_family = container_is_family(donor)
+    if donor_is_family:
+        ad = author_family_adocument(doc, mode=mode, donor=donor)
+        ad["report"]["archetype"] = f"family container archetype: {donor}"
+    else:
+        # the donor is a PROJECT container (the bundled standalone surface's
+        # only container): templating the ADocument from it ships a
+        # project-shaped registry set that desktop Revit's family editor
+        # terminates on (EditModeMgr.cpp:333 assertion -- issue #52).
+        # Author from the schema-constructed famdoc tree instead (the
+        # L1a-certified embedded lineage, host form).
+        ad = author_family_adocument(
+            doc, mode=mode, source_tree=constructive_family_host_tree(doc))
+        ad["report"]["archetype"] = (
+            "CONSTRUCTIVE famdoc tree (schema-built; donor container is a "
+            "project, unusable as a family-document archetype -- issue #52)")
     latest_payload = ad["payload"]
     latest_logical = A.latest_logical_stream(latest_payload, level=3)
     # -- OUR partition save unit + footer + end record ---------------------------
