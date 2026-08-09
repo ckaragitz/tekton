@@ -115,7 +115,10 @@ jobs:
             local why="$1" attempts t_verdict t_attempt last quiet key
             attempts=$(awk 'index($0,"<!-- claude-autofix reset -->"){n=0} /<!-- claude-autofix attempt=[0-9]+ -->/{n++} END{print n+0}' <<<"$cbodies")
             [ "$attempts" -ge "$MAX_FIX" ] && { say "#$pr: fix budget spent ($attempts/$MAX_FIX) — the fix/review jobs park it bot-stuck"; return 0; }
-            t_verdict=$(grep -E -- "<!-- claude-review: changes sha=[0-9a-f]{12,40} -->" <<<"$cbodies" | awk -v s="$sha" '{ n=split($0, parts, "sha="); split(parts[n], kv, " "); if (index(s, kv[1]) == 1) t = $1 } END { print t }' || true)
+            # newest `changes` marker whose sha is a prefix of the head: isolate the marker text first (grep -o), then
+            # fetch that marker's comment line for its timestamp — prose containing another "sha=" cannot confuse it.
+            m_verdict=$(grep -oE "<!-- claude-review: changes sha=[0-9a-f]{12,40} -->" <<<"$cbodies" | awk -v s="$sha" '{ split($4, kv, "="); if (index(s, kv[2]) == 1) v = $0 } END { print v }' || true)
+            t_verdict=""; [ -n "$m_verdict" ] && t_verdict=$(grep -F -- "$m_verdict" <<<"$cbodies" | tail -1 | cut -d' ' -f1 || true)
             t_attempt=$(grep -E -- "<!-- claude-autofix attempt=[0-9]+ -->" <<<"$cbodies" | tail -1 | cut -d' ' -f1 || true)
             last=$(newest "$t_head" "$t_red" "$t_verdict" "$t_attempt")
             quiet=$(age_min "$last")
