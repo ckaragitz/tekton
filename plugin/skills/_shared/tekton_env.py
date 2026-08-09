@@ -448,20 +448,58 @@ def _resolve_go_target(argv: list[str], base_dir: str | None) -> tuple[str, list
     return script, args
 
 
+_REVIT_EXTS = (".rvt", ".rfa", ".rte", ".rft")
+
+
+def _input_releases(argv: list[str]) -> list[dict]:
+    """The Revit release of every EXISTING .rvt/.rfa named on the command
+    line, auto-detected from the file's own BasicFileInfo (a few ms each) --
+    so `go rvt_edit.py ...` / `go author --rvt ...` state "this input is
+    Revit N; the output stays N and opens in N and newer" in the SAME JSON,
+    with no follow-up call (issue #24).  Never blocks: any failure is a
+    stated null."""
+    out: list[dict] = []
+    seen: set[str] = set()
+    for tok in argv:
+        if not (isinstance(tok, str) and tok.lower().endswith(_REVIT_EXTS)):
+            continue
+        p = os.path.abspath(tok)
+        if p in seen or not os.path.isfile(p):
+            continue
+        seen.add(p)
+        rel = None
+        try:
+            from rvt import versions as _V               # ~25 ms; rvt.frontdoor would be +300 ms
+            rel = _V.detect_release(p)                   # BasicFileInfo only, ~1 ms
+        except Exception:                                        # noqa: BLE001
+            pass
+        # same wording as rvt.frontdoor.target_status.opens_in (not imported: hot path)
+        opens = f"Revit {rel} and newer -- never an older Revit" if rel else None
+        out.append({"path": p, "revit_release": rel, "opens_in": opens,
+                    "note": ("edits/extractions keep this release; nothing is up- or "
+                             "down-graded" if rel else
+                             "release not determinable from BasicFileInfo")})
+    return out
+
+
 def go(argv: list[str], base_dir: str | None = None) -> int:
     """THE ONE-CALL SKILL FLOW: inline preflight, then the job, then ONE
     combined JSON object on stdout -- so a skill session spends exactly ONE
     Bash round-trip instead of preflight-call + job-call.
 
-        _bootstrap.py go author --prompt "..." --out out/job1 --json
-        _bootstrap.py go author --ifc design.ifc --out out/job2
+        _bootstrap.py go author --prompt "..." --target-version 2025 --out out/job1 --json
+        _bootstrap.py go author --ifc design.ifc --target-version 2024 --out out/job2
         _bootstrap.py go rvt_edit.py set-level in.rvt --json
 
     stdout is exactly one JSON object: ``{"go": {ready, preflight_line,
-    preflight_seconds, job_seconds, exit_code, ...}, "result": <the job's
-    own --json result (or null; raw stdout tail rides in go.stdout when the
-    job printed non-JSON)}``.  Exit code: the job's own exit code; 3 when
-    preflight said NOT READY (the job is never attempted); 2 usage."""
+    preflight_seconds, job_seconds, exit_code, inputs?, ...}, "result": <the
+    job's own --json result (or null; raw stdout tail rides in go.stdout
+    when the job printed non-JSON)}``.  ``go.inputs`` lists the auto-
+    detected Revit release of every .rvt/.rfa named in the args; the front
+    door's ``result.release`` block carries the requested/output release,
+    what opens it, the per-release honest status and any line to relay
+    verbatim.  Exit code: the job's own exit code; 3 when preflight said
+    NOT READY (the job is never attempted); 2 usage."""
     import io
     from contextlib import redirect_stdout
 
@@ -479,6 +517,9 @@ def go(argv: list[str], base_dir: str | None = None) -> int:
         print(json.dumps(out, indent=1, default=str))
         return 3
     script, args = _resolve_go_target(argv, base_dir)
+    inputs = _input_releases(args)
+    if inputs:
+        out["go"]["inputs"] = inputs
     buf = io.StringIO()
     code = 0
     t1 = time.time()
