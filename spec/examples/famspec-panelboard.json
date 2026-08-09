@@ -1,0 +1,12 @@
+{
+  "kind": "panelboard",
+  "vendor": "eaton",
+  "line": "pow-r-line",
+  "mains_a": 225,
+  "spaces": 42,
+  "voltage": "208Y/120",
+  "mcb": true,
+  "mounting": "surface",
+  "panel_name": "LP-1",
+  "neutral_rating": "100%"
+}

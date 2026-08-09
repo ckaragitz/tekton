@@ -41,6 +41,7 @@ import traceback
 from dataclasses import dataclass, field as dc_field
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+from . import famspec as FS
 from . import matrix as MX
 from .base import repo_root
 
@@ -76,6 +77,10 @@ class RouteResult:
     # base_and_version / the author manifest): requested / status / output_
     # release / line ... -- ONE shape for the rvt and the rfa routes alike
     target_version: Optional[Dict[str, Any]] = None
+    # _target_base's per-route memo {target: (base, block)}: a route that
+    # resolves the same --target-version twice (emit, then load host) gets
+    # the SAME block, its errors and its line stated once (not serialised)
+    _bases: Dict[Any, Any] = dc_field(default_factory=dict, repr=False, compare=False)
 
     def release_view(self) -> Optional[Dict[str, Any]]:
         """The compact relay-as-is ``release`` block (same shape as the front
@@ -280,14 +285,18 @@ def _target_base(res: RouteResult, opts: Dict[str, Any], label: str):
     version block on ``res``.  Returns ``(base | None, version_block)``; the
     resolver's errors ride in ``res.errors``.  Shared by every family route
     that needs a base: the load host here, the emit release in
-    :func:`_emit_at_target`."""
+    :func:`_emit_at_target`; memoised per route (``res._bases``) so a route
+    doing both resolves -- and states -- the block once."""
     from . import AuthorRequest, _resolve_base_and_version
     target = opts.get("target_version")
+    if target in res._bases:
+        return res._bases[target]
     base, vb, errors = _resolve_base_and_version(
         AuthorRequest(prompt=f"({label})", base=opts.get("base"),
                       target_version=None if target is None else int(target)))
     res.target_version = vb
     res.errors.extend(errors)
+    res._bases[target] = (base, vb)
     return base, vb
 
 
@@ -307,7 +316,7 @@ def _resolve_host(res: RouteResult, host: Optional[str], *, verb: str,
             res.caveats.append(f"--target-version {target} ignored for the LOAD: the "
                                "family goes INTO your --rvt, whose own release rules")
         return host
-    n_err = len(res.errors)
+    n_err, restated = len(res.errors), target in res._bases
     base, vb = _target_base(res, opts, "family load")
     if base is None:
         reason = "; ".join(res.errors[n_err:]) or str(vb.get("note"))
@@ -317,7 +326,7 @@ def _resolve_host(res: RouteResult, host: Optional[str], *, verb: str,
                     "<your.rvt>, or restore the pinned genesis base "
                     "(rvt/frontdoor/assets/genesis_base.json / $RVT_GENESIS_BASE).")
         return None
-    if target is not None and vb.get("status") != "match":
+    if target is not None and vb.get("status") != "match" and not restated:
         res.caveats.append(f"target {target} requested: {vb.get('line') or vb.get('note')}")
     rel = vb.get("output_release")
     res.caveats.append(f"no host .rvt supplied: {verb}ed into the certified Revit {rel} "
@@ -864,11 +873,27 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
         vb.update({"output_release": native,
                    "line": (f"{vb.get('note')}; the family .rfa are delivered at "
                             f"Revit {native} (open in {TS.opens_in(native)})")})
-    if vb.get("line"):
-        res.caveats.append(str(vb["line"]))
     _emit_ifc_addition(vb, res, out_dir, _slug(opts.get("stem") or "prompt_intent"),
                        model=model, source_ifc=source_ifc, errors=res.errors)
+    _settle_ifc_clause(vb)
+    if vb.get("line"):
+        res.caveats.append(str(vb["line"]))
     return emit()
+
+
+def _settle_ifc_clause(vb: Dict[str, Any]) -> None:
+    """The fallback line (the resolver's, or the degrade branch above)
+    promises 'the IFC alongside'; keep that promise only when
+    ``_emit_ifc_addition`` actually wrote one.  A family request with no room
+    intent and no source IFC (a famspec) has nothing to emit as IFC -- say
+    so instead (follow-up: the resolver should add the clause only when an
+    IFC is written, rvt.frontdoor._resolve_base_and_version)."""
+    if vb.get("status") != "fallback" or vb.get("ifc_addition"):
+        return
+    line = re.sub(r";?\s*the IFC alongside is version-agnostic[^;]*", "",
+                  str(vb.get("line") or "")).rstrip(" ;")
+    vb["line"] = (line + "; no IFC rides beside a FAMILY request (it resolves no room "
+                         "intent) -- state the recipient's Revit year and re-run")
 
 
 def _families_from_model(res: RouteResult, model, out_dir: str, opts: Dict[str, Any],
@@ -988,13 +1013,16 @@ def _r_ifc_family_load(res, inputs, out_dir, opts):
                  host=inputs.get("rvt"),
                  builder=lambda start_id=100000: FFI.make_downlight(
                      ifc_path=inputs["ifc"], start_id=start_id).doc,
-                 name=_slug(getattr(prod.doc, "name", "downlight")))
+                 name=_slug(getattr(prod.doc, "name", "downlight")),
+                 category=int(prod.doc.category_id))
 
 
 def _load_family(res: RouteResult, out_dir: str, opts: Dict[str, Any], *,
-                 host: Optional[str], builder, name: str) -> None:
+                 host: Optional[str], builder, name: str, category: int) -> None:
     """The certified four-registry LOAD (rvt.famload via
-    famfrom_ifc.load_into_project)."""
+    famfrom_ifc.load_into_project); ``category`` = the family document's
+    own OST category id, declared up front so the host survey can bind its
+    category style row as a core id."""
     from ..ifc import famfrom_ifc as FFI
     steps = _Steps(res)
     host_rvt = _resolve_host(res, host, verb="load", opts=opts)
@@ -1008,8 +1036,8 @@ def _load_family(res: RouteResult, out_dir: str, opts: Dict[str, Any], *,
     out_rvt = os.path.join(out_dir, f"{name}_loaded.rvt")
     rep = steps.run("rfa-load", "rvt.ifc.famfrom_ifc:load_into_project "
                                 "(rvt.famload four-registry)",
-                    lambda: FFI.load_into_project(host_rvt, out_rvt,
-                                                  builder=builder, name=name))
+                    lambda: FFI.load_into_project(host_rvt, out_rvt, builder=builder,
+                                                  name=name, core_categories=(category,)))
     res.files["loaded_rvt"] = out_rvt
     rep_json = os.path.join(out_dir, f"{name}_load-report.json")
     with open(rep_json, "w") as fh:
@@ -1023,14 +1051,23 @@ def _load_family(res: RouteResult, out_dir: str, opts: Dict[str, Any], *,
                   f"FAILED (load: {rep.stop_reason or rep.error or 'see report'})")
 
 
-_FAMSPEC_KINDS = ("downlight",)
+_FAMSPEC_KINDS = FS.KINDS          # panelboard / transformer / luminaire / downlight
+
+#: the honest label every famspec-generated deliverable carries (rule 1: a
+#: label after delivery, never a refusal): validator + provenance gates ran,
+#: Autodesk's reader has not seen THIS artifact (rule 4)
+FAMSPEC_STAMP = ("PROOF-ONLY: generated family from a famspec -- family-mode validator "
+                 "+ provenance gated, not viewer-certified as this artifact; "
+                 "NOT-DELIVERABLE until TRACKER gates G2/G3 clear")
+
 
 def _rfa_lanes_line() -> str:
     """THE one clear line's tail when a .rfa cannot be loaded: what the cell
     reads, what it refuses by name (one home: rvt.convert.rfa_load), and the
     closest supported routes."""
     from ..convert.rfa_load import REFUSED_BY_NAME
-    return ("What this cell reads: a famspec JSON ({'kind': 'downlight'}), a .rfa "
+    return ("What this cell reads: a famspec JSON ({'kind': 'panelboard' | 'transformer' "
+            "| 'luminaire' | 'downlight', ...} -- spec/famspec.schema.json), a .rfa "
             "tekton EXTRACTED from a loaded project (reloaded verbatim), or any "
             "STANDALONE-BORN .rfa -- our own .rfa deliverables and Revit-saved family "
             "files whose ElemTable our codec parses (schema-typed id remap + "
@@ -1128,37 +1165,146 @@ def _reload_rfa(res: RouteResult, rfa_path: str, out_dir: str, opts: Dict[str, A
         res.status = f"FAILED (reload: {rec.get('stop_reason') or 'no output written'})"
 
 
+def _famspec_request(res: RouteResult, famspec: Dict[str, Any], opts: Dict[str, Any],
+                     *, cell: str) -> Optional[Tuple[str, Dict[str, Any]]]:
+    """Validate + normalise a famspec (:mod:`rvt.frontdoor.famspec`, the
+    ``spec/famspec.schema.json`` contract).  Returns ``(kind, constructor
+    kwargs)`` and folds the famspec's route options into ``opts`` (the CLI
+    flag wins); an invalid famspec sets the INVALID-FAMSPEC status + THE
+    one clear line and returns None -- never a constructor traceback."""
+    try:
+        kind, kw, ropts = FS.normalise(famspec)
+    except FS.FamspecError as e:
+        res.ok = False
+        kind = famspec.get("kind") if isinstance(famspec, dict) else None
+        res.status = ("INVALID-FAMSPEC" if kind in FS.KINDS
+                      else f"UNSUPPORTED-FAMSPEC-KIND ({kind or 'unset'})")
+        res.errors.extend(e.problems)
+        res.line = (f"{cell}: the famspec is not a valid request -- {e}. The contract "
+                    f"is spec/famspec.schema.json (kinds: {', '.join(FS.KINDS)}; fields "
+                    "mirror rvt.famgen.factory.make_<kind>'s keyword arguments; worked "
+                    "examples: spec/examples/famspec-*.json). Closest supported route: "
+                    "prompt -> rfa ('an eaton 225 A panelboard, 42 spaces, 208Y/120 V').")
+        return None
+    for k, v in ropts.items():
+        if opts.get(k) is None:
+            opts[k] = v
+            res.caveats.append(f"{k}={v} taken from the famspec (no --{k.replace('_', '-')} "
+                               "flag given)")
+    return kind, kw
+
+
+def _famspec_rfa(res: RouteResult, kind: str, kw: Dict[str, Any], out_dir: str,
+                 opts: Dict[str, Any]) -> Optional[Tuple[Any, str]]:
+    """famspec -> OUR standalone .rfa: run the kind's constructor, emit at
+    the ``--target-version`` release (:func:`_emit_at_target`), fold the
+    write report (family-mode validator, provenance scan) into ``res``.
+    Returns ``(product, stem)`` -- ``product.doc`` is the FamilyDoc -- or
+    None when nothing was delivered; sets ``res.ok`` / ``res.status``."""
+    steps = _Steps(res)
+    ctor = FS.constructor_name(kind)
+
+    def emit() -> Tuple[Any, str, Dict[str, Any]]:
+        prod = steps.run("famspec->rfa", ctor, lambda: FS.build(kind, kw))
+        stem = _slug(opts.get("stem") or prod.file_stem)
+        rep = steps.run("rfa-emit", "rvt.frontdoor.famspec:write (FamilyProduct.write | "
+                                    "DownlightProduct.write_rfa)",
+                        lambda: FS.write(prod, os.path.join(out_dir, f"{stem}.rfa"),
+                                         report_path=os.path.join(out_dir, f"{stem}.report.json")))
+        return prod, stem, rep
+
+    try:
+        prod, stem, rep = _emit_at_target(res, opts, out_dir, emit)
+    except _StepFailed as sf:
+        res.ok = False
+        msg = str(sf.__cause__)[:400]
+        res.status = f"FAILED ({sf.args[0]}: {msg})"
+        res.line = ((f"famspec kind {kind!r} was REFUSED BY NAME by its constructor ({ctor}): "
+                     f"{msg}. Nothing is invented: change the famspec to facts the catalog "
+                     "carries (spec/famspec.schema.json describes every field).")
+                    if FS.is_refusal(sf.__cause__) else
+                    (f"famspec kind {kind!r} could not be emitted here: {msg}."
+                     + ("" if kind in FS.CATALOG_KINDS else
+                        " This kind needs the family container archetype of the research "
+                        f"corpus (owner machine); the catalog kinds {' / '.join(FS.CATALOG_KINDS)} "
+                        "run anywhere.")))
+        return None
+    rfa_out = os.path.join(out_dir, f"{stem}.rfa")
+    delivered = os.path.isfile(rfa_out)
+    if delivered:
+        res.files["rfa"] = rfa_out
+    if os.path.isfile(str(rep.get("report_path"))):
+        res.files["rfa_report"] = str(rep["report_path"])
+    fam = rep.get("family") or {}
+    tc = (fam.get("type_catalog") or {}).get("path")
+    if tc and os.path.isfile(str(tc)):
+        res.files["type_catalog"] = str(tc)
+    v = rep.get("validate") or {}
+    v = v.get("family_mode") or v          # FamilyProduct.write | DownlightProduct.write_rfa shape
+    verdict, n_err = str(v.get("verdict") or "UNKNOWN"), v.get("n_errors")
+    prov = rep.get("provenance") or {}
+    res.caveats.extend(str(c) for c in rep.get("caveats") or [])
+    unver = fam.get("unverified_fields") or []
+    if unver:
+        res.caveats.append("assumed / user-given fact fields (surfaced in the report, not "
+                           f"silently trusted): {', '.join(map(str, unver))}")
+    if FAMSPEC_STAMP not in res.stamps:
+        res.stamps.append(FAMSPEC_STAMP)
+    _convert_status(
+        res, {"verdicts": {"family-mode": f"{verdict}" + (f" {n_err} errors" if n_err is not None else "")},
+              "all_valid": bool(rep.get("ok", verdict == "VALID"))},
+        delivered=delivered,
+        what=(f"{kind} family {prod.name!r} generated from the famspec: "
+              f"{fam.get('elements', len(prod.doc.elements))} elements, types "
+              f"{fam.get('types') or [n for n, _ in prod.doc.types]}; provenance ok={prov.get('ok')}"))
+    return (prod, stem) if delivered else None
+
+
+def _r_rfa_generate(res, inputs, out_dir, opts):
+    """rfa -> rfa: a famspec ({'kind': panelboard | transformer | luminaire |
+    downlight, ...}) -> OUR standalone .rfa (issue #162).  A .rfa PATH alone
+    is a no-op (nothing to generate, nothing to edit): THE clear line."""
+    famspec, rfa_path = _read_famspec(inputs["rfa"])
+    if rfa_path is not None:
+        res.ok = False
+        res.status = "UNSUPPORTED-INPUT-FORM (an existing .rfa alone is a no-op)"
+        res.line = ("rfa -> rfa GENERATES a family from a famspec JSON ({'kind': "
+                    f"{' | '.join(FS.KINDS)}, ...}} -- spec/famspec.schema.json); an existing "
+                    ".rfa with .rfa output has nothing to generate. Closest supported routes: "
+                    "prompt+rfa -> rfa (EDIT it: 'set BusRating 225; rename the type to X'), "
+                    "rfa -> rvt (LOAD it into a project).")
+        return
+    req = _famspec_request(res, famspec or {}, opts, cell="rfa -> rfa")
+    if req is not None:
+        _famspec_rfa(res, req[0], req[1], out_dir, opts)
+
+
 def _r_rfa_load(res, inputs, out_dir, opts):
     """rfa[+rvt] -> rvt: famspec -> our .rfa -> loaded project (rvt.famload);
     or a .rfa PATH -> the verbatim reload lane (extracted .rfa) / the
     id-remap lane (standalone-born .rfa), see :func:`_reload_rfa`."""
-    from ..ifc import famfrom_ifc as FFI
     famspec, rfa_path = _read_famspec(inputs["rfa"])
     if rfa_path is not None:
         return _reload_rfa(res, rfa_path, out_dir, opts, host=inputs.get("rvt"))
-    kind = str((famspec or {}).get("kind") or "").strip().lower()
-    if kind not in _FAMSPEC_KINDS:
-        res.ok = False
-        res.status = f"UNSUPPORTED-FAMSPEC-KIND ({kind or 'unset'})"
-        res.line = (f"famspec kind {kind!r} is not wired for a standalone "
-                    f"LOAD (wired: {', '.join(_FAMSPEC_KINDS)}). Catalog "
-                    "kinds (panelboard / transformer / luminaire) generate "
-                    "as .rfa via prompt->rfa / spec->rfa and LOAD through "
-                    "the room pipeline (prompt/ifc -> rvt).")
+    req = _famspec_request(res, famspec or {}, opts, cell="rfa -> rvt")
+    if req is None:
         return
-    kw = {k: v for k, v in (famspec or {}).items() if k != "kind"}
-    steps = _Steps(res)
-    prod = steps.run("facts->rfa", "rvt.ifc.famfrom_ifc:make_downlight",
-                     lambda: FFI.make_downlight(**kw))
-    name = _slug(opts.get("stem") or getattr(prod.doc, "name", "downlight"))
-    rfa_out = os.path.join(out_dir, f"{name}.rfa")
-    steps.run("rfa-emit", "rvt.ifc.famfrom_ifc:DownlightProduct.write_rfa",
-              lambda: prod.write_rfa(rfa_out))
-    res.files["rfa"] = rfa_out
+    kind, kw = req
+    # the .rfa deliverable rides along at the --target-version release; the
+    # LOAD below rebuilds the document above the host watermark under the
+    # HOST's release (--target-version picks that year's certified base;
+    # _target_base's memo states the version block once for both)
+    emitted = _famspec_rfa(res, kind, kw, out_dir, opts)
+    if emitted is None:
+        return
+    prod, stem = emitted
+    emit_status = res.status
     _load_family(res, out_dir, opts, host=inputs.get("rvt"),
-                 builder=lambda start_id=100000: FFI.make_downlight(
-                     start_id=start_id, **kw).doc,
-                 name=name)
+                 builder=lambda start_id=100000: FS.build(kind, kw, start_id=start_id).doc,
+                 name=stem, category=int(prod.doc.category_id))
+    res.caveats.append("the family is LOADED, no instance is placed by this cell (place "
+                       "with prompt+rvt 'add ...' or edit ops add-instance); the .rfa "
+                       f"deliverable beside it: {emit_status}")
 
 
 def _spec_to_ifc_file(res: RouteResult, spec: str, out_dir: str,
@@ -1275,7 +1421,8 @@ _IMPLS: Dict[str, Callable[..., None]] = {
     "ifc_to_rvt": _r_ifc_to_rvt,
     "ifc_normalize": _r_ifc_normalize,
     "ifc_to_rfa": _r_ifc_to_rfa,
-    "rfa_load": _r_rfa_load,                        # rfa[+rvt] -> rvt (famspec | extracted .rfa)
+    "rfa_load": _r_rfa_load,                        # rfa[+rvt] -> rvt (famspec | .rfa path)
+    "rfa_generate": _r_rfa_generate,                # rfa -> rfa (famspec -> our .rfa, issue #162)
     "spec_to_rvt": _r_spec_to_rvt,
     "spec_to_ifc": _r_spec_to_ifc,
     "spec_to_rfa": _r_spec_to_rfa,

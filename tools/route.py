@@ -7,7 +7,8 @@
     route.py run --output rvt --ifc design.ifc --rvt mine.rvt   # merge onto your file
     route.py run --output rvt --rvt in.rvt --prompt "delete DP-1 with cascade"
     route.py run --output rvt --rvt mine.rvt --prompt "add a 75 kVA transformer to my project"
-    route.py run --output rvt --rfa '{"kind": "downlight"}'     # famspec -> .rfa -> loaded .rvt
+    route.py run --output rfa --rfa spec/examples/famspec-panelboard.json   # famspec -> OUR .rfa
+    route.py run --output rvt --rfa '{"kind": "transformer", "kva": 45}'    # famspec -> .rfa -> loaded .rvt
     route.py run --output rvt --rfa extracted.rfa [--rvt host.rvt]   # reload an extracted family
     route.py run --output ifc --spec room-spec.json
     route.py run --output ifc --rvt project.rvt                 # RVT -> IFC4 (round-trip checked)
@@ -72,10 +73,12 @@ def build_parser() -> argparse.ArgumentParser:
                      help="an existing project (edit / add / merge target, "
                           "load host, seed, or the source to export / extract from)")
     ins.add_argument("--rfa", default=None, metavar="FAMSPEC|FILE.rfa",
-                     help="a famspec JSON ({'kind': 'downlight', ...}, inline "
-                          "or a .json path) to GENERATE + load, or a .rfa path "
-                          "(the file to edit with --prompt, or a tekton-"
-                          "extracted family to reload)")
+                     help="a famspec JSON ({'kind': 'panelboard' | 'transformer' "
+                          "| 'luminaire' | 'downlight', ...} per spec/famspec."
+                          "schema.json, inline or a .json path) to GENERATE "
+                          "(--output rfa) or generate + LOAD (--output rvt), or a "
+                          ".rfa path (the file to edit with --prompt, or a "
+                          "family to load / reload)")
     ins.add_argument("--spec", default=None, metavar="SPEC.json",
                      help="a building/room spec (spec/building.schema.json)")
     outg = pr.add_argument_group("output & policy (passed through to the stages)")
