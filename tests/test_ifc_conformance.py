@@ -26,24 +26,15 @@ import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.path.join(ROOT, "tools", "dev", "make_ifc_fixtures.py")
-FIX_DIR = os.path.join(ROOT, "tests", "ifc_conformance")
 SHIM_DIR = os.path.join(ROOT, "src", "rvt", "ifc", "_ifcos_shim")
 
 _spec = importlib.util.spec_from_file_location("make_ifc_fixtures", TOOL)
 M = importlib.util.module_from_spec(_spec)
-sys.modules["make_ifc_fixtures"] = M
 _spec.loader.exec_module(M)
 
-NAMES = [fx["name"] for fx in M.FIXTURES]
-PATHS = {n: os.path.join(FIX_DIR, n + ".ifc") for n in NAMES}
-
-
-def _load_expected(name: str) -> dict:
-    with open(os.path.join(FIX_DIR, name + ".expected.json"), encoding="ascii") as fh:
-        return json.load(fh)
-
-
-EXPECTED = {n: _load_expected(n) for n in NAMES}
+FX = {fx["name"]: fx for fx in M.FIXTURES}
+NAMES = list(FX)
+PATHS = {n: os.path.join(M.FIXTURE_DIR, n + ".ifc") for n in NAMES}
 
 
 def _real_ifcopenshell_importable() -> bool:
@@ -71,17 +62,10 @@ def _diff(want: dict, got: dict) -> str:
 # the fixtures themselves: owned, small, portable, reproducible
 # ---------------------------------------------------------------------------
 
-def test_registry_and_committed_files_agree():
-    ifcs = sorted(f[:-4] for f in os.listdir(FIX_DIR) if f.endswith(".ifc"))
-    exps = sorted(f[:-len(".expected.json")] for f in os.listdir(FIX_DIR) if f.endswith(".expected.json"))
-    assert ifcs == sorted(NAMES) == exps
-    assert len(NAMES) >= 9                                  # (a)..(i) of #154's DONE
-
-
 def test_generator_check_reports_no_drift():
     """``make_ifc_fixtures.py --check`` is the drift gate: the committed .ifc
-    bytes ARE what the generator writes (nobody hand-edited a fixture, and a
-    generator change re-committed its output)."""
+    bytes ARE what the generator writes, every fixture has its .expected.json
+    with a registry-fresh header, and nothing stray sits in the directory."""
     proc = subprocess.run([sys.executable, TOOL, "--check"], cwd=ROOT,
                           capture_output=True, text=True, timeout=120)
     assert proc.returncode == 0, proc.stdout + proc.stderr[-2000:]
@@ -94,69 +78,60 @@ def test_generator_is_deterministic():
 
 @pytest.mark.parametrize("name", NAMES)
 def test_fixture_hygiene(name):
-    path = PATHS[name]
     assert re.fullmatch(r"[a-z][a-z0-9_]*", name), "portable, lowercase fixture names only"
-    raw = open(path, "rb").read()
+    with open(PATHS[name], "rb") as fh:
+        raw = fh.read()
     assert len(raw) < M.MAX_BYTES, f"{name}.ifc is {len(raw)} bytes (limit {M.MAX_BYTES})"
-    raw.decode("ascii")                                       # pure ASCII STEP text
     assert b"\r" not in raw, "LF line endings only"
-    head = raw[:raw.index(b"DATA;")].decode("ascii")          # comment + HEADER section
+    head = raw[:raw.index(b"DATA;")].decode("ascii")          # comment + HEADER section, pure ASCII
     assert head.startswith("ISO-10303-21;\n")
     assert M.HEADER_MARK in head and M.GENERATOR in head
-    schema = "IFC2X3" if name == "i_schema_ifc2x3" else "IFC4"
-    assert f"FILE_SCHEMA(('{schema}'));" in head
-    doc = EXPECTED[name]
-    assert doc["fixture"] == name and doc["pinned_backend"] == "steplite"
-    assert doc["pins"] and isinstance(doc["notes"], list)
-    if doc["parity_xfail"]:
-        assert re.match(r"#\d+", doc["parity_xfail"]), "a parity divergence must cite its issue"
+    assert f"FILE_SCHEMA(('{FX[name]['build']().schema}'));" in head
+    if FX[name]["parity_xfail"]:
+        assert re.match(r"#\d+", FX[name]["parity_xfail"]), "a parity divergence must cite its issue"
 
 
 # ---------------------------------------------------------------------------
 # resolver behaviour: steplite == pinned; real ifcopenshell == steplite
 # ---------------------------------------------------------------------------
 
+def _summaries(force_steplite: bool, backend: str) -> dict:
+    """resolve_intent on every fixture in ONE child interpreter; asserts the
+    child really ran ``backend`` and strips that key."""
+    got = M.resolve_summaries([PATHS[n] for n in NAMES], force_steplite=force_steplite)
+    out = {n: got[PATHS[n]] for n in NAMES}
+    for n, summary in out.items():
+        assert summary.pop("backend") == backend, f"{n}: expected the {backend} backend"
+    return out
+
+
 @pytest.fixture(scope="module")
 def lite_summaries():
-    """resolve_intent on every fixture in ONE child interpreter, shim forced."""
-    got = M.resolve_summaries([PATHS[n] for n in NAMES], force_steplite=True)
-    return {n: got[PATHS[n]] for n in NAMES}
+    return _summaries(True, "steplite")
 
 
 @pytest.fixture(scope="module")
 def real_summaries():
     if not HAVE_REAL_IFCOS:
         pytest.skip("real ifcopenshell not installed (optional extra .[ifc]); parity runs where it is")
-    got = M.resolve_summaries([PATHS[n] for n in NAMES], force_steplite=False)
-    return {n: got[PATHS[n]] for n in NAMES}
+    return _summaries(False, "ifcopenshell")
 
 
 @needs_numpy
 @pytest.mark.parametrize("name", NAMES)
 def test_steplite_resolves_to_pinned_expectation(name, lite_summaries):
-    got = dict(lite_summaries[name])
-    assert got.pop("backend") == "steplite", "RVT_STEPLITE_FORCE did not select the bundled shim"
-    want = EXPECTED[name]["expected"]
+    want = M.load_expected(name)["expected"]
+    got = lite_summaries[name]
     assert got == want, (
         f"{name}: resolver output moved off the pinned expectation.\n{_diff(want, got)}\n"
         f"If this change is INTENDED, re-pin with `python3 tools/dev/make_ifc_fixtures.py "
         f"--update-expected` in the PR that owns it and say so in its record.")
 
 
-def _parity_params():
-    out = []
-    for fx in M.FIXTURES:
-        marks = []
-        if fx["parity_xfail"]:
-            marks.append(pytest.mark.xfail(strict=True, reason=fx["parity_xfail"]))
-        out.append(pytest.param(fx["name"], id=fx["name"], marks=marks))
-    return out
-
-
 @needs_numpy
-@pytest.mark.parametrize("name", _parity_params())
-def test_real_ifcopenshell_parity_with_steplite(name, lite_summaries, real_summaries):
-    lite = dict(lite_summaries[name])
-    real = dict(real_summaries[name])
-    assert lite.pop("backend") == "steplite" and real.pop("backend") == "ifcopenshell"
+@pytest.mark.parametrize("name", [
+    pytest.param(n, marks=pytest.mark.xfail(strict=True, reason=FX[n]["parity_xfail"]))
+    if FX[n]["parity_xfail"] else n for n in NAMES])
+def test_real_ifcopenshell_parity_with_steplite(name, real_summaries, lite_summaries):
+    lite, real = lite_summaries[name], real_summaries[name]
     assert real == lite, f"{name}: ifcopenshell and steplite disagree.\n{_diff(lite, real)}"

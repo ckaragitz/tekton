@@ -46,17 +46,19 @@
     "dims_m": {
      "w": 0.8,
      "d": 0.6,
-     "h": 1.1
+     "h": 1.1,
+     "footprint_area": 0.48
     },
     "mounting": "floor",
     "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
     "fed_from": "MSB",
     "contract": {
-     "PanelName": "T-1",
      "FedFrom": "MSB",
      "RatingkVA": 45.0,
      "Primary": "480 V",
-     "Secondary": "208Y/120 V"
+     "Secondary": "208Y/120 V",
+     "ImpedancePercent": 5.75,
+     "PanelName": "T-1"
     },
     "items": [
      "T-1_body",
@@ -88,7 +90,8 @@
     "dims_m": {
      "w": 3.2,
      "d": 0.3,
-     "h": 0.1
+     "h": 0.1,
+     "footprint_area": 0.96
     },
     "mounting": "floor",
     "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
@@ -124,14 +127,17 @@
     "dims_m": {
      "w": 0.5,
      "d": 0.041,
-     "h": 0.05
+     "h": 0.05,
+     "footprint_area": 0.021
     },
     "mounting": "floor",
     "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
     "fed_from": null,
     "contract": {
-     "PanelName": "ST-1",
-     "StrutSize": "P1000"
+     "StrutSize": "P1000",
+     "RodSize": "3/8 in",
+     "AttachTo": "structure",
+     "PanelName": "ST-1"
     },
     "items": [
      "strut_channel"

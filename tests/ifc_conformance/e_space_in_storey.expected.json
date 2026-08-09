@@ -1,7 +1,7 @@
 {
  "fixture": "e_space_in_storey",
  "generator": "tools/dev/make_ifc_fixtures.py",
- "pins": "IfcSpace aggregated into the upper of two storeys; one panel contained in the SPACE (level resolves through the space to L2), one contained directly in the lower storey",
+ "pins": "IfcSpace aggregated into the upper of two storeys, one panel contained in the SPACE (level resolves through the space to L2), one contained directly in the lower storey",
  "notes": [
   "#158: the IfcSpace itself is not an IfcElement, so it appears in neither equipment nor other_products today; #158 reads it into the intent as a room",
   "the panel inside the space must still get level L2 (containment walked space -> storey)"
@@ -52,7 +52,12 @@
     "dims_m": {
      "w": 0.5,
      "d": 0.15,
-     "h": 0.8
+     "h": 0.8,
+     "footprint_area": 0.075,
+     "enclosure_w": 0.5,
+     "enclosure_h": 0.8,
+     "top_of_panel": 5.2,
+     "bottom_of_panel": 4.4
     },
     "mounting": "wall",
     "position_source": "placement-chain + local geometry",
@@ -60,10 +65,10 @@
     "contract": {
      "PanelName": "RP-2",
      "Voltage": "208Y/120 V",
-     "Phases": 3.0,
-     "Wires": 4.0,
      "BusRating": 225.0,
-     "MainsRating": 225.0
+     "MainsRating": 225.0,
+     "Phases": 3.0,
+     "Wires": 4.0
     },
     "items": [
      "RP-2_enclosure",
@@ -94,7 +99,12 @@
     "dims_m": {
      "w": 0.5,
      "d": 0.15,
-     "h": 0.8
+     "h": 0.8,
+     "footprint_area": 0.075,
+     "enclosure_w": 0.5,
+     "enclosure_h": 0.8,
+     "top_of_panel": 1.7,
+     "bottom_of_panel": 0.9
     },
     "mounting": "wall",
     "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
@@ -102,11 +112,11 @@
     "contract": {
      "PanelName": "LP-1",
      "Voltage": "480Y/277 V",
-     "Phases": 3.0,
-     "Wires": 4.0,
      "BusRating": 100.0,
      "MainsType": "Main lugs only",
-     "MainsRating": 100.0
+     "MainsRating": 100.0,
+     "Phases": 3.0,
+     "Wires": 4.0
     },
     "items": [
      "LP-1_enclosure",

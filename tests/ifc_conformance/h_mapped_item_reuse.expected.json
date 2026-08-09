@@ -3,7 +3,8 @@
  "generator": "tools/dev/make_ifc_fixtures.py",
  "pins": "one IfcRepresentationMap (enclosure + nameplate) reused by three panels through IfcMappedItem + IfcCartesianTransformationOperator3D (two translated, one rotated 90 deg)",
  "notes": [
-  "each occurrence must resolve its OWN insertion and front normal from the shared map: world = placement o target-operator o inverse(map origin) o vertex"
+  "each occurrence must resolve its OWN insertion and front normal from the shared map: world = placement o target-operator o inverse(map origin) o vertex",
+  "the LP-n lighting panels at 208Y/120 V classify receptacle_panelboard (voltage rule before name rule, as in fixture c) -- today's order, pinned"
  ],
  "parity_xfail": null,
  "pinned_backend": "steplite",
@@ -45,7 +46,12 @@
     "dims_m": {
      "w": 0.6,
      "d": 0.2,
-     "h": 1.0
+     "h": 1.0,
+     "footprint_area": 0.12,
+     "enclosure_w": 0.6,
+     "enclosure_h": 1.0,
+     "top_of_panel": 1.9,
+     "bottom_of_panel": 0.9
     },
     "mounting": "wall",
     "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
@@ -53,11 +59,11 @@
     "contract": {
      "PanelName": "LP-1",
      "Voltage": "208Y/120 V",
-     "Phases": 3.0,
-     "Wires": 4.0,
      "BusRating": 100.0,
      "MainsType": "Main lugs only",
-     "MainsRating": 100.0
+     "MainsRating": 100.0,
+     "Phases": 3.0,
+     "Wires": 4.0
     },
     "items": [
      "panel_enclosure",
@@ -88,7 +94,12 @@
     "dims_m": {
      "w": 0.6,
      "d": 0.2,
-     "h": 1.0
+     "h": 1.0,
+     "footprint_area": 0.12,
+     "enclosure_w": 0.6,
+     "enclosure_h": 1.0,
+     "top_of_panel": 1.9,
+     "bottom_of_panel": 0.9
     },
     "mounting": "wall",
     "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
@@ -96,11 +107,11 @@
     "contract": {
      "PanelName": "LP-2",
      "Voltage": "208Y/120 V",
-     "Phases": 3.0,
-     "Wires": 4.0,
      "BusRating": 100.0,
      "MainsType": "Main lugs only",
-     "MainsRating": 100.0
+     "MainsRating": 100.0,
+     "Phases": 3.0,
+     "Wires": 4.0
     },
     "items": [
      "panel_enclosure",
@@ -131,7 +142,12 @@
     "dims_m": {
      "w": 0.6,
      "d": 0.2,
-     "h": 1.0
+     "h": 1.0,
+     "footprint_area": 0.12,
+     "enclosure_w": 0.6,
+     "enclosure_h": 1.0,
+     "top_of_panel": 1.9,
+     "bottom_of_panel": 0.9
     },
     "mounting": "wall",
     "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
@@ -139,11 +155,11 @@
     "contract": {
      "PanelName": "LP-3",
      "Voltage": "208Y/120 V",
-     "Phases": 3.0,
-     "Wires": 4.0,
      "BusRating": 100.0,
      "MainsType": "Main lugs only",
-     "MainsRating": 100.0
+     "MainsRating": 100.0,
+     "Phases": 3.0,
+     "Wires": 4.0
     },
     "items": [
      "panel_enclosure",

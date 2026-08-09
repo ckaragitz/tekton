@@ -73,19 +73,14 @@ def _guid(seed: str) -> str:
 
 
 def _f(v: float) -> str:
-    """STEP REAL: always a decimal point, never an exponent."""
-    s = f"{float(v):.6f}".rstrip("0")
-    return s if not s.endswith(".") else s
+    """STEP REAL: always a decimal point, never an exponent ('3.', '0.55')."""
+    return f"{float(v):.6f}".rstrip("0")
 
 
 def _s(v: Any) -> str:
     """STEP string literal (ASCII, quotes doubled)."""
     t = str(v).replace("'", "''")
     return "'" + t.encode("ascii", "replace").decode("ascii") + "'"
-
-
-def _enum(v: Optional[str]) -> str:
-    return f".{v}." if v else "$"
 
 
 def _pt(p: Sequence[float]) -> str:
@@ -116,14 +111,16 @@ class _W:
 # ---------------------------------------------------------------------------
 
 class Model:
-    """One fixture under construction.  Coordinates are in the file's OWN
-    length unit (``unit``: 'metre' | 'milli' | 'foot'); nothing converts."""
+    """One fixture under construction: project -> site -> building scaffolding
+    on creation, storeys / products / relations added by the builder.
+    Coordinates are in the file's OWN length unit (``unit``: 'metre' |
+    'milli' | 'foot'); nothing converts.  ``building`` = (location, x-dir) of
+    a non-identity building placement under the site."""
 
     def __init__(self, name: str, *, schema: str = "IFC4", unit: str = "metre",
-                 project: str = "tekton conformance fixture") -> None:
+                 building: Optional[Tuple[Sequence[float], Sequence[float]]] = None) -> None:
         self.name = name
         self.schema = schema
-        self.unit = unit
         self.w = w = _W()
         self._contained: Dict[str, List[str]] = {}      # spatial ref -> products
         self._aggregated: Dict[str, List[str]] = {}     # whole ref -> parts
@@ -136,11 +133,11 @@ class Model:
         self.dirx = w.add("IFCDIRECTION((1.,0.,0.))")
         self.diry = w.add("IFCDIRECTION((0.,1.,0.))")
         self.dirz = w.add("IFCDIRECTION((0.,0.,1.))")
-        self.origin = w.add("IFCCARTESIANPOINT((0.,0.,0.))")
-        self.a2p0 = w.add(f"IFCAXIS2PLACEMENT3D({self.origin},{self.dirz},{self.dirx})")
-        self.ctx = w.add(f"IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05,{self.a2p0},$)")
+        origin = w.add("IFCCARTESIANPOINT((0.,0.,0.))")
+        self.a2p0 = w.add(f"IFCAXIS2PLACEMENT3D({origin},{self.dirz},{self.dirx})")
+        ctx = w.add(f"IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05,{self.a2p0},$)")
         self.sub = w.add("IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Body','Model',*,*,*,*,"
-                         f"{self.ctx},$,.MODEL_VIEW.,$)")
+                         f"{ctx},$,.MODEL_VIEW.,$)")
         metre = w.add("IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.)")
         if unit == "milli":
             length = w.add("IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.)")
@@ -155,56 +152,49 @@ class Model:
                  w.add("IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.)"),
                  w.add("IFCSIUNIT(*,.PLANEANGLEUNIT.,$,.RADIAN.)")]
         ua = w.add(f"IFCUNITASSIGNMENT(({','.join(units)}))")
-        self.project = w.add(f"IFCPROJECT({self.gid('project')},{self.oh},{_s(project)},$,$,$,$,"
-                             f"({self.ctx}),{ua})")
+        project = w.add(f"IFCPROJECT({self.gid('project')},{self.oh},'tekton conformance fixture',"
+                        f"$,$,$,$,({ctx}),{ua})")
         # one shared surface style for every solid
         rgb = w.add("IFCCOLOURRGB($,0.55,0.6,0.62)")
         rend = w.add(f"IFCSURFACESTYLERENDERING({rgb},0.,$,$,$,$,$,$,.NOTDEFINED.)")
         sstyle = w.add(f"IFCSURFACESTYLE('tekton_fixture_gray',.BOTH.,({rend}))")
         self.style = w.add(f"IFCPRESENTATIONSTYLEASSIGNMENT(({sstyle}))")
-        self.site = self.plc_site = self.building = self.plc_building = ""
+        # project -> site -> building
+        plc_site = self.placement(None)
+        site = w.add(f"IFCSITE({self.gid('site')},{self.oh},'Site',$,$,{plc_site},$,$,.ELEMENT.,$,$,$,$,$)")
+        self.plc_building = self.placement(plc_site, self.axis(*building) if building else None)
+        self.building = w.add(f"IFCBUILDING({self.gid('building')},{self.oh},'Building',$,$,"
+                              f"{self.plc_building},$,$,.ELEMENT.,$,$,$)")
+        self.aggregate(project, [site])
+        self.aggregate(site, [self.building])
 
     # -- identifiers ---------------------------------------------------------
     def gid(self, seed: str) -> str:
         return _s(_guid(f"{self.name}:{seed}"))
 
     # -- placements ----------------------------------------------------------
-    def axis(self, loc: Sequence[float] = (0.0, 0.0, 0.0),
-             z: Sequence[float] = (0.0, 0.0, 1.0), x: Sequence[float] = (1.0, 0.0, 0.0)) -> str:
-        """An IfcAxis2Placement3D (the shared identity one when trivial)."""
-        if tuple(loc) == (0.0, 0.0, 0.0) and tuple(z) == (0.0, 0.0, 1.0) and tuple(x) == (1.0, 0.0, 0.0):
+    def axis(self, loc: Sequence[float], x: Sequence[float] = (1.0, 0.0, 0.0)) -> str:
+        """An IfcAxis2Placement3D at ``loc`` with Z up and RefDirection ``x``
+        (the shared identity one when trivial)."""
+        if tuple(loc) == (0.0, 0.0, 0.0) and tuple(x) == (1.0, 0.0, 0.0):
             return self.a2p0
         p = self.w.add(f"IFCCARTESIANPOINT({_pt(loc)})")
-        dz = self.dirz if tuple(z) == (0.0, 0.0, 1.0) else self.w.add(f"IFCDIRECTION({_pt(z)})")
         if tuple(x) == (1.0, 0.0, 0.0):
             dx = self.dirx
         elif tuple(x) == (0.0, 1.0, 0.0):
             dx = self.diry
         else:
             dx = self.w.add(f"IFCDIRECTION({_pt(x)})")
-        return self.w.add(f"IFCAXIS2PLACEMENT3D({p},{dz},{dx})")
+        return self.w.add(f"IFCAXIS2PLACEMENT3D({p},{self.dirz},{dx})")
 
     def placement(self, rel_to: Optional[str], a2p: Optional[str] = None) -> str:
         return self.w.add(f"IFCLOCALPLACEMENT({rel_to or '$'},{a2p or self.a2p0})")
 
     # -- spatial structure ---------------------------------------------------
-    def spatial(self, *, site_axis: Optional[str] = None, building_axis: Optional[str] = None) -> None:
-        w = self.w
-        self.plc_site = self.placement(None, site_axis)
-        self.site = w.add(f"IFCSITE({self.gid('site')},{self.oh},'Site',$,$,{self.plc_site},$,$,"
-                          ".ELEMENT.,$,$,$,$,$)")
-        self.plc_building = self.placement(self.plc_site, building_axis)
-        self.building = w.add(f"IFCBUILDING({self.gid('building')},{self.oh},'Building',$,$,"
-                              f"{self.plc_building},$,$,.ELEMENT.,$,$,$)")
-        self.aggregate(self.project, [self.site])
-        self.aggregate(self.site, [self.building])
-
-    def storey(self, name: str, elevation: float, *, axis: Optional[str] = None) -> Tuple[str, str]:
-        """(storey ref, its local placement).  ``axis`` defaults to a pure z
-        offset of ``elevation`` under the building."""
-        if axis is None:
-            axis = self.axis((0.0, 0.0, float(elevation)))
-        plc = self.placement(self.plc_building, axis)
+    def storey(self, name: str, elevation: float) -> Tuple[str, str]:
+        """(storey ref, its local placement) -- placed ``elevation`` above the
+        building, ``Elevation`` attribute set to match."""
+        plc = self.placement(self.plc_building, self.axis((0.0, 0.0, float(elevation))))
         sto = self.w.add(f"IFCBUILDINGSTOREY({self.gid('storey:' + name)},{self.oh},{_s(name)},$,$,"
                          f"{plc},$,$,.ELEMENT.,{_f(elevation)})")
         self._storeys.append(sto)
@@ -253,15 +243,15 @@ class Model:
         """Named box solid ``sx`` long (along ``(ax, ay)``) by ``sy`` across."""
         return self.solid(self.box_pts(cx, cy, ax, ay, sx / 2.0, sy / 2.0, zlo, zhi), name)
 
-    def extrusion(self, xdim: float, ydim: float, depth: float, *,
-                  center: Sequence[float] = (0.0, 0.0), position: Optional[str] = None) -> str:
-        """IfcExtrudedAreaSolid of a rectangle profile, extruded +Z by ``depth``
-        (the body kind #152 teaches the resolver to read)."""
+    def extrusion(self, xdim: float, ydim: float, depth: float, *, center: Sequence[float]) -> str:
+        """IfcExtrudedAreaSolid of a rectangle profile centred at ``center`` in
+        the product frame, extruded +Z by ``depth`` (the body kind #152 teaches
+        the resolver to read)."""
         w = self.w
-        c2 = w.add(f"IFCCARTESIANPOINT(({_f(center[0])},{_f(center[1])}))")
+        c2 = w.add(f"IFCCARTESIANPOINT({_pt(center)})")
         p2 = w.add(f"IFCAXIS2PLACEMENT2D({c2},$)")
         prof = w.add(f"IFCRECTANGLEPROFILEDEF(.AREA.,'rect',{p2},{_f(xdim)},{_f(ydim)})")
-        return w.add(f"IFCEXTRUDEDAREASOLID({prof},{position or self.a2p0},{self.dirz},{_f(depth)})")
+        return w.add(f"IFCEXTRUDEDAREASOLID({prof},{self.a2p0},{self.dirz},{_f(depth)})")
 
     def shape(self, items: Sequence[str], rep_type: str = "") -> str:
         if not rep_type:
@@ -271,14 +261,23 @@ class Model:
 
     # -- products + properties -----------------------------------------------
     def product(self, cls: str, name: str, *, plc: str, rep: Optional[str], tag: Optional[str] = None,
-                tail: str = "$", description: Optional[str] = None,
-                object_type: Optional[str] = None) -> str:
+                tail: str = "$", object_type: Optional[str] = None) -> str:
         """``cls(GlobalId,OH,Name,Description,ObjectType,Placement,Rep,Tag,<tail>)``
         -- every IfcElement subtype used here has exactly this layout."""
         return self.w.add(
-            f"{cls.upper()}({self.gid(cls + ':' + (tag or name))},{self.oh},{_s(name)},"
-            f"{_s(description) if description else '$'},{_s(object_type) if object_type else '$'},"
-            f"{plc},{rep or '$'},{_s(tag) if tag else '$'},{tail})")
+            f"{cls.upper()}({self.gid(cls + ':' + (tag or name))},{self.oh},{_s(name)},$,"
+            f"{_s(object_type) if object_type else '$'},{plc},{rep or '$'},{_s(tag) if tag else '$'},{tail})")
+
+    def board(self, tag: str, name: str, plc_parent: str, schedule: Dict[str, Any], *,
+              tail: str = ".DISTRIBUTIONBOARD.", object_type: Optional[str] = None, **gear: Any) -> str:
+        """The common panel triple: ``gear_items`` solids -> an
+        IfcElectricDistributionBoard placed (identity) under ``plc_parent`` ->
+        its ``PanelSchedule`` pset.  ``gear`` = the ``gear_items`` keywords."""
+        items = self.gear_items(tag, **gear)
+        prod = self.product("IfcElectricDistributionBoard", name, plc=self.placement(plc_parent),
+                            rep=self.shape(items), tag=tag, tail=tail, object_type=object_type)
+        self.pset([prod], "PanelSchedule", schedule)
+        return prod
 
     def pval(self, key: str, val: Any) -> str:
         w = self.w
@@ -297,12 +296,11 @@ class Model:
         return self.w.add(f"IFCPROPERTYSET({self.gid('pset:' + name + ':' + seed)},{self.oh},"
                           f"{_s(name)},$,({','.join(refs)}))")
 
-    def pset(self, owners: Sequence[str], name: str, props: Dict[str, Any]) -> str:
+    def pset(self, owners: Sequence[str], name: str, props: Dict[str, Any]) -> None:
         seed = ",".join(owners)
         ps = self.pset_def(name, props, seed)
         self.w.add(f"IFCRELDEFINESBYPROPERTIES({self.gid('reldef:' + name + ':' + seed)},{self.oh},"
                    f"$,$,({','.join(owners)}),{ps})")
-        return ps
 
     def assign_type(self, occurrences: Sequence[str], type_ref: str) -> None:
         self.w.add(f"IFCRELDEFINESBYTYPE({self.gid('reltype:' + type_ref)},{self.oh},$,$,"
@@ -310,11 +308,12 @@ class Model:
 
     # -- composite parts in the resolver's vocabulary ------------------------
     def room_shell(self, plc_storey: str, *, width: float, depth: float, thick: float,
-                   height: float, name: str = "Electrical Room", info: Optional[Dict[str, Any]] = None,
-                   cls: str = "IfcBuildingElementProxy", tail: str = "$") -> str:
-        """A room-shell proxy: four ``wall_<i>`` box solids on the centerline
-        rectangle ``width`` x ``depth`` (corners overlap by the thickness, as
-        rvt.frontdoor.ifc_out writes them) + a RoomInformation pset."""
+                   height: float, tail: str = "$") -> str:
+        """A room-shell IfcBuildingElementProxy: four ``wall_<i>`` box solids on
+        the centerline rectangle ``width`` x ``depth`` (corners overlap by the
+        thickness, as rvt.frontdoor.ifc_out writes them) + a RoomInformation
+        pset whose clear dimensions are IfcLengthMeasures in file units."""
+        name = "Electrical Room"
         hw, hd, ht = width / 2.0, depth / 2.0, thick / 2.0
         runs = [((-hw, -hd), (hw, -hd)), ((hw, -hd), (hw, hd)),
                 ((hw, hd), (-hw, hd)), ((-hw, hd), (-hw, -hd))]
@@ -327,14 +326,14 @@ class Model:
                                     f"wall_{i}"))
         rep = self.shape(items)
         plc = self.placement(plc_storey)
-        proxy = self.product(cls, f"{name} room shell", plc=plc, rep=rep, tail=tail)
+        proxy = self.product("IfcBuildingElementProxy", f"{name} room shell", plc=plc, rep=rep, tail=tail)
         self.pset([proxy], "RoomInformation",
-                  info or {"RoomName": name, "ClearWidth": Length(width - thick),
-                           "ClearDepth": Length(depth - thick), "ClearHeight": Length(height)})
+                  {"RoomName": name, "ClearWidth": Length(width - thick),
+                   "ClearDepth": Length(depth - thick), "ClearHeight": Length(height)})
         return proxy
 
     def gear_items(self, tag: str, *, cx: float, cy: float, w: float, d: float, zlo: float,
-                   zhi: float, front: Tuple[float, float] = (0.0, -1.0), upright: bool,
+                   zhi: float, front: Tuple[float, float], upright: bool,
                    plate: float = 0.12, proud: float = 0.003) -> List[str]:
         """Body box (``<tag>_enclosure`` for wall gear / ``<tag>_body`` for floor
         gear) centred at (cx, cy) + a thin ``<tag>_nameplate`` proud of the
@@ -359,9 +358,8 @@ class Model:
         for struct, prods in self._contained.items():
             w.add(f"IFCRELCONTAINEDINSPATIALSTRUCTURE({self.gid('contains:' + struct)},{self.oh},$,$,"
                   f"({','.join(prods)}),{struct})")
-        for bad in ("'", "*/", "DATA"):                        # keep the comment lexer-safe
-            assert bad not in pins, f"pins text must not contain {bad!r}"
-        pins = pins.replace(";", ",")
+        for bad in ("'", ";", "*/", "DATA"):                   # keep the header comment lexer-safe
+            assert bad not in pins, f"{self.name}: pins text must not contain {bad!r}"
         return (
             "ISO-10303-21;\n"
             f"/* {HEADER_MARK}.\n"
@@ -396,22 +394,17 @@ def fixture(name: str, pins: str, *, notes: Sequence[str] = (),
     return deco
 
 
-def _room_with_panel(m: Model, *, k: float, elev_name: str = "Level 1") -> Model:
+def _room_with_panel(m: Model, *, k: float) -> Model:
     """Shared body of the two unit fixtures: a 6 x 4.5 m room shell + one
     wall-mounted DP-1 on the north wall, authored in the file's unit (``k``
     file units per metre)."""
-    m.spatial()
-    sto, plc_sto = m.storey(elev_name, 0.0)
+    sto, plc_sto = m.storey("Level 1", 0.0)
     shell = m.room_shell(plc_sto, width=6.0 * k, depth=4.5 * k, thick=0.2 * k, height=3.0 * k)
-    items = m.gear_items("DP-1", cx=1.0 * k, cy=(2.25 - 0.1 - 0.125) * k, w=0.9 * k, d=0.25 * k,
-                         zlo=0.6 * k, zhi=2.0 * k, front=(0.0, -1.0), upright=True,
-                         plate=0.12 * k, proud=0.003 * k)
-    panel = m.product("IfcElectricDistributionBoard", "DP-1 distribution panel 480Y/277 V",
-                      plc=m.placement(plc_sto), rep=m.shape(items), tag="DP-1",
-                      tail=".DISTRIBUTIONBOARD.")
-    m.pset([panel], "PanelSchedule", {"PanelName": "DP-1", "Voltage": "480Y/277 V",
-                                      "BusRating": 400.0, "MainsType": "Main breaker",
-                                      "Mounting": "SURFACE", "NumberOfCircuits": 42})
+    panel = m.board("DP-1", "DP-1 distribution panel 480Y/277 V", plc_sto,
+                    {"PanelName": "DP-1", "Voltage": "480Y/277 V", "BusRating": 400.0,
+                     "MainsType": "Main breaker", "Mounting": "SURFACE", "NumberOfCircuits": 42},
+                    cx=1.0 * k, cy=(2.25 - 0.1 - 0.125) * k, w=0.9 * k, d=0.25 * k, zlo=0.6 * k,
+                    zhi=2.0 * k, front=(0.0, -1.0), upright=True, plate=0.12 * k, proud=0.003 * k)
     m.contain(sto, [shell, panel])
     return m
 
@@ -438,7 +431,7 @@ def _fx_b() -> Model:
 
 
 @fixture("c_storeys_relative_placement",
-         "two storeys (0 and 4 m) under a building rotated 90 deg and offset (10,5); products "
+         "two storeys (0 and 4 m) under a building rotated 90 deg and offset (10,5), products "
          "placed by NON-identity local placements with local (not world-baked) vertices",
          notes=["world = site o building o storey o product o local vertex: insertion_m proves the "
                 "chain composes (position_source = placement-chain + local geometry)",
@@ -448,10 +441,9 @@ def _fx_b() -> Model:
                 "#156: level ids/elevations are pinned here; how they map onto the base's levels "
                 "at build time is #156's expectation to add"])
 def _fx_c() -> Model:
-    m = Model("c_storeys_relative_placement")
-    m.spatial(building_axis=m.axis((10.0, 5.0, 0.0), x=(0.0, 1.0, 0.0)))
+    m = Model("c_storeys_relative_placement", building=((10.0, 5.0, 0.0), (0.0, 1.0, 0.0)))
     s1, p1 = m.storey("Ground", 0.0)
-    s2, p2 = m.storey("First", 4.0, axis=m.axis((0.0, 0.0, 4.0)))
+    s2, p2 = m.storey("First", 4.0)
     # floor transformer on Ground: product frame at local (2,1,0) rotated -90 (x -> -y)
     plc_t = m.placement(p1, m.axis((2.0, 1.0, 0.0), x=(0.0, -1.0, 0.0)))
     t_items = m.gear_items("T-1", cx=0.0, cy=0.0, w=0.8, d=0.6, zlo=0.0, zhi=1.1,
@@ -460,7 +452,7 @@ def _fx_c() -> Model:
                    rep=m.shape(t_items), tag="T-1", tail=".VOLTAGE.")
     m.pset([t1], "TransformerSchedule", {"RatingkVA": 75.0, "Primary": "480 V",
                                            "Secondary": "208Y/120 V"})
-    # wall panel on First: local (3, 0.5, 0), enclosure centre 1.4 above ITS storey
+    # wall panel on First: product frame at local (3, 0.5, 0), enclosure 0.8..2.0 above ITS storey
     plc_p = m.placement(p2, m.axis((3.0, 0.5, 0.0)))
     p_items = m.gear_items("LP-2", cx=0.0, cy=0.0, w=0.6, d=0.2, zlo=0.8, zhi=2.0,
                            front=(1.0, 0.0), upright=True)
@@ -485,43 +477,36 @@ def _fx_c() -> Model:
          parity_xfail="#155: IfcDoor dropped by steplite's IfcProduct closure, kept by ifcopenshell")
 def _fx_d() -> Model:
     m = Model("d_wall_opening_door")
-    m.spatial()
     sto, plc_sto = m.storey("Level 1", 0.0)
     plc_wall = m.placement(plc_sto, m.axis((1.0, 2.0, 0.0)))
-    wall_body = m.extrusion(6.0, 0.2, 3.0, center=(3.0, 0.0))
     wall = m.product("IfcWallStandardCase", "Basic Wall 200 mm", plc=plc_wall,
-                     rep=m.shape([wall_body], "SweptSolid"), tag="W-1", tail=".STANDARD.")
+                     rep=m.shape([m.extrusion(6.0, 0.2, 3.0, center=(3.0, 0.0))], "SweptSolid"),
+                     tag="W-1", tail=".STANDARD.")
     m.pset([wall], "Pset_WallCommon", {"IsExternal": False, "LoadBearing": False})
     plc_open = m.placement(plc_wall, m.axis((2.0, 0.0, 0.0)))
-    open_body = m.extrusion(0.9, 0.4, 2.1, center=(0.45, 0.0))
     opening = m.product("IfcOpeningElement", "Door opening", plc=plc_open,
-                        rep=m.shape([open_body], "SweptSolid"), tag="O-1", tail=".OPENING.")
-    plc_door = m.placement(plc_open, m.a2p0)
-    door_body = m.extrusion(0.9, 0.05, 2.1, center=(0.45, 0.0))
-    door = m.product("IfcDoor", "Single flush door 900 x 2100", plc=plc_door,
-                     rep=m.shape([door_body], "SweptSolid"), tag="D-1",
-                     tail="2.1,0.9,.DOOR.,.SINGLE_SWING_LEFT.,$")
+                        rep=m.shape([m.extrusion(0.9, 0.4, 2.1, center=(0.45, 0.0))], "SweptSolid"),
+                        tag="O-1", tail=".OPENING.")
+    door = m.product("IfcDoor", "Single flush door 900 x 2100", plc=m.placement(plc_open),
+                     rep=m.shape([m.extrusion(0.9, 0.05, 2.1, center=(0.45, 0.0))], "SweptSolid"),
+                     tag="D-1", tail="2.1,0.9,.DOOR.,.SINGLE_SWING_LEFT.,$")
     m.w.add(f"IFCRELVOIDSELEMENT({m.gid('voids')},{m.oh},$,$,{wall},{opening})")
     m.w.add(f"IFCRELFILLSELEMENT({m.gid('fills')},{m.oh},$,$,{opening},{door})")
-    items = m.gear_items("DP-1", cx=5.0, cy=1.775, w=0.9, d=0.25, zlo=0.6, zhi=2.0,
-                         front=(0.0, -1.0), upright=True)
-    panel = m.product("IfcElectricDistributionBoard", "DP-1 distribution panel 480Y/277 V",
-                      plc=m.placement(plc_sto), rep=m.shape(items), tag="DP-1",
-                      tail=".DISTRIBUTIONBOARD.")
-    m.pset([panel], "PanelSchedule", {"PanelName": "DP-1", "Voltage": "480Y/277 V", "BusRating": 400.0})
+    panel = m.board("DP-1", "DP-1 distribution panel 480Y/277 V", plc_sto,
+                    {"PanelName": "DP-1", "Voltage": "480Y/277 V", "BusRating": 400.0},
+                    cx=5.0, cy=1.775, w=0.9, d=0.25, zlo=0.6, zhi=2.0, front=(0.0, -1.0), upright=True)
     m.contain(sto, [wall, door, panel])
     return m
 
 
 @fixture("e_space_in_storey",
-         "IfcSpace aggregated into the upper of two storeys; one panel contained in the SPACE "
+         "IfcSpace aggregated into the upper of two storeys, one panel contained in the SPACE "
          "(level resolves through the space to L2), one contained directly in the lower storey",
          notes=["#158: the IfcSpace itself is not an IfcElement, so it appears in neither equipment "
                 "nor other_products today; #158 reads it into the intent as a room",
                 "the panel inside the space must still get level L2 (containment walked space -> storey)"])
 def _fx_e() -> Model:
     m = Model("e_space_in_storey")
-    m.spatial()
     s1, p1 = m.storey("Level 1", 0.0)
     s2, p2 = m.storey("Level 2", 3.5)
     plc_space = m.placement(p2)
@@ -529,17 +514,13 @@ def _fx_e() -> Model:
                     ".ELEMENT.,.INTERNAL.,$)")
     m.aggregate(s2, [space])
     m.pset([space], "Pset_SpaceCommon", {"Reference": "ELEC", "IsExternal": False})
-    up = m.gear_items("RP-2", cx=2.0, cy=3.0, w=0.5, d=0.15, zlo=0.9, zhi=1.7, front=(-1.0, 0.0),
-                      upright=True)
-    rp2 = m.product("IfcElectricDistributionBoard", "RP-2 receptacle panel 208Y/120 V",
-                    plc=m.placement(plc_space), rep=m.shape(up), tag="RP-2", tail=".DISTRIBUTIONBOARD.")
-    m.pset([rp2], "PanelSchedule", {"PanelName": "RP-2", "Voltage": "208Y/120 V", "BusRating": 225.0})
-    lo = m.gear_items("LP-1", cx=2.0, cy=0.1, w=0.5, d=0.15, zlo=0.9, zhi=1.7, front=(0.0, 1.0),
-                      upright=True)
-    lp1 = m.product("IfcElectricDistributionBoard", "LP-1 lighting panel 480Y/277 V",
-                    plc=m.placement(p1), rep=m.shape(lo), tag="LP-1", tail=".DISTRIBUTIONBOARD.")
-    m.pset([lp1], "PanelSchedule", {"PanelName": "LP-1", "Voltage": "480Y/277 V", "BusRating": 100.0,
-                                    "MainsType": "Main lugs only"})
+    rp2 = m.board("RP-2", "RP-2 receptacle panel 208Y/120 V", plc_space,
+                  {"PanelName": "RP-2", "Voltage": "208Y/120 V", "BusRating": 225.0},
+                  cx=2.0, cy=3.0, w=0.5, d=0.15, zlo=0.9, zhi=1.7, front=(-1.0, 0.0), upright=True)
+    lp1 = m.board("LP-1", "LP-1 lighting panel 480Y/277 V", p1,
+                  {"PanelName": "LP-1", "Voltage": "480Y/277 V", "BusRating": 100.0,
+                   "MainsType": "Main lugs only"},
+                  cx=2.0, cy=0.1, w=0.5, d=0.15, zlo=0.9, zhi=1.7, front=(0.0, 1.0), upright=True)
     m.contain(space, [rp2])
     m.contain(s1, [lp1])
     return m
@@ -548,13 +529,12 @@ def _fx_e() -> Model:
 @fixture("f_board_type_psets",
          "IfcElectricDistributionBoard + IfcElectricDistributionBoardType (IfcRelDefinesByType), "
          "PanelSchedule on the occurrence overriding a type-level PanelSchedule, "
-         "Pset_ManufacturerTypeInformation on the type; fed from an MSB switchboard in the file",
+         "Pset_ManufacturerTypeInformation on the type, fed from an MSB switchboard in the file",
          notes=["get_psets semantics: type psets first, occurrence values override per name "
                 "(Mounting comes out SURFACE from the occurrence, NumberOfCircuits 42 from the type)",
                 "the feeder edge MSB -> DP-1 comes from FedFrom; MSB has no catalog line -> house family"])
 def _fx_f() -> Model:
     m = Model("f_board_type_psets")
-    m.spatial()
     sto, plc_sto = m.storey("Level 1", 0.0)
     msb_items = m.gear_items("MSB", cx=1.5, cy=3.0, w=2.4, d=0.9, zlo=0.1, zhi=2.4, front=(0.0, -1.0),
                              upright=False)
@@ -563,12 +543,11 @@ def _fx_f() -> Model:
                     rep=m.shape(msb_items), tag="MSB", tail=".SWITCHBOARD.")
     m.pset([msb], "SwitchboardSchedule", {"PanelName": "MSB", "Voltage": "480Y/277 V", "BusRating": 2000.0,
                                           "MainsType": "Main breaker", "Sections": 3, "FedFrom": "UTILITY"})
-    dp_items = m.gear_items("DP-1", cx=5.0, cy=3.9, w=0.9, d=0.25, zlo=0.5, zhi=2.0, front=(0.0, -1.0),
-                            upright=True)
-    dp = m.product("IfcElectricDistributionBoard", "DP-1", plc=m.placement(plc_sto), rep=m.shape(dp_items),
-                   tag="DP-1", tail=".DISTRIBUTIONBOARD.", object_type="Distribution panelboard")
-    m.pset([dp], "PanelSchedule", {"PanelName": "DP-1", "Voltage": "480Y/277 V", "BusRating": 400.0,
-                                   "MainsType": "Main breaker", "Mounting": "SURFACE", "FedFrom": "MSB"})
+    dp = m.board("DP-1", "DP-1", plc_sto,
+                 {"PanelName": "DP-1", "Voltage": "480Y/277 V", "BusRating": 400.0,
+                  "MainsType": "Main breaker", "Mounting": "SURFACE", "FedFrom": "MSB"},
+                 object_type="Distribution panelboard",
+                 cx=5.0, cy=3.9, w=0.9, d=0.25, zlo=0.5, zhi=2.0, front=(0.0, -1.0), upright=True)
     type_psets = [m.pset_def("PanelSchedule", {"Mounting": "FLUSH", "NumberOfCircuits": 42}, "type:DP"),
                   m.pset_def("Pset_ManufacturerTypeInformation",
                              {"Manufacturer": "tekton house", "ModelLabel": "THP-400-42"}, "type:DP")]
@@ -587,7 +566,6 @@ def _fx_f() -> Model:
                 "FedFrom MSB with no MSB in the file -> feeder root external, edge kind primary"])
 def _fx_g() -> Model:
     m = Model("g_mep_recorded_kinds")
-    m.spatial()
     sto, plc_sto = m.storey("Level 1", 0.0)
     t_items = m.gear_items("T-1", cx=4.0, cy=1.0, w=0.8, d=0.6, zlo=0.1, zhi=1.2, front=(0.0, 1.0),
                            upright=False)
@@ -611,10 +589,11 @@ def _fx_g() -> Model:
          "one IfcRepresentationMap (enclosure + nameplate) reused by three panels through "
          "IfcMappedItem + IfcCartesianTransformationOperator3D (two translated, one rotated 90 deg)",
          notes=["each occurrence must resolve its OWN insertion and front normal from the shared map: "
-                "world = placement o target-operator o inverse(map origin) o vertex"])
+                "world = placement o target-operator o inverse(map origin) o vertex",
+                "the LP-n lighting panels at 208Y/120 V classify receptacle_panelboard (voltage rule "
+                "before name rule, as in fixture c) -- today's order, pinned"])
 def _fx_h() -> Model:
     m = Model("h_mapped_item_reuse")
-    m.spatial()
     sto, plc_sto = m.storey("Level 1", 0.0)
     items = m.gear_items("panel", cx=0.0, cy=0.0, w=0.6, d=0.2, zlo=0.9, zhi=1.9, front=(0.0, -1.0),
                          upright=True)
@@ -629,10 +608,9 @@ def _fx_h() -> Model:
         a2 = m.w.add(f"IFCDIRECTION({_pt(axis2)})") if axis2 else "$"
         op = m.w.add(f"IFCCARTESIANTRANSFORMATIONOPERATOR3D({a1},{a2},{lo},1.,$)")
         mi = m.w.add(f"IFCMAPPEDITEM({rmap},{op})")
-        rep = m.w.add(f"IFCSHAPEREPRESENTATION({m.sub},'Body','MappedRepresentation',({mi}))")
-        pds = m.w.add(f"IFCPRODUCTDEFINITIONSHAPE($,$,({rep}))")
         p = m.product("IfcElectricDistributionBoard", f"{tag} lighting panel 208Y/120 V",
-                      plc=m.placement(plc_sto), rep=pds, tag=tag, tail=".DISTRIBUTIONBOARD.")
+                      plc=m.placement(plc_sto), rep=m.shape([mi], "MappedRepresentation"), tag=tag,
+                      tail=".DISTRIBUTIONBOARD.")
         m.pset([p], "PanelSchedule", {"PanelName": tag, "Voltage": "208Y/120 V", "BusRating": 100.0,
                                       "MainsType": "Main lugs only"})
         panels.append(p)
@@ -651,7 +629,6 @@ def _fx_h() -> Model:
          parity_xfail="#159: IfcElectricDistributionPoint (IFC2X3) dropped by steplite, kept by ifcopenshell")
 def _fx_i() -> Model:
     m = Model("i_schema_ifc2x3", schema="IFC2X3")
-    m.spatial()
     sto, plc_sto = m.storey("Level 1", 0.0)
     shell = m.room_shell(plc_sto, width=5.0, depth=4.0, thick=0.2, height=2.8, tail=".ELEMENT.")
     items = m.gear_items("DP-1", cx=1.5, cy=1.775, w=0.9, d=0.25, zlo=0.6, zhi=2.0, front=(0.0, -1.0),
@@ -667,23 +644,23 @@ def _fx_i() -> Model:
 # resolver summary (runs INSIDE the --resolve subprocess; imports the engine)
 # ---------------------------------------------------------------------------
 
-_CONTRACT_PIN = ("PanelName", "Voltage", "Phases", "Wires", "BusRating", "MainsType", "MainsRating",
-                 "Mounting", "NumberOfCircuits", "FedFrom", "Sections", "RatingkVA", "Primary",
-                 "Secondary", "Manufacturer", "ModelLabel", "StrutSize")
-
-
 def _r(v: Any, nd: int = 3) -> Any:
+    """Round every number (3 dp, -0.0 normalised) so pins never sit on noise."""
     if isinstance(v, bool) or v is None or isinstance(v, str):
         return v
     if isinstance(v, (int, float)):
         x = round(float(v), nd)
         return x + 0.0 if x != 0 else 0.0
+    if isinstance(v, dict):
+        return {k: _r(x, nd) for k, x in v.items()}
     return [_r(x, nd) for x in v]
 
 
 def summarize(path: str) -> Dict[str, Any]:
-    """The pinned projection of ``resolve_intent(path)`` -- small, stable,
-    and everything a sibling issue's DONE talks about."""
+    """The pinned projection of ``resolve_intent(path)`` -- small, stable, and
+    THE one place a sibling issue extends when its DONE pins a new fact
+    (#153 census, #157 wall openings, #158 spaces ...): add the key here,
+    ``--update-expected``, commit the diff."""
     from rvt.ifc import intent as I         # FIRST: rvt.ifc selects the backend (RVT_STEPLITE_FORCE)
     import ifcopenshell                                        # type: ignore
     backend = "steplite" if getattr(ifcopenshell, "IS_STEPLITE", False) else "ifcopenshell"
@@ -691,39 +668,34 @@ def summarize(path: str) -> Dict[str, Any]:
         model = I.resolve_intent(path)
     except Exception as exc:                                   # pinned failure modes are data too
         return {"backend": backend, "ok": False, "error": f"{type(exc).__name__}: {exc}"}
-    equipment = []
-    for e in model.equipment:
-        equipment.append({
-            "tag": e.tag, "name": e.name, "ifcClass": e.ifc_class, "predefinedType": e.predefined_type,
-            "kind": e.kind, "disposition": e.disposition, "level": e.level, "typeName": e.type_name,
-            "has_body": bool(e.geometry.has_body), "insertion_m": _r(e.insertion_m),
-            "front_normal": _r(e.front_normal), "yaw_deg": _r(e.yaw_deg, 1),
-            "dims_m": {k: _r(e.dims_m[k]) for k in ("w", "d", "h") if k in e.dims_m},
-            "mounting": e.mounting, "position_source": e.position_source, "fed_from": e.fed_from,
-            "contract": {k: _r(e.contract[k]) for k in _CONTRACT_PIN if k in e.contract},
-            "items": [it.name for it in e.geometry.items],
-        })
+    equipment = [{
+        "tag": e.tag, "name": e.name, "ifcClass": e.ifc_class, "predefinedType": e.predefined_type,
+        "kind": e.kind, "disposition": e.disposition, "level": e.level, "typeName": e.type_name,
+        "has_body": e.geometry.has_body, "insertion_m": _r(e.insertion_m),
+        "front_normal": _r(e.front_normal), "yaw_deg": _r(e.yaw_deg, 1), "dims_m": _r(e.dims_m),
+        "mounting": e.mounting, "position_source": e.position_source, "fed_from": e.fed_from,
+        "contract": _r({k: v for k, v in e.contract.items() if not k.startswith("_")}),
+        "items": [it.name for it in e.geometry.items],
+    } for e in model.equipment]
     room = None
     if model.room is not None:
         room = {"name": model.room.name, "level": model.room.level,
                 "walls": [{"id": w.wall_id, "start": _r(w.p0_m), "end": _r(w.p1_m),
                            "thickness": _r(w.thickness_m), "height": _r(w.height_m),
-                           "base": _r(w.base_m), "synthesized": bool(w.synthesized),
+                           "base": _r(w.base_m), "synthesized": w.synthesized,
                            "openings": [{"width": _r(o.width_m), "center_along": _r(o.center_along_m)}
                                         for o in w.openings]}
                           for w in model.room.walls],
-                "doors": len(model.room.doors),
-                "info": {k: _r(v) for k, v in sorted(model.room.info.items())}}
+                "doors": len(model.room.doors), "info": _r(dict(sorted(model.room.info.items())))}
     return {
         "backend": backend, "ok": True,
         "schema": model.schema, "project": model.project_name,
         "length_scale_m_per_unit": _r(model.length_scale_m, 6),
-        "levels": [{"id": lv["id"], "name": lv["name"], "elevation": _r(lv["elevation"]),
-                    "elevation_from_placement": _r(lv["elevation_from_placement"])}
+        "levels": [{k: _r(lv[k]) for k in ("id", "name", "elevation", "elevation_from_placement")}
                    for lv in model.levels],
         "equipment": equipment,
-        "other_products": [{"name": o.get("name"), "ifcClass": o.get("ifcClass"), "kind": o.get("kind"),
-                            "disposition": o.get("disposition")} for o in model.other_products],
+        "other_products": [{k: o.get(k) for k in ("name", "ifcClass", "kind", "disposition")}
+                           for o in model.other_products],
         "room": room,
         "feeders": [{"source": ed.source, "target": ed.target, "kind": ed.kind} for ed in model.feeders],
         "conduit_runs": [r.get("item") for r in model.conduit_runs],
@@ -734,19 +706,19 @@ def summarize(path: str) -> Dict[str, Any]:
     }
 
 
-def resolve_summaries(paths: Sequence[str], *, force_steplite: bool,
-                      python: str = sys.executable, timeout: float = 300.0) -> Dict[str, Dict[str, Any]]:
+def resolve_summaries(paths: Sequence[str], *, force_steplite: bool) -> Dict[str, Dict[str, Any]]:
     """Run ``--resolve`` in a child interpreter and return {path: summary}.
     The child gets ``src/`` on PYTHONPATH; ``force_steplite`` exports
-    RVT_STEPLITE_FORCE=1 so the engine puts the bundled shim FIRST."""
+    RVT_STEPLITE_FORCE=1 so the engine puts the bundled shim FIRST -- the
+    backend is process-global, so a child is the only robust way to choose it."""
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join(
         [os.path.join(ROOT, "src")] + [p for p in env.get("PYTHONPATH", "").split(os.pathsep) if p])
     env.pop("RVT_STEPLITE_FORCE", None)
     if force_steplite:
         env["RVT_STEPLITE_FORCE"] = "1"
-    proc = subprocess.run([python, os.path.abspath(__file__), "--resolve", *paths],
-                          cwd=ROOT, env=env, capture_output=True, text=True, timeout=timeout)
+    proc = subprocess.run([sys.executable, os.path.abspath(__file__), "--resolve", *paths],
+                          cwd=ROOT, env=env, capture_output=True, text=True, timeout=300)
     if proc.returncode != 0:
         raise RuntimeError(f"--resolve failed ({proc.returncode}):\n{proc.stderr[-3000:]}")
     return json.loads(proc.stdout)
@@ -766,6 +738,10 @@ def render_all() -> Dict[str, str]:
     return out
 
 
+def _path(name: str, ext: str) -> str:
+    return os.path.join(FIXTURE_DIR, name + ext)
+
+
 def _read(path: str) -> Optional[str]:
     if not os.path.isfile(path):
         return None
@@ -773,77 +749,94 @@ def _read(path: str) -> Optional[str]:
         return fh.read()
 
 
-def check(out_dir: str = FIXTURE_DIR) -> List[str]:
-    """Drift report: one line per fixture whose committed .ifc differs from
-    the generator (or is missing), per stray .ifc, per missing .expected.json."""
+def _write_if_changed(path: str, text: str) -> bool:
+    if _read(path) == text:
+        return False
+    with open(path, "w", encoding="ascii", newline="\n") as fh:
+        fh.write(text)
+    return True
+
+
+def header_doc(fx: Fixture) -> Dict[str, Any]:
+    """The registry-derived half of ``<name>.expected.json`` (resolver-free)."""
+    return {"fixture": fx["name"], "generator": GENERATOR, "pins": fx["pins"], "notes": fx["notes"],
+            "parity_xfail": fx["parity_xfail"], "pinned_backend": "steplite"}
+
+
+def load_expected(name: str) -> Optional[Dict[str, Any]]:
+    text = _read(_path(name, ".expected.json"))
+    return json.loads(text) if text is not None else None
+
+
+def _dump(doc: Dict[str, Any]) -> str:
+    return json.dumps(doc, indent=1) + "\n"
+
+
+def check() -> List[str]:
+    """Drift report, one line per problem: a committed .ifc that differs from
+    the generator or is missing, an .expected.json that is missing or whose
+    registry-derived header (pins / notes / parity_xfail) is stale, and any
+    stray file the generator does not produce."""
     problems: List[str] = []
     rendered = render_all()
-    for name, text in rendered.items():
-        got = _read(os.path.join(out_dir, name + ".ifc"))
+    for fx in FIXTURES:
+        name = fx["name"]
+        got = _read(_path(name, ".ifc"))
         if got is None:
             problems.append(f"missing: {name}.ifc (run {GENERATOR})")
-        elif got != text:
+        elif got != rendered[name]:
             problems.append(f"drift: {name}.ifc differs from the generator (run {GENERATOR})")
-        if not os.path.isfile(os.path.join(out_dir, name + ".expected.json")):
+        doc = load_expected(name)
+        if doc is None:
             problems.append(f"missing: {name}.expected.json (run {GENERATOR} --update-expected)")
-    if os.path.isdir(out_dir):
-        for fn in sorted(os.listdir(out_dir)):
-            stem, ext = os.path.splitext(fn)
-            if ext == ".ifc" and stem not in rendered:
-                problems.append(f"stray: {fn} is not produced by the generator")
-            if fn.endswith(".expected.json") and fn[:-len(".expected.json")] not in rendered:
-                problems.append(f"stray: {fn} has no fixture")
+        elif {k: v for k, v in doc.items() if k != "expected"} != header_doc(fx):
+            problems.append(f"drift: {name}.expected.json header is stale vs the registry (run {GENERATOR})")
+    for fn in sorted(os.listdir(FIXTURE_DIR)) if os.path.isdir(FIXTURE_DIR) else ():
+        stem = fn[:-len(".expected.json")] if fn.endswith(".expected.json") else os.path.splitext(fn)[0]
+        if stem not in rendered:
+            problems.append(f"stray: {fn} is not produced by the generator")
     return problems
 
 
-def write_fixtures(out_dir: str = FIXTURE_DIR) -> List[str]:
-    os.makedirs(out_dir, exist_ok=True)
+def write_fixtures() -> List[str]:
+    """(Re)write every .ifc and refresh each .expected.json HEADER from the
+    registry (the resolver-derived ``expected`` body is left untouched)."""
+    os.makedirs(FIXTURE_DIR, exist_ok=True)
     written = []
     for name, text in render_all().items():
-        path = os.path.join(out_dir, name + ".ifc")
-        if _read(path) != text:
-            with open(path, "w", encoding="ascii", newline="\n") as fh:
-                fh.write(text)
-            written.append(name)
+        if _write_if_changed(_path(name, ".ifc"), text):
+            written.append(name + ".ifc")
+    for fx in FIXTURES:
+        doc = load_expected(fx["name"])
+        if doc is not None and _write_if_changed(_path(fx["name"], ".expected.json"),
+                                                 _dump({**header_doc(fx), "expected": doc["expected"]})):
+            written.append(fx["name"] + ".expected.json (header)")
     return written
 
 
-def expected_doc(fx: Fixture, summary: Dict[str, Any]) -> Dict[str, Any]:
-    summary = dict(summary)
-    backend = summary.pop("backend")
-    return {"fixture": fx["name"], "generator": GENERATOR, "pins": fx["pins"], "notes": fx["notes"],
-            "parity_xfail": fx["parity_xfail"], "pinned_backend": backend, "expected": summary}
-
-
-def update_expected(out_dir: str = FIXTURE_DIR, python: str = sys.executable) -> List[str]:
+def update_expected() -> List[str]:
     """Re-pin every .expected.json from TODAY's steplite resolver.  A
     deliberate act: the diff it produces is the expectation change a PR owns."""
-    write_fixtures(out_dir)
-    paths = [os.path.join(out_dir, fx["name"] + ".ifc") for fx in FIXTURES]
-    summaries = resolve_summaries(paths, force_steplite=True, python=python)
+    write_fixtures()
+    paths = [_path(fx["name"], ".ifc") for fx in FIXTURES]
+    summaries = resolve_summaries(paths, force_steplite=True)
     changed = []
     for fx, path in zip(FIXTURES, paths):
-        doc = expected_doc(fx, summaries[path])
-        assert doc["pinned_backend"] == "steplite", doc["pinned_backend"]
-        text = json.dumps(doc, indent=1, sort_keys=False) + "\n"
-        epath = os.path.join(out_dir, fx["name"] + ".expected.json")
-        if _read(epath) != text:
-            with open(epath, "w", encoding="ascii", newline="\n") as fh:
-                fh.write(text)
+        summary = summaries[path]
+        assert summary.pop("backend") == "steplite", "RVT_STEPLITE_FORCE did not select the shim"
+        if _write_if_changed(_path(fx["name"], ".expected.json"), _dump({**header_doc(fx), "expected": summary})):
             changed.append(fx["name"])
     return changed
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--out", default=FIXTURE_DIR, help="fixture directory (default tests/ifc_conformance)")
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--check", action="store_true", help="report drift vs the committed fixtures; exit 1 on any")
     g.add_argument("--update-expected", action="store_true",
                    help="re-pin the .expected.json files from today's steplite resolver")
     g.add_argument("--list", action="store_true", help="print the fixture table")
     g.add_argument("--resolve", nargs="+", metavar="IFC", help=argparse.SUPPRESS)
-    ap.add_argument("--python", default=None, help=argparse.SUPPRESS)
     a = ap.parse_args(argv)
     if a.resolve:
         json.dump({p: summarize(p) for p in a.resolve}, sys.stdout, indent=1)
@@ -854,16 +847,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             print(f"{fx['name']:32s} {len(texts[fx['name']]):6d} B  {fx['pins']}")
         return 0
     if a.check:
-        problems = check(a.out)
+        problems = check()
         for p in problems:
             print(p)
         print(f"{'DRIFT' if problems else 'ok'}: {len(FIXTURES)} fixtures checked against {GENERATOR}")
         return 1 if problems else 0
     if a.update_expected:
-        changed = update_expected(a.out, a.python or sys.executable)
+        changed = update_expected()
         print(f"expected: {len(changed)} re-pinned {changed}" if changed else "expected: unchanged")
         return 0
-    written = write_fixtures(a.out)
+    written = write_fixtures()
     print(f"fixtures: {len(written)} written {written}" if written else "fixtures: unchanged")
     return 0
 

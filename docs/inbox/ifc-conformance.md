@@ -17,9 +17,12 @@ steplite change (eng #152 holds `intent.py` / `steplite.py` this wave).
   and **nine registered fixtures** `@fixture(name, pins, notes, parity_xfail)`. Every byte
   of every fixture comes from parameters in the script — nothing is read from, let alone
   copied out of, `samples/ vendor/ extracted/ usecases/ inputs/` (hard rule 3). CLI:
-  * *(default)* write `tests/ifc_conformance/*.ifc`;
-  * `--check` drift gate (committed `.ifc` == generator output, no stray/missing files, every
-    fixture has its `.expected.json`) → exit 1 on any;
+  * *(default)* write `tests/ifc_conformance/*.ifc` and refresh each `.expected.json`'s
+    registry-derived header (pins / notes / parity_xfail) without touching its `expected` body;
+  * `--check` drift gate (committed `.ifc` == generator output, every fixture has its
+    `.expected.json` **and its header matches the registry**, no stray files) → exit 1 on any
+    — so a note or xfail edited in the script but not re-committed turns CI red instead of
+    leaving a stale JSON;
   * `--update-expected` re-pins `<name>.expected.json` from TODAY's resolver under the
     forced steplite shim (the deliberate act a behaviour-changing PR performs);
   * `--list` fixture table; `--resolve` (internal) = the one place the engine is imported:
@@ -31,15 +34,16 @@ steplite change (eng #152 holds `intent.py` / `steplite.py` this wave).
   tools/dev/make_ifc_fixtures.py (fixture <name>) -- regenerate, never edit. pins: … */`
   (ASCII `--`: ISO-10303-21 text is basic-alphabet only, so the em dash of the issue text is
   spelled `--`; real ifcopenshell and steplite both accept the comment — verified, log clean).
-* **`tests/test_ifc_conformance.py`** (in `tests/ci_shard.txt`) — 30 tests:
-  registry == committed files; `make_ifc_fixtures.py --check` exit 0; generator deterministic;
-  per-fixture hygiene (< 20 KB, ASCII, LF, portable lowercase name, header mark, FILE_SCHEMA,
-  expected doc well-formed, any `parity_xfail` cites `#NNN`); **steplite summary == pinned
-  expectation** per fixture (one child interpreter for all nine, `RVT_STEPLITE_FORCE=1`,
-  asserts `backend == "steplite"` so green means green-on-the-shim even where the wheel is
-  installed; failure prints a unified diff + the re-pin instruction); **real-ifcopenshell
-  parity == steplite** per fixture when a real ifcopenshell is importable (skips otherwise),
-  known divergences `xfail(strict=True)` with the issue number so the fixing PR must flip them.
+* **`tests/test_ifc_conformance.py`** (in `tests/ci_shard.txt`) — 29 tests:
+  `make_ifc_fixtures.py --check` exit 0 (the CLI drift gate); generator deterministic;
+  per-fixture hygiene (< 20 KB, ASCII, LF, portable lowercase name, header mark, FILE_SCHEMA
+  taken from the fixture's own `Model.schema`, any `parity_xfail` cites `#NNN`); **steplite
+  summary == pinned expectation** per fixture (one child interpreter for all nine,
+  `RVT_STEPLITE_FORCE=1`, the module fixture asserts the child really ran `steplite` so green
+  means green-on-the-shim even where the wheel is installed; failure prints a unified diff +
+  the re-pin instruction); **real-ifcopenshell parity == steplite** per fixture when a real
+  ifcopenshell is importable (skips otherwise), known divergences `xfail(strict=True)` with the
+  issue number so the fixing PR must flip them.
 
 ## The fixtures and what they pin (today's behaviour, honestly)
 
@@ -58,7 +62,8 @@ steplite change (eng #152 holds `intent.py` / `steplite.py` this wave).
 The pinned summary per fixture (`expected`): schema, project, `length_scale_m_per_unit`,
 levels (id/name/elevation/elevation_from_placement), equipment (tag, name, ifcClass,
 predefinedType, kind, disposition, level, typeName, has_body, insertion_m, front_normal,
-yaw_deg, dims w/d/h, mounting, position_source, fed_from, contract subset, item names),
+yaw_deg, every `dims_m` key, mounting, position_source, fed_from, the whole non-private
+contract, item names),
 other_products, room (walls with start/end/thickness/height/base/openings, doors, info),
 feeders, conduit_runs, family_plans (tag/kind/status/catalog), audit subset. Numbers rounded
 to 3 dp (scale 6 dp, yaw 1 dp) — the fixtures are authored on round values so no pin sits on
@@ -69,19 +74,21 @@ a rounding boundary. Census key: to be added by #153 (`summarize()` is the one p
 * Both backends open all nine with a clean log (real ifcopenshell 0.8.x `get_log()` empty;
   steplite parses every record incl. the classes outside its schema subset). Product closures
   differ exactly and only where predicted: (d) `IfcDoor`, (i) `IfcElectricDistributionPoint`.
-* `tests/test_ifc_conformance.py` — **with** ifcopenshell (`.venv`, `.[test]`+wheel):
-  `28 passed, 2 xfailed in 1.71s`; **without** (`uv venv .venv-noifc` + `.[test]` only, the CI
-  shape): `21 passed, 9 skipped in 1.01s` (the 9 = parity, skipped by design). `--durations=5`:
-  1.22 s real-backend child, 0.32–0.87 s steplite child, 0.07 s `--check`; whole module ≈ 1–2 s
-  (target < 30 s).
+* `tests/test_ifc_conformance.py` (final head, after /simplify) — **with** ifcopenshell (`.venv`,
+  `.[test]`+wheel): `27 passed, 2 xfailed in 1.20s`; **without** (`uv venv .venv-noifc` +
+  `.[test]` only, the CI shape): `20 passed, 9 skipped in 0.46s` (the 9 = parity, skipped by
+  design). `--durations=5`: ≈0.8 s real-backend child, 0.30 s steplite child, 0.07 s `--check`;
+  whole module ≈ 0.5–1.2 s (target < 30 s).
 * Stream gates: `tests/test_ifc_conformance.py tests/test_steplite.py tests/test_ifc_intent.py -q -rs`
-  with ifcopenshell → `64 passed, 2 xfailed in 11.33s`. Without ifcopenshell the same command
+  with ifcopenshell → `63 passed, 2 xfailed in 9.51s`. Without ifcopenshell the same command
   **errors at collection in `test_ifc_intent.py`** (`No module named 'ifcopenshell.guid'`) —
   pre-existing on `main` @ 311dee9 and order-dependent (`test_ifc_intent.py` alone: `1 skipped`;
-  `test_ifc_conformance.py test_steplite.py` without it: `25 passed, 16 skipped in 1.12s`);
+  `test_ifc_conformance.py test_steplite.py` without it: `24 passed, 16 skipped in 1.15s`);
   not this stream's file → filed **#320**.
-* `python3 tools/dev/make_ifc_fixtures.py --check` → `ok: 9 fixtures checked`; 
-  `python3 tools/dev/check_portable_paths.py` → `ok: 2791 tracked paths are portable`;
+* `python3 tools/dev/make_ifc_fixtures.py --check` → `ok: 9 fixtures checked` (and the header
+  guard demonstrably fires: an in-memory edit of one fixture's `notes` makes `check()` return
+  `drift: d_wall_opening_door.expected.json header is stale vs the registry`);
+  `python3 tools/dev/check_portable_paths.py` → `ok: 2792 tracked paths are portable`;
   `tools/sync_plugin.py --check` → `plugin in sync with source` (nothing under `src/` touched).
 * /verify (front door consumes the fixtures end-to-end on the shim):
   `RVT_STEPLITE_FORCE=1 .venv/bin/python tools/frontdoor.py author --ifc tests/ifc_conformance/f_board_type_psets.ifc --out out/verify/f_board_type_psets --json`
@@ -108,6 +115,27 @@ a rounding boundary. Census key: to be added by #153 (`summarize()` is the one p
    one-line checkable DONE: their PR turns the strict xfail into a pass (pytest will fail the
    suite on XPASS until the `parity_xfail` entry is removed and `--update-expected` re-run).
 4. #320 (new): `test_ifc_intent.py` collection is order-dependent without the wheel.
+
+## /simplify pass (4 review angles) — applied vs deliberately kept
+
+Applied: registry↔JSON header drift now guarded by `--check` and refreshed by the default run
+(was split-brain); FILE_SCHEMA check reads the fixture's `Model.schema` (was name-keyed); `;` in
+`pins` is an assertion like its neighbours (was silently rewritten); the whole non-private
+contract and every `dims_m` key are pinned (was an allow-list that #152/#157 would have had to
+edit); `Model.board()` folds the 7× repeated panel triple; dead `_enum`, the no-op `_f` branch,
+never-varied kwargs (`project`, `site_axis`, `axis(z=)`, `extrusion(position=)`,
+`product(description=)`, `room_shell(name/info/cls)`, `storey(axis=)`, `--out`, `--python`)
+removed; `spatial()` folded into `Model(...)`; the module fixtures strip/assert `backend` once;
+the redundant registry-vs-files test dropped (`check()` covers it). Kept on purpose: the
+~45 lines of STEP primitives mirrored from `ifc_out` (`_W/_f/_s/_guid/box_pts`) — importing them
+would execute `rvt.frontdoor` (9 engine modules, mutates `sys.path` via `rvt.ifc`) at generator
+import and make fixture bytes a function of another stream's private helpers; if a third stdlib
+STEP writer appears, the home is a side-effect-free `src/rvt/ifc/stepwrite.py` (separate PR).
+Kept: `summarize()` as an explicit projection rather than a deny-listed `intent_to_json` (the
+full JSON carries catalog facts, geometry boxes and prose notes that would re-pin in unrelated
+PRs; the DONE names an allow-list). Kept: the local "real ifcopenshell importable" predicate —
+consolidating the three test-side copies into a `tests/` helper touches
+`tests/test_ifc_read_fallback.py` (another stream's file); noted for #155's steplite pass.
 
 ## How later issues use this
 

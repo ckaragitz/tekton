@@ -77,7 +77,12 @@
     "dims_m": {
      "w": 0.9,
      "d": 0.25,
-     "h": 1.4
+     "h": 1.4,
+     "footprint_area": 0.225,
+     "enclosure_w": 0.9,
+     "enclosure_h": 1.4,
+     "top_of_panel": 2.0,
+     "bottom_of_panel": 0.6
     },
     "mounting": "wall",
     "position_source": "geometry-recovered (placement chain composes to the identity; world-baked vertices)",
@@ -85,10 +90,10 @@
     "contract": {
      "PanelName": "DP-1",
      "Voltage": "480Y/277 V",
-     "Phases": 3.0,
-     "Wires": 4.0,
      "BusRating": 400.0,
-     "MainsRating": 400.0
+     "MainsRating": 400.0,
+     "Phases": 3.0,
+     "Wires": 4.0
     },
     "items": [
      "DP-1_enclosure",
