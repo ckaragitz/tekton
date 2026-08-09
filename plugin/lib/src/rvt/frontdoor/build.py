@@ -158,8 +158,164 @@ class BuildResult:
             "validation": self.validation, "circuits": self.circuits,
             "status_gate": self.status_gate, "degradations": list(self.degradations),
             "created": list(self.created), "errors": list(self.errors),
-            "seconds": self.seconds,
+            "stages": list(self.stages), "seconds": self.seconds,
         }
+
+
+# ---------------------------------------------------------------------------
+# per-stage wall time (manifest build.stages[*].seconds -- issue #124)
+# ---------------------------------------------------------------------------
+
+@contextlib.contextmanager
+def _timed_stage(res: "BuildResult"):
+    """Stamp ``seconds`` (this block's wall time, perf_counter, 0.01 s) on
+    every ``res.stages`` entry appended inside the block -- the ONE clock the
+    manifest's per-stage column uses (a stage record's own coarser figure, if
+    any, is superseded), so ``tools/surface_bench.py`` can say where a job's
+    time goes."""
+    n0 = len(res.stages)
+    t0 = time.perf_counter()
+    try:
+        yield
+    finally:
+        dt = round(time.perf_counter() - t0, 2)
+        for st in res.stages[n0:]:
+            st["seconds"] = dt
+
+
+# ---------------------------------------------------------------------------
+# stage L in ONE host pass (issue #124)
+# ---------------------------------------------------------------------------
+
+def _load_entry(tag: str, lr, in_path: str, out_path: str, R) -> Dict[str, Any]:
+    """One ``loads[]`` row of the stage-L record (the shape
+    ``tools/ifc_intent.stage_load`` writes per family; stage E and the
+    manifest read it)."""
+    plan = lr.plan
+    entry: Dict[str, Any] = {
+        "tag": tag, "in": _relp(in_path), "out": _relp(out_path),
+        "ok": bool(lr.ok), "stop_reason": lr.stop_reason,
+        "host_watermark": (lr.proofs.get("plan") or {}).get("host_watermark"),
+        "symbol_id": plan.symbol_id if plan else None,
+        "family_id": plan.host_family_id if plan else None,
+        "surrogate_id": plan.surrogate_id if plan else None,
+        "content_guid": plan.guid if plan else None,
+        "twins": len(plan.twin_of) if plan else None,
+        "elements_added": len(lr.elements),
+        "proofs": R._slim_proofs(lr.proofs),
+        "acceptance": lr.acceptance,
+        "report": _relp(out_path + ".load.json"),
+    }
+    if not lr.ok:
+        entry["blocker"] = lr.stop_reason or "load returned ok=False"
+    return entry
+
+
+def stage_load_batched(model: FI.IntentModel, base_path: str, stages_dir: str, R, *,
+                       symbol_solid: bool = True) -> Dict[str, Any]:
+    """Stage L in ONE host pass: every mapped family (feeder-tree order) is
+    generated above the ids the previous one allocated and all N are loaded
+    by :func:`rvt.famgen.loader.load_families_into_project` -- one survey,
+    one ``Global/Latest`` edit, one commit, one container write, one
+    verification -- instead of N chained single loads.
+
+    Degrade policy (the chain's, kept): the deliverable is the DEEPEST GOOD
+    PREFIX of the load order.  A family that cannot be authored stops the
+    batch there (the loader's own rule); a family the loader blames for a
+    failed write step or a failed verification (``BatchLoadResult.culprit``)
+    is dropped with everything after it and the prefix is loaded again; a
+    failure the loader cannot pin on one family (host write crashed,
+    file-level verification) sheds the LAST family and tries again -- so a
+    bad family costs host passes (logged, counted in ``host_passes``), never
+    the families before it.
+
+    Returns the stage record shape of ``tools/ifc_intent.stage_load``
+    (``loads`` / ``loaded`` / ``final`` / ``n_loaded`` / ``blocker`` + the
+    private ``_loaded`` / ``_products`` / ``_current`` hand-offs to stage E),
+    plus ``mode`` / ``host_passes`` / ``shared_proofs`` / ``verify``.
+    (``rvt.convert.add_to_project`` still calls the chained ``stage_load``.)"""
+    from ..famgen import loader as L
+    order = R._load_order(model)
+    out = os.path.join(stages_dir, "stage_L_loaded.rvt")
+    rec: Dict[str, Any] = {"stage": "L", "mode": "batched (one host pass)",
+                           "base": _relp(base_path), "order": order, "loads": [],
+                           "host_passes": 0, "final": None, "blocker": None}
+    products: Dict[str, Any] = {}
+
+    def builder(tag):
+        def build(start_id):
+            products[tag] = R.build_product(model.plan_for(tag), start_id=start_id,
+                                            solid=symbol_solid)
+            return products[tag]
+        return build
+
+    loaded: Dict[str, Any] = {}
+    dropped: List[Dict[str, Any]] = []       # rows of families dropped by an earlier pass
+    attempt = list(order)
+    while attempt:
+        rec["host_passes"] += 1
+        try:
+            res = L.load_families_into_project(base_path, out, [builder(t) for t in attempt],
+                                               symbol_solid=symbol_solid,
+                                               report_path=out + ".load.json", validate=False)
+        except Exception as e:                                       # noqa: BLE001
+            # the host itself could not be surveyed / opened: no family to blame
+            rec["blocker"] = rec["blocker"] or f"host: {type(e).__name__}: {e}"
+            dropped = [{"tag": t, "ok": False, "blocker": f"{type(e).__name__}: {e}"}
+                       for t in attempt] + dropped
+            dropped[0]["traceback"] = traceback.format_exc(limit=8)
+            R._log(f"L  EXCEPTION: {type(e).__name__}: {e}")
+            break
+        rec["shared_proofs"] = {k: res.shared.get(k) for k in
+                                ("adocument_reencode", "content_documents", "pass1_commit",
+                                 "write_error")}
+        rec["verify"] = res.shared.get("verify_written")
+        entries = [_load_entry(tag, lr, base_path, out, R) for tag, lr in zip(attempt, res.loads)]
+        n_written = sum(1 for lr in res.loads if lr.out_path)     # families in the written file
+        file_ok = bool(n_written) and bool((rec["verify"] or {}).get("file_ok"))
+        if file_ok and all(lr.ok for lr in res.loads[:n_written]):
+            # the written file is good: all N, or the prefix before a family
+            # that could not be AUTHORED (nothing bad is in the file)
+            for tag, lr in zip(attempt, res.loads[:n_written]):
+                loaded[tag] = {"symbol_id": lr.plan.symbol_id,
+                               "family_id": lr.plan.host_family_id,
+                               "content_guid": lr.plan.guid, "product": products.get(tag)}
+            rec["loads"] = entries[:n_written]
+            dropped = entries[n_written:] + dropped
+            if res.culprit is not None and rec["blocker"] is None:
+                rec["blocker"] = f"{attempt[res.culprit]}: {res.loads[res.culprit].stop_reason}"
+            break
+        # not deliverable as attempted.  Deepest good prefix: keep everything
+        # before the family to blame; when the loader cannot pin the failure
+        # on one family (host write crashed, file-level verification), shed
+        # the LAST family and try again -- a bad family costs passes, never
+        # the families before it.
+        keep = res.culprit if res.culprit is not None else len(attempt) - 1
+        blame = attempt[keep] if keep < len(attempt) else attempt[-1]
+        if rec["blocker"] is None:
+            rec["blocker"] = f"{blame}: {res.stop_reason}"
+        for e in entries[keep:]:
+            e["ok"] = False
+            e.setdefault("blocker", res.stop_reason)
+        dropped = entries[keep:] + dropped
+        if keep <= 0:
+            break                                 # nothing left to keep
+        R._log(f"L  pass {rec['host_passes']}: {res.stop_reason} -> loading the "
+               f"{keep}-family prefix again")
+        attempt = attempt[:keep]
+    rec["loads"] = rec["loads"] + dropped
+    current = out if loaded else base_path
+    rec["loaded"] = {t: {k: v for k, v in d.items() if k != "product"} for t, d in loaded.items()}
+    rec["final"] = _relp(current) if loaded else None
+    rec["n_loaded"] = len(loaded)
+    rec["n_planned"] = len(order)
+    rec["_products"] = products          # for stage E (not json-serialised)
+    rec["_loaded"] = loaded
+    rec["_current"] = current
+    R._log(f"L  {len(loaded)}/{len(order)} families loaded in {rec['host_passes']} host "
+           f"pass(es) -> {os.path.basename(current)}"
+           + (f"; blocker: {rec['blocker']}" if rec["blocker"] else ""))
+    return rec
 
 
 # ---------------------------------------------------------------------------
@@ -286,10 +442,11 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     # F. our generated FAMILIES (.rfa) -- standalone deliverables too
     # ------------------------------------------------------------------
     if want_fams and "F" in opts.stages:
-        frec = R.stage_families(model, out_dir)
-        res.families = {k: v for k, v in frec.items()}
-        res.stages.append({"stage": "F", "built": frec.get("built"),
-                           "all_ok": frec.get("all_ok"), "dir": frec.get("dir")})
+        with _timed_stage(res):
+            frec = R.stage_families(model, out_dir)
+            res.families = {k: v for k, v in frec.items()}
+            res.stages.append({"stage": "F", "built": frec.get("built"),
+                               "all_ok": frec.get("all_ok"), "dir": frec.get("dir")})
         res.files["families_dir"] = os.path.join(out_dir, "families")
         for f in frec.get("families") or []:
             if f.get("built"):
@@ -304,14 +461,18 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     loaded: Dict[str, Any] = {}
     loaded_file: Optional[str] = None
     if want_fams:
-        lrec = R.stage_load(model, base_path, stages_dir, symbol_solid=opts.symbol_solid)
-        loaded = lrec.pop("_loaded", {}) or {}
-        lrec.pop("_products", None)
-        loaded_file = lrec.pop("_current", None)
-        res.load = {k: v for k, v in lrec.items()}
-        res.stages.append({"stage": "L", "n_loaded": lrec.get("n_loaded"),
-                           "n_planned": lrec.get("n_planned"),
-                           "final": lrec.get("final"), "blocker": lrec.get("blocker")})
+        with _timed_stage(res):
+            lrec = stage_load_batched(model, base_path, stages_dir, R,
+                                      symbol_solid=opts.symbol_solid)
+            loaded = lrec.pop("_loaded", {}) or {}
+            lrec.pop("_products", None)
+            loaded_file = lrec.pop("_current", None)
+            res.load = {k: v for k, v in lrec.items()}
+            res.stages.append({"stage": "L", "mode": lrec.get("mode"),
+                               "host_passes": lrec.get("host_passes"),
+                               "n_loaded": lrec.get("n_loaded"),
+                               "n_planned": lrec.get("n_planned"),
+                               "final": lrec.get("final"), "blocker": lrec.get("blocker")})
         if lrec.get("blocker"):
             res.degradations.append(f"family LOAD blocked at {lrec.get('blocker')} -- proceeding "
                                     f"with {lrec.get('n_loaded')}/{lrec.get('n_planned')} loaded "
@@ -332,14 +493,15 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     # ------------------------------------------------------------------
     specimens = None
     if want_walls or (loaded and "E" in opts.stages):
-        spec_src = opts.specimen_src or SA.CONSTRUCTED
-        specimens = (R.SpecimenSet(spec_src) if spec_src != SA.CONSTRUCTED
-                     else SA.ConstructedSpecimens(base_path=opts.base.path))
-        res.stages.append({"stage": "specimens", "source": _relp(spec_src),
-                           "wall": specimens.wall_id, "wall_type": specimens.wall_type,
-                           "instance": specimens.instance_id,
-                           "instance_symbol": specimens.instance_symbol,
-                           "instance_category": specimens.instance_category})
+        with _timed_stage(res):
+            spec_src = opts.specimen_src or SA.CONSTRUCTED
+            specimens = (R.SpecimenSet(spec_src) if spec_src != SA.CONSTRUCTED
+                         else SA.ConstructedSpecimens(base_path=opts.base.path))
+            res.stages.append({"stage": "specimens", "source": _relp(spec_src),
+                               "wall": specimens.wall_id, "wall_type": specimens.wall_type,
+                               "instance": specimens.instance_id,
+                               "instance_symbol": specimens.instance_symbol,
+                               "instance_category": specimens.instance_category})
 
     stem = opts.stem
     combined_path = os.path.join(out_dir, f"{stem}.rvt")
@@ -371,10 +533,11 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         #     requested/built the loaded chain IS the certified shell
         wok = None
         if want_walls:
-            wrec, wok = R.stage_walls(model, loaded_file, shell_path, specimens,
-                                      wall_mode=opts.wall_mode)
-            wrec["stage"] = "W(shell)"
-            res.stages.append(_slim_stage(wrec))
+            with _timed_stage(res):
+                wrec, wok = R.stage_walls(model, loaded_file, shell_path, specimens,
+                                          wall_mode=opts.wall_mode)
+                wrec["stage"] = "W(shell)"
+                res.stages.append(_slim_stage(wrec))
             if wok:
                 _harvest_created(res, wrec, "wall")
             else:
@@ -387,9 +550,10 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
         _harvest_loaded_families(res, loaded)
         # (b) equipment = the loaded families + their PLACED instances (the
         #     open cell, isolated from the certified shell)
-        erec, eok = R.stage_equipment(model, loaded_file, equip_path, specimens, loaded)
-        erec["stage"] = "E(equipment)"
-        res.stages.append(_slim_stage(erec))
+        with _timed_stage(res):
+            erec, eok = R.stage_equipment(model, loaded_file, equip_path, specimens, loaded)
+            erec["stage"] = "E(equipment)"
+            res.stages.append(_slim_stage(erec))
         if eok:
             res.files["equipment"] = equip_path
             _harvest_created(res, erec, "instance")
@@ -404,9 +568,11 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
             src = loaded_file if have_fams else base_path
             wtarget = (os.path.join(stages_dir, "stage_W_walls.rvt")
                        if (have_fams and "E" in opts.stages) else combined_path)
-            wrec, wok = R.stage_walls(model, src, wtarget, specimens, wall_mode=opts.wall_mode)
-            wrec["stage"] = "W"
-            res.stages.append(_slim_stage(wrec))
+            with _timed_stage(res):
+                wrec, wok = R.stage_walls(model, src, wtarget, specimens,
+                                          wall_mode=opts.wall_mode)
+                wrec["stage"] = "W"
+                res.stages.append(_slim_stage(wrec))
             if wok:
                 current = wtarget
                 _harvest_created(res, wrec, "wall")
@@ -416,9 +582,10 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
                                         + " -> continuing with the equipment layer")
         if have_fams and "E" in opts.stages:
             src = current or loaded_file
-            erec, eok = R.stage_equipment(model, src, combined_path, specimens, loaded)
-            erec["stage"] = "E"
-            res.stages.append(_slim_stage(erec))
+            with _timed_stage(res):
+                erec, eok = R.stage_equipment(model, src, combined_path, specimens, loaded)
+                erec["stage"] = "E"
+                res.stages.append(_slim_stage(erec))
             if eok:
                 current = combined_path
                 _harvest_created(res, erec, "instance")
@@ -449,10 +616,11 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     # ------------------------------------------------------------------
     deepest = res.deepest
     if "C" in opts.stages and deepest and model.feeders:
-        crec = R.stage_circuits(model, deepest)
-        res.circuits = {k: v for k, v in crec.items() if k != "template_circuit"}
-        res.stages.append({"stage": "C", "planned": len(crec.get("circuits_planned") or []),
-                           "blocker": crec.get("blocker")})
+        with _timed_stage(res):
+            crec = R.stage_circuits(model, deepest)
+            res.circuits = {k: v for k, v in crec.items() if k != "template_circuit"}
+            res.stages.append({"stage": "C", "planned": len(crec.get("circuits_planned") or []),
+                               "blocker": crec.get("blocker")})
         if crec.get("blocker"):
             res.degradations.append("feeder CIRCUITS not authored: " + str(crec.get("blocker"))
                                     + " -- the resolved circuit PLAN rides in the manifest "
@@ -463,35 +631,48 @@ def _run(model, opts: BuildOptions, R, res: BuildResult, verdict, plans,
     # V. gates per emitted file
     # ------------------------------------------------------------------
     if opts.validate and "V" in opts.stages:
-        for role in ("combined", "shell", "equipment"):
-            p = res.files.get(role)
-            if not p or not os.path.isfile(p):
-                continue
-            g: Dict[str, Any] = {}
+        gate_seconds: Dict[str, float] = {}          # per-gate split of the V stage
+
+        def _gate(name: str, fn, *args):
+            t = time.perf_counter()
             try:
-                g["validate"] = R.validate_rvt(p)
-            except Exception as e:                                   # noqa: BLE001
-                g["validate"] = {"verdict": "ERROR", "error": f"{type(e).__name__}: {e}"}
-            try:
-                g["census"] = R.registry_census(p)
-            except Exception as e:                                   # noqa: BLE001
-                g["census"] = {"error": f"{type(e).__name__}: {e}"}
-            try:
-                g["identity"] = R.identity_gate(p)
-            except Exception as e:                                   # noqa: BLE001
-                g["identity"] = {"status": "ERROR", "issues": [str(e)]}
-            g["self_checks_ok"] = bool(
-                (g["validate"].get("verdict") == "VALID")
-                and (g["identity"].get("status") == "PASS")
-                and (g["census"].get("coherent") is not False))
-            res.validation[role] = g
-        # deliverability status of the deepest output vs its base (P0 gate)
-        if deepest:
-            try:
-                res.status_gate = R.status_gate(deepest, base_path)
-            except Exception as e:                                   # noqa: BLE001
-                res.status_gate = {"status": f"PROOF-ONLY, NOT-DELIVERABLE (gate crashed: "
-                                             f"{type(e).__name__}: {e})", "deliverable": False}
+                return fn(*args)
+            finally:
+                gate_seconds[name] = round(gate_seconds.get(name, 0.0)
+                                           + time.perf_counter() - t, 2)
+
+        with _timed_stage(res):
+            for role in ("combined", "shell", "equipment"):
+                p = res.files.get(role)
+                if not p or not os.path.isfile(p):
+                    continue
+                g: Dict[str, Any] = {}
+                try:
+                    g["validate"] = _gate("validate", R.validate_rvt, p)
+                except Exception as e:                                   # noqa: BLE001
+                    g["validate"] = {"verdict": "ERROR", "error": f"{type(e).__name__}: {e}"}
+                try:
+                    g["census"] = _gate("census", R.registry_census, p)
+                except Exception as e:                                   # noqa: BLE001
+                    g["census"] = {"error": f"{type(e).__name__}: {e}"}
+                try:
+                    g["identity"] = _gate("identity", R.identity_gate, p)
+                except Exception as e:                                   # noqa: BLE001
+                    g["identity"] = {"status": "ERROR", "issues": [str(e)]}
+                g["self_checks_ok"] = bool(
+                    (g["validate"].get("verdict") == "VALID")
+                    and (g["identity"].get("status") == "PASS")
+                    and (g["census"].get("coherent") is not False))
+                res.validation[role] = g
+            # deliverability status of the deepest output vs its base (P0 gate)
+            if deepest:
+                try:
+                    res.status_gate = _gate("status_gate", R.status_gate, deepest, base_path)
+                except Exception as e:                                   # noqa: BLE001
+                    res.status_gate = {"status": f"PROOF-ONLY, NOT-DELIVERABLE (gate crashed: "
+                                                 f"{type(e).__name__}: {e})", "deliverable": False}
+            res.stages.append({"stage": "V", "files": sorted(res.validation),
+                               "gates": gate_seconds})
     elif not opts.validate:
         res.degradations.append("validation SKIPPED (--no-validate): this is NOT a shippable run")
 
