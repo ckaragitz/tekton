@@ -383,12 +383,12 @@ def new_reference_plane(elem_id: int, self_family_id: int, *,
     ln = (dx * dx + dy * dy + dz * dz) ** 0.5 or 1.0
     xvec = (dx / ln, dy / ln, dz / ln)
     yvec = tuple(float(c) for c in normal)
-    # cut vector = xvec x yvec normalised (the sketching view direction)
-    cx = xvec[1] * yvec[2] - xvec[2] * yvec[1]
-    cy = xvec[2] * yvec[0] - xvec[0] * yvec[2]
-    cz = xvec[0] * yvec[1] - xvec[1] * yvec[0]
-    cl = (cx * cx + cy * cy + cz * cz) ** 0.5 or 1.0
-    cut = [cx / cl, cy / cl, cz / cl]
+    # cut vector = the PLANE NORMAL, normalised (the sketching view
+    # direction).  Measured on a Revit-2026-born family (issue #52): every
+    # donor RefPlane carries m_cutVec == the plane normal [0,0,1]; the old
+    # x-cross-normal form put an in-plane vector here.
+    cl = (yvec[0] ** 2 + yvec[1] ** 2 + yvec[2] ** 2) ** 0.5 or 1.0
+    cut = [yvec[0] / cl, yvec[1] / cl, yvec[2] / cl]
     origin = ((fx + bx) / 2.0, (fy + by) / 2.0, (fz + bz) / 2.0)
     o = element_base(elem_id, cell_list=False, design_option=FAMILY_DESIGN_OPTION)
     o["m_famId"] = int(self_family_id)
@@ -429,6 +429,52 @@ def new_reference_plane(elem_id: int, self_family_id: int, *,
     return SkelElement(elem_id, "RefPlane", hdr, o, None, kind="ref_plane",
                        refs={"family": self_family_id, "gen_view": gen_view_id,
                              "ref_name": rn, "subcategory": subcategory_id})
+
+
+def new_required_settings(ids, self_family_id: int) -> List[SkelElement]:
+    """The four singleton settings elements desktop Revit REQUIRES of a
+    family document (issue #52, desktop rounds 4-5, verified on the owner's
+    Revit 2026):
+
+    * ``DefaultDivideSettings`` + ``DrawOrder3dElem`` -- the two "required
+      internal settings" Revit's repair dialog names when absent;
+    * ``AutoCamSettingsElem`` -- the standing ``Cannot get
+      AutoCamSettingsElem from the ADoccument!`` DBG_WARN;
+    * ``PenWidthTableElem`` -- OUR ISO-128 pen series (the genesis
+      constructor); its absence is the ``PenWidthTableGetter.cpp:62``
+      assertion that killed view drawing.
+
+    Shapes = blank schema skeletons + the factory defaults measured on a
+    Revit-2026-born family; ``famdoc_adoc`` wires their ids into
+    ``UniqueElementsTracking`` [10]/[60]/[85] and
+    ``PenWidthTableInfo.m_penWidthTableElemId``.  With candidate E these
+    removed the repair prompt and the draw assertion on desktop.
+    """
+    from ..genesis import residue_b as _RB
+    from ..genesis.types import blank_object as _blank
+
+    def _settings(cls: str, eid: int, kind: str, **fields) -> SkelElement:
+        o = _blank(cls)
+        o.update({"m_id": int(eid), "m_famId": int(self_family_id),
+                  "m_docAccess": {"m_pDoc": _weak(1)},
+                  "m_assocLevelId": -1, "m_unplacedOwnerId": -1,
+                  "m_ownerDBViewId": -1, "m_createdPhaseId": -1,
+                  "m_demolishedPhaseId": -1, "m_designOptionId": -1})
+        o.update(fields)
+        hdr = element_header(cls, category=-1, deletion=[])
+        return SkelElement(int(eid), cls, hdr, o, None, kind=kind)
+
+    out = [
+        _settings("AutoCamSettingsElem", _alloc(ids), "autocam-settings"),
+        _settings("DefaultDivideSettings", _alloc(ids), "divide-settings",
+                  m_pathDistance=5.0, m_layout=[2, 2], m_number=[12, 12],
+                  m_pathLayout=2),
+        _settings("DrawOrder3dElem", _alloc(ids), "draworder3d-settings"),
+    ]
+    rec = _RB.family_pen_width_table(int(self_family_id), elem_id=_alloc(ids))
+    out.append(SkelElement(rec.elem_id, rec.class_name, rec.header, rec.obj,
+                           rec.rep, kind="pen-width-table"))
+    return out
 
 
 def new_center_reference_planes(ids, self_family_id: int, *, gen_view_id: int = -1,
@@ -1394,6 +1440,10 @@ def new_family_document(category, name: str, *, host: str = "none",
                                           length_ft=plane_length_ft):
         doc.refplanes.append(rp)
         doc.add(rp)
+    # -- the required settings singletons (issue #52: desktop Revit
+    # demands these of every family document) -----------------------------
+    for se in new_required_settings(ids, fam.elem_id):
+        doc.add(se)
     doc.types = []
     return doc
 

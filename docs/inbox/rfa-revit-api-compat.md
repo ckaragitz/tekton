@@ -238,3 +238,52 @@ check is the only oracle, and its dialog names it.
   validator PASS; portable paths ok.  Hot-file touches:
   `src/rvt/frontdoor/base.py` (2-line candidate add) — needs owner eyes.
 * Nothing staged for viewer rounds; no certification claims made.
+
+## Iteration 5 — the desktop bisect campaign distilled into famgen (issue #52)
+
+Ten owner-driven desktop rounds (journals + minidumps on #52) turned into
+shipped famgen law:
+
+* **`skeleton.new_required_settings`** — every family document now carries
+  the four singletons desktop Revit demands: `DefaultDivideSettings` +
+  `DrawOrder3dElem` (the repair-dialog pair), `AutoCamSettingsElem` (the
+  standing DBG_WARN), `PenWidthTableElem` (OUR ISO-128 series; its absence
+  was the `PenWidthTableGetter.cpp:62` draw assert).  Desktop-verified on
+  candidate E: no repair prompt, no pen assert, family opens with live
+  category/parameters.
+* **`famdoc_adoc` registry wiring** — `UniqueElementsTracking` [10]/[60]/
+  [85] and `PenWidthTableInfo.m_penWidthTableElemId` re-pointed at OUR
+  elements after the purge (indices measured on the owner's Revit-born
+  donor; fires on populated-registry trees, no-ops on the constructive
+  all-null tree).
+* **RefPlane `m_cutVec` = the plane NORMAL** (donor law: every Revit-born
+  plane carries [0,0,1]; the old x-cross-normal put an in-plane vector).
+* **Element headers carry NO `m_pBBox`** on curves/sketch (donor law;
+  ours were zero-thickness Outlines — the `BoundedSpace` warning's shape).
+* Tests: `tests/test_required_settings.py` (6, fresh-clone runnable).
+
+**Corrected misread (recorded so nobody repeats it):** curve rep GInfo
+`m_categoryId` is a MEMBER GStyleElem ELEMENT id (the T2a self-contained-
+binds law), NOT a category constant — donor's "164" is its own style row.
+Reverted; `walked_bind_census` now guards it in the new tests.
+
+**THE OPEN LEAD for the click-crash:** the donor famdoc carries 1,499
+`GStyleElem` rows (plus CategoryElem/FontElem etc. — the whole style
+subsystem); our lean famdoc carries ZERO.  Style resolution during click
+hit-testing has nothing to walk.  Next candidate: author minimal
+in-document GStyleElem rows for the categories the famdoc uses and bind
+curve/solid reps to them in-unit (the binds law already viewer-certified
+in-unit binds).  Probe K (all drawables stripped) is with the owner as the
+bisection splitter.
+
+Suite: 1625 passed / 1 failed — `test_cli_flag_parses_2024`, PRE-EXISTING
+on clean origin/main (verified in a pristine worktree), not this branch's.
+
+## BRANCH STATE (iteration 5)
+
+Branch `claude/issue-52-family-required-settings` (from main a5a853f).
+Files: famgen/{skeleton,geometry,factory,famdoc_adoc}.py,
+tests/test_required_settings.py, this record, plugin mirror (sync clean).
+Gates: settings+selfcontained+famgen+analyze suites green; full suite
+1625/1/0 (the 1 = upstream); sync_plugin --check clean; validate_plugin
+PASS.  Desktop evidence chain: issue #52 comments (rounds 1–10).
