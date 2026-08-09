@@ -1384,7 +1384,6 @@ def _r_spec_on_rvt_seed(res, inputs, out_dir, opts):
         argv.append("--no-validate")
 
     def run() -> int:
-        import io
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
             rc = int(J.main(argv))

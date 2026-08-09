@@ -1038,14 +1038,15 @@ def test_quiet_route_into_readonly_dir_still_runs_its_stage(tmp_path, capsys, mo
     monkeypatch.setitem(R._IMPLS, "prompt_to_rfa", fake_stage)
     ro = tmp_path / "ro"
     ro.mkdir()
+    out = str(ro)
     ro.chmod(0o555)
     try:
-        if os.access(str(ro), os.W_OK):
+        if os.access(out, os.W_OK):
             pytest.skip("chmod 0555 did not make the dir read-only (running as root?)")
-        res = R.route({"prompt": PANEL_PROMPT}, "rfa", out=str(ro), quiet=True)
+        res = R.route({"prompt": PANEL_PROMPT}, "rfa", out=out, quiet=True)
     finally:
         ro.chmod(0o755)
-    assert ran == [str(ro)], res.errors
+    assert ran == [out], res.errors
     assert res.ok and res.status == "OK (fake)", res.errors
     assert "route.log" not in res.manifest_paths
     assert any("route.log not writable" in e for e in res.errors), res.errors

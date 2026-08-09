@@ -195,13 +195,11 @@ def roundtrip(in_path: str, out_path: str) -> Tuple[CfbLayout, float, float]:
 # --- verification ---------------------------------------------------------------
 
 class VerifyResult(NamedTuple):
-    """What :func:`verify_pair` found. ``problems`` are real mismatches or
-    reader rejections (empty == identical content); ``notes`` are purely
-    informational (e.g. the optional second reader is not installed) and never
-    indicate a difference. Unpacks as ``problems, notes = verify_pair(a, b)``;
-    truthiness follows ``problems`` alone, so ``if verify_pair(a, b):`` still
-    means "the copy differs" — but ``verify_pair(a, b) == []`` is now always
-    False: compare ``.problems`` instead."""
+    """``problems``: real mismatches / reader rejections (empty == identical
+    content). ``notes``: informational only (e.g. the optional second reader
+    is not installed), never a difference. Truthy iff ``problems`` — so
+    ``if verify_pair(a, b):`` still means "differs"; compare ``.problems``,
+    not the result, against ``[]``."""
     problems: List[str]
     notes: List[str]
 
@@ -210,9 +208,8 @@ class VerifyResult(NamedTuple):
 
 
 def verify_pair(orig_path: str, new_path: str) -> VerifyResult:
-    """Assert stream-level equality of two CFB files. Returns a
-    :class:`VerifyResult` of human-readable mismatch descriptions plus
-    informational notes (``result.problems == []`` == identical content).
+    """Assert stream-level equality of two CFB files; returns
+    ``VerifyResult(problems, notes)``.
 
     Checks: identical ordered set of paths/types, identical size + sha256 for
     every stream, identical CLSIDs, state bits and creation/modified FILETIMEs
@@ -269,22 +266,28 @@ def verify_pair(orig_path: str, new_path: str) -> VerifyResult:
         if ra["mtime"] != rb["mtime"]:
             problems.append(f"{who}: mtime {ra['mtime']} vs {rb['mtime']}")
 
-    # cross-check with the independent 'compoundfiles' reader if available:
+    # cross-check with the independent 'compoundfiles' reader if installed:
     # its absence is a note; its refusing our output is a problem
     try:
-        problems.extend(_verify_with_compoundfiles(a, new_path))
-    except ImportError as exc:
-        notes.append(f"(compoundfiles cross-check skipped: {exc!r})")
-    except Exception as exc:
-        problems.append(f"compoundfiles could not read output: {exc!r}")
+        second = _verify_with_compoundfiles(a, new_path)
+    except Exception as exc:                                   # noqa: BLE001
+        second = [f"compoundfiles could not read output: {exc!r}"]
+    if second is None:
+        notes.append("(compoundfiles cross-check skipped: reader not installed)")
+    else:
+        problems.extend(second)
     return VerifyResult(problems, notes)
 
 
-def _verify_with_compoundfiles(orig_catalog: Dict[str, object], new_path: str) -> List[str]:
+def _verify_with_compoundfiles(orig_catalog: Dict[str, object],
+                               new_path: str) -> Optional[List[str]]:
     """Read the OUTPUT with the independent ``compoundfiles`` package and make
     sure it sees the same tree and stream sizes; also surface any structural
-    warnings it emits."""
+    warnings it emits. ``None`` == the package is not installed (no verdict)."""
+    import importlib.util
     import warnings
+    if importlib.util.find_spec("compoundfiles") is None:
+        return None
     from compoundfiles import CompoundFileReader           # type: ignore
 
     problems: List[str] = []
@@ -527,9 +530,8 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print("  - " + p)
             rc = 1
         else:
-            second = "" if notes else " + compoundfiles cross-check"
             print("VERIFY: OK (identical paths, stream bytes, CLSIDs, state bits, timestamps; "
-                  f"olefile strict{second} clean)")
+                  "olefile strict clean; second-reader cross-check clean unless noted below)")
         for n in notes:
             print("  note: " + n)
     if a.byte_report:
