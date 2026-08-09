@@ -35,26 +35,12 @@ GA_TOOL = os.path.join(ROOT, "tools", "genesis_assemble.py")
 HAVE_RFA = os.path.exists(RFA)
 HAVE_TOOL = os.path.exists(GA_TOOL)
 
+from conftest import needs_schema                           # noqa: E402
 from rvt.famgen import famdoc_adoc as FA                    # noqa: E402
 
-
-def _have_schema() -> bool:
-    """A class schema loads: the extracted corpus blob or, on a fresh clone /
-    CI, the sha-pinned bundled base's embedded copy (load_schema's fallback)."""
-    try:
-        from rvt.schema import load_schema
-        load_schema()
-        return True
-    except Exception:                                        # noqa: BLE001
-        return False
-
-
-HAVE_SCHEMA = _have_schema()
 needs_rfa = pytest.mark.skipif(not HAVE_RFA, reason="archetype .rfa absent")
 needs_stack = pytest.mark.skipif(not (HAVE_RFA and HAVE_TOOL),
                                  reason="archetype .rfa or genesis-2 assembler absent")
-needs_schema = pytest.mark.skipif(
-    not HAVE_SCHEMA, reason="no class schema (extracted corpus and bundled base both absent)")
 
 
 # ---------------------------------------------------------------------------

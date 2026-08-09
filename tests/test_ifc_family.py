@@ -33,15 +33,15 @@ import os
 
 import pytest
 
+from conftest import HAVE_SCHEMA
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IFC = os.path.join(ROOT, "inputs", "ifc", "chicago-plenum-downlight.ifc")
 RFA_DONOR = os.path.join(ROOT, "vendor", "phi-ag-rvt", "examples", "Autodesk",
                          "racbasicsamplefamily-2026.rfa")
 RST = os.path.join(ROOT, "samples", "rstbasicsampleproject.rvt")
 HAVE_IFC = os.path.exists(IFC)
-HAVE_SCHEMA = os.path.exists(os.path.join(
-    ROOT, "extracted", "racbasicsampleproject", "Formats__Latest.gz", "000.bin")) \
-    or os.path.exists(RFA_DONOR)
+HAVE_RFA_DONOR = os.path.exists(RFA_DONOR)   # write_rfa's default container source
 HAVE_RST = os.path.exists(RST)
 try:
     import ifcopenshell                                    # noqa: F401
@@ -57,6 +57,8 @@ needs_ifc = pytest.mark.skipif(not (HAVE_IFC and HAVE_IOS),
                                reason="IFC input / ifcopenshell absent")
 needs_build = pytest.mark.skipif(not (HAVE_IFC and HAVE_IOS and HAVE_SCHEMA),
                                  reason="IFC / ifcopenshell / schema absent")
+needs_emit = pytest.mark.skipif(not (HAVE_IFC and HAVE_IOS and HAVE_SCHEMA and HAVE_RFA_DONOR),
+                                reason="IFC / ifcopenshell / schema / archetype .rfa absent")
 needs_load = pytest.mark.skipif(not (HAVE_IFC and HAVE_IOS and HAVE_SCHEMA and HAVE_RST),
                                 reason="IFC / schema / rst sample absent")
 
@@ -381,7 +383,7 @@ def test_job_parameters_flow_and_provenance(facts):
 # 3. delivery (the assay-clean .rfa)
 # ---------------------------------------------------------------------------
 
-@needs_build
+@needs_emit
 def test_rfa_emits_clean_validates_and_is_provenance_clean(rfa):
     path, rep = rfa
     assert os.path.getsize(path) > 100_000
@@ -403,7 +405,7 @@ def test_rfa_emits_clean_validates_and_is_provenance_clean(rfa):
         assert prov["checks"].get(check) is True, check
 
 
-@needs_build
+@needs_emit
 def test_rfa_reads_back_the_authored_family(rfa):
     """Decode the family document back out of the file: 8 forms, the 20
     parameter captions, the single type row, one connector."""

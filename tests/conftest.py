@@ -1,4 +1,5 @@
-"""pytest bootstrap: make ``src/`` importable and register markers."""
+"""pytest bootstrap: make ``src/`` importable, register markers, and expose
+the ONE schema-availability gate (``HAVE_SCHEMA`` / ``needs_schema``)."""
 import os
 import sys
 
@@ -8,6 +9,16 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "src")
 if SRC not in sys.path:
     sys.path.insert(0, SRC)
+
+from rvt.schema import schema_available                       # noqa: E402
+
+#: The ONE schema gate (``from conftest import HAVE_SCHEMA, needs_schema``):
+#: the engine-owned existence check, so only a genuinely absent source skips
+#: and a present-but-broken schema FAILS the test that loads it.
+HAVE_SCHEMA = schema_available()
+needs_schema = pytest.mark.skipif(
+    not HAVE_SCHEMA,
+    reason="no class schema (extracted corpus and bundled genesis base both absent)")
 
 #: the git-ignored research dirs: a FileNotFoundError under one of these
 #: means "fresh clone without the research corpus / built ladders", never
