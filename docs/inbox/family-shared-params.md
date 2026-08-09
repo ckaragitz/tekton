@@ -41,37 +41,44 @@ implemented family-side. Our shared-parameter file with its eleven real GUIDs is
   so the shared variant differs from the local one in **element class + GUID identity only**
   (single-variable discipline); the project-side census law (text → `ParamDefString`,
   integer → `ParamDefInt`) is the documented alternative (`SHARED_PARAM_DEFAULT_KIND`).
-* **Deterministic LOCAL identities** — `skeleton.LOCAL_PARAM_NAMESPACE =
-  uuid5(NAMESPACE_DNS, "rvt-writer.family.parameters")` (declared once, documented in the
-  reference §1.3) and `local_param_guid(family_name, caption) = uuid5(NS, "<family>|<caption>")`.
+* **The policy lives in the document, not the factory** — `skeleton.read_shared_parameter_file(path)`
+  parses OUR Revit shared-parameter TXT by its documented tab-separated grammar (`#`
+  comments; `*KIND col…` header rows naming the columns of the `KIND value…` rows that
+  follow — META / GROUP / PARAM; UTF-8 or Revit's UTF-16-with-BOM) into
+  `{name: SharedParamDef(guid, name, datatype, group, description, visible)}` (malformed
+  GUID / duplicate name / headerless row → `ValueError`); `new_family_document(...,
+  shared_params=None | path | rows)` stores the rows on `FamilyDoc.shared_params`; and
+  **`FamilyDoc.add_family_parameter` itself routes**: a caption present in the file whose
+  DATATYPE agrees with the requested spec (`shared_datatype_matches` /
+  `SHARED_DATATYPE_SPECS`, version-agnostic) is authored SHARED at the row's GUID
+  (description carried); a datatype disagreement, or an instance/formula shared request, is
+  refused (`ValueError`, never a second GUID); every other caption stays local. So EVERY
+  `add_family_parameter` caller (factory, `ifc/intent`, `ifc/famfrom_ifc`, heads) gets the
+  policy by passing `shared_params=` once — no per-call threading.
+* **Deterministic LOCAL identities** — `local_param_guid(family_name, caption) =
+  our_guid("family.parameters", family, caption)` (the repo's canonical uuid5 derivation
+  from #9: namespace `uuid5(NAMESPACE_DNS, "rvt-writer.gen.family.parameters")`, purpose
+  constant `LOCAL_PARAM_PURPOSE`, documented in the reference §1.3).
   `new_family_parameter(..., family_name=)` defaults its 32-hex session part to that guid
   (the `<8-hex element id>-1.0.0` suffix law is untouched, so `layout_law` / `birthright`
-  keep working); `new_family_document(family_guid=None)` now means "per-parameter
-  deterministic identity" (an explicit `family_guid` still gives the one-session-GUID form).
+  keep working); `FamilyDoc.family_guid` is now `Optional[str] = None` = "per-parameter
+  deterministic identity" (an explicit GUID still gives the one-session-GUID form).
   `shared_param_type_id(guid)` / `param_type_id(guid, id)` are the two identity helpers.
-* **`factory.read_shared_parameter_file(path)`** — parses OUR Revit shared-parameter TXT by
-  its documented tab-separated grammar (`#` comments; `*KIND col…` header rows naming the
-  columns of the `KIND value…` rows that follow — META / GROUP / PARAM; UTF-8 or Revit's
-  UTF-16-with-BOM) into `{name: SharedParamDef(guid, name, datatype, group, description,
-  visible)}`; malformed GUID / duplicate name / headerless row → `FactoryError`.
-  `SHARED_DATATYPE_SPEC` maps the file's DATATYPE tokens onto the factory's SPEC keys;
-  `DEFAULT_SHARED_PARAMS` = the tracked file's path.
-* **`make_panelboard / make_transformer / make_luminaire(shared_params=None | path | rows)`**
-  — every parameter declaration goes through `_num/_text(doc, caption, spec, group, shared)`:
-  a caption present in the file **with the same datatype** is authored SHARED at the row's
-  GUID (description carried); a datatype disagreement is refused (`FactoryError`, never a
-  second GUID); everything else stays local. Panelboard + our file ⇒ the eleven contract
-  parameters shared, Width/Height/Depth local; transformer ⇒ `Phases`; luminaire ⇒
-  `Voltage`. `FamilyProduct.shared_parameters()` / report `family.shared_parameters`
-  = caption → GUID; a product note says it out loud incl. "no loads claim".
+* **`factory.make_panelboard / make_transformer / make_luminaire(shared_params=None | path |
+  rows)`** — pass-through to `new_family_document`; `DEFAULT_SHARED_PARAMS` = the tracked
+  file's path; `FamilyProduct.shared_parameters()` / report `family.shared_parameters` =
+  caption → GUID; a product note says it out loud incl. "no loads claim". Panelboard + our
+  file ⇒ the eleven contract parameters shared, Width/Height/Depth local; transformer ⇒
+  `Phases`; luminaire ⇒ `Voltage`.
 * **`tools/make_family.py {panelboard,transformer,luminaire} --shared-params FILE`** (+ usage
-  text, a `shared :` line in the human report).
-* **Loaders (twin typeId propagation only)** — `famgen.loader` and `famload` allocate a host
-  twin for `ParamElemExternal` too (`PARAM_TWIN_CLASSES`), twin it *as its own class* with
-  the usual id / `m_paramElemId` / `m_famId` / header rewrites, but **keep the
-  `revit.local.shared:<guid>` typeId and the `m_externalParamKey` GUID verbatim** (a local
-  twin still takes the host session form). `HDR_FLAGS` gained the class (same words as
-  `ParamElemFamily` in each loader).
+  text, a `shared :` line in the human report; refusals print "factory refused the job").
+* **Loaders (twin identity propagation only)** — one rule for both: `skeleton.PARAM_TWIN_CLASSES`
+  + `skeleton.retarget_param_twin(obj, twin_id, host_family_id, session_hex)` (id /
+  `m_paramElemId` / `m_famId` rewrites; identity re-homed BY SCHEME: `revit.local.family:`
+  → host session + id, `revit.local.shared:<guid>` + `m_externalParamKey` **kept
+  verbatim**). `famgen.loader.author_param_twins` and `famload.author_param_twins` both call
+  it and twin a `ParamElemExternal` as its own class (`HDR_FLAGS` gained the class, same
+  words as `ParamElemFamily` in each loader) — the two copies of the rewrite are gone.
 * **Docs** — reference §1.3 "GUID identity policy for GENERATED families" (root
   `skills/tekton-ifc/…`, mirrored by sync) incl. the corrected statement that the literal
   file IS tracked in this repo; `docs/writer/asset-factory.md` limit #8 rewritten (built,
@@ -140,14 +147,16 @@ leaf-by-leaf (scratch instrument `rfadump.py`, not committed).
   test_famdoc_final.py test_hostsym_product.py test_frontdoor_standalone.py
   test_required_settings.py test_geo_site_determinism.py test_rfa_load.py test_target2025.py`
   → **113 passed, 34 skipped**; the full CI shard (`tests/ci_shard.txt`) → see PR body.
-* New tests (fresh-clone, all executed here): skeleton — deterministic local guid + namespace
-  constant, `new_shared_parameter` layout, `add_shared_parameter` keys type values;
-  factory — file parser on OUR tracked TXT (11 GUIDs verbatim, order = contract, datatypes =
-  contract specs), grammar edges (UTF-16, bad GUID, duplicate, headerless), the flag makes
-  exactly the eleven shared / rest local / values keyed / datatype clash refused, default
-  build unchanged + deterministic, **the written `.rfa` is VALID + provenance-clean and its
-  11 `ParamElemExternal` GUIDs decode == the file's**, and **both loaders' twins keep the
-  shared typeId + GUID** (host = the bundled `G_ABPD.rvt`).
+* New tests (fresh-clone, all executed here): skeleton — deterministic local guid + the
+  documented namespace, `new_shared_parameter` layout, `add_shared_parameter` keys type
+  values, `new_family_document(shared_params=)` routes `add_family_parameter` (datatype
+  clash / instance refused), `retarget_param_twin` re-homes local / keeps shared;
+  factory — file parser on OUR tracked TXT (11 GUIDs verbatim, order = contract, datatypes
+  agree with the contract specs), grammar edges (UTF-16, bad GUID, duplicate, headerless),
+  the flag makes exactly the eleven shared / rest local / values keyed / datatype clash
+  refused, default build unchanged + deterministic, **the written `.rfa` is VALID +
+  provenance-clean and its 11 `ParamElemExternal` GUIDs decode == the file's**, and **both
+  loaders' twins keep the shared typeId + GUID** (host = the bundled `G_ABPD.rvt`).
 * `tools/sync_plugin.py` → synced 5 files, deny-audit clean, validation passed; `--check`
   clean; `plugin/scripts/validate_plugin.py` PASS (25 assertions);
   `tools/dev/check_portable_paths.py` ok (2780 paths).

@@ -318,7 +318,7 @@ def main(argv=None) -> int:
     try:
         _ensure_standalone()
         return int(ns.func(ns) or 0)
-    except F.FactoryError as e:
+    except ValueError as e:                    # FactoryError + the skeleton's refusals
         print(f"factory refused the job: {e}", file=sys.stderr)
         return 2
 

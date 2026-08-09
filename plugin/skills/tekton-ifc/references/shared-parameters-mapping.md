@@ -127,8 +127,8 @@ each is fixed:
 
 | Parameter | Element class in the `.rfa` | Identity (`m_typeId` / GUID key) | Where the value comes from |
 |---|---|---|---|
-| **A tagging-contract parameter** — its caption AND datatype match a `PARAM` row of OUR shared-parameter file | `ParamElemExternal` (a *shared* family parameter) | `revit.local.shared:<guid>-1.0.0` **and** `m_externalParamKey.m_guidValue = <guid>` — the row's GUID, **copied verbatim, never regenerated, never re-minted at load** | `--shared-params usecases/eaton-panelboard/panelboard-shared-parameters.txt` (factory `shared_params=`); the parser reads the tab-separated `*PARAM` grammar of §1.1 |
-| **Every other parameter** (Width/Height/Depth, kVA Rating, Lumens, …) | `ParamElemFamily` (a *local* family parameter) | `revit.local.family:<32-hex><8-hex element id>-1.0.0` where the 32-hex part = `uuid5(LOCAL_PARAM_NAMESPACE, "<family name>\|<caption>")`, `LOCAL_PARAM_NAMESPACE = uuid5(NAMESPACE_DNS, "rvt-writer.family.parameters")` (`rvt.famgen.skeleton`) — deterministic: the same family + caption always yields the same identity, two builds agree byte for byte, and no Autodesk-minted GUID is ever reused | nothing to supply |
+| **A tagging-contract parameter** — its caption AND datatype match a `PARAM` row of OUR shared-parameter file | `ParamElemExternal` (a *shared* family parameter) | `revit.local.shared:<guid>-1.0.0` **and** `m_externalParamKey.m_guidValue = <guid>` — the row's GUID, **copied verbatim, never regenerated, never re-minted at load** | `--shared-params usecases/eaton-panelboard/panelboard-shared-parameters.txt` (`make_*` / `new_family_document(shared_params=)`); the parser reads the tab-separated `*PARAM` grammar of §1.1 and `add_family_parameter` applies it |
+| **Every other parameter** (Width/Height/Depth, kVA Rating, Lumens, …) | `ParamElemFamily` (a *local* family parameter) | `revit.local.family:<32-hex><8-hex element id>-1.0.0` where the 32-hex part = `uuid5(NS, "<family name>\|<caption>")`, `NS = uuid5(NAMESPACE_DNS, "rvt-writer.gen.family.parameters")` (`rvt.famgen.skeleton.local_param_guid` = the repo's `our_guid("family.parameters", …)`) — deterministic: the same family + caption always yields the same identity, two builds agree byte for byte, and no Autodesk-minted GUID is ever reused | nothing to supply |
 
 Consequences an operator can rely on:
 
@@ -141,7 +141,7 @@ Consequences an operator can rely on:
   the family is loaded — no route-B rebinding on the project side. Other products
   share only what genuinely matches (the transformer's `Phases`, the luminaire's
   `Voltage`); a caption that matches a row with a *different* datatype is refused
-  (`FactoryError`), never given a second GUID.
+  (an error), never given a second GUID.
 - The report (`<stem>.json` → `family.shared_parameters`) lists caption → GUID;
   `tools/make_family.py provenance` stays PROVENANCE-CLEAN (`revit.local.shared:*`
   is whitelisted format vocabulary like `revit.local.family:*`).

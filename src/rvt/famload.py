@@ -154,10 +154,6 @@ HDR_FLAGS = {
     "FamSymSurrogate": (10, -32640),
 }
 
-#: the family-parameter definition classes that get a host TWIN (a shared
-#: ``ParamElemExternal`` twins as itself, GUID identity kept verbatim)
-PARAM_TWIN_CLASSES = ("ParamElemFamily", "ParamElemExternal")
-
 #: DBViewInfoForPreview of an annotation host Family [VERIFIED rstbasic
 #: 1388845: one preview view, viewFamily 107, viewType 6]
 ANNOTATION_PREVIEW_VIEW = {
@@ -485,6 +481,7 @@ def _plan_family(fl: FamilyLoad, doc, host: HostContext, cursor: int) -> Tuple[L
     def alloc() -> int:
         nxt[0] += 1
         return nxt[0]
+    from .famgen.skeleton import PARAM_TWIN_CLASSES
     plan.host_family_id = alloc()
     for e in doc.elements:
         if e.class_name in PARAM_TWIN_CLASSES:
@@ -533,44 +530,29 @@ def _header(class_name: str, *, category: int = -1, family_id: int = -1,
 
 
 def author_param_twins(doc, plan: LoadPlan) -> List:
-    """One host ``ParamElemFamily`` TWIN per family user parameter [VERIFIED
-    rstbasic 1390073 vs its embedded counterpart 1393111]: the document's own
-    parameter object with m_id / m_pParamDef.m_paramElemId -> the host id,
-    m_famId -> the host Family, m_typeId -> the host-local family type id;
-    m_designOptionId KEEPS the family-document -4 (the host twin carries -4
-    too).  Header {family_id = host Family, deletion [Family, self]}.
-
-    A SHARED parameter (``ParamElemExternal``) twins as its own class with
-    the same id / owner rewrites but KEEPS its ``revit.local.shared:<guid>``
-    typeId and ``m_externalParamKey`` GUID verbatim -- the identity a
-    schedule binds by is never re-minted [UNVERIFIED host-side: the host's
-    ``ExternalParamTracking`` registration is the open follow-up].
+    """One host TWIN per family user parameter [VERIFIED rstbasic 1390073 vs
+    its embedded counterpart 1393111]: the document's own parameter object
+    with m_id / m_pParamDef.m_paramElemId -> the host id, m_famId -> the
+    host Family, a local m_typeId -> the host-local family type id
+    (``famgen.skeleton.retarget_param_twin``; a SHARED ``ParamElemExternal``
+    twins as itself keeping its ``revit.local.shared:<guid>`` identity + GUID
+    key verbatim [UNVERIFIED host-side: the host's ``ExternalParamTracking``
+    registration is the open follow-up]); m_designOptionId KEEPS the
+    family-document -4 (the host twin carries -4 too).  Header {family_id =
+    host Family, deletion [Family, self]}.
     """
+    from .famgen.skeleton import PARAM_TWIN_CLASSES, retarget_param_twin
     out = []
     hf = plan.host_family_id
     for e in doc.elements:
         if e.class_name not in PARAM_TWIN_CLASSES:
             continue
         tid = plan.twin_of[e.elem_id]
-        obj = _dc(e.obj)
-        obj["m_id"] = tid
-        obj["m_famId"] = hf
-        pd = ((obj.get("m_pParamDef") or {}).get("value") or {})
-        pd["m_paramElemId"] = tid
-        if e.class_name == "ParamElemFamily":       # session identity -> host-local
-            local_id = (f"revit.local.family:{plan.session_guid_hex}"
-                        f"{tid & 0xFFFFFFFF:08x}-1.0.0")
-            tt = pd.get("m_typeId")
-            if isinstance(tt, dict):
-                tt["m_typeId"] = local_id
-            else:
-                pd["m_typeId"] = {"m_typeId": local_id}
-        hdr = _header(e.class_name, category=-1, family_id=hf,
-                      deletion=[hf, tid])
-        el = _skel(tid, e.class_name, hdr, obj, None, owner_id=hf,
-                   kind="param_twin")
+        obj = retarget_param_twin(_dc(e.obj), tid, hf, plan.session_guid_hex)
+        hdr = _header(e.class_name, category=-1, family_id=hf, deletion=[hf, tid])
+        el = _skel(tid, e.class_name, hdr, obj, None, owner_id=hf, kind="param_twin")
         el.notes.append(f"twin of embedded param {e.elem_id} "
-                        f"({(pd.get('m_caption') or '')!s})")
+                        f"({obj['m_pParamDef']['value'].get('m_caption') or ''!s})")
         out.append(el)
     return out
 

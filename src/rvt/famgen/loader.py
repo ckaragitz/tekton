@@ -106,10 +106,6 @@ HDR_FLAGS = {
     "FamilyInstance": (10, -32768),
 }
 
-#: the family-parameter definition classes that get a host TWIN (a shared
-#: ``ParamElemExternal`` twins as itself, GUID identity kept verbatim)
-PARAM_TWIN_CLASSES = ("ParamElemFamily", "ParamElemExternal")
-
 #: history-table entry type codes of BaseFamilySymbolGStep [V specimen]
 HIST_FACE, HIST_EDGE, HIST_NODE, HIST_FORM = 5, 3, 6, 65
 
@@ -357,6 +353,7 @@ def plan_load(product, host: HostContext, *, place: bool) -> LoadPlan:
     def alloc() -> int:
         nxt[0] += 1
         return nxt[0]
+    from .skeleton import PARAM_TWIN_CLASSES
     plan.host_family_id = alloc()
     for e in doc.elements:
         if e.class_name in PARAM_TWIN_CLASSES:
@@ -423,43 +420,28 @@ def _header(class_name: str, *, category: int = -1, family_id: int = -1,
 
 
 def author_param_twins(product, plan: LoadPlan) -> List:
-    """One host ``ParamElemFamily`` TWIN per top-level family user
-    parameter: the family document's own parameter object with exactly four
-    rewrites [VERIFIED 455334 vs 786844 diff]:
-    ``m_id`` / ``m_pParamDef.m_paramElemId`` -> the host id,
-    ``m_famId`` -> the host Family, ``m_typeId`` ->
-    ``revit.local.family:<32hex session guid><%08x host id>-1.0.0``.
-    Header ``m_familyId`` = the host Family, deletion = [host Family, self].
-    ElemRec owner = the host Family.
-
-    A SHARED parameter (``ParamElemExternal``) twins as its own class with
-    the same id / owner rewrites but KEEPS its identity: the
-    ``revit.local.shared:<guid>-1.0.0`` typeId and ``m_externalParamKey``
-    GUID are the shared parameter (a schedule binds by them) and are never
-    re-minted [UNVERIFIED host-side: registering the GUID in the host's
-    ``ExternalParamTracking`` / reusing a host definition of the same GUID
-    is the open follow-up -- no loads claim].
+    """One host TWIN per top-level family user parameter: the family
+    document's own parameter object with exactly four rewrites [VERIFIED
+    455334 vs 786844 diff] -- ``skeleton.retarget_param_twin``: ``m_id`` /
+    ``m_pParamDef.m_paramElemId`` -> the host id, ``m_famId`` -> the host
+    Family, a local ``m_typeId`` ->
+    ``revit.local.family:<32hex session guid><%08x host id>-1.0.0`` (a SHARED
+    ``ParamElemExternal`` twins as itself and KEEPS its
+    ``revit.local.shared:<guid>`` identity + GUID key verbatim [UNVERIFIED
+    host-side: registering the GUID in the host's ``ExternalParamTracking`` /
+    reusing a host definition of the same GUID is the open follow-up -- no
+    loads claim]).  Header ``m_familyId`` = the host Family, deletion =
+    [host Family, self].  ElemRec owner = the host Family.
     """
+    from .skeleton import PARAM_TWIN_CLASSES, retarget_param_twin
     out = []
     hf = plan.host_family_id
     for e in product.doc.elements:
         if e.class_name not in PARAM_TWIN_CLASSES:
             continue
         tid = plan.twin_of[e.elem_id]
-        obj = _dc(e.obj)
-        obj["m_id"] = tid
-        obj["m_famId"] = hf
-        pd = ((obj.get("m_pParamDef") or {}).get("value") or {})
-        pd["m_paramElemId"] = tid
-        if e.class_name == "ParamElemFamily":       # session identity -> host-local
-            tt = pd.get("m_typeId")
-            local_id = f"revit.local.family:{plan.session_guid_hex}{tid & 0xFFFFFFFF:08x}-1.0.0"
-            if isinstance(tt, dict):
-                tt["m_typeId"] = local_id
-            else:
-                pd["m_typeId"] = {"m_typeId": local_id}
-        hdr = _header(e.class_name, category=-1, family_id=hf,
-                      deletion=[hf, tid])
+        obj = retarget_param_twin(_dc(e.obj), tid, hf, plan.session_guid_hex)
+        hdr = _header(e.class_name, category=-1, family_id=hf, deletion=[hf, tid])
         out.append(_skel(tid, e.class_name, hdr, obj, None,
                          owner_id=hf, kind="param_twin"))
     return out
