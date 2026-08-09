@@ -387,3 +387,22 @@ certified with the instances). To run it: reserve `/batches 1`, then
   sample-free `add_circuit` tests over the constructed template on the bundled
   base (wiring both sides, slot allocation, template immutability, a committed
   one-circuit file strict-VALID + readback). No new test FILE → no ci_shard.d drop-in.
+
+BRANCH STATE (eng146): `cam/146-native-circuits`, PR #353 (ready), rebased on
+`origin/main` fba7efb. Files written: `src/rvt/frontdoor/standalone.py`
+(`electrical_system_template`, `_circuit_path_offset`, `ConstructedSpecimens.circuit_id`,
+dependency row), `src/rvt/mutate.py` (`add_circuit` template injection: path-less
+template, `voltage_v`, `start_slot`; `ELEC_INTERNAL_PER_SI`), `src/rvt/mep/devices.py`
+(re-exports the constant), `tools/ifc_intent.py` (`wire_feeders`, circuit wiring in
+`stage_equipment`, `read_back_circuits`, readback `stage_circuits`, `SpecimenSet.circuit_id`),
+`src/rvt/frontdoor/build.py` (stage-C handling, circuit harvest, `circuits="C" in stages`),
+`src/rvt/frontdoor/matrix.py` (`_CIRCUITS` text only) + `docs/product/PERMUTATION-MATRIX.md`
+row, `tests/test_frontdoor.py` (+7), `tests/test_mep_devices.py` (+4),
+`tests/test_frontdoor_standalone.py` (2 lines), `experiments/mep/circuits146/{make_probes.py,
+probes.json,.gitignore}`, regenerated `plugin/lib/**` + `plugin/skills/tekton-author/scripts/ifc_intent.py`,
+this header. Gates on 180e1cd: 240 passed / 55 skipped / 1 failed (`test_router.py::
+test_e2e_prompt_rfa_modify` — reproduces on `origin/main` fba7efb, filed #354, Refs #336);
+sync `--check` clean, validate_plugin PASS, portable paths ok, bare-unzip `go author` READY.
+Shipped: everything above. Staged for the viewer: NOTHING (probe pair prepared, not staged,
+no ledger claim). DONE of #146 met at validator + readback depth on 2026/2025/2024; STOP
+after the tech-lead session's CI + review + merge.
