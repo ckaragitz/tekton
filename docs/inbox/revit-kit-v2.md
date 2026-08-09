@@ -151,3 +151,29 @@ ok (2698 paths); `tools/terminal_diff.py kit` end-to-end → delegates, exit 0.
 * Staged vs shipped: nothing staged for the viewer, no certification claim; kit
   binaries are git-ignored PROOF-ONLY probes regenerable by anyone
   (`tools/revit_kit.py build`).  Comment left on #16 pointing at kit2.
+
+## Addendum by engineer session eng171 (issue #248, 2026-08-09): K1 is its own walls-only job
+
+#244 (front door stamps the real open cell) redefined the strict split's
+`shell` role as walls + the LOADED family (the WF_fix-certified shape) and
+merged to main minutes before this kit (#245); each was green alone, together
+`K1_shell_walls.rvt` (= the split's `shell`) carried `Family/FamilySymbol/
+FamSymSurrogate/FamilySurrogate` + `ParamElemFamily ×14` + 1 save unit and the
+three K1 assertions in `tests/test_revit_kit.py` went red on main and on every
+PR (`added structural classes {… 'Family': 1, … 'SWall': 4} != {'SWall': 4}`,
+`added save units 1 != 0`).  The kit side moved, not the tests: K1 is now built
+by an explicit walls-only front-door job — `rvt.frontdoor.author(prompt,
+base=K0, stages="WV")` (no F/L/E: no family generated, loaded or placed; the
+narrowest walls-only selection the front door offers, no hot file touched) —
+while K2 stays the strict split's `equipment` half and K3 the combined job, so
+the ladder is again K0 base / K1 4 walls, 0 units / K2 1 family + 1 instance,
+1 unit / K3 both.  Evidence (fresh clone, venv without ifcopenshell):
+`tools/revit_kit.py build --out out/verify/kit248 --no-publish` → `checks: ALL
+HOLD`, K1 `added {'SWall': 4} units+0`, K2 `{FamSymSurrogate 1, Family 1,
+FamilyInstance 1, FamilySurrogate 1, FamilySymbol 1, ParamElemFamily 14}
+units+1`, K3 = K1 + K2, every file 0 errors, 16.9 s;
+`tests/test_revit_kit.py` 13 passed (17.7 s); `tests/test_revit_kit.py
+tests/test_frontdoor.py tests/test_router.py` 110 passed / 15 skipped;
+`sync_plugin.py --check` clean; portable paths ok.  The tracked
+`experiments/terminal/kit2/manifest.json` was NOT regenerated here (its
+`built_through` line and per-build shas move with the next `build`; #9).

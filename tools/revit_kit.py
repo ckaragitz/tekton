@@ -83,7 +83,11 @@ KIT_SPEC: Dict[str, Dict[str, Any]] = {
          "expected": "CERTIFIED base, byte-identical to the plugin's pinned G_ABPD ({verdict}). "
                      "Must open clean; if it does not, the Revit install / release is the "
                      "problem and nothing else in the kit can be read."},
-    K1: {"role": "shell", "job": "split",
+    # K1 is its OWN walls-only job (stages "WV": no family generation / load /
+    # placement).  Since #244 the strict split's "shell" role = walls + the
+    # LOADED family (the WF_fix-certified shape), which would put a family
+    # document into K1 and break the single-variable ladder K1 -> K2 (#248).
+    K1: {"role": "combined", "job": "walls",
          "expect": {"added": {"SWall": 4}, "added_units": 0, "swall": 4},
          "expected": "Walls-only species on the composed base -- the certified render lane. "
                      "Expected to open clean with 4 walls visible in 3D; a dialog here would "
@@ -289,12 +293,22 @@ def inspect_rvt(path: str, *, base_watermark: int, base_units: int = 1,
 # build
 # ---------------------------------------------------------------------------
 
-def _author(out_dir: str, *, base: str, strict: bool):
+#: the three front-door jobs the kit files come from (K1 walls-only, K2 the
+#: strict split's equipment half, K3 the combined product shape)
+JOBS: Dict[str, Dict[str, Any]] = {
+    "walls": {"strict": False, "stages": "WV"},
+    "split": {"strict": True},
+    "combined": {"strict": False},
+}
+
+
+def _author(out_dir: str, *, base: str, strict: bool, stages: Optional[str] = None):
     import rvt.frontdoor as FD
-    r = FD.author(prompt=PROMPT, out=out_dir, base=base, strict=strict, no_handoff=True)
+    kw: Dict[str, Any] = {"stages": stages} if stages else {}
+    r = FD.author(prompt=PROMPT, out=out_dir, base=base, strict=strict, no_handoff=True, **kw)
     if not r.ok:
-        raise RuntimeError(f"front door build failed ({'strict' if strict else 'combined'}): "
-                           f"{r.status}; {r.errors}")
+        label = f"stages={stages}" if stages else ("strict" if strict else "combined")
+        raise RuntimeError(f"front door build failed ({label}): {r.status}; {r.errors}")
     return r
 
 
@@ -332,10 +346,11 @@ def build_kit(out_dir: str = DEFAULT_OUT, *, publish_md: Optional[str] = PUBLISH
     base_units = len(blob_lengths(k0))
     log(f"K0 <- {relp(base.path)} sha256 {base.sha256[:16]}... watermark {base_wm}")
 
-    # -- K1 + K2: the strict twins; K3: the combined product shape --------------
-    log(f"building on K0 through rvt.frontdoor.author: {PROMPT!r} (strict, then combined)")
-    jobs = {"split": _author(os.path.join(work, "split"), base=k0, strict=True),
-            "combined": _author(os.path.join(work, "combined"), base=k0, strict=False)}
+    # -- K1: walls-only job; K2: the strict split's equipment half; K3: combined --
+    log(f"building on K0 through rvt.frontdoor.author: {PROMPT!r} "
+        "(walls-only, strict split, then combined)")
+    jobs = {name: _author(os.path.join(work, name), base=k0, **spec)
+            for name, spec in JOBS.items()}
     for name, spec in KIT_SPEC.items():
         if spec["job"]:
             built = jobs[spec["job"]].manifest["build"]["files"][spec["role"]]["path"]
@@ -407,7 +422,8 @@ def build_kit(out_dir: str = DEFAULT_OUT, *, publish_md: Optional[str] = PUBLISH
                  "save_units": base_units, "release": int(PIN.revit_release),
                  "verdict": PIN.certification.get("verdict")},
         "prompt": PROMPT,
-        "built_through": "rvt.frontdoor.author(prompt, base=K0, strict=True) -> K1/K2; "
+        "built_through": "rvt.frontdoor.author(prompt, base=K0, stages='WV') -> K1 (walls "
+                         "only); strict=True -> K2 (the split's equipment half); "
                          "strict=False -> K3",
         "build_seconds": {k: r.seconds for k, r in jobs.items()},
         "files": files,
