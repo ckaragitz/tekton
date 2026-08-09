@@ -1,4 +1,22 @@
-# RENAME — the tekton rename plan (tekton / rvt → tekton)
+# RENAME — the tekton rename plan (old working name / `rvt` → tekton)
+
+> **Status as of 2026-08-09 — partly executed, policy still in force, the
+> rest is a historical runbook.** Since this plan was written (2026-08-04)
+> the *display-name* half has happened: prose, README titles, the repository
+> / working-directory name, the plugin manifest and the genesis
+> project-information strings all say **tekton** now, and Step 0 (no baked
+> absolute paths in `src/`) is done — which is why several "now → after"
+> cells in §2-B and the §4 inventory read identically today (the old name was
+> swept out of this file along with everything else). What has **not** been
+> done, and still waits on counsel exactly as §1 says: the author string
+> (`PRODUCT_AUTHOR_PLACEHOLDER = "rvt-writer"`, counsel C1 — leave it alone,
+> `CLAUDE.md` §1 rule 6), the Python package name `rvt` (§2-D, default: keep),
+> the component names in §2-C, and trademark clearance for "tekton" itself.
+> **The standing rule is unchanged and is cited by `docs/PROGRAM.md` ("Not
+> goals"): no piecemeal renaming — whatever remains is one scripted sweep
+> after clearance.** The counts in §4 are a 2026-08-04 snapshot from the
+> owner's machine (hence the absolute paths in its commands); re-measure
+> before any sweep rather than trusting them.
 
 Status: **PLAN ONLY. The rename has NOT been performed and MUST NOT be
 performed until the pre-requisite in §1 is met.** This document is the
