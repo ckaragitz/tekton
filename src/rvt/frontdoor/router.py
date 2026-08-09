@@ -777,7 +777,10 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
     1) by the native emit, and the block says so: ``status='fallback'`` /
     ``'refused'`` + THE one clear line as a caveat after delivery + the
     version-agnostic IFC addition (as on the rvt path).  No
-    ``--target-version`` -> today's native emit untouched, only reported."""
+    ``--target-version`` -> today's native emit untouched, only reported.
+    On a degrade ``emit`` runs twice by design: the failed target-release
+    attempt keeps its (``ok: False``, ``attempt``-labelled) step records and
+    the native re-run adds its own -- the honest trace of what was tried."""
     from . import release_ctx as RC
     from . import target_status as TS
     native = RC.native_release()
@@ -796,7 +799,7 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
     res.target_version = vb
     res.errors.extend(errors)
     if vb.get("status") == "match" and base is not None and target != native:
-        n_err = len(res.errors)
+        n_err, n_steps = len(res.errors), len(res.steps)
         try:
             with RC.release_build_context(base.path) as info:
                 res.steps.append({"stage": "release-context", "ok": True, "seconds": 0.0,
@@ -812,6 +815,10 @@ def _emit_at_target(res: RouteResult, opts: Dict[str, Any], out_dir: str,
             # to the native emit + the line, never a failure (rule 1)
             reason = "; ".join(res.errors[n_err:]) or f"{type(e).__name__}: {e}"
             del res.errors[n_err:]
+            for rec in res.steps[n_steps:]:
+                # the failed attempt stays in the trace, labelled -- the native
+                # re-run below records its own step, so the two never blur
+                rec["attempt"] = f"Revit {target} release context (degraded to native)"
             vb.update({"status": "fallback", "output_release": native, "pending": reason,
                        "line": (f"target {target} requested: this family emit cannot run "
                                 f"at Revit {target} yet ({reason}); this file targets "
